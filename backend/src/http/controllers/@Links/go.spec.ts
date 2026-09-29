@@ -7,7 +7,9 @@ import {
   resetLinksRepositoryForTest,
 } from '@/repositories/links-repository'
 
+const HOST = 'temlinkaqui.com'
 const TENANT_ID = 'seed-temlinkaqui'
+const OTHER_TENANT_ID = 'outro-tenant'
 
 function repo(): InMemoryLinksRepository {
   const current = getLinksRepository()
@@ -37,6 +39,7 @@ describe('GET /go/:linkId', () => {
     const response = await app.inject({
       method: 'GET',
       url: `/go/${link.id}?to=https://evil.example`,
+      headers: { host: HOST },
     })
 
     expect(response.statusCode).toBe(302)
@@ -54,6 +57,26 @@ describe('GET /go/:linkId', () => {
     const response = await app.inject({
       method: 'GET',
       url: `/go/${link.id}`,
+      headers: { host: HOST },
+    })
+
+    expect(response.statusCode).not.toBe(302)
+    expect(response.headers.location).toBeUndefined()
+    expect(response.json()).toMatchObject({ code: not_found })
+  })
+
+  it('link publicado de outro tenant não redireciona neste host', async () => {
+    const link = repo().addLink({
+      id: 'link-outro-tenant',
+      tenantId: OTHER_TENANT_ID,
+      status: 'PUBLISHED',
+      canonicalUrl: 'https://t.me/outro-grupo',
+    })
+
+    const response = await app.inject({
+      method: 'GET',
+      url: `/go/${link.id}`,
+      headers: { host: HOST },
     })
 
     expect(response.statusCode).not.toBe(302)
