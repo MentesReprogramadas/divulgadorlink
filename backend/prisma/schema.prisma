@@ -8,12 +8,17 @@ datasource db {
 }
 
 model Tenant {
-  id        String   @id @default(cuid())
-  host      String   @unique
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  users     User[]
+  id              String           @id @default(cuid())
+  host            String           @unique
+  name            String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  users           User[]
+  networks        Network[]
+  niches          Niche[]
+  promotionPrices PromotionPrice[]
+  configs         Config[]
+  auditLogs       AuditLog[]
   @@map("tenants")
 }
 
@@ -77,4 +82,88 @@ model VerificationCode {
   @@index([userId, kind, createdAt])
   @@index([userIdentifierId, createdAt])
   @@map("verification_codes")
+}
+
+enum PromotionProductCode {
+  SEARCH
+  NICHE
+  HOME
+  SEARCH_NICHE
+  SEARCH_NICHE_HOME
+}
+
+model PromotionPrice {
+  id            String               @id @default(cuid())
+  tenantId      String
+  tenant        Tenant               @relation(fields: [tenantId], references: [id])
+  productCode   PromotionProductCode
+  durationDays  Int
+  amountCents   Int
+  currency      String               @default("BRL")
+  effectiveFrom DateTime             @default(now())
+  effectiveTo   DateTime?
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  @@unique([tenantId, productCode, durationDays])
+  @@index([tenantId])
+  @@map("promotion_prices")
+}
+
+model Config {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  key       String
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([tenantId, key])
+  @@index([tenantId])
+  @@map("configs")
+}
+
+model Network {
+  id            String   @id @default(cuid())
+  tenantId      String
+  tenant        Tenant   @relation(fields: [tenantId], references: [id])
+  name          String
+  slug          String
+  knownHosts    String[]
+  isPublicFacet Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  @@unique([tenantId, slug])
+  @@index([tenantId])
+  @@map("networks")
+}
+
+model Niche {
+  id            String   @id @default(cuid())
+  tenantId      String
+  tenant        Tenant   @relation(fields: [tenantId], references: [id])
+  name          String
+  slug          String
+  requiresAge   Boolean  @default(false)
+  isPublicFacet Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  @@unique([tenantId, slug])
+  @@index([tenantId])
+  @@map("niches")
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  tenantId   String
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+  actorId    String?
+  action     String
+  entityType String
+  entityId   String
+  before     Json?
+  after      Json?
+  requestId  String?
+  createdAt  DateTime @default(now())
+  @@index([tenantId, createdAt])
+  @@map("audit_logs")
 }
