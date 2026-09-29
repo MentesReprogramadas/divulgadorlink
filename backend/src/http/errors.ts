@@ -1,3 +1,5 @@
+import { authorize } from '@/http/authorize'
+
 export const validation = 'validation'
 export const unauthenticated = 'unauthenticated'
 export const forbidden = 'forbidden'
@@ -46,6 +48,9 @@ export type AuthorizeContext = {
 }
 
 export function authorizeDenialCode(input: AuthorizeContext): typeof forbidden | typeof not_found {
+  if (authorize(input)) {
+    throw new Error('acesso permitido')
+  }
   if (input.tenantId !== input.resourceTenantId) return forbidden
   return not_found
 }

@@ -18,6 +18,12 @@ describe('autorização', () => {
     })).toBe(true)
   })
 
+  it('dono do mesmo tenant lança ao mapear negação', () => {
+    expect(() => authorizeDenialCode({
+      actorId: 'u1', tenantId: 't1', ownerId: 'u1', resourceTenantId: 't1', role: 'USER', action: 'link.update',
+    })).toThrow('acesso permitido')
+  })
+
   it('recurso de outro usuário no mesmo tenant responde not_found, não forbidden', () => {
     expect(authorizeDenialCode({
       actorId: 'u1', tenantId: 't1', ownerId: 'u2', resourceTenantId: 't1', role: 'USER', action: 'link.update',
