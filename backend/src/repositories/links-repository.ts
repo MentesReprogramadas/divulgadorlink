@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import { Prisma, PrismaClient } from '@prisma/client'
+import { Prisma, PrismaClient, type Link as PrismaLink } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 
 export type LinkStatus =
@@ -281,14 +281,7 @@ export class PrismaLinksRepository implements LinksRepository {
 
   async findLinkById(id: string): Promise<LinkRecord | null> {
     const row = await this.client.link.findUnique({ where: { id } })
-    if (!row) return null
-    return {
-      ...row,
-      occupiesSlot: true,
-      everPublished: row.status === 'PUBLISHED',
-      lastApprovedName: row.status === 'PUBLISHED' ? row.name : null,
-      lastApprovedDescription: row.status === 'PUBLISHED' ? row.description : null,
-    }
+    return row ? toLinkRecord(row) : null
   }
 
   async findSubmitter(tenantId: string, userId: string): Promise<SubmitterRecord | null> {
@@ -382,32 +375,80 @@ export class PrismaLinksRepository implements LinksRepository {
     return this.client.$transaction(
       async (tx) => {
         const used = await tx.link.count({
-          where: { tenantId: data.tenantId, ownerId: data.ownerId, status: { in: SLOT_STATUSES } },
+          where: {
+            tenantId: data.tenantId,
+            ownerId: data.ownerId,
+            status: { in: SLOT_STATUSES },
+            occupiesSlot: true,
+          },
         })
         const status = decide(LINK_QUOTA - used)
-        const created = await tx.link.create({ data: { ...data, status } })
-        return {
-          ...created,
-          occupiesSlot: true,
-          everPublished: status === 'PUBLISHED',
-          lastApprovedName: status === 'PUBLISHED' ? created.name : null,
-          lastApprovedDescription: status === 'PUBLISHED' ? created.description : null,
-        }
+        const created = await tx.link.create({ data: { ...data, status, occupiesSlot: true } })
+        return toLinkRecord(created)
       },
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
     )
   }
 
-  async updateLinkModeration(): Promise<LinkRecord | null> {
-    throw new Error('moderação de link ainda não persistida no Prisma')
+  async updateLinkModeration(linkId: string, patch: LinkModerationPatch): Promise<LinkRecord | null> {
+    const existing = await this.client.link.findUnique({ where: { id: linkId }, select: { id: true } })
+    if (!existing) return null
+    const updated = await this.client.link.update({
+      where: { id: linkId },
+      data: {
+        status: patch.status,
+        occupiesSlot: patch.occupiesSlot,
+        name: patch.name,
+        description: patch.description,
+        networkId: patch.networkId,
+        nicheId: patch.nicheId,
+      },
+    })
+    return toLinkRecord(updated)
   }
 
-  async createNiche(): Promise<NicheRecord> {
-    throw new Error('criação de nicho ainda não persistida no Prisma')
+  async createNiche(input: {
+    tenantId: string
+    name: string
+    slug: string
+    requiresAge: boolean
+  }): Promise<NicheRecord> {
+    return this.client.niche.create({
+      data: { ...input, isPublicFacet: !input.requiresAge },
+      select: NICHE_SELECT,
+    })
   }
 
-  async updateNicheFacet(): Promise<NicheRecord | null> {
-    throw new Error('facet de nicho ainda não persistida no Prisma')
+  async updateNicheFacet(input: {
+    id: string
+    tenantId: string
+    isPublicFacet: boolean
+  }): Promise<NicheRecord | null> {
+    const result = await this.client.niche.updateMany({
+      where: { id: input.id, tenantId: input.tenantId },
+      data: { isPublicFacet: input.isPublicFacet },
+    })
+    if (result.count === 0) return null
+    return this.findNiche(input.tenantId, input.id)
+  }
+}
+
+const NICHE_SELECT = {
+  id: true,
+  tenantId: true,
+  name: true,
+  slug: true,
+  requiresAge: true,
+  isPublicFacet: true,
+} as const
+
+function toLinkRecord(row: PrismaLink): LinkRecord {
+  const published = row.status === 'PUBLISHED'
+  return {
+    ...row,
+    everPublished: published,
+    lastApprovedName: published ? row.name : null,
+    lastApprovedDescription: published ? row.description : null,
   }
 }
 

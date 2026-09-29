@@ -143,7 +143,12 @@ export async function postLinkAppeal(request: FastifyRequest, reply: FastifyRepl
     try {
       const outcome = appeal({ alreadyAppealed: false, text: parsed.data.text })
       transition(linkMachine, link.status, outcome.status)
-      await casesRepo.saveAppeal(moderationCase.id, parsed.data.text)
+      const saved = await casesRepo.saveAppeal(moderationCase.id, parsed.data.text)
+      if (!saved) {
+        return reply.status(409).send(
+          buildError({ code: business_rule, message: 'contestação uma vez', request_id: request.id }),
+        )
+      }
       await linksRepo.updateLinkModeration(linkId, { status: outcome.status, occupiesSlot: true })
       return reply.status(200).send({ status: outcome.status })
     } catch (error) {
@@ -235,18 +240,6 @@ export async function postAdminModerationDecision(request: FastifyRequest, reply
 
     const creatingNiche = Boolean(body.newNiche)
     let targetNicheId = body.nicheId ?? link.nicheId
-    let nicheRequiresAge = selectedNiche?.requiresAge ?? false
-
-    if (body.newNiche) {
-      const created = await linksRepo.createNiche({
-        tenantId: tenant.id,
-        name: body.newNiche.name,
-        slug: slugify(body.newNiche.name),
-        requiresAge: body.newNiche.requiresAge,
-      })
-      targetNicheId = created.id
-      nicheRequiresAge = created.requiresAge
-    }
 
     let decisionResult: ReturnType<typeof decideCase>
     try {
@@ -266,6 +259,16 @@ export async function postAdminModerationDecision(request: FastifyRequest, reply
           request_id: request.id,
         }),
       )
+    }
+
+    if (body.newNiche) {
+      const created = await linksRepo.createNiche({
+        tenantId: tenant.id,
+        name: body.newNiche.name,
+        slug: slugify(body.newNiche.name),
+        requiresAge: body.newNiche.requiresAge,
+      })
+      targetNicheId = created.id
     }
 
     const before = {

@@ -86,27 +86,77 @@ export class InMemoryModerationCasesRepository implements ModerationCasesReposit
   }
 }
 
+const CASE_INCLUDE = { link: { select: { status: true, name: true, description: true } } } as const
+
+type PrismaCaseRow = {
+  id: string
+  tenantId: string
+  linkId: string
+  appealText: string | null
+  appealedAt: Date | null
+  link: { status: string; name: string; description: string }
+}
+
+/**
+ * Only appeal data is stored. Source, closure and last-approved data derive from
+ * the link: a case is open while its link is PENDING_MODERATION, and internal
+ * signals are never persisted.
+ */
+function toCaseRecord(row: PrismaCaseRow): ModerationCaseRecord {
+  const published = row.link.status === 'PUBLISHED'
+  return {
+    id: row.id,
+    tenantId: row.tenantId,
+    linkId: row.linkId,
+    source: row.appealedAt ? 'APPEAL' : 'PRE_REFUSAL',
+    appealed: row.appealedAt !== null,
+    appealText: row.appealText,
+    wasEverPublished: published,
+    lastApprovedName: published ? row.link.name : null,
+    lastApprovedDescription: published ? row.link.description : null,
+    internalSignals: [],
+    closed: row.link.status !== 'PENDING_MODERATION',
+  }
+}
+
 export class PrismaModerationCasesRepository implements ModerationCasesRepository {
   constructor(private readonly client: PrismaClient) {}
 
-  async findById(): Promise<ModerationCaseRecord | null> {
-    throw new Error('ModerationCase ainda não persistido no Prisma')
+  async findById(id: string): Promise<ModerationCaseRecord | null> {
+    const row = await this.client.moderationCase.findUnique({ where: { id }, include: CASE_INCLUDE })
+    return row ? toCaseRecord(row) : null
   }
 
-  async findOpenByLinkId(): Promise<ModerationCaseRecord | null> {
-    throw new Error('ModerationCase ainda não persistido no Prisma')
+  /** linkId is unique, so the single case is returned even when closed; `appealed` enforces one appeal per link. */
+  async findOpenByLinkId(linkId: string): Promise<ModerationCaseRecord | null> {
+    const row = await this.client.moderationCase.findUnique({ where: { linkId }, include: CASE_INCLUDE })
+    return row ? toCaseRecord(row) : null
   }
 
-  async create(): Promise<ModerationCaseRecord> {
-    throw new Error('ModerationCase ainda não persistido no Prisma')
+  async create(data: NewModerationCaseData): Promise<ModerationCaseRecord> {
+    const row = await this.client.moderationCase.create({
+      data: {
+        tenantId: data.tenantId,
+        linkId: data.linkId,
+        appealText: data.appealText ?? null,
+        appealedAt: data.appealed ? new Date() : null,
+      },
+      include: CASE_INCLUDE,
+    })
+    return toCaseRecord(row)
   }
 
-  async saveAppeal(): Promise<ModerationCaseRecord | null> {
-    throw new Error('ModerationCase ainda não persistido no Prisma')
+  async saveAppeal(id: string, text: string): Promise<ModerationCaseRecord | null> {
+    const result = await this.client.moderationCase.updateMany({
+      where: { id, appealedAt: null },
+      data: { appealText: text, appealedAt: new Date() },
+    })
+    if (result.count === 0) return null
+    return this.findById(id)
   }
 
-  async close(): Promise<ModerationCaseRecord | null> {
-    throw new Error('ModerationCase ainda não persistido no Prisma')
+  async close(id: string): Promise<ModerationCaseRecord | null> {
+    return this.findById(id)
   }
 }
 

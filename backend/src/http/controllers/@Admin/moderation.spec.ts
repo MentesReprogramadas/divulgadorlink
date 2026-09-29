@@ -167,6 +167,32 @@ describe('moderação HTTP', () => {
     expect(linksRepo().links[0]?.canonicalUrl).toBe('https://t.me/original')
   })
 
+  it.each(['SCAM', 'PERSONAL_DATA', 'MINOR'] as const)(
+    'nicho proibido %s retorna 400 sem inserir nicho nem alterar link',
+    async (kind) => {
+      const link = linksRepo().addLink({
+        tenantId: TENANT_ID,
+        ownerId: OWNER_ID,
+        status: 'PENDING_MODERATION',
+      })
+      const moderationCase = casesRepo().addCase({ tenantId: TENANT_ID, linkId: link.id, source: 'AI' })
+      const nichesBefore = linksRepo().niches.length
+      const token = accessToken({ sub: ADMIN_ID, role: 'ADMIN', tenantId: TENANT_ID })
+
+      const response = await app.inject({
+        method: 'POST',
+        url: `/api/v1/admin/moderation/${moderationCase.id}`,
+        headers: { host: HOST, authorization: `Bearer ${token}` },
+        payload: { decision: 'APPROVE', newNiche: { name: 'Golpe Pix', kind, requiresAge: false } },
+      })
+
+      expect(response.statusCode).toBe(400)
+      expect(linksRepo().niches).toHaveLength(nichesBefore)
+      expect(linksRepo().links[0]?.status).toBe('PENDING_MODERATION')
+      expect(casesRepo().cases[0]?.closed).toBe(false)
+    },
+  )
+
   it('rejeição final libera vaga e grava auditoria com motivo', async () => {
     const link = linksRepo().addLink({
       tenantId: TENANT_ID,

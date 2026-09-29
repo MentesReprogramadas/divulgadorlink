@@ -21,6 +21,7 @@ model Tenant {
   auditLogs       AuditLog[]
   links           Link[]
   blocklistTerms  BlocklistTerm[]
+  moderationCases ModerationCase[]
   @@map("tenants")
 }
 
@@ -180,10 +181,26 @@ model Link {
   niche        Niche      @relation(fields: [nicheId], references: [id])
   otherNote    String?
   status       LinkStatus
+  occupiesSlot Boolean    @default(true)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
+  moderationCase ModerationCase?
   @@index([tenantId, ownerId, status])
   @@map("links")
+}
+
+model ModerationCase {
+  id         String    @id @default(cuid())
+  tenantId   String
+  tenant     Tenant    @relation(fields: [tenantId], references: [id])
+  linkId     String    @unique
+  link       Link      @relation(fields: [linkId], references: [id])
+  appealText String?
+  appealedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  @@index([tenantId])
+  @@map("moderation_cases")
 }
 
 model BlocklistTerm {
