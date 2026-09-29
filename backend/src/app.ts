@@ -7,6 +7,8 @@ import { health } from '@/http/controllers/@Health/health'
 
 export const app = fastify()
 
+app.register(fastifyCookie)
+
 app.register(fastifyJwt, {
   secret: env.JWT_SECRET,
   cookie: {
@@ -17,8 +19,6 @@ app.register(fastifyJwt, {
     expiresIn: '5m',
   },
 })
-
-app.register(fastifyCookie)
 
 const prefix = '/api/v1'
 
