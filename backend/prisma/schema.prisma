@@ -185,6 +185,7 @@ model Link {
   everPublished       Boolean    @default(false)
   approvedName        String?
   approvedDescription String?
+  embedding           Unsupported("vector(1536)")?
   createdAt           DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   moderationCase ModerationCase?
