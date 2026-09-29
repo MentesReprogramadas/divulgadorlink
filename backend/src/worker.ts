@@ -100,7 +100,14 @@ export async function enqueuePendingEmbeddingJobs(): Promise<number> {
     take: 50,
   })
   for (const job of due) {
-    await enqueueEmbedLink(job.linkId, job.id)
+    try {
+      await enqueueEmbedLink(job.linkId, job.id)
+    } catch (error) {
+      await prisma.embeddingJob.update({
+        where: { id: job.id },
+        data: { lastError: error instanceof Error ? error.message : 'fila indisponível' },
+      })
+    }
   }
   return due.length
 }
@@ -141,6 +148,12 @@ async function startWorker(): Promise<void> {
     }
   })
   await enqueuePendingEmbeddingJobs()
+  const drain = setInterval(() => {
+    void enqueuePendingEmbeddingJobs().catch((error) => {
+      console.error(error)
+    })
+  }, 30_000)
+  drain.unref()
 }
 
 if (require.main === module) {
