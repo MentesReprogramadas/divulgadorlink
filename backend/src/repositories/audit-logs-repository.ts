@@ -32,6 +32,11 @@ export class InMemoryAuditLogsRepository implements AuditLogsRepository {
   items: AuditLogRecord[] = []
   private seq = 0
 
+  reset(): void {
+    this.items = []
+    this.seq = 0
+  }
+
   async create(input: CreateAuditLogInput): Promise<AuditLogRecord> {
     this.seq += 1
     const row: AuditLogRecord = {
@@ -73,7 +78,23 @@ export class PrismaAuditLogsRepository implements AuditLogsRepository {
   }
 }
 
-export const auditLogsRepository: AuditLogsRepository =
+let auditLogsRepository: AuditLogsRepository =
   process.env.NODE_ENV === 'test'
     ? new InMemoryAuditLogsRepository()
     : new PrismaAuditLogsRepository(prisma)
+
+export function getAuditLogsRepository(): AuditLogsRepository {
+  return auditLogsRepository
+}
+
+export function resetAuditLogsRepositoryForTest(): void {
+  if (process.env.NODE_ENV !== 'test') {
+    return
+  }
+  const repo = auditLogsRepository
+  if (repo instanceof InMemoryAuditLogsRepository) {
+    repo.reset()
+  }
+}
+
+export { auditLogsRepository }

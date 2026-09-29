@@ -8,8 +8,9 @@ import {
 } from '@/http/errors'
 import { verifyJWT } from '@/http/middlewares/verify-jwt'
 import { resolveTenant } from '@/http/tenant'
-import { auditLogsRepository } from '@/repositories/audit-logs-repository'
+import { getAuditLogsRepository } from '@/repositories/audit-logs-repository'
 import { getConfigsRepository } from '@/repositories/configs-repository'
+import { prisma } from '@/lib/prisma'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
 import {
   ConfigAuthorizeDeniedError,
@@ -40,7 +41,8 @@ const updateConfigResponseSchema = z.object({
 
 const updateConfigUseCase = new UpdateAdminConfigUseCase(
   getConfigsRepository(),
-  auditLogsRepository,
+  getAuditLogsRepository(),
+  process.env.NODE_ENV === 'test' ? undefined : prisma,
 )
 
 function hostFromRequest(request: FastifyRequest): string {

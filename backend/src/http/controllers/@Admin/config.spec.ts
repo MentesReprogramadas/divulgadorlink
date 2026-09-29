@@ -1,5 +1,10 @@
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { app } from '@/app'
+import {
+  getAuditLogsRepository,
+  InMemoryAuditLogsRepository,
+  resetAuditLogsRepositoryForTest,
+} from '@/repositories/audit-logs-repository'
 import { getConfigsRepository, resetConfigsRepositoryForTest } from '@/repositories/configs-repository'
 import { forbidden, not_found } from '@/http/errors'
 
@@ -39,6 +44,7 @@ describe('PATCH /api/v1/admin/config/:key', () => {
 
   beforeEach(() => {
     resetConfigsRepositoryForTest()
+    resetAuditLogsRepositoryForTest()
   })
 
   it('admin do tenant atualiza config e grava auditoria', async () => {
@@ -77,6 +83,18 @@ describe('PATCH /api/v1/admin/config/:key', () => {
 
     const row = await getConfigsRepository().findByTenantAndKey(TENANT_ID, CONFIG_KEY)
     expect(row?.value).toBe('0.5')
+
+    const auditRepo = getAuditLogsRepository()
+    expect(auditRepo).toBeInstanceOf(InMemoryAuditLogsRepository)
+    const stored = (auditRepo as InMemoryAuditLogsRepository).items
+    expect(stored).toHaveLength(1)
+    expect(stored[0]).toMatchObject({
+      action: 'config.update',
+      actorId: 'admin-1',
+      requestId: 'req-admin-config-1',
+      before: { value: '0.35' },
+      after: { value: '0.5' },
+    })
   })
 
   it('user do mesmo tenant recebe not_found e não altera o valor', async () => {

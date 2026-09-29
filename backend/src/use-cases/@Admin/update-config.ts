@@ -1,8 +1,11 @@
+import type { PrismaClient } from '@prisma/client'
 import { CONFIG_KEYS, readConfig, type ConfigKey } from '@/domain/config/read-config'
 import { authorize } from '@/http/authorize'
 import { authorizeDenialCode, type ErrorCode } from '@/http/errors'
 import type { AuditLogsRepository } from '@/repositories/audit-logs-repository'
+import { PrismaAuditLogsRepository } from '@/repositories/audit-logs-repository'
 import type { ConfigRecord, ConfigsRepository } from '@/repositories/configs-repository'
+import { PrismaConfigsRepository } from '@/repositories/configs-repository'
 
 export class ConfigAuthorizeDeniedError extends Error {
   constructor(public readonly code: ErrorCode) {
@@ -36,6 +39,7 @@ export class UpdateAdminConfigUseCase {
   constructor(
     private readonly configsRepository: ConfigsRepository,
     private readonly auditLogsRepository: AuditLogsRepository,
+    private readonly prisma?: PrismaClient,
   ) {}
 
   async execute(input: {
@@ -91,9 +95,7 @@ export class UpdateAdminConfigUseCase {
     }
 
     const previous = config.value
-    const updated = await this.configsRepository.updateValue(config.id, input.value)
-
-    const audit = await this.auditLogsRepository.create({
+    const auditInput = {
       tenantId: input.resourceTenantId,
       actorId: input.actorId,
       action: 'config.update',
@@ -102,18 +104,46 @@ export class UpdateAdminConfigUseCase {
       before: { value: previous },
       after: { value: input.value },
       requestId: input.requestId,
-    })
+    }
 
+    if (this.prisma) {
+      return await this.prisma.$transaction(async (tx) => {
+        const configsRepository = new PrismaConfigsRepository(tx)
+        const auditLogsRepository = new PrismaAuditLogsRepository(tx)
+        const updated = await configsRepository.updateValue(config.id, input.value)
+        const audit = await auditLogsRepository.create(auditInput)
+        return this.buildResult(updated, audit, input.actorId, previous, input.value, input.requestId)
+      })
+    }
+
+    const updated = await this.configsRepository.updateValue(config.id, input.value)
+    try {
+      const audit = await this.auditLogsRepository.create(auditInput)
+      return this.buildResult(updated, audit, input.actorId, previous, input.value, input.requestId)
+    } catch (error) {
+      await this.configsRepository.updateValue(config.id, previous)
+      throw error
+    }
+  }
+
+  private buildResult(
+    updated: ConfigRecord,
+    audit: { action: string; entityType: string; entityId: string },
+    actorId: string,
+    previous: string,
+    nextValue: string,
+    requestId: string,
+  ) {
     return {
       config: updated,
       audit: {
         action: audit.action,
         entityType: audit.entityType,
         entityId: audit.entityId,
-        actorId: input.actorId,
+        actorId,
         before: { value: previous },
-        after: { value: input.value },
-        requestId: input.requestId,
+        after: { value: nextValue },
+        requestId,
       },
     }
   }
