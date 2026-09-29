@@ -19,6 +19,8 @@ model Tenant {
   promotionPrices PromotionPrice[]
   configs         Config[]
   auditLogs       AuditLog[]
+  links           Link[]
+  blocklistTerms  BlocklistTerm[]
   @@map("tenants")
 }
 
@@ -33,6 +35,7 @@ model User {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   identifiers  UserIdentifier[]
+  links        Link[]
   @@index([tenantId])
   @@map("users")
 }
@@ -132,6 +135,7 @@ model Network {
   isPublicFacet Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  links         Link[]
   @@unique([tenantId, slug])
   @@index([tenantId])
   @@map("networks")
@@ -147,9 +151,49 @@ model Niche {
   isPublicFacet Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  links         Link[]
   @@unique([tenantId, slug])
   @@index([tenantId])
   @@map("niches")
+}
+
+enum LinkStatus {
+  DRAFT
+  PENDING_MODERATION
+  PRE_REJECTED
+  PUBLISHED
+  UNAVAILABLE
+}
+
+model Link {
+  id           String     @id @default(cuid())
+  tenantId     String
+  tenant       Tenant     @relation(fields: [tenantId], references: [id])
+  ownerId      String?
+  owner        User?      @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  canonicalUrl String
+  name         String
+  description  String
+  networkId    String
+  network      Network    @relation(fields: [networkId], references: [id])
+  nicheId      String
+  niche        Niche      @relation(fields: [nicheId], references: [id])
+  otherNote    String?
+  status       LinkStatus
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  @@index([tenantId, ownerId, status])
+  @@map("links")
+}
+
+model BlocklistTerm {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  term      String
+  createdAt DateTime @default(now())
+  @@index([tenantId])
+  @@map("blocklist_terms")
 }
 
 model AuditLog {

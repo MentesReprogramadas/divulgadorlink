@@ -1,11 +1,14 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
-import { buildError, business_rule, internal_error } from '@/http/errors'
+import { hitsBlocklist } from '@/domain/links/blocklist'
+import { canonicalUrl } from '@/domain/links/canonical-url'
+import { buildError, business_rule, not_found, validation } from '@/http/errors'
 import { verifyJWT } from '@/http/middlewares/verify-jwt'
 import { resolveTenant } from '@/http/tenant'
-import { prisma } from '@/lib/prisma'
-import { confirmationFlags } from '@/use-cases/@Auth/confirm-identifier'
-import { assertCanSubmitLink } from '@/use-cases/@Links/submit-link'
+import { getLinksRepository } from '@/repositories/links-repository'
+import { canSubmitLink, confirmationFlags } from '@/use-cases/@Auth/confirm-identifier'
+import { decideSubmission } from '@/use-cases/@Links/submit-link'
+import { preRefuse } from '@/use-cases/@Moderation/pre-refuse'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
 
 export const submitLinkBodySchema = z
@@ -19,6 +22,8 @@ export const submitLinkBodySchema = z
   })
   .strict()
 
+class QuotaExhaustedError extends Error {}
+
 function hostFromRequest(request: FastifyRequest): string {
   const raw = request.headers.host
   if (!raw) {
@@ -27,58 +32,145 @@ function hostFromRequest(request: FastifyRequest): string {
   return raw.split(':')[0]!
 }
 
-async function createLink(request: FastifyRequest, reply: FastifyReply) {
-  submitLinkBodySchema.parse(request.body)
-
+function toCanonicalUrl(raw: string): string | null {
   try {
-    const host = hostFromRequest(request)
-    const tenant = await resolveTenant(host)
-    const userId = request.user.sub as string
+    return canonicalUrl(raw)
+  } catch {
+    return null
+  }
+}
 
-    if (request.user.tenantId !== tenant.id) {
-      return reply.status(403).send(
-        buildError({
-          code: business_rule,
-          message: 'Conta não pode enviar link.',
-          request_id: request.id,
-        }),
-      )
-    }
-
-    const user = await prisma.user.findFirst({
-      where: { id: userId, tenantId: tenant.id },
-      include: { identifiers: true },
-    })
-
-    if (!user) {
-      throw new ResourceNotFoundError()
-    }
-
-    try {
-      assertCanSubmitLink({
-        ...confirmationFlags(user.identifiers),
-        status: user.status,
-      })
-    } catch {
-      return reply.status(403).send(
-        buildError({
-          code: business_rule,
-          message: 'Conta não pode enviar link.',
-          request_id: request.id,
-        }),
-      )
-    }
-
-    return reply.status(501).send(
+async function createLink(request: FastifyRequest, reply: FastifyReply) {
+  const parsed = submitLinkBodySchema.safeParse(request.body)
+  if (!parsed.success) {
+    return reply.status(400).send(
       buildError({
-        code: internal_error,
-        message: 'Envio de link ainda não disponível.',
+        code: validation,
+        message: 'Dados inválidos.',
+        request_id: request.id,
+        issues: parsed.error.format(),
+      }),
+    )
+  }
+  const body = parsed.data
+  const repo = getLinksRepository()
+
+  const forbiddenReply = () =>
+    reply.status(403).send(
+      buildError({
+        code: business_rule,
+        message: 'Conta não pode enviar link.',
         request_id: request.id,
       }),
     )
+  const notFoundReply = () =>
+    reply.status(404).send(
+      buildError({
+        code: not_found,
+        message: 'Recurso não encontrado.',
+        request_id: request.id,
+      }),
+    )
+
+  try {
+    const tenant = await resolveTenant(hostFromRequest(request))
+    const userId = request.user.sub as string
+
+    if (request.user.tenantId !== tenant.id) {
+      return forbiddenReply()
+    }
+
+    const user = await repo.findSubmitter(tenant.id, userId)
+    if (!user) {
+      return notFoundReply()
+    }
+
+    if (!canSubmitLink({ ...confirmationFlags(user.identifiers), status: user.status })) {
+      return forbiddenReply()
+    }
+
+    const [network, niche] = await Promise.all([
+      repo.findNetwork(tenant.id, body.networkId),
+      repo.findNiche(tenant.id, body.nicheId),
+    ])
+    if (!network || !niche) {
+      return notFoundReply()
+    }
+
+    const url = toCanonicalUrl(body.url)
+    if (!url) {
+      return reply.status(400).send(
+        buildError({ code: validation, message: 'URL inválida.', request_id: request.id }),
+      )
+    }
+
+    const [banned, bannedUrls, niches, terms] = await Promise.all([
+      repo.listBannedIdentifiers(tenant.id),
+      repo.listBannedUrls(tenant.id),
+      repo.listNiches(tenant.id),
+      repo.listBlocklistTerms(tenant.id),
+    ])
+
+    const refused = preRefuse({
+      phoneHistory: user.identifiers.filter((row) => row.kind === 'PHONE').map((row) => row.normalizedValue),
+      bannedPhones: banned.phones,
+      emailHistory: user.identifiers.filter((row) => row.kind === 'EMAIL').map((row) => row.normalizedValue),
+      bannedEmails: banned.emails,
+      url,
+      bannedUrls,
+    }).refused
+
+    const blocklisted = hitsBlocklist({
+      text: `${body.name} ${body.description}`,
+      selectedNiche: niche.name,
+      nicheNames: niches.map((row) => row.name),
+      terms,
+    })
+
+    let decision: ReturnType<typeof decideSubmission> | undefined
+    const link = await repo.createWithinQuota(
+      {
+        tenantId: tenant.id,
+        ownerId: user.id,
+        canonicalUrl: url,
+        name: body.name,
+        description: body.description,
+        networkId: network.id,
+        nicheId: niche.id,
+        otherNote: body.otherNote ?? null,
+      },
+      (openSlots) => {
+        try {
+          decision = decideSubmission({
+            openSlots,
+            networkSlug: network.slug,
+            nicheSlug: niche.slug,
+            blocklisted,
+            preRefused: refused,
+          })
+        } catch {
+          throw new QuotaExhaustedError()
+        }
+        return decision.status
+      },
+    )
+
+    const { runAi, occupiesSlot } = decision!
+    return reply.status(201).send({
+      id: link.id,
+      status: link.status,
+      runAi,
+      occupiesSlot,
+      ...(link.status === 'PRE_REJECTED' ? { message: 'Envio não aceito.' } : {}),
+    })
   } catch (error) {
+    if (error instanceof QuotaExhaustedError) {
+      return reply.status(409).send(
+        buildError({ code: business_rule, message: 'cota esgotada', request_id: request.id }),
+      )
+    }
     if (error instanceof ResourceNotFoundError) {
-      return reply.status(404).send({ message: error.message })
+      return notFoundReply()
     }
     throw error
   }
