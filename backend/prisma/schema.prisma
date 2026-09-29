@@ -6,3 +6,70 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Tenant {
+  id        String   @id @default(cuid())
+  host      String   @unique
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  users     User[]
+  @@map("tenants")
+}
+
+model User {
+  id           String    @id @default(cuid())
+  tenantId     String
+  tenant       Tenant    @relation(fields: [tenantId], references: [id])
+  name         String
+  passwordHash String
+  role         UserRole  @default(USER)
+  status       UserStatus @default(ACTIVE)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  identifiers  UserIdentifier[]
+  @@index([tenantId])
+  @@map("users")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  BANNED
+}
+
+model UserIdentifier {
+  id              String           @id @default(cuid())
+  userId          String
+  user            User             @relation(fields: [userId], references: [id])
+  tenantId        String
+  kind            IdentifierKind
+  normalizedValue String
+  confirmedAt     DateTime?
+  replacedAt      DateTime?
+  createdAt       DateTime         @default(now())
+  @@unique([tenantId, kind, normalizedValue])
+  @@index([userId])
+  @@map("user_identifiers")
+}
+
+enum IdentifierKind {
+  EMAIL
+  PHONE
+}
+
+model VerificationCode {
+  id         String   @id @default(cuid())
+  userId     String
+  kind       IdentifierKind
+  codeHash   String
+  expiresAt  DateTime
+  attempts   Int      @default(0)
+  createdAt  DateTime @default(now())
+  @@index([userId, kind, createdAt])
+  @@map("verification_codes")
+}
