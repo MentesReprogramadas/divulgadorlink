@@ -5,6 +5,7 @@ import fastifyCookie from '@fastify/cookie'
 import fastifyJwt from '@fastify/jwt'
 import { ZodError } from 'zod'
 import { env } from '@/env'
+import { adminRoutes } from '@/http/controllers/@Admin/routes'
 import { authRoutes } from '@/http/controllers/@auth/routes'
 import { health, live, ready } from '@/http/controllers/@Health/health'
 
@@ -50,6 +51,7 @@ app.register(
     instance.get('/actuator/live', live)
     instance.get('/actuator/ready', ready)
     await instance.register(authRoutes, { prefix: '/auth' })
+    await instance.register(adminRoutes)
   },
   { prefix },
 )
