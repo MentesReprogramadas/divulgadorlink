@@ -1,18 +1,11 @@
-import type { PrismaClient } from '@prisma/client'
 import { describe, expect, it } from 'vitest'
-import { replaceUserIdentifier } from '@/use-cases/@Auth/register'
+import { replaceUserIdentifier, type IdentifierClient } from '@/use-cases/@Auth/register'
 import { UserAlreadyExistsError } from '@/use-cases/errors/user-already-exists-error'
 
 describe('replaceUserIdentifier', () => {
   it('colisão no unique do tenant vira erro de domínio', async () => {
-    const prisma = {
-      async $transaction(fn: (tx: {
-        userIdentifier: {
-          findFirst: (args: { where: { userId?: string } }) => Promise<unknown>
-          update: () => Promise<unknown>
-          create: () => Promise<unknown>
-        }
-      }) => Promise<unknown>) {
+    const prisma: IdentifierClient = {
+      async $transaction(fn) {
         return fn({
           userIdentifier: {
             async findFirst({ where }) {
@@ -34,7 +27,7 @@ describe('replaceUserIdentifier', () => {
 
     await expect(
       replaceUserIdentifier({
-        prisma: prisma as PrismaClient,
+        prisma,
         userId: 'user-1',
         tenantId: 'tenant-1',
         kind: 'EMAIL',

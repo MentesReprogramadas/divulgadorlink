@@ -25,6 +25,7 @@ model Tenant {
   promotions      Promotion[]
   embeddingJobs   EmbeddingJob[]
   orders          Order[]
+  analyticsEvents AnalyticsEvent[]
   @@map("tenants")
 }
 
@@ -348,6 +349,22 @@ model OrderEvent {
   createdAt DateTime @default(now())
   @@unique([orderId, eventId])
   @@map("order_events")
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  sessionId String
+  linkId    String
+  surface   String
+  day       DateTime @db.Date
+  kind      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([sessionId, linkId, surface, day, kind])
+  @@index([tenantId, day])
+  @@map("analytics_events")
 }
 
 model ModerationCase {

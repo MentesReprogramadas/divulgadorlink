@@ -195,7 +195,7 @@ export async function postAdminModerationDecision(request: FastifyRequest, reply
       )
     }
 
-    const role = request.user.role === 'ADMIN' ? 'ADMIN' : 'USER'
+    const role: 'USER' | 'ADMIN' = request.user.role === 'ADMIN' ? 'ADMIN' : 'USER'
     const authorizeContext = {
       actorId: request.user.sub,
       tenantId: request.user.tenantId,

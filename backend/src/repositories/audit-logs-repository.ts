@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { Prisma, PrismaClient } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 
 export type AuditLogRecord = {
@@ -49,7 +49,7 @@ export class InMemoryAuditLogsRepository implements AuditLogsRepository {
 }
 
 export class PrismaAuditLogsRepository implements AuditLogsRepository {
-  constructor(private readonly client: PrismaClient) {}
+  constructor(private readonly client: PrismaClient | Prisma.TransactionClient) {}
 
   async create(input: CreateAuditLogInput): Promise<AuditLogRecord> {
     const row = await this.client.auditLog.create({
@@ -78,7 +78,7 @@ export class PrismaAuditLogsRepository implements AuditLogsRepository {
   }
 }
 
-let auditLogsRepository: AuditLogsRepository =
+const auditLogsRepository: AuditLogsRepository =
   process.env.NODE_ENV === 'test'
     ? new InMemoryAuditLogsRepository()
     : new PrismaAuditLogsRepository(prisma)

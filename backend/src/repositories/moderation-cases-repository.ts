@@ -190,7 +190,7 @@ export class PrismaModerationCasesRepository implements ModerationCasesRepositor
   }
 }
 
-let moderationCasesRepository: ModerationCasesRepository =
+const moderationCasesRepository: ModerationCasesRepository =
   process.env.NODE_ENV === 'test'
     ? new InMemoryModerationCasesRepository()
     : new PrismaModerationCasesRepository(prisma)

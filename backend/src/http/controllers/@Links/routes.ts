@@ -179,7 +179,7 @@ async function createLink(request: FastifyRequest, reply: FastifyReply) {
 }
 
 export async function linksRoutes(app: FastifyInstance) {
-  app.post('/', { onRequest: [verifyJWT] }, createLink)
+  app.post('/', { preHandler: [verifyJWT] }, createLink)
   app.post('/account/email', { onRequest: [verifyJWT] }, (request, reply) => postGuardedWrite(request, reply, 'account.email'))
   app.post('/account/phone', { onRequest: [verifyJWT] }, (request, reply) => postGuardedWrite(request, reply, 'account.phone'))
   app.patch('/:id', { onRequest: [verifyJWT] }, (request, reply) => postGuardedWrite(request, reply, 'link.update'))

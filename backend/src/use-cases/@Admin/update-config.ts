@@ -1,14 +1,14 @@
 import type { PrismaClient } from '@prisma/client'
 import { CONFIG_KEYS, readConfig, type ConfigKey } from '@/domain/config/read-config'
 import { authorize } from '@/http/authorize'
-import { authorizeDenialCode, type ErrorCode } from '@/http/errors'
+import { authorizeDenialCode } from '@/http/errors'
 import type { AuditLogsRepository } from '@/repositories/audit-logs-repository'
 import { PrismaAuditLogsRepository } from '@/repositories/audit-logs-repository'
 import type { ConfigRecord, ConfigsRepository } from '@/repositories/configs-repository'
 import { PrismaConfigsRepository } from '@/repositories/configs-repository'
 
 export class ConfigAuthorizeDeniedError extends Error {
-  constructor(public readonly code: ErrorCode) {
+  constructor(public readonly code: 'forbidden' | 'not_found') {
     super('acesso negado')
   }
 }

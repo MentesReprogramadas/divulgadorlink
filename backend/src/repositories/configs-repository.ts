@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { Prisma, PrismaClient } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 
 export type ConfigRecord = {
@@ -63,7 +63,7 @@ export class InMemoryConfigsRepository implements ConfigsRepository {
 }
 
 export class PrismaConfigsRepository implements ConfigsRepository {
-  constructor(private readonly client: PrismaClient) {}
+  constructor(private readonly client: PrismaClient | Prisma.TransactionClient) {}
 
   async findByTenantAndKey(tenantId: string, key: string): Promise<ConfigRecord | null> {
     const row = await this.client.config.findUnique({
@@ -84,7 +84,7 @@ export class PrismaConfigsRepository implements ConfigsRepository {
   }
 }
 
-let configsRepository: ConfigsRepository =
+const configsRepository: ConfigsRepository =
   process.env.NODE_ENV === 'test'
     ? InMemoryConfigsRepository.seeded()
     : new PrismaConfigsRepository(prisma)

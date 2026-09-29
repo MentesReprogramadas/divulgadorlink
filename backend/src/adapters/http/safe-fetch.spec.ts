@@ -51,7 +51,7 @@ describe('ssrf', () => {
       if (lookups > 1) return ['127.0.0.1']
       return ['8.8.8.8']
     })
-    const connect = vi.fn(async (target: PinnedTarget) => response(200, {}, 'ok'))
+    const connect = vi.fn(async (_target: PinnedTarget) => response(200, {}, 'ok'))
 
     const result = await safeFetch('https://example.com/start', { connect, resolve })
 

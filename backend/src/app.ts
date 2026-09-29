@@ -21,6 +21,7 @@ if (env.HDX_API_KEY) {
 }
 
 export const app = fastify({
+  bodyLimit: 1_048_576,
   genReqId: (request) => {
     const header = request.headers['x-request-id']
     if (typeof header === 'string' && header.length > 0) {
@@ -67,6 +68,15 @@ app.register(
 app.register(goRoutes, { prefix: '/go' })
 
 app.setErrorHandler((error, request, reply) => {
+  const statusCode = typeof error === 'object' && error && 'statusCode' in error ? Number(error.statusCode) : 500
+  if (statusCode >= 400 && statusCode < 500) {
+    return reply.status(statusCode).send({
+      code: statusCode === 413 ? 'validation' : 'validation',
+      message: statusCode === 413 ? 'Corpo grande demais.' : 'Validation error.',
+      request_id: request.id,
+    })
+  }
+
   if (error instanceof ZodError) {
     return reply.status(400).send({
       message: 'Validation error.',

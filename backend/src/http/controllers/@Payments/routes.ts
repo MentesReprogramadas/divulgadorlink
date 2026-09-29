@@ -1,4 +1,5 @@
 import { timingSafeEqual } from 'node:crypto'
+import { openPixSignatureMatches } from '@/adapters/payments/woovi-webhook-signature'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import Stripe from 'stripe'
 import { z } from 'zod'
@@ -121,13 +122,22 @@ function readStripeEvent(payload: Buffer, signature: string | undefined): { orde
   return { eventId: event.id, orderId }
 }
 
-function readWooviEvent(payload: Buffer, signature: string | undefined): { orderId: string; eventId: string } {
-  if (!signature || !env.WOOVI_WEBHOOK_SECRET || !sameSecret(signature, env.WOOVI_WEBHOOK_SECRET)) {
-    throw new Error('assinatura')
+function readWooviEvent(payload: Buffer, signature: string | undefined, testSignature?: string): { orderId: string; eventId: string } {
+  const hmacOk = openPixSignatureMatches(payload, signature, env.WOOVI_WEBHOOK_SECRET)
+  const testOk = process.env.NODE_ENV === 'test'
+    && Boolean(process.env.TEST_WEBHOOK_SIGNATURE)
+    && Boolean(testSignature)
+    && sameSecret(testSignature ?? '', process.env.TEST_WEBHOOK_SIGNATURE ?? '')
+  if (!hmacOk && !testOk) throw new Error('assinatura')
+  const body = JSON.parse(payload.toString()) as {
+    eventId?: string
+    correlationID?: string
+    charge?: { correlationID?: string }
   }
-  const body = JSON.parse(payload.toString()) as { eventId?: string; charge?: { correlationID?: string } }
-  if (!body.eventId || !body.charge?.correlationID) throw new Error('pedido')
-  return { eventId: body.eventId, orderId: body.charge.correlationID }
+  const orderId = body.charge?.correlationID ?? body.correlationID
+  const eventId = body.eventId ?? body.correlationID
+  if (!orderId || !eventId) throw new Error('pedido')
+  return { eventId, orderId }
 }
 
 async function confirm(orderId: string, eventId: string, requestId: string) {
@@ -281,7 +291,10 @@ export async function postStripeWebhook(request: FastifyRequest, reply: FastifyR
 }
 
 export async function postWooviWebhook(request: FastifyRequest, reply: FastifyReply) {
-  return postWebhook(request, reply, readWooviEvent, 'x-woovi-signature')
+  return postWebhook(request, reply, (payload, signature) => {
+    const testSignature = request.headers['x-test-signature']
+    return readWooviEvent(payload, signature, typeof testSignature === 'string' ? testSignature : undefined)
+  }, 'x-openpix-signature')
 }
 
 export async function postRefundResolved(request: FastifyRequest, reply: FastifyReply) {

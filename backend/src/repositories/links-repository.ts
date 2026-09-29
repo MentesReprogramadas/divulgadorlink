@@ -619,7 +619,7 @@ function toLinkRecord(row: PrismaLink): LinkRecord {
   }
 }
 
-let linksRepository: LinksRepository =
+const linksRepository: LinksRepository =
   process.env.NODE_ENV === 'test'
     ? InMemoryLinksRepository.seeded()
     : new PrismaLinksRepository(prisma)

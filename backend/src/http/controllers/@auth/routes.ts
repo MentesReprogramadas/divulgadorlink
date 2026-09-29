@@ -28,6 +28,29 @@ const confirmUseCase = new ConfirmIdentifierUseCase(
   },
 )
 
+const loginAttempts = new Map<string, number[]>()
+
+export function resetLoginAttemptsForTest() {
+  loginAttempts.clear()
+}
+
+function loginIsLimited(key: string, now = Date.now()): boolean {
+  const windowMs = 60 * 60 * 1000
+  const recent = (loginAttempts.get(key) ?? []).filter((at) => now - at < windowMs)
+  if (recent.length >= 5) {
+    loginAttempts.set(key, recent)
+    return true
+  }
+  recent.push(now)
+  loginAttempts.set(key, recent)
+  return false
+}
+
+const loginBodySchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+})
+
 const confirmBodySchema = z.object({
   kind: z.enum(['EMAIL', 'PHONE']),
   code: z.string().min(1).optional(),
@@ -98,6 +121,7 @@ async function register(request: FastifyRequest, reply: FastifyReply) {
     const tokens = await signSession(reply, user)
 
     return reply.status(201).send({
+      role: user.role,
       user: {
         id: user.id,
         name: user.name,
@@ -146,7 +170,26 @@ async function confirm(request: FastifyRequest, reply: FastifyReply) {
   }
 }
 
+async function login(request: FastifyRequest, reply: FastifyReply) {
+  const body = loginBodySchema.parse(request.body)
+  const key = `${hostFromRequest(request)}:${body.email}`
+  if (loginIsLimited(key)) {
+    return reply.status(429).send({ message: 'Muitas tentativas.' })
+  }
+  const host = hostFromRequest(request)
+  const tenant = await resolveTenant(host)
+  const user = await prisma.user.findFirst({
+    where: { tenantId: tenant.id, identifiers: { some: { kind: 'EMAIL', normalizedValue: body.email.toLowerCase(), replacedAt: null } } },
+  })
+  if (!user) return reply.status(401).send({ message: 'Credenciais inválidas.' })
+  const matches = await compare(body.password, user.passwordHash)
+  if (!matches) return reply.status(401).send({ message: 'Credenciais inválidas.' })
+  const tokens = await signSession(reply, user)
+  return reply.status(200).send({ token: tokens.accessToken, role: user.role })
+}
+
 export async function authRoutes(app: FastifyInstance) {
   app.post('/register', register)
+  app.post('/login', login)
   app.post('/confirm', { onRequest: [verifyJWT] }, confirm)
 }

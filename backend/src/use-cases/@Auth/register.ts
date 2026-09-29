@@ -11,7 +11,6 @@ export const registerBodySchema = z
     phone: z.string().min(8),
     password: z.string().min(8),
   })
-  .strict()
 
 export type RegisterBody = z.infer<typeof registerBodySchema>
 
@@ -74,8 +73,18 @@ export class RegisterUseCase {
   }
 }
 
+export type IdentifierClient = {
+  $transaction<T>(fn: (tx: {
+    userIdentifier: {
+      findFirst(args: { where: { userId?: string; tenantId?: string; kind?: string; replacedAt?: null; normalizedValue?: string } }): Promise<{ id: string; normalizedValue: string } | null>
+      update(args: { where: { id: string }; data: { replacedAt: Date } }): Promise<unknown>
+      create(args: { data: Record<string, unknown> }): Promise<unknown>
+    }
+  }) => Promise<T>): Promise<T>
+}
+
 export async function replaceUserIdentifier(input: {
-  prisma: PrismaClient
+  prisma: IdentifierClient
   userId: string
   tenantId: string
   kind: 'EMAIL' | 'PHONE'

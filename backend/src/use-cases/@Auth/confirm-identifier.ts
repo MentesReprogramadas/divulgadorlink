@@ -223,7 +223,7 @@ export class ConfirmIdentifierUseCase {
     kind: 'EMAIL' | 'PHONE',
     code: string,
   ): Promise<ConfirmResult> {
-    const { user, identifier } = await this.requireCurrent(userId, kind)
+    const { identifier } = await this.requireCurrent(userId, kind)
     const now = this.now()
     const latest = await this.codes.findLatestLiveCode(identifier.id, now)
     if (!latest || !codeBelongsToIdentifier(latest, identifier.id)) {
