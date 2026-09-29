@@ -3,6 +3,7 @@ import fastifyCookie from '@fastify/cookie'
 import fastifyJwt from '@fastify/jwt'
 import { ZodError } from 'zod'
 import { env } from '@/env'
+import { authRoutes } from '@/http/controllers/@auth/routes'
 import { health } from '@/http/controllers/@Health/health'
 
 export const app = fastify()
@@ -25,6 +26,7 @@ const prefix = '/api/v1'
 app.register(
   async (instance) => {
     instance.get('/actuator/health', health)
+    await instance.register(authRoutes, { prefix: '/auth' })
   },
   { prefix },
 )
