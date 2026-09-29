@@ -122,8 +122,8 @@ export async function postLinkAppeal(request: FastifyRequest, reply: FastifyRepl
         linkId,
         source: 'PRE_REFUSAL',
         wasEverPublished: link.everPublished,
-        lastApprovedName: link.lastApprovedName,
-        lastApprovedDescription: link.lastApprovedDescription,
+        lastApprovedName: link.approvedName,
+        lastApprovedDescription: link.approvedDescription,
         internalSignals: [],
       })
     }
@@ -249,7 +249,7 @@ export async function postAdminModerationDecision(request: FastifyRequest, reply
         creatingNiche,
         nicheKind: body.newNiche?.kind ?? 'NORMAL',
         requiresAge: body.newNiche?.requiresAge,
-        wasPublished: moderationCase.wasEverPublished || link.everPublished,
+        wasPublished: link.everPublished,
       })
     } catch (error) {
       return reply.status(400).send(
@@ -295,9 +295,8 @@ export async function postAdminModerationDecision(request: FastifyRequest, reply
       if (body.networkId) patch.networkId = body.networkId
       patch.nicheId = targetNicheId
     } else if (decisionResult.status === 'PUBLISHED') {
-      patch.name = moderationCase.lastApprovedName ?? link.lastApprovedName ?? link.name
-      patch.description =
-        moderationCase.lastApprovedDescription ?? link.lastApprovedDescription ?? link.description
+      patch.name = link.approvedName ?? link.name
+      patch.description = link.approvedDescription ?? link.description
     }
 
     const updated = await linksRepo.updateLinkModeration(link.id, patch)

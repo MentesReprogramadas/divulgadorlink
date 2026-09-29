@@ -50,8 +50,8 @@ export type LinkRecord = {
   status: LinkStatus
   occupiesSlot: boolean
   everPublished: boolean
-  lastApprovedName: string | null
-  lastApprovedDescription: string | null
+  approvedName: string | null
+  approvedDescription: string | null
   createdAt: Date
   updatedAt: Date
 }
@@ -64,8 +64,8 @@ export type LinkModerationPatch = {
   networkId?: string
   nicheId?: string
   everPublished?: boolean
-  lastApprovedName?: string | null
-  lastApprovedDescription?: string | null
+  approvedName?: string | null
+  approvedDescription?: string | null
 }
 
 export type NewLinkData = Omit<
@@ -76,8 +76,8 @@ export type NewLinkData = Omit<
   | 'updatedAt'
   | 'occupiesSlot'
   | 'everPublished'
-  | 'lastApprovedName'
-  | 'lastApprovedDescription'
+  | 'approvedName'
+  | 'approvedDescription'
 > & {
   ownerId: string
 }
@@ -158,16 +158,16 @@ export class InMemoryLinksRepository implements LinksRepository {
       otherNote: null,
       occupiesSlot: true,
       everPublished: input.status === 'PUBLISHED',
-      lastApprovedName: input.status === 'PUBLISHED' ? (input.name ?? 'link') : null,
-      lastApprovedDescription: input.status === 'PUBLISHED' ? (input.description ?? '') : null,
+      approvedName: input.status === 'PUBLISHED' ? (input.name ?? 'link') : null,
+      approvedDescription: input.status === 'PUBLISHED' ? (input.description ?? '') : null,
       createdAt: now,
       updatedAt: now,
       ...input,
     }
     if (row.status === 'PUBLISHED') {
       row.everPublished = true
-      row.lastApprovedName = row.name
-      row.lastApprovedDescription = row.description
+      row.approvedName = row.name
+      row.approvedDescription = row.description
     }
     this.links.push(row)
     return { ...row }
@@ -179,8 +179,8 @@ export class InMemoryLinksRepository implements LinksRepository {
     Object.assign(row, patch, { updatedAt: new Date() })
     if (patch.status === 'PUBLISHED') {
       row.everPublished = true
-      row.lastApprovedName = row.name
-      row.lastApprovedDescription = row.description
+      row.approvedName = row.name
+      row.approvedDescription = row.description
     }
     return { ...row }
   }
@@ -391,19 +391,22 @@ export class PrismaLinksRepository implements LinksRepository {
   }
 
   async updateLinkModeration(linkId: string, patch: LinkModerationPatch): Promise<LinkRecord | null> {
-    const existing = await this.client.link.findUnique({ where: { id: linkId }, select: { id: true } })
+    const existing = await this.client.link.findUnique({ where: { id: linkId } })
     if (!existing) return null
-    const updated = await this.client.link.update({
-      where: { id: linkId },
-      data: {
-        status: patch.status,
-        occupiesSlot: patch.occupiesSlot,
-        name: patch.name,
-        description: patch.description,
-        networkId: patch.networkId,
-        nicheId: patch.nicheId,
-      },
-    })
+    const data: Prisma.LinkUpdateInput = {
+      status: patch.status,
+      occupiesSlot: patch.occupiesSlot,
+    }
+    if (patch.name !== undefined) data.name = patch.name
+    if (patch.description !== undefined) data.description = patch.description
+    if (patch.networkId !== undefined) data.networkId = patch.networkId
+    if (patch.nicheId !== undefined) data.nicheId = patch.nicheId
+    if (patch.status === 'PUBLISHED') {
+      data.everPublished = true
+      data.approvedName = patch.name ?? existing.name
+      data.approvedDescription = patch.description ?? existing.description
+    }
+    const updated = await this.client.link.update({ where: { id: linkId }, data })
     return toLinkRecord(updated)
   }
 
@@ -443,12 +446,23 @@ const NICHE_SELECT = {
 } as const
 
 function toLinkRecord(row: PrismaLink): LinkRecord {
-  const published = row.status === 'PUBLISHED'
   return {
-    ...row,
-    everPublished: published,
-    lastApprovedName: published ? row.name : null,
-    lastApprovedDescription: published ? row.description : null,
+    id: row.id,
+    tenantId: row.tenantId,
+    ownerId: row.ownerId,
+    canonicalUrl: row.canonicalUrl,
+    name: row.name,
+    description: row.description,
+    networkId: row.networkId,
+    nicheId: row.nicheId,
+    otherNote: row.otherNote,
+    status: row.status,
+    occupiesSlot: row.occupiesSlot,
+    everPublished: row.everPublished,
+    approvedName: row.approvedName,
+    approvedDescription: row.approvedDescription,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
   }
 }
 

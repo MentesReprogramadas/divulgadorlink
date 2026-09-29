@@ -180,9 +180,12 @@ model Link {
   nicheId      String
   niche        Niche      @relation(fields: [nicheId], references: [id])
   otherNote    String?
-  status       LinkStatus
-  occupiesSlot Boolean    @default(true)
-  createdAt    DateTime   @default(now())
+  status              LinkStatus
+  occupiesSlot        Boolean    @default(true)
+  everPublished       Boolean    @default(false)
+  approvedName        String?
+  approvedDescription String?
+  createdAt           DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   moderationCase ModerationCase?
   @@index([tenantId, ownerId, status])

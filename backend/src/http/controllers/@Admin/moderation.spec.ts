@@ -226,4 +226,37 @@ describe('moderação HTTP', () => {
     expect(stored?.after).toMatchObject({ reason: 'não atende' })
     expect(stored?.requestId).toBe('req-mod-1')
   })
+
+  it('rejeição de edição publicada restaura texto aprovado e mantém vaga', async () => {
+    const link = linksRepo().addLink({
+      tenantId: TENANT_ID,
+      ownerId: OWNER_ID,
+      status: 'PENDING_MODERATION',
+      name: 'Bolos',
+      description: 'doc nova',
+      everPublished: true,
+      approvedName: 'Receitas',
+      approvedDescription: 'doc aprovada',
+      occupiesSlot: true,
+    })
+    const moderationCase = casesRepo().addCase({ tenantId: TENANT_ID, linkId: link.id, source: 'AI' })
+    const token = accessToken({ sub: ADMIN_ID, role: 'ADMIN', tenantId: TENANT_ID })
+
+    const response = await app.inject({
+      method: 'POST',
+      url: `/api/v1/admin/moderation/${moderationCase.id}`,
+      headers: { host: HOST, authorization: `Bearer ${token}` },
+      payload: { decision: 'REJECT', reason: 'edição inválida' },
+    })
+
+    expect(response.statusCode).toBe(200)
+    expect(response.json()).toMatchObject({ status: 'PUBLISHED', occupiesSlot: true })
+    expect(linksRepo().links[0]).toMatchObject({
+      status: 'PUBLISHED',
+      name: 'Receitas',
+      description: 'doc aprovada',
+      occupiesSlot: true,
+      everPublished: true,
+    })
+  })
 })
