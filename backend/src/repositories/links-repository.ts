@@ -28,7 +28,14 @@ export type SubmitterRecord = {
 }
 
 export type NetworkRecord = { id: string; tenantId: string; slug: string }
-export type NicheRecord = { id: string; tenantId: string; name: string; slug: string }
+export type NicheRecord = {
+  id: string
+  tenantId: string
+  name: string
+  slug: string
+  requiresAge: boolean
+  isPublicFacet: boolean
+}
 
 export type LinkRecord = {
   id: string
@@ -41,11 +48,37 @@ export type LinkRecord = {
   nicheId: string
   otherNote: string | null
   status: LinkStatus
+  occupiesSlot: boolean
+  everPublished: boolean
+  lastApprovedName: string | null
+  lastApprovedDescription: string | null
   createdAt: Date
   updatedAt: Date
 }
 
-export type NewLinkData = Omit<LinkRecord, 'id' | 'status' | 'createdAt' | 'updatedAt'> & {
+export type LinkModerationPatch = {
+  status: LinkStatus
+  occupiesSlot: boolean
+  name?: string
+  description?: string
+  networkId?: string
+  nicheId?: string
+  everPublished?: boolean
+  lastApprovedName?: string | null
+  lastApprovedDescription?: string | null
+}
+
+export type NewLinkData = Omit<
+  LinkRecord,
+  | 'id'
+  | 'status'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'occupiesSlot'
+  | 'everPublished'
+  | 'lastApprovedName'
+  | 'lastApprovedDescription'
+> & {
   ownerId: string
 }
 
@@ -66,6 +99,14 @@ export interface LinksRepository {
     data: NewLinkData,
     decide: (openSlots: number) => LinkStatus,
   ): Promise<LinkRecord>
+  updateLinkModeration(linkId: string, patch: LinkModerationPatch): Promise<LinkRecord | null>
+  createNiche(input: {
+    tenantId: string
+    name: string
+    slug: string
+    requiresAge: boolean
+  }): Promise<NicheRecord>
+  updateNicheFacet(input: { id: string; tenantId: string; isPublicFacet: boolean }): Promise<NicheRecord | null>
 }
 
 export class InMemoryLinksRepository implements LinksRepository {
@@ -91,8 +132,8 @@ export class InMemoryLinksRepository implements LinksRepository {
       { id: 'net-outro', tenantId, slug: 'outro' },
     ]
     this.niches = [
-      { id: 'niche-jogos', tenantId, name: 'Jogos', slug: 'jogos' },
-      { id: 'niche-apostas', tenantId, name: 'Apostas', slug: 'apostas' },
+      { id: 'niche-jogos', tenantId, name: 'Jogos', slug: 'jogos', requiresAge: false, isPublicFacet: true },
+      { id: 'niche-apostas', tenantId, name: 'Apostas', slug: 'apostas', requiresAge: true, isPublicFacet: true },
     ]
   }
 
@@ -115,11 +156,58 @@ export class InMemoryLinksRepository implements LinksRepository {
       networkId: 'net-telegram',
       nicheId: 'niche-jogos',
       otherNote: null,
+      occupiesSlot: true,
+      everPublished: input.status === 'PUBLISHED',
+      lastApprovedName: input.status === 'PUBLISHED' ? (input.name ?? 'link') : null,
+      lastApprovedDescription: input.status === 'PUBLISHED' ? (input.description ?? '') : null,
       createdAt: now,
       updatedAt: now,
       ...input,
     }
+    if (row.status === 'PUBLISHED') {
+      row.everPublished = true
+      row.lastApprovedName = row.name
+      row.lastApprovedDescription = row.description
+    }
     this.links.push(row)
+    return { ...row }
+  }
+
+  async updateLinkModeration(linkId: string, patch: LinkModerationPatch): Promise<LinkRecord | null> {
+    const row = this.links.find((item) => item.id === linkId)
+    if (!row) return null
+    Object.assign(row, patch, { updatedAt: new Date() })
+    if (patch.status === 'PUBLISHED') {
+      row.everPublished = true
+      row.lastApprovedName = row.name
+      row.lastApprovedDescription = row.description
+    }
+    return { ...row }
+  }
+
+  async createNiche(input: {
+    tenantId: string
+    name: string
+    slug: string
+    requiresAge: boolean
+  }): Promise<NicheRecord> {
+    const row: NicheRecord = {
+      id: randomUUID(),
+      isPublicFacet: !input.requiresAge,
+      ...input,
+    }
+    this.niches.push(row)
+    return { ...row }
+  }
+
+  async updateNicheFacet(input: {
+    id: string
+    tenantId: string
+    isPublicFacet: boolean
+  }): Promise<NicheRecord | null> {
+    const row = this.niches.find((item) => item.id === input.id && item.tenantId === input.tenantId)
+    if (!row) return null
+    row.isPublicFacet = input.isPublicFacet
     return { ...row }
   }
 
@@ -180,7 +268,8 @@ export class InMemoryLinksRepository implements LinksRepository {
       (link) =>
         link.tenantId === data.tenantId &&
         link.ownerId === data.ownerId &&
-        SLOT_STATUSES.includes(link.status),
+        SLOT_STATUSES.includes(link.status) &&
+        link.occupiesSlot,
     ).length
     const status = decide(LINK_QUOTA - used)
     return this.addLink({ ...data, status })
@@ -191,7 +280,15 @@ export class PrismaLinksRepository implements LinksRepository {
   constructor(private readonly client: PrismaClient) {}
 
   async findLinkById(id: string): Promise<LinkRecord | null> {
-    return this.client.link.findUnique({ where: { id } })
+    const row = await this.client.link.findUnique({ where: { id } })
+    if (!row) return null
+    return {
+      ...row,
+      occupiesSlot: true,
+      everPublished: row.status === 'PUBLISHED',
+      lastApprovedName: row.status === 'PUBLISHED' ? row.name : null,
+      lastApprovedDescription: row.status === 'PUBLISHED' ? row.description : null,
+    }
   }
 
   async findSubmitter(tenantId: string, userId: string): Promise<SubmitterRecord | null> {
@@ -226,14 +323,28 @@ export class PrismaLinksRepository implements LinksRepository {
   async findNiche(tenantId: string, id: string): Promise<NicheRecord | null> {
     return this.client.niche.findFirst({
       where: { id, tenantId },
-      select: { id: true, tenantId: true, name: true, slug: true },
+      select: {
+        id: true,
+        tenantId: true,
+        name: true,
+        slug: true,
+        requiresAge: true,
+        isPublicFacet: true,
+      },
     })
   }
 
   async listNiches(tenantId: string): Promise<NicheRecord[]> {
     return this.client.niche.findMany({
       where: { tenantId },
-      select: { id: true, tenantId: true, name: true, slug: true },
+      select: {
+        id: true,
+        tenantId: true,
+        name: true,
+        slug: true,
+        requiresAge: true,
+        isPublicFacet: true,
+      },
     })
   }
 
@@ -274,10 +385,29 @@ export class PrismaLinksRepository implements LinksRepository {
           where: { tenantId: data.tenantId, ownerId: data.ownerId, status: { in: SLOT_STATUSES } },
         })
         const status = decide(LINK_QUOTA - used)
-        return tx.link.create({ data: { ...data, status } })
+        const created = await tx.link.create({ data: { ...data, status } })
+        return {
+          ...created,
+          occupiesSlot: true,
+          everPublished: status === 'PUBLISHED',
+          lastApprovedName: status === 'PUBLISHED' ? created.name : null,
+          lastApprovedDescription: status === 'PUBLISHED' ? created.description : null,
+        }
       },
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
     )
+  }
+
+  async updateLinkModeration(): Promise<LinkRecord | null> {
+    throw new Error('moderação de link ainda não persistida no Prisma')
+  }
+
+  async createNiche(): Promise<NicheRecord> {
+    throw new Error('criação de nicho ainda não persistida no Prisma')
+  }
+
+  async updateNicheFacet(): Promise<NicheRecord | null> {
+    throw new Error('facet de nicho ainda não persistida no Prisma')
   }
 }
 

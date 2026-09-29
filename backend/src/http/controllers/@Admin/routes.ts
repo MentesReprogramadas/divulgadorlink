@@ -12,6 +12,7 @@ import { getAuditLogsRepository } from '@/repositories/audit-logs-repository'
 import { getConfigsRepository } from '@/repositories/configs-repository'
 import { prisma } from '@/lib/prisma'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
+import { registerModerationRoutes } from '@/http/controllers/@Admin/moderation'
 import {
   ConfigAuthorizeDeniedError,
   ConfigNotFoundError,
@@ -112,4 +113,5 @@ async function patchConfig(request: FastifyRequest, reply: FastifyReply) {
 
 export async function adminRoutes(app: FastifyInstance) {
   app.patch('/admin/config/:key', { onRequest: [verifyJWT] }, patchConfig)
+  await registerModerationRoutes(app)
 }
