@@ -15,4 +15,18 @@ describe('embedding', () => {
     })).toBe('Ferrari\nesportivo\nCarros\nTelegram')
     expect(saved[0]).toHaveLength(1536)
   })
+
+  it('não grava vetor com dimensão errada', async () => {
+    const saved: number[][] = []
+    await expect(
+      embedLink({
+        link: { name: 'Ferrari', description: 'esportivo', niche: 'Carros', network: 'Telegram' },
+        embedding: { embed: async () => [1, 2, 3] },
+        save: async (vector) => {
+          saved.push(vector)
+        },
+      }),
+    ).rejects.toThrow(/dimensão/)
+    expect(saved).toHaveLength(0)
+  })
 })

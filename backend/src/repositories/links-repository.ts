@@ -1,6 +1,27 @@
 import { randomUUID } from 'node:crypto'
 import { Prisma, PrismaClient, type Link as PrismaLink } from '@prisma/client'
+import {
+  enqueueEmbedLink,
+  shouldEnqueueEmbedLink,
+  type LinkEmbedSnapshot,
+} from '@/adapters/queues/enqueue-embed-link'
 import { prisma } from '@/lib/prisma'
+
+function linkEmbedSnapshot(row: {
+  status: string
+  name: string
+  description: string
+  networkId: string
+  nicheId: string
+}): LinkEmbedSnapshot {
+  return {
+    status: row.status,
+    name: row.name,
+    description: row.description,
+    networkId: row.networkId,
+    nicheId: row.nicheId,
+  }
+}
 
 export type LinkStatus =
   | 'DRAFT'
@@ -176,11 +197,16 @@ export class InMemoryLinksRepository implements LinksRepository {
   async updateLinkModeration(linkId: string, patch: LinkModerationPatch): Promise<LinkRecord | null> {
     const row = this.links.find((item) => item.id === linkId)
     if (!row) return null
+    const before = linkEmbedSnapshot(row)
     Object.assign(row, patch, { updatedAt: new Date() })
     if (patch.status === 'PUBLISHED') {
       row.everPublished = true
       row.approvedName = row.name
       row.approvedDescription = row.description
+    }
+    const after = linkEmbedSnapshot(row)
+    if (shouldEnqueueEmbedLink(before, after)) {
+      void enqueueEmbedLink(linkId)
     }
     return { ...row }
   }
@@ -393,6 +419,7 @@ export class PrismaLinksRepository implements LinksRepository {
   async updateLinkModeration(linkId: string, patch: LinkModerationPatch): Promise<LinkRecord | null> {
     const existing = await this.client.link.findUnique({ where: { id: linkId } })
     if (!existing) return null
+    const before = linkEmbedSnapshot(existing)
     const data: Prisma.LinkUpdateInput = {
       status: patch.status,
       occupiesSlot: patch.occupiesSlot,
@@ -407,6 +434,10 @@ export class PrismaLinksRepository implements LinksRepository {
       data.approvedDescription = patch.description ?? existing.description
     }
     const updated = await this.client.link.update({ where: { id: linkId }, data })
+    const after = linkEmbedSnapshot(updated)
+    if (shouldEnqueueEmbedLink(before, after)) {
+      void enqueueEmbedLink(linkId)
+    }
     return toLinkRecord(updated)
   }
 

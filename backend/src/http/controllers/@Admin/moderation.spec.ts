@@ -1,4 +1,8 @@
-import { beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+  getEmbedLinkJobsForTest,
+  resetEmbedLinkJobsForTest,
+} from '@/adapters/queues/enqueue-embed-link'
 import { app } from '@/app'
 import { not_found } from '@/http/errors'
 import {
@@ -16,6 +20,7 @@ import {
   InMemoryModerationCasesRepository,
   resetModerationCasesRepositoryForTest,
 } from '@/repositories/moderation-cases-repository'
+import * as embedLinkUseCase from '@/use-cases/@Search/embed-link'
 
 const HOST = 'temlinkaqui.com'
 const TENANT_ID = 'seed-temlinkaqui'
@@ -49,6 +54,7 @@ describe('moderação HTTP', () => {
     resetLinksRepositoryForTest()
     resetModerationCasesRepositoryForTest()
     resetAuditLogsRepositoryForTest()
+    resetEmbedLinkJobsForTest()
     linksRepo().addUser({
       id: OWNER_ID,
       tenantId: TENANT_ID,
@@ -128,6 +134,31 @@ describe('moderação HTTP', () => {
     })
     expect(linksRepo().links[0]?.canonicalUrl).toBe('https://t.me/original')
     expect(casesRepo().cases[0]?.internalSignals).toContain('niche_mismatch')
+  })
+
+  it('aprovar link enfileira embed-link sem chamar embedding na request', async () => {
+    const embedSpy = vi.spyOn(embedLinkUseCase, 'embedLink')
+    const link = linksRepo().addLink({
+      tenantId: TENANT_ID,
+      ownerId: OWNER_ID,
+      status: 'PENDING_MODERATION',
+      name: 'Grupo',
+      description: 'entra',
+    })
+    const moderationCase = casesRepo().addCase({ tenantId: TENANT_ID, linkId: link.id, source: 'AI' })
+    const token = accessToken({ sub: ADMIN_ID, role: 'ADMIN', tenantId: TENANT_ID })
+
+    const response = await app.inject({
+      method: 'POST',
+      url: `/api/v1/admin/moderation/${moderationCase.id}`,
+      headers: { host: HOST, authorization: `Bearer ${token}` },
+      payload: { decision: 'APPROVE' },
+    })
+
+    expect(response.statusCode).toBe(200)
+    expect(getEmbedLinkJobsForTest()).toEqual([{ name: 'embed-link', data: { linkId: link.id } }])
+    expect(embedSpy).not.toHaveBeenCalled()
+    embedSpy.mockRestore()
   })
 
   it('user do tenant recebe not_found na rota admin', async () => {
