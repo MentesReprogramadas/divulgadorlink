@@ -11,7 +11,7 @@ export function anonymizeAccount(input: {
   user: { id: string; name: string; email: string; phone: string }
   identifiers: { id: string; normalizedValue: string }[]
   orders: { id: string; amountCents: number; status: string; userId: string; createdAt: Date }[]
-  audits: { id: string; actorId: string; entityId: string; before: Record<string, unknown> }[]
+  audits: { id: string; actorId: string; entityId: string; before: Record<string, unknown>; after?: Record<string, unknown> }[]
   links: { id: string; status: string; ownerId: string }[]
 }) {
   const banned = new Set([input.user.id, input.user.name, input.user.email, input.user.phone])
@@ -25,12 +25,15 @@ export function anonymizeAccount(input: {
       createdAt: order.createdAt,
       userId: null as string | null,
     })),
-    audits: input.audits.map((audit) => ({
-      id: audit.id,
-      actorId: audit.actorId === input.user.id ? null : audit.actorId,
-      entityId: audit.entityId === input.user.id ? null : audit.entityId,
-      before: stripIdentity(audit.before, banned),
-    })),
+    audits: input.audits.map((audit) => {
+      const row = {
+        id: audit.id,
+        actorId: audit.actorId === input.user.id ? null : audit.actorId,
+        entityId: audit.entityId === input.user.id ? null : audit.entityId,
+        before: stripIdentity(audit.before, banned),
+      }
+      return audit.after === undefined ? row : { ...row, after: stripIdentity(audit.after, banned) }
+    }),
     links: input.links.map((link) => ({ id: link.id, status: link.status, ownerId: null as string | null })),
   }
 }
