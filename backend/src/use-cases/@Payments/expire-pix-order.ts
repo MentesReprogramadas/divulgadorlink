@@ -1,3 +1,4 @@
+import { moveOrder } from '@/domain/payments/move-order'
 import type { Order } from '@/domain/payments/order'
 import type { OrdersRepository } from '@/repositories/orders-repository'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
@@ -28,7 +29,7 @@ export class ExpirePixOrderUseCase {
       return { order, expired: false }
     }
 
-    order.status = 'EXPIRED'
+    moveOrder(order, 'EXPIRED')
     await this.ordersRepository.save(order)
 
     return { order, expired: true }

@@ -111,9 +111,9 @@ describe('banimento', () => {
     })
     const checkout = await app.inject({
       method: 'POST',
-      url: '/api/v1/links/link-1/checkout',
+      url: '/api/v1/promotions/checkout',
       headers,
-      payload: { surfaces: ['SEARCH'], durationDays: 7 },
+      payload: { linkId: 'link-1', surfaces: ['SEARCH'], durationDays: 7, method: 'PIX' },
     })
     const email = await app.inject({
       method: 'POST',

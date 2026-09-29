@@ -1,3 +1,4 @@
+import { moveOrder } from '@/domain/payments/move-order'
 import { isPixLate, type Order } from '@/domain/payments/order'
 import type { PaymentGateway } from '@/domain/payments/payment-gateway'
 import type { PromotionActivator } from '@/domain/payments/promotion-activator'
@@ -63,7 +64,7 @@ export class ConfirmGatewayPaymentUseCase {
         order.status === 'PENDING_PAYMENT' || order.status === 'EXPIRED'
 
       if (shouldRequestRefund) {
-        order.status = 'PAID_LATE'
+        moveOrder(order, 'PAID_LATE')
       }
 
       await this.ordersRepository.save(order)
@@ -75,7 +76,7 @@ export class ConfirmGatewayPaymentUseCase {
       return { order, activated: false }
     }
 
-    order.status = 'PAID'
+    moveOrder(order, 'PAID')
     await this.ordersRepository.save(order)
     await this.promotionActivator.activateFromPaidOrder(order.id)
 

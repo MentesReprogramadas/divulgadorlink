@@ -1,3 +1,4 @@
+import { moveOrder } from '@/domain/payments/move-order'
 import type { Order } from '@/domain/payments/order'
 import type { OrdersRepository } from '@/repositories/orders-repository'
 import { RefundActivationForbiddenError } from '@/use-cases/errors/refund-activation-forbidden-error'
@@ -17,7 +18,7 @@ export class RegisterRefundResolvedUseCase {
       throw new RefundActivationForbiddenError()
     }
 
-    order.status = 'REFUNDED'
+    moveOrder(order, 'REFUNDED')
     await this.ordersRepository.save(order)
     return order
   }

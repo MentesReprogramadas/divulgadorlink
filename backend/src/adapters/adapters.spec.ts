@@ -117,7 +117,7 @@ describe('adapters', () => {
     expect(add).toHaveBeenCalledWith(
       'refund-pix',
       { orderId: 'order-1' },
-      expect.objectContaining({ delay: 60_000, attempts: 1 }),
+      expect.objectContaining({ delay: 60_000, attempts: 1, jobId: 'refund-order-1-1' }),
     )
   })
 })

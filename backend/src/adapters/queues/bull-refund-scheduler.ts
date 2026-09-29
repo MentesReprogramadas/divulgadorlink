@@ -13,12 +13,12 @@ const REFUND_RETRY_DELAY_MS = 60_000
 export class BullRefundScheduler implements RefundScheduler {
   constructor(private queue: JobQueue) {}
 
-  async scheduleRetry(orderId: string): Promise<void> {
+  async scheduleRetry(orderId: string, attempt = 1): Promise<void> {
     await this.queue.add(
       'refund-pix',
       { orderId },
       {
-        jobId: `refund-${orderId}-${Date.now()}`,
+        jobId: `refund-${orderId}-${attempt}`,
         delay: REFUND_RETRY_DELAY_MS,
         attempts: 1,
         backoff: { type: 'exponential', delay: REFUND_RETRY_DELAY_MS },

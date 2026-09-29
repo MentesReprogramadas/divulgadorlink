@@ -9,6 +9,7 @@ import { adminRoutes } from '@/http/controllers/@Admin/routes'
 import { authRoutes } from '@/http/controllers/@auth/routes'
 import { goRoutes } from '@/http/controllers/@Links/go'
 import { linksRoutes } from '@/http/controllers/@Links/routes'
+import { paymentRoutes, paymentWebhookRoutes } from '@/http/controllers/@Payments/routes'
 import { searchRoutes } from '@/http/controllers/@Search/routes'
 import { health, live, ready } from '@/http/controllers/@Health/health'
 
@@ -56,6 +57,8 @@ app.register(
     await instance.register(authRoutes, { prefix: '/auth' })
     await instance.register(linksRoutes, { prefix: '/links' })
     await instance.register(searchRoutes)
+    await instance.register(paymentRoutes)
+    await instance.register(paymentWebhookRoutes)
     await instance.register(adminRoutes)
   },
   { prefix },

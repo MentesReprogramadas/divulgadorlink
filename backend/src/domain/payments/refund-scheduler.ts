@@ -1,3 +1,3 @@
 export interface RefundScheduler {
-  scheduleRetry(orderId: string): Promise<void>
+  scheduleRetry(orderId: string, attempt?: number): Promise<void>
 }

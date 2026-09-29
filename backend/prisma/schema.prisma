@@ -24,6 +24,7 @@ model Tenant {
   moderationCases ModerationCase[]
   promotions      Promotion[]
   embeddingJobs   EmbeddingJob[]
+  orders          Order[]
   @@map("tenants")
 }
 
@@ -39,6 +40,7 @@ model User {
   updatedAt    DateTime  @updatedAt
   identifiers  UserIdentifier[]
   links        Link[]
+  orders       Order[]
   @@index([tenantId])
   @@map("users")
 }
@@ -194,6 +196,7 @@ model Link {
   moderationCases ModerationCase[]
   promotions      Promotion[]
   embeddingJobs   EmbeddingJob[]
+  orders          Order[]
   @@index([tenantId, ownerId, status])
   @@map("links")
 }
@@ -259,6 +262,92 @@ model Promotion {
   updatedAt   DateTime        @updatedAt
   @@index([tenantId, linkId, status])
   @@map("promotions")
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  PAID
+  EXPIRED
+  PAID_LATE
+  REFUND_PENDING
+  REFUNDED
+  REFUND_FAILED
+}
+
+enum PaymentMethod {
+  PIX
+  CARD
+}
+
+enum SurfaceHold {
+  PENDING_PAYMENT
+  RELEASED
+}
+
+model Order {
+  id                   String               @id @default(cuid())
+  tenantId             String
+  tenant               Tenant               @relation(fields: [tenantId], references: [id])
+  userId               String?
+  user                 User?                @relation(fields: [userId], references: [id])
+  linkId               String
+  link                 Link                 @relation(fields: [linkId], references: [id])
+  status               OrderStatus
+  method               PaymentMethod
+  productCode          PromotionProductCode
+  durationDays         Int
+  amountCents          Int
+  savingsCents         Int
+  pixExpiresAt         DateTime?
+  gatewayChargeId      String?
+  refundCorrelationId  String?
+  refundAttempts       Int                  @default(0)
+  refundErrors         Json                 @default("[]")
+  refundIds            Json                 @default("[]")
+  idempotencyKey       String?
+  renewal              Boolean              @default(false)
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  surfaces             OrderSurface[]
+  payments             Payment[]
+  events               OrderEvent[]
+  @@unique([tenantId, userId, idempotencyKey])
+  @@index([tenantId, linkId, status])
+  @@map("orders")
+}
+
+model OrderSurface {
+  id        String           @id @default(cuid())
+  orderId   String
+  order     Order            @relation(fields: [orderId], references: [id])
+  linkId    String
+  surface   PromotionSurface
+  hold      SurfaceHold      @default(PENDING_PAYMENT)
+  @@index([orderId])
+  @@map("order_surfaces")
+}
+
+model Payment {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id])
+  provider    String
+  externalId  String?
+  amountCents Int
+  status      String
+  createdAt   DateTime @default(now())
+  @@index([orderId])
+  @@map("payments")
+}
+
+model OrderEvent {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id])
+  eventId   String
+  createdAt DateTime @default(now())
+  @@unique([orderId, eventId])
+  @@map("order_events")
 }
 
 model ModerationCase {

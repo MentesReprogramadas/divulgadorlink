@@ -21,6 +21,8 @@ export interface Order {
   refundCorrelationId: string | null
   refundAttempts: number
   processedEventIds: string[]
+  refundErrors?: string[]
+  refundIds?: string[]
 }
 
 export function isPixLate(order: Order, now: Date): boolean {

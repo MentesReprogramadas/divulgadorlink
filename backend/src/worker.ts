@@ -1,12 +1,14 @@
 import { Worker } from 'bullmq'
 import Redis from 'ioredis'
 import { OpenAiEmbeddingService } from '@/adapters/embeddings/openai-embedding-service'
+import { WooviPixPaymentGateway } from '@/adapters/payments/woovi-pix-payment-gateway'
 import { enqueueEmbedLink } from '@/adapters/queues/enqueue-embed-link'
 import { readConfig, type ConfigKey } from '@/domain/config/read-config'
 import { env } from '@/env'
 import { prisma } from '@/lib/prisma'
 import { applyAiVerdict } from '@/use-cases/@Moderation/apply-ai-verdict'
 import { embedLink } from '@/use-cases/@Search/embed-link'
+import { runExpirePix, runNotifyRefundFailed, runRefundPix } from '@/use-cases/@Payments/payment-jobs'
 
 export type ModerateLinkJobData = {
   configRows: Partial<Record<ConfigKey, string>>
@@ -129,6 +131,18 @@ async function startWorker(): Promise<void> {
       }
       if (job.name === 'embed-link') {
         return embedLinkJob(job.data as EmbedLinkJobData)
+      }
+      if (job.name === 'expire-pix') {
+        return runExpirePix((job.data as { orderId: string }).orderId)
+      }
+      if (job.name === 'refund-pix') {
+        return runRefundPix(
+          (job.data as { orderId: string }).orderId,
+          new WooviPixPaymentGateway(env.WOOVI_APP_ID ?? ''),
+        )
+      }
+      if (job.name === 'notify-refund-failed') {
+        return runNotifyRefundFailed((job.data as { orderId: string }).orderId)
       }
       throw new Error(`job desconhecido: ${job.name}`)
     },

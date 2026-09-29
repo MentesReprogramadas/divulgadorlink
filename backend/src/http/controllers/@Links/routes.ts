@@ -183,6 +183,5 @@ export async function linksRoutes(app: FastifyInstance) {
   app.post('/account/email', { onRequest: [verifyJWT] }, (request, reply) => postGuardedWrite(request, reply, 'account.email'))
   app.post('/account/phone', { onRequest: [verifyJWT] }, (request, reply) => postGuardedWrite(request, reply, 'account.phone'))
   app.patch('/:id', { onRequest: [verifyJWT] }, (request, reply) => postGuardedWrite(request, reply, 'link.update'))
-  app.post('/:id/checkout', { onRequest: [verifyJWT] }, (request, reply) => postGuardedWrite(request, reply, 'promotion.buy'))
   await registerAppealRoute(app)
 }

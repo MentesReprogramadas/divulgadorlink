@@ -1,3 +1,4 @@
+import { moveOrder } from '@/domain/payments/move-order'
 import type { Order } from '@/domain/payments/order'
 import type { PaymentGateway } from '@/domain/payments/payment-gateway'
 import type { RefundScheduler } from '@/domain/payments/refund-scheduler'
@@ -30,7 +31,7 @@ export class RequestPixRefundUseCase {
     }
 
     if (order.refundAttempts >= MAX_REFUND_ATTEMPTS) {
-      order.status = 'REFUND_FAILED'
+      moveOrder(order, 'REFUND_FAILED')
       await this.ordersRepository.save(order)
       return { order, attempted: false }
     }
@@ -46,29 +47,36 @@ export class RequestPixRefundUseCase {
       })
 
       if (result.status === 'FAILED') {
-        return await this.registerFailure(order)
+        return await this.registerFailure(order, 'gateway recusou')
       }
 
-      order.status = result.status === 'CONFIRMED' ? 'REFUNDED' : 'REFUND_PENDING'
+      if (result.status === 'CONFIRMED') {
+        order.refundIds = [...(order.refundIds ?? []), result.refundId]
+        moveOrder(order, 'REFUNDED')
+      } else {
+        moveOrder(order, 'REFUND_PENDING')
+      }
       await this.ordersRepository.save(order)
       return { order, attempted: true }
-    } catch {
-      return await this.registerFailure(order)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'gateway'
+      return await this.registerFailure(order, message)
     }
   }
 
-  private async registerFailure(order: Order): Promise<RequestPixRefundResponse> {
+  private async registerFailure(order: Order, message: string): Promise<RequestPixRefundResponse> {
     order.refundAttempts += 1
+    order.refundErrors = [...(order.refundErrors ?? []), message]
 
     if (order.refundAttempts >= MAX_REFUND_ATTEMPTS) {
-      order.status = 'REFUND_FAILED'
+      moveOrder(order, 'REFUND_FAILED')
       await this.ordersRepository.save(order)
       return { order, attempted: true }
     }
 
-    order.status = 'REFUND_PENDING'
+    moveOrder(order, 'REFUND_PENDING')
     await this.ordersRepository.save(order)
-    await this.refundScheduler.scheduleRetry(order.id)
+    await this.refundScheduler.scheduleRetry(order.id, order.refundAttempts)
     return { order, attempted: true }
   }
 }

@@ -80,6 +80,25 @@ describe('pagamento', () => {
     expect(retries).toEqual(['order-1'])
   })
 
+  it('não pede segundo estorno quando o eventId já foi processado', async () => {
+    const orders = new InMemoryOrdersRepository()
+    const late = pixOrder({ status: 'EXPIRED' })
+    await orders.save(late)
+    const scheduler = { calls: 0, scheduleRetry: async () => { scheduler.calls += 1 } }
+    const useCase = new ConfirmGatewayPaymentUseCase(
+      orders,
+      gateway('PAID'),
+      { async activateFromPaidOrder() {} },
+      scheduler,
+      () => new Date('2026-09-29T16:00:00.000Z'),
+    )
+
+    await useCase.execute({ orderId: late.id, eventId: 'evt-1' })
+    await useCase.execute({ orderId: late.id, eventId: 'evt-1' })
+
+    expect(scheduler.calls).toBe(1)
+  })
+
   it('expira o Pix pendente e libera a superfície sem criar promoção', async () => {
     const orders = new InMemoryOrdersRepository()
     await orders.save(pixOrder())
