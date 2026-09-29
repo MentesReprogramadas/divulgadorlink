@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { anonymizeAccount } from '@/use-cases/@Auth/anonymize-account'
+import { anonymizeAccount, BAN_AFTER_DELETION } from '@/use-cases/@Auth/anonymize-account'
+import { preRefuse } from '@/use-cases/@Moderation/pre-refuse'
 
 describe('exclusão da conta', () => {
   it('corta o uuid e conserva o fato financeiro', () => {
@@ -24,5 +25,28 @@ describe('exclusão da conta', () => {
     expect(serialized).not.toContain('u1')
     expect(serialized).not.toContain('a@b.com')
     expect(serialized).not.toContain('Ana')
+    expect(serialized).not.toContain('+5511999999999')
+    expect(BAN_AFTER_DELETION).toBe('pending')
+
+    const stillEnforcedWhileTheAccountExists = preRefuse({
+      phoneHistory: ['+5511999999999'],
+      bannedPhones: ['+5511999999999'],
+      emailHistory: [],
+      bannedEmails: [],
+      url: 'https://t.me/livre',
+      bannedUrls: [],
+    })
+    expect(stillEnforcedWhileTheAccountExists.signals).toEqual(['phone'])
+
+    const afterDeletion = preRefuse({
+      phoneHistory: [],
+      bannedPhones: [],
+      emailHistory: [],
+      bannedEmails: [],
+      url: 'https://t.me/livre',
+      bannedUrls: [],
+    })
+    expect(afterDeletion.refused).toBe(false)
+    expect(JSON.stringify(result)).not.toContain('+5511999999999')
   })
 })

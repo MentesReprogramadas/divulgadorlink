@@ -1,3 +1,4 @@
+import https from 'node:https'
 import { isIP } from 'node:net'
 
 function isPrivateIPv4(host: string): boolean {
@@ -38,6 +39,7 @@ export function assertPublicHttps(raw: string): true {
 }
 
 export function assertResolvedAddresses(addresses: string[]): true {
+  if (addresses.length === 0) throw new Error('dns vazio')
   if (addresses.some(isPrivate)) throw new Error('destino privado')
   return true
 }
@@ -50,63 +52,88 @@ const SAFE_FETCH_MAX_REDIRECTS = 3
 
 export type DnsResolver = (hostname: string) => Promise<string[]>
 
+export type PinnedTarget = {
+  url: string
+  hostname: string
+  address: string
+  servername: string
+}
+
+export type PinnedResponse = {
+  status: number
+  headers: Headers
+  body: Uint8Array
+}
+
 export type SafeFetchDeps = {
   resolve: DnsResolver
-  fetch: typeof fetch
+  connect: (target: PinnedTarget) => Promise<PinnedResponse>
 }
 
-async function assertReachablePublicHttps(raw: string, resolve: DnsResolver): Promise<void> {
+async function resolvePinned(raw: string, resolve: DnsResolver): Promise<PinnedTarget> {
   assertPublicHttps(raw)
-  const { hostname } = new URL(raw)
-  const addresses = await resolve(hostname)
+  const url = new URL(raw)
+  const addresses = await resolve(url.hostname)
   assertResolvedAddresses(addresses)
+  return {
+    url: url.href,
+    hostname: url.hostname,
+    address: addresses[0]!,
+    servername: url.hostname,
+  }
 }
 
-async function readBodyWithCap(response: Response, maxBytes: number): Promise<ArrayBuffer> {
-  const reader = response.body?.getReader()
-  if (!reader) return new ArrayBuffer(0)
+export function defaultPinnedConnect(target: PinnedTarget): Promise<PinnedResponse> {
+  const url = new URL(target.url)
+  const family = isIP(target.address) === 6 ? 6 : 4
 
-  const chunks: Uint8Array[] = []
-  let total = 0
-
-  while (true) {
-    const { done, value } = await reader.read()
-    if (done) break
-    if (!value) continue
-    total += value.byteLength
-    if (total > maxBytes) throw new Error('corpo excede limite')
-    chunks.push(value)
-  }
-
-  const out = new Uint8Array(total)
-  let offset = 0
-  for (const chunk of chunks) {
-    out.set(chunk, offset)
-    offset += chunk.byteLength
-  }
-  return out.buffer
+  return new Promise((resolve, reject) => {
+    const req = https.request(
+      {
+        protocol: 'https:',
+        hostname: target.hostname,
+        servername: target.servername,
+        path: `${url.pathname}${url.search}`,
+        method: 'GET',
+        headers: { host: target.hostname },
+        timeout: SAFE_FETCH_TIMEOUT_MS,
+        lookup: (_hostname, options, callback) => {
+          const done = typeof options === 'function' ? options : callback
+          done(null, target.address, family)
+        },
+      },
+      (response) => {
+        const chunks: Buffer[] = []
+        response.on('data', (chunk: Buffer) => chunks.push(chunk))
+        response.on('end', () => {
+          const headers = new Headers()
+          for (const [key, value] of Object.entries(response.headers)) {
+            if (typeof value === 'string') headers.set(key, value)
+            else if (Array.isArray(value)) headers.set(key, value.join(', '))
+          }
+          resolve({
+            status: response.statusCode ?? 0,
+            headers,
+            body: new Uint8Array(Buffer.concat(chunks)),
+          })
+        })
+      },
+    )
+    req.on('timeout', () => {
+      req.destroy(new Error('timeout'))
+    })
+    req.on('error', reject)
+    req.end()
+  })
 }
 
-export async function safeFetch(raw: string, deps: SafeFetchDeps, init?: RequestInit): Promise<Response> {
+export async function safeFetch(raw: string, deps: SafeFetchDeps): Promise<Response> {
   let currentUrl = raw
   let redirectsFollowed = 0
 
   while (true) {
-    await assertReachablePublicHttps(currentUrl, deps.resolve)
-
-    const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), SAFE_FETCH_TIMEOUT_MS)
-
-    let response: Response
-    try {
-      response = await deps.fetch(currentUrl, {
-        ...init,
-        signal: controller.signal,
-        redirect: 'manual',
-      })
-    } finally {
-      clearTimeout(timeout)
-    }
+    const target = await resolvePinned(currentUrl, deps.resolve)
+    const response = await deps.connect(target)
 
     if (response.status >= 300 && response.status < 400) {
       const location = response.headers.get('location')
@@ -121,10 +148,12 @@ export async function safeFetch(raw: string, deps: SafeFetchDeps, init?: Request
       continue
     }
 
-    const body = await readBodyWithCap(response, SAFE_FETCH_MAX_BODY_BYTES)
-    return new Response(body, {
+    if (response.body.byteLength > SAFE_FETCH_MAX_BODY_BYTES) {
+      throw new Error('corpo excede limite')
+    }
+
+    return new Response(Buffer.from(response.body), {
       status: response.status,
-      statusText: response.statusText,
       headers: response.headers,
     })
   }

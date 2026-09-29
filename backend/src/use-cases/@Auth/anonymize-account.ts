@@ -1,3 +1,9 @@
+/**
+ * A exclusão apaga e-mail e telefone. A pré-recusa não recebe uma cópia desses
+ * valores. Não há hash nem pseudônimo. Sanção depois da exclusão: decisão pendente.
+ */
+export const BAN_AFTER_DELETION = 'pending' as const
+
 const IDENTITY_KEYS = new Set(['email', 'phone', 'normalizedValue', 'userId', 'actorId', 'ownerId'])
 
 function stripIdentity(value: Record<string, unknown>, banned: Set<string>) {

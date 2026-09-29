@@ -1,6 +1,7 @@
 import { Worker } from 'bullmq'
 import Redis from 'ioredis'
 import { OpenAiEmbeddingService } from '@/adapters/embeddings/openai-embedding-service'
+import { enqueueEmbedLink } from '@/adapters/queues/enqueue-embed-link'
 import { readConfig, type ConfigKey } from '@/domain/config/read-config'
 import { env } from '@/env'
 import { prisma } from '@/lib/prisma'
@@ -14,6 +15,7 @@ export type ModerateLinkJobData = {
 
 export type EmbedLinkJobData = {
   linkId: string
+  intentId?: string
 }
 
 export function moderateLink(data: ModerateLinkJobData): 'PUBLISH' | 'ADMIN' {
@@ -22,6 +24,11 @@ export function moderateLink(data: ModerateLinkJobData): 'PUBLISH' | 'ADMIN' {
 }
 
 export async function embedLinkJob(data: EmbedLinkJobData): Promise<void> {
+  if (data.intentId) {
+    const intent = await prisma.embeddingJob.findUnique({ where: { id: data.intentId } })
+    if (!intent || intent.status === 'DONE') return
+  }
+
   const row = await prisma.link.findUnique({
     where: { id: data.linkId },
     include: {
@@ -38,23 +45,64 @@ export async function embedLinkJob(data: EmbedLinkJobData): Promise<void> {
     throw new Error('OPENAI_API_KEY ausente')
   }
 
-  await embedLink({
-    link: {
-      name: row.name,
-      description: row.description,
-      niche: row.niche.name,
-      network: row.network.name,
-    },
-    embedding: new OpenAiEmbeddingService(apiKey),
-    save: async (vector) => {
-      const literal = `[${vector.join(',')}]`
-      await prisma.$executeRawUnsafe(
-        'UPDATE "links" SET "embedding" = $1::vector WHERE "id" = $2',
-        literal,
-        data.linkId,
-      )
-    },
+  if (data.intentId) {
+    await prisma.embeddingJob.update({
+      where: { id: data.intentId },
+      data: { status: 'PROCESSING', attempts: { increment: 1 } },
+    })
+  }
+
+  try {
+    await embedLink({
+      link: {
+        name: row.name,
+        description: row.description,
+        niche: row.niche.name,
+        network: row.network.name,
+      },
+      embedding: new OpenAiEmbeddingService(apiKey),
+      save: async (vector) => {
+        const literal = `[${vector.join(',')}]`
+        await prisma.$transaction([
+          prisma.$executeRawUnsafe(
+            'UPDATE "links" SET "embedding" = $1::vector, "embeddingState" = \'READY\' WHERE "id" = $2',
+            literal,
+            data.linkId,
+          ),
+          ...(data.intentId
+            ? [prisma.embeddingJob.update({
+              where: { id: data.intentId },
+              data: { status: 'DONE', lastError: null },
+            })]
+            : []),
+        ])
+      },
+    })
+  } catch (error) {
+    if (data.intentId) {
+      await prisma.embeddingJob.update({
+        where: { id: data.intentId },
+        data: {
+          status: 'PENDING',
+          lastError: error instanceof Error ? error.message : 'embedding falhou',
+          nextAttemptAt: new Date(Date.now() + 1_000),
+        },
+      })
+    }
+    throw error
+  }
+}
+
+export async function enqueuePendingEmbeddingJobs(): Promise<number> {
+  const due = await prisma.embeddingJob.findMany({
+    where: { status: 'PENDING', nextAttemptAt: { lte: new Date() } },
+    orderBy: { createdAt: 'asc' },
+    take: 50,
   })
+  for (const job of due) {
+    await enqueueEmbedLink(job.linkId, job.id)
+  }
+  return due.length
 }
 
 export const handlers = {
@@ -66,7 +114,7 @@ const QUEUE_NAME = 'divulgador-links'
 
 async function startWorker(): Promise<void> {
   const connection = new Redis(env.REDIS_URL, { maxRetriesPerRequest: null })
-  new Worker(
+  const worker = new Worker(
     QUEUE_NAME,
     async (job) => {
       if (job.name === 'moderate-link') {
@@ -79,6 +127,20 @@ async function startWorker(): Promise<void> {
     },
     { connection },
   )
+  worker.on('failed', (job, error) => {
+    if (!job || job.name !== 'embed-link') return
+    const attempts = job.opts.attempts ?? 1
+    if (job.attemptsMade < attempts) return
+    const data = job.data as EmbedLinkJobData
+    void prisma.link.update({ where: { id: data.linkId }, data: { embeddingState: 'FAILED' } })
+    if (data.intentId) {
+      void prisma.embeddingJob.update({
+        where: { id: data.intentId },
+        data: { status: 'FAILED', lastError: error.message },
+      })
+    }
+  })
+  await enqueuePendingEmbeddingJobs()
 }
 
 if (require.main === module) {

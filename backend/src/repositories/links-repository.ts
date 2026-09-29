@@ -6,6 +6,15 @@ import {
   type LinkEmbedSnapshot,
 } from '@/adapters/queues/enqueue-embed-link'
 import { prisma } from '@/lib/prisma'
+import { recordEmbeddingIntent, tryDispatchEmbedding } from '@/use-cases/@Search/embedding-outbox'
+import { banAccount } from '@/use-cases/@Admin/ban-account'
+
+function scheduleEmbedding(linkId: string, snapshot: LinkEmbedSnapshot): void {
+  const intent = recordEmbeddingIntent(linkId, snapshot)
+  void tryDispatchEmbedding(intent.id, async () => {
+    await enqueueEmbedLink(linkId, intent.id)
+  })
+}
 
 function linkEmbedSnapshot(row: {
   status: string
@@ -128,6 +137,13 @@ export interface LinksRepository {
     requiresAge: boolean
   }): Promise<NicheRecord>
   updateNicheFacet(input: { id: string; tenantId: string; isPublicFacet: boolean }): Promise<NicheRecord | null>
+  applyBan(input: {
+    userId: string
+    tenantId: string
+    actorId: string
+    requestId: string
+    reason?: string
+  }): Promise<{ userStatus: 'BANNED'; refunds: [] } | null>
 }
 
 export class InMemoryLinksRepository implements LinksRepository {
@@ -136,6 +152,8 @@ export class InMemoryLinksRepository implements LinksRepository {
   niches: NicheRecord[] = []
   terms: Array<{ tenantId: string; term: string }> = []
   links: LinkRecord[] = []
+  promotions: Array<{ id: string; tenantId: string; linkId: string; status: 'ACTIVE' | 'EXPIRED' | 'CANCELLED' }> = []
+  bans: Array<{ userId: string; actorId: string; requestId: string; reason: string | null; refunds: [] }> = []
 
   static seeded(): InMemoryLinksRepository {
     const repo = new InMemoryLinksRepository()
@@ -148,6 +166,8 @@ export class InMemoryLinksRepository implements LinksRepository {
     this.users = []
     this.terms = []
     this.links = []
+    this.promotions = []
+    this.bans = []
     this.networks = [
       { id: 'net-telegram', tenantId, slug: 'telegram' },
       { id: 'net-outro', tenantId, slug: 'outro' },
@@ -206,9 +226,48 @@ export class InMemoryLinksRepository implements LinksRepository {
     }
     const after = linkEmbedSnapshot(row)
     if (shouldEnqueueEmbedLink(before, after)) {
-      void enqueueEmbedLink(linkId)
+      scheduleEmbedding(linkId, after)
     }
     return { ...row }
+  }
+
+  async applyBan(input: {
+    userId: string
+    tenantId: string
+    actorId: string
+    requestId: string
+    reason?: string
+  }): Promise<{ userStatus: 'BANNED'; refunds: [] } | null> {
+    const user = this.users.find((row) => row.id === input.userId && row.tenantId === input.tenantId)
+    if (!user) return null
+    const owned = this.links.filter((row) => row.ownerId === input.userId && row.tenantId === input.tenantId)
+    const promos = this.promotions.filter((row) => owned.some((link) => link.id === row.linkId))
+    const result = banAccount({
+      links: owned.map((row) => ({ id: row.id, status: row.status })),
+      promotions: promos.map((row) => ({ id: row.id, status: row.status })),
+    })
+    user.status = 'BANNED'
+    this.bans.push({
+      userId: input.userId,
+      actorId: input.actorId,
+      requestId: input.requestId,
+      reason: input.reason ?? null,
+      refunds: result.refunds,
+    })
+    for (const next of result.links) {
+      const row = this.links.find((link) => link.id === next.id)
+      if (!row) continue
+      row.status = next.status
+      row.occupiesSlot = false
+    }
+    for (const next of result.promotions) {
+      const row = this.promotions.find((promotion) => promotion.id === next.id)
+      if (row) row.status = next.status
+    }
+    void input.actorId
+    void input.requestId
+    void input.reason
+    return { userStatus: result.userStatus, refunds: result.refunds }
   }
 
   async createNiche(input: {
@@ -420,7 +479,7 @@ export class PrismaLinksRepository implements LinksRepository {
     const existing = await this.client.link.findUnique({ where: { id: linkId } })
     if (!existing) return null
     const before = linkEmbedSnapshot(existing)
-    const data: Prisma.LinkUpdateInput = {
+    const data: Prisma.LinkUncheckedUpdateInput = {
       status: patch.status,
       occupiesSlot: patch.occupiesSlot,
     }
@@ -433,10 +492,27 @@ export class PrismaLinksRepository implements LinksRepository {
       data.approvedName = patch.name ?? existing.name
       data.approvedDescription = patch.description ?? existing.description
     }
-    const updated = await this.client.link.update({ where: { id: linkId }, data })
+    const updated = await this.client.$transaction(async (tx) => {
+      const row = await tx.link.update({ where: { id: linkId }, data })
+      const after = linkEmbedSnapshot(row)
+      if (shouldEnqueueEmbedLink(before, after)) {
+        await tx.link.update({ where: { id: linkId }, data: { embeddingState: 'PENDING' } })
+        await tx.embeddingJob.create({
+          data: {
+            tenantId: row.tenantId,
+            linkId,
+            snapshotName: after.name,
+            snapshotDescription: after.description,
+            snapshotNetworkId: after.networkId,
+            snapshotNicheId: after.nicheId,
+          },
+        })
+      }
+      return row
+    })
     const after = linkEmbedSnapshot(updated)
     if (shouldEnqueueEmbedLink(before, after)) {
-      void enqueueEmbedLink(linkId)
+      scheduleEmbedding(linkId, after)
     }
     return toLinkRecord(updated)
   }
@@ -464,6 +540,52 @@ export class PrismaLinksRepository implements LinksRepository {
     })
     if (result.count === 0) return null
     return this.findNiche(input.tenantId, input.id)
+  }
+
+  async applyBan(input: {
+    userId: string
+    tenantId: string
+    actorId: string
+    requestId: string
+    reason?: string
+  }): Promise<{ userStatus: 'BANNED'; refunds: [] } | null> {
+    return this.client.$transaction(async (tx) => {
+      const user = await tx.user.findFirst({ where: { id: input.userId, tenantId: input.tenantId } })
+      if (!user) return null
+      const links = await tx.link.findMany({ where: { ownerId: input.userId, tenantId: input.tenantId } })
+      const promotions = await tx.promotion.findMany({
+        where: { tenantId: input.tenantId, link: { ownerId: input.userId } },
+      })
+      const result = banAccount({
+        links: links.map((row) => ({ id: row.id, status: row.status })),
+        promotions: promotions.map((row) => ({ id: row.id, status: row.status })),
+      })
+      await tx.user.update({ where: { id: user.id }, data: { status: 'BANNED' } })
+      for (const link of result.links) {
+        await tx.link.update({
+          where: { id: link.id },
+          data: { status: link.status, occupiesSlot: false },
+        })
+      }
+      for (const promotion of result.promotions) {
+        if (promotion.status === 'CANCELLED') {
+          await tx.promotion.update({ where: { id: promotion.id }, data: { status: 'CANCELLED' } })
+        }
+      }
+      await tx.auditLog.create({
+        data: {
+          tenantId: input.tenantId,
+          actorId: input.actorId,
+          action: 'account.ban',
+          entityType: 'User',
+          entityId: input.userId,
+          before: { status: user.status },
+          after: { status: 'BANNED', reason: input.reason ?? null, refunds: [] },
+          requestId: input.requestId,
+        },
+      })
+      return { userStatus: result.userStatus, refunds: result.refunds }
+    })
   }
 }
 

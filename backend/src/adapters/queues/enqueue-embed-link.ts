@@ -39,12 +39,21 @@ export function shouldEnqueueEmbedLink(before: LinkEmbedSnapshot, after: LinkEmb
   return becamePublished || publishedFieldChange
 }
 
-export async function enqueueEmbedLink(linkId: string): Promise<void> {
+export async function enqueueEmbedLink(linkId: string, intentId?: string): Promise<void> {
   if (process.env.NODE_ENV === 'test') {
     testJobs.push({ name: 'embed-link', data: { linkId } })
     return
   }
-  await getQueue().add('embed-link', { linkId })
+  await getQueue().add(
+    'embed-link',
+    { linkId, intentId },
+    {
+      jobId: intentId ?? `embed-${linkId}`,
+      attempts: 5,
+      backoff: { type: 'exponential', delay: 1_000 },
+      removeOnComplete: 100,
+    },
+  )
 }
 
 export function resetEmbedLinkJobsForTest(): void {

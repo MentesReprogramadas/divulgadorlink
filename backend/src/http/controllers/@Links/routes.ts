@@ -9,6 +9,7 @@ import { getLinksRepository } from '@/repositories/links-repository'
 import { canSubmitLink, confirmationFlags } from '@/use-cases/@Auth/confirm-identifier'
 import { decideSubmission } from '@/use-cases/@Links/submit-link'
 import { preRefuse } from '@/use-cases/@Moderation/pre-refuse'
+import { postGuardedWrite } from '@/http/controllers/@Admin/ban'
 import { registerAppealRoute } from '@/http/controllers/@Admin/moderation'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
 
@@ -179,5 +180,9 @@ async function createLink(request: FastifyRequest, reply: FastifyReply) {
 
 export async function linksRoutes(app: FastifyInstance) {
   app.post('/', { onRequest: [verifyJWT] }, createLink)
+  app.post('/account/email', { onRequest: [verifyJWT] }, (request, reply) => postGuardedWrite(request, reply, 'account.email'))
+  app.post('/account/phone', { onRequest: [verifyJWT] }, (request, reply) => postGuardedWrite(request, reply, 'account.phone'))
+  app.patch('/:id', { onRequest: [verifyJWT] }, (request, reply) => postGuardedWrite(request, reply, 'link.update'))
+  app.post('/:id/checkout', { onRequest: [verifyJWT] }, (request, reply) => postGuardedWrite(request, reply, 'promotion.buy'))
   await registerAppealRoute(app)
 }

@@ -28,6 +28,18 @@ export class InMemoryConfigsRepository implements ConfigsRepository {
         key: 'SEARCH_RELEVANCE_THRESHOLD',
         value: '0.35',
       },
+      {
+        id: 'cfg-text',
+        tenantId: 'seed-temlinkaqui',
+        key: 'SEARCH_TEXT_WEIGHT',
+        value: '0.4',
+      },
+      {
+        id: 'cfg-semantic',
+        tenantId: 'seed-temlinkaqui',
+        key: 'SEARCH_SEMANTIC_WEIGHT',
+        value: '0.6',
+      },
     ])
   }
 

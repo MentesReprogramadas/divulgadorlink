@@ -27,6 +27,7 @@ export type NewModerationCaseData = Omit<ModerationCaseRecord, 'id' | 'appealed'
 export interface ModerationCasesRepository {
   findById(id: string): Promise<ModerationCaseRecord | null>
   findOpenByLinkId(linkId: string): Promise<ModerationCaseRecord | null>
+  listByLinkId(linkId: string): Promise<ModerationCaseRecord[]>
   create(data: NewModerationCaseData): Promise<ModerationCaseRecord>
   saveAppeal(id: string, text: string): Promise<ModerationCaseRecord | null>
   close(id: string): Promise<ModerationCaseRecord | null>
@@ -61,8 +62,12 @@ export class InMemoryModerationCasesRepository implements ModerationCasesReposit
   }
 
   async findOpenByLinkId(linkId: string): Promise<ModerationCaseRecord | null> {
-    const row = this.cases.find((item) => item.linkId === linkId && !item.closed)
+    const row = [...this.cases].reverse().find((item) => item.linkId === linkId && !item.closed)
     return row ? { ...row, internalSignals: [...row.internalSignals] } : null
+  }
+
+  async listByLinkId(linkId: string): Promise<ModerationCaseRecord[]> {
+    return this.cases.filter((item) => item.linkId === linkId).map((row) => ({ ...row, internalSignals: [...row.internalSignals] }))
   }
 
   async create(data: NewModerationCaseData): Promise<ModerationCaseRecord> {
@@ -71,11 +76,18 @@ export class InMemoryModerationCasesRepository implements ModerationCasesReposit
 
   async saveAppeal(id: string, text: string): Promise<ModerationCaseRecord | null> {
     const row = this.cases.find((item) => item.id === id)
-    if (!row) return null
+    if (!row || row.appealed) return null
     row.appealed = true
     row.appealText = text
     row.source = 'APPEAL'
     return { ...row, internalSignals: [...row.internalSignals] }
+  }
+
+  startSubmission(input: Partial<ModerationCaseRecord> & Pick<ModerationCaseRecord, 'tenantId' | 'linkId' | 'source'>): ModerationCaseRecord {
+    for (const row of this.cases) {
+      if (row.linkId === input.linkId && !row.closed) row.closed = true
+    }
+    return this.addCase({ ...input, appealed: false, appealText: null, closed: false })
   }
 
   async close(id: string): Promise<ModerationCaseRecord | null> {
@@ -86,7 +98,9 @@ export class InMemoryModerationCasesRepository implements ModerationCasesReposit
   }
 }
 
-const CASE_INCLUDE = { link: { select: { status: true, name: true, description: true } } } as const
+const CASE_INCLUDE = {
+  link: { select: { everPublished: true, approvedName: true, approvedDescription: true } },
+} as const
 
 type PrismaCaseRow = {
   id: string
@@ -94,7 +108,8 @@ type PrismaCaseRow = {
   linkId: string
   appealText: string | null
   appealedAt: Date | null
-  link: { status: string; name: string; description: string }
+  closedAt: Date | null
+  link: { everPublished: boolean; approvedName: string | null; approvedDescription: string | null }
 }
 
 /**
@@ -103,7 +118,6 @@ type PrismaCaseRow = {
  * signals are never persisted.
  */
 function toCaseRecord(row: PrismaCaseRow): ModerationCaseRecord {
-  const published = row.link.status === 'PUBLISHED'
   return {
     id: row.id,
     tenantId: row.tenantId,
@@ -111,11 +125,11 @@ function toCaseRecord(row: PrismaCaseRow): ModerationCaseRecord {
     source: row.appealedAt ? 'APPEAL' : 'PRE_REFUSAL',
     appealed: row.appealedAt !== null,
     appealText: row.appealText,
-    wasEverPublished: published,
-    lastApprovedName: published ? row.link.name : null,
-    lastApprovedDescription: published ? row.link.description : null,
+    wasEverPublished: row.link.everPublished,
+    lastApprovedName: row.link.approvedName,
+    lastApprovedDescription: row.link.approvedDescription,
     internalSignals: [],
-    closed: row.link.status !== 'PENDING_MODERATION',
+    closed: row.closedAt !== null,
   }
 }
 
@@ -127,10 +141,22 @@ export class PrismaModerationCasesRepository implements ModerationCasesRepositor
     return row ? toCaseRecord(row) : null
   }
 
-  /** linkId is unique, so the single case is returned even when closed; `appealed` enforces one appeal per link. */
   async findOpenByLinkId(linkId: string): Promise<ModerationCaseRecord | null> {
-    const row = await this.client.moderationCase.findUnique({ where: { linkId }, include: CASE_INCLUDE })
+    const row = await this.client.moderationCase.findFirst({
+      where: { linkId, closedAt: null },
+      orderBy: { createdAt: 'desc' },
+      include: CASE_INCLUDE,
+    })
     return row ? toCaseRecord(row) : null
+  }
+
+  async listByLinkId(linkId: string): Promise<ModerationCaseRecord[]> {
+    const rows = await this.client.moderationCase.findMany({
+      where: { linkId },
+      orderBy: { createdAt: 'asc' },
+      include: CASE_INCLUDE,
+    })
+    return rows.map(toCaseRecord)
   }
 
   async create(data: NewModerationCaseData): Promise<ModerationCaseRecord> {
@@ -156,6 +182,10 @@ export class PrismaModerationCasesRepository implements ModerationCasesRepositor
   }
 
   async close(id: string): Promise<ModerationCaseRecord | null> {
+    await this.client.moderationCase.updateMany({
+      where: { id, closedAt: null },
+      data: { closedAt: new Date() },
+    })
     return this.findById(id)
   }
 }
