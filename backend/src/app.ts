@@ -7,6 +7,7 @@ import { ZodError } from 'zod'
 import { env } from '@/env'
 import { adminRoutes } from '@/http/controllers/@Admin/routes'
 import { authRoutes } from '@/http/controllers/@auth/routes'
+import { linksRoutes } from '@/http/controllers/@Links/routes'
 import { health, live, ready } from '@/http/controllers/@Health/health'
 
 if (env.HDX_API_KEY) {
@@ -51,6 +52,7 @@ app.register(
     instance.get('/actuator/live', live)
     instance.get('/actuator/ready', ready)
     await instance.register(authRoutes, { prefix: '/auth' })
+    await instance.register(linksRoutes, { prefix: '/links' })
     await instance.register(adminRoutes)
   },
   { prefix },
