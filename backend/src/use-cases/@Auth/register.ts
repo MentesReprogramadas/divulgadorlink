@@ -1,5 +1,5 @@
 import { hash } from 'bcryptjs'
-import type { PrismaClient, User } from '@prisma/client'
+import { Prisma, type PrismaClient, type User } from '@prisma/client'
 import { z } from 'zod'
 import { normalizeEmail, normalizePhone } from '@/use-cases/@Auth/confirm-identifier'
 import { UserAlreadyExistsError } from '@/use-cases/errors/user-already-exists-error'
@@ -15,6 +15,10 @@ export const registerBodySchema = z
 
 export type RegisterBody = z.infer<typeof registerBodySchema>
 
+function isUniqueConstraint(error: unknown): boolean {
+  return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002'
+}
+
 export class RegisterUseCase {
   constructor(private readonly prisma: PrismaClient) {}
 
@@ -25,7 +29,6 @@ export class RegisterUseCase {
     const conflict = await this.prisma.userIdentifier.findFirst({
       where: {
         tenantId: input.tenantId,
-        replacedAt: null,
         OR: [
           { kind: 'EMAIL', normalizedValue: normalizedEmail },
           { kind: 'PHONE', normalizedValue: normalizedPhone },
@@ -39,28 +42,35 @@ export class RegisterUseCase {
 
     const passwordHash = await hash(input.password, 12)
 
-    return this.prisma.user.create({
-      data: {
-        tenantId: input.tenantId,
-        name: input.name,
-        passwordHash,
-        role: 'USER',
-        identifiers: {
-          create: [
-            {
-              tenantId: input.tenantId,
-              kind: 'EMAIL',
-              normalizedValue: normalizedEmail,
-            },
-            {
-              tenantId: input.tenantId,
-              kind: 'PHONE',
-              normalizedValue: normalizedPhone,
-            },
-          ],
+    try {
+      return await this.prisma.user.create({
+        data: {
+          tenantId: input.tenantId,
+          name: input.name,
+          passwordHash,
+          role: 'USER',
+          identifiers: {
+            create: [
+              {
+                tenantId: input.tenantId,
+                kind: 'EMAIL',
+                normalizedValue: normalizedEmail,
+              },
+              {
+                tenantId: input.tenantId,
+                kind: 'PHONE',
+                normalizedValue: normalizedPhone,
+              },
+            ],
+          },
         },
-      },
-    })
+      })
+    } catch (error) {
+      if (isUniqueConstraint(error)) {
+        throw new UserAlreadyExistsError()
+      }
+      throw error
+    }
   }
 }
 
@@ -74,35 +84,57 @@ export async function replaceUserIdentifier(input: {
 }): Promise<void> {
   const now = input.now ?? new Date()
 
-  await input.prisma.$transaction(async (tx) => {
-    const current = await tx.userIdentifier.findFirst({
-      where: {
-        userId: input.userId,
-        tenantId: input.tenantId,
-        kind: input.kind,
-        replacedAt: null,
-      },
-    })
-
-    if (current?.normalizedValue === input.normalizedValue) {
-      return
-    }
-
-    if (current) {
-      await tx.userIdentifier.update({
-        where: { id: current.id },
-        data: { replacedAt: now },
+  try {
+    await input.prisma.$transaction(async (tx) => {
+      const current = await tx.userIdentifier.findFirst({
+        where: {
+          userId: input.userId,
+          tenantId: input.tenantId,
+          kind: input.kind,
+          replacedAt: null,
+        },
       })
-    }
 
-    await tx.userIdentifier.create({
-      data: {
-        userId: input.userId,
-        tenantId: input.tenantId,
-        kind: input.kind,
-        normalizedValue: input.normalizedValue,
-        confirmedAt: null,
-      },
+      if (current?.normalizedValue === input.normalizedValue) {
+        return
+      }
+
+      const collision = await tx.userIdentifier.findFirst({
+        where: {
+          tenantId: input.tenantId,
+          kind: input.kind,
+          normalizedValue: input.normalizedValue,
+        },
+      })
+
+      if (collision) {
+        throw new UserAlreadyExistsError()
+      }
+
+      if (current) {
+        await tx.userIdentifier.update({
+          where: { id: current.id },
+          data: { replacedAt: now },
+        })
+      }
+
+      await tx.userIdentifier.create({
+        data: {
+          userId: input.userId,
+          tenantId: input.tenantId,
+          kind: input.kind,
+          normalizedValue: input.normalizedValue,
+          confirmedAt: null,
+        },
+      })
     })
-  })
+  } catch (error) {
+    if (error instanceof UserAlreadyExistsError) {
+      throw error
+    }
+    if (isUniqueConstraint(error)) {
+      throw new UserAlreadyExistsError()
+    }
+    throw error
+  }
 }

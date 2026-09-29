@@ -1,4 +1,3 @@
-import { randomInt } from 'node:crypto'
 import { compare, hash } from 'bcryptjs'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
@@ -7,17 +6,27 @@ import { resolveTenant } from '@/http/tenant'
 import { verifyJWT } from '@/http/middlewares/verify-jwt'
 import { prisma } from '@/lib/prisma'
 import {
-  assertResendAllowed,
   canSubmitLinkFromIdentifiers,
   confirmationFlags,
-  currentIdentifier,
-  RESEND_WINDOW_MS,
+  ConfirmIdentifierUseCase,
+  generatePlainCode,
+  PrismaConfirmCodesRepository,
 } from '@/use-cases/@Auth/confirm-identifier'
 import { RegisterUseCase, registerBodySchema } from '@/use-cases/@Auth/register'
-import { UserAlreadyExistsError } from '@/use-cases/errors/user-already-exists-error'
+import { InvalidVerificationCodeError } from '@/use-cases/errors/invalid-verification-code-error'
+import { RateLimitError } from '@/use-cases/errors/rate-limit-error'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
+import { UserAlreadyExistsError } from '@/use-cases/errors/user-already-exists-error'
 
 const registerUseCase = new RegisterUseCase(prisma)
+const confirmUseCase = new ConfirmIdentifierUseCase(
+  new PrismaConfirmCodesRepository(prisma),
+  {
+    hashPlain: (plain) => hash(plain, 6),
+    compareHash: compare,
+    generatePlain: (kind) => generatePlainCode(kind, env.NODE_ENV),
+  },
+)
 
 const confirmBodySchema = z.object({
   kind: z.enum(['EMAIL', 'PHONE']),
@@ -68,41 +77,6 @@ async function signSession(reply: FastifyReply, user: { id: string; role: string
   return { accessToken, refreshToken }
 }
 
-function verificationPlainCode(kind: 'EMAIL' | 'PHONE'): string {
-  if (env.NODE_ENV === 'test') {
-    return kind === 'EMAIL' ? '000001' : '000002'
-  }
-  return String(randomInt(0, 1_000_000)).padStart(6, '0')
-}
-
-async function countResendsInWindow(userId: string, kind: 'EMAIL' | 'PHONE'): Promise<number> {
-  const since = new Date(Date.now() - RESEND_WINDOW_MS)
-  return prisma.verificationCode.count({
-    where: {
-      userId,
-      kind,
-      createdAt: { gte: since },
-    },
-  })
-}
-
-async function createVerificationCode(userId: string, kind: 'EMAIL' | 'PHONE') {
-  const plain = verificationPlainCode(kind)
-  const codeHash = await hash(plain, 6)
-  const expiresAt = new Date(Date.now() + RESEND_WINDOW_MS)
-
-  await prisma.verificationCode.create({
-    data: {
-      userId,
-      kind,
-      codeHash,
-      expiresAt,
-    },
-  })
-
-  return plain
-}
-
 async function register(request: FastifyRequest, reply: FastifyReply) {
   const body = registerBodySchema.parse(request.body)
   const host = hostFromRequest(request)
@@ -110,15 +84,8 @@ async function register(request: FastifyRequest, reply: FastifyReply) {
   try {
     const tenant = await resolveTenant(host)
     const user = await registerUseCase.execute({ ...body, tenantId: tenant.id })
-
-    const identifiers = await prisma.userIdentifier.findMany({
-      where: { userId: user.id },
-    })
-
+    const identifiers = await confirmUseCase.issueInitialCodes(user.id)
     const flags = confirmationFlags(identifiers)
-    await createVerificationCode(user.id, 'EMAIL')
-    await createVerificationCode(user.id, 'PHONE')
-
     const tokens = await signSession(reply, user)
 
     return reply.status(201).send({
@@ -148,87 +115,26 @@ async function confirm(request: FastifyRequest, reply: FastifyReply) {
   const body = confirmBodySchema.parse(request.body)
   const userId = request.user.sub as string
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    include: { identifiers: true },
-  })
-
-  if (!user) {
-    return reply.status(404).send({ message: 'Recurso não encontrado.' })
-  }
-
-  const identifier = currentIdentifier(user.identifiers, body.kind)
-  if (!identifier) {
-    return reply.status(404).send({ message: 'Identificador não encontrado.' })
-  }
-
-  if (body.resend) {
-    try {
-      const sentInWindow = await countResendsInWindow(userId, body.kind)
-      assertResendAllowed(sentInWindow)
-    } catch {
-      return reply.status(429).send({ message: 'limite de reenvio' })
-    }
-
-    await createVerificationCode(userId, body.kind)
-
-    const identifiers = await prisma.userIdentifier.findMany({
-      where: { userId },
-    })
-    const flags = confirmationFlags(identifiers)
-
-    return reply.status(200).send({
-      kind: body.kind,
-      resent: true,
-      emailConfirmed: flags.emailConfirmed,
-      phoneConfirmed: flags.phoneConfirmed,
-      canSubmitLink: canSubmitLinkFromIdentifiers(user.status, identifiers),
-    })
-  }
-
-  if (!body.code) {
-    return reply.status(400).send({ message: 'Informe o código ou solicite reenvio.' })
-  }
-
-  const latestCode = await prisma.verificationCode.findFirst({
-    where: {
+  try {
+    const result = await confirmUseCase.execute({
       userId,
       kind: body.kind,
-      expiresAt: { gt: new Date() },
-    },
-    orderBy: { createdAt: 'desc' },
-  })
-
-  if (!latestCode) {
-    return reply.status(400).send({ message: 'Código inválido ou expirado.' })
-  }
-
-  const codeMatches = await compare(body.code, latestCode.codeHash)
-  if (!codeMatches) {
-    await prisma.verificationCode.update({
-      where: { id: latestCode.id },
-      data: { attempts: { increment: 1 } },
+      code: body.code,
+      resend: body.resend,
     })
-    return reply.status(400).send({ message: 'Código inválido ou expirado.' })
+    return reply.status(200).send(result)
+  } catch (error) {
+    if (error instanceof ResourceNotFoundError) {
+      return reply.status(404).send({ message: error.message })
+    }
+    if (error instanceof RateLimitError) {
+      return reply.status(429).send({ message: error.message })
+    }
+    if (error instanceof InvalidVerificationCodeError) {
+      return reply.status(400).send({ message: error.message })
+    }
+    throw error
   }
-
-  await prisma.userIdentifier.update({
-    where: { id: identifier.id },
-    data: { confirmedAt: new Date() },
-  })
-
-  const identifiers = await prisma.userIdentifier.findMany({
-    where: { userId },
-  })
-  const flags = confirmationFlags(identifiers)
-
-  return reply.status(200).send({
-    kind: body.kind,
-    confirmed: true,
-    emailConfirmed: flags.emailConfirmed,
-    phoneConfirmed: flags.phoneConfirmed,
-    canSubmitLink: canSubmitLinkFromIdentifiers(user.status, identifiers),
-  })
 }
 
 export async function authRoutes(app: FastifyInstance) {

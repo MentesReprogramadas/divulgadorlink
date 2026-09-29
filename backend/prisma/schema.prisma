@@ -43,15 +43,16 @@ enum UserStatus {
 }
 
 model UserIdentifier {
-  id              String           @id @default(cuid())
-  userId          String
-  user            User             @relation(fields: [userId], references: [id])
-  tenantId        String
-  kind            IdentifierKind
-  normalizedValue String
-  confirmedAt     DateTime?
-  replacedAt      DateTime?
-  createdAt       DateTime         @default(now())
+  id                String             @id @default(cuid())
+  userId            String
+  user              User               @relation(fields: [userId], references: [id])
+  tenantId          String
+  kind              IdentifierKind
+  normalizedValue   String
+  confirmedAt       DateTime?
+  replacedAt        DateTime?
+  createdAt         DateTime           @default(now())
+  verificationCodes VerificationCode[]
   @@unique([tenantId, kind, normalizedValue])
   @@index([userId])
   @@map("user_identifiers")
@@ -63,13 +64,17 @@ enum IdentifierKind {
 }
 
 model VerificationCode {
-  id         String   @id @default(cuid())
-  userId     String
-  kind       IdentifierKind
-  codeHash   String
-  expiresAt  DateTime
-  attempts   Int      @default(0)
-  createdAt  DateTime @default(now())
+  id               String         @id @default(cuid())
+  userId           String
+  userIdentifierId String
+  userIdentifier   UserIdentifier @relation(fields: [userIdentifierId], references: [id])
+  kind             IdentifierKind
+  codeHash         String
+  expiresAt        DateTime
+  attempts         Int            @default(0)
+  isResend         Boolean        @default(false)
+  createdAt        DateTime       @default(now())
   @@index([userId, kind, createdAt])
+  @@index([userIdentifierId, createdAt])
   @@map("verification_codes")
 }
