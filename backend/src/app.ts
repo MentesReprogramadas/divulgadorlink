@@ -7,6 +7,7 @@ import { ZodError } from 'zod'
 import { env } from '@/env'
 import { adminRoutes } from '@/http/controllers/@Admin/routes'
 import { authRoutes } from '@/http/controllers/@auth/routes'
+import { goRoutes } from '@/http/controllers/@Links/go'
 import { linksRoutes } from '@/http/controllers/@Links/routes'
 import { health, live, ready } from '@/http/controllers/@Health/health'
 
@@ -57,6 +58,8 @@ app.register(
   },
   { prefix },
 )
+
+app.register(goRoutes, { prefix: '/go' })
 
 app.setErrorHandler((error, request, reply) => {
   if (error instanceof ZodError) {

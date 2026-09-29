@@ -50,6 +50,7 @@ export type NewLinkData = Omit<LinkRecord, 'id' | 'status' | 'createdAt' | 'upda
 }
 
 export interface LinksRepository {
+  findLinkById(id: string): Promise<LinkRecord | null>
   findSubmitter(tenantId: string, userId: string): Promise<SubmitterRecord | null>
   findNetwork(tenantId: string, id: string): Promise<NetworkRecord | null>
   findNiche(tenantId: string, id: string): Promise<NicheRecord | null>
@@ -122,6 +123,11 @@ export class InMemoryLinksRepository implements LinksRepository {
     return { ...row }
   }
 
+  async findLinkById(id: string): Promise<LinkRecord | null> {
+    const row = this.links.find((item) => item.id === id)
+    return row ? { ...row } : null
+  }
+
   async findSubmitter(tenantId: string, userId: string): Promise<SubmitterRecord | null> {
     const user = this.users.find((row) => row.id === userId && row.tenantId === tenantId)
     return user ? { ...user, identifiers: user.identifiers.map((row) => ({ ...row })) } : null
@@ -183,6 +189,10 @@ export class InMemoryLinksRepository implements LinksRepository {
 
 export class PrismaLinksRepository implements LinksRepository {
   constructor(private readonly client: PrismaClient) {}
+
+  async findLinkById(id: string): Promise<LinkRecord | null> {
+    return this.client.link.findUnique({ where: { id } })
+  }
 
   async findSubmitter(tenantId: string, userId: string): Promise<SubmitterRecord | null> {
     const user = await this.client.user.findFirst({
