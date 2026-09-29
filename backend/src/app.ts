@@ -1,12 +1,33 @@
+import { randomUUID } from 'node:crypto'
+import * as HyperDX from '@hyperdx/node-opentelemetry'
 import fastify from 'fastify'
 import fastifyCookie from '@fastify/cookie'
 import fastifyJwt from '@fastify/jwt'
 import { ZodError } from 'zod'
 import { env } from '@/env'
 import { authRoutes } from '@/http/controllers/@auth/routes'
-import { health } from '@/http/controllers/@Health/health'
+import { health, live, ready } from '@/http/controllers/@Health/health'
 
-export const app = fastify()
+if (env.HDX_API_KEY) {
+  HyperDX.init({
+    apiKey: env.HDX_API_KEY,
+    service: env.HDX_SERVICE_NAME,
+  })
+}
+
+export const app = fastify({
+  genReqId: (request) => {
+    const header = request.headers['x-request-id']
+    if (typeof header === 'string' && header.length > 0) {
+      return header
+    }
+    return randomUUID()
+  },
+})
+
+app.addHook('onRequest', async (request, reply) => {
+  reply.header('x-request-id', request.id)
+})
 
 app.register(fastifyCookie)
 
@@ -26,12 +47,14 @@ const prefix = '/api/v1'
 app.register(
   async (instance) => {
     instance.get('/actuator/health', health)
+    instance.get('/actuator/live', live)
+    instance.get('/actuator/ready', ready)
     await instance.register(authRoutes, { prefix: '/auth' })
   },
   { prefix },
 )
 
-app.setErrorHandler((error, _request, reply) => {
+app.setErrorHandler((error, request, reply) => {
   if (error instanceof ZodError) {
     return reply.status(400).send({
       message: 'Validation error.',
@@ -41,7 +64,11 @@ app.setErrorHandler((error, _request, reply) => {
 
   if (env.NODE_ENV !== 'production') {
     console.error(error)
+    return reply.status(500).send({ message: 'Internal server error' })
   }
 
-  return reply.status(500).send({ message: 'Internal server error' })
+  return reply.status(500).send({
+    code: 'internal_error',
+    request_id: request.id,
+  })
 })
