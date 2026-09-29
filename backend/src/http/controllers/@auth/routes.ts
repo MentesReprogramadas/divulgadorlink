@@ -52,17 +52,26 @@ function setRefreshTokenCookie(reply: FastifyReply, refreshToken: string) {
 }
 
 async function signSession(reply: FastifyReply, user: { id: string; role: string; tenantId: string }) {
-  const accessToken = await reply.jwtSign({
-    sub: user.id,
-    role: user.role,
-    tenantId: user.tenantId,
-  })
+  const accessToken = await reply.jwtSign(
+    {
+      sub: user.id,
+      role: user.role,
+      tenantId: user.tenantId,
+      typ: 'access',
+    },
+    {
+      sign: {
+        expiresIn: '5m',
+      },
+    },
+  )
 
   const refreshToken = await reply.jwtSign(
     {
       sub: user.id,
       role: user.role,
       tenantId: user.tenantId,
+      typ: 'refresh',
     },
     {
       sign: {

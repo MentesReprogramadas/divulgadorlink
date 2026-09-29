@@ -11,4 +11,8 @@ export async function verifyJWT(request: FastifyRequest, reply: FastifyReply) {
   } catch {
     return reply.status(401).send({ message: 'Não autenticado.' })
   }
+
+  if (request.user.typ === 'refresh') {
+    return reply.status(401).send({ message: 'Não autenticado.' })
+  }
 }
