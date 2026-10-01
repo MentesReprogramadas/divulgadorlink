@@ -25,7 +25,12 @@ export interface StripeGatewayClient {
 export class StripeCardPaymentGateway implements CardPaymentGateway {
   readonly method = 'CARD' as const
 
-  constructor(private stripe: StripeGatewayClient) {}
+  constructor(private client: StripeGatewayClient | null) {}
+
+  private get stripe(): StripeGatewayClient {
+    if (!this.client) throw new Error('STRIPE_SECRET_KEY ausente.')
+    return this.client
+  }
 
   async createCharge(input: { orderId: string; amountCents: number }): Promise<CardCharge> {
     const intent = await this.stripe.paymentIntents.create(

@@ -11,6 +11,7 @@ export type AuditLogRecord = {
   before: unknown
   after: unknown
   requestId: string | null
+  createdAt?: Date
 }
 
 export type CreateAuditLogInput = {
@@ -26,6 +27,7 @@ export type CreateAuditLogInput = {
 
 export interface AuditLogsRepository {
   create(input: CreateAuditLogInput): Promise<AuditLogRecord>
+  latest(input: { tenantId: string; entityType: string; entityId: string; action: string }): Promise<AuditLogRecord | null>
 }
 
 export class InMemoryAuditLogsRepository implements AuditLogsRepository {
@@ -45,6 +47,16 @@ export class InMemoryAuditLogsRepository implements AuditLogsRepository {
     }
     this.items.push(row)
     return { ...row }
+  }
+
+  async latest(input: { tenantId: string; entityType: string; entityId: string; action: string }): Promise<AuditLogRecord | null> {
+    const matches = this.items.filter((row) =>
+      row.tenantId === input.tenantId
+      && row.entityType === input.entityType
+      && row.entityId === input.entityId
+      && row.action === input.action,
+    )
+    return matches.at(-1) ?? null
   }
 }
 
@@ -74,6 +86,26 @@ export class PrismaAuditLogsRepository implements AuditLogsRepository {
       before: row.before,
       after: row.after,
       requestId: row.requestId,
+    }
+  }
+
+  async latest(input: { tenantId: string; entityType: string; entityId: string; action: string }): Promise<AuditLogRecord | null> {
+    const row = await this.client.auditLog.findFirst({
+      where: input,
+      orderBy: { createdAt: 'desc' },
+    })
+    if (!row) return null
+    return {
+      id: row.id,
+      tenantId: row.tenantId,
+      actorId: row.actorId,
+      action: row.action,
+      entityType: row.entityType,
+      entityId: row.entityId,
+      before: row.before,
+      after: row.after,
+      requestId: row.requestId,
+      createdAt: row.createdAt,
     }
   }
 }

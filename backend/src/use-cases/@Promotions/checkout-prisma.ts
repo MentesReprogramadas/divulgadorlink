@@ -33,6 +33,7 @@ type OrderRow = {
   refundIds: string[] | null
   idempotencyKey: string | null
   renewal: boolean
+  brCode: string | null
   createdAt: Date
 }
 
@@ -60,6 +61,7 @@ function toCommercial(row: OrderRow, surfaces: Surface[], events: string[]): Com
     savingsCents: row.savingsCents,
     idempotencyKey: row.idempotencyKey,
     renewal: row.renewal,
+    brCode: row.brCode ?? undefined,
     createdAt: row.createdAt,
     refundErrors: row.refundErrors ?? [],
     refundIds: row.refundIds ?? [],
@@ -151,10 +153,7 @@ export class PrismaCheckoutStore implements CheckoutStore {
         }
       })
     } catch (error) {
-      const message = error instanceof Error ? error.message : ''
-      if (message.includes('order_surfaces_one_pending') || message.includes('23505')) {
-        throw new CheckoutConflictError()
-      }
+      if (isUniqueViolation(error)) throw new CheckoutConflictError()
       throw error
     }
     const created = await this.findCommercial(id)
@@ -168,12 +167,15 @@ export class PrismaCheckoutStore implements CheckoutStore {
     clientSecret?: string
     expiresAt?: Date
   }): Promise<void> {
-    await this.client.$executeRawUnsafe(
-      `UPDATE orders SET "gatewayChargeId" = $2, "pixExpiresAt" = COALESCE($3, "pixExpiresAt"), "updatedAt" = NOW() WHERE id = $1`,
+    const updated = await this.client.$executeRawUnsafe(
+      `UPDATE orders SET "gatewayChargeId" = $2, "pixExpiresAt" = COALESCE($3, "pixExpiresAt"), "brCode" = $4, "updatedAt" = NOW()
+       WHERE id = $1 AND "gatewayChargeId" IS NULL`,
       orderId,
       charge.gatewayChargeId,
       charge.expiresAt ?? null,
+      charge.brCode ?? null,
     )
+    if (updated === 0) return
     await this.client.$executeRawUnsafe(
       `INSERT INTO payments (id, "orderId", provider, "externalId", "amountCents", status, "createdAt")
        SELECT $1, id, method::text, $2, "amountCents", 'CREATED', NOW() FROM orders WHERE id = $3`,
@@ -181,6 +183,20 @@ export class PrismaCheckoutStore implements CheckoutStore {
       charge.gatewayChargeId,
       orderId,
     )
+  }
+
+  async abandonUncharged(orderId: string): Promise<void> {
+    await this.client.$transaction(async (tx) => {
+      const rows = await tx.$queryRawUnsafe<Array<{ id: string }>>(
+        'SELECT id FROM orders WHERE id = $1 AND "gatewayChargeId" IS NULL',
+        orderId,
+      )
+      if (!rows[0]) return
+      await tx.$executeRawUnsafe('DELETE FROM payments WHERE "orderId" = $1', orderId)
+      await tx.$executeRawUnsafe('DELETE FROM order_events WHERE "orderId" = $1', orderId)
+      await tx.$executeRawUnsafe('DELETE FROM order_surfaces WHERE "orderId" = $1', orderId)
+      await tx.$executeRawUnsafe('DELETE FROM orders WHERE id = $1', orderId)
+    })
   }
 
   async releasePending(orderId: string): Promise<void> {
@@ -240,6 +256,43 @@ export class PrismaCheckoutStore implements CheckoutStore {
     )
   }
 
+  async listPromotionsByLinks(linkIds: string[]): Promise<ActivePromotion[]> {
+    if (linkIds.length === 0) return []
+    const placeholders = linkIds.map((_, index) => `$${index + 1}`).join(', ')
+    return this.client.$queryRawUnsafe(
+      `SELECT id, "linkId", surface, status, "activatedAt", "expiresAt" FROM promotions WHERE "linkId" IN (${placeholders})`,
+      ...linkIds,
+    )
+  }
+
+  async listOrdersByStatus(tenantId: string, status: Order['status']): Promise<CommercialOrder[]> {
+    const rows = await this.client.$queryRawUnsafe<Array<{ id: string }>>(
+      `SELECT id FROM orders WHERE "tenantId" = $1 AND status = $2::"OrderStatus" ORDER BY "createdAt" DESC`,
+      tenantId,
+      status,
+    )
+    const orders: CommercialOrder[] = []
+    for (const row of rows) {
+      const commercial = await this.findCommercial(row.id)
+      if (commercial) orders.push(commercial)
+    }
+    return orders
+  }
+
+  async listOrdersForUser(tenantId: string, userId: string): Promise<CommercialOrder[]> {
+    const rows = await this.client.$queryRawUnsafe<Array<{ id: string }>>(
+      `SELECT id FROM orders WHERE "tenantId" = $1 AND "userId" = $2 ORDER BY "createdAt" DESC`,
+      tenantId,
+      userId,
+    )
+    const orders: CommercialOrder[] = []
+    for (const row of rows) {
+      const commercial = await this.findCommercial(row.id)
+      if (commercial) orders.push(commercial)
+    }
+    return orders
+  }
+
   async prices(): Promise<PriceRow[]> {
     const rows = await this.client.$queryRawUnsafe<Array<{ productCode: ProductCode; durationDays: number; amountCents: number }>>(
       'SELECT "productCode", "durationDays", "amountCents" FROM promotion_prices WHERE "effectiveTo" IS NULL',
@@ -265,6 +318,13 @@ export class PrismaCheckoutStore implements CheckoutStore {
       JSON.stringify(order.refundErrors ?? []),
       JSON.stringify(order.refundIds ?? []),
     )
+    if (order.status === 'PAID' || order.status === 'PAID_LATE' || order.status === 'REFUNDED' || order.status === 'REFUND_FAILED') {
+      await this.client.$executeRawUnsafe(
+        'UPDATE payments SET status = $2 WHERE "orderId" = $1',
+        order.id,
+        order.status,
+      )
+    }
     for (const eventId of order.processedEventIds) {
       await this.client.$executeRawUnsafe(
         `INSERT INTO order_events (id, "orderId", "eventId", "createdAt") VALUES ($1, $2, $3, NOW())
@@ -280,7 +340,23 @@ export class PrismaCheckoutStore implements CheckoutStore {
   }
 }
 
+let checkoutStoreForTest: CheckoutStore | null = null
+
+export function setCheckoutStoreForTest(store: CheckoutStore | null): void {
+  if (process.env.NODE_ENV !== 'test') return
+  checkoutStoreForTest = store
+}
+
 export function runtimeCheckoutStore(): CheckoutStore {
+  if (checkoutStoreForTest) return checkoutStoreForTest
   if (process.env.NODE_ENV === 'test') return getCheckoutStore()
   return new PrismaCheckoutStore(prisma)
+}
+
+function isUniqueViolation(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false
+  const meta = 'meta' in error ? (error as { meta?: { code?: string } }).meta : undefined
+  if (meta?.code === '23505') return true
+  const message = error instanceof Error ? error.message : ''
+  return message.includes('23505') || message.includes('order_surfaces_one_pending')
 }

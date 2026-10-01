@@ -27,6 +27,7 @@ export type NewModerationCaseData = Omit<ModerationCaseRecord, 'id' | 'appealed'
 export interface ModerationCasesRepository {
   findById(id: string): Promise<ModerationCaseRecord | null>
   findOpenByLinkId(linkId: string): Promise<ModerationCaseRecord | null>
+  listOpen(tenantId: string): Promise<ModerationCaseRecord[]>
   listByLinkId(linkId: string): Promise<ModerationCaseRecord[]>
   create(data: NewModerationCaseData): Promise<ModerationCaseRecord>
   saveAppeal(id: string, text: string): Promise<ModerationCaseRecord | null>
@@ -64,6 +65,12 @@ export class InMemoryModerationCasesRepository implements ModerationCasesReposit
   async findOpenByLinkId(linkId: string): Promise<ModerationCaseRecord | null> {
     const row = [...this.cases].reverse().find((item) => item.linkId === linkId && !item.closed)
     return row ? { ...row, internalSignals: [...row.internalSignals] } : null
+  }
+
+  async listOpen(tenantId: string): Promise<ModerationCaseRecord[]> {
+    return this.cases
+      .filter((row) => row.tenantId === tenantId && !row.closed)
+      .map((row) => ({ ...row, internalSignals: [...row.internalSignals] }))
   }
 
   async listByLinkId(linkId: string): Promise<ModerationCaseRecord[]> {
@@ -139,6 +146,15 @@ export class PrismaModerationCasesRepository implements ModerationCasesRepositor
   async findById(id: string): Promise<ModerationCaseRecord | null> {
     const row = await this.client.moderationCase.findUnique({ where: { id }, include: CASE_INCLUDE })
     return row ? toCaseRecord(row) : null
+  }
+
+  async listOpen(tenantId: string): Promise<ModerationCaseRecord[]> {
+    const rows = await this.client.moderationCase.findMany({
+      where: { tenantId, closedAt: null },
+      orderBy: { createdAt: 'asc' },
+      include: CASE_INCLUDE,
+    })
+    return rows.map(toCaseRecord)
   }
 
   async findOpenByLinkId(linkId: string): Promise<ModerationCaseRecord | null> {

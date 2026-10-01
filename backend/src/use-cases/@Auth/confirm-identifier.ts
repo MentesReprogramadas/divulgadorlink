@@ -1,8 +1,11 @@
 import { randomInt } from 'node:crypto'
 import type { PrismaClient } from '@prisma/client'
+import { defaultConfirmationDelivery } from '@/adapters/notifications/confirmation-providers'
+import type { ConfirmationDelivery } from '@/domain/notifications/confirmation-delivery'
 import { InvalidVerificationCodeError } from '@/use-cases/errors/invalid-verification-code-error'
 import { RateLimitError } from '@/use-cases/errors/rate-limit-error'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
+import { UserAlreadyExistsError } from '@/use-cases/errors/user-already-exists-error'
 
 export const RESEND_WINDOW_MS = 60 * 60 * 1000
 
@@ -80,15 +83,16 @@ export function canSubmitLinkFromIdentifiers(
   return canSubmitLink({ ...confirmationFlags(identifiers), status })
 }
 
-export function currentIdentifier(
-  identifiers: IdentifierSnapshot[],
+export function currentIdentifier<T extends IdentifierSnapshot>(
+  identifiers: T[],
   kind: 'EMAIL' | 'PHONE',
-): IdentifierSnapshot | undefined {
+): T | undefined {
   return identifiers.find((row) => row.kind === kind && row.replacedAt === null)
 }
 
 export type StoredIdentifier = IdentifierSnapshot & {
   userId: string
+  normalizedValue: string
 }
 
 export type StoredCode = {
@@ -118,6 +122,20 @@ export interface ConfirmCodesRepository {
   findLatestLiveCode(userIdentifierId: string, now: Date): Promise<StoredCode | null>
   incrementAttempts(codeId: string): Promise<number>
   confirmIdentifier(identifierId: string, at: Date): Promise<void>
+  identifierTaken(input: { tenantId: string; kind: 'EMAIL' | 'PHONE'; normalizedValue: string }): Promise<boolean>
+  replaceIdentifier(input: {
+    userId: string
+    tenantId: string
+    kind: 'EMAIL' | 'PHONE'
+    normalizedValue: string
+    at: Date
+  }): Promise<StoredIdentifier>
+}
+
+export class IdentifierChangeForbiddenError extends Error {
+  constructor() {
+    super('Conta não pode alterar o identificador.')
+  }
 }
 
 export type ConfirmCrypto = {
@@ -147,6 +165,7 @@ export class ConfirmIdentifierUseCase {
   constructor(
     private readonly codes: ConfirmCodesRepository,
     private readonly crypto: ConfirmCrypto,
+    private readonly deliver: ConfirmationDelivery = defaultConfirmationDelivery,
   ) {}
 
   private now(): Date {
@@ -175,7 +194,7 @@ export class ConfirmIdentifierUseCase {
       throw new ResourceNotFoundError('Identificador não encontrado.')
     }
 
-    return { user, identifier: identifier as StoredIdentifier }
+    return { user, identifier }
   }
 
   async issueInitialCodes(userId: string): Promise<StoredIdentifier[]> {
@@ -190,10 +209,39 @@ export class ConfirmIdentifierUseCase {
       if (!identifier) {
         throw new ResourceNotFoundError('Identificador não encontrado.')
       }
-      await this.persistCode(userId, identifier.id, kind, false, now)
+      await this.persistCode(userId, identifier, kind, false, now)
     }
 
     return user.identifiers
+  }
+
+  async beginChange(input: {
+    userId: string
+    tenantId: string
+    kind: 'EMAIL' | 'PHONE'
+    raw: string
+  }): Promise<ConfirmResult> {
+    const user = await this.codes.findUser(input.userId)
+    if (!user) throw new ResourceNotFoundError()
+    if (user.status === 'BANNED') throw new IdentifierChangeForbiddenError()
+    const normalized = input.kind === 'EMAIL' ? normalizeEmail(input.raw) : normalizePhone(input.raw)
+    if (!normalized) throw new InvalidVerificationCodeError('Identificador inválido.')
+    const now = this.now()
+    if (await this.codes.identifierTaken({ tenantId: input.tenantId, kind: input.kind, normalizedValue: normalized })) {
+      throw new UserAlreadyExistsError()
+    }
+    const plain = await this.deliverCode(input.userId, input.kind, normalized)
+    const created = await this.codes.replaceIdentifier({
+      userId: input.userId,
+      tenantId: input.tenantId,
+      kind: input.kind,
+      normalizedValue: normalized,
+      at: now,
+    })
+    await this.storeCode(input.userId, created.id, input.kind, false, now, plain)
+    const next = await this.codes.findUser(input.userId)
+    if (!next) throw new ResourceNotFoundError()
+    return { kind: input.kind, ...this.snapshot(next) }
   }
 
   async execute(input: ConfirmInput): Promise<ConfirmResult> {
@@ -214,7 +262,7 @@ export class ConfirmIdentifierUseCase {
       new Date(now.getTime() - RESEND_WINDOW_MS),
     )
     assertResendAllowed(sentInWindow)
-    await this.persistCode(userId, identifier.id, kind, true, now)
+    await this.persistCode(userId, identifier, kind, true, now)
     return { kind, resent: true, ...this.snapshot(user) }
   }
 
@@ -249,12 +297,29 @@ export class ConfirmIdentifierUseCase {
 
   private async persistCode(
     userId: string,
-    userIdentifierId: string,
+    identifier: Pick<StoredIdentifier, 'id' | 'normalizedValue'>,
     kind: 'EMAIL' | 'PHONE',
     isResend: boolean,
     now: Date,
   ): Promise<void> {
+    const plain = await this.deliverCode(userId, kind, identifier.normalizedValue)
+    await this.storeCode(userId, identifier.id, kind, isResend, now, plain)
+  }
+
+  private async deliverCode(userId: string, kind: 'EMAIL' | 'PHONE', destination: string): Promise<string> {
     const plain = this.crypto.generatePlain(kind)
+    await this.deliver(kind, { userId, destination, code: plain })
+    return plain
+  }
+
+  private async storeCode(
+    userId: string,
+    userIdentifierId: string,
+    kind: 'EMAIL' | 'PHONE',
+    isResend: boolean,
+    now: Date,
+    plain: string,
+  ): Promise<void> {
     const codeHash = await this.crypto.hashPlain(plain)
     await this.codes.createCode({
       userId,
@@ -272,6 +337,7 @@ function mapIdentifier(row: {
   id: string
   userId: string
   kind: 'EMAIL' | 'PHONE'
+  normalizedValue: string
   confirmedAt: Date | null
   replacedAt: Date | null
 }): StoredIdentifier {
@@ -279,6 +345,7 @@ function mapIdentifier(row: {
     id: row.id,
     userId: row.userId,
     kind: row.kind,
+    normalizedValue: row.normalizedValue,
     confirmedAt: row.confirmedAt,
     replacedAt: row.replacedAt,
   }
@@ -378,5 +445,51 @@ export class PrismaConfirmCodesRepository implements ConfirmCodesRepository {
       where: { id: identifierId },
       data: { confirmedAt: at },
     })
+  }
+
+  async identifierTaken(input: { tenantId: string; kind: 'EMAIL' | 'PHONE'; normalizedValue: string }): Promise<boolean> {
+    const taken = await this.prisma.userIdentifier.findFirst({
+      where: { tenantId: input.tenantId, kind: input.kind, normalizedValue: input.normalizedValue },
+      select: { id: true },
+    })
+    return taken !== null
+  }
+
+  async replaceIdentifier(input: {
+    userId: string
+    tenantId: string
+    kind: 'EMAIL' | 'PHONE'
+    normalizedValue: string
+    at: Date
+  }): Promise<StoredIdentifier> {
+    try {
+      const created = await this.prisma.$transaction(async (tx) => {
+        const current = await tx.userIdentifier.findFirst({
+          where: { userId: input.userId, kind: input.kind, replacedAt: null },
+        })
+        if (!current) throw new ResourceNotFoundError('Identificador não encontrado.')
+        const taken = await tx.userIdentifier.findFirst({
+          where: { tenantId: input.tenantId, kind: input.kind, normalizedValue: input.normalizedValue },
+        })
+        if (taken) throw new UserAlreadyExistsError()
+        await tx.userIdentifier.update({ where: { id: current.id }, data: { replacedAt: input.at } })
+        return tx.userIdentifier.create({
+          data: {
+            userId: input.userId,
+            tenantId: input.tenantId,
+            kind: input.kind,
+            normalizedValue: input.normalizedValue,
+            confirmedAt: null,
+          },
+        })
+      })
+      return mapIdentifier(created)
+    } catch (error) {
+      if (error instanceof UserAlreadyExistsError || error instanceof ResourceNotFoundError) throw error
+      if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
+        throw new UserAlreadyExistsError()
+      }
+      throw error
+    }
   }
 }

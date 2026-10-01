@@ -199,6 +199,7 @@ model Link {
   embeddingJobs   EmbeddingJob[]
   orders          Order[]
   @@index([tenantId, ownerId, status])
+  @@index([tenantId, status, id])
   @@map("links")
 }
 
@@ -262,6 +263,7 @@ model Promotion {
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
   @@index([tenantId, linkId, status])
+  @@index([surface, status, activatedAt])
   @@map("promotions")
 }
 
@@ -301,6 +303,7 @@ model Order {
   savingsCents         Int
   pixExpiresAt         DateTime?
   gatewayChargeId      String?
+  brCode               String?
   refundCorrelationId  String?
   refundAttempts       Int                  @default(0)
   refundErrors         Json                 @default("[]")
@@ -364,6 +367,7 @@ model AnalyticsEvent {
   updatedAt DateTime @updatedAt
   @@unique([sessionId, linkId, surface, day, kind])
   @@index([tenantId, day])
+  @@index([tenantId, linkId, day])
   @@map("analytics_events")
 }
 

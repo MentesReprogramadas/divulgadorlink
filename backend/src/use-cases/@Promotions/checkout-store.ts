@@ -67,10 +67,15 @@ export interface CheckoutStore {
     clientSecret?: string
     expiresAt?: Date
   }): Promise<void>
+  abandonUncharged(orderId: string): Promise<void>
   releasePending(orderId: string): Promise<void>
   activatePaid(orderId: string, now: Date): Promise<void>
   listPromotions(linkId: string): Promise<ActivePromotion[]>
+  listPromotionsByLinks(linkIds: string[]): Promise<ActivePromotion[]>
+  listOrdersForUser(tenantId: string, userId: string): Promise<CommercialOrder[]>
+  listOrdersByStatus(tenantId: string, status: Order['status']): Promise<CommercialOrder[]>
   prices(): Promise<typeof PRICE_ROWS>
+  saveOrder(order: Order): Promise<void>
 }
 
 const locks = new Map<string, Promise<void>>()
@@ -154,11 +159,18 @@ export class InMemoryCheckoutStore implements CheckoutStore {
     expiresAt?: Date
   }): Promise<void> {
     const row = this.orders.find((item) => item.order.id === orderId)
-    if (!row) return
+    if (!row || row.order.gatewayChargeId) return
     row.order.gatewayChargeId = charge.gatewayChargeId
     if (charge.expiresAt) row.order.pixExpiresAt = charge.expiresAt
     row.brCode = charge.brCode
     row.clientSecret = charge.clientSecret
+  }
+
+  async abandonUncharged(orderId: string): Promise<void> {
+    const row = this.orders.find((item) => item.order.id === orderId)
+    if (!row || row.order.gatewayChargeId) return
+    this.orders = this.orders.filter((item) => item.order.id !== orderId)
+    this.holds = this.holds.filter((item) => item.orderId !== orderId)
   }
 
   async releasePending(orderId: string): Promise<void> {
@@ -202,8 +214,31 @@ export class InMemoryCheckoutStore implements CheckoutStore {
     return this.promotions.filter((row) => row.linkId === linkId).map((row) => ({ ...row }))
   }
 
+  async listPromotionsByLinks(linkIds: string[]): Promise<ActivePromotion[]> {
+    return this.promotions.filter((row) => linkIds.includes(row.linkId)).map((row) => ({ ...row }))
+  }
+
+  async listOrdersForUser(tenantId: string, userId: string): Promise<CommercialOrder[]> {
+    return this.orders.filter((row) => row.tenantId === tenantId && row.userId === userId).map((row) => ({ ...row }))
+  }
+
+  async listOrdersByStatus(tenantId: string, status: Order['status']): Promise<CommercialOrder[]> {
+    return this.orders.filter((row) => row.tenantId === tenantId && row.order.status === status).map((row) => ({ ...row }))
+  }
+
   async prices(): Promise<typeof PRICE_ROWS> {
     return PRICE_ROWS.map((row) => ({ ...row }))
+  }
+
+  async saveOrder(order: Order): Promise<void> {
+    const row = this.orders.find((item) => item.order.id === order.id)
+    if (!row) return
+    row.order = order
+    row.refundErrors = order.refundErrors ?? row.refundErrors
+    row.refundIds = order.refundIds ?? row.refundIds
+    if (order.status === 'EXPIRED' || order.status === 'PAID_LATE' || order.status === 'REFUNDED' || order.status === 'REFUND_FAILED') {
+      await this.releasePending(order.id)
+    }
   }
 }
 

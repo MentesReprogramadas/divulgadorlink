@@ -58,9 +58,10 @@ export function autocompleteIds(rows: SearchRow[], threshold: number, limit = 8)
 
 export function hybridSearchSql(): string {
   return `
-    SELECT l."id",
+    WITH query_embedding AS (SELECT $2::vector AS v)
+    SELECT l."id", l."name", l."description",
       ts_rank(to_tsvector('simple', l."name" || ' ' || l."description"), plainto_tsquery('simple', $1)) AS text_score,
-      CASE WHEN l."embedding" IS NULL THEN NULL ELSE 1 - (l."embedding" <=> $2::vector) END AS semantic_score,
+      CASE WHEN l."embedding" IS NULL THEN NULL ELSE 1 - (l."embedding" <=> (SELECT v FROM query_embedding)) END AS semantic_score,
       l."embeddingState",
       (
         SELECT p."activatedAt" FROM "promotions" p
@@ -75,7 +76,7 @@ export function hybridSearchSql(): string {
       AND ($4::text = 'yes' OR n."requiresAge" = false)
       AND (
         $5 * ts_rank(to_tsvector('simple', l."name" || ' ' || l."description"), plainto_tsquery('simple', $1))
-        + $6 * COALESCE(1 - (l."embedding" <=> $2::vector), 0)
+        + $6 * COALESCE(1 - (l."embedding" <=> (SELECT v FROM query_embedding)), 0)
       ) >= $7
   `
 }

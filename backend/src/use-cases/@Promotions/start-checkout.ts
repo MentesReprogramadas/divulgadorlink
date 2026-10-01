@@ -3,9 +3,19 @@ import { priceFor, type PriceRow, type ProductCode } from '@/domain/promotions/p
 import type { PaymentMethod } from '@/domain/payments/order'
 import type { CardPaymentGateway, PixPaymentGateway } from '@/domain/payments/payment-gateway'
 import { logDomainEvent } from '@/observability/logger'
+import { claimCharge, releaseCharge } from '@/adapters/payments/charge-lock'
+import { enqueueChargeOrder } from '@/adapters/queues/enqueue-payment-job'
 import type { CheckoutStore } from '@/use-cases/@Promotions/checkout-store'
+import { PIX_EXPIRES_IN_SECONDS, pixExpiresInSeconds } from '@/domain/payments/pix-expiration'
 
-export const PIX_EXPIRES_IN_SECONDS = 1800
+export { PIX_EXPIRES_IN_SECONDS }
+
+let raceDelayMs = 0
+
+export function setCheckoutRaceDelayForTest(ms: number): void {
+  if (process.env.NODE_ENV !== 'test') return
+  raceDelayMs = ms
+}
 
 export function assertCheckout(input: {
   account: 'ACTIVE' | 'BANNED'
@@ -50,7 +60,7 @@ export function gatewayFor(
         const charge = await pix.createCharge({
           orderId: input.orderId,
           amountCents: input.amountCents,
-          expiresInSeconds: input.expiresInSeconds ?? PIX_EXPIRES_IN_SECONDS,
+          expiresInSeconds: input.expiresInSeconds ?? pixExpiresInSeconds(),
         })
         return { gatewayChargeId: charge.gatewayChargeId, brCode: charge.brCode, expiresAt: charge.expiresAt }
       },
@@ -122,6 +132,11 @@ export async function startCheckout(input: {
     throw new Error('expirada')
   }
   const price = priceFor(input.rows, input.surfaces, input.durationDays)
+  const ttlSeconds = pixExpiresInSeconds()
+
+  if (raceDelayMs > 0) {
+    await new Promise((resolve) => setTimeout(resolve, raceDelayMs))
+  }
 
   const created = await input.store.createPending({
     tenantId: input.tenantId,
@@ -135,7 +150,7 @@ export async function startCheckout(input: {
     savingsCents: price.savingsCents,
     idempotencyKey: input.idempotencyKey,
     renewal: Boolean(input.renewal),
-    pixExpiresAt: input.method === 'PIX' ? new Date(Date.now() + PIX_EXPIRES_IN_SECONDS * 1000) : null,
+    pixExpiresAt: input.method === 'PIX' ? new Date(Date.now() + ttlSeconds * 1000) : null,
   })
 
   logDomainEvent('promotion.checkout.created', {
@@ -147,11 +162,29 @@ export async function startCheckout(input: {
     result: 'pending',
   })
 
+  await enqueueChargeOrder(created.order.id)
+
+  let claimed = false
   try {
+    claimed = await claimCharge(created.order.id)
+    if (!claimed) {
+      const current = await input.store.findCommercial(created.order.id)
+      if (current?.order.gatewayChargeId) {
+        return {
+          orderId: current.order.id,
+          code: price.code,
+          amountCents: price.amountCents,
+          savingsCents: price.savingsCents,
+          brCode: current.brCode,
+          clientSecret: current.clientSecret,
+        }
+      }
+      throw new Error('cobrança em andamento')
+    }
     const charge = await input.gateway.createCharge({
       orderId: created.order.id,
       amountCents: price.amountCents,
-      expiresInSeconds: PIX_EXPIRES_IN_SECONDS,
+      expiresInSeconds: ttlSeconds,
     })
     await input.store.attachCharge(created.order.id, {
       gatewayChargeId: charge.gatewayChargeId,
@@ -169,8 +202,9 @@ export async function startCheckout(input: {
       result: 'created',
     })
     if (input.method === 'PIX' && input.scheduleExpire) {
-      await input.scheduleExpire(created.order.id, PIX_EXPIRES_IN_SECONDS * 1000)
+      await input.scheduleExpire(created.order.id, ttlSeconds * 1000)
     }
+    await releaseCharge(created.order.id)
     return {
       orderId: created.order.id,
       code: price.code,
@@ -180,6 +214,8 @@ export async function startCheckout(input: {
       clientSecret: charge.clientSecret,
     }
   } catch (error) {
+    if (claimed) await releaseCharge(created.order.id)
+    if (!claimed) throw error
     logDomainEvent('payment.created', {
       requestId: input.requestId,
       tenantId: input.tenantId,
@@ -187,6 +223,7 @@ export async function startCheckout(input: {
       provider: input.method,
       result: 'provider_error',
     })
+    await input.store.abandonUncharged(created.order.id)
     throw error
   }
 }

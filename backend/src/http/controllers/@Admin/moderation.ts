@@ -350,7 +350,36 @@ export async function postAdminModerationDecision(request: FastifyRequest, reply
   }
 }
 
+export async function getModerationQueue(request: FastifyRequest, reply: FastifyReply) {
+  if (request.user.role !== 'ADMIN') {
+    return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
+  }
+  try {
+    const tenant = await resolveTenant(hostFromRequest(request))
+    if (request.user.tenantId !== tenant.id) {
+      return reply.status(403).send(buildError({ code: forbidden, message: 'Acesso negado.', request_id: request.id }))
+    }
+    const cases = await getModerationCasesRepository().listOpen(tenant.id)
+    const links = await Promise.all(cases.map((row) => getLinksRepository().findLinkById(row.linkId)))
+    return reply.status(200).send({
+      cases: cases.map((row, index) => ({
+        id: row.id,
+        linkId: row.linkId,
+        name: links[index]?.name ?? '',
+        status: links[index]?.status ?? 'PENDING_MODERATION',
+        appealText: row.appealText,
+      })),
+    })
+  } catch (error) {
+    if (error instanceof ResourceNotFoundError) {
+      return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
+    }
+    throw error
+  }
+}
+
 export async function registerModerationRoutes(app: FastifyInstance) {
+  app.get('/admin/moderation', { onRequest: [verifyJWT] }, getModerationQueue)
   app.post('/admin/moderation/:id', { onRequest: [verifyJWT] }, postAdminModerationDecision)
 }
 

@@ -20,6 +20,8 @@ describe('ssrf', () => {
     expect(() => assertPublicHttps('http://example.com')).toThrow(/https/)
     expect(() => assertPublicHttps('https://127.0.0.1')).toThrow(/privado/)
     expect(() => assertPublicHttps('https://169.254.169.254')).toThrow(/privado/)
+    expect(() => assertPublicHttps('https://[::1]/x')).toThrow(/privado/)
+    expect(() => assertPublicHttps('https://[::ffff:127.0.0.1]/x')).toThrow(/privado/)
   })
 
   it('recusa o endereço resolvido mesmo se o host parecer público', () => {

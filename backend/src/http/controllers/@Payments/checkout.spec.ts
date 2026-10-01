@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { openPixHmac } from '@/adapters/payments/woovi-webhook-signature'
+import { signWooviTestBody } from '@/adapters/payments/woovi-test-signing'
 import { app } from '@/app'
 import { getPaymentJobsForTest, resetPaymentJobsForTest } from '@/adapters/queues/enqueue-payment-job'
 import { setPaymentGatewayForTest } from '@/http/controllers/@Payments/routes'
@@ -60,7 +60,8 @@ describe('checkout e webhook', () => {
     })
     expect(ok.statusCode).toBe(201)
     expect(ok.json()).toMatchObject({ code: 'SEARCH', amountCents: 790, savingsCents: 0 })
-    expect(getPaymentJobsForTest()[0]).toMatchObject({ name: 'expire-pix', delay: 1_800_000 })
+    expect(getPaymentJobsForTest().find((job) => job.name === 'expire-pix')).toMatchObject({ delay: 1_800_000 })
+    expect(getPaymentJobsForTest().some((job) => job.name === 'charge-order' && job.orderId === ok.json().orderId)).toBe(true)
   })
 
   it('não deixa outro usuário comprar o link', async () => {
@@ -121,7 +122,7 @@ describe('checkout e webhook', () => {
     expect(await getCheckoutStore().listPromotions('link-1')).toHaveLength(0)
 
     const body = JSON.stringify({ eventId: 'evt-1', charge: { correlationID: orderId } })
-    const headers = { 'content-type': 'application/json', 'x-openpix-signature': openPixHmac(body, 'woovi-test-secret') }
+    const headers = { 'content-type': 'application/json', 'x-webhook-signature': signWooviTestBody(body) }
     const first = await app.inject({ method: 'POST', url: '/api/v1/payments/woovi/webhook', headers, payload: body })
     const second = await app.inject({ method: 'POST', url: '/api/v1/payments/woovi/webhook', headers, payload: body })
     expect(first.statusCode).toBe(200)
@@ -152,7 +153,7 @@ describe('checkout e webhook', () => {
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/payments/woovi/webhook',
-      headers: { 'content-type': 'application/json', 'x-openpix-signature': openPixHmac(JSON.stringify({ eventId: 'evt-late', charge: { correlationID: orderId } }), 'woovi-test-secret') },
+      headers: { 'content-type': 'application/json', 'x-webhook-signature': signWooviTestBody(JSON.stringify({ eventId: 'evt-late', charge: { correlationID: orderId } })) },
       payload: JSON.stringify({ eventId: 'evt-late', charge: { correlationID: orderId } }),
     })
     expect(response.statusCode).toBe(200)

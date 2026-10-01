@@ -1,7 +1,11 @@
+import { randomBytes, randomUUID } from 'node:crypto'
 import { compare, hash } from 'bcryptjs'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
+import { isRefreshRevoked, refreshTtlSeconds, resetRefreshRevocationsForTest, revokeRefreshJti } from '@/adapters/auth/refresh-revocation'
+import { confirmationInboxEnabled, readConfirmation } from '@/adapters/auth/confirmation-inbox'
 import { env } from '@/env'
+import { buildError, forbidden, internal_error, not_found, unauthenticated } from '@/http/errors'
 import { resolveTenant } from '@/http/tenant'
 import { verifyJWT } from '@/http/middlewares/verify-jwt'
 import { prisma } from '@/lib/prisma'
@@ -29,6 +33,8 @@ const confirmUseCase = new ConfirmIdentifierUseCase(
 )
 
 const loginAttempts = new Map<string, number[]>()
+
+export { resetRefreshRevocationsForTest }
 
 export function resetLoginAttemptsForTest() {
   loginAttempts.clear()
@@ -65,16 +71,34 @@ function hostFromRequest(request: FastifyRequest): string {
   return raw.split(':')[0]!
 }
 
-function setRefreshTokenCookie(reply: FastifyReply, refreshToken: string) {
-  reply.setCookie('refreshToken', refreshToken, {
+function cookieFlags(httpOnly: boolean) {
+  return {
     path: '/',
-    httpOnly: true,
+    httpOnly,
     secure: env.NODE_ENV === 'production',
-    sameSite: 'lax',
-  })
+    sameSite: 'lax' as const,
+  }
+}
+
+function setSessionCookies(
+  reply: FastifyReply,
+  tokens: { accessToken: string; refreshToken: string; role: string },
+) {
+  const csrf = randomBytes(32).toString('hex')
+  reply.setCookie('accessToken', tokens.accessToken, cookieFlags(true))
+  reply.setCookie('refreshToken', tokens.refreshToken, cookieFlags(true))
+  reply.setCookie('csrf', csrf, cookieFlags(false))
+  reply.setCookie('catalogo_role', tokens.role, cookieFlags(false))
+}
+
+function clearSessionCookies(reply: FastifyReply) {
+  for (const name of ['accessToken', 'refreshToken', 'csrf', 'catalogo_role'] as const) {
+    reply.clearCookie(name, cookieFlags(name !== 'csrf' && name !== 'catalogo_role'))
+  }
 }
 
 async function signSession(reply: FastifyReply, user: { id: string; role: string; tenantId: string }) {
+  const jti = randomUUID()
   const accessToken = await reply.jwtSign(
     {
       sub: user.id,
@@ -95,6 +119,7 @@ async function signSession(reply: FastifyReply, user: { id: string; role: string
       role: user.role,
       tenantId: user.tenantId,
       typ: 'refresh',
+      jti,
     },
     {
       sign: {
@@ -104,7 +129,7 @@ async function signSession(reply: FastifyReply, user: { id: string; role: string
     },
   )
 
-  setRefreshTokenCookie(reply, refreshToken)
+  setSessionCookies(reply, { accessToken, refreshToken, role: user.role })
 
   return { accessToken, refreshToken }
 }
@@ -118,7 +143,7 @@ async function register(request: FastifyRequest, reply: FastifyReply) {
     const user = await registerUseCase.execute({ ...body, tenantId: tenant.id })
     const identifiers = await confirmUseCase.issueInitialCodes(user.id)
     const flags = confirmationFlags(identifiers)
-    const tokens = await signSession(reply, user)
+    await signSession(reply, user)
 
     return reply.status(201).send({
       role: user.role,
@@ -131,7 +156,6 @@ async function register(request: FastifyRequest, reply: FastifyReply) {
         phoneConfirmed: flags.phoneConfirmed,
         canSubmitLink: canSubmitLinkFromIdentifiers(user.status, identifiers),
       },
-      token: tokens.accessToken,
     })
   } catch (error) {
     if (error instanceof UserAlreadyExistsError) {
@@ -184,12 +208,121 @@ async function login(request: FastifyRequest, reply: FastifyReply) {
   if (!user) return reply.status(401).send({ message: 'Credenciais inválidas.' })
   const matches = await compare(body.password, user.passwordHash)
   if (!matches) return reply.status(401).send({ message: 'Credenciais inválidas.' })
-  const tokens = await signSession(reply, user)
-  return reply.status(200).send({ token: tokens.accessToken, role: user.role })
+  await signSession(reply, user)
+  const identifiers = await prisma.userIdentifier.findMany({
+    where: { userId: user.id, replacedAt: null },
+  })
+  return reply.status(200).send({
+    role: user.role,
+    status: user.status,
+    canSubmit: canSubmitLinkFromIdentifiers(user.status, identifiers),
+  })
+}
+
+async function refresh(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    await request.jwtVerify({ onlyCookie: true })
+  } catch {
+    return reply.status(401).send(buildError({ code: unauthenticated, message: 'Sessão inválida.', request_id: request.id }))
+  }
+  if (request.user.typ !== 'refresh' || !request.user.jti) {
+    return reply.status(401).send(buildError({ code: unauthenticated, message: 'Sessão inválida.', request_id: request.id }))
+  }
+  try {
+    if (await isRefreshRevoked(request.user.jti)) {
+      return reply.status(401).send(buildError({ code: unauthenticated, message: 'Sessão inválida.', request_id: request.id }))
+    }
+  } catch {
+    return reply.status(401).send(buildError({ code: unauthenticated, message: 'Sessão inválida.', request_id: request.id }))
+  }
+  try {
+    const tenant = await resolveTenant(hostFromRequest(request))
+    if (request.user.tenantId !== tenant.id) {
+      return reply.status(403).send(buildError({ code: forbidden, message: 'Acesso negado.', request_id: request.id }))
+    }
+    const exp = (request.user as { exp?: number }).exp
+    await revokeRefreshJti(request.user.jti, refreshTtlSeconds(exp))
+    await signSession(reply, {
+      id: request.user.sub,
+      role: request.user.role,
+      tenantId: request.user.tenantId,
+    })
+    return reply.status(200).send({ role: request.user.role })
+  } catch (error) {
+    if (error instanceof ResourceNotFoundError) {
+      return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
+    }
+    throw error
+  }
+}
+
+async function logout(request: FastifyRequest, reply: FastifyReply) {
+  const raw = request.cookies.refreshToken
+  if (typeof raw === 'string' && raw.length > 0) {
+    let decoded: { typ?: string; jti?: string; exp?: number } | null
+    try {
+      decoded = request.server.jwt.verify<{ typ?: string; jti?: string; exp?: number }>(raw)
+    } catch {
+      decoded = null
+    }
+    if (decoded?.typ === 'refresh' && decoded.jti) {
+      try {
+        await revokeRefreshJti(decoded.jti, refreshTtlSeconds(decoded.exp))
+      } catch {
+        clearSessionCookies(reply)
+        return reply.status(503).send(buildError({ code: internal_error, message: 'Sessão não pôde ser encerrada.', request_id: request.id }))
+      }
+    }
+  }
+  clearSessionCookies(reply)
+  return reply.status(204).send()
+}
+
+async function currentSession(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const tenant = await resolveTenant(hostFromRequest(request))
+    if (request.user.tenantId !== tenant.id) {
+      return reply.status(403).send(buildError({ code: forbidden, message: 'Acesso negado.', request_id: request.id }))
+    }
+    const user = await prisma.user.findFirst({ where: { id: request.user.sub, tenantId: tenant.id } })
+    if (!user) {
+      return reply.status(401).send(buildError({ code: unauthenticated, message: 'Sessão inválida.', request_id: request.id }))
+    }
+    const identifiers = await prisma.userIdentifier.findMany({ where: { userId: user.id, replacedAt: null } })
+    return reply.status(200).send({
+      role: user.role,
+      status: user.status,
+      canSubmit: canSubmitLinkFromIdentifiers(user.status, identifiers),
+    })
+  } catch (error) {
+    if (error instanceof ResourceNotFoundError) {
+      return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
+    }
+    throw error
+  }
+}
+
+async function confirmationInbox(request: FastifyRequest, reply: FastifyReply) {
+  if (!confirmationInboxEnabled()) {
+    return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
+  }
+  const kind = (request.query as { kind?: string }).kind
+  if (kind !== 'EMAIL' && kind !== 'PHONE') {
+    return reply.status(400).send(buildError({ code: 'validation', message: 'Validation error.', request_id: request.id }))
+  }
+  const code = readConfirmation(request.user.sub, kind)
+  if (!code) {
+    return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
+  }
+  return reply.status(200).send({ code })
 }
 
 export async function authRoutes(app: FastifyInstance) {
   app.post('/register', register)
   app.post('/login', login)
+  app.post('/refresh', refresh)
+  app.post('/logout', logout)
   app.post('/confirm', { onRequest: [verifyJWT] }, confirm)
+  app.get('/session', { onRequest: [verifyJWT] }, currentSession)
+  app.get('/confirmation-inbox', { onRequest: [verifyJWT] }, confirmationInbox)
 }

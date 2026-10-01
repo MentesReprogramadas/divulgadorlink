@@ -1,14 +1,27 @@
+import type { PrismaClient } from '@prisma/client'
 import { Worker } from 'bullmq'
 import Redis from 'ioredis'
 import { OpenAiEmbeddingService } from '@/adapters/embeddings/openai-embedding-service'
+import Stripe from 'stripe'
+import { OpenAiTextModeration } from '@/adapters/moderation/openai-text-moderation'
+import { StripeCardPaymentGateway } from '@/adapters/payments/stripe-card-payment-gateway'
 import { WooviPixPaymentGateway } from '@/adapters/payments/woovi-pix-payment-gateway'
+import type { CheckoutGateway } from '@/use-cases/@Promotions/start-checkout'
+import { claimCharge, releaseCharge } from '@/adapters/payments/charge-lock'
 import { enqueueEmbedLink } from '@/adapters/queues/enqueue-embed-link'
+import { enqueueExpirePix, enqueueUnchargedOrders } from '@/adapters/queues/enqueue-payment-job'
 import { readConfig, type ConfigKey } from '@/domain/config/read-config'
 import { env } from '@/env'
 import { prisma } from '@/lib/prisma'
+import { logDomainEvent, logJob } from '@/observability/logger'
 import { applyAiVerdict } from '@/use-cases/@Moderation/apply-ai-verdict'
 import { embedLink } from '@/use-cases/@Search/embed-link'
 import { runExpirePix, runNotifyRefundFailed, runRefundPix } from '@/use-cases/@Payments/payment-jobs'
+import { recoverUnchargedOrder } from '@/use-cases/@Payments/recover-uncharged'
+import { runtimeCheckoutStore } from '@/use-cases/@Promotions/checkout-prisma'
+import { settleProposedText } from '@/use-cases/@Links/settle-proposed-text'
+import type { ModelVerdict } from '@/use-cases/@Links/proposed-text-decision'
+import { pixExpiresInSeconds } from '@/domain/payments/pix-expiration'
 
 export type ModerateLinkJobData = {
   configRows: Partial<Record<ConfigKey, string>>
@@ -121,11 +134,31 @@ export const handlers = {
 
 const QUEUE_NAME = 'divulgador-links'
 
-async function startWorker(): Promise<void> {
-  const connection = new Redis(env.REDIS_URL, { maxRetriesPerRequest: null })
+function cardCheckoutGateway(secretKey: string): CheckoutGateway {
+  const card = new StripeCardPaymentGateway(new Stripe(secretKey) as never)
+  return {
+    method: 'CARD',
+    async createCharge(input) {
+      const charge = await card.createCharge({ orderId: input.orderId, amountCents: input.amountCents })
+      return { gatewayChargeId: charge.gatewayChargeId, clientSecret: charge.clientSecret }
+    },
+  }
+}
+
+export type TextJudge = (text: { name: string; description: string; niche: string }) => Promise<ModelVerdict>
+
+export type WorkerDeps = {
+  textJudge: TextJudge | null
+  db?: PrismaClient
+}
+
+export function createWorker(connection: Redis, deps: WorkerDeps, queueName = QUEUE_NAME): Worker {
   const worker = new Worker(
-    QUEUE_NAME,
+    queueName,
     async (job) => {
+      const started = Date.now()
+      try {
+      const result = await (async () => {
       if (job.name === 'moderate-link') {
         return moderateLink(job.data as ModerateLinkJobData)
       }
@@ -138,13 +171,74 @@ async function startWorker(): Promise<void> {
       if (job.name === 'refund-pix') {
         return runRefundPix(
           (job.data as { orderId: string }).orderId,
-          new WooviPixPaymentGateway(env.WOOVI_APP_ID ?? ''),
+          new WooviPixPaymentGateway(env.WOOVI_APP_ID ?? '', env.WOOVI_API_BASE_URL),
         )
       }
       if (job.name === 'notify-refund-failed') {
         return runNotifyRefundFailed((job.data as { orderId: string }).orderId)
       }
+      if (job.name === 'charge-order') {
+        const orderId = (job.data as { orderId: string }).orderId
+        const pix = new WooviPixPaymentGateway(env.WOOVI_APP_ID ?? '', env.WOOVI_API_BASE_URL)
+        return recoverUnchargedOrder({
+          store: runtimeCheckoutStore(),
+          orderId,
+          gateway: {
+            method: 'PIX',
+            async createCharge(input) {
+              const charge = await pix.createCharge({
+                orderId: input.orderId,
+                amountCents: input.amountCents,
+                expiresInSeconds: input.expiresInSeconds ?? pixExpiresInSeconds(),
+              })
+              return { gatewayChargeId: charge.gatewayChargeId, brCode: charge.brCode, expiresAt: charge.expiresAt }
+            },
+          },
+          gateways: env.STRIPE_SECRET_KEY
+            ? { CARD: cardCheckoutGateway(env.STRIPE_SECRET_KEY) }
+            : undefined,
+          claim: () => claimCharge(orderId),
+          release: () => releaseCharge(orderId),
+          scheduleExpire: enqueueExpirePix,
+        })
+      }
+      if (job.name === 'text-proposed') {
+        const linkId = (job.data as { linkId: string }).linkId
+        const decision = await settleProposedText({
+          linkId,
+          judge: deps.textJudge ?? undefined,
+          db: deps.db,
+          finalAttempt: job.attemptsMade + 1 >= (job.opts.attempts ?? 1),
+        })
+        if (decision === 'PUBLISH') await enqueueEmbedLink(linkId)
+        return decision
+      }
       throw new Error(`job desconhecido: ${job.name}`)
+      })()
+      logJob({
+        queue: queueName,
+        job_id: job.id ?? '',
+        name: job.name,
+        attempt: job.attemptsMade + 1,
+        duration_ms: Date.now() - started,
+        status: 'success',
+        correlation_id: typeof (job.data as { requestId?: string })?.requestId === 'string'
+          ? (job.data as { requestId: string }).requestId
+          : undefined,
+      })
+      return result
+      } catch (error) {
+        logJob({
+          queue: queueName,
+          job_id: job.id ?? '',
+          name: job.name,
+          attempt: job.attemptsMade + 1,
+          duration_ms: Date.now() - started,
+          status: 'failure',
+          error: error instanceof Error ? error.name : 'Error',
+        })
+        throw error
+      }
     },
     { connection },
   )
@@ -161,10 +255,20 @@ async function startWorker(): Promise<void> {
       })
     }
   })
+  return worker
+}
+
+async function startWorker(): Promise<void> {
+  const connection = new Redis(env.REDIS_URL, { maxRetriesPerRequest: null })
+  const moderation = env.OPENAI_API_KEY ? new OpenAiTextModeration(env.OPENAI_API_KEY) : null
+  createWorker(connection, { textJudge: moderation ? (text) => moderation.judge(text) : null })
   await enqueuePendingEmbeddingJobs()
   const drain = setInterval(() => {
     void enqueuePendingEmbeddingJobs().catch((error) => {
-      console.error(error)
+      logDomainEvent('embedding.drain.failed', { result: error instanceof Error ? error.message : 'fila' })
+    })
+    void enqueueUnchargedOrders().catch((error) => {
+      logDomainEvent('payment.recover.failed', { result: error instanceof Error ? error.message : 'fila' })
     })
   }, 30_000)
   drain.unref()

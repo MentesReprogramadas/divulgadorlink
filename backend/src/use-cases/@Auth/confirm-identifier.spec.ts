@@ -5,10 +5,16 @@ import {
   canSubmitLink,
   ConfirmIdentifierUseCase,
   countResends,
+  IdentifierChangeForbiddenError,
   type ConfirmCodesRepository,
   type StoredCode,
   type StoredIdentifier,
 } from '@/use-cases/@Auth/confirm-identifier'
+import {
+  type ConfirmationDelivery,
+  DeliveryUnavailableError,
+} from '@/domain/notifications/confirmation-delivery'
+import { UserAlreadyExistsError } from '@/use-cases/errors/user-already-exists-error'
 import { InvalidVerificationCodeError } from '@/use-cases/errors/invalid-verification-code-error'
 import { RateLimitError } from '@/use-cases/errors/rate-limit-error'
 
@@ -20,6 +26,7 @@ class InMemoryConfirmCodesRepository implements ConfirmCodesRepository {
   identifiers: StoredIdentifier[] = []
   codes: StoredCode[] = []
   private seq = 0
+  private values = new Map<string, string>()
 
   seedUser(user: { id: string; status: 'ACTIVE' | 'BANNED' }) {
     this.users.set(user.id, user)
@@ -27,6 +34,10 @@ class InMemoryConfirmCodesRepository implements ConfirmCodesRepository {
 
   seedIdentifier(row: StoredIdentifier) {
     this.identifiers.push(row)
+  }
+
+  remember(id: string, value: string) {
+    this.values.set(id, value)
   }
 
   seedCode(row: Omit<StoredCode, 'id'> & { id?: string }) {
@@ -90,6 +101,36 @@ class InMemoryConfirmCodesRepository implements ConfirmCodesRepository {
     }
     identifier.confirmedAt = at
   }
+
+  async identifierTaken(input: { normalizedValue: string }) {
+    return [...this.values.values()].includes(input.normalizedValue)
+  }
+
+  async replaceIdentifier(input: {
+    userId: string
+    tenantId: string
+    kind: 'EMAIL' | 'PHONE'
+    normalizedValue: string
+    at: Date
+  }) {
+    const current = this.identifiers.find((row) => row.userId === input.userId && row.kind === input.kind && row.replacedAt === null)
+    if (!current) throw new Error('identificador ausente')
+    const taken = [...this.values.entries()].find(([, value]) => value === input.normalizedValue)
+    if (taken) throw new UserAlreadyExistsError()
+    current.replacedAt = input.at
+    const created: StoredIdentifier = {
+      id: `id-${++this.seq}`,
+      userId: input.userId,
+      kind: input.kind,
+      normalizedValue: input.normalizedValue,
+      confirmedAt: null,
+      replacedAt: null,
+    }
+    this.values.set(created.id, input.normalizedValue)
+    this.values.set(current.id, this.values.get(current.id) ?? 'old')
+    this.identifiers.push(created)
+    return created
+  }
 }
 
 function emailFixture() {
@@ -99,19 +140,26 @@ function emailFixture() {
     id: 'id-email',
     userId: 'user-1',
     kind: 'EMAIL',
+    normalizedValue: 'ana@example.com',
     confirmedAt: null,
     replacedAt: null,
   })
   return repo
 }
 
-function useCase(repo: InMemoryConfirmCodesRepository) {
-  return new ConfirmIdentifierUseCase(repo, {
+type Delivered = { channel: 'EMAIL' | 'PHONE'; destination: string; code: string }
+
+function useCase(repo: InMemoryConfirmCodesRepository, deliver?: ConfirmationDelivery) {
+  const sent: Delivered[] = []
+  const fallback: ConfirmationDelivery = async (channel, message) => {
+    sent.push({ channel, destination: message.destination, code: message.code })
+  }
+  return Object.assign(new ConfirmIdentifierUseCase(repo, {
     now: () => now,
     hashPlain: async (plain) => `hash:${plain}`,
     compareHash: async (plain, hashed) => hashed === `hash:${plain}`,
     generatePlain: () => '123456',
-  })
+  }, deliver ?? fallback), { sent })
 }
 
 function liveCode(
@@ -210,6 +258,7 @@ describe('ConfirmIdentifierUseCase', () => {
       id: 'id-email-new',
       userId: 'user-1',
       kind: 'EMAIL',
+      normalizedValue: 'nova@example.com',
       confirmedAt: null,
       replacedAt: null,
     })
@@ -223,5 +272,100 @@ describe('ConfirmIdentifierUseCase', () => {
 
     const current = repo.identifiers.find((row) => row.id === 'id-email-new')
     expect(current?.confirmedAt).toBeNull()
+  })
+
+  it('troca o e-mail sem devolver o código e só libera o envio depois da confirmação', async () => {
+    const repo = emailFixture()
+    repo.identifiers[0]!.confirmedAt = now
+    repo.seedIdentifier({ id: 'id-phone', userId: 'user-1', kind: 'PHONE', normalizedValue: '5511911110001', confirmedAt: now, replacedAt: null })
+    repo.remember('id-email', 'ana@example.com')
+    await expect(useCase(repo).beginChange({
+      userId: 'user-1', tenantId: 'tenant', kind: 'EMAIL', raw: 'ana@example.com',
+    })).rejects.toBeInstanceOf(UserAlreadyExistsError)
+
+    const changed = await useCase(repo).beginChange({
+      userId: 'user-1', tenantId: 'tenant', kind: 'EMAIL', raw: ' Novo@Exemplo.com ',
+    })
+    expect(changed.emailConfirmed).toBe(false)
+    expect(changed.canSubmitLink).toBe(false)
+    expect(changed).not.toHaveProperty('code')
+    expect(JSON.stringify(changed)).not.toContain('123456')
+    expect(repo.identifiers.find((row) => row.id === 'id-email')?.replacedAt).toEqual(now)
+    const confirmed = await useCase(repo).execute({ userId: 'user-1', kind: 'EMAIL', code: '123456' })
+    expect(confirmed.canSubmitLink).toBe(true)
+    expect(repo.identifiers.find((row) => row.id === 'id-email')?.replacedAt).toEqual(now)
+  })
+
+  it('troca o telefone e só confirma o identificador novo', async () => {
+    const repo = emailFixture()
+    repo.identifiers[0]!.confirmedAt = now
+    repo.seedIdentifier({ id: 'id-phone', userId: 'user-1', kind: 'PHONE', normalizedValue: '5511911110001', confirmedAt: now, replacedAt: null })
+    repo.remember('id-phone', '5511911110001')
+    const changed = await useCase(repo).beginChange({
+      userId: 'user-1', tenantId: 'tenant', kind: 'PHONE', raw: '+55 (11) 98888-7777',
+    })
+    expect(changed.phoneConfirmed).toBe(false)
+    expect(changed.canSubmitLink).toBe(false)
+    expect(repo.identifiers.find((row) => row.id === 'id-phone')?.replacedAt).toEqual(now)
+    const confirmed = await useCase(repo).execute({ userId: 'user-1', kind: 'PHONE', code: '123456' })
+    expect(confirmed.phoneConfirmed).toBe(true)
+    expect(confirmed.canSubmitLink).toBe(true)
+  })
+
+  it('entrega o código ao destino normalizado do identificador novo', async () => {
+    const repo = emailFixture()
+    const confirm = useCase(repo)
+    await confirm.beginChange({ userId: 'user-1', tenantId: 'tenant', kind: 'EMAIL', raw: ' Novo@Exemplo.com ' })
+    expect(confirm.sent).toEqual([{ channel: 'EMAIL', destination: 'novo@exemplo.com', code: '123456' }])
+
+    await confirm.execute({ userId: 'user-1', kind: 'EMAIL', resend: true })
+    expect(confirm.sent).toHaveLength(2)
+    expect(confirm.sent[1]).toEqual({ channel: 'EMAIL', destination: 'novo@exemplo.com', code: '123456' })
+  })
+
+  it('falha de entrega não grava código nem consome o limite de reenvio', async () => {
+    const repo = emailFixture()
+    const failing: ConfirmationDelivery = async (channel) => {
+      throw new DeliveryUnavailableError(channel, 'provider_selection_required')
+    }
+    await expect(useCase(repo, failing).execute({ userId: 'user-1', kind: 'EMAIL', resend: true }))
+      .rejects.toBeInstanceOf(DeliveryUnavailableError)
+    await expect(useCase(repo, failing).issueInitialCodes('user-1')).rejects.toBeInstanceOf(DeliveryUnavailableError)
+    expect(repo.codes).toHaveLength(0)
+  })
+
+  it('falha de entrega na troca mantém o identificador confirmado atual', async () => {
+    const repo = emailFixture()
+    repo.identifiers[0]!.confirmedAt = now
+    const failing: ConfirmationDelivery = async (channel) => {
+      throw new DeliveryUnavailableError(channel, 'provider_selection_required')
+    }
+    await expect(useCase(repo, failing).beginChange({
+      userId: 'user-1', tenantId: 'tenant', kind: 'EMAIL', raw: 'novo@exemplo.com',
+    })).rejects.toBeInstanceOf(DeliveryUnavailableError)
+    expect(repo.identifiers).toHaveLength(1)
+    expect(repo.identifiers[0]).toMatchObject({ id: 'id-email', confirmedAt: now, replacedAt: null })
+    expect(repo.codes).toHaveLength(0)
+  })
+
+  it('identificador de outra conta falha antes de qualquer entrega', async () => {
+    const repo = emailFixture()
+    repo.remember('id-outra', 'ocupado@exemplo.com')
+    const confirm = useCase(repo)
+    await expect(confirm.beginChange({
+      userId: 'user-1', tenantId: 'tenant', kind: 'EMAIL', raw: 'Ocupado@Exemplo.com',
+    })).rejects.toBeInstanceOf(UserAlreadyExistsError)
+    expect(confirm.sent).toHaveLength(0)
+    expect(repo.identifiers[0]?.replacedAt).toBeNull()
+  })
+
+  it('conta banida não troca o telefone', async () => {
+    const repo = emailFixture()
+    repo.users.set('user-1', { id: 'user-1', status: 'BANNED' })
+    repo.seedIdentifier({ id: 'id-phone', userId: 'user-1', kind: 'PHONE', normalizedValue: '5511911110001', confirmedAt: now, replacedAt: null })
+    await expect(useCase(repo).beginChange({
+      userId: 'user-1', tenantId: 'tenant', kind: 'PHONE', raw: '11988887777',
+    })).rejects.toBeInstanceOf(IdentifierChangeForbiddenError)
+    expect(repo.identifiers.find((row) => row.id === 'id-phone')?.replacedAt).toBeNull()
   })
 })

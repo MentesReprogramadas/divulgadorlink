@@ -84,13 +84,18 @@ export class PrismaConfigsRepository implements ConfigsRepository {
   }
 }
 
-const configsRepository: ConfigsRepository =
+let configsRepository: ConfigsRepository =
   process.env.NODE_ENV === 'test'
     ? InMemoryConfigsRepository.seeded()
     : new PrismaConfigsRepository(prisma)
 
 export function getConfigsRepository(): ConfigsRepository {
   return configsRepository
+}
+
+export function setConfigsRepositoryForTest(repository: ConfigsRepository): void {
+  if (process.env.NODE_ENV !== 'test') return
+  configsRepository = repository
 }
 
 export function resetConfigsRepositoryForTest(): void {

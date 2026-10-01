@@ -1,7 +1,9 @@
+import type { PrismaClient } from '@prisma/client'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { readConfig, type ConfigKey } from '@/domain/config/read-config'
 import { OpenAiEmbeddingService } from '@/adapters/embeddings/openai-embedding-service'
 import { env } from '@/env'
+import { signSurface } from '@/domain/analytics/surface-token'
 import { buildError, provider_error } from '@/http/errors'
 import { resolveTenant } from '@/http/tenant'
 import { prisma } from '@/lib/prisma'
@@ -30,14 +32,81 @@ export type SearchCandidate = {
   requiresAge: boolean
 }
 
+export type CandidateQuery = {
+  tenantId: string
+  query: string
+  vector: number[]
+  age: 'yes' | 'no' | 'unknown'
+  textWeight: number
+  semanticWeight: number
+  threshold: number
+}
+
+export type CandidateSource = (input: CandidateQuery) => Promise<Array<Omit<SearchCandidate, 'relevance'>>>
+
+export type SearchComposition = {
+  embedding: () => EmbeddingService
+  candidates: CandidateSource
+}
+
+export function sqlCandidateSource(client: PrismaClient): CandidateSource {
+  return async (input) => {
+    const rows = await client.$queryRawUnsafe<Array<{
+      id: string
+      name: string
+      description: string
+      text_score: number
+      semantic_score: number | null
+      embeddingState: SearchCandidate['embeddingState']
+      search_activated_at: Date | null
+    }>>(
+      hybridSearchSql(),
+      input.query,
+      `[${input.vector.join(',')}]`,
+      input.tenantId,
+      input.age,
+      input.textWeight,
+      input.semanticWeight,
+      input.threshold,
+    )
+    return rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      description: row.description,
+      textScore: Number(row.text_score),
+      semanticScore: row.semantic_score === null ? null : Number(row.semantic_score),
+      embeddingState: row.embeddingState,
+      searchActivatedAt: row.search_activated_at,
+      requiresAge: false,
+    }))
+  }
+}
+
+export function productionSearchComposition(openAiApiKey = env.OPENAI_API_KEY ?? ''): SearchComposition {
+  return {
+    embedding: () => new OpenAiEmbeddingService(openAiApiKey, fetch, undefined, undefined, 3_000),
+    candidates: sqlCandidateSource(prisma),
+  }
+}
+
+let composition: SearchComposition = productionSearchComposition()
 let testCandidates: SearchCandidate[] = []
+
+export function composeSearchForTest(overrides: Partial<SearchComposition>): void {
+  composition = { ...composition, ...overrides }
+}
 
 export function setSearchCandidatesForTest(rows: SearchCandidate[]): void {
   testCandidates = rows.map((row) => ({ ...row }))
+  composition = {
+    ...composition,
+    candidates: async () => testCandidates.map(({ relevance: _relevance, ...row }) => ({ ...row })),
+  }
 }
 
 export function resetSearchCandidatesForTest(): void {
   testCandidates = []
+  composition = productionSearchComposition()
 }
 
 function ageFromCookie(request: FastifyRequest): 'yes' | 'no' | 'unknown' {
@@ -57,9 +126,12 @@ async function configRows(tenantId: string): Promise<Partial<Record<ConfigKey, s
   return rows
 }
 
-function toDto(row: SearchCandidate, threshold: number) {
+function toDto(tenantId: string, row: SearchCandidate, threshold: number) {
   return {
     id: row.id,
+    name: row.name,
+    description: row.description,
+    surfaceToken: signSurface(tenantId, row.id, 'search', env.JWT_SECRET),
     textScore: row.textScore,
     semanticScore: row.semanticScore,
     relevanceScore: row.relevance,
@@ -69,46 +141,15 @@ function toDto(row: SearchCandidate, threshold: number) {
 }
 
 async function loadCandidates(
-  tenantId: string,
-  query: string,
-  age: 'yes' | 'no' | 'unknown',
-  textWeight: number,
-  semanticWeight: number,
-  threshold: number,
+  input: Omit<CandidateQuery, 'vector'>,
   embedding: EmbeddingService,
+  candidates: CandidateSource,
 ): Promise<SearchCandidate[]> {
-  if (process.env.NODE_ENV === 'test') {
-    return testCandidates.map((row) => ({
-      ...row,
-      relevance: relevanceScore(row.textScore, row.semanticScore ?? 0, textWeight, semanticWeight),
-    }))
-  }
-
-  const vector = await embedding.embed(query)
-  const literal = `[${vector.join(',')}]`
-  const rows = await prisma.$queryRawUnsafe<Array<{
-    id: string
-    text_score: number
-    semantic_score: number | null
-    embeddingState: SearchCandidate['embeddingState']
-    search_activated_at: Date | null
-  }>>(hybridSearchSql(), query, literal, tenantId, age, textWeight, semanticWeight, threshold)
-
+  const vector = await embedding.embed(input.query)
+  const rows = await candidates({ ...input, vector })
   return rows.map((row) => ({
-    id: row.id,
-    name: '',
-    description: '',
-    textScore: Number(row.text_score),
-    semanticScore: row.semantic_score === null ? null : Number(row.semantic_score),
-    embeddingState: row.embeddingState,
-    relevance: relevanceScore(
-      Number(row.text_score),
-      row.semantic_score === null ? 0 : Number(row.semantic_score),
-      textWeight,
-      semanticWeight,
-    ),
-    searchActivatedAt: row.search_activated_at,
-    requiresAge: false,
+    ...row,
+    relevance: relevanceScore(row.textScore, row.semanticScore ?? 0, input.textWeight, input.semanticWeight),
   }))
 }
 
@@ -135,21 +176,25 @@ export async function getSearch(request: FastifyRequest, reply: FastifyReply) {
       return reply.status(200).send({ target, threshold, sponsored: [], organic: [] })
     }
 
-    const embedding = new OpenAiEmbeddingService(env.OPENAI_API_KEY ?? '')
     let candidates: SearchCandidate[]
     try {
-      candidates = await loadCandidates(tenant.id, query, age, textWeight, semanticWeight, threshold, embedding)
+      candidates = await loadCandidates(
+        { tenantId: tenant.id, query, age, textWeight, semanticWeight, threshold },
+        composition.embedding(),
+        composition.candidates,
+      )
     } catch {
       return reply.status(503).send(buildError({ code: provider_error, message: 'Busca indisponível.', request_id: request.id }))
     }
 
+    candidates.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
     const visible = visibleForAge(candidates, age)
     const ranked = rankSearch(visible, threshold)
     return reply.status(200).send({
       target,
       threshold,
-      sponsored: ranked.sponsored.map((row) => toDto(row, threshold)),
-      organic: ranked.organic.map((row) => toDto(row, threshold)),
+      sponsored: ranked.sponsored.map((row) => toDto(tenant.id, row, threshold)),
+      organic: ranked.organic.map((row) => toDto(tenant.id, row, threshold)),
     })
   } catch (error) {
     if (error instanceof ResourceNotFoundError) {
@@ -177,7 +222,7 @@ export async function getSuggest(request: FastifyRequest, reply: FastifyReply) {
       }))
     : await prisma.$queryRawUnsafe<SearchCandidate[]>(
       `
-        SELECT l."id", l."name", '' AS description, 1 AS relevance, 1 AS "textScore", NULL AS "semanticScore",
+        SELECT l."id", l."name", l."description", 1 AS relevance, 1 AS "textScore", NULL AS "semanticScore",
           l."embeddingState", NULL::timestamp AS "searchActivatedAt", n."requiresAge"
         FROM "links" l
         JOIN "niches" n ON n."id" = l."nicheId"
@@ -191,8 +236,17 @@ export async function getSuggest(request: FastifyRequest, reply: FastifyReply) {
       query.trim(),
     )
   const visible = visibleForAge(source, age)
+  const ids = autocompleteIds(visible, threshold, 8)
   return reply.status(200).send({
-    ids: autocompleteIds(visible, threshold, 8),
+    ids,
+    items: ids.map((id) => {
+      const row = visible.find((item) => item.id === id)
+      return {
+        id,
+        name: row?.name ?? '',
+        surfaceToken: signSurface(tenant.id, id, 'search', env.JWT_SECRET),
+      }
+    }),
   })
 }
 

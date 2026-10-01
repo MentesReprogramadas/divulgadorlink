@@ -1,5 +1,6 @@
 import 'dotenv/config'
 import { z } from 'zod'
+import { parsePixExpiration } from '@/domain/payments/pix-expiration'
 
 const schema = z.object({
   NODE_ENV: z.enum(['dev', 'test', 'production']).default('dev'),
@@ -13,8 +14,11 @@ const schema = z.object({
   STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
   WOOVI_APP_ID: z.string().optional(),
+  WOOVI_API_BASE_URL: z.string().url().optional(),
   WOOVI_WEBHOOK_SECRET: z.string().optional(),
+  WOOVI_WEBHOOK_PUBLIC_KEY: z.string().optional(),
   OPENAI_API_KEY: z.string().optional(),
+  PIX_EXPIRATION_SECONDS: z.string().optional(),
 })
 
 const parsed = schema.safeParse(process.env)
@@ -22,5 +26,6 @@ if (!parsed.success) {
   console.error(parsed.error.format())
   throw new Error('Variáveis de ambiente inválidas.')
 }
+parsePixExpiration(parsed.data.PIX_EXPIRATION_SECONDS, parsed.data.NODE_ENV)
 
 export const env = parsed.data

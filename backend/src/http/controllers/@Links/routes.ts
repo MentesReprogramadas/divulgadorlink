@@ -1,15 +1,31 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
+import { signSurface } from '@/domain/analytics/surface-token'
 import { hitsBlocklist } from '@/domain/links/blocklist'
+import { assertPublicHttps } from '@/adapters/http/safe-fetch'
 import { canonicalUrl } from '@/domain/links/canonical-url'
-import { buildError, business_rule, not_found, validation } from '@/http/errors'
+import { env } from '@/env'
+import { buildError, business_rule, forbidden, not_found, validation } from '@/http/errors'
 import { verifyJWT } from '@/http/middlewares/verify-jwt'
 import { resolveTenant } from '@/http/tenant'
 import { getLinksRepository } from '@/repositories/links-repository'
-import { canSubmitLink, confirmationFlags } from '@/use-cases/@Auth/confirm-identifier'
+import {
+  canSubmitLink,
+  confirmationFlags,
+  ConfirmIdentifierUseCase,
+  generatePlainCode,
+  IdentifierChangeForbiddenError,
+  PrismaConfirmCodesRepository,
+} from '@/use-cases/@Auth/confirm-identifier'
+import { compare, hash } from 'bcryptjs'
+import { prisma } from '@/lib/prisma'
+import { UserAlreadyExistsError } from '@/use-cases/errors/user-already-exists-error'
+import { enqueueTextProposal } from '@/adapters/queues/enqueue-text-proposal'
+import { editLinkText } from '@/use-cases/@Links/edit-link-text'
+import { openPublicLink } from '@/use-cases/@Links/open-public-link'
 import { decideSubmission } from '@/use-cases/@Links/submit-link'
+import { getAuditLogsRepository } from '@/repositories/audit-logs-repository'
 import { preRefuse } from '@/use-cases/@Moderation/pre-refuse'
-import { postGuardedWrite } from '@/http/controllers/@Admin/ban'
 import { registerAppealRoute } from '@/http/controllers/@Admin/moderation'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
 
@@ -25,6 +41,76 @@ export const submitLinkBodySchema = z
   .strict()
 
 class QuotaExhaustedError extends Error {}
+
+const identifierChange = new ConfirmIdentifierUseCase(new PrismaConfirmCodesRepository(prisma), {
+  hashPlain: (plain) => hash(plain, 6),
+  compareHash: compare,
+  generatePlain: (kind) => generatePlainCode(kind, env.NODE_ENV),
+})
+
+const emailChangeSchema = z.object({ email: z.string().email() }).strict()
+const phoneChangeSchema = z.object({ phone: z.string().min(8) }).strict()
+
+async function changeIdentifier(request: FastifyRequest, reply: FastifyReply, kind: 'EMAIL' | 'PHONE') {
+  const parsed = (kind === 'EMAIL' ? emailChangeSchema : phoneChangeSchema).safeParse(request.body)
+  if (!parsed.success) {
+    return reply.status(400).send(buildError({ code: validation, message: 'Dados inválidos.', request_id: request.id }))
+  }
+  try {
+    const tenant = await resolveTenant(hostFromRequest(request))
+    if (request.user.tenantId !== tenant.id) {
+      return reply.status(403).send(buildError({ code: forbidden, message: 'Acesso negado.', request_id: request.id }))
+    }
+    const user = await getLinksRepository().findSubmitter(tenant.id, request.user.sub)
+    if (!user) {
+      return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
+    }
+    if (user.status === 'BANNED') {
+      return reply.status(403).send(buildError({ code: business_rule, message: 'Conta não pode alterar o identificador.', request_id: request.id }))
+    }
+    const raw = kind === 'EMAIL'
+      ? (parsed.data as { email: string }).email
+      : (parsed.data as { phone: string }).phone
+    const result = await identifierChange.beginChange({
+      userId: request.user.sub,
+      tenantId: tenant.id,
+      kind,
+      raw,
+    })
+    return reply.status(200).send({
+      emailConfirmed: result.emailConfirmed,
+      phoneConfirmed: result.phoneConfirmed,
+      canSubmitLink: result.canSubmitLink,
+    })
+  } catch (error) {
+    if (error instanceof IdentifierChangeForbiddenError) {
+      return reply.status(403).send(buildError({ code: business_rule, message: error.message, request_id: request.id }))
+    }
+    if (error instanceof UserAlreadyExistsError) {
+      return reply.status(409).send(buildError({ code: business_rule, message: error.message, request_id: request.id }))
+    }
+    if (error instanceof ResourceNotFoundError) {
+      return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
+    }
+    throw error
+  }
+}
+
+const editBodySchema = z.object({
+  name: z.string().min(1),
+  description: z.string(),
+}).strict()
+
+let editVerdictForTest: 'PUBLISH' | 'ADMIN' | null = null
+
+export function setEditVerdictForTest(value: 'PUBLISH' | 'ADMIN' | null): void {
+  if (process.env.NODE_ENV !== 'test') return
+  editVerdictForTest = value
+}
+
+export function resetEditVerdictForTest(): void {
+  editVerdictForTest = null
+}
 
 function hostFromRequest(request: FastifyRequest): string {
   const raw = request.headers.host
@@ -105,6 +191,13 @@ async function createLink(request: FastifyRequest, reply: FastifyReply) {
         buildError({ code: validation, message: 'URL inválida.', request_id: request.id }),
       )
     }
+    try {
+      assertPublicHttps(url)
+    } catch {
+      return reply.status(422).send(
+        buildError({ code: validation, message: 'URL não permitida.', request_id: request.id }),
+      )
+    }
 
     const [banned, bannedUrls, niches, terms] = await Promise.all([
       repo.listBannedIdentifiers(tenant.id),
@@ -178,10 +271,224 @@ async function createLink(request: FastifyRequest, reply: FastifyReply) {
   }
 }
 
+function unavailableSeo(host: string, id: string) {
+  const canonical = `https://${host}/links/${id}`
+  return {
+    title: 'Indisponível',
+    description: 'Indisponível',
+    canonical,
+    robots: 'noindex,nofollow' as const,
+    openGraph: { title: 'Indisponível', description: 'Indisponível', url: canonical },
+  }
+}
+
+async function getPublicLink(request: FastifyRequest, reply: FastifyReply) {
+  const linkId = (request.params as { id: string }).id
+  const missing = () =>
+    reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
+  try {
+    const host = hostFromRequest(request)
+    const tenant = await resolveTenant(host)
+    const repo = getLinksRepository()
+    const link = await repo.findLinkById(linkId)
+    if (!link || link.tenantId !== tenant.id) return missing()
+    if (!openPublicLink(link).visible) {
+      return reply.status(200).send({
+        id: link.id,
+        available: false,
+        seo: unavailableSeo(host, link.id),
+      })
+    }
+    const [network, niche] = await Promise.all([
+      repo.findNetwork(tenant.id, link.networkId),
+      repo.findNiche(tenant.id, link.nicheId),
+    ])
+    const surfaceToken = signSurface(tenant.id, link.id, 'organic', env.JWT_SECRET)
+    const canonical = `https://${host}/links/${link.id}`
+    return reply.status(200).send({
+      id: link.id,
+      available: true,
+      name: link.name,
+      description: link.description,
+      network: { name: network?.name ?? '', slug: network?.slug ?? '' },
+      niche: { name: niche?.name ?? '', slug: niche?.slug ?? '', requiresAge: niche?.requiresAge ?? false },
+      surfaceToken,
+      goPath: `/go/${link.id}?surfaceToken=${encodeURIComponent(surfaceToken)}`,
+      seo: {
+        title: link.name,
+        description: link.description,
+        canonical,
+        robots: 'index,follow',
+        openGraph: { title: link.name, description: link.description, url: canonical },
+      },
+    })
+  } catch (error) {
+    if (error instanceof ResourceNotFoundError) return missing()
+    throw error
+  }
+}
+
+async function listMine(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const tenant = await resolveTenant(hostFromRequest(request))
+    if (request.user.tenantId !== tenant.id) {
+      return reply.status(403).send(buildError({ code: forbidden, message: 'Acesso negado.', request_id: request.id }))
+    }
+    const repo = getLinksRepository()
+    const links = await repo.listByOwner(tenant.id, request.user.sub)
+    const audits = getAuditLogsRepository()
+    const body = []
+    for (const link of links) {
+      const pending = await audits.latest({
+        tenantId: tenant.id,
+        entityType: 'link',
+        entityId: link.id,
+        action: 'link.text.proposed',
+      })
+      const after = pending?.after
+      const pendingText = after && typeof after === 'object' && 'name' in after && 'description' in after
+        ? { name: String((after as { name: unknown }).name), description: String((after as { description: unknown }).description) }
+        : null
+      const network = await repo.findNetwork(tenant.id, link.networkId)
+      const niche = await repo.findNiche(tenant.id, link.nicheId)
+      body.push({
+        id: link.id,
+        name: link.name,
+        description: link.description,
+        status: link.status,
+        occupiesSlot: link.occupiesSlot,
+        canonicalUrl: link.canonicalUrl,
+        network: { name: network?.name ?? '', slug: network?.slug ?? '' },
+        niche: { name: niche?.name ?? '', slug: niche?.slug ?? '' },
+        pendingText,
+      })
+    }
+    return reply.status(200).send({ links: body })
+  } catch (error) {
+    if (error instanceof ResourceNotFoundError) {
+      return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
+    }
+    throw error
+  }
+}
+
+async function patchLink(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const tenant = await resolveTenant(hostFromRequest(request))
+    if (request.user.tenantId !== tenant.id) {
+      return reply.status(403).send(buildError({ code: forbidden, message: 'Acesso negado.', request_id: request.id }))
+    }
+    const repo = getLinksRepository()
+    const user = await repo.findSubmitter(tenant.id, request.user.sub)
+    if (!user) {
+      return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
+    }
+    if (user.status === 'BANNED') {
+      return reply.status(403).send(buildError({ code: business_rule, message: 'Conta não pode alterar o catálogo.', request_id: request.id }))
+    }
+    const linkId = (request.params as { id: string }).id
+    const link = await repo.findLinkById(linkId)
+    if (!link || link.tenantId !== tenant.id || link.ownerId !== user.id) {
+      return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
+    }
+    const parsed = editBodySchema.safeParse(request.body)
+    if (!parsed.success) {
+      return reply.status(400).send(buildError({
+        code: validation,
+        message: 'Dados inválidos.',
+        request_id: request.id,
+        issues: parsed.error.format(),
+      }))
+    }
+    if (link.status !== 'PUBLISHED' && link.status !== 'PENDING_MODERATION') {
+      return reply.status(409).send(buildError({ code: business_rule, message: 'Link não pode ser editado.', request_id: request.id }))
+    }
+    const blocklisted = hitsBlocklist({
+      text: `${parsed.data.name} ${parsed.data.description}`,
+      selectedNiche: '',
+      nicheNames: (await repo.listNiches(tenant.id)).map((row) => row.name),
+      terms: await repo.listBlocklistTerms(tenant.id),
+    })
+    if (blocklisted) {
+      return reply.status(200).send({
+        id: link.id,
+        name: link.name,
+        description: link.description,
+        applied: false,
+        ranAi: false,
+      })
+    }
+    if (link.status === 'PENDING_MODERATION') {
+      const saved = await repo.updateLinkModeration(link.id, {
+        status: link.status,
+        occupiesSlot: link.occupiesSlot,
+        name: parsed.data.name,
+        description: parsed.data.description,
+      })
+      return reply.status(200).send({
+        id: link.id,
+        name: saved?.name ?? parsed.data.name,
+        description: saved?.description ?? parsed.data.description,
+        applied: true,
+        ranAi: false,
+      })
+    }
+    const verdict = editVerdictForTest
+    const edited = editLinkText({
+      publishedName: link.name,
+      nextName: parsed.data.name,
+      blocklisted: false,
+      ai: verdict ?? 'ADMIN',
+    })
+    const applied = verdict === 'PUBLISH' && edited.visibleName === parsed.data.name
+    if (applied) {
+      await repo.updateLinkModeration(link.id, {
+        status: 'PUBLISHED',
+        occupiesSlot: link.occupiesSlot,
+        name: parsed.data.name,
+        description: parsed.data.description,
+      })
+      return reply.status(200).send({
+        id: link.id,
+        name: parsed.data.name,
+        description: parsed.data.description,
+        applied: true,
+        ranAi: edited.ranAi,
+      })
+    }
+    await getAuditLogsRepository().create({
+      tenantId: tenant.id,
+      actorId: user.id,
+      action: 'link.text.proposed',
+      entityType: 'link',
+      entityId: link.id,
+      before: { name: link.name, description: link.description },
+      after: { name: parsed.data.name, description: parsed.data.description },
+      requestId: request.id,
+    })
+    await enqueueTextProposal(link.id)
+    return reply.status(200).send({
+      id: link.id,
+      name: link.name,
+      description: link.description,
+      applied: false,
+      ranAi: verdict !== null && edited.ranAi,
+      pendingText: { name: parsed.data.name, description: parsed.data.description },
+    })
+  } catch (error) {
+    if (error instanceof ResourceNotFoundError) {
+      return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
+    }
+    throw error
+  }
+}
+
 export async function linksRoutes(app: FastifyInstance) {
   app.post('/', { preHandler: [verifyJWT] }, createLink)
-  app.post('/account/email', { onRequest: [verifyJWT] }, (request, reply) => postGuardedWrite(request, reply, 'account.email'))
-  app.post('/account/phone', { onRequest: [verifyJWT] }, (request, reply) => postGuardedWrite(request, reply, 'account.phone'))
-  app.patch('/:id', { onRequest: [verifyJWT] }, (request, reply) => postGuardedWrite(request, reply, 'link.update'))
+  app.get('/mine', { onRequest: [verifyJWT] }, listMine)
+  app.get('/:id', getPublicLink)
+  app.post('/account/email', { onRequest: [verifyJWT] }, (request, reply) => changeIdentifier(request, reply, 'EMAIL'))
+  app.post('/account/phone', { onRequest: [verifyJWT] }, (request, reply) => changeIdentifier(request, reply, 'PHONE'))
+  app.patch('/:id', { onRequest: [verifyJWT] }, patchLink)
   await registerAppealRoute(app)
 }

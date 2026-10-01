@@ -7,12 +7,14 @@ declare module '@fastify/jwt' {
       role: string
       tenantId: string
       typ: 'access' | 'refresh'
+      jti?: string
     }
     user: {
       sub: string
       role: string
       tenantId: string
       typ: 'access' | 'refresh'
+      jti?: string
     }
   }
 }

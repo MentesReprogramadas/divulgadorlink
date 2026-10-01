@@ -1,4 +1,7 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
+import { env } from '@/env'
+import { readSurface } from '@/domain/analytics/surface-token'
+import { recordClick } from '@/http/controllers/@Analytics/routes'
 import { buildError, not_found } from '@/http/errors'
 import { resolveTenant } from '@/http/tenant'
 import { getLinksRepository } from '@/repositories/links-repository'
@@ -46,6 +49,14 @@ async function goToLink(request: FastifyRequest<{ Params: GoParams }>, reply: Fa
   const view = openPublicLink(link)
   if (!view.visible) {
     return notFound()
+  }
+
+  const token = typeof request.query === 'object' && request.query && 'surfaceToken' in request.query
+    ? String((request.query as { surfaceToken?: string }).surfaceToken ?? '')
+    : ''
+  const origin = token ? readSurface(tenantId, link.id, token, env.JWT_SECRET) : 'organic'
+  if (origin) {
+    await recordClick({ request, reply, link, origin })
   }
 
   return reply.redirect(link.canonicalUrl)

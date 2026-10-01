@@ -47,7 +47,7 @@ describe('segurança', () => {
   })
 
   it('o sexto login na janela responde 429', async () => {
-    let last = 0
+    const statuses: number[] = []
     for (let i = 0; i < 6; i += 1) {
       const response = await app.inject({
         method: 'POST',
@@ -55,8 +55,9 @@ describe('segurança', () => {
         headers: { host: 'temlinkaqui.com' },
         payload: { email: 'bia@example.com', password: 'senha-forte-1' },
       })
-      last = response.statusCode
+      statuses.push(response.statusCode)
     }
-    expect(last).toBe(429)
-  })
+    expect(statuses.slice(0, 5)).not.toContain(429)
+    expect(statuses[5]).toBe(429)
+  }, 30_000)
 })

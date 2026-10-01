@@ -3,6 +3,9 @@ const SECRET_KEYS = new Set([
   'passwordHash',
   'token',
   'refreshToken',
+  'accessToken',
+  'csrf',
+  'clientSecret',
   'authorization',
   'code',
   'apiKey',
@@ -17,7 +20,27 @@ export function sanitizeLog(payload: Record<string, unknown>): Record<string, un
   return Object.fromEntries(Object.entries(payload).filter(([key]) => !SECRET_KEYS.has(key)))
 }
 
+export function logJob(fields: {
+  queue: string
+  job_id: string
+  name: string
+  attempt: number
+  duration_ms: number
+  status: 'success' | 'failure'
+  error?: string
+  correlation_id?: string
+}): void {
+  logDomainEvent('job.completed', fields)
+}
+
 export function logDomainEvent(event: string, fields: Record<string, unknown>): void {
-  const safe = sanitizeLog({ event, ...fields })
+  const safe = sanitizeLog({
+    event,
+    request_id: fields.request_id ?? fields.requestId,
+    tenant: fields.tenant ?? fields.tenantId,
+    entity: fields.entity ?? fields.orderId ?? fields.linkId,
+    duration_ms: fields.duration_ms ?? fields.durationMs,
+    ...fields,
+  })
   console.info(JSON.stringify(safe))
 }

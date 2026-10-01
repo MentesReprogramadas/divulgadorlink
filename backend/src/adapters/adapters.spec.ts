@@ -108,6 +108,47 @@ describe('adapters', () => {
     await expect(service.embed('texto')).rejects.toThrow(/dimensão/)
   })
 
+  it('Woovi aborta estorno sem resposta e não reporta sucesso', async () => {
+    const fetchImpl = ((_url: unknown, init?: RequestInit) => new Promise<Response>((_resolve, reject) => {
+      init?.signal?.addEventListener('abort', () => reject(init.signal?.reason))
+    })) as typeof fetch
+    const gateway = new WooviPixPaymentGateway('app-id', 'https://api.openpix.com.br', fetchImpl, () => new Date(), 20)
+    await expect(gateway.refund({ gatewayChargeId: 'order-1', correlationId: 'refund-order-1', amountCents: 1 }))
+      .rejects.toThrow(/timeout|aborted/i)
+    const failing = new WooviPixPaymentGateway('app-id', 'https://api.openpix.com.br', vi.fn().mockResolvedValue(jsonResponse({}, false, 500)))
+    await expect(failing.refund({ gatewayChargeId: 'order-1', correlationId: 'refund-order-1', amountCents: 1 }))
+      .rejects.toThrow('500')
+  })
+
+  it('embedding aborta quando o provedor não responde no prazo', async () => {
+    const fetchImpl = ((_url: unknown, init?: RequestInit) => new Promise<Response>((_resolve, reject) => {
+      init?.signal?.addEventListener('abort', () => reject(init.signal?.reason))
+    })) as typeof fetch
+    const service = new OpenAiEmbeddingService('sk-test', fetchImpl, undefined, undefined, 20)
+    await expect(service.embed('texto')).rejects.toThrow(/timeout|aborted/i)
+  })
+
+  it('Woovi e Stripe sem credencial falham explicitamente sem chamar o provedor', async () => {
+    const fetchImpl = vi.fn()
+    const pix = new WooviPixPaymentGateway('', 'http://woovi', fetchImpl as unknown as typeof fetch)
+    await expect(pix.createCharge({ orderId: 'o1', amountCents: 100, expiresInSeconds: 60 }))
+      .rejects.toThrow('WOOVI_APP_ID ausente.')
+    await expect(pix.getCharge('o1')).rejects.toThrow('WOOVI_APP_ID ausente.')
+    expect(fetchImpl).not.toHaveBeenCalled()
+
+    const card = new StripeCardPaymentGateway(null)
+    await expect(card.createCharge({ orderId: 'o1', amountCents: 100 })).rejects.toThrow('STRIPE_SECRET_KEY ausente.')
+    await expect(card.refund({ gatewayChargeId: 'pi', amountCents: 100, correlationId: 'r' }))
+      .rejects.toThrow('STRIPE_SECRET_KEY ausente.')
+  })
+
+  it('embedding sem chave falha explicitamente e não chama o provedor', async () => {
+    const fetchImpl = vi.fn()
+    const service = new OpenAiEmbeddingService('', fetchImpl as unknown as typeof fetch)
+    await expect(service.embed('texto')).rejects.toThrow('OPENAI_API_KEY ausente.')
+    expect(fetchImpl).not.toHaveBeenCalled()
+  })
+
   it('agenda o estorno no BullMQ sem cron', async () => {
     const add = vi.fn().mockResolvedValue(undefined)
     const scheduler = new BullRefundScheduler({ add })

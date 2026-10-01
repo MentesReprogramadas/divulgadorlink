@@ -57,7 +57,13 @@ export type SubmitterRecord = {
   identifiers: SubmitterIdentifier[]
 }
 
-export type NetworkRecord = { id: string; tenantId: string; slug: string }
+export type NetworkRecord = {
+  id: string
+  tenantId: string
+  name: string
+  slug: string
+  isPublicFacet: boolean
+}
 export type NicheRecord = {
   id: string
   tenantId: string
@@ -118,6 +124,8 @@ export interface LinksRepository {
   findNetwork(tenantId: string, id: string): Promise<NetworkRecord | null>
   findNiche(tenantId: string, id: string): Promise<NicheRecord | null>
   listNiches(tenantId: string): Promise<NicheRecord[]>
+  listNetworks(tenantId: string): Promise<NetworkRecord[]>
+  listByOwner(tenantId: string, ownerId: string): Promise<LinkRecord[]>
   listBlocklistTerms(tenantId: string): Promise<string[]>
   listBannedIdentifiers(tenantId: string): Promise<{ phones: string[]; emails: string[] }>
   listBannedUrls(tenantId: string): Promise<string[]>
@@ -169,8 +177,8 @@ export class InMemoryLinksRepository implements LinksRepository {
     this.promotions = []
     this.bans = []
     this.networks = [
-      { id: 'net-telegram', tenantId, slug: 'telegram' },
-      { id: 'net-outro', tenantId, slug: 'outro' },
+      { id: 'net-telegram', tenantId, name: 'Telegram', slug: 'telegram', isPublicFacet: true },
+      { id: 'net-outro', tenantId, name: 'Outro', slug: 'outro', isPublicFacet: true },
     ]
     this.niches = [
       { id: 'niche-jogos', tenantId, name: 'Jogos', slug: 'jogos', requiresAge: false, isPublicFacet: true },
@@ -320,6 +328,16 @@ export class InMemoryLinksRepository implements LinksRepository {
     return this.niches.filter((item) => item.tenantId === tenantId).map((item) => ({ ...item }))
   }
 
+  async listNetworks(tenantId: string): Promise<NetworkRecord[]> {
+    return this.networks.filter((item) => item.tenantId === tenantId).map((item) => ({ ...item }))
+  }
+
+  async listByOwner(tenantId: string, ownerId: string): Promise<LinkRecord[]> {
+    return this.links
+      .filter((item) => item.tenantId === tenantId && item.ownerId === ownerId)
+      .map((item) => ({ ...item }))
+  }
+
   async listBlocklistTerms(tenantId: string): Promise<string[]> {
     return this.terms.filter((item) => item.tenantId === tenantId).map((item) => item.term)
   }
@@ -394,7 +412,7 @@ export class PrismaLinksRepository implements LinksRepository {
   async findNetwork(tenantId: string, id: string): Promise<NetworkRecord | null> {
     return this.client.network.findFirst({
       where: { id, tenantId },
-      select: { id: true, tenantId: true, slug: true },
+      select: { id: true, tenantId: true, name: true, slug: true, isPublicFacet: true },
     })
   }
 
@@ -410,6 +428,18 @@ export class PrismaLinksRepository implements LinksRepository {
         isPublicFacet: true,
       },
     })
+  }
+
+  async listNetworks(tenantId: string): Promise<NetworkRecord[]> {
+    return this.client.network.findMany({
+      where: { tenantId },
+      select: { id: true, tenantId: true, name: true, slug: true, isPublicFacet: true },
+    })
+  }
+
+  async listByOwner(tenantId: string, ownerId: string): Promise<LinkRecord[]> {
+    const rows = await this.client.link.findMany({ where: { tenantId, ownerId } })
+    return rows.map((row) => toLinkRecord(row))
   }
 
   async listNiches(tenantId: string): Promise<NicheRecord[]> {
@@ -619,13 +649,18 @@ function toLinkRecord(row: PrismaLink): LinkRecord {
   }
 }
 
-const linksRepository: LinksRepository =
+let linksRepository: LinksRepository =
   process.env.NODE_ENV === 'test'
     ? InMemoryLinksRepository.seeded()
     : new PrismaLinksRepository(prisma)
 
 export function getLinksRepository(): LinksRepository {
   return linksRepository
+}
+
+export function setLinksRepositoryForTest(repository: LinksRepository): void {
+  if (process.env.NODE_ENV !== 'test') return
+  linksRepository = repository
 }
 
 export function resetLinksRepositoryForTest(): void {

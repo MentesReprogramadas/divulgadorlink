@@ -12,19 +12,29 @@ function isPrivateIPv4(host: string): boolean {
   )
 }
 
+function mappedIPv4(host: string): string | null {
+  if (!host.startsWith('::ffff:')) return null
+  const embedded = host.slice('::ffff:'.length)
+  if (isIP(embedded) === 4) return embedded
+  const parts = embedded.split(':')
+  if (parts.length !== 2) return null
+  const high = Number.parseInt(parts[0] || '', 16)
+  const low = Number.parseInt(parts[1] || '', 16)
+  if (Number.isNaN(high) || Number.isNaN(low)) return null
+  return `${(high >> 8) & 255}.${high & 255}.${(low >> 8) & 255}.${low & 255}`
+}
+
 function isPrivate(host: string): boolean {
-  if (host === 'localhost' || host.endsWith('.local')) return true
+  const bare = host.replace(/^\[|\]$/g, '').toLowerCase()
+  if (bare === 'localhost' || bare.endsWith('.local')) return true
 
-  const lower = host.toLowerCase()
-  if (lower.startsWith('::ffff:')) {
-    const embedded = lower.slice('::ffff:'.length)
-    if (isIP(embedded) === 4) return isPrivateIPv4(embedded)
-  }
+  const mapped = mappedIPv4(bare)
+  if (mapped) return isPrivateIPv4(mapped)
 
-  if (isIP(host) === 4) return isPrivateIPv4(host)
+  if (isIP(bare) === 4) return isPrivateIPv4(bare)
 
-  if (isIP(host) === 6) {
-    return host === '::1' || host.startsWith('fc') || host.startsWith('fd') || host.startsWith('fe80')
+  if (isIP(bare) === 6) {
+    return bare === '::1' || bare.startsWith('fc') || bare.startsWith('fd') || bare.startsWith('fe80')
   }
 
   return false

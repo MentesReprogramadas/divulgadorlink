@@ -13,11 +13,14 @@ export class OpenAiEmbeddingService implements EmbeddingService {
     private fetchImpl: typeof fetch = fetch,
     private model = 'text-embedding-3-large',
     private dimensions = EMBEDDING_DIMENSIONS,
+    private timeoutMs = 10_000,
   ) {}
 
   async embed(text: string): Promise<number[]> {
+    if (!this.apiKey) throw new Error('OPENAI_API_KEY ausente.')
     const response = await this.fetchImpl('https://api.openai.com/v1/embeddings', {
       method: 'POST',
+      signal: AbortSignal.timeout(this.timeoutMs),
       headers: {
         Authorization: `Bearer ${this.apiKey}`,
         'Content-Type': 'application/json',

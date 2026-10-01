@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import { sanitizeLog } from '@/observability/logger'
+import { describe, expect, it, vi } from 'vitest'
+import { logJob, sanitizeLog } from '@/observability/logger'
 
 describe('logger', () => {
   it('remove segredo, código, e-mail e telefone', () => {
@@ -11,5 +11,19 @@ describe('logger', () => {
       phone: '+5511999999999',
       request_id: 'req-1',
     })).toEqual({ event: 'auth.confirm.failed', request_id: 'req-1' })
+  })
+
+  it('logJob registra fila, job, tentativa, duração e status sem segredo', () => {
+    const spy = vi.spyOn(console, 'info').mockImplementation(() => {})
+    try {
+      logJob({ queue: 'q', job_id: 'charge-o1', name: 'charge-order', attempt: 2, duration_ms: 12, status: 'failure', error: 'TimeoutError', correlation_id: 'req-9' })
+      const line = JSON.parse(String(spy.mock.calls.at(-1)?.[0]))
+      expect(line).toMatchObject({
+        event: 'job.completed', queue: 'q', job_id: 'charge-o1', name: 'charge-order',
+        attempt: 2, duration_ms: 12, status: 'failure', error: 'TimeoutError', correlation_id: 'req-9',
+      })
+    } finally {
+      spy.mockRestore()
+    }
   })
 })

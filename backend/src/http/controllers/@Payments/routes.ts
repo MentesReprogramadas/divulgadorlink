@@ -1,5 +1,5 @@
 import { timingSafeEqual } from 'node:crypto'
-import { openPixSignatureMatches } from '@/adapters/payments/woovi-webhook-signature'
+import { verifyWooviSignature, WOOVI_PUBLISHED_PUBLIC_KEY } from '@/adapters/payments/woovi-webhook-signature'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import Stripe from 'stripe'
 import { z } from 'zod'
@@ -17,7 +17,7 @@ import { confirmationFlags } from '@/use-cases/@Auth/confirm-identifier'
 import { ConfirmGatewayPaymentUseCase } from '@/use-cases/@Payments/confirm-gateway-payment'
 import { refundFailureMessage } from '@/use-cases/@Payments/payment-jobs'
 import { RegisterRefundResolvedUseCase } from '@/use-cases/@Payments/register-refund-resolved'
-import { CheckoutConflictError, getCheckoutStore, StoreOrdersRepository, type CheckoutStore } from '@/use-cases/@Promotions/checkout-store'
+import { CheckoutConflictError, getCheckoutStore, StoreOrdersRepository, type CheckoutStore, type CommercialOrder } from '@/use-cases/@Promotions/checkout-store'
 import { PrismaCheckoutStore, runtimeCheckoutStore } from '@/use-cases/@Promotions/checkout-prisma'
 import { gatewayFor, PIX_EXPIRES_IN_SECONDS, startCheckout, type CheckoutGateway } from '@/use-cases/@Promotions/start-checkout'
 import { RefundActivationForbiddenError } from '@/use-cases/errors/refund-activation-forbidden-error'
@@ -32,6 +32,10 @@ const checkoutBody = z.object({
 }).strict()
 
 const hits = new Map<string, number[]>()
+
+export function resetCheckoutLimitForTest(): void {
+  hits.clear()
+}
 
 function limited(key: string): boolean {
   const now = Date.now()
@@ -78,17 +82,21 @@ function chargeGateway(method: 'PIX' | 'CARD'): CheckoutGateway {
       },
     }
   }
-  const pix = new WooviPixPaymentGateway(env.WOOVI_APP_ID ?? '')
-  const card = new StripeCardPaymentGateway(new Stripe(env.STRIPE_SECRET_KEY ?? 'sk_missing') as never)
+  const pix = new WooviPixPaymentGateway(env.WOOVI_APP_ID ?? '', env.WOOVI_API_BASE_URL)
+  const card = new StripeCardPaymentGateway(stripeClient())
   return gatewayFor(method, pix, card)
+}
+
+function stripeClient() {
+  return env.STRIPE_SECRET_KEY ? (new Stripe(env.STRIPE_SECRET_KEY) as never) : null
 }
 
 function providerGateway(method: 'PIX' | 'CARD'): PaymentGateway {
   if (testGateway) return testGateway
   if (method === 'CARD') {
-    return new StripeCardPaymentGateway(new Stripe(env.STRIPE_SECRET_KEY ?? 'sk_missing') as never)
+    return new StripeCardPaymentGateway(stripeClient())
   }
-  return new WooviPixPaymentGateway(env.WOOVI_APP_ID ?? '')
+  return new WooviPixPaymentGateway(env.WOOVI_APP_ID ?? '', env.WOOVI_API_BASE_URL)
 }
 
 export function setPaymentGatewayForTest(gateway: PaymentGateway | null): void {
@@ -122,13 +130,9 @@ function readStripeEvent(payload: Buffer, signature: string | undefined): { orde
   return { eventId: event.id, orderId }
 }
 
-function readWooviEvent(payload: Buffer, signature: string | undefined, testSignature?: string): { orderId: string; eventId: string } {
-  const hmacOk = openPixSignatureMatches(payload, signature, env.WOOVI_WEBHOOK_SECRET)
-  const testOk = process.env.NODE_ENV === 'test'
-    && Boolean(process.env.TEST_WEBHOOK_SIGNATURE)
-    && Boolean(testSignature)
-    && sameSecret(testSignature ?? '', process.env.TEST_WEBHOOK_SIGNATURE ?? '')
-  if (!hmacOk && !testOk) throw new Error('assinatura')
+function readWooviEvent(payload: Buffer, signature: string | undefined): { orderId: string; eventId: string } {
+  const publicKey = env.WOOVI_WEBHOOK_PUBLIC_KEY ?? WOOVI_PUBLISHED_PUBLIC_KEY
+  if (!verifyWooviSignature(payload, signature, publicKey)) throw new Error('assinatura')
   const body = JSON.parse(payload.toString()) as {
     eventId?: string
     correlationID?: string
@@ -257,6 +261,9 @@ export async function postCheckout(request: FastifyRequest, reply: FastifyReply)
     if (error instanceof Error && error.message === 'conta') {
       return reply.status(403).send(buildError({ code: business_rule, message: 'Compra não aceita.', request_id: request.id }))
     }
+    if (error instanceof Error && error.message === 'Combinação não está disponível') {
+      return reply.status(409).send(buildError({ code: business_rule, message: error.message, request_id: request.id }))
+    }
     if (error instanceof Error && /link|HOME|pendente|disponível|SEARCH|NICHE/.test(error.message)) {
       return reply.status(409).send(buildError({ code: business_rule, message: 'Compra não aceita.', request_id: request.id }))
     }
@@ -291,10 +298,7 @@ export async function postStripeWebhook(request: FastifyRequest, reply: FastifyR
 }
 
 export async function postWooviWebhook(request: FastifyRequest, reply: FastifyReply) {
-  return postWebhook(request, reply, (payload, signature) => {
-    const testSignature = request.headers['x-test-signature']
-    return readWooviEvent(payload, signature, typeof testSignature === 'string' ? testSignature : undefined)
-  }, 'x-openpix-signature')
+  return postWebhook(request, reply, readWooviEvent, 'x-webhook-signature')
 }
 
 export async function postRefundResolved(request: FastifyRequest, reply: FastifyReply) {
@@ -384,9 +388,128 @@ export async function postRenew(request: FastifyRequest, reply: FastifyReply) {
   }
 }
 
+function hostFromPayment(request: FastifyRequest): string {
+  return (request.headers.host ?? '').split(':')[0] || ''
+}
+
+function orderDto(row: CommercialOrder, includeBrCode = false) {
+  return {
+    id: row.order.id,
+    linkId: row.linkId,
+    status: row.order.status,
+    method: row.order.method,
+    productCode: row.productCode,
+    durationDays: row.durationDays,
+    amountCents: row.order.amountCents,
+    savingsCents: row.savingsCents,
+    renewal: row.renewal,
+    surfaces: row.surfaces,
+    pixExpiresAt: row.order.pixExpiresAt,
+    chargeStarted: row.order.gatewayChargeId !== null,
+    ...(includeBrCode && row.brCode ? { brCode: row.brCode } : {}),
+  }
+}
+
+async function listMyOrders(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const tenant = await resolveTenant(hostFromPayment(request))
+    if (request.user.tenantId !== tenant.id) {
+      return reply.status(403).send(buildError({ code: forbidden, message: 'Acesso negado.', request_id: request.id }))
+    }
+    const rows = await checkoutStore().listOrdersForUser(tenant.id, request.user.sub)
+    return reply.status(200).send({ orders: rows.map((row) => orderDto(row)) })
+  } catch (error) {
+    if (error instanceof ResourceNotFoundError) {
+      return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
+    }
+    throw error
+  }
+}
+
+async function getMyOrder(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const tenant = await resolveTenant(hostFromPayment(request))
+    if (request.user.tenantId !== tenant.id) {
+      return reply.status(403).send(buildError({ code: forbidden, message: 'Acesso negado.', request_id: request.id }))
+    }
+    const orderId = (request.params as { orderId: string }).orderId
+    const row = await checkoutStore().findCommercial(orderId)
+    if (!row || row.tenantId !== tenant.id || row.userId !== request.user.sub) {
+      return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
+    }
+    return reply.status(200).send(orderDto(row, true))
+  } catch (error) {
+    if (error instanceof ResourceNotFoundError) {
+      return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
+    }
+    throw error
+  }
+}
+
+async function listMyPromotions(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const tenant = await resolveTenant(hostFromPayment(request))
+    if (request.user.tenantId !== tenant.id) {
+      return reply.status(403).send(buildError({ code: forbidden, message: 'Acesso negado.', request_id: request.id }))
+    }
+    const links = await getLinksRepository().listByOwner(tenant.id, request.user.sub)
+    const rows = await checkoutStore().listPromotionsByLinks(links.map((link) => link.id))
+    return reply.status(200).send({
+      promotions: rows.map((row) => ({
+        id: row.id,
+        linkId: row.linkId,
+        surface: row.surface,
+        status: row.status,
+        activatedAt: row.activatedAt,
+        expiresAt: row.expiresAt,
+      })),
+    })
+  } catch (error) {
+    if (error instanceof ResourceNotFoundError) {
+      return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
+    }
+    throw error
+  }
+}
+
+export async function listFailedRefunds(request: FastifyRequest, reply: FastifyReply) {
+  if (request.user.role !== 'ADMIN') {
+    return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
+  }
+  try {
+    const tenant = await resolveTenant(hostFromPayment(request))
+    if (request.user.tenantId !== tenant.id) {
+      return reply.status(403).send(buildError({ code: forbidden, message: 'Acesso negado.', request_id: request.id }))
+    }
+    const rows = await checkoutStore().listOrdersByStatus(tenant.id, 'REFUND_FAILED')
+    return reply.status(200).send({
+      refunds: rows.map((row) => ({
+        orderId: row.order.id,
+        userId: row.userId,
+        amountCents: row.order.amountCents,
+        refundIds: row.refundIds,
+        attempts: row.order.refundAttempts,
+        errors: row.refundErrors,
+        status: row.order.status,
+        createdAt: row.createdAt.toISOString(),
+        message: refundFailureMessage(row.order.id),
+      })),
+    })
+  } catch (error) {
+    if (error instanceof ResourceNotFoundError) {
+      return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
+    }
+    throw error
+  }
+}
+
 export async function paymentRoutes(app: FastifyInstance) {
   app.post('/promotions/checkout', { onRequest: [verifyJWT] }, postCheckout)
   app.post('/promotions/renew', { onRequest: [verifyJWT] }, postRenew)
+  app.get('/promotions/mine', { onRequest: [verifyJWT] }, listMyPromotions)
+  app.get('/orders/mine', { onRequest: [verifyJWT] }, listMyOrders)
+  app.get('/orders/:orderId', { onRequest: [verifyJWT] }, getMyOrder)
+  app.get('/admin/refunds', { onRequest: [verifyJWT] }, listFailedRefunds)
   app.post('/admin/refunds/:orderId/resolved', { onRequest: [verifyJWT] }, postRefundResolved)
   app.get('/admin/refunds/:orderId', { onRequest: [verifyJWT] }, getRefund)
 }

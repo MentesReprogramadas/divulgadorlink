@@ -30,6 +30,7 @@ export class WooviPixPaymentGateway implements PixPaymentGateway {
     private baseUrl = 'https://api.openpix.com.br',
     private fetchImpl: typeof fetch = fetch,
     private now: () => Date = () => new Date(),
+    private timeoutMs = 15_000,
   ) {}
 
   async createCharge(input: {
@@ -94,8 +95,10 @@ export class WooviPixPaymentGateway implements PixPaymentGateway {
   }
 
   private async request<T>(path: string, init: RequestInit): Promise<T> {
+    if (!this.appId) throw new Error('WOOVI_APP_ID ausente.')
     const response = await this.fetchImpl(`${this.baseUrl}${path}`, {
       ...init,
+      signal: AbortSignal.timeout(this.timeoutMs),
       headers: {
         Authorization: this.appId,
         'Content-Type': 'application/json',
