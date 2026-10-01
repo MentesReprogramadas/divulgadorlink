@@ -30,7 +30,7 @@ Herdadas de `docs/superpowers/plans/2026-09-29-catalogo.md`. Este plano não cri
 - Consumes: nada
 - Produces: `GET /api/v1/actuator/health` → `{ status: "ok" }`. `env` validado por Zod. Compose com `pgvector/pgvector:pg16` e `redis:7`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -50,7 +50,7 @@ describe('health', () => {
 Run: `npm test -- src/http/controllers/@Health/health.spec.ts`
 Expected: FAIL, módulo `@/app` ausente.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 `backend/docker-compose.yml`:
 
@@ -100,7 +100,7 @@ export const env = parsed.data
 
 `backend/src/app.ts` registra Fastify, prefixo `/api/v1`, a rota de health e handler de `ZodError` com status 400. `backend/src/server.ts` escuta `env.PORT` e não chama cron. `schema.prisma` nesta task só tem generator `prisma-client-js` e datasource PostgreSQL. Acrescentar em `package.json` as dependências `prisma@6.0.1`, `@prisma/client@6.0.1`, `@fastify/jwt@^9`, `@fastify/cookie`, `bcryptjs`, `@hyperdx/node-opentelemetry@0.8.1`. Não adicionar `node-cron`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- src/http/controllers/@Health/health.spec.ts`
 Expected: PASS
@@ -126,7 +126,7 @@ git commit -m "feat: sobe a API com health check"
 - Consumes: Task 1
 - Produces: `resolveTenant(host: string): Promise<{ id: string }>`. Models `Tenant`, `User`, `UserIdentifier`, `VerificationCode`. Único é `(tenantId, normalizedValue)`, não o e-mail global.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -146,7 +146,7 @@ describe('tenant', () => {
 Run: `npm test -- src/http/tenant.spec.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Acrescentar ao schema:
 
@@ -211,7 +211,7 @@ model VerificationCode {
 
 `resolveTenant` busca `Tenant.host`. O segundo argumento é ignorado. Host desconhecido lança erro de não encontrado. Nenhum controller lê `tenantId` do body.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- src/http/tenant.spec.ts`
 Expected: PASS. O teste usa um repositório em memória semeado com `temlinkaqui.com`.
@@ -238,7 +238,7 @@ git commit -m "feat: resolve o tenant pelo host"
 - Consumes: Task 2
 - Produces: `canSubmitLink`. `POST /api/v1/auth/register` sem campo `role`. `POST /api/v1/auth/confirm`. JWT 5 min. Cookie `refreshToken` HttpOnly, Secure em produção, SameSite=Lax. 6º reenvio em 60 minutos responde 429.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -272,7 +272,7 @@ describe('confirmação', () => {
 Run: `npm test -- src/use-cases/@Auth/confirm-identifier.spec.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```ts
 export function canSubmitLink(user: {
@@ -291,7 +291,7 @@ export function assertResendAllowed(sentInWindow: number): true {
 
 O schema Zod de `register` tem `name`, `email`, `phone`, `password`. Não tem `role`. Papel nasce `USER`. Confirmar grava `confirmedAt` no identificador. Trocar e-mail ou telefone cria linha nova com `confirmedAt` nulo e preenche `replacedAt` na linha antiga. A linha antiga não é apagada. Enquanto o novo valor não confirma, `canSubmitLink` é falso. Conta já pode ver o painel antes da confirmação.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- src/use-cases/@Auth/confirm-identifier.spec.ts`
 Expected: PASS
@@ -320,7 +320,7 @@ git commit -m "feat: exige e-mail e telefone confirmados para enviar link"
 
 Os quatro números abaixo aparecem uma vez, em `INITIAL_CONFIG`, dentro de `prisma/seed.ts`. São o valor com que o processo sobe. Não são limiar validado para produção. Use case, teste de regra e adapter não copiam esses números. Leem `readConfig`. Admin do tenant altera pela API. A alteração grava auditoria com valor anterior, valor novo, ator e `request_id`. O caso de moderação copia o limiar lido e o `updatedAt` da config. A busca lê a config na hora. Reproduzir uma busca antiga usa essa auditoria, sem tabela nova e sem prazo novo.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -354,7 +354,7 @@ describe('config', () => {
 Run: `npm test -- src/domain/promotions/price-for.spec.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```ts
 export type Surface = 'SEARCH' | 'NICHE' | 'HOME'
@@ -433,7 +433,7 @@ export function priceFor(rows: PriceRow[], surfaces: Surface[], durationDays: nu
 
 O seed grava `PRICE_ROWS` em `PromotionPrice` e `INITIAL_CONFIG` em `Config`, com uma linha de auditoria `config.seed` por chave, ator nulo e `before` vazio. `readConfig({}, key)` lança. Não há número de fallback no use case. `PATCH /api/v1/admin/config/:key` exige `authorize` com papel `ADMIN` no tenant do host e grava `config.update`. Redes: Discord, Facebook, Instagram, Kwai, LinkedIn, Outro, Pinterest, Reddit, Site, Telegram, Threads, TikTok, Twitch, Vimeo, Whatsapp, X, YouTube. Nicho Adulto nasce com `requiresAge = true`. Os outros nichos da spec nascem com `requiresAge = false`. `Outro` existe nas duas listas e não é facet pública. Checkout futuro lê a tabela, não esta constante. `priceFor` recebe as linhas que o repositório devolveu.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- src/domain/promotions/price-for.spec.ts`
 Expected: PASS. `savingsCents` de `SEARCH_NICHE` 28 dias é `1990 + 2990 - 3990 = 990`.
@@ -459,7 +459,7 @@ git commit -m "feat: tabela de preços e taxonomia inicial"
 - Consumes: Task 1
 - Produces: `sanitizeLog`. `GET /api/v1/actuator/live` sem banco. `GET /api/v1/actuator/ready` consulta Postgres e Redis. Header `x-request-id`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -484,7 +484,7 @@ describe('logger', () => {
 Run: `npm test -- src/observability/logger.spec.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```ts
 const SECRET_KEYS = new Set([
@@ -499,7 +499,7 @@ export function sanitizeLog(payload: Record<string, unknown>): Record<string, un
 
 `onRequest` copia `x-request-id` ou gera um. `HyperDX.init` usa `env.HDX_API_KEY` e `env.HDX_SERVICE_NAME`, no mesmo import da Contavera: `@hyperdx/node-opentelemetry`. Se `HDX_API_KEY` estiver vazio, a API sobe e o log local continua. Erro 500 em produção devolve `{ code: "internal_error", request_id }` sem stack. `/live` não abre conexão. `/ready` falha se Postgres ou Redis não responderem.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- src/observability/logger.spec.ts src/http/controllers/@Health/health.spec.ts`
 Expected: PASS
@@ -523,7 +523,7 @@ git commit -m "feat: logs estruturados, liveness e readiness"
 - Consumes: status da spec e `ORDER_STATUSES` já existente
 - Produces: `transition(machine, from, to)`. Pedido, promoção, link e usuário só mudam por aqui.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -546,7 +546,7 @@ describe('pedido', () => {
 Run: `npm test -- src/domain/state/transition.spec.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```ts
 export function transition<T extends string>(machine: Record<string, readonly T[]>, from: T, to: T): T {
@@ -581,7 +581,7 @@ export const linkMachine = {
 
 Use case novo chama `transition` antes de gravar. Não alterar os use cases de pagamento já testados nesta task: eles passam a usar `transition` só quando o plano 5 os ligar à persistência, e a suíte `payments.spec.ts` tem de continuar verde.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- src/domain/state/transition.spec.ts src/use-cases/@Payments/payments.spec.ts`
 Expected: PASS
@@ -606,7 +606,7 @@ git commit -m "feat: transições de estado explícitas"
 - Consumes: tenant do host, JWT
 - Produces: `authorize`. Corpo `{ code, message, request_id, issues? }` com códigos `validation`, `unauthenticated`, `forbidden`, `not_found`, `conflict`, `rate_limited`, `business_rule`, `provider_error`, `internal_error`. Recurso de outro usuário no mesmo tenant responde `not_found`, não `forbidden`, para não enumerar.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -635,7 +635,7 @@ describe('autorização', () => {
 Run: `npm test -- src/http/authorize.spec.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```ts
 export function authorize(input: {
@@ -654,7 +654,7 @@ export function authorize(input: {
 
 A ordem do controller é autenticação, `authorize`, use case. DTO de saída é schema Zod. Campo de Prisma que não está no schema não sai.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- src/http/authorize.spec.ts`
 Expected: PASS
@@ -678,7 +678,7 @@ git commit -m "feat: autorização central e erro sem stack"
 - Consumes: `User`, `UserIdentifier`, pedido, auditoria
 - Produces: `anonymizeAccount`. Não cria job. Não apaga pedido. Não inventa prazo.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -716,7 +716,7 @@ describe('exclusão da conta', () => {
 Run: `npm test -- src/use-cases/@Auth/anonymize-account.spec.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```ts
 const IDENTITY_KEYS = new Set(['email', 'phone', 'normalizedValue', 'userId', 'actorId', 'ownerId'])
@@ -759,7 +759,7 @@ export function anonymizeAccount(input: {
 
 A linha da conta é apagada. Pedido e auditoria ficam sem o uuid e sem um pseudônimo comum. `createdAt` do pedido permanece: é o relógio dos 5 anos, e este plano não cria o job que o usa. Analytics não entra aqui. O status do link não muda.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- src/use-cases/@Auth/anonymize-account.spec.ts`
 Expected: PASS
@@ -774,3 +774,20 @@ git commit -m "feat: exclusão da conta anonimiza a pessoa"
 ## Gate deste plano
 
 `npm test` no backend passa, inclusive `payments.spec.ts` e `adapters.spec.ts`. `/live` não consulta banco. Log de teste não contém e-mail. Não existe worker de limpeza.
+
+## Status de implementação
+
+Reconciliado em 2026-09-30 (Task 10), contra o código e as suítes do mesmo dia: backend `npm test` 198/198 (50 arquivos), `test:pg` 30/30, frontend 7/7, Playwright 15/15 em duas execuções seguidas (uma terceira anterior teve 1 falha intermitente, ver plano 07), typecheck, lint, build e `npm audit --audit-level=high` sem vulnerabilidade nos dois workspaces.
+
+Regra das marcas: Step 1 e Step 3 marcados quando o spec e a implementação declarados existem; Step 4 marcado quando o spec passa numa dessas suítes. Step 2 ("ver falhar") é histórico e não se prova retroativamente: fica `[ ]`. Step 5 (commit) não foi executado por instrução: fica `[ ]`. Nenhum histórico foi apagado.
+
+| Task | Status | Evidência |
+|---|---|---|
+| Task 1: API e health | PASS | `@Health/health.spec.ts` |
+| Task 2: Tenant, usuário e identificadores | PASS | `http/tenant.spec.ts` |
+| Task 3: Auth com e-mail e telefone confirmados | PASS (domínio) / PRODUCT_DECISION_REQUIRED (entrega) | `confirm-identifier.spec.ts`. Entrega do código por `EmailProvider`/`SmsProvider`; em produção falha com `PROVIDER_SELECTION_REQUIRED` (prova HTTP: 503 `provider_error`, 0 código gravado, 0 cookie). Provedor não escolhido |
+| Task 4: Preços, redes, nichos e config | PASS | `price-for.spec.ts` |
+| Task 5: Logger, liveness e readiness | PASS | `observability/logger.spec.ts` |
+| Task 6: Máquina de estados | PASS | `domain/state/transition.spec.ts` |
+| Task 7: Autorização e contrato de erro | PASS | `http/authorize.spec.ts` |
+| Task 8: Exclusão da conta anonimiza | PASS (função) / PRODUCT_DECISION_REQUIRED | `anonymize-account.spec.ts`. `anonymizeAccount` é função pura, sem rota. `BAN_AFTER_DELETION = pending`: a blocklist deriva da conta `BANNED` viva, então excluir a conta apaga telefone, e-mail e URL da blocklist |

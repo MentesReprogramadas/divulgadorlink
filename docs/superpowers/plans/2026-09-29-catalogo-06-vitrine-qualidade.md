@@ -25,7 +25,7 @@ Herdadas do mapa. Analytics não guarda IP nem user-agent. Dono e admin não con
 - Consumes: cookie de sessão opaco
 - Produces: `shouldCount`. Único em `(sessionId, linkId, surface, day, kind)`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -55,7 +55,7 @@ describe('analytics', () => {
 Run: `npm test -- src/use-cases/@Analytics/record-event.spec.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```ts
 export function shouldCount(input: { viewer: 'OWNER' | 'ADMIN' | 'VISITOR'; duplicate: boolean }): boolean {
@@ -78,7 +78,7 @@ export function ctr(clicks: number, impressions: number): number {
 
 `AnalyticsEvent.day` é o relógio dos 12 meses. Não há `userId` nem coluna `retentionUntil`. Este plano não cria o job. A coluna não tem IP nem user-agent. Conflito da chave única é sucesso. O redirect de `/go` acontece mesmo assim. O parâmetro de superfície é assinado pela API na hora da listagem. A página não deixa o browser escolher a superfície à vontade.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- src/use-cases/@Analytics/record-event.spec.ts`
 Expected: PASS
@@ -105,7 +105,7 @@ git commit -m "feat: impressão e clique deduplicados por sessão"
 - Consumes: nada de domínio financeiro da Contavera
 - Produces: tokens e os componentes que a Task 3 importa. Página não declara um segundo botão.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```tsx
 import { render, screen } from '@testing-library/react'
@@ -122,11 +122,11 @@ it('renderiza o botão do sistema', () => {
 Run: `npm test -- src/components/ui/button.test.tsx`
 Expected: FAIL
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 `tokens.css` define espaço, tipo, raio, sombra, breakpoint e cor. `Button` só usa essas variáveis e `variant` `primary | secondary | ghost`. `EmptyState` e `ErrorState` cobrem vazio, erro e retry. Os outros primitivos (Input, Select, Dialog, Toast, Card, Table, Pagination, Form, Loading, Skeleton) nascem no mesmo pacote `components/ui` ou `components/feedback` antes da Task 3 importá-los. Cada um recebe variante pelos tokens. Não copiar tela da Contavera.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- src/components/ui/button.test.tsx`
 Expected: PASS
@@ -157,7 +157,7 @@ git commit -m "feat: design system com tokens"
 - Consumes: rotas dos planos 1 a 5 e os componentes da Task 2
 - Produces: home sem `requiresAge`. Busca pede idade antes de desenhar. Checkout mostra o preço que o backend devolveu. Combinação inexistente mostra indisponível, sem trocar o produto.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```tsx
 import { render, screen } from '@testing-library/react'
@@ -175,11 +175,11 @@ it('não desenha nicho com idade na home', () => {
 Run: `npm test -- src/app/page.test.tsx`
 Expected: FAIL
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 `package.json` fixa `next@15.3.8`, `react@19`, Tailwind 4, Radix, react-hook-form, Zod, TanStack Query. Fontes Geist e Plus Jakarta Sans. As rotas e os rótulos são os dos specs Playwright desta mesma pasta: `/cadastro`, `/login`, `/painel`, `/painel/verificar`, `/painel/links/novo`, `/painel/links/receitas/destaque`, `/admin/moderacao`, `/busca`, `/link/[id]`. Sessão ausente em rota privada mostra o formulário de login. Home filtra `requiresAge`. Página do link `UNAVAILABLE` tem o heading `Link indisponível` e não renderiza Acessar. Acessar aponta para `/go/:linkId`. Painel do dono mostra período, valor pago, dias restantes, impressão, clique e CTR por superfície, com os textos `Ativado`, `Expira`, `N impressão` e `N clique`. Conta `BANNED` vê `Conta suspensa` e não vê `Novo link` nem `Renovar 28 dias`. Admin de `REFUND_FAILED` mostra pedido, usuário, valor, ids, tentativas, erro do gateway e horário. O único botão financeiro dessa fila chama a rota que marca `REFUNDED`. Não há botão de ativar promoção tardia nem de simular webhook.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test` em `frontend` e `npm test` em `backend`
 Expected: PASS
@@ -209,7 +209,7 @@ git commit -m "feat: vitrine, painel e admin"
 
 Contas semeadas no banco de teste, antes do browser: `ana@example.com` sem confirmar; `bia@example.com` com e-mail e telefone confirmados, no tenant `temlinkaqui.com`; `admin@example.com` com papel `ADMIN` nesse tenant; `cid@example.com` banida; `dora@example.com` no host `outro.example`. Não há botão de simular pagamento. O webhook do teste chama `POST /api/v1/payments/woovi/webhook` com a assinatura do adapter de teste. A UI só mostra o que a API devolveu.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 `frontend/e2e/auth.spec.ts` cobre cadastro, login e confirmação:
 
@@ -503,7 +503,7 @@ for (const width of [1280, 768, 390]) {
 Run: `npm run test:e2e -- e2e/auth.spec.ts`
 Expected: FAIL até a UI e a API existirem.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 `playwright.config.ts` sobe API, worker e Next contra o compose de teste. Webhook de teste usa adapter que implementa `PaymentGateway`. O use case não ganha `if (test)`.
 
@@ -531,7 +531,7 @@ git commit -m "test: e2e Playwright dos fluxos críticos"
 - Consumes: `authorize`, `assertPublicHttps`, webhook
 - Produces: a suíte falha se qualquer caso abaixo passar como sucesso indevido.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -603,11 +603,11 @@ O sexto login na janela de 60 minutos responde 429. O 500 de produção é `{ co
 Run: `npm test -- src/http/security.spec.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Zod de cadastro sem `role`. Helmet, CORS com a lista de hosts do tenant, body limit, rate limit em auth, confirmação e busca. `/go` só usa a URL gravada no link.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- src/http/security.spec.ts`
 Expected: PASS
@@ -648,7 +648,7 @@ Correção desta task, antes do workflow ser aceito:
 
 Custo: o runner deixa de ser o Vitest 2 da Contavera. O desvio é o advisory, não uma regra de produto.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 O artefato é o workflow mais o `package.json` acima. A verificação local é: lint, typecheck, `npm test` no backend, `npm test` no frontend, `npm audit --audit-level=high` nos dois, Playwright, build.
 
@@ -657,7 +657,7 @@ O artefato é o workflow mais o `package.json` acima. A verificação local é: 
 Run: `npm audit --audit-level=high` em `backend`, antes de mudar a versão.
 Expected: exit 1, com `GHSA-fx2h-pf6j-xcff` e `GHSA-5xrq-8626-4rwp`.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```yaml
 name: ci
@@ -709,3 +709,18 @@ git commit -m "ci: lint, testes, e2e, audit e build"
 ## Gate deste plano
 
 Repete a suíte inteira: unitário, HTTP, Playwright, segurança, audit e build. Log sem e-mail e sem telefone. Página pública sem dado do dono. Não existe job de limpeza de retenção. Problema relevante reabre a task. O plano não fecha com falha conhecida.
+
+## Status de implementação
+
+Reconciliado em 2026-09-30 (Task 10), contra o código e as suítes do mesmo dia: backend `npm test` 198/198 (50 arquivos), `test:pg` 30/30, frontend 7/7, Playwright 15/15 em duas execuções seguidas (uma terceira anterior teve 1 falha intermitente, ver plano 07), typecheck, lint, build e `npm audit --audit-level=high` sem vulnerabilidade nos dois workspaces.
+
+Regra das marcas: Step 1 e Step 3 marcados quando o spec e a implementação declarados existem; Step 4 marcado quando o spec passa numa dessas suítes. Step 2 ("ver falhar") é histórico e não se prova retroativamente: fica `[ ]`. Step 5 (commit) não foi executado por instrução: fica `[ ]`. Nenhum histórico foi apagado.
+
+| Task | Status | Evidência |
+|---|---|---|
+| Task 1: Analytics | PASS | `record-event.spec.ts`, `analytics.pg.spec.ts`; índice `(tenantId, linkId, day)` levou `totals` de 20 ms para 0,03 ms com 500k eventos |
+| Task 2: Design system | PASS | `button.test.tsx` |
+| Task 3: Telas | PASS | `page.test.tsx`; `/admin` virou `/admin/moderacao` e `/admin/estornos` |
+| Task 4: Playwright | OPEN | Consolidado em `frontend/e2e/catalog.spec.ts` (15 testes), não nos 5 arquivos do plano. 15/15 nas duas últimas execuções; 1 falha intermitente anterior em `asBia` sem causa raiz. Step 4 fica `[ ]` |
+| Task 5: Suíte de segurança da API | PASS | `http/security.spec.ts` |
+| Task 6: CI | BLOCKED_EXTERNAL | `.github/workflows/ci.yml` existe e a mesma ordem passa localmente. `CI REMOTE EXECUTION REQUIRES PUSH/GITHUB` (`gh` ausente, sem push). Step 4 fica `[ ]` |

@@ -36,6 +36,8 @@ O produto novo copia esse desenho. Não copia os módulos financeiros.
 | Tenant | um produto | `tenant_id` resolvido pelo host | White label pedido |
 | Categoria e plataforma | não se aplica | uma entidade só: Rede | A página pública trata as duas como a mesma coisa |
 | Gateway e modelo de embedding | não existem | portas no domínio; Stripe, Woovi e OpenAI só nos adapters | Ver seção 12 |
+| Sessão | JWT 5 min + cookie `refreshToken` | cookies HttpOnly `accessToken` (JWT 5 min) e `refreshToken` (JWT 7 dias, rotação com revogação do `jti` no Redis); `csrf` e `catalogo_role` legíveis; nenhum token no JSON. Os cookies não têm `maxAge`: são cookies de sessão do browser. `SESSION COOKIE = browser session cookie`, `REFRESH TOKEN EXPIRATION = 7 days`. `catalogo_role` só decide o que a tela desenha, nunca autoriza | Token fora do alcance de script; mudar `maxAge` exige requisito de produto |
+| Entrega de código | MailerSend / Mailgun | portas `EmailProvider` e `SmsProvider`; fora de produção, inbox de teste; em produção, adapter "não selecionado" que falha com `PROVIDER_SELECTION_REQUIRED` (HTTP 503 `provider_error`) | Provedor de e-mail e de SMS ainda não escolhido. A Contavera é referência, não decisão |
 
 ## 3. Arquitetura
 

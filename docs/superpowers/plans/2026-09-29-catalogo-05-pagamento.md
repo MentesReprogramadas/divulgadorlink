@@ -25,7 +25,7 @@ Herdadas do mapa. Não reescrever a máquina de Pix, estorno e admin já coberta
 - Consumes: `priceFor`
 - Produces: `assertCheckout`. `POST /api/v1/promotions/checkout` body `{ linkId, surfaces, durationDays }`. A resposta traz `orderId`, `code`, `amountCents`, `savingsCents`. O cliente não envia preço.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -70,7 +70,7 @@ describe('checkout', () => {
 Run: `npm test -- src/use-cases/@Promotions/start-checkout.spec.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```ts
 import type { Surface } from '@/domain/promotions/price-for'
@@ -100,7 +100,7 @@ export function assertCheckout(input: {
 
 `Order` tem `createdAt`. `Payment` tem `createdAt` e não tem `userId`. `Order.userId` é anulável. Esses relógios existem para a retenção de 5 anos. Este plano não cria o job. A transação trava as linhas do link. Dois checkouts simultâneos da mesma superfície: o segundo estoura o índice único parcial `UNIQUE (link_id, surface) WHERE status = 'ACTIVE'` e `UNIQUE (link_id, surface) WHERE order_status = 'PENDING_PAYMENT'`. Conta banida falha antes de `createCharge`. Pix usa `expiresInSeconds: 1800` e enfileira `expire-pix` com delay de 1_800_000 ms. Cartão usa `StripeCardPaymentGateway.createCharge`. O preço gravado no pedido é o `amountCents` de `priceFor` sobre as linhas vigentes. Superfícies do pacote só nascem com o mesmo `startsAt` e `expiresAt` depois do pagamento.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- src/use-cases/@Promotions/start-checkout.spec.ts`
 Expected: PASS
@@ -126,7 +126,7 @@ git commit -m "feat: checkout recusa pacote sobre superfície ativa"
 - Consumes: `ConfirmGatewayPaymentUseCase`, `ExpirePixOrderUseCase`, `RequestPixRefundUseCase`, `RegisterRefundResolvedUseCase`
 - Produces: `POST /api/v1/payments/stripe/webhook`, `POST /api/v1/payments/woovi/webhook`, jobs `expire-pix` e `refund-pix`, `POST /api/v1/admin/refunds/:orderId/resolved`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Acrescentar em `payments.spec.ts` apenas se ainda não existir. A suíte atual já cobre prazo, tardio, três falhas, o mesmo `correlationID` e o admin. O teste novo do controller:
 
@@ -147,13 +147,13 @@ Reusar o pedido tardio que a suíte já monta. Não copiar a regra para o contro
 Run: `npm test -- src/use-cases/@Payments/payments.spec.ts`
 Expected: a suíte atual PASS. Se o caso de replay ainda não estiver explícito no controller, o teste de HTTP do webhook sem assinatura fica para o plano 6. Este passo falha só se o replay chamar `scheduleRetry` duas vezes.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 O controller Stripe recusa corpo sem assinatura válida do `STRIPE_WEBHOOK_SECRET` com 400 e não chama o use case. O controller Woovi extrai `correlationID` e chama o use case. Os dois passam `{ orderId, eventId }`. Quem muda status é `ConfirmGatewayPaymentUseCase`, que já relê `getCharge`. O worker registra `expire-pix` em `ExpirePixOrderUseCase` e `refund-pix` em `RequestPixRefundUseCase`. Não importar `node-cron`. `REFUND_FAILED` enfileira `notify-refund-failed` com número do pedido, pagamento tardio, promoção inativa e estorno incompleto. O admin em `resolved` só chama `RegisterRefundResolvedUseCase`.
 
 O `jobId` de retentativa não usa `Date.now()`. A idempotência continua no `correlationId` `refund-${orderId}` que o use case já reutiliza. Ajustar `bull-refund-scheduler.ts` para `jobId: refund-${orderId}-${attempt}` só se a suíte de adapters continuar passando. Não mudar a regra das três tentativas.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- src/use-cases/@Payments/payments.spec.ts src/adapters/adapters.spec.ts`
 Expected: PASS
@@ -177,7 +177,7 @@ git commit -m "feat: webhook e worker de Pix sem cron"
 - Consumes: promoção `ACTIVE`
 - Produces: `renew`. Mantém `activatedAt`. Soma `durationDays` em `expiresAt`. Não cria outra promoção.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -212,7 +212,7 @@ describe('renovação', () => {
 Run: `npm test -- src/use-cases/@Promotions/renew.spec.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```ts
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -234,7 +234,7 @@ export function renew(input: {
 
 Pacote aplica o mesmo `durationDays` em cada superfície do grupo. Promoção `EXPIRED` não entra aqui: a compra seguinte cria promoção com `activatedAt` novo. Pedido da renovação é outro, com o preço vigente. Checkout de pacote que inclui superfície `ACTIVE` continua no `assertCheckout`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- src/use-cases/@Promotions/renew.spec.ts`
 Expected: PASS. 29/09 mais 28 dias é 27/10.
@@ -249,3 +249,15 @@ git commit -m "feat: renovação estende a mesma promoção"
 ## Gate deste plano
 
 Dois checkouts da mesma superfície não ficam ambos `PENDING_PAYMENT`. Webhook sem reler o provedor não existe. `REFUND_FAILED` não vira promoção. `payments.spec.ts` passa.
+
+## Status de implementação
+
+Reconciliado em 2026-09-30 (Task 10), contra o código e as suítes do mesmo dia: backend `npm test` 198/198 (50 arquivos), `test:pg` 30/30, frontend 7/7, Playwright 15/15 em duas execuções seguidas (uma terceira anterior teve 1 falha intermitente, ver plano 07), typecheck, lint, build e `npm audit --audit-level=high` sem vulnerabilidade nos dois workspaces.
+
+Regra das marcas: Step 1 e Step 3 marcados quando o spec e a implementação declarados existem; Step 4 marcado quando o spec passa numa dessas suítes. Step 2 ("ver falhar") é histórico e não se prova retroativamente: fica `[ ]`. Step 5 (commit) não foi executado por instrução: fica `[ ]`. Nenhum histórico foi apagado.
+
+| Task | Status | Evidência |
+|---|---|---|
+| Task 1: Checkout | PASS (domínio e contrato) / BLOCKED_EXTERNAL (Stripe real) | `start-checkout.spec.ts`, `checkout.pg.spec.ts`; Pix por stub Woovi no Playwright |
+| Task 2: Webhook e worker | PASS (domínio e contrato) / BLOCKED_EXTERNAL (Woovi/Stripe reais) | `payments.spec.ts`, `checkout.pg.spec.ts`, `pix-worker.redis.spec.ts`, `pix-expiration.redis.spec.ts`. Webhooks ficaram em `@Payments/routes.ts`, não em `stripe-webhook.ts`/`woovi-webhook.ts` |
+| Task 3: Renovação | PASS | `renew.spec.ts` |

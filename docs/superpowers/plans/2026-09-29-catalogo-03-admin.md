@@ -27,7 +27,7 @@ Herdadas do mapa. Banimento não cria estorno e não religa promoção. Contesta
 - Consumes: `ModerationCase`, `transition` do link
 - Produces: `appeal`. `decideCase`. `POST /api/v1/links/:id/appeal` body `{ text }`. `POST /api/v1/admin/moderation/:id` body `{ decision, name?, description?, networkId?, nicheId?, reason?, newNiche? }`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -82,7 +82,7 @@ describe('decisão', () => {
 Run: `npm test -- src/use-cases/@Moderation/appeal.spec.ts src/use-cases/@Moderation/decide-case.spec.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```ts
 export function appeal(input: { alreadyAppealed: boolean; text: string }): { status: 'PENDING_MODERATION' } {
@@ -122,7 +122,7 @@ export function decideCase(input: {
 
 `nextUrl` é ignorado. Motivo é opcional. Alerta de nicho divergente não bloqueia `APPROVE`. Rejeitar link que já estava no ar restaura o último texto aprovado. Rejeitar pré-recusa ou envio que nunca publicou libera a cota. Nicho salvo com `requiresAge` sai da home na mesma transação. A resposta ao usuário não lista o sinal interno. Audit grava ator, tenant, antes, depois, `request_id` e o motivo.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- src/use-cases/@Moderation/appeal.spec.ts src/use-cases/@Moderation/decide-case.spec.ts`
 Expected: PASS
@@ -146,7 +146,7 @@ git commit -m "feat: contestação e decisão do admin"
 - Consumes: `transition` de link e promoção
 - Produces: `banAccount`. Login de leitura continua. Escrita responde 403.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -179,7 +179,7 @@ describe('banimento', () => {
 Run: `npm test -- src/use-cases/@Admin/ban-account.spec.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```ts
 import { linkMachine, promotionMachine, transition } from '@/domain/state/transition'
@@ -205,7 +205,7 @@ export function banAccount(input: {
 
 Checkout novo dessa conta falha antes de criar cobrança, com motivo genérico. Link já publicado por outra regra não é reavaliado por este banimento de pagamento: o banimento da conta, este use case, torna todos os links dela indisponíveis. Promoção `CANCELLED` não volta. Dinheiro fica no estado real do pedido. A tela não diz reembolsado se o status não for `REFUNDED`. Conta banida não troca e-mail nem telefone. Audit grava o motivo do admin. O usuário vê motivo genérico.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- src/use-cases/@Admin/ban-account.spec.ts`
 Expected: PASS
@@ -220,3 +220,14 @@ git commit -m "feat: banimento tira o catálogo e cancela destaque"
 ## Gate deste plano
 
 Usuário comum recebe `not_found` na rota de admin. Segunda contestação falha. Banimento não chama `refund`. `payments.spec.ts` continua passando.
+
+## Status de implementação
+
+Reconciliado em 2026-09-30 (Task 10), contra o código e as suítes do mesmo dia: backend `npm test` 198/198 (50 arquivos), `test:pg` 30/30, frontend 7/7, Playwright 15/15 em duas execuções seguidas (uma terceira anterior teve 1 falha intermitente, ver plano 07), typecheck, lint, build e `npm audit --audit-level=high` sem vulnerabilidade nos dois workspaces.
+
+Regra das marcas: Step 1 e Step 3 marcados quando o spec e a implementação declarados existem; Step 4 marcado quando o spec passa numa dessas suítes. Step 2 ("ver falhar") é histórico e não se prova retroativamente: fica `[ ]`. Step 5 (commit) não foi executado por instrução: fica `[ ]`. Nenhum histórico foi apagado.
+
+| Task | Status | Evidência |
+|---|---|---|
+| Task 1: Contestação e decisão | PASS | `appeal.spec.ts`, `decide-case.spec.ts`; Playwright `admin não confia no cookie e a decisão persiste` |
+| Task 2: Banimento | PASS | `ban-account.spec.ts` |

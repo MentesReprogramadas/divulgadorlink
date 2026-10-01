@@ -26,7 +26,7 @@ Herdadas do mapa. Pagar não cria relevância. Sem cauda de nicho. Sem vetor pur
 - Consumes: `buildLinkEmbeddingText` e `EmbeddingService`
 - Produces: `embedLink`. Job `embed-link` com `{ linkId }`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -54,7 +54,7 @@ describe('embedding', () => {
 Run: `npm test -- src/use-cases/@Search/embed-link.spec.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```ts
 import { EMBEDDING_DIMENSIONS, buildLinkEmbeddingText, type EmbeddingService } from '@/domain/embeddings/embedding-service'
@@ -72,7 +72,7 @@ export async function embedLink(input: {
 
 Migration: `CREATE EXTENSION IF NOT EXISTS vector;` coluna `vector(1536)` e índice HNSW. Publicar ou mudar nome, descrição, nicho ou rede enfileira o job. O POST do link não espera a OpenAI.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- src/use-cases/@Search/embed-link.spec.ts src/adapters/adapters.spec.ts`
 Expected: PASS
@@ -97,7 +97,7 @@ git commit -m "feat: gera embedding do link na fila"
 - Consumes: pesos e limiar de `Config`. Cookie de sessão `age`, não gravado na conta.
 - Produces: `rankSearch`, `rankHome`, `rankNiche`, `resolveSearchTarget`, `visibleForAge`. `GET /api/v1/search?q=`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -152,7 +152,7 @@ describe('busca', () => {
 Run: `npm test -- src/use-cases/@Search/rank-links.spec.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```ts
 interface SearchRow {
@@ -207,7 +207,7 @@ export function resolveSearchTarget(
 
 `relevanceScore(textScore, semanticScore, textWeight, semanticWeight)` devolve `textWeight * textScore + semanticWeight * semanticScore`. Os pesos e o corte vêm de `readConfig` na borda HTTP. `rankSearch` não importa `INITIAL_CONFIG`. O `0.2` do teste é fixture da função pura, não `SEARCH_RELEVANCE_THRESHOLD`. A SQL devolve no máximo os candidatos acima do corte, já sem nicho `requiresAge` quando a sessão não confirmou. `rankNiche` é `rankHome` trocando `homeActivatedAt` por `nicheActivatedAt`. Home de rede grava superfície `NICHE` no plano 6; aqui ela usa o mesmo ranking de nicho. Autocomplete chama `rankSearch` com limite 8. Não há preenchimento por nicho vizinho. Confirmar idade na sessão devolve os itens na mesma lista. Recusar ou fechar segue sem eles e sem contagem do que foi omitido. Cookie some quando o browser fecha.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- src/use-cases/@Search/rank-links.spec.ts`
 Expected: PASS
@@ -222,3 +222,14 @@ git commit -m "feat: busca híbrida com o mesmo corte para pago e orgânico"
 ## Gate deste plano
 
 A query de busca tem `WHERE` de idade e de limiar. O teste de omissão não vaza o id do link adulto. Embedding não roda dentro do POST.
+
+## Status de implementação
+
+Reconciliado em 2026-09-30 (Task 10), contra o código e as suítes do mesmo dia: backend `npm test` 198/198 (50 arquivos), `test:pg` 30/30, frontend 7/7, Playwright 15/15 em duas execuções seguidas (uma terceira anterior teve 1 falha intermitente, ver plano 07), typecheck, lint, build e `npm audit --audit-level=high` sem vulnerabilidade nos dois workspaces.
+
+Regra das marcas: Step 1 e Step 3 marcados quando o spec e a implementação declarados existem; Step 4 marcado quando o spec passa numa dessas suítes. Step 2 ("ver falhar") é histórico e não se prova retroativamente: fica `[ ]`. Step 5 (commit) não foi executado por instrução: fica `[ ]`. Nenhum histórico foi apagado.
+
+| Task | Status | Evidência |
+|---|---|---|
+| Task 1: Embedding na fila | PASS (fila e adapter) / BLOCKED_EXTERNAL (OpenAI real) | `embed-link.spec.ts`, `adapters.spec.ts` (sem chave falha sem chamar o provedor) |
+| Task 2: Ranking, destino da busca e idade | PASS (regra) / OPEN (escala) | `rank-links.spec.ts`. EXPLAIN com 100k links: `hybridSearchSql` 195-203 ms, Parallel Seq Scan, sem `LIMIT`; o índice HNSW não é usado. Corrigir muda o conjunto de candidatos do `rankSearch`: decisão de arquitetura |

@@ -26,7 +26,7 @@ Herdadas de `docs/superpowers/plans/2026-09-29-catalogo.md`. Envio grátis não 
 - Consumes: histórico de `UserIdentifier`
 - Produces: `canonicalUrl(raw: string): string`. `preRefuse` com sinais `phone`, `email`, `url`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -59,7 +59,7 @@ describe('pré-recusa', () => {
 Run: `npm test -- src/use-cases/@Moderation/pre-refuse.spec.ts src/domain/links/canonical-url.spec.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```ts
 export function canonicalUrl(raw: string): string {
@@ -100,7 +100,7 @@ export function preRefuse(input: {
 
 `ip` não entra em `signals`. Comparar host solto (`t.me`, `wa.me`, `instagram.com`, `youtube.com`, `youtu.be`, `discord.com` e os hosts do seed) nunca recusa. A mensagem ao usuário é genérica e não cita o sinal.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- src/use-cases/@Moderation/pre-refuse.spec.ts src/domain/links/canonical-url.spec.ts`
 Expected: PASS
@@ -126,7 +126,7 @@ git commit -m "feat: pré-recusa por identificador e URL exata"
 - Consumes: `canSubmitLink`, `preRefuse`, `canonicalUrl`
 - Produces: `decideSubmission`. `POST /api/v1/links` body `{ url, name, description, networkId, nicheId, otherNote? }`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -178,7 +178,7 @@ describe('envio', () => {
 Run: `npm test -- src/use-cases/@Links/submit-link.spec.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```ts
 const PHONE = /(?:\+?55\s?)?(?:\(?\d{2}\)?\s?)?\d{4,5}-?\d{4}/
@@ -217,7 +217,7 @@ export function decideSubmission(input: {
 
 Ordem: cota, pré-recusa, Outro ou detecção determinística, senão a mesma fila de IA. A detecção cobre telefone, URL, nome de outro nicho e os termos de `BlocklistTerm`. A tabela nasce vazia. Termo de golpe ou +18 só existe quando o admin grava. Lista vazia não é controle de segurança: texto limpo segue para a IA, e a IA só publica se `applyAiVerdict` devolver `PUBLISH`. `decideSubmission` nunca devolve `PUBLISHED`. Envio não lê pedido nem pagamento. `otherNote` só o admin lê. Recusa final do admin zera `occupiesSlot`. Remover o link libera a vaga na mesma transação.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- src/use-cases/@Links/submit-link.spec.ts`
 Expected: PASS
@@ -242,7 +242,7 @@ git commit -m "feat: envio de link com cota e lista fechada"
 - Consumes: `Config.MODERATION_AUTO_APPROVE_THRESHOLD`
 - Produces: `applyAiVerdict(verdict, threshold): 'PUBLISH' | 'ADMIN'`. Job `moderate-link`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -264,7 +264,7 @@ describe('veredito', () => {
 Run: `npm test -- src/use-cases/@Moderation/apply-ai-verdict.spec.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```ts
 export function applyAiVerdict(
@@ -278,7 +278,7 @@ export function applyAiVerdict(
 
 O worker chama `readConfig(rows, 'MODERATION_AUTO_APPROVE_THRESHOLD')` e passa o número para `applyAiVerdict`. O `0.8` do teste é fixture da função pura. Não é o valor de `INITIAL_CONFIG`. JSON inválido, timeout, exceção e URL morta (sem resposta, 404 ou timeout do `safeFetch`) caem em `ADMIN` antes desta função, com `verdict = null`. Host conhecido que responde, mesmo sem o conteúdo do grupo, segue para o modelo. Adulto e Apostas usam o mesmo veredito. A IA não grava `BANNED`. O caso grava o JSON, a confiança, os motivos, os sinais, o limiar lido e o `updatedAt` da config. A request HTTP volta antes do modelo.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- src/use-cases/@Moderation/apply-ai-verdict.spec.ts`
 Expected: PASS
@@ -302,7 +302,7 @@ git commit -m "feat: publicação automática só com passe e limiar"
 - Consumes: `hitsBlocklist`, `applyAiVerdict`
 - Produces: `editLinkText`. Usuário não altera URL, rede nem nicho.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -336,7 +336,7 @@ describe('edição', () => {
 Run: `npm test -- src/use-cases/@Links/edit-link-text.spec.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```ts
 export function editLinkText(input: {
@@ -353,7 +353,7 @@ export function editLinkText(input: {
 
 Edição nova substitui a pendente. Recusa do admin restaura o último texto aprovado, não o rascunho intermediário. Destaque não muda de status. O schema do PATCH do dono só aceita `name` e `description`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- src/use-cases/@Links/edit-link-text.spec.ts`
 Expected: PASS
@@ -378,7 +378,7 @@ git commit -m "feat: edição de texto com lista fechada na frente da IA"
 - Consumes: status do link
 - Produces: `openPublicLink`. `GET /go/:linkId` só redireciona a URL já gravada.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -400,7 +400,7 @@ describe('página do link', () => {
 Run: `npm test -- src/use-cases/@Links/open-public-link.spec.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```ts
 export function openPublicLink(link: { status: string }): { visible: boolean; redirect: boolean } {
@@ -411,7 +411,7 @@ export function openPublicLink(link: { status: string }): { visible: boolean; re
 
 O DTO público tem `name`, `description`, `niche`, `network`. Não tem e-mail do dono, analytics nem moderação. `/go/:linkId` ignora query `to`. Destino é a URL canônica gravada. Indisponível responde a página de indisponível, sem 302. O clique em si entra no plano 6, em `shouldCount`. Até lá, o handler chama o repositório de analytics se ele existir e redireciona mesmo quando a chave única já existe.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- src/use-cases/@Links/open-public-link.spec.ts`
 Expected: PASS
@@ -435,7 +435,7 @@ git commit -m "feat: página pública e redirect de clique"
 - Consumes: URL canônica
 - Produces: `assertPublicHttps`, `assertResolvedAddresses`, `safeFetch`. Timeout 5s. No máximo 3 redirects.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -460,7 +460,7 @@ describe('ssrf', () => {
 Run: `npm test -- src/adapters/http/safe-fetch.spec.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```ts
 import { isIP } from 'node:net'
@@ -491,7 +491,7 @@ export function assertResolvedAddresses(addresses: string[]): true {
 
 `safeFetch` chama `assertPublicHttps`, resolve o DNS, chama `assertResolvedAddresses`, e repete os dois a cada redirect. No quarto redirect, para. Timeout 5000 ms. Corpo limitado. O worker de moderação é o único chamador.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- src/adapters/http/safe-fetch.spec.ts`
 Expected: PASS
@@ -506,3 +506,18 @@ git commit -m "feat: fetch de URL com bloqueio de SSRF"
 ## Gate deste plano
 
 `npm test` passa. Envio com conta banida não cria link. `https://127.0.0.1` não gera request de saída. Página pública de teste não contém e-mail.
+
+## Status de implementação
+
+Reconciliado em 2026-09-30 (Task 10), contra o código e as suítes do mesmo dia: backend `npm test` 198/198 (50 arquivos), `test:pg` 30/30, frontend 7/7, Playwright 15/15 em duas execuções seguidas (uma terceira anterior teve 1 falha intermitente, ver plano 07), typecheck, lint, build e `npm audit --audit-level=high` sem vulnerabilidade nos dois workspaces.
+
+Regra das marcas: Step 1 e Step 3 marcados quando o spec e a implementação declarados existem; Step 4 marcado quando o spec passa numa dessas suítes. Step 2 ("ver falhar") é histórico e não se prova retroativamente: fica `[ ]`. Step 5 (commit) não foi executado por instrução: fica `[ ]`. Nenhum histórico foi apagado.
+
+| Task | Status | Evidência |
+|---|---|---|
+| Task 1: URL canônica e pré-recusa | PASS | `canonical-url.spec.ts`, `pre-refuse.spec.ts` |
+| Task 2: Envio, cota e lista fechada | PASS | `submit-link.spec.ts` |
+| Task 3: Veredito da IA | PASS (domínio e worker com adapter fake) / BLOCKED_EXTERNAL (OpenAI real) | `apply-ai-verdict.spec.ts`, `text-proposed-worker.pg.spec.ts` (PG, Redis e BullMQ reais). Sem `OPENAI_API_KEY` |
+| Task 4: Edição de nome e descrição | PASS | `edit-link-text.spec.ts` |
+| Task 5: Página pública e clique | PASS | `open-public-link.spec.ts`; sonda de vazamento em 10 endpoints públicos sem achado |
+| Task 6: Fetch com barreira de SSRF | PASS | `safe-fetch.spec.ts` |
