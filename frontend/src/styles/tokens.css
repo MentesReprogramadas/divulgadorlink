@@ -1,0 +1,17 @@
+:root {
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --font-sans: "Plus Jakarta Sans", "Geist", sans-serif;
+  --radius: 12px;
+  --shadow: 0 8px 24px rgb(15 23 42 / 8%);
+  --bp-md: 768px;
+  --color-bg: #f6f7f4;
+  --color-ink: #17211b;
+  --color-muted: #5c6b62;
+  --color-line: #d7ded8;
+  --color-primary: #0f6b4c;
+  --color-primary-ink: #ffffff;
+  --color-danger: #8d2b2b;
+}
