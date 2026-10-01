@@ -3,3 +3,7 @@ build/
 .env
 .superpowers/
 *.log
+*.tsbuildinfo
+pnpm-lock.yaml
+pnpm-workspace.yaml
+yarn.lock
