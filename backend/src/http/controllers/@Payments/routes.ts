@@ -7,7 +7,7 @@ import { enqueueExpirePix, enqueueRefundPix } from '@/adapters/queues/enqueue-pa
 import { StripeCardPaymentGateway } from '@/adapters/payments/stripe-card-payment-gateway'
 import { WooviPixPaymentGateway } from '@/adapters/payments/woovi-pix-payment-gateway'
 import type { PaymentGateway } from '@/domain/payments/payment-gateway'
-import { PRICE_ROWS, type Surface } from '@/domain/promotions/price-for'
+import type { Surface } from '@/domain/promotions/price-for'
 import { env } from '@/env'
 import { buildError, business_rule, conflict, forbidden, not_found, provider_error, validation } from '@/http/errors'
 import { verifyJWT } from '@/http/middlewares/verify-jwt'
@@ -19,6 +19,7 @@ import { refundFailureMessage } from '@/use-cases/@Payments/payment-jobs'
 import { RegisterRefundResolvedUseCase } from '@/use-cases/@Payments/register-refund-resolved'
 import { CheckoutConflictError, getCheckoutStore, StoreOrdersRepository, type CheckoutStore, type CommercialOrder } from '@/use-cases/@Promotions/checkout-store'
 import { PrismaCheckoutStore, runtimeCheckoutStore } from '@/use-cases/@Promotions/checkout-prisma'
+import { registerOfferRoutes } from '@/http/controllers/@Promotions/offers'
 import { gatewayFor, PIX_EXPIRES_IN_SECONDS, startCheckout, type CheckoutGateway } from '@/use-cases/@Promotions/start-checkout'
 import { RefundActivationForbiddenError } from '@/use-cases/errors/refund-activation-forbidden-error'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
@@ -51,6 +52,12 @@ let testCharge: CheckoutGateway | null = null
 
 function checkoutStore(): CheckoutStore {
   return runtimeCheckoutStore()
+}
+
+async function priceRowsFor(tenantId: string) {
+  const store = checkoutStore()
+  if (store instanceof PrismaCheckoutStore) return store.pricesFor(tenantId)
+  return store.prices()
 }
 
 function ordersRepository() {
@@ -215,7 +222,7 @@ export async function postCheckout(request: FastifyRequest, reply: FastifyReply)
       return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
     }
     const flags = confirmationFlags(user.identifiers)
-    if (!flags.emailConfirmed || !flags.phoneConfirmed) {
+    if (!flags.emailConfirmed) {
       return reply.status(403).send(buildError({ code: business_rule, message: 'Conta não pode comprar destaque.', request_id: request.id }))
     }
     const link = await repo.findLinkById(parsed.data.linkId)
@@ -235,7 +242,7 @@ export async function postCheckout(request: FastifyRequest, reply: FastifyReply)
       surfaces: parsed.data.surfaces as Surface[],
       durationDays: parsed.data.durationDays,
       method: parsed.data.method,
-      rows: PRICE_ROWS,
+      rows: await priceRowsFor(tenant.id),
       idempotencyKey: typeof request.headers['idempotency-key'] === 'string' ? request.headers['idempotency-key'] : null,
       requestId: request.id,
       renewal: false,
@@ -366,7 +373,7 @@ export async function postRenew(request: FastifyRequest, reply: FastifyReply) {
       surfaces: parsed.data.surfaces,
       durationDays: parsed.data.durationDays,
       method: parsed.data.method,
-      rows: PRICE_ROWS,
+      rows: await priceRowsFor(tenant.id),
       idempotencyKey: typeof request.headers['idempotency-key'] === 'string' ? request.headers['idempotency-key'] : null,
       requestId: request.id,
       renewal: true,
@@ -405,6 +412,7 @@ function orderDto(row: CommercialOrder, includeBrCode = false) {
     renewal: row.renewal,
     surfaces: row.surfaces,
     pixExpiresAt: row.order.pixExpiresAt,
+    createdAt: row.createdAt.toISOString(),
     chargeStarted: row.order.gatewayChargeId !== null,
     ...(includeBrCode && row.brCode ? { brCode: row.brCode } : {}),
   }
@@ -482,10 +490,23 @@ export async function listFailedRefunds(request: FastifyRequest, reply: FastifyR
       return reply.status(403).send(buildError({ code: forbidden, message: 'Acesso negado.', request_id: request.id }))
     }
     const rows = await checkoutStore().listOrdersByStatus(tenant.id, 'REFUND_FAILED')
-    return reply.status(200).send({
-      refunds: rows.map((row) => ({
+    const linksRepo = getLinksRepository()
+    const refunds = await Promise.all(rows.map(async (row) => {
+      const [link, user] = await Promise.all([
+        linksRepo.findLinkById(row.linkId),
+        row.userId ? linksRepo.findSubmitter(tenant.id, row.userId) : null,
+      ])
+      const email = user?.identifiers.find((item) => item.kind === 'EMAIL' && item.replacedAt === null)
+      return {
         orderId: row.order.id,
         userId: row.userId,
+        userName: user?.name ?? '',
+        userEmail: email?.normalizedValue ?? '',
+        linkId: row.linkId,
+        linkName: link?.name ?? '',
+        productCode: row.productCode,
+        durationDays: row.durationDays,
+        method: row.order.method,
         amountCents: row.order.amountCents,
         refundIds: row.refundIds,
         attempts: row.order.refundAttempts,
@@ -493,8 +514,9 @@ export async function listFailedRefunds(request: FastifyRequest, reply: FastifyR
         status: row.order.status,
         createdAt: row.createdAt.toISOString(),
         message: refundFailureMessage(row.order.id),
-      })),
-    })
+      }
+    }))
+    return reply.status(200).send({ refunds })
   } catch (error) {
     if (error instanceof ResourceNotFoundError) {
       return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
@@ -504,6 +526,7 @@ export async function listFailedRefunds(request: FastifyRequest, reply: FastifyR
 }
 
 export async function paymentRoutes(app: FastifyInstance) {
+  await registerOfferRoutes(app)
   app.post('/promotions/checkout', { onRequest: [verifyJWT] }, postCheckout)
   app.post('/promotions/renew', { onRequest: [verifyJWT] }, postRenew)
   app.get('/promotions/mine', { onRequest: [verifyJWT] }, listMyPromotions)

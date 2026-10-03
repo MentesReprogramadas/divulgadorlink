@@ -1,6 +1,20 @@
 export type Session = { role: string; status: string; canSubmit: boolean }
 
 const KEY = 'catalogo.session'
+const NOTICE_KEY = 'catalogo.notice'
+export const SESSION_EVENT = 'catalogo-session'
+
+export function pushNotice(text: string): void {
+  window.sessionStorage.setItem(NOTICE_KEY, text)
+}
+
+export function readNotice(): string {
+  return window.sessionStorage.getItem(NOTICE_KEY) ?? ''
+}
+
+export function clearNotice(): void {
+  window.sessionStorage.removeItem(NOTICE_KEY)
+}
 
 export function readSession(): Session | null {
   if (typeof window === 'undefined') return null
@@ -15,12 +29,19 @@ export function readSession(): Session | null {
   }
 }
 
+function rememberRole(role: string): void {
+  if (role !== 'USER' && role !== 'ADMIN') return
+  document.cookie = `catalogo_role=${role}; Path=/; SameSite=Lax`
+}
+
 export function writeSession(session: Session): void {
   window.sessionStorage.setItem(KEY, JSON.stringify({
     role: session.role,
     status: session.status,
     canSubmit: session.canSubmit,
   }))
+  rememberRole(session.role)
+  window.dispatchEvent(new Event(SESSION_EVENT))
 }
 
 export function clearSession(): void {

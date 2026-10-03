@@ -328,6 +328,16 @@ async function getPublicLink(request: FastifyRequest, reply: FastifyReply) {
   }
 }
 
+function pageOf(request: FastifyRequest): { page: number; pageSize: number } {
+  const query = request.query as { page?: string; pageSize?: string }
+  const page = Number(query.page)
+  const pageSize = Number(query.pageSize)
+  return {
+    page: Number.isInteger(page) && page > 0 ? page : 1,
+    pageSize: Number.isInteger(pageSize) && pageSize > 0 ? Math.min(pageSize, 24) : 12,
+  }
+}
+
 async function listMine(request: FastifyRequest, reply: FastifyReply) {
   try {
     const tenant = await resolveTenant(hostFromRequest(request))
@@ -336,9 +346,12 @@ async function listMine(request: FastifyRequest, reply: FastifyReply) {
     }
     const repo = getLinksRepository()
     const links = await repo.listByOwner(tenant.id, request.user.sub)
+    const { page, pageSize } = pageOf(request)
+    const start = (page - 1) * pageSize
+    const slice = links.slice(start, start + pageSize)
     const audits = getAuditLogsRepository()
     const body = []
-    for (const link of links) {
+    for (const link of slice) {
       const pending = await audits.latest({
         tenantId: tenant.id,
         entityType: 'link',
@@ -363,7 +376,12 @@ async function listMine(request: FastifyRequest, reply: FastifyReply) {
         pendingText,
       })
     }
-    return reply.status(200).send({ links: body })
+    return reply.status(200).send({
+      links: body,
+      page,
+      pageSize,
+      total: links.length,
+    })
   } catch (error) {
     if (error instanceof ResourceNotFoundError) {
       return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))

@@ -171,7 +171,7 @@ describe('checkout no PostgreSQL', () => {
     const migrations = await db.$queryRaw<Array<{ migration_name: string }>>`
       SELECT migration_name FROM _prisma_migrations WHERE finished_at IS NOT NULL
     `
-    expect(migrations).toHaveLength(12)
+    expect(migrations).toHaveLength(14)
   })
 
   it('grava o preço do backend e ignora amountCents do corpo', async () => {

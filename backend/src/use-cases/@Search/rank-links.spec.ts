@@ -31,7 +31,54 @@ describe('busca', () => {
 
   it('abre a página do nicho quando a consulta é o nicho', () => {
     expect(resolveSearchTarget('Apostas', [{ slug: 'apostas', name: 'Apostas' }], [])).toEqual({
-      kind: 'niche', slug: 'apostas',
+      kind: 'niche', slug: 'apostas', name: 'Apostas', exclusive: true,
+    })
+  })
+
+  it('casa o nome com acento e devolve o nome do catálogo', () => {
+    const niche = [{ slug: 'saude-bem-estar', name: 'Saúde & Bem-estar' }]
+    expect(resolveSearchTarget('saude & bem-estar', niche, [])).toEqual({
+      kind: 'niche', slug: 'saude-bem-estar', name: 'Saúde & Bem-estar', exclusive: true,
+    })
+  })
+
+  it('abre a página da rede quando a consulta é a rede e devolve o nome, não o slug digitado', () => {
+    expect(resolveSearchTarget('telegram', [], [{ slug: 'telegram', name: 'Telegram' }])).toEqual({
+      kind: 'network', slug: 'telegram', name: 'Telegram', exclusive: true,
+    })
+  })
+
+  it('palavra inteira ou prefixo único acompanha a busca e não a substitui', () => {
+    const niches = [{ slug: 'jogos', name: 'Jogos' }]
+    const networks = [{ slug: 'telegram', name: 'Telegram' }, { slug: 'threads', name: 'Threads' }]
+    expect(resolveSearchTarget('grupo telegram', niches, networks)).toEqual({
+      kind: 'network', slug: 'telegram', name: 'Telegram', exclusive: false,
+    })
+    expect(resolveSearchTarget('jogos de tabuleiro', niches, networks)).toEqual({
+      kind: 'niche', slug: 'jogos', name: 'Jogos', exclusive: false,
+    })
+    expect(resolveSearchTarget('tele', niches, networks)).toEqual({
+      kind: 'network', slug: 'telegram', name: 'Telegram', exclusive: false,
+    })
+  })
+
+  it('prefixo ambíguo e consulta curta não escolhem faceta', () => {
+    const networks = [{ slug: 'telegram', name: 'Telegram' }, { slug: 'telecine', name: 'Telecine' }]
+    expect(resolveSearchTarget('tele', [], networks)).toEqual({
+      kind: 'results', slug: null, name: null, exclusive: false,
+    })
+    expect(resolveSearchTarget('te', [], [{ slug: 'telegram', name: 'Telegram' }])).toEqual({
+      kind: 'results', slug: null, name: null, exclusive: false,
+    })
+  })
+
+  it('empate entre nicho e rede não escolhe lado e consulta livre não leva nome', () => {
+    const facets = [{ slug: 'outro', name: 'Outro' }]
+    expect(resolveSearchTarget('Outro', facets, facets)).toEqual({
+      kind: 'results', slug: null, name: null, exclusive: false,
+    })
+    expect(resolveSearchTarget('receitas', facets, facets)).toEqual({
+      kind: 'results', slug: null, name: null, exclusive: false,
     })
   })
 
@@ -75,7 +122,7 @@ describe('busca', () => {
     expect(source).not.toContain('chat')
   })
 
-  it('a SQL filtra idade e limiar e não descarta link sem vetor', () => {
+  it('a SQL expõe a idade e o limiar e não descarta link sem vetor', () => {
     const sql = hybridSearchSql()
     expect(sql).toContain('requiresAge')
     expect(sql).toContain('>= $7')

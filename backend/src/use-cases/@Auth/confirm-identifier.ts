@@ -8,13 +8,27 @@ import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-err
 import { UserAlreadyExistsError } from '@/use-cases/errors/user-already-exists-error'
 
 export const RESEND_WINDOW_MS = 60 * 60 * 1000
+export const RESEND_COOLDOWN_MS = 60 * 1000
+
+export function resendRetryAfter(lastSentAt: Date | null, now: Date, cooldownMs = RESEND_COOLDOWN_MS): number {
+  if (!lastSentAt) return 0
+  const remaining = lastSentAt.getTime() + cooldownMs - now.getTime()
+  if (remaining <= 0) return 0
+  return Math.ceil(remaining / 1000)
+}
 
 export function canSubmitLink(user: {
   emailConfirmed: boolean
   phoneConfirmed: boolean
   status: 'ACTIVE' | 'BANNED'
 }): boolean {
-  return user.status === 'ACTIVE' && user.emailConfirmed && user.phoneConfirmed
+  return user.status === 'ACTIVE' && user.emailConfirmed
+}
+
+export function confirmIntent(input: { code?: string; resend?: boolean }): { resend: true } | { resend?: false; code: string } {
+  const code = input.code?.trim()
+  if (input.resend || !code) return { resend: true }
+  return { code }
 }
 
 export function assertResendAllowed(sentInWindow: number): true {
@@ -116,6 +130,7 @@ export type ConfirmUser = {
 export interface ConfirmCodesRepository {
   findUser(userId: string): Promise<ConfirmUser | null>
   countResendsSince(userIdentifierId: string, since: Date): Promise<number>
+  latestCodeAt(userIdentifierId: string): Promise<Date | null>
   createCode(
     data: Omit<StoredCode, 'id' | 'attempts'> & { attempts?: number },
   ): Promise<StoredCode>
@@ -159,6 +174,7 @@ export type ConfirmResult = {
   emailConfirmed: boolean
   phoneConfirmed: boolean
   canSubmitLink: boolean
+  retryAfter?: number
 }
 
 export class ConfirmIdentifierUseCase {
@@ -204,13 +220,11 @@ export class ConfirmIdentifierUseCase {
     }
 
     const now = this.now()
-    for (const kind of ['EMAIL', 'PHONE'] as const) {
-      const identifier = currentIdentifier(user.identifiers, kind)
-      if (!identifier) {
-        throw new ResourceNotFoundError('Identificador não encontrado.')
-      }
-      await this.persistCode(userId, identifier, kind, false, now)
+    const identifier = currentIdentifier(user.identifiers, 'EMAIL')
+    if (!identifier) {
+      throw new ResourceNotFoundError('Identificador não encontrado.')
     }
+    await this.persistCode(userId, identifier, 'EMAIL', false, now)
 
     return user.identifiers
   }
@@ -254,16 +268,31 @@ export class ConfirmIdentifierUseCase {
     return this.confirm(input.userId, input.kind, input.code)
   }
 
+  async status(input: { userId: string; kind: 'EMAIL' | 'PHONE' }): Promise<ConfirmResult> {
+    const { user, identifier } = await this.requireCurrent(input.userId, input.kind)
+    const lastSentAt = await this.codes.latestCodeAt(identifier.id)
+    const flags = this.snapshot(user)
+    const confirmed = input.kind === 'EMAIL' ? flags.emailConfirmed : flags.phoneConfirmed
+    return {
+      kind: input.kind,
+      confirmed,
+      retryAfter: resendRetryAfter(lastSentAt, this.now()),
+      ...flags,
+    }
+  }
+
   private async resend(userId: string, kind: 'EMAIL' | 'PHONE'): Promise<ConfirmResult> {
     const { user, identifier } = await this.requireCurrent(userId, kind)
     const now = this.now()
+    const wait = resendRetryAfter(await this.codes.latestCodeAt(identifier.id), now)
+    if (wait > 0) throw new RateLimitError('Aguarde para reenviar o código.', wait)
     const sentInWindow = await this.codes.countResendsSince(
       identifier.id,
       new Date(now.getTime() - RESEND_WINDOW_MS),
     )
     assertResendAllowed(sentInWindow)
     await this.persistCode(userId, identifier, kind, true, now)
-    return { kind, resent: true, ...this.snapshot(user) }
+    return { kind, resent: true, retryAfter: RESEND_COOLDOWN_MS / 1000, ...this.snapshot(user) }
   }
 
   private async confirm(
@@ -401,6 +430,15 @@ export class PrismaConfirmCodesRepository implements ConfirmCodesRepository {
         createdAt: { gte: since },
       },
     })
+  }
+
+  async latestCodeAt(userIdentifierId: string): Promise<Date | null> {
+    const row = await this.prisma.verificationCode.findFirst({
+      where: { userIdentifierId },
+      orderBy: { createdAt: 'desc' },
+      select: { createdAt: true },
+    })
+    return row?.createdAt ?? null
   }
 
   async createCode(

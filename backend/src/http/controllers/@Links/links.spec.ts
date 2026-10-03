@@ -66,7 +66,7 @@ describe('POST /api/v1/links', () => {
       tenantId: TENANT_ID,
       status: 'ACTIVE',
       identifiers: [
-        { id: 'id-bia-email', kind: 'EMAIL', normalizedValue: 'bia@example.com', confirmedAt, replacedAt: null },
+        { id: 'id-bia-email', kind: 'EMAIL', normalizedValue: 'bia@example.com', confirmedAt: null, replacedAt: null },
         { id: 'id-bia-phone', kind: 'PHONE', normalizedValue: '11977776666', confirmedAt: null, replacedAt: null },
       ],
     })
@@ -125,7 +125,7 @@ describe('POST /api/v1/links', () => {
     expect(repo().links[0]?.status).not.toBe('PUBLISHED')
   })
 
-  it('usuário sem telefone confirmado recebe 403 e nada é gravado', async () => {
+  it('usuário sem e-mail confirmado recebe 403 e nada é gravado', async () => {
     const response = await submit(UNVERIFIED_ID, validBody())
 
     expect(response.statusCode).toBe(403)

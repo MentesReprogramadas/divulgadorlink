@@ -11,6 +11,7 @@ const CONFIG = {
   SEARCH_RELEVANCE_THRESHOLD: '0.35',
   SEARCH_TEXT_WEIGHT: '0.4',
   SEARCH_SEMANTIC_WEIGHT: '0.6',
+  SHOW_IMPRESSIONS: '1',
 }
 
 async function tenantBundle(host: string, name: string) {

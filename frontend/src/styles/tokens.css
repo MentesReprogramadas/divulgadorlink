@@ -1,17 +1,50 @@
 :root {
+  color-scheme: light;
+
+  --color-paper: #f3f6f4;
+  --color-ink: #14241c;
+  --color-moss: #0e6b4c;
+  --color-moss-hover: #0a5340;
+  --color-line: #d5ddd8;
+  --color-muted: #3e5148;
+  --color-clay: #8c3a24;
+  --color-control-bg: #ffffff;
+  --color-lift: color-mix(in srgb, var(--color-paper) 82%, white);
+  --color-primary-ink: #ffffff;
+
+  --color-brand-navy: #0a192f;
+  --color-brand-turquoise: #4af9eb;
+  --color-brand-white: #ffffff;
+
+  --color-bg: var(--color-paper);
+  --color-primary: var(--color-brand-navy);
+  --color-primary-hover: #16324f;
+  --color-danger: var(--color-clay);
+
+  --font-sans: var(--font-source-sans), "Source Sans 3", sans-serif;
+  --font-serif: var(--font-source-serif), "Source Serif 4", serif;
+  --font-product: var(--font-outfit), "Outfit", sans-serif;
+
+  --text-sm: 0.875rem;
+  --text-body: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.75rem;
+  --text-display: 2.5rem;
+  --leading-body: 1.45;
+  --leading-title: 1.15;
+  --measure: 65ch;
+  --leading-name: 1.2;
+
+  --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
   --space-6: 24px;
-  --font-sans: "Plus Jakarta Sans", "Geist", sans-serif;
-  --radius: 12px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --radius: 4px;
   --shadow: 0 8px 24px rgb(15 23 42 / 8%);
   --bp-md: 768px;
-  --color-bg: #f6f7f4;
-  --color-ink: #17211b;
-  --color-muted: #5c6b62;
-  --color-line: #d7ded8;
-  --color-primary: #0f6b4c;
-  --color-primary-ink: #ffffff;
-  --color-danger: #8d2b2b;
+  --form-max: 28rem;
 }

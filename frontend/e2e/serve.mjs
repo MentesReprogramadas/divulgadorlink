@@ -106,6 +106,7 @@ const apiEnv = {
   OPENAI_API_KEY: '',
   HDX_API_KEY: '',
   CONFIRMATION_INBOX: '1',
+  EMAIL_OUTBOX: '1',
 }
 delete apiEnv.TENANT_HOST
 

@@ -11,6 +11,7 @@ export type ConfigRecord = {
 export interface ConfigsRepository {
   findByTenantAndKey(tenantId: string, key: string): Promise<ConfigRecord | null>
   updateValue(id: string, value: string): Promise<ConfigRecord>
+  create(input: { tenantId: string; key: string; value: string }): Promise<ConfigRecord>
 }
 
 export class InMemoryConfigsRepository implements ConfigsRepository {
@@ -60,6 +61,12 @@ export class InMemoryConfigsRepository implements ConfigsRepository {
     this.items[index] = { ...this.items[index], value }
     return { ...this.items[index] }
   }
+
+  async create(input: { tenantId: string; key: string; value: string }): Promise<ConfigRecord> {
+    const row = { id: `cfg-${input.key}-${input.tenantId}`, ...input }
+    this.items.push(row)
+    return { ...row }
+  }
 }
 
 export class PrismaConfigsRepository implements ConfigsRepository {
@@ -80,6 +87,11 @@ export class PrismaConfigsRepository implements ConfigsRepository {
       where: { id },
       data: { value },
     })
+    return { id: row.id, tenantId: row.tenantId, key: row.key, value: row.value }
+  }
+
+  async create(input: { tenantId: string; key: string; value: string }): Promise<ConfigRecord> {
+    const row = await this.client.config.create({ data: input })
     return { id: row.id, tenantId: row.tenantId, key: row.key, value: row.value }
   }
 }

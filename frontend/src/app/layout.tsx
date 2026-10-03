@@ -1,21 +1,47 @@
 import type { Metadata } from 'next'
+import { cookies } from 'next/headers'
+import { Source_Sans_3, Source_Serif_4, Outfit } from 'next/font/google'
+import { accountLinks } from '@/domain/account-nav'
 import './globals.css'
+
+const sourceSans = Source_Sans_3({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-source-sans',
+})
+
+const sourceSerif = Source_Serif_4({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-source-serif',
+})
+
+const outfit = Outfit({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-outfit',
+})
 
 export const metadata: Metadata = {
   title: 'Tem Link Aqui',
   description: 'Catálogo público de links',
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const role = (await cookies()).get('catalogo_role')?.value
+  const account = accountLinks(role)
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" className={`${sourceSans.variable} ${sourceSerif.variable} ${outfit.variable}`}>
       <body>
-        <nav>
-          <a href="/">Home</a>
-          <a href="/busca">Busca</a>
-          <a href="/login">Entrar</a>
-          <a href="/cadastro">Criar conta</a>
-        </nav>
+        <header className="site-header">
+          <a className="site-mark" href="/" aria-label="Home">
+            <img src="/logo.svg" alt="" width={1292} height={235} />
+          </a>
+          <nav>
+            <a href="/busca">Busca</a>
+            {account.map((item) => <a key={item.href} href={item.href}>{item.label}</a>)}
+          </nav>
+        </header>
         {children}
       </body>
     </html>

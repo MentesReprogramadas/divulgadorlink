@@ -6,7 +6,9 @@ type Row = {
   name: string
   description: string
   requiresAge: boolean
+  nicheName: string | null
   nicheSlug: string
+  networkName: string | null
   networkSlug: string
   homeActivatedAt: Date | null
 }

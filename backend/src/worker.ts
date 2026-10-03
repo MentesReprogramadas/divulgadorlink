@@ -276,7 +276,8 @@ async function startWorker(): Promise<void> {
 
 if (require.main === module) {
   startWorker().catch((err) => {
-    console.error(err)
+    const error = err instanceof Error ? err.stack ?? err.message : String(err)
+    logDomainEvent('worker.start_failed', { error })
     process.exit(1)
   })
 }

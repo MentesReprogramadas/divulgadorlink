@@ -2,12 +2,11 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Field, Input } from '@/components/ui/input'
 import { writeSession } from '@/domain/session'
 import { api } from '@/lib/api'
 
 export default function Page() {
-  const [created, setCreated] = useState(false)
   const [error, setError] = useState('')
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -31,22 +30,22 @@ export default function Page() {
       status: result.body.user?.status ?? 'ACTIVE',
       canSubmit: Boolean(result.body.user?.canSubmitLink),
     })
-    setCreated(true)
+    window.location.assign('/painel')
   }
 
   return (
-    <main>
-      <h1>Criar conta</h1>
-      {created ? <p>Confirme o e-mail e o telefone para enviar um link</p> : (
-        <form onSubmit={onSubmit}>
-          <label>Nome<Input name="name" required /></label>
-          <label>E-mail<Input name="email" type="email" required /></label>
-          <label>Telefone<Input name="phone" required /></label>
-          <label>Senha<Input name="password" type="password" minLength={8} required /></label>
-          {error ? <p role="alert">{error}</p> : null}
-          <Button type="submit">Criar conta</Button>
-        </form>
-      )}
+    <main className="auth-page">
+      <h1 className="entry-title">Criar conta</h1>
+      <p className="auth-lead">O e-mail precisa ser confirmado antes de enviar um link.</p>
+      <form className="auth-form form-grid" onSubmit={onSubmit}>
+        <Field label="Nome"><Input name="name" autoComplete="name" required /></Field>
+        <Field label="E-mail"><Input name="email" type="email" autoComplete="email" required /></Field>
+        <Field label="Telefone"><Input name="phone" autoComplete="tel" required /></Field>
+        <Field label="Senha"><Input name="password" type="password" autoComplete="new-password" minLength={8} required /></Field>
+        {error ? <p role="alert">{error}</p> : null}
+        <Button type="submit">Criar conta</Button>
+      </form>
+      <p className="auth-switch">Já tem conta? <a href="/login">Entrar</a></p>
     </main>
   )
 }

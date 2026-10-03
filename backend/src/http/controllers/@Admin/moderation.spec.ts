@@ -3,6 +3,7 @@ import {
   getEmbedLinkJobsForTest,
   resetEmbedLinkJobsForTest,
 } from '@/adapters/queues/enqueue-embed-link'
+import { readOutbound, resetOutboundForTest } from '@/adapters/notifications/outbound-mail'
 import { app } from '@/app'
 import { not_found } from '@/http/errors'
 import {
@@ -159,6 +160,45 @@ describe('moderação HTTP', () => {
     expect(getEmbedLinkJobsForTest()).toEqual([{ name: 'embed-link', data: { linkId: link.id } }])
     expect(embedSpy).not.toHaveBeenCalled()
     embedSpy.mockRestore()
+  })
+
+  it('decisão avisa o dono sem o sinal interno', async () => {
+    process.env.EMAIL_OUTBOX = '1'
+    resetOutboundForTest()
+    const owner = linksRepo().users.find((row) => row.id === OWNER_ID)
+    owner?.identifiers.push({
+      id: 'owner-email',
+      kind: 'EMAIL',
+      normalizedValue: 'owner@example.com',
+      confirmedAt: new Date(),
+      replacedAt: null,
+    })
+    const link = linksRepo().addLink({
+      tenantId: TENANT_ID,
+      ownerId: OWNER_ID,
+      status: 'PENDING_MODERATION',
+      name: '<Receitas>',
+      description: 'bolos',
+    })
+    const moderationCase = casesRepo().addCase({ tenantId: TENANT_ID, linkId: link.id, source: 'AI' })
+    const token = accessToken({ sub: ADMIN_ID, role: 'ADMIN', tenantId: TENANT_ID })
+
+    const response = await app.inject({
+      method: 'POST',
+      url: `/api/v1/admin/moderation/${moderationCase.id}`,
+      headers: { host: HOST, authorization: `Bearer ${token}` },
+      payload: { decision: 'REJECT', reason: 'sinal interno de telefone' },
+    })
+
+    expect(response.statusCode).toBe(200)
+    const sent = readOutbound('owner@example.com')
+    expect(sent).toHaveLength(1)
+    expect(sent[0]?.kind).toBe('moderation')
+    expect(sent[0]?.html).toContain('&lt;Receitas&gt;')
+    expect(sent[0]?.text).not.toContain('telefone')
+    expect(sent[0]?.text).not.toContain('sinal interno')
+    delete process.env.EMAIL_OUTBOX
+    resetOutboundForTest()
   })
 
   it('user do tenant recebe not_found na rota admin', async () => {

@@ -20,6 +20,7 @@ describe('sessão por cookie no cliente', () => {
   it('não guarda nem devolve token no sessionStorage', () => {
     writeSession({ role: 'USER', status: 'ACTIVE', canSubmit: true, token: 'jwt' } as never)
     expect(sessionStorage.getItem('catalogo.session')).not.toContain('jwt')
+    expect(document.cookie).toContain('catalogo_role=USER')
     sessionStorage.setItem('catalogo.session', JSON.stringify({ token: 'antigo', role: 'USER', status: 'ACTIVE', canSubmit: false }))
     expect(readSession()).toEqual({ role: 'USER', status: 'ACTIVE', canSubmit: false })
   })

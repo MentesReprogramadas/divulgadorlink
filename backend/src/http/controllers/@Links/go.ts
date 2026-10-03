@@ -54,7 +54,7 @@ async function goToLink(request: FastifyRequest<{ Params: GoParams }>, reply: Fa
   const token = typeof request.query === 'object' && request.query && 'surfaceToken' in request.query
     ? String((request.query as { surfaceToken?: string }).surfaceToken ?? '')
     : ''
-  const origin = token ? readSurface(tenantId, link.id, token, env.JWT_SECRET) : 'organic'
+  const origin = token ? readSurface(tenantId, link.id, token, env.JWT_SECRET) : null
   if (origin) {
     await recordClick({ request, reply, link, origin })
   }

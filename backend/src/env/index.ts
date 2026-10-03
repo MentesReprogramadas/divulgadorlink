@@ -12,6 +12,7 @@ const schema = z.object({
   HDX_API_KEY: z.string().optional(),
   HDX_SERVICE_NAME: z.string().default('divulgador-links-api'),
   STRIPE_SECRET_KEY: z.string().optional(),
+  STRIPE_PUBLISHABLE_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
   WOOVI_APP_ID: z.string().optional(),
   WOOVI_API_BASE_URL: z.string().url().optional(),
@@ -19,6 +20,14 @@ const schema = z.object({
   WOOVI_WEBHOOK_PUBLIC_KEY: z.string().optional(),
   OPENAI_API_KEY: z.string().optional(),
   PIX_EXPIRATION_SECONDS: z.string().optional(),
+
+  TENANT_HOST: z.string().default('localhost'),
+  TENANT_NAME: z.string().default('Localhost'),
+
+  RESEND_API_KEY: z.string().min(1).optional(),
+  EMAIL_FROM: z.string().min(3).optional(),
+  APP_PUBLIC_URL: z.string().url().optional(),
+  EMAIL_BRAND_NAME: z.string().min(1).default('Tem Link Aqui'),
 })
 
 const parsed = schema.safeParse(process.env)

@@ -1,12 +1,16 @@
 import { PrismaClient, PromotionProductCode } from '@prisma/client'
 import { CONFIG_KEYS, type ConfigKey } from '../src/domain/config/read-config'
 import { PRICE_ROWS, type ProductCode } from '../src/domain/promotions/price-for'
+import { defaultOffers } from '../src/domain/promotions/offer-catalog'
+
+import { env } from '../src/env'
 
 const INITIAL_CONFIG: Record<ConfigKey, string> = {
   MODERATION_AUTO_APPROVE_THRESHOLD: '0.85',
   SEARCH_RELEVANCE_THRESHOLD: '0.35',
   SEARCH_TEXT_WEIGHT: '0.4',
   SEARCH_SEMANTIC_WEIGHT: '0.6',
+  SHOW_IMPRESSIONS: '1',
 }
 
 const INITIAL_NETWORKS: Array<{
@@ -14,24 +18,29 @@ const INITIAL_NETWORKS: Array<{
   slug: string
   knownHosts: string[]
   isPublicFacet: boolean
+  requiresAge: boolean
 }> = [
-  { name: 'Discord', slug: 'discord', knownHosts: ['discord.com', 'discord.gg'], isPublicFacet: true },
-  { name: 'Facebook', slug: 'facebook', knownHosts: ['facebook.com', 'fb.com', 'm.facebook.com'], isPublicFacet: true },
-  { name: 'Instagram', slug: 'instagram', knownHosts: ['instagram.com'], isPublicFacet: true },
-  { name: 'Kwai', slug: 'kwai', knownHosts: ['kwai.com'], isPublicFacet: true },
-  { name: 'LinkedIn', slug: 'linkedin', knownHosts: ['linkedin.com'], isPublicFacet: true },
-  { name: 'Outro', slug: 'outro', knownHosts: [], isPublicFacet: false },
-  { name: 'Pinterest', slug: 'pinterest', knownHosts: ['pinterest.com'], isPublicFacet: true },
-  { name: 'Reddit', slug: 'reddit', knownHosts: ['reddit.com'], isPublicFacet: true },
-  { name: 'Site', slug: 'site', knownHosts: [], isPublicFacet: true },
-  { name: 'Telegram', slug: 'telegram', knownHosts: ['t.me', 'telegram.me'], isPublicFacet: true },
-  { name: 'Threads', slug: 'threads', knownHosts: ['threads.net'], isPublicFacet: true },
-  { name: 'TikTok', slug: 'tiktok', knownHosts: ['tiktok.com'], isPublicFacet: true },
-  { name: 'Twitch', slug: 'twitch', knownHosts: ['twitch.tv'], isPublicFacet: true },
-  { name: 'Vimeo', slug: 'vimeo', knownHosts: ['vimeo.com'], isPublicFacet: true },
-  { name: 'Whatsapp', slug: 'whatsapp', knownHosts: ['wa.me', 'chat.whatsapp.com', 'api.whatsapp.com'], isPublicFacet: true },
-  { name: 'X', slug: 'x', knownHosts: ['x.com', 'twitter.com'], isPublicFacet: true },
-  { name: 'YouTube', slug: 'youtube', knownHosts: ['youtube.com', 'youtu.be'], isPublicFacet: true },
+  { name: 'Discord', slug: 'discord', knownHosts: ['discord.com', 'discord.gg'], isPublicFacet: true, requiresAge: false },
+  { name: 'Facebook', slug: 'facebook', knownHosts: ['facebook.com', 'fb.com', 'm.facebook.com'], isPublicFacet: true, requiresAge: false },
+  { name: 'Fansly', slug: 'fansly', knownHosts: ['fansly.com'], isPublicFacet: true, requiresAge: true },
+  { name: 'Fatal Model', slug: 'fatal-model', knownHosts: ['fatalmodel.com'], isPublicFacet: true, requiresAge: true },
+  { name: 'Instagram', slug: 'instagram', knownHosts: ['instagram.com'], isPublicFacet: true, requiresAge: false },
+  { name: 'Kwai', slug: 'kwai', knownHosts: ['kwai.com'], isPublicFacet: true, requiresAge: false },
+  { name: 'LinkedIn', slug: 'linkedin', knownHosts: ['linkedin.com'], isPublicFacet: true, requiresAge: false },
+  { name: 'OnlyFans', slug: 'onlyfans', knownHosts: ['onlyfans.com'], isPublicFacet: true, requiresAge: true },
+  { name: 'Outro', slug: 'outro', knownHosts: [], isPublicFacet: false, requiresAge: false },
+  { name: 'Pinterest', slug: 'pinterest', knownHosts: ['pinterest.com'], isPublicFacet: true, requiresAge: false },
+  { name: 'Privacy', slug: 'privacy', knownHosts: ['privacy.com.br'], isPublicFacet: true, requiresAge: true },
+  { name: 'Reddit', slug: 'reddit', knownHosts: ['reddit.com'], isPublicFacet: true, requiresAge: false },
+  { name: 'Site', slug: 'site', knownHosts: [], isPublicFacet: true, requiresAge: false },
+  { name: 'Telegram', slug: 'telegram', knownHosts: ['t.me', 'telegram.me'], isPublicFacet: true, requiresAge: false },
+  { name: 'Threads', slug: 'threads', knownHosts: ['threads.net'], isPublicFacet: true, requiresAge: false },
+  { name: 'TikTok', slug: 'tiktok', knownHosts: ['tiktok.com'], isPublicFacet: true, requiresAge: false },
+  { name: 'Twitch', slug: 'twitch', knownHosts: ['twitch.tv'], isPublicFacet: true, requiresAge: false },
+  { name: 'Vimeo', slug: 'vimeo', knownHosts: ['vimeo.com'], isPublicFacet: true, requiresAge: false },
+  { name: 'Whatsapp', slug: 'whatsapp', knownHosts: ['wa.me', 'chat.whatsapp.com', 'api.whatsapp.com'], isPublicFacet: true, requiresAge: false },
+  { name: 'X', slug: 'x', knownHosts: ['x.com', 'twitter.com'], isPublicFacet: true, requiresAge: false },
+  { name: 'YouTube', slug: 'youtube', knownHosts: ['youtube.com', 'youtu.be'], isPublicFacet: true, requiresAge: false },
 ]
 
 const INITIAL_NICHES: Array<{ name: string; slug: string; requiresAge: boolean; isPublicFacet: boolean }> = [
@@ -69,11 +78,14 @@ function toPromotionProductCode(code: ProductCode): PromotionProductCode {
   return code as PromotionProductCode
 }
 
+const TENANT_HOST = env.TENANT_HOST
+const TENANT_NAME = env.TENANT_NAME
+
 async function main() {
   const tenant = await prisma.tenant.upsert({
-    where: { host: 'temlinkaqui.com' },
-    create: { host: 'temlinkaqui.com', name: 'Tem Link Aqui' },
-    update: { name: 'Tem Link Aqui' },
+    where: { host: TENANT_HOST },
+    create: { host: TENANT_HOST, name: TENANT_NAME },
+    update: { name: TENANT_NAME },
   })
 
   for (const row of PRICE_ROWS) {
@@ -99,6 +111,22 @@ async function main() {
     })
   }
 
+  for (const offer of defaultOffers()) {
+    const existing = await prisma.promotionOffer.findUnique({
+      where: { tenantId_productCode: { tenantId: tenant.id, productCode: toPromotionProductCode(offer.code) } },
+    })
+    if (existing) continue
+    await prisma.promotionOffer.create({
+      data: {
+        tenantId: tenant.id,
+        productCode: toPromotionProductCode(offer.code),
+        name: offer.name,
+        sortOrder: offer.sortOrder,
+        featured: offer.featured,
+      },
+    })
+  }
+
   for (const network of INITIAL_NETWORKS) {
     await prisma.network.upsert({
       where: { tenantId_slug: { tenantId: tenant.id, slug: network.slug } },
@@ -107,6 +135,7 @@ async function main() {
         name: network.name,
         knownHosts: network.knownHosts,
         isPublicFacet: network.isPublicFacet,
+        requiresAge: network.requiresAge,
       },
     })
   }
@@ -128,7 +157,7 @@ async function main() {
     const config = await prisma.config.upsert({
       where: { tenantId_key: { tenantId: tenant.id, key } },
       create: { tenantId: tenant.id, key, value },
-      update: { value },
+      update: key === 'SHOW_IMPRESSIONS' ? {} : { value },
     })
 
     const existingSeed = await prisma.auditLog.findFirst({

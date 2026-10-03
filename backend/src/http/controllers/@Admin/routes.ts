@@ -14,6 +14,8 @@ import { prisma } from '@/lib/prisma'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
 import { registerBanRoutes } from '@/http/controllers/@Admin/ban'
 import { registerModerationRoutes } from '@/http/controllers/@Admin/moderation'
+import { registerOfficeRoutes } from '@/http/controllers/@Admin/office'
+import { registerSettingsRoutes } from '@/http/controllers/@Admin/settings'
 import {
   ConfigAuthorizeDeniedError,
   ConfigNotFoundError,
@@ -116,4 +118,6 @@ export async function adminRoutes(app: FastifyInstance) {
   app.patch('/admin/config/:key', { onRequest: [verifyJWT] }, patchConfig)
   await registerModerationRoutes(app)
   await registerBanRoutes(app)
+  await registerOfficeRoutes(app)
+  await registerSettingsRoutes(app)
 }

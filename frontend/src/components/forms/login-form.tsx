@@ -1,14 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Field, Input } from '@/components/ui/input'
 import { writeSession } from '@/domain/session'
 import { api } from '@/lib/api'
 
 export function LoginForm() {
-  const router = useRouter()
   const [error, setError] = useState('')
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -27,14 +25,17 @@ export function LoginForm() {
       status: result.body.status ?? 'ACTIVE',
       canSubmit: Boolean(result.body.canSubmit),
     })
-    router.push('/painel')
-    router.refresh()
+    window.location.assign('/painel')
   }
 
   return (
-    <form onSubmit={onSubmit}>
-      <label>E-mail<Input name="email" type="email" required /></label>
-      <label>Senha<Input name="password" type="password" minLength={8} required /></label>
+    <form className="auth-form" onSubmit={onSubmit}>
+      <Field label="E-mail">
+        <Input name="email" type="email" autoComplete="email" required />
+      </Field>
+      <Field label="Senha">
+        <Input name="password" type="password" autoComplete="current-password" minLength={8} required />
+      </Field>
       {error ? <p role="alert">{error}</p> : null}
       <Button type="submit">Entrar</Button>
     </form>

@@ -20,6 +20,7 @@ import {
 } from '@/repositories/moderation-cases-repository'
 import { getLinksRepository } from '@/repositories/links-repository'
 import { appeal } from '@/use-cases/@Moderation/appeal'
+import { notifyModeration } from '@/adapters/notifications/outbound-mail'
 import { decideCase } from '@/use-cases/@Moderation/decide-case'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
 
@@ -335,6 +336,21 @@ export async function postAdminModerationDecision(request: FastifyRequest, reply
       requestId: request.id,
     })
 
+    const owner = link.ownerId ? await linksRepo.findSubmitter(tenant.id, link.ownerId) : null
+    const email = owner?.identifiers.find((row) => row.kind === 'EMAIL' && row.replacedAt === null)?.normalizedValue ?? null
+    const outcome = body.decision === 'APPROVE'
+      ? 'published'
+      : decisionResult.status === 'PRE_REJECTED'
+        ? 'rejected'
+        : 'change_rejected'
+    await notifyModeration({
+      to: email,
+      name: tenant.name,
+      host: tenant.host,
+      linkName: String(after.name),
+      outcome,
+    })
+
     return reply.status(200).send({
       id: caseId,
       linkId: link.id,
@@ -359,16 +375,40 @@ export async function getModerationQueue(request: FastifyRequest, reply: Fastify
     if (request.user.tenantId !== tenant.id) {
       return reply.status(403).send(buildError({ code: forbidden, message: 'Acesso negado.', request_id: request.id }))
     }
+    const linksRepo = getLinksRepository()
     const cases = await getModerationCasesRepository().listOpen(tenant.id)
-    const links = await Promise.all(cases.map((row) => getLinksRepository().findLinkById(row.linkId)))
+    const [links, niches, networks] = await Promise.all([
+      Promise.all(cases.map((row) => linksRepo.findLinkById(row.linkId))),
+      linksRepo.listNiches(tenant.id),
+      linksRepo.listNetworks(tenant.id),
+    ])
+    const owners = await Promise.all(links.map((link) => (
+      link?.ownerId ? linksRepo.findSubmitter(tenant.id, link.ownerId) : null
+    )))
+    const nicheName = new Map(niches.map((row) => [row.id, row.name]))
+    const networkName = new Map(networks.map((row) => [row.id, row.name]))
     return reply.status(200).send({
-      cases: cases.map((row, index) => ({
-        id: row.id,
-        linkId: row.linkId,
-        name: links[index]?.name ?? '',
-        status: links[index]?.status ?? 'PENDING_MODERATION',
-        appealText: row.appealText,
-      })),
+      cases: cases.map((row, index) => {
+        const link = links[index]
+        const owner = owners[index]
+        const email = owner?.identifiers.find((item) => item.kind === 'EMAIL' && item.replacedAt === null)
+        return {
+          id: row.id,
+          linkId: row.linkId,
+          name: link?.name ?? '',
+          description: link?.description ?? '',
+          url: link?.canonicalUrl ?? '',
+          status: link?.status ?? 'PENDING_MODERATION',
+          niche: link ? nicheName.get(link.nicheId) ?? '' : '',
+          network: link ? networkName.get(link.networkId) ?? '' : '',
+          ownerName: owner?.name ?? '',
+          ownerEmail: email?.normalizedValue ?? '',
+          source: row.source,
+          appealText: row.appealText,
+          previousName: row.lastApprovedName,
+          previousDescription: row.lastApprovedDescription,
+        }
+      }),
     })
   } catch (error) {
     if (error instanceof ResourceNotFoundError) {

@@ -3,8 +3,19 @@ import type { AnalyticsOrigin } from '@/domain/analytics/surface-token'
 import type { AnalyticsKind, AnalyticsRepository } from '@/repositories/analytics-repository'
 import { logDomainEvent } from '@/observability/logger'
 
+const ANALYTICS_TIME_ZONE = 'America/Sao_Paulo'
+
 export function analyticsDay(now: Date): string {
-  return now.toISOString().slice(0, 10)
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: ANALYTICS_TIME_ZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(now)
+  const year = parts.find((part) => part.type === 'year')?.value
+  const month = parts.find((part) => part.type === 'month')?.value
+  const day = parts.find((part) => part.type === 'day')?.value
+  return `${year}-${month}-${day}`
 }
 
 export async function persistAnalyticsEvent(input: {
@@ -52,10 +63,10 @@ export async function persistAnalyticsEvent(input: {
 export async function readAnalytics(input: {
   tenantId: string
   linkId: string
-  from: string
-  to: string
+  from?: string
+  to?: string
   repository: AnalyticsRepository
-}): Promise<{ linkId: string; tenantId: string; from: string; to: string; impressions: number; clicks: number; ctr: number }> {
+}): Promise<{ linkId: string; tenantId: string; from: string | null; to: string | null; impressions: number; clicks: number; ctr: number }> {
   const totals = await input.repository.totals({
     tenantId: input.tenantId,
     linkId: input.linkId,
@@ -65,8 +76,8 @@ export async function readAnalytics(input: {
   return {
     linkId: input.linkId,
     tenantId: input.tenantId,
-    from: input.from,
-    to: input.to,
+    from: input.from ?? null,
+    to: input.to ?? null,
     impressions: totals.impressions,
     clicks: totals.clicks,
     ctr: ctr(totals.clicks, totals.impressions),

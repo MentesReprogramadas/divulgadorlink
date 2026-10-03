@@ -12,8 +12,10 @@ import { prisma } from '@/lib/prisma'
 import {
   canSubmitLinkFromIdentifiers,
   confirmationFlags,
+  confirmIntent,
   ConfirmIdentifierUseCase,
   generatePlainCode,
+  normalizeEmail,
   PrismaConfirmCodesRepository,
 } from '@/use-cases/@Auth/confirm-identifier'
 import { RegisterUseCase, registerBodySchema } from '@/use-cases/@Auth/register'
@@ -21,6 +23,10 @@ import { InvalidVerificationCodeError } from '@/use-cases/errors/invalid-verific
 import { RateLimitError } from '@/use-cases/errors/rate-limit-error'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
 import { UserAlreadyExistsError } from '@/use-cases/errors/user-already-exists-error'
+import { deleteAccount, WrongPasswordError } from '@/use-cases/@Auth/delete-account'
+import { requestPasswordReset, resetPassword } from '@/use-cases/@Auth/password-reset'
+import { emailOutboxEnabled, readOutbound } from '@/adapters/notifications/outbound-mail'
+import { createLoginRateLimiter } from '@/http/controllers/@auth/login-rate'
 
 const registerUseCase = new RegisterUseCase(prisma)
 const confirmUseCase = new ConfirmIdentifierUseCase(
@@ -32,24 +38,14 @@ const confirmUseCase = new ConfirmIdentifierUseCase(
   },
 )
 
-const loginAttempts = new Map<string, number[]>()
+const loginRate = createLoginRateLimiter()
+const forgotRate = createLoginRateLimiter()
 
 export { resetRefreshRevocationsForTest }
 
 export function resetLoginAttemptsForTest() {
-  loginAttempts.clear()
-}
-
-function loginIsLimited(key: string, now = Date.now()): boolean {
-  const windowMs = 60 * 60 * 1000
-  const recent = (loginAttempts.get(key) ?? []).filter((at) => now - at < windowMs)
-  if (recent.length >= 5) {
-    loginAttempts.set(key, recent)
-    return true
-  }
-  recent.push(now)
-  loginAttempts.set(key, recent)
-  return false
+  loginRate.reset()
+  forgotRate.reset()
 }
 
 const loginBodySchema = z.object({
@@ -59,7 +55,7 @@ const loginBodySchema = z.object({
 
 const confirmBodySchema = z.object({
   kind: z.enum(['EMAIL', 'PHONE']),
-  code: z.string().min(1).optional(),
+  code: z.string().optional(),
   resend: z.boolean().optional(),
 })
 
@@ -168,16 +164,30 @@ async function register(request: FastifyRequest, reply: FastifyReply) {
   }
 }
 
+async function confirmStatus(request: FastifyRequest, reply: FastifyReply) {
+  const kind = (request.query as { kind?: string }).kind === 'PHONE' ? 'PHONE' : 'EMAIL'
+  try {
+    const result = await confirmUseCase.status({ userId: request.user.sub, kind })
+    return reply.status(200).send(result)
+  } catch (error) {
+    if (error instanceof ResourceNotFoundError) {
+      return reply.status(404).send({ message: error.message })
+    }
+    throw error
+  }
+}
+
 async function confirm(request: FastifyRequest, reply: FastifyReply) {
   const body = confirmBodySchema.parse(request.body)
   const userId = request.user.sub as string
 
   try {
+    const intent = confirmIntent(body)
     const result = await confirmUseCase.execute({
       userId,
       kind: body.kind,
-      code: body.code,
-      resend: body.resend,
+      code: 'code' in intent ? intent.code : undefined,
+      resend: intent.resend === true,
     })
     return reply.status(200).send(result)
   } catch (error) {
@@ -185,7 +195,10 @@ async function confirm(request: FastifyRequest, reply: FastifyReply) {
       return reply.status(404).send({ message: error.message })
     }
     if (error instanceof RateLimitError) {
-      return reply.status(429).send({ message: error.message })
+      return reply.status(429).send({
+        message: error.message,
+        ...(typeof error.retryAfter === 'number' ? { retryAfter: error.retryAfter } : {}),
+      })
     }
     if (error instanceof InvalidVerificationCodeError) {
       return reply.status(400).send({ message: error.message })
@@ -196,18 +209,25 @@ async function confirm(request: FastifyRequest, reply: FastifyReply) {
 
 async function login(request: FastifyRequest, reply: FastifyReply) {
   const body = loginBodySchema.parse(request.body)
-  const key = `${hostFromRequest(request)}:${body.email}`
-  if (loginIsLimited(key)) {
+  const host = hostFromRequest(request)
+  const key = `${host}:${body.email.toLowerCase()}`
+  if (loginRate.limited(key)) {
     return reply.status(429).send({ message: 'Muitas tentativas.' })
   }
-  const host = hostFromRequest(request)
   const tenant = await resolveTenant(host)
   const user = await prisma.user.findFirst({
     where: { tenantId: tenant.id, identifiers: { some: { kind: 'EMAIL', normalizedValue: body.email.toLowerCase(), replacedAt: null } } },
   })
-  if (!user) return reply.status(401).send({ message: 'Credenciais inválidas.' })
+  if (!user) {
+    loginRate.fail(key)
+    return reply.status(401).send({ message: 'Credenciais inválidas.' })
+  }
   const matches = await compare(body.password, user.passwordHash)
-  if (!matches) return reply.status(401).send({ message: 'Credenciais inválidas.' })
+  if (!matches) {
+    loginRate.fail(key)
+    return reply.status(401).send({ message: 'Credenciais inválidas.' })
+  }
+  loginRate.succeed(key)
   await signSession(reply, user)
   const identifiers = await prisma.userIdentifier.findMany({
     where: { userId: user.id, replacedAt: null },
@@ -302,6 +322,93 @@ async function currentSession(request: FastifyRequest, reply: FastifyReply) {
   }
 }
 
+const forgotBodySchema = z.object({ email: z.string().email() }).strict()
+const resetBodySchema = z.object({ token: z.string().min(20), password: z.string().min(8) }).strict()
+const deleteBodySchema = z.object({ password: z.string().min(8) }).strict()
+
+async function forgotPassword(request: FastifyRequest, reply: FastifyReply) {
+  const body = forgotBodySchema.parse(request.body)
+  const host = hostFromRequest(request)
+  const key = `${host}:${normalizeEmail(body.email)}`
+  if (forgotRate.limited(key)) {
+    return reply.status(429).send({ message: 'Muitas tentativas.' })
+  }
+  forgotRate.fail(key)
+  try {
+    const tenant = await resolveTenant(host)
+    await requestPasswordReset({
+      tenantId: tenant.id,
+      tenantName: tenant.name,
+      host: tenant.host,
+      email: body.email,
+    })
+  } catch (error) {
+    if (!(error instanceof ResourceNotFoundError)) throw error
+  }
+  return reply.status(200).send({ ok: true })
+}
+
+async function resetPasswordRoute(request: FastifyRequest, reply: FastifyReply) {
+  const body = resetBodySchema.parse(request.body)
+  const passwordHash = await hash(body.password, 12)
+  const updated = await resetPassword({ token: body.token, passwordHash })
+  if (!updated) {
+    return reply.status(400).send(buildError({
+      code: 'validation',
+      message: 'Link inválido ou vencido.',
+      request_id: request.id,
+    }))
+  }
+  return reply.status(200).send({ ok: true })
+}
+
+async function deleteOwnAccount(request: FastifyRequest, reply: FastifyReply) {
+  const body = deleteBodySchema.parse(request.body)
+  try {
+    const tenant = await resolveTenant(hostFromRequest(request))
+    if (request.user.tenantId !== tenant.id) {
+      return reply.status(403).send(buildError({ code: forbidden, message: 'Acesso negado.', request_id: request.id }))
+    }
+    await deleteAccount({
+      tenantId: tenant.id,
+      tenantName: tenant.name,
+      host: tenant.host,
+      userId: request.user.sub,
+      password: body.password,
+      compare,
+    })
+    clearSessionCookies(reply)
+    return reply.status(200).send({ ok: true })
+  } catch (error) {
+    if (error instanceof WrongPasswordError) {
+      return reply.status(401).send(buildError({ code: unauthenticated, message: error.message, request_id: request.id }))
+    }
+    if (error instanceof ResourceNotFoundError) {
+      return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
+    }
+    throw error
+  }
+}
+
+async function emailOutbox(request: FastifyRequest, reply: FastifyReply) {
+  if (!emailOutboxEnabled()) {
+    return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
+  }
+  const to = (request.query as { to?: string }).to
+  if (!to || !z.string().email().safeParse(to).success) {
+    return reply.status(400).send(buildError({ code: 'validation', message: 'Dados inválidos.', request_id: request.id }))
+  }
+  return reply.status(200).send({
+    messages: readOutbound(normalizeEmail(to)).map((email) => ({
+      to: email.to,
+      subject: email.subject,
+      html: email.html,
+      text: email.text,
+      kind: email.kind,
+    })),
+  })
+}
+
 async function confirmationInbox(request: FastifyRequest, reply: FastifyReply) {
   if (!confirmationInboxEnabled()) {
     return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
@@ -322,7 +429,12 @@ export async function authRoutes(app: FastifyInstance) {
   app.post('/login', login)
   app.post('/refresh', refresh)
   app.post('/logout', logout)
+  app.get('/confirm', { onRequest: [verifyJWT] }, confirmStatus)
   app.post('/confirm', { onRequest: [verifyJWT] }, confirm)
   app.get('/session', { onRequest: [verifyJWT] }, currentSession)
   app.get('/confirmation-inbox', { onRequest: [verifyJWT] }, confirmationInbox)
+  app.post('/forgot-password', forgotPassword)
+  app.post('/reset-password', resetPasswordRoute)
+  app.post('/account/delete', { onRequest: [verifyJWT] }, deleteOwnAccount)
+  app.get('/email-outbox', emailOutbox)
 }

@@ -16,6 +16,7 @@ import {
   resetLinksRepositoryForTest,
 } from '@/repositories/links-repository'
 import { resetAuditLogsRepositoryForTest } from '@/repositories/audit-logs-repository'
+import { RecordingAnalyticsRepository, setAnalyticsRepositoryForTest } from '@/repositories/analytics-repository'
 import { getCheckoutStore, resetCheckoutStoreForTest } from '@/use-cases/@Promotions/checkout-store'
 
 const HOST = 'temlinkaqui.com'
@@ -51,6 +52,7 @@ describe('contratos HTTP da vitrine', () => {
     resetCheckoutStoreForTest()
     resetAuditLogsRepositoryForTest()
     resetImpressionLimitForTest()
+    setAnalyticsRepositoryForTest(new RecordingAnalyticsRepository())
     await resetRefreshRevocationsForTest()
     repo().addUser({ id: 'ana', tenantId: TENANT, status: 'ACTIVE', identifiers: [] })
   })
@@ -70,16 +72,29 @@ describe('contratos HTTP da vitrine', () => {
         nicheSlug: 'apostas', networkSlug: 'telegram', homeActivatedAt: new Date('2026-09-02'), nicheActivatedAt: null,
       },
     ])
+    const analytics = new RecordingAnalyticsRepository()
+    setAnalyticsRepositoryForTest(analytics)
+    await analytics.insert({
+      tenantId: TENANT, sessionId: '11111111-1111-1111-1111-111111111111', linkId: 'home-pago',
+      surface: 'HOME', day: '2026-09-01', kind: 'IMPRESSION',
+    })
+    await analytics.insert({
+      tenantId: TENANT, sessionId: '11111111-1111-1111-1111-111111111111', linkId: 'home-pago',
+      surface: 'HOME', day: '2026-09-01', kind: 'IMPRESSION',
+    })
     const response = await app.inject({ method: 'GET', url: '/api/v1/home', headers: { host: HOST } })
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.seo).toMatchObject({ title: 'Tem Link Aqui', robots: 'index,follow' })
     expect(body.seo.canonical).toBe('https://temlinkaqui.com/')
     expect(body.networks.map((row: { slug: string }) => row.slug)).toContain('telegram')
-    expect(body.niches.map((row: { slug: string }) => row.slug)).toEqual(['jogos'])
+    expect(body.niches.map((row: { slug: string }) => row.slug)).toEqual(['jogos', 'apostas'])
+    expect(body.niches.find((row: { slug: string }) => row.slug === 'apostas')).toMatchObject({ requiresAge: true })
     expect(body.sponsored.map((row: { id: string }) => row.id)).toEqual(['home-pago'])
     expect(body.organic.map((row: { id: string }) => row.id)).toEqual(['home-organo'])
     expect(readSurface(TENANT, 'home-pago', body.sponsored[0].surfaceToken, SECRET)).toBe('home')
+    expect(body.sponsored[0].impressions).toBe(1)
+    expect(body.organic[0].impressions).toBe(0)
     expect(JSON.stringify(body)).not.toMatch(/ownerId|tenantId|password|gateway|moderation|home-adulto|Oculto/)
   })
 

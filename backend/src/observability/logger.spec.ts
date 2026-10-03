@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { logJob, sanitizeLog } from '@/observability/logger'
+import { logJob, logSink, sanitizeLog } from '@/observability/logger'
 
 describe('logger', () => {
   it('remove segredo, código, e-mail e telefone', () => {
@@ -14,7 +14,7 @@ describe('logger', () => {
   })
 
   it('logJob registra fila, job, tentativa, duração e status sem segredo', () => {
-    const spy = vi.spyOn(console, 'info').mockImplementation(() => {})
+    const spy = vi.spyOn(logSink, 'write').mockImplementation(() => {})
     try {
       logJob({ queue: 'q', job_id: 'charge-o1', name: 'charge-order', attempt: 2, duration_ms: 12, status: 'failure', error: 'TimeoutError', correlation_id: 'req-9' })
       const line = JSON.parse(String(spy.mock.calls.at(-1)?.[0]))

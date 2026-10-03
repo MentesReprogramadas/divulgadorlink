@@ -294,9 +294,18 @@ export class PrismaCheckoutStore implements CheckoutStore {
   }
 
   async prices(): Promise<PriceRow[]> {
-    const rows = await this.client.$queryRawUnsafe<Array<{ productCode: ProductCode; durationDays: number; amountCents: number }>>(
-      'SELECT "productCode", "durationDays", "amountCents" FROM promotion_prices WHERE "effectiveTo" IS NULL',
-    )
+    return this.pricesFor(null)
+  }
+
+  async pricesFor(tenantId: string | null): Promise<PriceRow[]> {
+    const rows = tenantId
+      ? await this.client.$queryRawUnsafe<Array<{ productCode: ProductCode; durationDays: number; amountCents: number }>>(
+        'SELECT "productCode", "durationDays", "amountCents" FROM promotion_prices WHERE "tenantId" = $1 AND "effectiveTo" IS NULL',
+        tenantId,
+      )
+      : await this.client.$queryRawUnsafe<Array<{ productCode: ProductCode; durationDays: number; amountCents: number }>>(
+        'SELECT "productCode", "durationDays", "amountCents" FROM promotion_prices WHERE "effectiveTo" IS NULL',
+      )
     if (rows.length === 0) return PRICE_ROWS.map((row) => ({ ...row }))
     return rows.flatMap((row) => {
       if (row.durationDays !== 7 && row.durationDays !== 14 && row.durationDays !== 28) return []

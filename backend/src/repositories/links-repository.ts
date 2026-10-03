@@ -8,6 +8,7 @@ import {
 import { prisma } from '@/lib/prisma'
 import { recordEmbeddingIntent, tryDispatchEmbedding } from '@/use-cases/@Search/embedding-outbox'
 import { banAccount } from '@/use-cases/@Admin/ban-account'
+import { facetMatchesProbe, escapeLikePrefix, FACET_ACCENTS, FACET_PLAIN, type SearchFacetProbe } from '@/use-cases/@Search/rank-links'
 
 function scheduleEmbedding(linkId: string, snapshot: LinkEmbedSnapshot): void {
   const intent = recordEmbeddingIntent(linkId, snapshot)
@@ -53,6 +54,8 @@ export type SubmitterIdentifier = {
 export type SubmitterRecord = {
   id: string
   tenantId: string
+  name?: string
+  role?: 'ADMIN' | 'USER'
   status: 'ACTIVE' | 'BANNED'
   identifiers: SubmitterIdentifier[]
 }
@@ -63,6 +66,7 @@ export type NetworkRecord = {
   name: string
   slug: string
   isPublicFacet: boolean
+  requiresAge?: boolean
 }
 export type NicheRecord = {
   id: string
@@ -125,6 +129,7 @@ export interface LinksRepository {
   findNiche(tenantId: string, id: string): Promise<NicheRecord | null>
   listNiches(tenantId: string): Promise<NicheRecord[]>
   listNetworks(tenantId: string): Promise<NetworkRecord[]>
+  findSearchFacetCandidates(tenantId: string, probe: SearchFacetProbe): Promise<{ niches: NicheRecord[]; networks: NetworkRecord[] }>
   listByOwner(tenantId: string, ownerId: string): Promise<LinkRecord[]>
   listBlocklistTerms(tenantId: string): Promise<string[]>
   listBannedIdentifiers(tenantId: string): Promise<{ phones: string[]; emails: string[] }>
@@ -152,6 +157,7 @@ export interface LinksRepository {
     requestId: string
     reason?: string
   }): Promise<{ userStatus: 'BANNED'; refunds: [] } | null>
+  cancelActivePromotions(tenantId: string, linkId: string): Promise<number>
 }
 
 export class InMemoryLinksRepository implements LinksRepository {
@@ -178,7 +184,7 @@ export class InMemoryLinksRepository implements LinksRepository {
     this.bans = []
     this.networks = [
       { id: 'net-telegram', tenantId, name: 'Telegram', slug: 'telegram', isPublicFacet: true },
-      { id: 'net-outro', tenantId, name: 'Outro', slug: 'outro', isPublicFacet: true },
+      { id: 'net-outro', tenantId, name: 'Outro', slug: 'outro', isPublicFacet: false },
     ]
     this.niches = [
       { id: 'niche-jogos', tenantId, name: 'Jogos', slug: 'jogos', requiresAge: false, isPublicFacet: true },
@@ -278,6 +284,16 @@ export class InMemoryLinksRepository implements LinksRepository {
     return { userStatus: result.userStatus, refunds: result.refunds }
   }
 
+  async cancelActivePromotions(tenantId: string, linkId: string): Promise<number> {
+    let cancelled = 0
+    for (const row of this.promotions) {
+      if (row.tenantId !== tenantId || row.linkId !== linkId || row.status !== 'ACTIVE') continue
+      row.status = 'CANCELLED'
+      cancelled += 1
+    }
+    return cancelled
+  }
+
   async createNiche(input: {
     tenantId: string
     name: string
@@ -330,6 +346,15 @@ export class InMemoryLinksRepository implements LinksRepository {
 
   async listNetworks(tenantId: string): Promise<NetworkRecord[]> {
     return this.networks.filter((item) => item.tenantId === tenantId).map((item) => ({ ...item }))
+  }
+
+  async findSearchFacetCandidates(tenantId: string, probe: SearchFacetProbe): Promise<{ niches: NicheRecord[]; networks: NetworkRecord[] }> {
+    const visible = (item: { tenantId: string; isPublicFacet: boolean; slug: string; name: string }) =>
+      item.tenantId === tenantId && item.isPublicFacet && facetMatchesProbe(item, probe)
+    return {
+      niches: this.niches.filter(visible).map((item) => ({ ...item })),
+      networks: this.networks.filter(visible).map((item) => ({ ...item })),
+    }
   }
 
   async listByOwner(tenantId: string, ownerId: string): Promise<LinkRecord[]> {
@@ -398,6 +423,8 @@ export class PrismaLinksRepository implements LinksRepository {
     return {
       id: user.id,
       tenantId: user.tenantId,
+      name: user.name,
+      role: user.role,
       status: user.status,
       identifiers: user.identifiers.map((row) => ({
         id: row.id,
@@ -412,7 +439,7 @@ export class PrismaLinksRepository implements LinksRepository {
   async findNetwork(tenantId: string, id: string): Promise<NetworkRecord | null> {
     return this.client.network.findFirst({
       where: { id, tenantId },
-      select: { id: true, tenantId: true, name: true, slug: true, isPublicFacet: true },
+      select: { id: true, tenantId: true, name: true, slug: true, isPublicFacet: true, requiresAge: true },
     })
   }
 
@@ -433,8 +460,32 @@ export class PrismaLinksRepository implements LinksRepository {
   async listNetworks(tenantId: string): Promise<NetworkRecord[]> {
     return this.client.network.findMany({
       where: { tenantId },
-      select: { id: true, tenantId: true, name: true, slug: true, isPublicFacet: true },
+      select: { id: true, tenantId: true, name: true, slug: true, isPublicFacet: true, requiresAge: true },
     })
+  }
+
+  async findSearchFacetCandidates(tenantId: string, probe: SearchFacetProbe): Promise<{ niches: NicheRecord[]; networks: NetworkRecord[] }> {
+    if (!probe.exact) return { niches: [], networks: [] }
+    const keys = [...new Set([probe.exact, ...probe.tokens])]
+    const pattern = probe.prefix ? `${escapeLikePrefix(probe.prefix)}%` : null
+    const nameFold = Prisma.sql`lower(translate(name, ${FACET_ACCENTS}, ${FACET_PLAIN}))`
+    const slugFold = Prisma.sql`lower(slug)`
+    const matched = pattern
+      ? Prisma.sql`${slugFold} IN (${Prisma.join(keys)}) OR ${nameFold} IN (${Prisma.join(keys)}) OR ${slugFold} LIKE ${pattern} ESCAPE '\\' OR ${nameFold} LIKE ${pattern} ESCAPE '\\'`
+      : Prisma.sql`${slugFold} IN (${Prisma.join(keys)}) OR ${nameFold} IN (${Prisma.join(keys)})`
+    const [niches, networks] = await Promise.all([
+      this.client.$queryRaw<NicheRecord[]>`
+        SELECT id, "tenantId", name, slug, "requiresAge", "isPublicFacet"
+        FROM niches
+        WHERE "tenantId" = ${tenantId} AND "isPublicFacet" = true AND (${matched})
+      `,
+      this.client.$queryRaw<NetworkRecord[]>`
+        SELECT id, "tenantId", name, slug, "isPublicFacet"
+        FROM networks
+        WHERE "tenantId" = ${tenantId} AND "isPublicFacet" = true AND (${matched})
+      `,
+    ])
+    return { niches, networks }
   }
 
   async listByOwner(tenantId: string, ownerId: string): Promise<LinkRecord[]> {
@@ -616,6 +667,14 @@ export class PrismaLinksRepository implements LinksRepository {
       })
       return { userStatus: result.userStatus, refunds: result.refunds }
     })
+  }
+
+  async cancelActivePromotions(tenantId: string, linkId: string): Promise<number> {
+    const result = await this.client.promotion.updateMany({
+      where: { tenantId, linkId, status: 'ACTIVE' },
+      data: { status: 'CANCELLED' },
+    })
+    return result.count
   }
 }
 

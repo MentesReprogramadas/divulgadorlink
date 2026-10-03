@@ -74,7 +74,8 @@ export function pageRanked<T extends Ranked>(
 export function homePageSql(surface: 'HOME' | 'NICHE'): { sponsored: string; organic: string } {
   const sponsored = `
     SELECT l."id", l."name", l."description", n."requiresAge",
-      n."slug" AS "nicheSlug", net."slug" AS "networkSlug",
+      n."name" AS "nicheName", n."slug" AS "nicheSlug",
+      net."name" AS "networkName", net."slug" AS "networkSlug",
       pmin.activated AS "homeActivatedAt"
     FROM (
       SELECT p."linkId", MIN(p."activatedAt") AS activated
@@ -95,7 +96,8 @@ export function homePageSql(surface: 'HOME' | 'NICHE'): { sponsored: string; org
   `
   const organic = `
     SELECT l."id", l."name", l."description", n."requiresAge",
-      n."slug" AS "nicheSlug", net."slug" AS "networkSlug",
+      n."name" AS "nicheName", n."slug" AS "nicheSlug",
+      net."name" AS "networkName", net."slug" AS "networkSlug",
       NULL::timestamp AS "homeActivatedAt"
     FROM "links" l
     JOIN "niches" n ON n."id" = l."nicheId"

@@ -1,11 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { LoginForm } from '@/components/forms/login-form'
+import { useAreaSession } from '@/components/domain/panel'
 import { Button } from '@/components/ui/button'
-import { Input, Select, TextArea } from '@/components/ui/input'
-import type { Session } from '@/domain/session'
-import { api, currentSession } from '@/lib/api'
+import { Field, Input, Select, TextArea } from '@/components/ui/input'
+import { api } from '@/lib/api'
 
 type Facet = { id: string; name: string }
 
@@ -23,7 +22,7 @@ function preview(raw: string): string | null {
 }
 
 export default function Page() {
-  const [session, setSession] = useState<Session | null>(null)
+  const session = useAreaSession()
   const [networks, setNetworks] = useState<Facet[]>([])
   const [niches, setNiches] = useState<Facet[]>([])
   const [url, setUrl] = useState('')
@@ -31,18 +30,13 @@ export default function Page() {
   const [status, setStatus] = useState('')
 
   useEffect(() => {
-    void (async () => {
-      const current = await currentSession()
-      setSession(current)
-      if (!current) return
-      const result = await api<{ networks: Facet[]; niches: Facet[] }>('/v1/home')
+    void api<{ networks: Facet[]; niches: Facet[] }>('/v1/home').then((result) => {
       setNetworks(result.body.networks ?? [])
       setNiches(result.body.niches ?? [])
-    })()
+    })
   }, [])
 
-  if (!session) return <main><LoginForm /></main>
-  const confirmed = session.canSubmit
+  const confirmed = session?.canSubmit === true
   const canonical = preview(url)
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -68,28 +62,30 @@ export default function Page() {
   }
 
   return (
-    <main>
-      <h1>Novo link</h1>
-      {!confirmed ? <p>Confirme o e-mail e o telefone para enviar um link</p> : null}
-      <form onSubmit={onSubmit}>
-        <label>Nome<Input name="name" required /></label>
-        <label>Descrição<TextArea name="description" required /></label>
-        <label>URL<Input name="url" value={url} onChange={(event) => setUrl(event.target.value)} required /></label>
-        {canonical ? <p>{canonical}</p> : null}
-        <label>Rede
-          <Select name="networkId" required>
-            {networks.map((row) => <option key={row.id} value={row.id}>{row.name}</option>)}
-          </Select>
-        </label>
-        <label>Nicho
-          <Select name="nicheId" required>
-            {niches.map((row) => <option key={row.id} value={row.id}>{row.name}</option>)}
-          </Select>
-        </label>
+    <>
+      <h2 className="panel-section-title">Novo link</h2>
+      {!confirmed ? <p>Confirme o e-mail para enviar um link</p> : null}
+      <form className="form-grid" onSubmit={onSubmit}>
+        <Field label="Nome"><Input name="name" required /></Field>
+        <Field label="Descrição"><TextArea name="description" required /></Field>
+        <Field label="URL"><Input name="url" value={url} onChange={(event) => setUrl(event.target.value)} required /></Field>
+        <div>
+          {canonical ? <p className="panel-meta">{canonical}</p> : null}
+          <Field label="Rede">
+            <Select name="networkId" required>
+              {networks.map((row) => <option key={row.id} value={row.id}>{row.name}</option>)}
+            </Select>
+          </Field>
+          <Field label="Nicho">
+            <Select name="nicheId" required>
+              {niches.map((row) => <option key={row.id} value={row.id}>{row.name}</option>)}
+            </Select>
+          </Field>
+        </div>
         {error ? <p role="alert">{error}</p> : null}
         {status ? <p>{status}</p> : null}
-        <Button type="submit" disabled={!confirmed || session.status === 'BANNED'}>Enviar</Button>
+        <Button type="submit" disabled={!confirmed || session?.status === 'BANNED'}>Enviar</Button>
       </form>
-    </main>
+    </>
   )
 }

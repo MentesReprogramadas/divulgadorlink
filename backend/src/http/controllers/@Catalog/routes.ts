@@ -4,6 +4,9 @@ import { env } from '@/env'
 import { buildError, not_found } from '@/http/errors'
 import { resolveTenant } from '@/http/tenant'
 import { prisma } from '@/lib/prisma'
+import { impressionsEnabled } from '@/domain/config/read-config'
+import { getAnalyticsRepository } from '@/repositories/analytics-repository'
+import { getConfigsRepository } from '@/repositories/configs-repository'
 import { getLinksRepository } from '@/repositories/links-repository'
 import { capLimit, decodeCursor, InvalidCursorError, pageRanked } from '@/http/catalog-page'
 import { queryCatalogPage } from '@/http/catalog-query'
@@ -32,6 +35,11 @@ export function resetCatalogLinksForTest(): void {
   testLinks = []
 }
 
+async function publicImpressions(tenantId: string): Promise<boolean> {
+  const row = await getConfigsRepository().findByTenantAndKey(tenantId, 'SHOW_IMPRESSIONS')
+  return impressionsEnabled(row?.value)
+}
+
 function hostFromRequest(request: FastifyRequest): string {
   const raw = request.headers.host
   if (!raw) throw new ResourceNotFoundError()
@@ -44,13 +52,33 @@ function ageFromCookie(request: FastifyRequest): 'yes' | 'no' | 'unknown' {
   return 'unknown'
 }
 
-function card(tenantId: string, row: { id: string; name: string; description: string }, origin: AnalyticsOrigin) {
+type CardSource = {
+  id: string
+  name: string
+  description: string
+  nicheName?: string | null
+  nicheSlug?: string | null
+  networkName?: string | null
+  networkSlug?: string | null
+}
+
+function card(tenantId: string, row: CardSource, origin: AnalyticsOrigin) {
   return {
     id: row.id,
     name: row.name,
     description: row.description,
     surfaceToken: signSurface(tenantId, row.id, origin, env.JWT_SECRET),
+    niche: row.nicheName ? { name: row.nicheName, slug: row.nicheSlug ?? '' } : null,
+    network: row.networkName ? { name: row.networkName, slug: row.networkSlug ?? '' } : null,
   }
+}
+
+async function counted(tenantId: string, rows: CardSource[], origin: AnalyticsOrigin) {
+  const counts = await getAnalyticsRepository().impressionTotals(tenantId, rows.map((row) => row.id))
+  return rows.map((row) => ({
+    ...card(tenantId, row, origin),
+    impressions: counts.get(row.id) ?? 0,
+  }))
 }
 
 function seo(host: string, title: string, description: string, path: string, robots: 'index,follow' | 'noindex,nofollow') {
@@ -93,7 +121,7 @@ async function getHome(request: FastifyRequest, reply: FastifyReply) {
     } catch {
       return reply.status(400).send(buildError({ code: 'validation', message: 'Validation error.', request_id: request.id }))
     }
-    type CardRow = { id: string; name: string; description: string }
+    type CardRow = { id: string; name: string; description: string; nicheName?: string | null; nicheSlug?: string | null; networkName?: string | null; networkSlug?: string | null }
     let page: { sponsored: CardRow[]; organic: CardRow[]; nextCursor: string | null }
     if (process.env.NODE_ENV === 'test') {
       const visible = visibleForAge(rows, age)
@@ -131,12 +159,13 @@ async function getHome(request: FastifyRequest, reply: FastifyReply) {
       seo: seo(host, tenant.name, 'Catálogo público de links', '/', 'index,follow'),
       networks: networks
         .filter((row) => row.isPublicFacet)
-        .map((row) => ({ id: row.id, name: row.name, slug: row.slug })),
+        .map((row) => ({ id: row.id, name: row.name, slug: row.slug, requiresAge: row.requiresAge === true })),
       niches: niches
-        .filter((row) => row.isPublicFacet && (age === 'yes' || !row.requiresAge))
+        .filter((row) => row.isPublicFacet)
         .map((row) => ({ id: row.id, name: row.name, slug: row.slug, requiresAge: row.requiresAge })),
-      sponsored: page.sponsored.map((row) => card(tenant.id, row, 'home')),
-      organic: page.organic.map((row) => card(tenant.id, row, 'home')),
+      showImpressions: await publicImpressions(tenant.id),
+      sponsored: await counted(tenant.id, page.sponsored, 'home'),
+      organic: await counted(tenant.id, page.organic, 'home'),
       nextCursor: page.nextCursor,
     })
   } catch (error) {
@@ -148,6 +177,60 @@ async function getHome(request: FastifyRequest, reply: FastifyReply) {
     }
     throw error
   }
+}
+
+function slugOf(value: unknown): string | null {
+  if (typeof value !== 'string') return null
+  const slug = value.trim()
+  return /^[a-z0-9-]{1,80}$/.test(slug) ? slug : null
+}
+
+async function companionFacets(
+  tenantId: string,
+  kind: 'niche' | 'network',
+  slug: string,
+): Promise<Array<{ id: string; name: string; slug: string; requiresAge?: boolean }>> {
+  const repo = getLinksRepository()
+  if (process.env.NODE_ENV === 'test') {
+    const rows = linksFor().filter((row) => kind === 'network' ? row.networkSlug === slug : row.nicheSlug === slug)
+    if (kind === 'network') {
+      const wanted = new Set(rows.map((row) => row.nicheSlug))
+      return (await repo.listNiches(tenantId))
+        .filter((row) => row.isPublicFacet && wanted.has(row.slug))
+        .map((row) => ({ id: row.id, name: row.name, slug: row.slug, requiresAge: row.requiresAge }))
+    }
+    const wanted = new Set(rows.map((row) => row.networkSlug))
+    return (await repo.listNetworks(tenantId))
+      .filter((row) => row.isPublicFacet && wanted.has(row.slug))
+      .map((row) => ({ id: row.id, name: row.name, slug: row.slug }))
+  }
+  const opposite = kind === 'network' ? 'niche' : 'network'
+  const rows = await prisma.$queryRawUnsafe<Array<{ id: string; name: string; slug: string; requiresAge: boolean }>>(
+    opposite === 'niche'
+      ? `
+        SELECT DISTINCT n."id", n."name", n."slug", n."requiresAge"
+        FROM "links" l
+        JOIN "niches" n ON n."id" = l."nicheId"
+        JOIN "networks" net ON net."id" = l."networkId"
+        WHERE l."tenantId" = $1 AND l."status" = 'PUBLISHED' AND net."slug" = $2 AND n."isPublicFacet" = true
+        ORDER BY n."name" ASC
+      `
+      : `
+        SELECT DISTINCT net."id", net."name", net."slug", net."requiresAge"
+        FROM "links" l
+        JOIN "niches" n ON n."id" = l."nicheId"
+        JOIN "networks" net ON net."id" = l."networkId"
+        WHERE l."tenantId" = $1 AND l."status" = 'PUBLISHED' AND n."slug" = $2 AND net."isPublicFacet" = true
+        ORDER BY net."name" ASC
+      `,
+    tenantId,
+    slug,
+  )
+  return rows.map((row) => (
+    opposite === 'niche'
+      ? { id: row.id, name: row.name, slug: row.slug, requiresAge: row.requiresAge }
+      : { id: row.id, name: row.name, slug: row.slug }
+  ))
 }
 
 async function getFacet(
@@ -166,15 +249,25 @@ async function getFacet(
     if (!facet) {
       return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
     }
+    const query = request.query as { limit?: string; cursor?: string; niche?: string; network?: string }
+    const filterNiche = kind === 'network' ? slugOf(query.niche) : null
+    const filterNetwork = kind === 'niche' ? slugOf(query.network) : null
+    const niches = kind === 'network' ? await companionFacets(tenant.id, 'network', slug) : undefined
+    const networks = kind === 'niche' ? await companionFacets(tenant.id, 'niche', slug) : undefined
     const requiresAge = 'requiresAge' in facet ? facet.requiresAge : false
-    if (requiresAge && age !== 'yes') {
+    const filterRequiresAge = Boolean(niches?.find((row) => row.slug === filterNiche)?.requiresAge)
+    if ((requiresAge || filterRequiresAge) && age !== 'yes') {
       return reply.status(200).send({
         seo: seo(host, facet.name, facet.name, `/${kind}/${slug}`, 'noindex,nofollow'),
+        ageRequired: age === 'unknown',
+        ...(age === 'no' ? { blocked: true } : {}),
+        showImpressions: await publicImpressions(tenant.id),
+        ...(niches ? { niches } : {}),
+        ...(networks ? { networks } : {}),
         sponsored: [],
         organic: [],
       })
     }
-    const query = request.query as { limit?: string; cursor?: string }
     const limit = capLimit(query.limit)
     let cursor
     try {
@@ -188,8 +281,8 @@ async function getFacet(
         tenantId: tenant.id,
         age,
         surface: 'NICHE',
-        nicheSlug: kind === 'niche' ? slug : null,
-        networkSlug: kind === 'network' ? slug : null,
+        nicheSlug: kind === 'niche' ? slug : filterNiche,
+        networkSlug: kind === 'network' ? slug : filterNetwork,
         limit,
         cursor,
       })
@@ -197,14 +290,18 @@ async function getFacet(
       const organic = loaded.rows.filter((row) => !row.homeActivatedAt)
       return reply.status(200).send({
         seo: seo(host, facet.name, facet.name, `/${kind}/${slug}`, 'index,follow'),
-        sponsored: sponsored.map((row) => card(tenant.id, row, origin)),
-        organic: organic.map((row) => card(tenant.id, row, origin)),
+        showImpressions: await publicImpressions(tenant.id),
+        ...(niches ? { niches } : {}),
+        ...(networks ? { networks } : {}),
+        sponsored: await counted(tenant.id, sponsored, origin),
+        organic: await counted(tenant.id, organic, origin),
         nextCursor: loaded.nextCursor,
       })
     }
-    const rows = linksFor().filter((row) =>
-      kind === 'niche' ? row.nicheSlug === slug : row.networkSlug === slug,
-    )
+    const rows = linksFor().filter((row) => {
+      if (kind === 'niche') return row.nicheSlug === slug && (!filterNetwork || row.networkSlug === filterNetwork)
+      return row.networkSlug === slug && (!filterNiche || row.nicheSlug === filterNiche)
+    })
     const visible = visibleForAge(rows, age)
     const ranked = rankNiche(visible.map((row) => ({
       id: row.id,
@@ -218,8 +315,11 @@ async function getFacet(
     const present = (id: string) => byId.get(id)!
     return reply.status(200).send({
       seo: seo(host, facet.name, facet.name, `/${kind}/${slug}`, 'index,follow'),
-      sponsored: page.sponsored.map((row) => card(tenant.id, present(row.id), origin)),
-      organic: page.organic.map((row) => card(tenant.id, present(row.id), origin)),
+      showImpressions: await publicImpressions(tenant.id),
+      ...(niches ? { niches } : {}),
+      ...(networks ? { networks } : {}),
+      sponsored: await counted(tenant.id, page.sponsored.map((row) => present(row.id)), origin),
+      organic: await counted(tenant.id, page.organic.map((row) => present(row.id)), origin),
       nextCursor: page.nextCursor,
     })
   } catch (error) {
@@ -233,8 +333,22 @@ async function getFacet(
   }
 }
 
+async function setAge(request: FastifyRequest, reply: FastifyReply) {
+  const choice = (request.body as { choice?: unknown } | null)?.choice
+  if (choice !== 'yes' && choice !== 'no') {
+    return reply.status(400).send(buildError({ code: 'validation', message: 'Validation error.', request_id: request.id }))
+  }
+  reply.setCookie('age', choice, {
+    path: '/',
+    sameSite: 'lax',
+    secure: env.NODE_ENV === 'production',
+  })
+  return reply.status(204).send()
+}
+
 export async function catalogRoutes(app: FastifyInstance) {
   app.get('/home', getHome)
+  app.post('/age', setAge)
   app.get('/niches/:slug', (request, reply) => getFacet(request, reply, 'niche'))
   app.get('/networks/:slug', (request, reply) => getFacet(request, reply, 'network'))
 }

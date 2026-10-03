@@ -1,4 +1,6 @@
 import { stashConfirmation } from '@/adapters/auth/confirmation-inbox'
+import { emailBrand, otpEmail } from '@/adapters/notifications/email/templates'
+import { deliverEmail, emailOutboxEnabled, stashOutbound } from '@/adapters/notifications/outbound-mail'
 import {
   type ConfirmationChannel,
   type ConfirmationDelivery,
@@ -16,8 +18,18 @@ type ConfirmationProvider = EmailProvider | SmsProvider
 export class InboxConfirmationProvider implements EmailProvider, SmsProvider {
   constructor(private readonly channel: ConfirmationChannel) {}
 
-  async sendConfirmationCode(message: ConfirmationMessage): Promise<void> {
+  async sendConfirmationCode(message: ConfirmationMessage, _signal?: AbortSignal): Promise<void> {
     stashConfirmation(message.userId, this.channel, message.code)
+    if (this.channel !== 'EMAIL' || !emailOutboxEnabled()) return
+    const rendered = otpEmail({ brand: emailBrand({}), code: message.code })
+    stashOutbound({ to: message.destination, kind: 'otp', ...rendered })
+  }
+}
+
+export class ResendConfirmationProvider implements EmailProvider {
+  async sendConfirmationCode(message: ConfirmationMessage, signal: AbortSignal): Promise<void> {
+    const rendered = otpEmail({ brand: emailBrand({}), code: message.code })
+    await deliverEmail({ to: message.destination, kind: 'otp', ...rendered }, signal)
   }
 }
 
@@ -31,11 +43,20 @@ export class UnselectedConfirmationProvider implements EmailProvider, SmsProvide
 
 export type ConfirmationProviders = { EMAIL: EmailProvider; PHONE: SmsProvider }
 
-export function confirmationProviders(env: NodeJS.ProcessEnv = process.env): ConfirmationProviders {
-  if (env.NODE_ENV === 'production') {
-    return { EMAIL: new UnselectedConfirmationProvider('EMAIL'), PHONE: new UnselectedConfirmationProvider('PHONE') }
+function emailProvider(env: NodeJS.ProcessEnv): EmailProvider {
+  if (env.NODE_ENV !== 'production' && env.CONFIRMATION_INBOX === '1') {
+    return new InboxConfirmationProvider('EMAIL')
   }
-  return { EMAIL: new InboxConfirmationProvider('EMAIL'), PHONE: new InboxConfirmationProvider('PHONE') }
+  if (env.RESEND_API_KEY && env.EMAIL_FROM) return new ResendConfirmationProvider()
+  if (env.NODE_ENV === 'production') return new UnselectedConfirmationProvider('EMAIL')
+  return new InboxConfirmationProvider('EMAIL')
+}
+
+export function confirmationProviders(env: NodeJS.ProcessEnv = process.env): ConfirmationProviders {
+  const phone = env.NODE_ENV === 'production'
+    ? new UnselectedConfirmationProvider('PHONE')
+    : new InboxConfirmationProvider('PHONE')
+  return { EMAIL: emailProvider(env), PHONE: phone }
 }
 
 export type DeliveryOptions = {
@@ -46,6 +67,7 @@ export type DeliveryOptions = {
 
 function failureReason(error: unknown): DeliveryFailureReason {
   if (error instanceof ProviderSelectionRequiredError) return 'provider_selection_required'
+  if (error instanceof Error && error.name === 'SenderRejectedError') return 'sender_rejected'
   if (error instanceof Error && (error.name === 'TimeoutError' || error.name === 'AbortError')) return 'timeout'
   return 'provider_error'
 }
@@ -102,7 +124,7 @@ export function resilientConfirmationDelivery(
           reason,
           duration_ms: Date.now() - started,
         })
-        if (reason === 'provider_selection_required' || attempt === attempts) {
+        if (reason === 'provider_selection_required' || reason === 'sender_rejected' || attempt === attempts) {
           throw new DeliveryUnavailableError(channel, reason)
         }
         await new Promise((resolve) => setTimeout(resolve, backoffMs * attempt))

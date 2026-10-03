@@ -1,3 +1,5 @@
+import { writeSync } from 'node:fs'
+
 const SECRET_KEYS = new Set([
   'password',
   'passwordHash',
@@ -33,6 +35,12 @@ export function logJob(fields: {
   logDomainEvent('job.completed', fields)
 }
 
+export const logSink = {
+  write(line: string): void {
+    writeSync(1, `${line}\n`)
+  },
+}
+
 export function logDomainEvent(event: string, fields: Record<string, unknown>): void {
   const safe = sanitizeLog({
     event,
@@ -42,5 +50,5 @@ export function logDomainEvent(event: string, fields: Record<string, unknown>): 
     duration_ms: fields.duration_ms ?? fields.durationMs,
     ...fields,
   })
-  console.info(JSON.stringify(safe))
+  logSink.write(JSON.stringify(safe))
 }

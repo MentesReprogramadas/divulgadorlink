@@ -2,14 +2,18 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   confirmationProviders,
   InboxConfirmationProvider,
+  ResendConfirmationProvider,
   resilientConfirmationDelivery,
   UnselectedConfirmationProvider,
 } from '@/adapters/notifications/confirmation-providers'
+import { readConfirmation, resetConfirmationInboxForTest } from '@/adapters/auth/confirmation-inbox'
+import { readOutbound, resetOutboundForTest } from '@/adapters/notifications/outbound-mail'
 import {
   DeliveryUnavailableError,
   type EmailProvider,
   PROVIDER_SELECTION_REQUIRED,
 } from '@/domain/notifications/confirmation-delivery'
+import { logSink } from '@/observability/logger'
 
 const message = { userId: 'user-1', destination: 'ana@example.com', code: '482913' }
 
@@ -27,7 +31,7 @@ describe('entrega de código de confirmação', () => {
   })
 
   it('produção usa o provedor não selecionado e falha explícita sem retry', async () => {
-    const log = vi.spyOn(console, 'info').mockImplementation(() => {})
+    const log = vi.spyOn(logSink, 'write').mockImplementation(() => {})
     const providers = confirmationProviders({ NODE_ENV: 'production' })
     expect(providers.EMAIL).toBeInstanceOf(UnselectedConfirmationProvider)
     expect(providers.PHONE).toBeInstanceOf(UnselectedConfirmationProvider)
@@ -47,8 +51,44 @@ describe('entrega de código de confirmação', () => {
     expect(providers.PHONE).toBeInstanceOf(InboxConfirmationProvider)
   })
 
+  it('produção com Resend envia e-mail e continua sem SMS', () => {
+    const providers = confirmationProviders({
+      NODE_ENV: 'production',
+      RESEND_API_KEY: 're_test',
+      EMAIL_FROM: 'Tem Link Aqui <oi@tem.test>',
+    })
+    expect(providers.EMAIL).toBeInstanceOf(ResendConfirmationProvider)
+    expect(providers.PHONE).toBeInstanceOf(UnselectedConfirmationProvider)
+  })
+
+  it('o inbox de teste vence a chave do Resend fora de produção', () => {
+    const providers = confirmationProviders({
+      NODE_ENV: 'dev',
+      CONFIRMATION_INBOX: '1',
+      RESEND_API_KEY: 're_test',
+      EMAIL_FROM: 'Tem Link Aqui <oi@tem.test>',
+    })
+    expect(providers.EMAIL).toBeInstanceOf(InboxConfirmationProvider)
+  })
+
+  it('o inbox grava o html do código quando a caixa de e-mail está ligada', async () => {
+    process.env.EMAIL_OUTBOX = '1'
+    process.env.CONFIRMATION_INBOX = '1'
+    resetConfirmationInboxForTest()
+    resetOutboundForTest()
+    const provider = new InboxConfirmationProvider('EMAIL')
+    await provider.sendConfirmationCode(message, new AbortController().signal)
+    expect(readConfirmation('user-1', 'EMAIL')).toBe(message.code)
+    expect(readOutbound(message.destination)[0]?.html).toContain(message.code)
+    expect(readOutbound(message.destination)[0]?.subject).not.toContain(message.code)
+    delete process.env.EMAIL_OUTBOX
+    delete process.env.CONFIRMATION_INBOX
+    resetOutboundForTest()
+    resetConfirmationInboxForTest()
+  })
+
   it('refaz após falha transitória e registra as tentativas sem código nem destino', async () => {
-    const log = vi.spyOn(console, 'info').mockImplementation(() => {})
+    const log = vi.spyOn(logSink, 'write').mockImplementation(() => {})
     const send = vi.fn()
       .mockRejectedValueOnce(new Error(`falhou para ${message.destination} com ${message.code}`))
       .mockResolvedValueOnce(undefined)
@@ -66,7 +106,7 @@ describe('entrega de código de confirmação', () => {
   })
 
   it('esgota as tentativas e devolve erro de provedor', async () => {
-    vi.spyOn(console, 'info').mockImplementation(() => {})
+    vi.spyOn(logSink, 'write').mockImplementation(() => {})
     const send = vi.fn().mockRejectedValue(new Error('500'))
     const deliver = resilientConfirmationDelivery(sms({ sendConfirmationCode: send }), { attempts: 2, backoffMs: 1 })
 
@@ -75,7 +115,7 @@ describe('entrega de código de confirmação', () => {
   })
 
   it('aborta provedor que não responde no prazo', async () => {
-    vi.spyOn(console, 'info').mockImplementation(() => {})
+    vi.spyOn(logSink, 'write').mockImplementation(() => {})
     const signals: AbortSignal[] = []
     const hanging: EmailProvider = {
       sendConfirmationCode: (_message, signal) => {

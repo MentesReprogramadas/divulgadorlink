@@ -150,7 +150,7 @@ describe('busca HTTP de ponta a ponta: rota → embedding injetado → SQL real 
     expect(response.statusCode).toBe(200)
     expect(embedding.calls).toEqual([QUERY])
     const body = response.json() as { target: unknown; threshold: number; sponsored: Item[]; organic: Item[] }
-    expect(body.target).toEqual({ kind: 'results', slug: null })
+    expect(body.target).toEqual({ kind: 'results', slug: null, name: null })
     expect(body.threshold).toBe(0.35)
     expect(body.sponsored.map((row) => row.id)).toEqual(['pago-1', 'pago-2'])
     expect(body.organic.map((row) => row.id)).toEqual(['org-alta', 'org-media', 'tie-a', 'tie-b'])

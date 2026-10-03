@@ -1,4 +1,5 @@
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { readOutbound, resetOutboundForTest } from '@/adapters/notifications/outbound-mail'
 import { app } from '@/app'
 import {
   getLinksRepository,
@@ -152,5 +153,23 @@ describe('banimento', () => {
     expect(response.statusCode).toBe(404)
     expect(response.json()).toMatchObject({ code: 'not_found' })
     expect(repo().links[0]?.name).toBe('Receitas')
+  })
+
+  it('banimento avisa o e-mail da conta', async () => {
+    process.env.EMAIL_OUTBOX = '1'
+    resetOutboundForTest()
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/admin/users/ana/ban',
+      headers: { host: HOST, authorization: `Bearer ${token('admin', 'ADMIN')}` },
+      payload: { reason: 'golpe' },
+    })
+    expect(response.statusCode).toBe(200)
+    const sent = readOutbound('ana@example.com')
+    expect(sent.map((email) => email.kind)).toEqual(['ban'])
+    expect(sent[0]?.text).toContain('golpe')
+    expect(sent[0]?.html).toContain('#0a192f')
+    delete process.env.EMAIL_OUTBOX
+    resetOutboundForTest()
   })
 })

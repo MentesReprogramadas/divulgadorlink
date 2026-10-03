@@ -8,7 +8,7 @@ import { readAccessUser } from '@/http/middlewares/verify-jwt'
 import { resolveTenant } from '@/http/tenant'
 import { getAnalyticsRepository } from '@/repositories/analytics-repository'
 import { getLinksRepository } from '@/repositories/links-repository'
-import { analyticsDay, persistAnalyticsEvent, readAnalytics } from '@/use-cases/@Analytics/persist-event'
+import { persistAnalyticsEvent, readAnalytics } from '@/use-cases/@Analytics/persist-event'
 import { openPublicLink } from '@/use-cases/@Links/open-public-link'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
 
@@ -71,9 +71,6 @@ export async function viewerForLink(request: FastifyRequest, link: { ownerId: st
 
 async function postImpression(request: FastifyRequest, reply: FastifyReply) {
   const sessionId = analyticsSession(request, reply)
-  if (limited(sessionId)) {
-    return reply.status(429).send(buildError({ code: rate_limited, message: 'Muitas tentativas.', request_id: request.id }))
-  }
   const body = impressionBody.parse(request.body)
   let tenantId: string
   try {
@@ -91,6 +88,9 @@ async function postImpression(request: FastifyRequest, reply: FastifyReply) {
   const link = await getLinksRepository().findLinkById(body.linkId)
   if (!link || link.tenantId !== tenantId || !openPublicLink(link).visible) {
     return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
+  }
+  if (limited(sessionId)) {
+    return reply.status(429).send(buildError({ code: rate_limited, message: 'Muitas tentativas.', request_id: request.id }))
   }
   const result = await persistAnalyticsEvent({
     viewer: await viewerForLink(request, link),
@@ -151,12 +151,11 @@ async function getLinkStats(request: FastifyRequest, reply: FastifyReply) {
     return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
   }
   const query = statsQuery.parse(request.query)
-  const today = analyticsDay(new Date())
   const stats = await readAnalytics({
     tenantId,
     linkId: link.id,
-    from: query.from ?? today,
-    to: query.to ?? today,
+    from: query.from,
+    to: query.to,
     repository: getAnalyticsRepository(),
   })
   return reply.status(200).send({

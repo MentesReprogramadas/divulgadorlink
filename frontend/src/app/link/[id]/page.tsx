@@ -2,12 +2,20 @@ import { headers } from 'next/headers'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { Impression } from '@/components/domain/impression'
+import { trackedGoPath } from '@/domain/tracked-go'
 import { tenantHost, forward } from '@/lib/upstream'
+import { DetailContext } from './detail-context'
+import { LinkMeta } from '@/components/domain/link-meta'
+import { AgeWall } from '@/components/domain/age-gate'
+
+type FacetRef = { name?: string; slug?: string; requiresAge?: boolean }
 
 type PublicLink = {
   available: boolean
   name?: string
   description?: string
+  network?: FacetRef
+  niche?: FacetRef
   surfaceToken?: string
   goPath?: string
   seo?: {
@@ -18,6 +26,27 @@ type PublicLink = {
     openGraph?: { title: string; description: string; url: string }
     structuredData?: Record<string, string>
   }
+}
+
+type ContextTarget = { href: string; name: string; home: boolean }
+
+function facetTarget(facet: FacetRef | undefined, prefix: '/nicho' | '/rede'): ContextTarget | null {
+  const name = facet?.name?.trim() ?? ''
+  const slug = facet?.slug?.trim() ?? ''
+  if (!name || !slug) return null
+  return { href: `${prefix}/${encodeURIComponent(slug)}`, name, home: false }
+}
+
+function contextOf(link: PublicLink): ContextTarget {
+  return facetTarget(link.niche, '/nicho')
+    ?? facetTarget(link.network, '/rede')
+    ?? { href: '/', name: 'Início', home: true }
+}
+
+function usableDescription(name: string, description: string | undefined): string | null {
+  const text = description?.trim() ?? ''
+  if (!text || text === name.trim()) return null
+  return text
 }
 
 async function loadLink(id: string): Promise<{ status: number; link: PublicLink | null }> {
@@ -37,6 +66,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (loaded.status === 404 || !loaded.link) notFound()
   const seo = loaded.link.seo
   if (!seo) return {}
+  if (loaded.link.niche?.requiresAge) {
+    return { title: 'Conteúdo para maiores de 18', robots: { index: false, follow: false } }
+  }
   return {
     title: seo.title,
     description: seo.description,
@@ -58,18 +90,31 @@ export default async function Page({
   const loaded = await loadLink(id)
   if (loaded.status === 404 || !loaded.link) notFound()
   const link = loaded.link
-  if (!link.available) return <main><h1>Link indisponível</h1></main>
+  if (!link.available) {
+    return (
+      <main className="detail-page">
+        <DetailContext href="/" name="Início" home />
+        <h1 className="entry-title">Link indisponível</h1>
+      </main>
+    )
+  }
   const token = query.surfaceToken || link.surfaceToken || ''
-  const href = link.goPath ?? `/go/${id}?surfaceToken=${encodeURIComponent(token)}`
+  const href = trackedGoPath(id, query.surfaceToken, link.surfaceToken)
+  const context = contextOf(link)
+  const description = usableDescription(link.name ?? '', link.description)
   return (
-    <main>
-      {link.seo?.structuredData ? (
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(link.seo.structuredData) }} />
-      ) : null}
-      <h1>{link.name}</h1>
-      <p>{link.description}</p>
-      <Impression linkId={id} surfaceToken={token} />
-      <a href={href}>Acessar</a>
+    <main className="detail-page">
+      <AgeWall required={link.niche?.requiresAge === true}>
+        {link.seo?.structuredData ? (
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(link.seo.structuredData) }} />
+        ) : null}
+        <DetailContext href={context.href} name={context.name} home={context.home} />
+        <h1 className="entry-title">{link.name}</h1>
+        {description ? <p className="detail-description">{description}</p> : null}
+        <LinkMeta niche={link.niche} network={link.network} />
+        <Impression linkId={id} surfaceToken={token} />
+        <a className="detail-access" href={href}>Acessar</a>
+      </AgeWall>
     </main>
   )
 }

@@ -10,6 +10,7 @@ import {
   setSearchCandidatesForTest,
 } from '@/http/controllers/@Search/routes'
 import { resetConfigsRepositoryForTest } from '@/repositories/configs-repository'
+import { getLinksRepository, InMemoryLinksRepository } from '@/repositories/links-repository'
 import { DeterministicTestEmbeddingService } from '@/test-support/deterministic-test-embedding'
 
 let embedding: DeterministicTestEmbeddingService
@@ -72,6 +73,7 @@ describe('GET /api/v1/search', () => {
     const body = response.json()
     expect(body.sponsored.map((row: { id: string }) => row.id)).toEqual(['pago'])
     expect(body.organic.map((row: { id: string }) => row.id)).toEqual(['sem-vetor'])
+    expect(body.ageRequired).toBe(true)
     expect(body.organic[0]).toMatchObject({ embeddingState: 'ABSENT', semanticScore: null })
     expect(body.sponsored[0].relevanceScore).toBeGreaterThan(body.organic[0].relevanceScore)
     expect(JSON.stringify(body)).not.toContain('adulto')
@@ -117,7 +119,64 @@ describe('GET /api/v1/search', () => {
     const response = await app.inject({ method: 'GET', url: '/api/v1/search?q=Jogos', headers: { host: 'temlinkaqui.com' } })
 
     expect(response.statusCode).toBe(200)
-    expect(response.json()).toEqual({ target: { kind: 'niche', slug: 'jogos' }, threshold: 0.35, sponsored: [], organic: [] })
+    expect(response.json()).toEqual({
+      target: { kind: 'niche', slug: 'jogos', name: 'Jogos' },
+      threshold: 0.35,
+      showImpressions: true,
+      sponsored: [],
+      organic: [],
+    })
+    expect(embedding.calls).toEqual([])
+  })
+
+  it('palavra a mais mantém a rede e ainda busca', async () => {
+    const response = await app.inject({ method: 'GET', url: '/api/v1/search?q=grupo%20telegram', headers: { host: 'temlinkaqui.com' } })
+
+    expect(response.statusCode).toBe(200)
+    expect(response.json().target).toEqual({ kind: 'network', slug: 'telegram', name: 'Telegram' })
+    expect(response.json().organic.map((row: { id: string }) => row.id)).toEqual(['sem-vetor'])
+    expect(embedding.calls).toEqual(['grupo telegram'])
+  })
+
+  it('prefixo único de uma rede acompanha a busca', async () => {
+    const response = await app.inject({ method: 'GET', url: '/api/v1/search?q=tele', headers: { host: 'temlinkaqui.com' } })
+
+    expect(response.statusCode).toBe(200)
+    expect(response.json().target).toEqual({ kind: 'network', slug: 'telegram', name: 'Telegram' })
+    expect(embedding.calls).toEqual(['tele'])
+  })
+
+  it('nicho dentro de uma frase não apaga os resultados', async () => {
+    const response = await app.inject({ method: 'GET', url: '/api/v1/search?q=jogos%20de%20tabuleiro', headers: { host: 'temlinkaqui.com' } })
+
+    expect(response.statusCode).toBe(200)
+    expect(response.json().target).toEqual({ kind: 'niche', slug: 'jogos', name: 'Jogos' })
+    expect(response.json().sponsored.map((row: { id: string }) => row.id)).toEqual(['pago'])
+    expect(embedding.calls).toEqual(['jogos de tabuleiro'])
+  })
+
+  it('consulta igual a rede pública devolve o nome da rede e não chama embedding', async () => {
+    const response = await app.inject({ method: 'GET', url: '/api/v1/search?q=Telegram', headers: { host: 'temlinkaqui.com' } })
+
+    expect(response.statusCode).toBe(200)
+    expect(response.json()).toEqual({
+      target: { kind: 'network', slug: 'telegram', name: 'Telegram' },
+      threshold: 0.35,
+      showImpressions: true,
+      sponsored: [],
+      organic: [],
+    })
+    expect(embedding.calls).toEqual([])
+  })
+
+  it('rede que não é faceta pública continua sendo busca, não destino', async () => {
+    const repo = getLinksRepository()
+    expect(repo).toBeInstanceOf(InMemoryLinksRepository)
+    const outro = (repo as InMemoryLinksRepository).networks.find((row) => row.slug === 'outro')
+    expect(outro?.isPublicFacet).toBe(false)
+    const response = await app.inject({ method: 'GET', url: '/api/v1/search?q=Outro', headers: { host: 'temlinkaqui.com' } })
+    expect(response.statusCode).toBe(200)
+    expect(response.json().target).toEqual({ kind: 'results', slug: null, name: null })
   })
 
   it('sem elegíveis devolve a estrutura vazia', async () => {
@@ -128,7 +187,7 @@ describe('GET /api/v1/search', () => {
     const response = await app.inject({ method: 'GET', url: '/api/v1/search?q=nada', headers: { host: 'temlinkaqui.com' } })
 
     expect(response.statusCode).toBe(200)
-    expect(response.json()).toEqual({ target: { kind: 'results', slug: null }, threshold: 0.35, sponsored: [], organic: [] })
+    expect(response.json()).toEqual({ target: { kind: 'results', slug: null, name: null }, threshold: 0.35, showImpressions: true, sponsored: [], organic: [] })
   })
 
   it('adulto só aparece com a idade confirmada na sessão', async () => {
@@ -201,6 +260,8 @@ describe('GET /api/v1/search', () => {
     const source = readFileSync(path.join(__dirname, 'routes.ts'), 'utf8')
     const searchPath = source.slice(source.indexOf('async function loadCandidates'), source.indexOf('export async function getSuggest'))
     expect(searchPath).not.toContain('NODE_ENV')
+    expect(searchPath).not.toContain('listNiches(')
+    expect(searchPath).not.toContain('listNetworks(')
     expect(source.slice(source.indexOf('export function productionSearchComposition'), source.indexOf('let composition'))).not.toMatch(/NODE_ENV|process\.env/)
   })
 

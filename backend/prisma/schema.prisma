@@ -17,6 +17,7 @@ model Tenant {
   networks        Network[]
   niches          Niche[]
   promotionPrices PromotionPrice[]
+  promotionOffers PromotionOffer[]
   configs         Config[]
   auditLogs       AuditLog[]
   links           Link[]
@@ -118,6 +119,21 @@ model PromotionPrice {
   @@map("promotion_prices")
 }
 
+model PromotionOffer {
+  id          String               @id @default(cuid())
+  tenantId    String
+  tenant      Tenant               @relation(fields: [tenantId], references: [id])
+  productCode PromotionProductCode
+  name        String
+  sortOrder   Int
+  featured    Boolean              @default(false)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  @@unique([tenantId, productCode])
+  @@index([tenantId, sortOrder])
+  @@map("promotion_offers")
+}
+
 model Config {
   id        String   @id @default(cuid())
   tenantId  String
@@ -139,6 +155,7 @@ model Network {
   slug          String
   knownHosts    String[]
   isPublicFacet Boolean  @default(true)
+  requiresAge   Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   links         Link[]

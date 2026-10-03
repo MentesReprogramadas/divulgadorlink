@@ -22,14 +22,16 @@ export class ProviderSelectionRequiredError extends Error {
   }
 }
 
-export type DeliveryFailureReason = 'provider_selection_required' | 'timeout' | 'provider_error'
+export type DeliveryFailureReason = 'provider_selection_required' | 'timeout' | 'provider_error' | 'sender_rejected'
 
 export class DeliveryUnavailableError extends Error {
   constructor(
     readonly channel: ConfirmationChannel,
     readonly reason: DeliveryFailureReason,
   ) {
-    super('Envio de código indisponível.')
+    super(reason === 'sender_rejected'
+      ? 'O remetente do e-mail não foi aceito. Use um domínio verificado, no formato Nome <email@dominio.com>.'
+      : 'Envio de código indisponível.')
   }
 }
 

@@ -5,6 +5,7 @@ import { buildError, business_rule, forbidden, not_found } from '@/http/errors'
 import { verifyJWT } from '@/http/middlewares/verify-jwt'
 import { resolveTenant } from '@/http/tenant'
 import { getLinksRepository } from '@/repositories/links-repository'
+import { notifyBan } from '@/adapters/notifications/outbound-mail'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
 
 const banBodySchema = z.object({ reason: z.string().optional() }).strict()
@@ -39,6 +40,9 @@ export async function postBanAccount(request: FastifyRequest, reply: FastifyRepl
     if (role !== 'ADMIN') {
       return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
     }
+    if (userId === request.user.sub || user.role === 'ADMIN') {
+      return reply.status(403).send(buildError({ code: forbidden, message: 'Não é possível suspender esta conta.', request_id: request.id }))
+    }
 
     if (!authorize({
       actorId: request.user.sub,
@@ -61,6 +65,8 @@ export async function postBanAccount(request: FastifyRequest, reply: FastifyRepl
     if (!result) {
       return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
     }
+    const email = user.identifiers.find((row) => row.kind === 'EMAIL' && row.replacedAt === null)?.normalizedValue ?? null
+    await notifyBan({ to: email, name: tenant.name, host: tenant.host, reason: parsed.data.reason })
     return reply.status(200).send({ userStatus: result.userStatus, refunds: result.refunds })
   } catch (error) {
     if (error instanceof ResourceNotFoundError) {

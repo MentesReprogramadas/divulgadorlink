@@ -128,7 +128,8 @@ app.setErrorHandler((error, request, reply) => {
   }
 
   if (env.NODE_ENV !== 'production') {
-    console.error(error)
+    const detail = error instanceof Error ? error.stack ?? error.message : String(error)
+    logDomainEvent('http.error', { request_id: request.id, error: detail, status: 500 })
     return reply.status(500).send({ message: 'Internal server error' })
   }
 

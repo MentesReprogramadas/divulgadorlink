@@ -1,12 +1,13 @@
 import type { PrismaClient } from '@prisma/client'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
-import { readConfig, type ConfigKey } from '@/domain/config/read-config'
+import { impressionsEnabled, readConfig, type ConfigKey } from '@/domain/config/read-config'
 import { OpenAiEmbeddingService } from '@/adapters/embeddings/openai-embedding-service'
 import { env } from '@/env'
 import { signSurface } from '@/domain/analytics/surface-token'
 import { buildError, provider_error } from '@/http/errors'
 import { resolveTenant } from '@/http/tenant'
 import { prisma } from '@/lib/prisma'
+import { getAnalyticsRepository } from '@/repositories/analytics-repository'
 import { getConfigsRepository } from '@/repositories/configs-repository'
 import { getLinksRepository } from '@/repositories/links-repository'
 import type { EmbeddingService } from '@/domain/embeddings/embedding-service'
@@ -16,6 +17,7 @@ import {
   rankSearch,
   relevanceScore,
   resolveSearchTarget,
+  searchFacetProbe,
   visibleForAge,
 } from '@/use-cases/@Search/rank-links'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
@@ -30,6 +32,10 @@ export type SearchCandidate = {
   embeddingState: 'ABSENT' | 'PENDING' | 'READY' | 'FAILED'
   searchActivatedAt: Date | null
   requiresAge: boolean
+  nicheName?: string | null
+  nicheSlug?: string | null
+  networkName?: string | null
+  networkSlug?: string | null
 }
 
 export type CandidateQuery = {
@@ -59,6 +65,11 @@ export function sqlCandidateSource(client: PrismaClient): CandidateSource {
       semantic_score: number | null
       embeddingState: SearchCandidate['embeddingState']
       search_activated_at: Date | null
+      requires_age: boolean
+      niche_name: string | null
+      niche_slug: string | null
+      network_name: string | null
+      network_slug: string | null
     }>>(
       hybridSearchSql(),
       input.query,
@@ -77,7 +88,11 @@ export function sqlCandidateSource(client: PrismaClient): CandidateSource {
       semanticScore: row.semantic_score === null ? null : Number(row.semantic_score),
       embeddingState: row.embeddingState,
       searchActivatedAt: row.search_activated_at,
-      requiresAge: false,
+      requiresAge: row.requires_age === true,
+      nicheName: row.niche_name,
+      nicheSlug: row.niche_slug,
+      networkName: row.network_name,
+      networkSlug: row.network_slug,
     }))
   }
 }
@@ -115,6 +130,11 @@ function ageFromCookie(request: FastifyRequest): 'yes' | 'no' | 'unknown' {
   return 'unknown'
 }
 
+async function publicImpressions(tenantId: string): Promise<boolean> {
+  const row = await getConfigsRepository().findByTenantAndKey(tenantId, 'SHOW_IMPRESSIONS')
+  return impressionsEnabled(row?.value)
+}
+
 async function configRows(tenantId: string): Promise<Partial<Record<ConfigKey, string>>> {
   const repo = getConfigsRepository()
   const keys: ConfigKey[] = ['SEARCH_RELEVANCE_THRESHOLD', 'SEARCH_TEXT_WEIGHT', 'SEARCH_SEMANTIC_WEIGHT']
@@ -137,7 +157,15 @@ function toDto(tenantId: string, row: SearchCandidate, threshold: number) {
     relevanceScore: row.relevance,
     embeddingState: row.embeddingState,
     threshold,
+    niche: row.nicheName ? { name: row.nicheName, slug: row.nicheSlug ?? '' } : null,
+    network: row.networkName ? { name: row.networkName, slug: row.networkSlug ?? '' } : null,
+    sponsored: Boolean(row.searchActivatedAt),
   }
+}
+
+async function withImpressions<T extends { id: string }>(tenantId: string, rows: T[]) {
+  const counts = await getAnalyticsRepository().impressionTotals(tenantId, rows.map((row) => row.id))
+  return rows.map((row) => ({ ...row, impressions: counts.get(row.id) ?? 0 }))
 }
 
 async function loadCandidates(
@@ -161,19 +189,28 @@ export async function getSearch(request: FastifyRequest, reply: FastifyReply) {
     const threshold = readConfig(rows, 'SEARCH_RELEVANCE_THRESHOLD')
     const textWeight = readConfig(rows, 'SEARCH_TEXT_WEIGHT')
     const semanticWeight = readConfig(rows, 'SEARCH_SEMANTIC_WEIGHT')
-    const niches = await getLinksRepository().listNiches(tenant.id)
-    const target = resolveSearchTarget(
+    const repo = getLinksRepository()
+    const probe = searchFacetProbe(query)
+    const { niches, networks } = await repo.findSearchFacetCandidates(tenant.id, probe)
+    const resolved = resolveSearchTarget(
       query,
-      niches.filter((niche) => niche.isPublicFacet).map((niche) => ({ slug: niche.slug, name: niche.name })),
-      [],
+      niches.map((niche) => ({ slug: niche.slug, name: niche.name })),
+      networks.map((network) => ({ slug: network.slug, name: network.name })),
     )
+    const target = { kind: resolved.kind, slug: resolved.slug, name: resolved.name }
     const age = ageFromCookie(request)
     const matched = niches.find((niche) => niche.slug === target.slug)
-    if (target.kind !== 'results') {
-      if (matched?.requiresAge && age !== 'yes') {
-        return reply.status(200).send({ target, threshold, sponsored: [], organic: [] })
-      }
-      return reply.status(200).send({ target, threshold, sponsored: [], organic: [] })
+    const nicheNeedsAge = Boolean(matched?.requiresAge && age === 'unknown')
+    const showImpressions = await publicImpressions(tenant.id)
+    if (resolved.exclusive) {
+      return reply.status(200).send({
+        target,
+        threshold,
+        showImpressions,
+        sponsored: [],
+        organic: [],
+        ...(nicheNeedsAge ? { ageRequired: true } : {}),
+      })
     }
 
     let candidates: SearchCandidate[]
@@ -190,11 +227,15 @@ export async function getSearch(request: FastifyRequest, reply: FastifyReply) {
     candidates.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
     const visible = visibleForAge(candidates, age)
     const ranked = rankSearch(visible, threshold)
+    const withheld = rankSearch(candidates, threshold)
+    const hidden = withheld.sponsored.length + withheld.organic.length - ranked.sponsored.length - ranked.organic.length
     return reply.status(200).send({
       target,
       threshold,
-      sponsored: ranked.sponsored.map((row) => toDto(tenant.id, row, threshold)),
-      organic: ranked.organic.map((row) => toDto(tenant.id, row, threshold)),
+      showImpressions,
+      ...(age === 'unknown' && (hidden > 0 || nicheNeedsAge) ? { ageRequired: true } : {}),
+      sponsored: await withImpressions(tenant.id, ranked.sponsored.map((row) => toDto(tenant.id, row, threshold))),
+      organic: await withImpressions(tenant.id, ranked.organic.map((row) => toDto(tenant.id, row, threshold))),
     })
   } catch (error) {
     if (error instanceof ResourceNotFoundError) {
@@ -223,9 +264,19 @@ export async function getSuggest(request: FastifyRequest, reply: FastifyReply) {
     : await prisma.$queryRawUnsafe<SearchCandidate[]>(
       `
         SELECT l."id", l."name", l."description", 1 AS relevance, 1 AS "textScore", NULL AS "semanticScore",
-          l."embeddingState", NULL::timestamp AS "searchActivatedAt", n."requiresAge"
+          l."embeddingState",
+          (
+            SELECT p."activatedAt" FROM "promotions" p
+            WHERE p."linkId" = l."id" AND p."status" = 'ACTIVE' AND p."surface" = 'SEARCH'
+            ORDER BY p."activatedAt" ASC
+            LIMIT 1
+          ) AS "searchActivatedAt",
+          n."requiresAge",
+          n."name" AS "nicheName", n."slug" AS "nicheSlug",
+          net."name" AS "networkName", net."slug" AS "networkSlug"
         FROM "links" l
         JOIN "niches" n ON n."id" = l."nicheId"
+        JOIN "networks" net ON net."id" = l."networkId"
         WHERE l."tenantId" = $1 AND l."status" = 'PUBLISHED'
           AND ($2::text = 'yes' OR n."requiresAge" = false)
           AND l."name" ILIKE '%' || $3 || '%'
@@ -237,14 +288,32 @@ export async function getSuggest(request: FastifyRequest, reply: FastifyReply) {
     )
   const visible = visibleForAge(source, age)
   const ids = autocompleteIds(visible, threshold, 8)
+  const facets = process.env.NODE_ENV === 'test'
+    ? { niches: [] as Array<{ slug: string; name: string }>, networks: [] as Array<{ slug: string; name: string }> }
+    : await getLinksRepository().findSearchFacetCandidates(tenant.id, searchFacetProbe(query))
+  const resolved = resolveSearchTarget(
+    query,
+    facets.niches.map((niche) => ({ slug: niche.slug, name: niche.name })),
+    facets.networks.map((network) => ({ slug: network.slug, name: network.name })),
+  )
+  const facet = resolved.kind === 'results' || !resolved.slug
+    ? null
+    : { kind: resolved.kind, slug: resolved.slug, name: resolved.name }
+  const counts = await getAnalyticsRepository().impressionTotals(tenant.id, ids)
   return reply.status(200).send({
+    showImpressions: await publicImpressions(tenant.id),
     ids,
+    facet,
     items: ids.map((id) => {
       const row = visible.find((item) => item.id === id)
       return {
         id,
         name: row?.name ?? '',
         surfaceToken: signSurface(tenant.id, id, 'search', env.JWT_SECRET),
+        impressions: counts.get(id) ?? 0,
+        niche: row?.nicheName ? { name: row.nicheName, slug: row.nicheSlug ?? '' } : null,
+        network: row?.networkName ? { name: row.networkName, slug: row.networkSlug ?? '' } : null,
+        sponsored: Boolean(row?.searchActivatedAt),
       }
     }),
   })

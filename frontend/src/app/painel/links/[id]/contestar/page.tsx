@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { TextArea } from '@/components/ui/input'
+import { Field, TextArea } from '@/components/ui/input'
 import { api } from '@/lib/api'
 
 export default function Page() {
@@ -21,14 +21,14 @@ export default function Page() {
   }
 
   return (
-    <main>
-      <h1>Contestar</h1>
+    <>
+      <h2 className="panel-section-title">Contestar</h2>
       {done ? <p>Em revisão</p> : (
-        <form onSubmit={onSubmit}>
-          <label>Explique o que aconteceu<TextArea name="text" required /></label>
+        <form className="auth-form" onSubmit={onSubmit}>
+          <Field label="Explique o que aconteceu"><TextArea name="text" required /></Field>
           <Button type="submit">Enviar contestação</Button>
         </form>
       )}
-    </main>
+    </>
   )
 }

@@ -87,6 +87,9 @@ export class UpdateAdminConfigUseCase {
     if (input.value.length === 0) {
       throw new InvalidConfigValueError()
     }
+    if (input.key === 'SHOW_IMPRESSIONS' && input.value !== '0' && input.value !== '1') {
+      throw new InvalidConfigValueError()
+    }
 
     try {
       readConfig({ [input.key]: input.value }, input.key)

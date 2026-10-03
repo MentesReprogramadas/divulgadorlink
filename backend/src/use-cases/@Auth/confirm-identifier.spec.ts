@@ -3,9 +3,11 @@ import {
   assertGuessAllowed,
   assertResendAllowed,
   canSubmitLink,
+  confirmIntent,
   ConfirmIdentifierUseCase,
   countResends,
   IdentifierChangeForbiddenError,
+  resendRetryAfter,
   type ConfirmCodesRepository,
   type StoredCode,
   type StoredIdentifier,
@@ -17,6 +19,18 @@ import {
 import { UserAlreadyExistsError } from '@/use-cases/errors/user-already-exists-error'
 import { InvalidVerificationCodeError } from '@/use-cases/errors/invalid-verification-code-error'
 import { RateLimitError } from '@/use-cases/errors/rate-limit-error'
+
+describe('pedido de confirmação', () => {
+  it('sem código pede o envio', () => {
+    expect(confirmIntent({})).toEqual({ resend: true })
+    expect(confirmIntent({ code: '  ' })).toEqual({ resend: true })
+    expect(confirmIntent({ resend: true, code: '123456' })).toEqual({ resend: true })
+  })
+
+  it('com código confirma esse código', () => {
+    expect(confirmIntent({ code: ' 123456 ' })).toEqual({ code: '123456' })
+  })
+})
 
 const now = new Date('2026-09-29T16:00:00.000Z')
 const inWindow = new Date('2026-09-29T15:30:00.000Z')
@@ -65,6 +79,13 @@ class InMemoryConfirmCodesRepository implements ConfirmCodesRepository {
         code.isResend &&
         code.createdAt >= since,
     ).length
+  }
+
+  async latestCodeAt(userIdentifierId: string) {
+    const latest = this.codes
+      .filter((code) => code.userIdentifierId === userIdentifierId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0]
+    return latest?.createdAt ?? null
   }
 
   async createCode(data: Omit<StoredCode, 'id' | 'attempts'> & { attempts?: number }) {
@@ -151,15 +172,16 @@ type Delivered = { channel: 'EMAIL' | 'PHONE'; destination: string; code: string
 
 function useCase(repo: InMemoryConfirmCodesRepository, deliver?: ConfirmationDelivery) {
   const sent: Delivered[] = []
+  const clock = { time: now }
   const fallback: ConfirmationDelivery = async (channel, message) => {
     sent.push({ channel, destination: message.destination, code: message.code })
   }
   return Object.assign(new ConfirmIdentifierUseCase(repo, {
-    now: () => now,
+    now: () => clock.time,
     hashPlain: async (plain) => `hash:${plain}`,
     compareHash: async (plain, hashed) => hashed === `hash:${plain}`,
     generatePlain: () => '123456',
-  }, deliver ?? fallback), { sent })
+  }, deliver ?? fallback), { sent, clock })
 }
 
 function liveCode(
@@ -177,13 +199,16 @@ function liveCode(
 }
 
 describe('confirmação', () => {
-  it('bloqueia envio sem os dois identificadores confirmados', () => {
+  it('libera o envio com o e-mail confirmado', () => {
     expect(canSubmitLink({
       emailConfirmed: true, phoneConfirmed: false, status: 'ACTIVE',
-    })).toBe(false)
+    })).toBe(true)
     expect(canSubmitLink({
       emailConfirmed: true, phoneConfirmed: true, status: 'ACTIVE',
     })).toBe(true)
+    expect(canSubmitLink({
+      emailConfirmed: false, phoneConfirmed: true, status: 'ACTIVE',
+    })).toBe(false)
   })
 
   it('bloqueia conta banida', () => {
@@ -195,6 +220,12 @@ describe('confirmação', () => {
   it('para no sexto reenvio da janela', () => {
     expect(() => assertResendAllowed(5)).toThrow(/limite/)
     expect(assertResendAllowed(4)).toBe(true)
+  })
+
+  it('calcula os segundos que faltam para reenviar', () => {
+    expect(resendRetryAfter(null, now)).toBe(0)
+    expect(resendRetryAfter(new Date(now.getTime() - 61_000), now)).toBe(0)
+    expect(resendRetryAfter(new Date(now.getTime() - 20_000), now)).toBe(40)
   })
 
   it('para no sexto chute da janela', () => {
@@ -305,7 +336,7 @@ describe('ConfirmIdentifierUseCase', () => {
       userId: 'user-1', tenantId: 'tenant', kind: 'PHONE', raw: '+55 (11) 98888-7777',
     })
     expect(changed.phoneConfirmed).toBe(false)
-    expect(changed.canSubmitLink).toBe(false)
+    expect(changed.canSubmitLink).toBe(true)
     expect(repo.identifiers.find((row) => row.id === 'id-phone')?.replacedAt).toEqual(now)
     const confirmed = await useCase(repo).execute({ userId: 'user-1', kind: 'PHONE', code: '123456' })
     expect(confirmed.phoneConfirmed).toBe(true)
@@ -318,9 +349,22 @@ describe('ConfirmIdentifierUseCase', () => {
     await confirm.beginChange({ userId: 'user-1', tenantId: 'tenant', kind: 'EMAIL', raw: ' Novo@Exemplo.com ' })
     expect(confirm.sent).toEqual([{ channel: 'EMAIL', destination: 'novo@exemplo.com', code: '123456' }])
 
+    confirm.clock.time = new Date(now.getTime() + 61_000)
     await confirm.execute({ userId: 'user-1', kind: 'EMAIL', resend: true })
     expect(confirm.sent).toHaveLength(2)
     expect(confirm.sent[1]).toEqual({ channel: 'EMAIL', destination: 'novo@exemplo.com', code: '123456' })
+  })
+
+  it('recusa reenvio dentro de 60 segundos e devolve o tempo restante', async () => {
+    const repo = emailFixture()
+    const confirm = useCase(repo)
+    await confirm.execute({ userId: 'user-1', kind: 'EMAIL', resend: true })
+    confirm.clock.time = new Date(now.getTime() + 20_000)
+    await expect(confirm.execute({ userId: 'user-1', kind: 'EMAIL', resend: true })).rejects.toMatchObject({
+      message: 'Aguarde para reenviar o código.',
+      retryAfter: 40,
+    })
+    expect(repo.codes).toHaveLength(1)
   })
 
   it('falha de entrega não grava código nem consome o limite de reenvio', async () => {
