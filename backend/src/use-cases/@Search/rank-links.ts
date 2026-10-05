@@ -159,7 +159,7 @@ export function hybridSearchSql(): string {
     JOIN "networks" net ON net."id" = l."networkId"
     WHERE l."tenantId" = $3
       AND ${PUBLIC_LINK_FILTER}
-      AND ($4::text = 'yes' OR $4::text = 'no' OR $4::text = 'unknown')
+      AND ($4::text <> 'no' OR NOT (n."requiresAge" OR net."requiresAge"))
       AND (
         $5 * ts_rank(to_tsvector('simple', l."name" || ' ' || l."description"), plainto_tsquery('simple', $1))
         + $6 * COALESCE(1 - (l."embedding" <=> (SELECT v FROM query_embedding)), 0)

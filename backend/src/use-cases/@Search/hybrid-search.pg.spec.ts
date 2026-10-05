@@ -76,7 +76,15 @@ function ranked(rows: Row[], threshold: number) {
 }
 
 function byId(rows: Row[]): Row[] {
-  return [...rows].sort((a, b) => a.id.localeCompare(b.id))
+  return [...rows].map((row) => ({
+    id: row.id,
+    name: row.name,
+    description: row.description,
+    text_score: row.text_score,
+    semantic_score: row.semantic_score,
+    embeddingState: row.embeddingState,
+    search_activated_at: row.search_activated_at,
+  })).sort((a, b) => a.id.localeCompare(b.id))
 }
 
 function median(values: number[]): number {

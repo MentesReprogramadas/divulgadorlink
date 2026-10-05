@@ -167,7 +167,7 @@ describe('checkout no PostgreSQL', () => {
     await db.$disconnect()
   })
 
-  it('aplica as 12 migrations', async () => {
+  it('aplica as 14 migrations', async () => {
     const migrations = await db.$queryRaw<Array<{ migration_name: string }>>`
       SELECT migration_name FROM _prisma_migrations WHERE finished_at IS NOT NULL
     `
