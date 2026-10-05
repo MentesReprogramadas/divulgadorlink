@@ -6,6 +6,10 @@ import {
   resetLinksRepositoryForTest,
 } from '@/repositories/links-repository'
 import { business_rule } from '@/http/errors'
+import {
+  getModerationCasesRepository,
+  resetModerationCasesRepositoryForTest,
+} from '@/repositories/moderation-cases-repository'
 
 const HOST = 'temlinkaqui.com'
 const TENANT_ID = 'seed-temlinkaqui'
@@ -51,6 +55,7 @@ describe('POST /api/v1/links', () => {
 
   beforeEach(() => {
     resetLinksRepositoryForTest()
+    resetModerationCasesRepositoryForTest()
     const confirmedAt = new Date('2026-09-01T00:00:00Z')
     repo().addUser({
       id: VERIFIED_ID,
@@ -90,6 +95,11 @@ describe('POST /api/v1/links', () => {
       canonicalUrl: 'https://t.me/livre',
       status: 'PENDING_MODERATION',
       otherNote: 'nota do admin',
+    })
+    expect(await getModerationCasesRepository().findOpenByLinkId(String(body.id))).toMatchObject({
+      tenantId: TENANT_ID,
+      closed: false,
+      source: 'SUBMISSION',
     })
   })
 
@@ -165,6 +175,7 @@ describe('POST /api/v1/links', () => {
     expect(response.body).not.toMatch(/phone|telefone|email|url/i)
     expect(repo().links).toHaveLength(1)
     expect(repo().links[0]?.status).toBe('PRE_REJECTED')
+    expect(await getModerationCasesRepository().findOpenByLinkId(repo().links[0]!.id)).toBeNull()
   })
 
   it('tenantId no body retorna 400', async () => {

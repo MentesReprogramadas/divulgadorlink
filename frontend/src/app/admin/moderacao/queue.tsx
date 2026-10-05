@@ -34,6 +34,7 @@ const SOURCE: Record<string, string> = {
   BLOCKLIST: 'Lista de bloqueio',
   PRE_REFUSAL: 'Pré-recusa',
   APPEAL: 'Contestação',
+  SUBMISSION: 'Envio',
 }
 
 let caseCache: CaseRow[] | null = null

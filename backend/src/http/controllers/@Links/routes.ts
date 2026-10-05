@@ -27,6 +27,7 @@ import { decideSubmission } from '@/use-cases/@Links/submit-link'
 import { getAuditLogsRepository } from '@/repositories/audit-logs-repository'
 import { preRefuse } from '@/use-cases/@Moderation/pre-refuse'
 import { registerAppealRoute } from '@/http/controllers/@Admin/moderation'
+import { getModerationCasesRepository } from '@/repositories/moderation-cases-repository'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
 
 export const submitLinkBodySchema = z
@@ -251,6 +252,17 @@ async function createLink(request: FastifyRequest, reply: FastifyReply) {
     )
 
     const { runAi, occupiesSlot } = decision!
+    if (link.status === 'PENDING_MODERATION') {
+      await getModerationCasesRepository().ensureOpen({
+        tenantId: tenant.id,
+        linkId: link.id,
+        source: 'SUBMISSION',
+        wasEverPublished: false,
+        lastApprovedName: null,
+        lastApprovedDescription: null,
+        internalSignals: [],
+      })
+    }
     return reply.status(201).send({
       id: link.id,
       status: link.status,

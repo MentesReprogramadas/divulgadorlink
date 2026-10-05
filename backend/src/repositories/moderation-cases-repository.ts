@@ -1,8 +1,8 @@
 import { randomUUID } from 'node:crypto'
-import { PrismaClient } from '@prisma/client'
+import { Prisma, PrismaClient } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 
-export type ModerationSource = 'AI' | 'BLOCKLIST' | 'PRE_REFUSAL' | 'APPEAL'
+export type ModerationSource = 'AI' | 'BLOCKLIST' | 'PRE_REFUSAL' | 'APPEAL' | 'SUBMISSION'
 
 export type ModerationCaseRecord = {
   id: string
@@ -30,6 +30,7 @@ export interface ModerationCasesRepository {
   listOpen(tenantId: string): Promise<ModerationCaseRecord[]>
   listByLinkId(linkId: string): Promise<ModerationCaseRecord[]>
   create(data: NewModerationCaseData): Promise<ModerationCaseRecord>
+  ensureOpen(data: NewModerationCaseData): Promise<ModerationCaseRecord>
   saveAppeal(id: string, text: string): Promise<ModerationCaseRecord | null>
   close(id: string): Promise<ModerationCaseRecord | null>
 }
@@ -81,6 +82,12 @@ export class InMemoryModerationCasesRepository implements ModerationCasesReposit
     return this.addCase(data)
   }
 
+  async ensureOpen(data: NewModerationCaseData): Promise<ModerationCaseRecord> {
+    const existing = await this.findOpenByLinkId(data.linkId)
+    if (existing) return existing
+    return this.create(data)
+  }
+
   async saveAppeal(id: string, text: string): Promise<ModerationCaseRecord | null> {
     const row = this.cases.find((item) => item.id === id)
     if (!row || row.appealed) return null
@@ -120,16 +127,16 @@ type PrismaCaseRow = {
 }
 
 /**
- * Only appeal data is stored. Source, closure and last-approved data derive from
- * the link: a case is open while its link is PENDING_MODERATION, and internal
- * signals are never persisted.
+ * Only appeal data is stored. A case without appeal is an envio na fila.
+ * Closure and last-approved data derive from the link. Internal signals
+ * are never persisted.
  */
 function toCaseRecord(row: PrismaCaseRow): ModerationCaseRecord {
   return {
     id: row.id,
     tenantId: row.tenantId,
     linkId: row.linkId,
-    source: row.appealedAt ? 'APPEAL' : 'PRE_REFUSAL',
+    source: row.appealedAt ? 'APPEAL' : 'SUBMISSION',
     appealed: row.appealedAt !== null,
     appealText: row.appealText,
     wasEverPublished: row.link.everPublished,
@@ -188,6 +195,41 @@ export class PrismaModerationCasesRepository implements ModerationCasesRepositor
     return toCaseRecord(row)
   }
 
+  async ensureOpen(data: NewModerationCaseData): Promise<ModerationCaseRecord> {
+    const existing = await this.findOpenByLinkId(data.linkId)
+    if (existing) return existing
+    try {
+      return await this.create(data)
+    } catch (error) {
+      if (!isUniqueConflict(error)) throw error
+      const raced = await this.findOpenByLinkId(data.linkId)
+      if (raced) return raced
+      throw error
+    }
+  }
+
+  async openMissingPending(tenantId: string): Promise<void> {
+    const missing = await this.client.link.findMany({
+      where: {
+        tenantId,
+        status: 'PENDING_MODERATION',
+        moderationCases: { none: { closedAt: null } },
+      },
+      select: { id: true },
+    })
+    for (const link of missing) {
+      await this.ensureOpen({
+        tenantId,
+        linkId: link.id,
+        source: 'SUBMISSION',
+        wasEverPublished: false,
+        lastApprovedName: null,
+        lastApprovedDescription: null,
+        internalSignals: [],
+      })
+    }
+  }
+
   async saveAppeal(id: string, text: string): Promise<ModerationCaseRecord | null> {
     const result = await this.client.moderationCase.updateMany({
       where: { id, appealedAt: null },
@@ -204,6 +246,10 @@ export class PrismaModerationCasesRepository implements ModerationCasesRepositor
     })
     return this.findById(id)
   }
+}
+
+function isUniqueConflict(error: unknown): boolean {
+  return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002'
 }
 
 const moderationCasesRepository: ModerationCasesRepository =

@@ -17,6 +17,7 @@ import { getAuditLogsRepository } from '@/repositories/audit-logs-repository'
 import {
   getModerationCasesRepository,
   InMemoryModerationCasesRepository,
+  PrismaModerationCasesRepository,
 } from '@/repositories/moderation-cases-repository'
 import { getLinksRepository } from '@/repositories/links-repository'
 import { appeal } from '@/use-cases/@Moderation/appeal'
@@ -376,7 +377,11 @@ export async function getModerationQueue(request: FastifyRequest, reply: Fastify
       return reply.status(403).send(buildError({ code: forbidden, message: 'Acesso negado.', request_id: request.id }))
     }
     const linksRepo = getLinksRepository()
-    const cases = await getModerationCasesRepository().listOpen(tenant.id)
+    const casesRepo = getModerationCasesRepository()
+    if (casesRepo instanceof PrismaModerationCasesRepository) {
+      await casesRepo.openMissingPending(tenant.id)
+    }
+    const cases = await casesRepo.listOpen(tenant.id)
     const [links, niches, networks] = await Promise.all([
       Promise.all(cases.map((row) => linksRepo.findLinkById(row.linkId))),
       linksRepo.listNiches(tenant.id),
