@@ -119,9 +119,41 @@ jobs:
           value_of() {
             railway variable list --service "$1" --kv | sed -n "s/^$2=//p" | head -n 1
           }
+          pick_host() {
+            awk '
+              {
+                rest = $0
+                while (match(rest, /https:\/\/[A-Za-z0-9.-]+/)) {
+                  host = substr(rest, RSTART + 8, RLENGTH - 8)
+                  rest = substr(rest, RSTART + RLENGTH)
+                  if (host !~ /\.up\.railway\.app$/) custom = host
+                  else if (railway == "") railway = host
+                }
+              }
+              END { if (custom != "") print custom; else print railway }
+            '
+          }
           host_of() {
-            railway domain list --service "$1" --json 2>/dev/null \
-              | jq -r '[.. | strings | select(endswith(".up.railway.app"))][0] // empty' 2>/dev/null || true
+            railway domain list --service "$1" 2>&1 | pick_host || true
+          }
+          ensure_host() {
+            local service="$1" host
+            host="$(host_of "$service")"
+            if [ -z "$host" ]; then
+              host="$(railway domain --service "$service" 2>&1 | pick_host || true)"
+            fi
+            printf '%s' "$host"
+          }
+          redeploy_when_idle() {
+            local service="$1" attempt
+            for attempt in $(seq 1 15); do
+              if railway redeploy --service "$service" --yes; then
+                return 0
+              fi
+              echo "Redeploy de $service ocupado, tentativa $attempt."
+              sleep 20
+            done
+            return 1
           }
           if [ -z "$(value_of postgres POSTGRES_PASSWORD)" ]; then
             pw="$(openssl rand -hex 24)"
@@ -142,13 +174,13 @@ jobs:
             printf '%s' "$worker_jwt" | railway variable set JWT_SECRET --stdin --service api --skip-deploys
             changed_app=1
           fi
-          if [ -z "$(host_of web)" ]; then
-            railway domain --service web
+          web_host="$(ensure_host web)"
+          api_host="$(ensure_host api)"
+          echo "web=${web_host:-missing} api=${api_host:-missing}"
+          if [ -z "$web_host" ]; then
+            echo "O serviço web não tem domínio público."
+            exit 1
           fi
-          if [ -z "$(host_of api)" ]; then
-            railway domain --service api
-          fi
-          web_host="$(host_of web)"
           if [ -n "$web_host" ]; then
             url="https://${web_host}"
             for svc in api worker; do
@@ -159,9 +191,9 @@ jobs:
             done
           fi
           if [ "$changed_pg" = 1 ]; then
-            railway redeploy --service postgres --yes
+            redeploy_when_idle postgres
           fi
           if [ "$changed_app" = 1 ]; then
-            railway redeploy --service api --yes
-            railway redeploy --service worker --yes
+            redeploy_when_idle api
+            redeploy_when_idle worker
           fi

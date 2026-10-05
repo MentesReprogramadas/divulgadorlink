@@ -7,7 +7,7 @@ O arquivo `railway.ts` descreve o projeto. O Railway não lê esse arquivo no de
 1. Instale o Railway CLI 5.42.1 ou mais novo e autentique: `railway login`.
 2. Na raiz do repositório: `npm ci`, depois `railway link`.
 3. `railway config plan`. Se o plano criar o que está em `railway.ts`, rode `railway config apply`.
-4. O job `bootstrap` preenche, se ainda estiverem vazios: `POSTGRES_PASSWORD` hexadecimal no `postgres`, o mesmo `JWT_SECRET` na `api` e no `worker`, um domínio `*.up.railway.app` em `web` e em `api`, e `APP_PUBLIC_URL` com o `https://` do `web`. Trocar a senha do Postgres depois que o volume inicializou quebra o banco. Stripe, Woovi, OpenAI e Resend continuam vazios até você gravar no painel.
+4. O job `bootstrap` preenche, se ainda estiverem vazios: `POSTGRES_PASSWORD` hexadecimal no `postgres`, o mesmo `JWT_SECRET` na `api` e no `worker`, e `APP_PUBLIC_URL` com o `https://` do domínio que o `web` já tem. Sem domínio, ele gera um `*.up.railway.app`. Trocar a senha do Postgres depois que o volume inicializou quebra o banco. Stripe, Woovi, OpenAI e Resend continuam vazios até você gravar no painel.
 5. Crie um project token do ambiente e grave como secret `RAILWAY_TOKEN` no GitHub. Sem ele, o workflow de config falha.
 
 O deploy da aplicação em si não passa por esse workflow. Cada push em `main` dispara o Railway, e `checkSuites` segura o deploy até o workflow `ci` ficar verde.
