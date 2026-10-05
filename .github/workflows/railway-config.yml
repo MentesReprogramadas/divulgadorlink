@@ -144,16 +144,9 @@ jobs:
             fi
             printf '%s' "$host"
           }
-          redeploy_when_idle() {
-            local service="$1" attempt
-            for attempt in $(seq 1 15); do
-              if railway redeploy --service "$service" --yes; then
-                return 0
-              fi
-              echo "Redeploy de $service ocupado, tentativa $attempt."
-              sleep 20
-            done
-            return 1
+          deployment_status() {
+            railway deployment list --service "$1" --limit 1 --json \
+              | jq -r '.[0].status // "NONE"'
           }
           if [ -z "$(value_of postgres POSTGRES_PASSWORD)" ]; then
             pw="$(openssl rand -hex 24)"
@@ -190,10 +183,13 @@ jobs:
               fi
             done
           fi
-          if [ "$changed_pg" = 1 ]; then
-            redeploy_when_idle postgres
-          fi
-          if [ "$changed_app" = 1 ]; then
-            redeploy_when_idle api
-            redeploy_when_idle worker
+          echo "postgres=$(deployment_status postgres) api=$(deployment_status api) worker=$(deployment_status worker)"
+          # Sem --skip-deploys: enfileira um deploy novo. `redeploy` recusa
+          # enquanto o build anterior segue, e esse build pode ter nascido
+          # antes da senha e do JWT existirem.
+          printf '%s' "$url" | railway variable set APP_PUBLIC_URL --stdin --service api
+          printf '%s' "$url" | railway variable set APP_PUBLIC_URL --stdin --service worker
+          pg_status="$(deployment_status postgres)"
+          if [ "$changed_pg" = 1 ] || [ "$pg_status" = "FAILED" ] || [ "$pg_status" = "CRASHED" ] || [ "$pg_status" = "REMOVED" ]; then
+            railway redeploy --service postgres --yes || echo "Redeploy do postgres ficou para o deploy que a senha disparar."
           fi
