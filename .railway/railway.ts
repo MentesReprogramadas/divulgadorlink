@@ -68,11 +68,16 @@ export default defineRailway(() => {
     source: source("backend"),
     build: { ...dockerfile, watchPatterns: ["/backend/**"] },
     start: "node build/server.js",
-    preDeploy: "npx prisma migrate deploy",
+    preDeploy: "npx prisma migrate deploy && node prisma/bootstrap-tenant.mjs",
     healthcheck: "/api/v1/actuator/ready",
     healthcheckTimeout: 120,
     deploy: { restartPolicyType: "ON_FAILURE", restartPolicyMaxRetries: 5 },
-    env: { ...runtime, PORT: "8080" },
+    env: {
+      ...runtime,
+      PORT: "8080",
+      TENANT_HOST: "temlinkaqui.com",
+      TENANT_NAME: "Tem Link Aqui",
+    },
   });
 
   const worker = service("worker", {
