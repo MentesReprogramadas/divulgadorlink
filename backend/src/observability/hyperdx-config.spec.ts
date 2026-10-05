@@ -7,10 +7,13 @@ import {
 } from '@/observability/hyperdx-config'
 
 describe('hyperdx', () => {
-  it('não sobe o SDK em teste nem sem chave', () => {
-    expect(shouldRegisterHyperDX({ NODE_ENV: 'test', HDX_API_KEY: 'chave' })).toBe(false)
-    expect(shouldRegisterHyperDX({ NODE_ENV: 'production', HDX_API_KEY: '  ' })).toBe(false)
-    expect(shouldRegisterHyperDX({ NODE_ENV: 'production', HDX_API_KEY: 'chave' })).toBe(true)
+  it('não sobe o SDK em teste, sem chave ou sem o coletor autohospedado', () => {
+    expect(shouldRegisterHyperDX({ NODE_ENV: 'test', HDX_API_KEY: 'chave', OTEL_EXPORTER_OTLP_ENDPOINT: 'http://otel:4318' })).toBe(false)
+    expect(shouldRegisterHyperDX({ NODE_ENV: 'production', HDX_API_KEY: '  ', OTEL_EXPORTER_OTLP_ENDPOINT: 'http://otel:4318' })).toBe(false)
+    expect(shouldRegisterHyperDX({ NODE_ENV: 'production', HDX_API_KEY: 'chave' })).toBe(false)
+    expect(shouldRegisterHyperDX({ NODE_ENV: 'production', HDX_API_KEY: 'chave', OTEL_EXPORTER_OTLP_ENDPOINT: 'https://in-otel.hyperdx.io/v1/traces' })).toBe(false)
+    expect(shouldRegisterHyperDX({ NODE_ENV: 'production', HDX_API_KEY: 'chave', OTEL_EXPORTER_OTLP_ENDPOINT: 'nao-e-url' })).toBe(false)
+    expect(shouldRegisterHyperDX({ NODE_ENV: 'production', HDX_API_KEY: 'chave', OTEL_EXPORTER_OTLP_ENDPOINT: 'http://otel:4318' })).toBe(true)
   })
 
   it('separa o worker do serviço da API', () => {

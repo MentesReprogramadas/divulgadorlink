@@ -52,6 +52,10 @@ export default defineRailway(() => {
     REDIS_URL: cache.env.REDIS_URL,
     JWT_SECRET: preserve(),
     HDX_API_KEY: preserve(),
+    // Coletor OTLP HTTP. Sem isto o SDK não sobe: o default é a nuvem da HyperDX.
+    OTEL_EXPORTER_OTLP_ENDPOINT: preserve(),
+    // O banner do SDK aponta para www.hyperdx.io, que não é o coletor autohospedado.
+    HDX_STARTUP_LOGS: "false",
     HDX_SERVICE_NAME: "divulgador-links-api",
     STRIPE_SECRET_KEY: preserve(),
     STRIPE_WEBHOOK_SECRET: preserve(),

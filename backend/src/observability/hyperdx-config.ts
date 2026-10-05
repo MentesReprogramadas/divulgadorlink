@@ -1,8 +1,19 @@
 const DEFAULT_SERVICE = 'divulgador-links-api'
+const HYPERDX_CLOUD_HOST = 'in-otel.hyperdx.io'
 
 export function shouldRegisterHyperDX(env: NodeJS.ProcessEnv): boolean {
   if (env.NODE_ENV === 'test') return false
-  return typeof env.HDX_API_KEY === 'string' && env.HDX_API_KEY.trim().length > 0
+  const hasKey = typeof env.HDX_API_KEY === 'string' && env.HDX_API_KEY.trim().length > 0
+  if (!hasKey) return false
+  const endpoint = env.OTEL_EXPORTER_OTLP_ENDPOINT
+  if (typeof endpoint !== 'string' || endpoint.trim().length === 0) return false
+  try {
+    const url = new URL(endpoint.trim())
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return false
+    return url.hostname !== HYPERDX_CLOUD_HOST
+  } catch {
+    return false
+  }
 }
 
 export function hyperdxServiceName(argv: readonly string[], configured?: string): string {
