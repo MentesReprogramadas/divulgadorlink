@@ -87,3 +87,61 @@ jobs:
             exit 0
           fi
           railway config apply --plan railway-plan.json --yes --confirm-destructive
+
+  # O CLI local está bloqueado no Windows. Este job usa o project token do
+  # Actions e só grava o que ainda está vazio, para não rotacionar a senha
+  # do volume do Postgres.
+  bootstrap:
+    needs: apply_main
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.apply_main.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install -g @railway/cli@latest
+      - name: Fill empty boot settings
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          set -euo pipefail
+          value_of() {
+            railway variable list --service "$1" --kv | sed -n "s/^$2=//p" | head -n 1
+          }
+          host_of() {
+            railway domain list --service "$1" --json 2>/dev/null \
+              | jq -r '[.. | strings | select(endswith(".up.railway.app"))][0] // empty' 2>/dev/null || true
+          }
+          if [ -z "$(value_of postgres POSTGRES_PASSWORD)" ]; then
+            pw="$(openssl rand -hex 24)"
+            printf '%s' "$pw" | railway variable set POSTGRES_PASSWORD --stdin --service postgres --skip-deploys
+            railway redeploy --service postgres --yes
+          fi
+          api_jwt="$(value_of api JWT_SECRET)"
+          worker_jwt="$(value_of worker JWT_SECRET)"
+          if [ -z "$api_jwt" ] && [ -z "$worker_jwt" ]; then
+            jwt="$(openssl rand -base64 48 | tr -d '\n')"
+            printf '%s' "$jwt" | railway variable set JWT_SECRET --stdin --service api --skip-deploys
+            printf '%s' "$jwt" | railway variable set JWT_SECRET --stdin --service worker --skip-deploys
+          elif [ -z "$worker_jwt" ]; then
+            printf '%s' "$api_jwt" | railway variable set JWT_SECRET --stdin --service worker --skip-deploys
+          elif [ -z "$api_jwt" ]; then
+            printf '%s' "$worker_jwt" | railway variable set JWT_SECRET --stdin --service api --skip-deploys
+          fi
+          if [ -z "$(host_of web)" ]; then
+            railway domain --service web
+          fi
+          if [ -z "$(host_of api)" ]; then
+            railway domain --service api
+          fi
+          web_host="$(host_of web)"
+          if [ -n "$web_host" ]; then
+            url="https://${web_host}"
+            for svc in api worker; do
+              if [ -z "$(value_of "$svc" APP_PUBLIC_URL)" ]; then
+                printf '%s' "$url" | railway variable set APP_PUBLIC_URL --stdin --service "$svc" --skip-deploys
+              fi
+            done
+          fi
+          railway redeploy --service api --yes
+          railway redeploy --service worker --yes
