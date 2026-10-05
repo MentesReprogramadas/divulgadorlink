@@ -2,7 +2,8 @@ name: ci
 on: [push, pull_request]
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    # Push no runner com label divulgador. PR fica no GitHub: fork de repo público não pode executar aqui.
+    runs-on: ${{ github.event_name == 'push' && 'divulgador' || 'ubuntu-latest' }}
     services:
       postgres:
         image: pgvector/pgvector:pg16
@@ -61,7 +62,7 @@ jobs:
       - run: npm audit --audit-level=high
         working-directory: backend
   web:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'push' && 'divulgador' || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -76,13 +77,13 @@ jobs:
       - run: npm audit --audit-level=high
         working-directory: frontend
   images:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'push' && 'divulgador' || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
       - run: docker build -t divulgador-api backend
       - run: docker build -t divulgador-web frontend
   e2e:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'push' && 'divulgador' || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
