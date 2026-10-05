@@ -5,7 +5,7 @@ import { recordClick } from '@/http/controllers/@Analytics/routes'
 import { buildError, not_found } from '@/http/errors'
 import { resolveTenant } from '@/http/tenant'
 import { getLinksRepository } from '@/repositories/links-repository'
-import { openPublicLink } from '@/use-cases/@Links/open-public-link'
+import { publicLinkView } from '@/http/public-link-view'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
 
 type GoParams = { linkId: string }
@@ -46,7 +46,7 @@ async function goToLink(request: FastifyRequest<{ Params: GoParams }>, reply: Fa
     return notFound()
   }
 
-  const view = openPublicLink(link)
+  const view = await publicLinkView(link)
   if (!view.visible) {
     return notFound()
   }

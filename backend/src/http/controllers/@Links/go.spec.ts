@@ -69,6 +69,32 @@ describe('GET /go/:linkId', () => {
     expect(response.json()).toMatchObject({ code: not_found })
   })
 
+  it('publicado de conta suspensa não redireciona', async () => {
+    repo().addUser({
+      id: 'dono-suspenso',
+      tenantId: TENANT_ID,
+      status: 'BANNED',
+      identifiers: [],
+    })
+    const link = repo().addLink({
+      id: 'link-suspenso',
+      tenantId: TENANT_ID,
+      ownerId: 'dono-suspenso',
+      status: 'PUBLISHED',
+      canonicalUrl: 'https://t.me/suspenso',
+    })
+
+    const response = await app.inject({
+      method: 'GET',
+      url: `/go/${link.id}`,
+      headers: { host: HOST },
+    })
+
+    expect(response.statusCode).not.toBe(302)
+    expect(response.headers.location).toBeUndefined()
+    expect(response.json()).toMatchObject({ code: not_found })
+  })
+
   it('link publicado de outro tenant não redireciona neste host', async () => {
     const link = repo().addLink({
       id: 'link-outro-tenant',

@@ -1,5 +1,6 @@
 import { createHash, randomBytes } from 'node:crypto'
-import Redis from 'ioredis'
+import type Redis from 'ioredis'
+import { createRedis } from '@/lib/redis'
 import { notifyPasswordReset, publicResetUrl } from '@/adapters/notifications/outbound-mail'
 import { env } from '@/env'
 import { normalizeEmail } from '@/use-cases/@Auth/confirm-identifier'
@@ -113,7 +114,7 @@ let redisStore: RedisPasswordResetStore | null = null
 export function passwordResetStore(): PasswordResetStore {
   if (process.env.NODE_ENV === 'test') return memoryStore
   if (!redisStore) {
-    redisStore = new RedisPasswordResetStore(new Redis(env.REDIS_URL, { maxRetriesPerRequest: 1, connectTimeout: 2_000 }))
+    redisStore = new RedisPasswordResetStore(createRedis(env.REDIS_URL, { maxRetriesPerRequest: 1, connectTimeout: 2_000 }))
   }
   return redisStore
 }

@@ -75,6 +75,12 @@ jobs:
         working-directory: frontend
       - run: npm audit --audit-level=high
         working-directory: frontend
+  images:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t divulgador-api backend
+      - run: docker build -t divulgador-web frontend
   e2e:
     runs-on: ubuntu-latest
     steps:

@@ -1,3 +1,5 @@
+import { PUBLIC_LINK_FILTER } from '@/domain/catalog/public-link'
+
 export class InvalidCursorError extends Error {
   constructor() {
     super('cursor')
@@ -86,7 +88,7 @@ export function homePageSql(surface: 'HOME' | 'NICHE'): { sponsored: string; org
     JOIN "links" l ON l."id" = pmin."linkId"
     JOIN "niches" n ON n."id" = l."nicheId"
     JOIN "networks" net ON net."id" = l."networkId"
-    WHERE l."tenantId" = $1 AND l."status" = 'PUBLISHED'
+    WHERE l."tenantId" = $1 AND ${PUBLIC_LINK_FILTER}
       AND ($2::text = 'yes' OR n."requiresAge" = false)
       AND ($3::text IS NULL OR n."slug" = $3)
       AND ($4::text IS NULL OR net."slug" = $4)
@@ -102,7 +104,7 @@ export function homePageSql(surface: 'HOME' | 'NICHE'): { sponsored: string; org
     FROM "links" l
     JOIN "niches" n ON n."id" = l."nicheId"
     JOIN "networks" net ON net."id" = l."networkId"
-    WHERE l."tenantId" = $1 AND l."status" = 'PUBLISHED'
+    WHERE l."tenantId" = $1 AND ${PUBLIC_LINK_FILTER}
       AND ($2::text = 'yes' OR n."requiresAge" = false)
       AND ($3::text IS NULL OR n."slug" = $3)
       AND ($4::text IS NULL OR net."slug" = $4)

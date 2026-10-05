@@ -1,5 +1,6 @@
 import type { PrismaClient } from '@prisma/client'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
+import { PUBLIC_LINK_FILTER } from '@/domain/catalog/public-link'
 import { impressionsEnabled, readConfig, type ConfigKey } from '@/domain/config/read-config'
 import { OpenAiEmbeddingService } from '@/adapters/embeddings/openai-embedding-service'
 import { env } from '@/env'
@@ -199,17 +200,22 @@ export async function getSearch(request: FastifyRequest, reply: FastifyReply) {
     )
     const target = { kind: resolved.kind, slug: resolved.slug, name: resolved.name }
     const age = ageFromCookie(request)
-    const matched = niches.find((niche) => niche.slug === target.slug)
-    const nicheNeedsAge = Boolean(matched?.requiresAge && age === 'unknown')
+    const matchedNiche = niches.find((niche) => niche.slug === target.slug)
+    const matchedNetwork = networks.find((network) => network.slug === target.slug)
+    const facetNeedsAge = resolved.kind === 'niche'
+      ? Boolean(matchedNiche?.requiresAge)
+      : resolved.kind === 'network'
+        ? Boolean(matchedNetwork?.requiresAge)
+        : false
     const showImpressions = await publicImpressions(tenant.id)
-    if (resolved.exclusive) {
+    if (resolved.exclusive && !(facetNeedsAge && age === 'yes')) {
       return reply.status(200).send({
         target,
         threshold,
         showImpressions,
         sponsored: [],
         organic: [],
-        ...(nicheNeedsAge ? { ageRequired: true } : {}),
+        ...(facetNeedsAge && age === 'unknown' ? { ageRequired: true } : {}),
       })
     }
 
@@ -233,7 +239,7 @@ export async function getSearch(request: FastifyRequest, reply: FastifyReply) {
       target,
       threshold,
       showImpressions,
-      ...(age === 'unknown' && (hidden > 0 || nicheNeedsAge) ? { ageRequired: true } : {}),
+      ...(age === 'unknown' && (hidden > 0 || facetNeedsAge) ? { ageRequired: true } : {}),
       sponsored: await withImpressions(tenant.id, ranked.sponsored.map((row) => toDto(tenant.id, row, threshold))),
       organic: await withImpressions(tenant.id, ranked.organic.map((row) => toDto(tenant.id, row, threshold))),
     })
@@ -271,23 +277,24 @@ export async function getSuggest(request: FastifyRequest, reply: FastifyReply) {
             ORDER BY p."activatedAt" ASC
             LIMIT 1
           ) AS "searchActivatedAt",
-          n."requiresAge",
+          (n."requiresAge" OR net."requiresAge") AS "requiresAge",
           n."name" AS "nicheName", n."slug" AS "nicheSlug",
           net."name" AS "networkName", net."slug" AS "networkSlug"
         FROM "links" l
         JOIN "niches" n ON n."id" = l."nicheId"
         JOIN "networks" net ON net."id" = l."networkId"
-        WHERE l."tenantId" = $1 AND l."status" = 'PUBLISHED'
-          AND ($2::text = 'yes' OR n."requiresAge" = false)
-          AND l."name" ILIKE '%' || $3 || '%'
+        WHERE l."tenantId" = $1 AND ${PUBLIC_LINK_FILTER}
+          AND l."name" ILIKE '%' || $2 || '%'
         LIMIT 8
       `,
       tenant.id,
-      age,
       query.trim(),
     )
+  const recommended = autocompleteIds(source, threshold, 8)
   const visible = visibleForAge(source, age)
   const ids = autocompleteIds(visible, threshold, 8)
+  const shown = new Set(ids)
+  const ageRequired = age === 'unknown' && recommended.some((id) => !shown.has(id))
   const facets = process.env.NODE_ENV === 'test'
     ? { niches: [] as Array<{ slug: string; name: string }>, networks: [] as Array<{ slug: string; name: string }> }
     : await getLinksRepository().findSearchFacetCandidates(tenant.id, searchFacetProbe(query))
@@ -302,6 +309,7 @@ export async function getSuggest(request: FastifyRequest, reply: FastifyReply) {
   const counts = await getAnalyticsRepository().impressionTotals(tenant.id, ids)
   return reply.status(200).send({
     showImpressions: await publicImpressions(tenant.id),
+    ...(ageRequired ? { ageRequired: true } : {}),
     ids,
     facet,
     items: ids.map((id) => {

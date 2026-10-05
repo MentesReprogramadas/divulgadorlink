@@ -1,6 +1,8 @@
+import './observability/register-hyperdx'
 import type { PrismaClient } from '@prisma/client'
 import { Worker } from 'bullmq'
-import Redis from 'ioredis'
+import type Redis from 'ioredis'
+import { createRedis } from '@/lib/redis'
 import { OpenAiEmbeddingService } from '@/adapters/embeddings/openai-embedding-service'
 import Stripe from 'stripe'
 import { OpenAiTextModeration } from '@/adapters/moderation/openai-text-moderation'
@@ -259,7 +261,7 @@ export function createWorker(connection: Redis, deps: WorkerDeps, queueName = QU
 }
 
 async function startWorker(): Promise<void> {
-  const connection = new Redis(env.REDIS_URL, { maxRetriesPerRequest: null })
+  const connection = createRedis(env.REDIS_URL, { maxRetriesPerRequest: null })
   const moderation = env.OPENAI_API_KEY ? new OpenAiTextModeration(env.OPENAI_API_KEY) : null
   createWorker(connection, { textJudge: moderation ? (text) => moderation.judge(text) : null })
   await enqueuePendingEmbeddingJobs()

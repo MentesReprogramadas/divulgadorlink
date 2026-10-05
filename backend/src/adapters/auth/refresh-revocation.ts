@@ -1,5 +1,6 @@
-import Redis from 'ioredis'
+import type Redis from 'ioredis'
 import { env } from '@/env'
+import { createRedis } from '@/lib/redis'
 
 const PREFIX = 'refresh:revoked:'
 const REFRESH_FALLBACK_TTL_SECONDS = 7 * 24 * 60 * 60
@@ -8,7 +9,7 @@ let client: Redis | null = null
 
 function redis(): Redis {
   if (!client) {
-    client = new Redis(env.REDIS_URL, { maxRetriesPerRequest: 1, connectTimeout: 2_000 })
+    client = createRedis(env.REDIS_URL, { maxRetriesPerRequest: 1, connectTimeout: 2_000 })
   }
   return client
 }

@@ -2,6 +2,14 @@ import 'dotenv/config'
 import { z } from 'zod'
 import { parsePixExpiration } from '@/domain/payments/pix-expiration'
 
+const blankAsUnset = (value: unknown) => (value === '' ? undefined : value)
+const optionalText = z.preprocess(blankAsUnset, z.string().min(1).optional())
+const optionalUrl = z.preprocess(blankAsUnset, z.string().url().optional())
+const textOr = (fallback: string) => z.preprocess(
+  (value) => (value === '' || value === undefined ? fallback : value),
+  z.string().min(1),
+)
+
 const schema = z.object({
   NODE_ENV: z.enum(['dev', 'test', 'production']).default('dev'),
   PORT: z.coerce.number().default(3333),
@@ -9,25 +17,25 @@ const schema = z.object({
   DATABASE_URL: z.string().url(),
   REDIS_URL: z.string().url(),
   JWT_SECRET: z.string().min(16),
-  HDX_API_KEY: z.string().optional(),
-  HDX_SERVICE_NAME: z.string().default('divulgador-links-api'),
-  STRIPE_SECRET_KEY: z.string().optional(),
-  STRIPE_PUBLISHABLE_KEY: z.string().optional(),
-  STRIPE_WEBHOOK_SECRET: z.string().optional(),
-  WOOVI_APP_ID: z.string().optional(),
-  WOOVI_API_BASE_URL: z.string().url().optional(),
-  WOOVI_WEBHOOK_SECRET: z.string().optional(),
-  WOOVI_WEBHOOK_PUBLIC_KEY: z.string().optional(),
-  OPENAI_API_KEY: z.string().optional(),
-  PIX_EXPIRATION_SECONDS: z.string().optional(),
+  HDX_API_KEY: optionalText,
+  HDX_SERVICE_NAME: textOr('divulgador-links-api'),
+  STRIPE_SECRET_KEY: optionalText,
+  STRIPE_PUBLISHABLE_KEY: optionalText,
+  STRIPE_WEBHOOK_SECRET: optionalText,
+  WOOVI_APP_ID: optionalText,
+  WOOVI_API_BASE_URL: optionalUrl,
+  WOOVI_WEBHOOK_SECRET: optionalText,
+  WOOVI_WEBHOOK_PUBLIC_KEY: optionalText,
+  OPENAI_API_KEY: optionalText,
+  PIX_EXPIRATION_SECONDS: z.preprocess(blankAsUnset, z.string().optional()),
 
-  TENANT_HOST: z.string().default('localhost'),
-  TENANT_NAME: z.string().default('Localhost'),
+  TENANT_HOST: textOr('localhost'),
+  TENANT_NAME: textOr('Localhost'),
 
-  RESEND_API_KEY: z.string().min(1).optional(),
-  EMAIL_FROM: z.string().min(3).optional(),
-  APP_PUBLIC_URL: z.string().url().optional(),
-  EMAIL_BRAND_NAME: z.string().min(1).default('Tem Link Aqui'),
+  RESEND_API_KEY: optionalText,
+  EMAIL_FROM: z.preprocess(blankAsUnset, z.string().min(3).optional()),
+  APP_PUBLIC_URL: optionalUrl,
+  EMAIL_BRAND_NAME: textOr('Tem Link Aqui'),
 })
 
 const parsed = schema.safeParse(process.env)

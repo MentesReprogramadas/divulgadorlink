@@ -1,6 +1,6 @@
 import { Queue } from 'bullmq'
-import Redis from 'ioredis'
 import { env } from '@/env'
+import { createRedis } from '@/lib/redis'
 
 export type EmbedLinkJobPayload = { linkId: string }
 
@@ -14,7 +14,7 @@ let queue: Queue | null = null
 
 function getQueue(): Queue {
   if (!queue) {
-    const connection = new Redis(env.REDIS_URL, { maxRetriesPerRequest: null })
+    const connection = createRedis(env.REDIS_URL, { maxRetriesPerRequest: null })
     queue = new Queue(QUEUE_NAME, { connection })
   }
   return queue

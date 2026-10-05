@@ -1,4 +1,5 @@
 import { writeSync } from 'node:fs'
+import { logs, SeverityNumber } from '@opentelemetry/api-logs'
 
 const SECRET_KEYS = new Set([
   'password',
@@ -41,6 +42,34 @@ export const logSink = {
   },
 }
 
+const telemetryLog = logs.getLogger('divulgador-links')
+
+function telemetryAttributes(fields: Record<string, unknown>): Record<string, string | number | boolean> {
+  const attributes: Record<string, string | number | boolean> = {}
+  for (const [key, value] of Object.entries(fields)) {
+    if (typeof value === 'string') attributes[key] = value.length > 4_000 ? value.slice(0, 4_000) : value
+    else if (typeof value === 'number' && Number.isFinite(value)) attributes[key] = value
+    else if (typeof value === 'boolean') attributes[key] = value
+  }
+  return attributes
+}
+
+function emitTelemetry(event: string, fields: Record<string, unknown>): void {
+  const failed = event.endsWith('failed')
+    || fields.status === 'failure'
+    || (typeof fields.status === 'number' && fields.status >= 500)
+  try {
+    telemetryLog.emit({
+      severityNumber: failed ? SeverityNumber.ERROR : SeverityNumber.INFO,
+      severityText: failed ? 'ERROR' : 'INFO',
+      body: event,
+      attributes: telemetryAttributes(fields),
+    })
+  } catch {
+    // exportação remota não pode derrubar a request
+  }
+}
+
 export function logDomainEvent(event: string, fields: Record<string, unknown>): void {
   const safe = sanitizeLog({
     event,
@@ -51,4 +80,5 @@ export function logDomainEvent(event: string, fields: Record<string, unknown>): 
     ...fields,
   })
   logSink.write(JSON.stringify(safe))
+  emitTelemetry(event, safe)
 }

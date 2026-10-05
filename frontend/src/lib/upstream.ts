@@ -21,6 +21,7 @@ export function forward(input: {
     const req = transport({
       hostname: origin.hostname,
       port: origin.port || (origin.protocol === 'https:' ? 443 : 80),
+      family: 0,
       path: input.path,
       method: input.method,
       headers: {

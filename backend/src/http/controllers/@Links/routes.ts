@@ -22,7 +22,7 @@ import { prisma } from '@/lib/prisma'
 import { UserAlreadyExistsError } from '@/use-cases/errors/user-already-exists-error'
 import { enqueueTextProposal } from '@/adapters/queues/enqueue-text-proposal'
 import { editLinkText } from '@/use-cases/@Links/edit-link-text'
-import { openPublicLink } from '@/use-cases/@Links/open-public-link'
+import { publicLinkView } from '@/http/public-link-view'
 import { decideSubmission } from '@/use-cases/@Links/submit-link'
 import { getAuditLogsRepository } from '@/repositories/audit-logs-repository'
 import { preRefuse } from '@/use-cases/@Moderation/pre-refuse'
@@ -292,7 +292,7 @@ async function getPublicLink(request: FastifyRequest, reply: FastifyReply) {
     const repo = getLinksRepository()
     const link = await repo.findLinkById(linkId)
     if (!link || link.tenantId !== tenant.id) return missing()
-    if (!openPublicLink(link).visible) {
+    if (!(await publicLinkView(link)).visible) {
       return reply.status(200).send({
         id: link.id,
         available: false,

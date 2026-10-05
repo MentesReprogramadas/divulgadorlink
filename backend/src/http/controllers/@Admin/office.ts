@@ -7,7 +7,7 @@ import { verifyJWT } from '@/http/middlewares/verify-jwt'
 import { resolveTenant } from '@/http/tenant'
 import { prisma } from '@/lib/prisma'
 import { getAuditLogsRepository } from '@/repositories/audit-logs-repository'
-import { getLinksRepository, InMemoryLinksRepository } from '@/repositories/links-repository'
+import { getLinksRepository, InMemoryLinksRepository, type LinkStatus } from '@/repositories/links-repository'
 import { ctr } from '@/use-cases/@Analytics/record-event'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
 
@@ -315,7 +315,7 @@ export async function postWithdrawLink(request: FastifyRequest, reply: FastifyRe
     if (link.status === 'UNAVAILABLE') {
       return reply.status(409).send(buildError({ code: business_rule, message: 'Este link já está fora do ar.', request_id: request.id }))
     }
-    let next: typeof link.status
+    let next: LinkStatus
     try {
       next = transition(linkMachine, link.status, 'UNAVAILABLE')
     } catch {

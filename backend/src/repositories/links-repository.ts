@@ -480,7 +480,7 @@ export class PrismaLinksRepository implements LinksRepository {
         WHERE "tenantId" = ${tenantId} AND "isPublicFacet" = true AND (${matched})
       `,
       this.client.$queryRaw<NetworkRecord[]>`
-        SELECT id, "tenantId", name, slug, "isPublicFacet"
+        SELECT id, "tenantId", name, slug, "requiresAge", "isPublicFacet"
         FROM networks
         WHERE "tenantId" = ${tenantId} AND "isPublicFacet" = true AND (${matched})
       `,

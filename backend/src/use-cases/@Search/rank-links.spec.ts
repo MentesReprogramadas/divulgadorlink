@@ -125,6 +125,7 @@ describe('busca', () => {
   it('a SQL expõe a idade e o limiar e não descarta link sem vetor', () => {
     const sql = hybridSearchSql()
     expect(sql).toContain('requiresAge')
+    expect(sql).toContain("owner.\"status\" = 'BANNED'")
     expect(sql).toContain('>= $7')
     expect(sql).not.toContain('embedding" IS NOT NULL')
     expect(sql).toContain('embedding" IS NULL')

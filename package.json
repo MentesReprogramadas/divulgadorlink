@@ -1,0 +1,8 @@
+{
+  "name": "divulgadorlink",
+  "private": true,
+  "description": "Autoração de infraestrutura Railway. A aplicação está em backend/ e frontend/.",
+  "devDependencies": {
+    "railway": "3.12.0"
+  }
+}

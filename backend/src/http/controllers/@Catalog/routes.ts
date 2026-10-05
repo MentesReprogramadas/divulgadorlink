@@ -1,5 +1,6 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { signSurface, type AnalyticsOrigin } from '@/domain/analytics/surface-token'
+import { PUBLIC_LINK_FILTER } from '@/domain/catalog/public-link'
 import { env } from '@/env'
 import { buildError, not_found } from '@/http/errors'
 import { resolveTenant } from '@/http/tenant'
@@ -212,7 +213,7 @@ async function companionFacets(
         FROM "links" l
         JOIN "niches" n ON n."id" = l."nicheId"
         JOIN "networks" net ON net."id" = l."networkId"
-        WHERE l."tenantId" = $1 AND l."status" = 'PUBLISHED' AND net."slug" = $2 AND n."isPublicFacet" = true
+        WHERE l."tenantId" = $1 AND ${PUBLIC_LINK_FILTER} AND net."slug" = $2 AND n."isPublicFacet" = true
         ORDER BY n."name" ASC
       `
       : `
@@ -220,7 +221,7 @@ async function companionFacets(
         FROM "links" l
         JOIN "niches" n ON n."id" = l."nicheId"
         JOIN "networks" net ON net."id" = l."networkId"
-        WHERE l."tenantId" = $1 AND l."status" = 'PUBLISHED' AND n."slug" = $2 AND net."isPublicFacet" = true
+        WHERE l."tenantId" = $1 AND ${PUBLIC_LINK_FILTER} AND n."slug" = $2 AND net."isPublicFacet" = true
         ORDER BY net."name" ASC
       `,
     tenantId,

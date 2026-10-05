@@ -6,7 +6,7 @@
     "dev": "tsx watch src/server.ts",
     "start": "node build/server.js",
     "worker": "tsx src/worker.ts",
-    "build": "tsup src --out-dir build",
+    "build": "tsup",
     "test": "vitest run",
     "test:pg": "vitest run --no-file-parallelism src/http/analytics.pg.spec.ts src/http/checkout.pg.spec.ts src/http/catalog.pg.spec.ts src/use-cases/@Links/text-proposed-worker.pg.spec.ts src/use-cases/@Search/hybrid-search.pg.spec.ts src/http/controllers/@Search/search-http.pg.spec.ts",
     "test:watch": "vitest",

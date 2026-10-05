@@ -1,5 +1,5 @@
 import { randomUUID, timingSafeEqual } from 'node:crypto'
-import * as HyperDX from '@hyperdx/node-opentelemetry'
+import { SpanStatusCode, trace } from '@opentelemetry/api'
 import fastify from 'fastify'
 import fastifyCookie from '@fastify/cookie'
 import fastifyJwt from '@fastify/jwt'
@@ -16,13 +16,18 @@ import { paymentRoutes, paymentWebhookRoutes } from '@/http/controllers/@Payment
 import { catalogRoutes } from '@/http/controllers/@Catalog/routes'
 import { searchRoutes } from '@/http/controllers/@Search/routes'
 import { health, live, ready } from '@/http/controllers/@Health/health'
+import { isActuatorProbe } from '@/observability/hyperdx-config'
 import { logDomainEvent } from '@/observability/logger'
 
-if (env.HDX_API_KEY) {
-  HyperDX.init({
-    apiKey: env.HDX_API_KEY,
-    service: env.HDX_SERVICE_NAME,
-  })
+function observeServerError(error: unknown, requestId: string, status: number): void {
+  const asError = error instanceof Error ? error : new Error('Internal server error')
+  const span = trace.getActiveSpan()
+  if (span) {
+    span.recordException(asError)
+    span.setStatus({ code: SpanStatusCode.ERROR, message: asError.name })
+  }
+  const detail = error instanceof Error ? error.stack ?? error.message : String(error)
+  logDomainEvent('http.error', { request_id: requestId, error: detail, status })
 }
 
 export const app = fastify({
@@ -38,9 +43,14 @@ export const app = fastify({
 
 app.addHook('onRequest', async (request, reply) => {
   reply.header('x-request-id', request.id)
+  if (typeof request.id === 'string') {
+    trace.getActiveSpan()?.setAttribute('request_id', request.id)
+  }
 })
 
 app.addHook('onResponse', async (request, reply) => {
+  const path = request.url.split('?')[0]
+  if (isActuatorProbe(path)) return
   const host = request.headers.host
   logDomainEvent('http.completed', {
     request_id: request.id,
@@ -109,6 +119,7 @@ app.register(goRoutes, { prefix: '/go' })
 
 app.setErrorHandler((error, request, reply) => {
   if (error instanceof DeliveryUnavailableError) {
+    observeServerError(error, request.id, 503)
     return reply.status(503).send(buildError({ code: provider_error, message: error.message, request_id: request.id }))
   }
   const statusCode = typeof error === 'object' && error && 'statusCode' in error ? Number(error.statusCode) : 500
@@ -127,9 +138,8 @@ app.setErrorHandler((error, request, reply) => {
     })
   }
 
+  observeServerError(error, request.id, 500)
   if (env.NODE_ENV !== 'production') {
-    const detail = error instanceof Error ? error.stack ?? error.message : String(error)
-    logDomainEvent('http.error', { request_id: request.id, error: detail, status: 500 })
     return reply.status(500).send({ message: 'Internal server error' })
   }
 

@@ -265,6 +265,54 @@ describe('GET /api/v1/search', () => {
     expect(source.slice(source.indexOf('export function productionSearchComposition'), source.indexOf('let composition'))).not.toMatch(/NODE_ENV|process\.env/)
   })
 
+  it('sugestão +18 pede a idade e só lista o link depois do sim', async () => {
+    const unknown = await app.inject({
+      method: 'GET',
+      url: '/api/v1/search/suggest?q=secreto',
+      headers: { host: 'temlinkaqui.com' },
+    })
+    expect(unknown.statusCode).toBe(200)
+    expect(unknown.json().ageRequired).toBe(true)
+    expect(unknown.json().ids).not.toContain('adulto')
+
+    const confirmed = await app.inject({
+      method: 'GET',
+      url: '/api/v1/search/suggest?q=secreto',
+      headers: { host: 'temlinkaqui.com', cookie: 'age=yes' },
+    })
+    expect(confirmed.json().ageRequired).toBeUndefined()
+    expect(confirmed.json().ids).toContain('adulto')
+
+    const refused = await app.inject({
+      method: 'GET',
+      url: '/api/v1/search/suggest?q=secreto',
+      headers: { host: 'temlinkaqui.com', cookie: 'age=no' },
+    })
+    expect(refused.json().ageRequired).toBeUndefined()
+    expect(refused.json().ids).not.toContain('adulto')
+  })
+
+  it('busca do nicho +18 pede a idade e, com o sim, devolve os links', async () => {
+    const unknown = await app.inject({
+      method: 'GET',
+      url: '/api/v1/search?q=Apostas',
+      headers: { host: 'temlinkaqui.com' },
+    })
+    expect(unknown.statusCode).toBe(200)
+    expect(unknown.json().ageRequired).toBe(true)
+    expect(unknown.json().organic).toEqual([])
+    expect(embedding.calls).toEqual([])
+
+    const confirmed = await app.inject({
+      method: 'GET',
+      url: '/api/v1/search?q=Apostas',
+      headers: { host: 'temlinkaqui.com', cookie: 'age=yes' },
+    })
+    expect(confirmed.json().ageRequired).toBeUndefined()
+    expect(confirmed.json().organic.map((row: { id: string }) => row.id)).toContain('adulto')
+    expect(embedding.calls).toEqual(['Apostas'])
+  })
+
   it('autocomplete não devolve o id adulto e não chama embedding', async () => {
     const response = await app.inject({
       method: 'GET',

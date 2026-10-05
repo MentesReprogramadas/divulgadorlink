@@ -1,3 +1,4 @@
+import './observability/register-hyperdx'
 import { app } from './app'
 import { env } from './env'
 import { logDomainEvent } from './observability/logger'

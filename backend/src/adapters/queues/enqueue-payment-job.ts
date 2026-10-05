@@ -1,6 +1,6 @@
 import { Queue } from 'bullmq'
-import Redis from 'ioredis'
 import { env } from '@/env'
+import { createRedis } from '@/lib/redis'
 
 const QUEUE_NAME = 'divulgador-links'
 
@@ -11,7 +11,7 @@ let queue: Queue | null = null
 
 function getQueue(): Queue {
   if (!queue) {
-    queue = new Queue(QUEUE_NAME, { connection: new Redis(env.REDIS_URL, { maxRetriesPerRequest: null }) })
+    queue = new Queue(QUEUE_NAME, { connection: createRedis(env.REDIS_URL, { maxRetriesPerRequest: null }) })
   }
   return queue
 }

@@ -1,3 +1,5 @@
+import { PUBLIC_LINK_FILTER } from '@/domain/catalog/public-link'
+
 interface SearchRow {
   id: string
   relevance: number
@@ -147,7 +149,7 @@ export function hybridSearchSql(): string {
         ORDER BY p."activatedAt" ASC
         LIMIT 1
       ) AS search_activated_at,
-      n."requiresAge" AS requires_age,
+      (n."requiresAge" OR net."requiresAge") AS requires_age,
       n."name" AS niche_name,
       n."slug" AS niche_slug,
       net."name" AS network_name,
@@ -156,7 +158,7 @@ export function hybridSearchSql(): string {
     JOIN "niches" n ON n."id" = l."nicheId"
     JOIN "networks" net ON net."id" = l."networkId"
     WHERE l."tenantId" = $3
-      AND l."status" = 'PUBLISHED'
+      AND ${PUBLIC_LINK_FILTER}
       AND ($4::text = 'yes' OR $4::text = 'no' OR $4::text = 'unknown')
       AND (
         $5 * ts_rank(to_tsvector('simple', l."name" || ' ' || l."description"), plainto_tsquery('simple', $1))

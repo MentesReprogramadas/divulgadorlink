@@ -1,12 +1,13 @@
-import Redis from 'ioredis'
+import type Redis from 'ioredis'
 import { env } from '@/env'
+import { createRedis } from '@/lib/redis'
 
 const PREFIX = 'charge:lock:'
 let client: Redis | null = null
 
 function redis(): Redis {
   if (!client) {
-    client = new Redis(env.REDIS_URL, { maxRetriesPerRequest: 1, connectTimeout: 2_000 })
+    client = createRedis(env.REDIS_URL, { maxRetriesPerRequest: 1, connectTimeout: 2_000 })
   }
   return client
 }

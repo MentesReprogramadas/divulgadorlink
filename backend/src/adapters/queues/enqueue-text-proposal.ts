@@ -1,6 +1,6 @@
 import { Queue } from 'bullmq'
-import Redis from 'ioredis'
 import { env } from '@/env'
+import { createRedis } from '@/lib/redis'
 
 const QUEUE_NAME = 'divulgador-links'
 export const TEXT_PROPOSAL_JOB_OPTIONS = {
@@ -24,7 +24,7 @@ export async function enqueueTextProposal(linkId: string): Promise<void> {
     return
   }
   if (!queue) {
-    queue = new Queue(QUEUE_NAME, { connection: new Redis(env.REDIS_URL, { maxRetriesPerRequest: null }) })
+    queue = new Queue(QUEUE_NAME, { connection: createRedis(env.REDIS_URL, { maxRetriesPerRequest: null }) })
   }
   try {
     await queue.add('text-proposed', { linkId }, {

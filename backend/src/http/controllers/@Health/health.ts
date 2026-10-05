@@ -1,13 +1,14 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
-import Redis from 'ioredis'
+import type Redis from 'ioredis'
 import { env } from '@/env'
 import { prisma } from '@/lib/prisma'
+import { createRedis } from '@/lib/redis'
 
 let redis: Redis | undefined
 
 function getRedis(): Redis {
   if (!redis) {
-    redis = new Redis(env.REDIS_URL, {
+    redis = createRedis(env.REDIS_URL, {
       maxRetriesPerRequest: 1,
       connectTimeout: 2_000,
       lazyConnect: true,

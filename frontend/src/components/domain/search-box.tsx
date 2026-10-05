@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { AdMark, FacetBadge } from '@/components/ui/facet-badge'
+import { AgePrompt, confirmAge } from '@/components/domain/age-gate'
 import { ImpressionMark } from '@/components/domain/link-row'
 import { Input } from '@/components/ui/input'
 import { api } from '@/lib/api'
@@ -20,6 +21,7 @@ export type SuggestItem = {
 type SuggestBody = {
   items?: SuggestItem[]
   showImpressions?: boolean
+  ageRequired?: boolean
   facet?: { kind: 'niche' | 'network'; slug: string; name?: string | null } | null
 }
 
@@ -47,6 +49,7 @@ export function SearchBox({
   const [active, setActive] = useState(-1)
   const [none, setNone] = useState(false)
   const [showImpressions, setShowImpressions] = useState(true)
+  const [askAge, setAskAge] = useState(false)
 
   useEffect(() => { setValue(initial) }, [initial])
 
@@ -92,7 +95,14 @@ export function SearchBox({
     setChoices(rows)
     setNone(rows.length === 0)
     setShowImpressions(body.showImpressions !== false)
+    setAskAge(body.ageRequired === true)
     setOpen(true)
+  }
+
+  async function answerAge(choice: 'yes' | 'no') {
+    if (!(await confirmAge(choice))) return
+    setAskAge(false)
+    await suggest(value)
   }
 
   function go(choice: Choice) {
@@ -188,6 +198,7 @@ export function SearchBox({
           {none ? <p className="search-none">Nenhuma sugestão</p> : null}
         </div>
       ) : null}
+      {askAge ? <AgePrompt onYes={() => void answerAge('yes')} onNo={() => void answerAge('no')} /> : null}
     </div>
   )
 }

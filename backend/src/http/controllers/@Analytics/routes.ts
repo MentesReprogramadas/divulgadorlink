@@ -9,7 +9,7 @@ import { resolveTenant } from '@/http/tenant'
 import { getAnalyticsRepository } from '@/repositories/analytics-repository'
 import { getLinksRepository } from '@/repositories/links-repository'
 import { persistAnalyticsEvent, readAnalytics } from '@/use-cases/@Analytics/persist-event'
-import { openPublicLink } from '@/use-cases/@Links/open-public-link'
+import { publicLinkView } from '@/http/public-link-view'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
 
 const IMPRESSION_LIMIT = 30
@@ -86,7 +86,7 @@ async function postImpression(request: FastifyRequest, reply: FastifyReply) {
     return reply.status(400).send(buildError({ code: validation, message: 'Superfície inválida.', request_id: request.id }))
   }
   const link = await getLinksRepository().findLinkById(body.linkId)
-  if (!link || link.tenantId !== tenantId || !openPublicLink(link).visible) {
+  if (!link || link.tenantId !== tenantId || !(await publicLinkView(link)).visible) {
     return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
   }
   if (limited(sessionId)) {

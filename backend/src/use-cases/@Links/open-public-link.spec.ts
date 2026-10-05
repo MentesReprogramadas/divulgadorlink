@@ -7,6 +7,10 @@ describe('página do link', () => {
   })
 
   it('abre o publicado sem contar a abertura como clique', () => {
-    expect(openPublicLink({ status: 'PUBLISHED' })).toEqual({ visible: true, redirect: false })
+    expect(openPublicLink({ status: 'PUBLISHED', ownerStatus: 'ACTIVE' })).toEqual({ visible: true, redirect: false })
+  })
+
+  it('não abre o publicado de uma conta suspensa', () => {
+    expect(openPublicLink({ status: 'PUBLISHED', ownerStatus: 'BANNED' })).toEqual({ visible: false, redirect: false })
   })
 })
