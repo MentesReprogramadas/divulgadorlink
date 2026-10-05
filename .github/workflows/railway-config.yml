@@ -209,3 +209,19 @@ jobs:
           if [ "$changed_pg" = 1 ] || [ "$pg_status" = "FAILED" ] || [ "$pg_status" = "CRASHED" ] || [ "$pg_status" = "REMOVED" ]; then
             railway redeploy --service postgres --yes || echo "Redeploy do postgres ficou para o deploy que a senha disparar."
           fi
+          # O DSL não declara proxy TCP. O apply pode apagar o que o painel criou;
+          # este passo recria a porta 5432. A senha não entra no log.
+          proxy_json="$(railway tcp-proxy create --port 5432 --service postgres --json)"
+          endpoint="$(printf '%s' "$proxy_json" | jq -r '.proxy.endpoint // empty')"
+          sync="$(printf '%s' "$proxy_json" | jq -r '.proxy.syncStatus // empty')"
+          staged="$(printf '%s' "$proxy_json" | jq -r '.staged')"
+          if [ "$staged" = "true" ] || [ -z "$endpoint" ]; then
+            echo "Proxy TCP do Postgres não foi publicado."
+            printf '%s\n' "$proxy_json" | jq '{staged, committed, endpoint: .proxy.endpoint, sync: .proxy.syncStatus}'
+            exit 1
+          fi
+          if [ "$sync" != "ACTIVE" ]; then
+            echo "Proxy em ${sync}. Redeploy do postgres para ativar."
+            railway redeploy --service postgres --yes
+          fi
+          echo "POSTGRES_PUBLIC_ENDPOINT=${endpoint}"

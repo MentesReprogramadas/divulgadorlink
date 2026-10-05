@@ -12,6 +12,8 @@ O arquivo `railway.ts` descreve o projeto. O Railway não lê esse arquivo no de
 
 O deploy da aplicação em si não passa por esse workflow. Cada push em `main` dispara o Railway, e `checkSuites` segura o deploy até o workflow `ci` ficar verde.
 
+O job `bootstrap` também publica um proxy TCP da porta `5432` do `postgres`. Não é uma URL HTTP: o cliente usa `host:porta` com o usuário `divulgador`, a senha que já está no Railway e `sslmode=disable`. A `DATABASE_URL` da API e do worker continua na rede privada. Esse usuário é superuser. Quem tiver a senha derruba o banco. O arquivo não declara o proxy; o próximo apply pode apagá-lo, e o bootstrap cria de novo.
+
 ## O que não está no arquivo
 
 - Domínio gerado `*.up.railway.app`. O IaC não declara domínio automático.
