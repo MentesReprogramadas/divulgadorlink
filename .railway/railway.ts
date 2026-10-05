@@ -78,6 +78,7 @@ export default defineRailway(() => {
     source: source("backend"),
     build: { ...dockerfile, watchPatterns: ["/backend/**"] },
     start: "node build/worker.js",
+    preDeploy: "npx prisma migrate deploy",
     deploy: { restartPolicyType: "ON_FAILURE", restartPolicyMaxRetries: 5 },
     env: runtime,
   });
