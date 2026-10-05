@@ -30,13 +30,17 @@ type Home = {
 
 async function loadHome(): Promise<Home | null> {
   const hostHeader = (await headers()).get('host') ?? 'localhost'
-  const result = await forward({
-    method: 'GET',
-    path: '/api/v1/home',
-    host: tenantHost(hostHeader.split(':')[0] || 'localhost'),
-  })
-  if (result.status !== 200) return null
-  return JSON.parse(result.body.toString()) as Home
+  try {
+    const result = await forward({
+      method: 'GET',
+      path: '/api/v1/home',
+      host: tenantHost(hostHeader.split(':')[0] || 'localhost'),
+    })
+    if (result.status !== 200) return null
+    return JSON.parse(result.body.toString()) as Home
+  } catch {
+    return null
+  }
 }
 
 export async function generateMetadata(): Promise<Metadata> {

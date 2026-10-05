@@ -170,6 +170,7 @@ jobs:
           web_host="$(ensure_host web)"
           api_host="$(ensure_host api)"
           echo "web=${web_host:-missing} api=${api_host:-missing}"
+          echo "API_ORIGIN=$(value_of web API_ORIGIN)"
           if [ -z "$web_host" ]; then
             echo "O serviço web não tem domínio público."
             exit 1

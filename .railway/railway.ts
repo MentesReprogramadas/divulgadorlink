@@ -72,7 +72,7 @@ export default defineRailway(() => {
     healthcheck: "/api/v1/actuator/ready",
     healthcheckTimeout: 120,
     deploy: { restartPolicyType: "ON_FAILURE", restartPolicyMaxRetries: 5 },
-    env: runtime,
+    env: { ...runtime, PORT: "8080" },
   });
 
   const worker = service("worker", {
@@ -92,7 +92,9 @@ export default defineRailway(() => {
     healthcheckTimeout: 120,
     deploy: { restartPolicyType: "ON_FAILURE", restartPolicyMaxRetries: 5 },
     env: {
-      API_ORIGIN: "http://${{api.RAILWAY_PRIVATE_DOMAIN}}:${{api.PORT}}",
+      // ${{api.PORT}} não entra nas variáveis referenciáveis. Vazio vira porta 80.
+      // O domínio público da API também aponta para 8080.
+      API_ORIGIN: "http://${{api.RAILWAY_PRIVATE_DOMAIN}}:8080",
     },
   });
 

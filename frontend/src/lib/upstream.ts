@@ -37,7 +37,11 @@ export function forward(input: {
       res.on('data', (chunk: Buffer) => chunks.push(chunk))
       res.on('end', () => resolve({ status: res.statusCode ?? 500, headers: res.headers, body: Buffer.concat(chunks) }))
     })
-    req.on('error', reject)
+    req.on('error', (error) => {
+      const code = error instanceof Error && 'code' in error ? String(error.code) : 'ERR'
+      console.error(`upstream ${code} ${origin.hostname}:${origin.port || 80}`)
+      reject(error)
+    })
     if (input.body) req.write(input.body)
     req.end()
   })
