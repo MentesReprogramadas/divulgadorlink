@@ -1,12 +1,20 @@
 name: Railway config
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - ".railway/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/railway-config.yml"
   pull_request:
     types: [opened, synchronize, reopened, closed]
     paths:
       - ".railway/**"
       - "package.json"
       - "package-lock.json"
+      - ".github/workflows/railway-config.yml"
 
 permissions:
   contents: read
@@ -48,3 +56,34 @@ jobs:
         with:
           command: apply
           railway-token: ${{ secrets.RAILWAY_TOKEN }}
+
+  # A action só aplica o artefato de um PR mergeado. Push direto na main
+  # planeja e aplica na hora. Mudança destrutiva falha, em vez de apagar recurso.
+  apply_main:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - uses: railwayapp/config@v1
+        with:
+          command: plan
+          comment: "false"
+          railway-token: ${{ secrets.RAILWAY_TOKEN }}
+      - name: Apply this push unless a merged pull request already owns it
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          merged="$(gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/pulls" --jq '[.[] | select(.merged_at != null)] | length' || echo 0)"
+          if [ "$merged" != "0" ]; then
+            echo "Commit de pull request mergeado. O job apply usa o plano pinado."
+            exit 0
+          fi
+          railway config apply --plan railway-plan.json --yes

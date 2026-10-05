@@ -1,6 +1,6 @@
 # Railway
 
-O arquivo `railway.ts` descreve o projeto. O Railway não lê esse arquivo no deploy. Quem aplica é o CLI, ou o workflow `.github/workflows/railway-config.yml` quando um pull request que mexe em `.railway/` é mergeado.
+O arquivo `railway.ts` descreve o projeto. O Railway não lê esse arquivo no deploy. Quem aplica é o CLI, ou o workflow `.github/workflows/railway-config.yml`: push direto na `main` planeja e aplica na hora; pull request planeja no diff e aplica o plano pinado no merge.
 
 ## Primeira vez
 
