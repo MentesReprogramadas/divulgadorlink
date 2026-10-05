@@ -96,11 +96,12 @@ describe('analytics no PostgreSQL', () => {
     await db.$disconnect()
   })
 
-  it('aplicou as 14 migrations, pgvector, analytics e os índices parciais', async () => {
+  it('aplicou as 15 migrations, pgvector, analytics e os índices parciais', async () => {
     const migrations = await db.$queryRaw<Array<{ migration_name: string }>>`
       SELECT migration_name FROM _prisma_migrations WHERE finished_at IS NOT NULL ORDER BY finished_at
     `
-    expect(migrations).toHaveLength(14)
+    expect(migrations).toHaveLength(15)
+    expect(migrations.map((row) => row.migration_name)).toContain('20261005193000_one_open_moderation_case')
     expect(migrations.map((row) => row.migration_name)).toContain('20261002140000_promotion_offers')
     expect(migrations.map((row) => row.migration_name)).toContain('20261002153000_adult_networks')
     expect(migrations.map((row) => row.migration_name)).toContain('20260929235000_analytics_events')
