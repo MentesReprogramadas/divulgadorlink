@@ -45,7 +45,8 @@ export default defineRailway(() => {
 
   const runtime = {
     NODE_ENV: "production",
-    HOST: "0.0.0.0",
+    // 0.0.0.0 não recebe o IPv6 da rede privada. :: no Linux também aceita IPv4.
+    HOST: "::",
     DATABASE_URL:
       "postgresql://divulgador:${{postgres.POSTGRES_PASSWORD}}@${{postgres.RAILWAY_PRIVATE_DOMAIN}}:5432/divulgador",
     REDIS_URL: cache.env.REDIS_URL,
