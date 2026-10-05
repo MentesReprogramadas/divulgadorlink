@@ -37,6 +37,7 @@ export default defineRailway(() => {
       POSTGRES_USER: "divulgador",
       POSTGRES_DB: "divulgador",
       POSTGRES_PASSWORD: preserve(),
+      PGDATA: "/var/lib/postgresql/data/pgdata",
     },
   });
   const cache = redis("redis");
