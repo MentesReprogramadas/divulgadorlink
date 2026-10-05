@@ -37,6 +37,8 @@ export default defineRailway(() => {
       POSTGRES_USER: "divulgador",
       POSTGRES_DB: "divulgador",
       POSTGRES_PASSWORD: preserve(),
+      // O volume nasce com lost+found. initdb recusa um PGDATA não vazio.
+      PGDATA: "/var/lib/postgresql/data/pgdata",
     },
   });
   const cache = redis("redis");

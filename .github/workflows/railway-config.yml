@@ -184,11 +184,25 @@ jobs:
             done
           fi
           echo "postgres=$(deployment_status postgres) api=$(deployment_status api) worker=$(deployment_status worker)"
-          # A gravação sem --skip-deploys enfileira o deploy. `redeploy`
-          # recusa enquanto o build anterior ainda está na fila.
+          # redeploy recusa deployment removido ou ainda em build. Gravar a
+          # URL de novo, sem --skip-deploys, abre um deployment novo.
+          queue_deploy() {
+            local service="$1" status
+            status="$(deployment_status "$service")"
+            case "$status" in
+              SUCCESS|BUILDING|DEPLOYING|INITIALIZING) echo "$service=$status" ;;
+              *)
+                echo "$service=$status, enfileirando deploy"
+                printf '%s' "$url" | railway variable set APP_PUBLIC_URL --stdin --service "$service"
+                ;;
+            esac
+          }
           if [ "$changed_app" = 1 ]; then
             printf '%s' "$url" | railway variable set APP_PUBLIC_URL --stdin --service api
             printf '%s' "$url" | railway variable set APP_PUBLIC_URL --stdin --service worker
+          else
+            queue_deploy api
+            queue_deploy worker
           fi
           pg_status="$(deployment_status postgres)"
           if [ "$changed_pg" = 1 ] || [ "$pg_status" = "FAILED" ] || [ "$pg_status" = "CRASHED" ] || [ "$pg_status" = "REMOVED" ]; then
