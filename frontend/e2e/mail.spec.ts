@@ -161,6 +161,6 @@ test('excluir a conta avisa e a senha deixa de entrar', async ({ page }) => {
   await page.getByLabel('E-mail').fill(email)
   await page.getByLabel('Senha').fill(state.password)
   await page.getByRole('button', { name: 'Entrar' }).click()
-  await expect(page.getByRole('alert')).toBeVisible()
+  await expect(page.locator('main').getByRole('alert')).toHaveText('Credenciais inválidas.')
   expect(sql(`SELECT count(*) FROM user_identifiers WHERE "normalizedValue" = '${email}'`)).toBe('0')
 })
