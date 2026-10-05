@@ -99,7 +99,7 @@ test('esqueci a senha troca a senha e entra com a nova', async ({ page }) => {
   await page.getByLabel('Nova senha').fill(next)
   await page.getByRole('button', { name: 'Salvar senha' }).click()
   await expect(page.getByRole('status')).toHaveText('Senha salva.')
-  await page.getByRole('link', { name: 'Entrar' }).click()
+  await page.getByRole('main').getByRole('link', { name: 'Entrar' }).click()
   await page.getByLabel('E-mail').fill(email)
   await page.getByLabel('Senha').fill(next)
   await page.getByRole('button', { name: 'Entrar' }).click()

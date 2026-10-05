@@ -2,10 +2,16 @@ export type Session = { role: string; status: string; canSubmit: boolean }
 
 const KEY = 'catalogo.session'
 const NOTICE_KEY = 'catalogo.notice'
+const NOTICE_EVENT = 'catalogo-notice'
 export const SESSION_EVENT = 'catalogo-session'
+
+function publishNotice(): void {
+  window.dispatchEvent(new Event(NOTICE_EVENT))
+}
 
 export function pushNotice(text: string): void {
   window.sessionStorage.setItem(NOTICE_KEY, text)
+  publishNotice()
 }
 
 export function readNotice(): string {
@@ -14,6 +20,12 @@ export function readNotice(): string {
 
 export function clearNotice(): void {
   window.sessionStorage.removeItem(NOTICE_KEY)
+  publishNotice()
+}
+
+export function subscribeNotice(onChange: () => void): () => void {
+  window.addEventListener(NOTICE_EVENT, onChange)
+  return () => window.removeEventListener(NOTICE_EVENT, onChange)
 }
 
 export function readSession(): Session | null {

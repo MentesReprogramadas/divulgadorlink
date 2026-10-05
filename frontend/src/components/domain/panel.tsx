@@ -13,7 +13,7 @@ import {
 import { OrderGrid, type PanelOrder } from "@/components/domain/order-grid";
 import { linkStatusLabel } from "@/domain/labels";
 import { formatCents } from "@/domain/money";
-import { clearNotice, clearSession, readNotice, readSession, SESSION_EVENT, type Session } from "@/domain/session";
+import { clearNotice, clearSession, readNotice, readSession, SESSION_EVENT, subscribeNotice, type Session } from "@/domain/session";
 import { AdminNav } from "@/components/domain/admin-nav";
 import { api, currentSession } from "@/lib/api";
 
@@ -245,15 +245,15 @@ function needsWork(link: PanelLink): boolean {
 function ConfirmedToast() {
   const [text, setText] = useState("");
   useEffect(() => {
-    const notice = readNotice();
-    if (!notice) return;
-    setText(notice);
-    const timer = window.setTimeout(() => {
-      clearNotice();
-      setText("");
-    }, 4000);
-    return () => window.clearTimeout(timer);
+    const show = () => setText(readNotice());
+    show();
+    return subscribeNotice(show);
   }, []);
+  useEffect(() => {
+    if (!text) return;
+    const timer = window.setTimeout(() => clearNotice(), 4000);
+    return () => window.clearTimeout(timer);
+  }, [text]);
   if (!text) return null;
   return <p className="toast" role="status">{text}</p>;
 }
