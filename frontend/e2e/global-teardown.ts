@@ -25,4 +25,5 @@ export default function globalTeardown(): void {
   } catch {
     // o servidor já saiu
   }
+  spawnSync('docker', ['rm', '-f', 'divulgador-e2e-pg', 'divulgador-e2e-redis'], { stdio: 'ignore', shell: true })
 }

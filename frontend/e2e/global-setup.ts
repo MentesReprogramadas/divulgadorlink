@@ -47,6 +47,7 @@ async function assertPortsFree(): Promise<void> {
 export default async function globalSetup(): Promise<void> {
   await assertPortsFree()
   spawnSync('docker', ['rm', '-f', PG, REDIS], { stdio: 'ignore', shell: true })
+  try {
   run('docker', [
     'run', '-d', '--name', PG,
     '-e', 'POSTGRES_PASSWORD=divulgador',
@@ -62,26 +63,30 @@ export default async function globalSetup(): Promise<void> {
     if (attempt === 39) throw new Error('PostgreSQL do E2E não ficou pronto')
     await delay(1000)
   }
-  run('npx', ['prisma', 'migrate', 'deploy'])
-  run('npx', ['tsx', 'scripts/e2e-seed.ts'])
-  const frontend = path.join(__dirname, '..')
-  const child = spawn('node', ['e2e/serve.mjs'], {
-    cwd: frontend,
-    detached: true,
-    stdio: 'inherit',
-    shell: true,
-  })
-  if (!child.pid) throw new Error('não subiu o servidor do E2E')
-  writeFileSync(path.join(__dirname, 'serve.pid'), String(child.pid))
-  child.unref()
-  for (let attempt = 0; attempt < 240; attempt += 1) {
-    try {
-      const response = await fetch('http://127.0.0.1:3000')
-      if (response.status < 500) return
-    } catch {
-      // o Next ainda não escuta
+    run('npx', ['prisma', 'migrate', 'deploy'])
+    run('npx', ['tsx', 'scripts/e2e-seed.ts'])
+    const frontend = path.join(__dirname, '..')
+    const child = spawn('node', ['e2e/serve.mjs'], {
+      cwd: frontend,
+      detached: true,
+      stdio: 'inherit',
+      shell: true,
+    })
+    if (!child.pid) throw new Error('não subiu o servidor do E2E')
+    writeFileSync(path.join(__dirname, 'serve.pid'), String(child.pid))
+    child.unref()
+    for (let attempt = 0; attempt < 240; attempt += 1) {
+      try {
+        const response = await fetch('http://127.0.0.1:3000')
+        if (response.status < 500) return
+      } catch {
+        // o Next ainda não escuta
+      }
+      await delay(1000)
     }
-    await delay(1000)
+    throw new Error('Next não ficou pronto')
+  } catch (error) {
+    spawnSync('docker', ['rm', '-f', PG, REDIS], { stdio: 'ignore', shell: true })
+    throw error
   }
-  throw new Error('Next não ficou pronto')
 }
