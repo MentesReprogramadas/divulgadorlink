@@ -58,7 +58,7 @@ jobs:
           railway-token: ${{ secrets.RAILWAY_TOKEN }}
 
   # A action só aplica o artefato de um PR mergeado. Push direto na main
-  # planeja e aplica na hora. Mudança destrutiva falha, em vez de apagar recurso.
+  # planeja e aplica na hora, inclusive remoção do que não está no arquivo.
   apply_main:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
@@ -86,4 +86,4 @@ jobs:
             echo "Commit de pull request mergeado. O job apply usa o plano pinado."
             exit 0
           fi
-          railway config apply --plan railway-plan.json --yes
+          railway config apply --plan railway-plan.json --yes --confirm-destructive
