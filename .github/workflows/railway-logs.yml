@@ -1,0 +1,28 @@
+name: Railway logs
+
+on:
+  workflow_dispatch:
+
+jobs:
+  logs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install -g @railway/cli@latest
+      - name: Read recent web and api logs
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          set +e
+          echo "---- web deploy ----"
+          railway logs --service web --lines 60 --since 3h
+          echo "---- web dns ----"
+          railway logs --service web --dns --qname api.railway.internal --lines 20
+          echo "---- web network ----"
+          railway logs --service web --network --peer api --lines 20
+          echo "---- api deploy ----"
+          railway logs --service api --lines 60 --since 3h
+          echo "---- api latest ----"
+          railway logs --service api --latest --lines 40
