@@ -211,7 +211,15 @@ jobs:
           fi
           # O DSL não declara proxy TCP. O apply pode apagar o que o painel criou;
           # este passo recria a porta 5432. A senha não entra no log.
-          proxy_json="$(railway tcp-proxy create --port 5432 --service postgres --json)"
+          set +e
+          proxy_json="$(railway tcp-proxy create --port 5432 --service postgres --json 2>&1)"
+          proxy_code=$?
+          set -e
+          if [ "$proxy_code" != 0 ]; then
+            echo "tcp-proxy create saiu com ${proxy_code}"
+            printf '%s\n' "$proxy_json" | sed -E 's/(Authorization|Bearer|token|password|secret)[^[:space:]]*/[redacted]/Ig' | head -n 40
+            exit 1
+          fi
           endpoint="$(printf '%s' "$proxy_json" | jq -r '.proxy.endpoint // empty')"
           sync="$(printf '%s' "$proxy_json" | jq -r '.proxy.syncStatus // empty')"
           staged="$(printf '%s' "$proxy_json" | jq -r '.staged')"
