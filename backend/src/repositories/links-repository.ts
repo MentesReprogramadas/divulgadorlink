@@ -69,6 +69,7 @@ export type NetworkRecord = {
   isPublicFacet: boolean
   requiresAge?: boolean
   summary: string | null
+  updatedAt: Date
 }
 export type NicheRecord = {
   id: string
@@ -78,6 +79,7 @@ export type NicheRecord = {
   requiresAge: boolean
   isPublicFacet: boolean
   summary: string | null
+  updatedAt: Date
 }
 
 export type LinkRecord = {
@@ -195,13 +197,14 @@ export class InMemoryLinksRepository implements LinksRepository {
     this.links = []
     this.promotions = []
     this.bans = []
+    const updatedAt = new Date('2026-09-01T00:00:00.000Z')
     this.networks = [
-      { id: 'net-telegram', tenantId, name: 'Telegram', slug: 'telegram', isPublicFacet: true, summary: null },
-      { id: 'net-outro', tenantId, name: 'Outro', slug: 'outro', isPublicFacet: false, summary: null },
+      { id: 'net-telegram', tenantId, name: 'Telegram', slug: 'telegram', isPublicFacet: true, summary: null, updatedAt },
+      { id: 'net-outro', tenantId, name: 'Outro', slug: 'outro', isPublicFacet: false, summary: null, updatedAt },
     ]
     this.niches = [
-      { id: 'niche-jogos', tenantId, name: 'Jogos', slug: 'jogos', requiresAge: false, isPublicFacet: true, summary: null },
-      { id: 'niche-apostas', tenantId, name: 'Apostas', slug: 'apostas', requiresAge: true, isPublicFacet: true, summary: null },
+      { id: 'niche-jogos', tenantId, name: 'Jogos', slug: 'jogos', requiresAge: false, isPublicFacet: true, summary: null, updatedAt },
+      { id: 'niche-apostas', tenantId, name: 'Apostas', slug: 'apostas', requiresAge: true, isPublicFacet: true, summary: null, updatedAt },
     ]
   }
 
@@ -318,6 +321,7 @@ export class InMemoryLinksRepository implements LinksRepository {
       isPublicFacet: !input.requiresAge,
       ...input,
       summary: null,
+      updatedAt: new Date(),
     }
     this.niches.push(row)
     return { ...row }
@@ -331,6 +335,7 @@ export class InMemoryLinksRepository implements LinksRepository {
     const row = this.niches.find((item) => item.id === input.id && item.tenantId === input.tenantId)
     if (!row) return null
     row.isPublicFacet = input.isPublicFacet
+    row.updatedAt = new Date()
     return { ...row }
   }
 
@@ -361,6 +366,7 @@ export class InMemoryLinksRepository implements LinksRepository {
     const row = rows.find((item) => item.id === input.id && item.tenantId === input.tenantId)
     if (!row) return null
     row.summary = input.summary
+    row.updatedAt = new Date()
     return { ...row }
   }
 
@@ -483,7 +489,7 @@ export class PrismaLinksRepository implements LinksRepository {
   async findNetwork(tenantId: string, id: string): Promise<NetworkRecord | null> {
     return this.client.network.findFirst({
       where: { id, tenantId },
-      select: { id: true, tenantId: true, name: true, slug: true, isPublicFacet: true, requiresAge: true, summary: true },
+      select: { id: true, tenantId: true, name: true, slug: true, isPublicFacet: true, requiresAge: true, summary: true, updatedAt: true },
     })
   }
 
@@ -498,6 +504,7 @@ export class PrismaLinksRepository implements LinksRepository {
         requiresAge: true,
         isPublicFacet: true,
         summary: true,
+        updatedAt: true,
       },
     })
   }
@@ -505,7 +512,7 @@ export class PrismaLinksRepository implements LinksRepository {
   async listNetworks(tenantId: string): Promise<NetworkRecord[]> {
     return this.client.network.findMany({
       where: { tenantId },
-      select: { id: true, tenantId: true, name: true, slug: true, isPublicFacet: true, requiresAge: true, summary: true },
+      select: { id: true, tenantId: true, name: true, slug: true, isPublicFacet: true, requiresAge: true, summary: true, updatedAt: true },
     })
   }
 
@@ -549,6 +556,7 @@ export class PrismaLinksRepository implements LinksRepository {
         requiresAge: true,
         isPublicFacet: true,
         summary: true,
+        updatedAt: true,
       },
     })
   }
@@ -773,6 +781,7 @@ const NICHE_SELECT = {
   requiresAge: true,
   isPublicFacet: true,
   summary: true,
+  updatedAt: true,
 } as const
 
 function groupFacetCounts(rows: Array<{ nicheId: string; networkId: string }>): {

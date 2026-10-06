@@ -344,8 +344,10 @@ async function getFacet(
     const niches = kind === 'network' ? await companionFacets(tenant.id, 'network', slug) : undefined
     const networks = kind === 'niche' ? await companionFacets(tenant.id, 'niche', slug) : undefined
     const requiresAge = facet.requiresAge === true
-    const filterRequiresAge = Boolean(niches?.find((row) => row.slug === filterNiche)?.requiresAge)
-    const adult = Boolean(requiresAge || filterRequiresAge)
+    const companionRequiresAge = kind === 'network'
+      ? snapshot.niches.some((row) => row.slug === filterNiche && row.requiresAge)
+      : snapshot.networks.some((row) => row.slug === filterNetwork && row.requiresAge === true)
+    const ageRestricted = requiresAge || companionRequiresAge
     const filtered = Boolean(query.network || query.niche || query.cursor)
     const heading = facet.name
     const description = facetBlurb(kind, facet.name, facet.summary)
@@ -356,7 +358,7 @@ async function getFacet(
       : (snapshot.networkCount.get(facet.id) ?? 0)
     const robots = facetRobots({
       isPublicFacet: facet.isPublicFacet,
-      requiresAge,
+      requiresAge: ageRestricted,
       summary: facet.summary,
       substantiveCount,
       filtered,
@@ -369,7 +371,7 @@ async function getFacet(
       robots,
       structuredData: facetStructuredData(host, heading, description, canonical, indexableIds),
     })
-    if (adult && age !== 'yes') {
+    if (ageRestricted && age !== 'yes') {
       return reply.status(200).send({
         seo: facetSeo([]),
         heading,

@@ -218,6 +218,16 @@ describe('contratos HTTP da vitrine', () => {
     })
   })
 
+  it('rede pública filtrada por nicho 18+ fica noindex,nofollow', async () => {
+    const page = await app.inject({
+      method: 'GET',
+      url: '/api/v1/networks/telegram?niche=apostas',
+      headers: { host: HOST },
+    })
+    expect(page.statusCode).toBe(200)
+    expect(page.json().seo.robots).toBe('noindex,nofollow')
+  })
+
   it('faceta e link entram juntos quando há substância, e 18+ continua fora', async () => {
     const fat = 'c'.repeat(80)
     const niche = repo().niches.find((row) => row.id === 'niche-jogos')!
@@ -256,7 +266,10 @@ describe('contratos HTTP da vitrine', () => {
     const map = await app.inject({ method: 'GET', url: '/api/v1/sitemap', headers: { host: HOST } })
     const paths = map.json().entries.map((row: { path: string }) => row.path)
     expect(paths).toEqual(expect.arrayContaining(['/', '/nicho/jogos', '/link/link-gordo']))
-    expect(paths).not.toEqual(expect.arrayContaining(['/link/link-fino', '/nicho/apostas']))
+    expect(paths).not.toContain('/link/link-fino')
+    expect(paths).not.toContain('/nicho/apostas')
+    expect(map.json().entries.find((row: { path: string }) => row.path === '/nicho/jogos').updatedAt)
+      .toBe(niche.updatedAt.toISOString())
   })
 
   it('sitemap lista só a home quando a faceta e o link são finos, e esconde 18+, indisponível e banido', async () => {

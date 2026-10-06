@@ -51,7 +51,6 @@ async function loadLinks(tenantId: string): Promise<SitemapLink[]> {
       owner: { select: { status: true } },
     },
     orderBy: { updatedAt: 'desc' },
-    take: LINK_CAP,
   })
   return rows.map((row) => ({
     id: row.id,
@@ -83,7 +82,7 @@ async function entriesFrom(tenantId: string, links: SitemapLink[]): Promise<Site
   const entries: SitemapEntry[] = [{ path: '/', updatedAt: now }]
   for (const niche of niches) {
     if (nicheOk.get(niche.id) !== true) continue
-    entries.push({ path: `/nicho/${encodeURIComponent(niche.slug)}`, updatedAt: now })
+    entries.push({ path: `/nicho/${encodeURIComponent(niche.slug)}`, updatedAt: niche.updatedAt.toISOString() })
   }
   for (const network of networks) {
     const ok = facetIndexable({
@@ -93,13 +92,14 @@ async function entriesFrom(tenantId: string, links: SitemapLink[]): Promise<Site
       substantiveCount: networkCount.get(network.id) ?? 0,
     })
     if (!ok) continue
-    entries.push({ path: `/rede/${encodeURIComponent(network.slug)}`, updatedAt: now })
+    entries.push({ path: `/rede/${encodeURIComponent(network.slug)}`, updatedAt: network.updatedAt.toISOString() })
   }
-  for (const link of links) {
-    if (link.status !== 'PUBLISHED' || link.ownerStatus === 'BANNED') continue
-    if (!substantiveText(link.name, link.description)) continue
-    if (nicheOk.get(link.nicheId) !== true) continue
-    entries.push({ path: `/link/${link.id}`, updatedAt: link.updatedAt.toISOString() })
-  }
-  return entries
+  const linkEntries = links
+    .filter((link) => link.status === 'PUBLISHED' && link.ownerStatus !== 'BANNED')
+    .filter((link) => substantiveText(link.name, link.description))
+    .filter((link) => nicheOk.get(link.nicheId) === true)
+    .sort((left, right) => right.updatedAt.getTime() - left.updatedAt.getTime())
+    .slice(0, LINK_CAP)
+    .map((link) => ({ path: `/link/${link.id}`, updatedAt: link.updatedAt.toISOString() }))
+  return [...entries, ...linkEntries]
 }
