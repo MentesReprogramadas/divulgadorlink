@@ -1,152 +1,76 @@
-'use client'
+import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
+import { FacetCatalog, type FacetCatalogBody } from '@/components/domain/facet-catalog'
+import { RetryState } from '@/components/feedback/retry-state'
+import { metadataFromSeo } from '@/domain/crawler-policy'
+import { loadCatalog, oneSlug } from '@/lib/catalog-page'
 
-import { Suspense, useEffect, useState } from 'react'
-import { useParams, useSearchParams } from 'next/navigation'
-import { AgePrompt, confirmAge } from '@/components/domain/age-gate'
-import { FacetFilters } from '@/components/domain/facet-filters'
-import { LinkRow } from '@/components/domain/link-row'
-import { EmptyState } from '@/components/feedback/empty-state'
-import { ErrorState } from '@/components/feedback/error-state'
-import { Loading } from '@/components/feedback/loading'
-import { TitleMark } from '@/components/ui/facet-badge'
-import { api } from '@/lib/api'
+export const dynamic = 'force-dynamic'
 
-type Facet = { name?: string; slug?: string } | null
-type Card = { id: string; name: string; description: string; surfaceToken: string; impressions?: number; niche?: Facet; network?: Facet }
-type RedeSeo = { title: string; description?: string }
-type RedeBody = {
-  seo: RedeSeo
-  ageRequired?: boolean
-  blocked?: boolean
+type RedeBody = FacetCatalogBody & {
+  seo: FacetCatalogBody['seo'] & {
+    description: string
+    canonical: string
+    openGraph?: { title: string; description: string; url: string }
+  }
   niches?: Array<{ id: string; name: string; slug: string; requiresAge?: boolean }>
-  showImpressions?: boolean
-  sponsored: Card[]
-  organic: Card[]
-  nextCursor?: string | null
 }
 
-function rowHref(row: Card): string {
-  return `/link/${row.id}?surfaceToken=${encodeURIComponent(row.surfaceToken)}`
+function apiPath(slug: string, niche: string | null): string {
+  const filter = niche ? `?niche=${encodeURIComponent(niche)}` : ''
+  return `/api/v1/networks/${encodeURIComponent(slug)}${filter}`
 }
 
-function usableDescription(seo: RedeSeo): string | null {
-  const description = seo.description?.trim() ?? ''
-  if (!description || description === seo.title.trim()) return null
-  return description
-}
-
-function BackHome() {
-  return (
-    <a className="rede-back" href="/" aria-label="Voltar para início">
-      <span aria-hidden="true">←</span>
-      Início
-    </a>
-  )
-}
-
-function ResultList({
-  id,
-  title,
-  rows,
-  placement,
-  showImpressions,
+export async function generateMetadata({
+  params,
+  searchParams,
 }: {
-  id: string
-  title: string
-  rows: Card[]
-  placement: 'sponsored' | 'organic'
-  showImpressions: boolean
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ nicho?: string | string[] }>
+}): Promise<Metadata> {
+  const { slug } = await params
+  const query = await searchParams
+  const loaded = await loadCatalog(apiPath(slug, oneSlug(query.nicho)))
+  if (loaded.status === 404) notFound()
+  const body = loaded.body as RedeBody | null
+  if (!body?.seo?.canonical) return { title: 'Tem Link Aqui', robots: { index: false, follow: false } }
+  return metadataFromSeo(body.seo)
+}
+
+export default async function Page({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ nicho?: string | string[] }>
 }) {
+  const { slug } = await params
+  const niche = oneSlug((await searchParams).nicho)
+  const loaded = await loadCatalog(apiPath(slug, niche))
+  if (loaded.status === 404) notFound()
+  const body = loaded.body as RedeBody | null
+  if (!body?.seo?.title) {
+    return (
+      <main className="rede-page">
+        <a className="rede-back" href="/" aria-label="Voltar para início"><span aria-hidden="true">←</span>Início</a>
+        <RetryState />
+      </main>
+    )
+  }
   return (
-    <section className="rede-list" aria-labelledby={id}>
-      <h2 id={id}>{title}</h2>
-      <div className="rede-results">
-        {rows.map((row) => (
-          <LinkRow
-            key={row.id}
-            id={row.id}
-            name={row.name}
-            description={row.description}
-            href={rowHref(row)}
-            placement={placement}
-            niche={row.niche}
-            network={row.network}
-            impressions={row.impressions}
-            showImpressions={showImpressions}
-          />
-        ))}
-      </div>
-    </section>
+    <FacetCatalog
+      pageClass="rede-page"
+      descriptionClass="rede-description"
+      backClass="rede-back"
+      listPrefix="rede"
+      mark="network"
+      slug={slug}
+      facetLabel="Nichos"
+      facetKind="niche"
+      active={niche}
+      facets={body.niches ?? []}
+      hrefFor={(next) => next ? `/rede/${encodeURIComponent(slug)}?nicho=${encodeURIComponent(next)}` : `/rede/${encodeURIComponent(slug)}`}
+      body={body}
+    />
   )
-}
-
-function NetworkPage() {
-  const params = useParams<{ slug: string }>()
-  const search = useSearchParams()
-  const niche = search.get('nicho')
-  const [body, setBody] = useState<RedeBody | null>(null)
-  const [state, setState] = useState<'loading' | 'error' | 'ready'>('loading')
-
-  async function load() {
-    setState('loading')
-    const filter = niche ? `?niche=${encodeURIComponent(niche)}` : ''
-    const result = await api<RedeBody>(`/v1/networks/${encodeURIComponent(params.slug)}${filter}`)
-    if (result.status !== 200 || !result.body.seo?.title) {
-      setBody(null)
-      setState('error')
-      return
-    }
-    setBody(result.body)
-    setState('ready')
-  }
-
-  useEffect(() => { void load() }, [params.slug, niche])
-
-  async function answer(choice: 'yes' | 'no') {
-    if (choice === 'no') {
-      window.location.href = '/'
-      return
-    }
-    if (await confirmAge(choice)) await load()
-  }
-
-  if (state === 'loading') {
-    return <main className="rede-page"><BackHome /><Loading /></main>
-  }
-  if (state === 'error' || !body) {
-    return <main className="rede-page"><BackHome /><ErrorState onRetry={() => void load()} /></main>
-  }
-
-  const showImpressions = body.showImpressions !== false
-  const sponsored = body.sponsored ?? []
-  const organic = body.organic ?? []
-  const description = usableDescription(body.seo)
-
-  return (
-    <main className="rede-page">
-      <BackHome />
-      <h1 className="entry-title page-mark"><TitleMark kind="network" slug={params.slug} />{body.seo.title}</h1>
-      {description ? <p className="rede-description">{description}</p> : null}
-      <FacetFilters
-        label="Nichos"
-        kind="niche"
-        items={body.niches ?? []}
-        active={niche}
-        hrefFor={(slug) => slug ? `/rede/${params.slug}?nicho=${encodeURIComponent(slug)}` : `/rede/${params.slug}`}
-      />
-      {body.ageRequired ? <AgePrompt onYes={() => void answer('yes')} onNo={() => void answer('no')} /> : null}
-      {body.blocked ? <p className="age-blocked">Este conteúdo é só para maiores de 18 anos.</p> : null}
-      {sponsored.length > 0 ? (
-        <ResultList id="rede-patrocinados" title="Patrocinados" rows={sponsored} placement="sponsored" showImpressions={showImpressions} />
-      ) : null}
-      {organic.length > 0 ? (
-        <ResultList id="rede-organicos" title="Orgânicos" rows={organic} placement="organic" showImpressions={showImpressions} />
-      ) : null}
-      {!body.ageRequired && !body.blocked && sponsored.length === 0 && organic.length === 0 ? <EmptyState>Nenhum link publicado</EmptyState> : null}
-    </main>
-  )
-}
-
-export default function Page() {
-  return <Suspense fallback={<main className="rede-page"><Loading /></main>}><NetworkPage /></Suspense>
 }

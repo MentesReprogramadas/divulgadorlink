@@ -1,7 +1,11 @@
+import type { Metadata } from 'next'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { LoginForm } from '@/components/forms/login-form'
+import { privateMetadata } from '@/domain/crawler-policy'
 import { isSignedIn } from '@/domain/account-nav'
+
+export const metadata: Metadata = privateMetadata
 
 export default async function Page() {
   const role = (await cookies()).get('catalogo_role')?.value

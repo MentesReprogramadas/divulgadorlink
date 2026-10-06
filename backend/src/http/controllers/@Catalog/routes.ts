@@ -11,6 +11,7 @@ import { getConfigsRepository } from '@/repositories/configs-repository'
 import { getLinksRepository } from '@/repositories/links-repository'
 import { capLimit, decodeCursor, InvalidCursorError, pageRanked } from '@/http/catalog-page'
 import { queryCatalogPage } from '@/http/catalog-query'
+import { indexableEntries } from '@/http/sitemap-index'
 import { rankHome, rankNiche, visibleForAge } from '@/use-cases/@Search/rank-links'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
 
@@ -82,7 +83,26 @@ async function counted(tenantId: string, rows: CardSource[], origin: AnalyticsOr
   }))
 }
 
-function seo(host: string, title: string, description: string, path: string, robots: 'index,follow' | 'noindex,nofollow') {
+const HOME_DESCRIPTION = 'Links, comunidades e serviços organizados por tema e rede.'
+
+function facetPath(kind: 'niche' | 'network', slug: string): string {
+  return `${kind === 'niche' ? '/nicho' : '/rede'}/${slug}`
+}
+
+function facetDescription(kind: 'niche' | 'network', name: string): string {
+  return kind === 'niche'
+    ? `Links de ${name} organizados por rede.`
+    : `Links publicados em ${name}.`
+}
+
+function seo(
+  host: string,
+  title: string,
+  description: string,
+  path: string,
+  robots: 'index,follow' | 'noindex,nofollow',
+  type: 'WebSite' | 'CollectionPage' | 'WebPage',
+) {
   const canonical = `https://${host}${path}`
   return {
     title,
@@ -92,8 +112,9 @@ function seo(host: string, title: string, description: string, path: string, rob
     openGraph: { title, description, url: canonical },
     structuredData: {
       '@context': 'https://schema.org',
-      '@type': 'WebSite',
+      '@type': type,
       name: title,
+      description,
       url: canonical,
     },
   }
@@ -157,7 +178,7 @@ async function getHome(request: FastifyRequest, reply: FastifyReply) {
       }
     }
     return reply.status(200).send({
-      seo: seo(host, tenant.name, 'Catálogo público de links', '/', 'index,follow'),
+      seo: seo(host, tenant.name, HOME_DESCRIPTION, '/', 'index,follow', 'WebSite'),
       networks: networks
         .filter((row) => row.isPublicFacet)
         .map((row) => ({ id: row.id, name: row.name, slug: row.slug, requiresAge: row.requiresAge === true })),
@@ -257,9 +278,18 @@ async function getFacet(
     const networks = kind === 'niche' ? await companionFacets(tenant.id, 'niche', slug) : undefined
     const requiresAge = 'requiresAge' in facet ? facet.requiresAge : false
     const filterRequiresAge = Boolean(niches?.find((row) => row.slug === filterNiche)?.requiresAge)
-    if ((requiresAge || filterRequiresAge) && age !== 'yes') {
+    const adult = Boolean(requiresAge || filterRequiresAge)
+    const facetSeo = seo(
+      host,
+      facet.name,
+      facetDescription(kind, facet.name),
+      facetPath(kind, slug),
+      adult ? 'noindex,nofollow' : 'index,follow',
+      adult ? 'WebPage' : 'CollectionPage',
+    )
+    if (adult && age !== 'yes') {
       return reply.status(200).send({
-        seo: seo(host, facet.name, facet.name, `/${kind}/${slug}`, 'noindex,nofollow'),
+        seo: facetSeo,
         ageRequired: age === 'unknown',
         ...(age === 'no' ? { blocked: true } : {}),
         showImpressions: await publicImpressions(tenant.id),
@@ -290,7 +320,7 @@ async function getFacet(
       const sponsored = loaded.rows.filter((row) => row.homeActivatedAt)
       const organic = loaded.rows.filter((row) => !row.homeActivatedAt)
       return reply.status(200).send({
-        seo: seo(host, facet.name, facet.name, `/${kind}/${slug}`, 'index,follow'),
+        seo: facetSeo,
         showImpressions: await publicImpressions(tenant.id),
         ...(niches ? { niches } : {}),
         ...(networks ? { networks } : {}),
@@ -315,7 +345,7 @@ async function getFacet(
     const byId = new Map(visible.map((row) => [row.id, row]))
     const present = (id: string) => byId.get(id)!
     return reply.status(200).send({
-      seo: seo(host, facet.name, facet.name, `/${kind}/${slug}`, 'index,follow'),
+      seo: facetSeo,
       showImpressions: await publicImpressions(tenant.id),
       ...(niches ? { niches } : {}),
       ...(networks ? { networks } : {}),
@@ -347,8 +377,22 @@ async function setAge(request: FastifyRequest, reply: FastifyReply) {
   return reply.status(204).send()
 }
 
+async function getSitemap(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const host = hostFromRequest(request)
+    const tenant = await resolveTenant(host)
+    return reply.status(200).send({ entries: await indexableEntries(tenant.id) })
+  } catch (error) {
+    if (error instanceof ResourceNotFoundError) {
+      return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
+    }
+    throw error
+  }
+}
+
 export async function catalogRoutes(app: FastifyInstance) {
   app.get('/home', getHome)
+  app.get('/sitemap', getSitemap)
   app.post('/age', setAge)
   app.get('/niches/:slug', (request, reply) => getFacet(request, reply, 'niche'))
   app.get('/networks/:slug', (request, reply) => getFacet(request, reply, 'network'))

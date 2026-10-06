@@ -283,14 +283,24 @@ async function createLink(request: FastifyRequest, reply: FastifyReply) {
   }
 }
 
-function unavailableSeo(host: string, id: string) {
-  const canonical = `https://${host}/links/${id}`
+function linkSeo(host: string, id: string, title: string, description: string, indexable: boolean) {
+  const canonical = `https://${host}/link/${id}`
+  const robots = indexable ? 'index,follow' as const : 'noindex,nofollow' as const
   return {
-    title: 'Indisponível',
-    description: 'Indisponível',
+    title,
+    description,
     canonical,
-    robots: 'noindex,nofollow' as const,
-    openGraph: { title: 'Indisponível', description: 'Indisponível', url: canonical },
+    robots,
+    openGraph: { title, description, url: canonical },
+    ...(indexable ? {
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: title,
+        description,
+        url: canonical,
+      },
+    } : {}),
   }
 }
 
@@ -308,7 +318,7 @@ async function getPublicLink(request: FastifyRequest, reply: FastifyReply) {
       return reply.status(200).send({
         id: link.id,
         available: false,
-        seo: unavailableSeo(host, link.id),
+        seo: linkSeo(host, link.id, 'Indisponível', 'Indisponível', false),
       })
     }
     const [network, niche] = await Promise.all([
@@ -316,7 +326,6 @@ async function getPublicLink(request: FastifyRequest, reply: FastifyReply) {
       repo.findNiche(tenant.id, link.nicheId),
     ])
     const surfaceToken = signSurface(tenant.id, link.id, 'organic', env.JWT_SECRET)
-    const canonical = `https://${host}/links/${link.id}`
     return reply.status(200).send({
       id: link.id,
       available: true,
@@ -326,13 +335,7 @@ async function getPublicLink(request: FastifyRequest, reply: FastifyReply) {
       niche: { name: niche?.name ?? '', slug: niche?.slug ?? '', requiresAge: niche?.requiresAge ?? false },
       surfaceToken,
       goPath: `/go/${link.id}?surfaceToken=${encodeURIComponent(surfaceToken)}`,
-      seo: {
-        title: link.name,
-        description: link.description,
-        canonical,
-        robots: 'index,follow',
-        openGraph: { title: link.name, description: link.description, url: canonical },
-      },
+      seo: linkSeo(host, link.id, link.name, link.description, niche?.requiresAge !== true),
     })
   } catch (error) {
     if (error instanceof ResourceNotFoundError) return missing()

@@ -1,8 +1,11 @@
+import { cache } from 'react'
 import { headers } from 'next/headers'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { Impression } from '@/components/domain/impression'
 import { trackedGoPath } from '@/domain/tracked-go'
+import { metadataFromSeo } from '@/domain/crawler-policy'
+import { jsonLdScript } from '@/domain/json-ld'
 import { tenantHost, forward } from '@/lib/upstream'
 import { DetailContext } from './detail-context'
 import { LinkMeta } from '@/components/domain/link-meta'
@@ -49,7 +52,7 @@ function usableDescription(name: string, description: string | undefined): strin
   return text
 }
 
-async function loadLink(id: string): Promise<{ status: number; link: PublicLink | null }> {
+const loadLink = cache(async (id: string): Promise<{ status: number; link: PublicLink | null }> => {
   const hostHeader = (await headers()).get('host') ?? 'localhost'
   const result = await forward({
     method: 'GET',
@@ -58,7 +61,7 @@ async function loadLink(id: string): Promise<{ status: number; link: PublicLink 
   })
   if (result.status === 404) return { status: 404, link: null }
   return { status: result.status, link: JSON.parse(result.body.toString()) as PublicLink }
-}
+})
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
@@ -69,13 +72,13 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (loaded.link.niche?.requiresAge) {
     return { title: 'Conteúdo para maiores de 18', robots: { index: false, follow: false } }
   }
-  return {
+  return metadataFromSeo({
     title: seo.title,
     description: seo.description,
-    robots: { index: seo.robots.startsWith('index'), follow: seo.robots.includes('follow') },
-    alternates: { canonical: seo.canonical },
+    canonical: seo.canonical,
+    robots: seo.robots,
     openGraph: seo.openGraph,
-  }
+  })
 }
 
 export default async function Page({
@@ -106,7 +109,7 @@ export default async function Page({
     <main className="detail-page">
       <AgeWall required={link.niche?.requiresAge === true}>
         {link.seo?.structuredData ? (
-          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(link.seo.structuredData) }} />
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(link.seo.structuredData) }} />
         ) : null}
         <DetailContext href={context.href} name={context.name} home={context.home} />
         <h1 className="entry-title">{link.name}</h1>

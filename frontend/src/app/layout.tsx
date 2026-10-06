@@ -24,7 +24,7 @@ const outfit = Outfit({
 
 export const metadata: Metadata = {
   title: 'Tem Link Aqui',
-  description: 'Catálogo público de links',
+  description: 'Links, comunidades e serviços organizados por tema e rede.',
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

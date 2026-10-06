@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { headers } from 'next/headers'
 import type { Metadata } from 'next'
 import { LinkMeta } from '@/components/domain/link-meta'
@@ -6,6 +7,9 @@ import { HomeExplore } from '@/components/domain/facet-filters'
 import { HomeSearch } from '@/components/domain/home-search'
 import { EmptyState } from '@/components/feedback/empty-state'
 import { ErrorState } from '@/components/feedback/error-state'
+import { metadataFromSeo } from '@/domain/crawler-policy'
+import { homeStructuredData } from '@/domain/home-structured-data'
+import { jsonLdScript } from '@/domain/json-ld'
 import { forward, tenantHost } from '@/lib/upstream'
 
 export const dynamic = 'force-dynamic'
@@ -28,7 +32,7 @@ type Home = {
   organic: Card[]
 }
 
-async function loadHome(): Promise<Home | null> {
+const loadHome = cache(async (): Promise<Home | null> => {
   const hostHeader = (await headers()).get('host') ?? 'localhost'
   try {
     const result = await forward({
@@ -41,23 +45,12 @@ async function loadHome(): Promise<Home | null> {
   } catch {
     return null
   }
-}
+})
 
 export async function generateMetadata(): Promise<Metadata> {
   const home = await loadHome()
   if (!home) return { title: 'Tem Link Aqui' }
-  const index = home.seo.robots.startsWith('index')
-  return {
-    title: home.seo.title,
-    description: home.seo.description,
-    robots: { index, follow: home.seo.robots.includes('follow') },
-    alternates: { canonical: home.seo.canonical },
-    openGraph: {
-      title: home.seo.openGraph.title,
-      description: home.seo.openGraph.description,
-      url: home.seo.openGraph.url,
-    },
-  }
+  return metadataFromSeo(home.seo)
 }
 
 function rowHref(row: Card): string {
@@ -88,7 +81,16 @@ export default async function Page() {
   ].filter(Boolean).join(' ')
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(home.seo.structuredData) }} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: jsonLdScript(homeStructuredData(
+            home.seo.structuredData,
+            new URL(home.seo.canonical).origin,
+            [...new Set([...home.sponsored, ...home.organic].map((row) => row.id))],
+          )),
+        }}
+      />
       <main>
         <div className={layoutClass}>
           {leftSponsored.length > 0 ? (

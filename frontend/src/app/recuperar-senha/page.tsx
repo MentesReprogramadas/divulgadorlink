@@ -1,4 +1,8 @@
+import type { Metadata } from 'next'
 import { ResetForm } from './reset-form'
+import { privateMetadata } from '@/domain/crawler-policy'
+
+export const metadata: Metadata = privateMetadata
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ token?: string }> }) {
   const params = await searchParams

@@ -95,7 +95,7 @@ test('home, SEO, cards e isolamento visual', async ({ browser }) => {
   })
   await page.goto(A)
   await expect(page).toHaveTitle('Tenant A')
-  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', 'Catálogo público de links')
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', 'Links, comunidades e serviços organizados por tema e rede.')
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://tenant-a.localhost/')
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /index/)
   const og = await page.locator('meta[property="og:url"]').getAttribute('content')
