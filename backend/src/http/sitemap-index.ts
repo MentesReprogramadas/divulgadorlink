@@ -1,3 +1,4 @@
+import { facetIndexable, substantiveText } from '@/domain/catalog/index-policy'
 import { prisma } from '@/lib/prisma'
 import { getLinksRepository, InMemoryLinksRepository } from '@/repositories/links-repository'
 
@@ -5,67 +6,100 @@ export type SitemapEntry = { path: string; updatedAt: string }
 
 const LINK_CAP = 49_000
 
-export async function indexableEntries(tenantId: string): Promise<SitemapEntry[]> {
-  if (process.env.NODE_ENV === 'test') return memoryEntries(tenantId)
-  return databaseEntries(tenantId)
+type SitemapLink = {
+  id: string
+  name: string
+  description: string
+  nicheId: string
+  updatedAt: Date
+  status: string
+  ownerStatus: string | null
 }
 
-async function memoryEntries(tenantId: string): Promise<SitemapEntry[]> {
+export async function indexableEntries(tenantId: string): Promise<SitemapEntry[]> {
+  return entriesFrom(tenantId, await loadLinks(tenantId))
+}
+
+async function loadLinks(tenantId: string): Promise<SitemapLink[]> {
+  if (process.env.NODE_ENV === 'test') {
+    const repo = getLinksRepository()
+    if (!(repo instanceof InMemoryLinksRepository)) return []
+    const rows: SitemapLink[] = []
+    for (const link of repo.links) {
+      if (link.tenantId !== tenantId) continue
+      const owner = link.ownerId ? await repo.findSubmitter(tenantId, link.ownerId) : null
+      rows.push({
+        id: link.id,
+        name: link.name,
+        description: link.description,
+        nicheId: link.nicheId,
+        updatedAt: link.updatedAt,
+        status: link.status,
+        ownerStatus: owner?.status ?? null,
+      })
+    }
+    return rows
+  }
+  const rows = await prisma.link.findMany({
+    where: { tenantId, status: 'PUBLISHED' },
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      nicheId: true,
+      updatedAt: true,
+      owner: { select: { status: true } },
+    },
+    orderBy: { updatedAt: 'desc' },
+    take: LINK_CAP,
+  })
+  return rows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    description: row.description,
+    nicheId: row.nicheId,
+    updatedAt: row.updatedAt,
+    status: 'PUBLISHED',
+    ownerStatus: row.owner?.status ?? null,
+  }))
+}
+
+async function entriesFrom(tenantId: string, links: SitemapLink[]): Promise<SitemapEntry[]> {
   const repo = getLinksRepository()
   const now = new Date().toISOString()
-  if (!(repo instanceof InMemoryLinksRepository)) return [{ path: '/', updatedAt: now }]
-  const niches = await repo.listNiches(tenantId)
-  const networks = await repo.listNetworks(tenantId)
-  const nicheById = new Map(niches.map((row) => [row.id, row]))
+  const [niches, networks, counts] = await Promise.all([
+    repo.listNiches(tenantId),
+    repo.listNetworks(tenantId),
+    repo.substantiveCounts(tenantId),
+  ])
+  const nicheCount = new Map(counts.niches.map((row) => [row.id, row.count]))
+  const networkCount = new Map(counts.networks.map((row) => [row.id, row.count]))
+  const nicheOk = new Map(niches.map((row) => [row.id, facetIndexable({
+    isPublicFacet: row.isPublicFacet,
+    requiresAge: row.requiresAge,
+    summary: row.summary,
+    substantiveCount: nicheCount.get(row.id) ?? 0,
+  })]))
   const entries: SitemapEntry[] = [{ path: '/', updatedAt: now }]
   for (const niche of niches) {
-    if (niche.isPublicFacet && !niche.requiresAge) entries.push({ path: `/nicho/${niche.slug}`, updatedAt: now })
+    if (nicheOk.get(niche.id) !== true) continue
+    entries.push({ path: `/nicho/${encodeURIComponent(niche.slug)}`, updatedAt: now })
   }
   for (const network of networks) {
-    if (network.isPublicFacet && network.requiresAge !== true) entries.push({ path: `/rede/${network.slug}`, updatedAt: now })
+    const ok = facetIndexable({
+      isPublicFacet: network.isPublicFacet,
+      requiresAge: network.requiresAge === true,
+      summary: network.summary,
+      substantiveCount: networkCount.get(network.id) ?? 0,
+    })
+    if (!ok) continue
+    entries.push({ path: `/rede/${encodeURIComponent(network.slug)}`, updatedAt: now })
   }
-  for (const link of repo.links) {
-    if (link.tenantId !== tenantId || link.status !== 'PUBLISHED') continue
-    const niche = nicheById.get(link.nicheId)
-    if (!niche || niche.requiresAge) continue
-    if (link.ownerId) {
-      const owner = await repo.findSubmitter(tenantId, link.ownerId)
-      if (owner?.status === 'BANNED') continue
-    }
+  for (const link of links) {
+    if (link.status !== 'PUBLISHED' || link.ownerStatus === 'BANNED') continue
+    if (!substantiveText(link.name, link.description)) continue
+    if (nicheOk.get(link.nicheId) !== true) continue
     entries.push({ path: `/link/${link.id}`, updatedAt: link.updatedAt.toISOString() })
   }
   return entries
-}
-
-async function databaseEntries(tenantId: string): Promise<SitemapEntry[]> {
-  const [niches, networks, links] = await Promise.all([
-    prisma.niche.findMany({
-      where: { tenantId, isPublicFacet: true, requiresAge: false },
-      select: { slug: true, updatedAt: true },
-      orderBy: { slug: 'asc' },
-    }),
-    prisma.network.findMany({
-      where: { tenantId, isPublicFacet: true, requiresAge: false },
-      select: { slug: true, updatedAt: true },
-      orderBy: { slug: 'asc' },
-    }),
-    prisma.link.findMany({
-      where: {
-        tenantId,
-        status: 'PUBLISHED',
-        niche: { requiresAge: false },
-        OR: [{ ownerId: null }, { owner: { status: { not: 'BANNED' } } }],
-      },
-      select: { id: true, updatedAt: true },
-      orderBy: { updatedAt: 'desc' },
-      take: LINK_CAP,
-    }),
-  ])
-  const newest = links[0]?.updatedAt ?? new Date()
-  return [
-    { path: '/', updatedAt: newest.toISOString() },
-    ...niches.map((row) => ({ path: `/nicho/${encodeURIComponent(row.slug)}`, updatedAt: row.updatedAt.toISOString() })),
-    ...networks.map((row) => ({ path: `/rede/${encodeURIComponent(row.slug)}`, updatedAt: row.updatedAt.toISOString() })),
-    ...links.map((row) => ({ path: `/link/${row.id}`, updatedAt: row.updatedAt.toISOString() })),
-  ]
 }

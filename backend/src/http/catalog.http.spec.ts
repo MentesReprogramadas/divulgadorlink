@@ -116,20 +116,26 @@ describe('contratos HTTP da vitrine', () => {
     expect(niche.statusCode).toBe(200)
     expect(network.statusCode).toBe(200)
     expect(niche.json().seo).toMatchObject({
-      title: 'Jogos',
+      title: 'Jogos | Tem Link Aqui',
       description: 'Links de Jogos organizados por rede.',
       canonical: 'https://temlinkaqui.com/nicho/jogos',
-      robots: 'index,follow',
+      robots: 'noindex,follow',
     })
-    expect(niche.json().seo.structuredData).toMatchObject({ '@type': 'CollectionPage', url: 'https://temlinkaqui.com/nicho/jogos' })
+    expect(niche.json().heading).toBe('Jogos')
+    expect(niche.json().seo.structuredData).toBeUndefined()
     expect(network.json().seo).toMatchObject({
-      title: 'Telegram',
-      description: 'Links publicados em Telegram.',
-      canonical: 'https://temlinkaqui.com/rede/telegram',
-      robots: 'index,follow',
+      title: 'Telegram | Tem Link Aqui',
+      robots: 'noindex,follow',
     })
     const filtered = await app.inject({ method: 'GET', url: '/api/v1/niches/jogos?network=telegram', headers: { host: HOST } })
-    expect(filtered.json().seo.canonical).toBe('https://temlinkaqui.com/nicho/jogos')
+    expect(filtered.json().seo).toMatchObject({
+      canonical: 'https://temlinkaqui.com/nicho/jogos',
+      robots: 'noindex,follow',
+    })
+    const cursorValue = Buffer.from(JSON.stringify({ kind: 'organic', activatedAt: null, id: 'no-nicho' }), 'utf8').toString('base64url')
+    const cursor = await app.inject({ method: 'GET', url: `/api/v1/niches/jogos?cursor=${cursorValue}`, headers: { host: HOST } })
+    expect(cursor.statusCode).toBe(200)
+    expect(cursor.json().seo.robots).toBe('noindex,follow')
     expect(readSurface(TENANT, 'no-nicho', niche.json().sponsored[0].surfaceToken, SECRET)).toBe('niche-home')
     expect(readSurface(TENANT, 'no-nicho', network.json().sponsored[0].surfaceToken, SECRET)).toBe('network-home')
     expect(missing.statusCode).toBe(404)
@@ -180,11 +186,7 @@ describe('contratos HTTP da vitrine', () => {
     expect(open.json().goPath).toContain('/go/link-publico?surfaceToken=')
     expect(open.json().seo).toMatchObject({
       canonical: 'https://temlinkaqui.com/link/link-publico',
-      robots: 'index,follow',
-    })
-    expect(open.json().seo.structuredData).toMatchObject({
-      '@type': 'WebPage',
-      url: 'https://temlinkaqui.com/link/link-publico',
+      robots: 'noindex,follow',
     })
     expect(readSurface(TENANT, published.id, open.json().surfaceToken, SECRET)).toBe('organic')
     expect(JSON.stringify(open.json())).not.toMatch(/t\.me\/secreto|ownerId|tenantId|Banido|motivo/)
@@ -216,7 +218,48 @@ describe('contratos HTTP da vitrine', () => {
     })
   })
 
-  it('sitemap lista a home, facetas públicas e links publicados, e esconde 18+, indisponível e banido', async () => {
+  it('faceta e link entram juntos quando há substância, e 18+ continua fora', async () => {
+    const fat = 'c'.repeat(80)
+    const niche = repo().niches.find((row) => row.id === 'niche-jogos')!
+    niche.summary = fat
+    repo().addLink({
+      id: 'link-gordo', tenantId: TENANT, ownerId: 'ana', status: 'PUBLISHED',
+      name: 'Receitas', description: fat, nicheId: 'niche-jogos', networkId: 'net-telegram',
+    })
+    repo().addLink({
+      id: 'link-fino', tenantId: TENANT, ownerId: 'ana', status: 'PUBLISHED',
+      name: 'Curto', description: 'x', nicheId: 'niche-jogos', networkId: 'net-telegram',
+    })
+    const page = await app.inject({ method: 'GET', url: '/api/v1/niches/jogos', headers: { host: HOST } })
+    expect(page.json().seo).toMatchObject({
+      title: 'Jogos | Tem Link Aqui',
+      description: fat,
+      robots: 'index,follow',
+    })
+    expect(page.json().seo.structuredData['@graph']).toEqual(expect.arrayContaining([
+      expect.objectContaining({ '@type': 'CollectionPage' }),
+      expect.objectContaining({ '@type': 'BreadcrumbList' }),
+    ]))
+    const open = await app.inject({ method: 'GET', url: '/api/v1/links/link-gordo', headers: { host: HOST } })
+    expect(open.json().seo).toMatchObject({
+      title: 'Receitas | Tem Link Aqui',
+      robots: 'index,follow',
+    })
+    const thin = await app.inject({ method: 'GET', url: '/api/v1/links/link-fino', headers: { host: HOST } })
+    expect(thin.statusCode).toBe(200)
+    expect(thin.json().seo.robots).toBe('noindex,follow')
+    expect(thin.json().seo.structuredData).toBeUndefined()
+    const adultNiche = repo().niches.find((row) => row.id === 'niche-apostas')!
+    adultNiche.summary = fat
+    const adult = await app.inject({ method: 'GET', url: '/api/v1/niches/apostas', headers: { host: HOST, cookie: 'age=yes' } })
+    expect(adult.json().seo.robots).toBe('noindex,nofollow')
+    const map = await app.inject({ method: 'GET', url: '/api/v1/sitemap', headers: { host: HOST } })
+    const paths = map.json().entries.map((row: { path: string }) => row.path)
+    expect(paths).toEqual(expect.arrayContaining(['/', '/nicho/jogos', '/link/link-gordo']))
+    expect(paths).not.toEqual(expect.arrayContaining(['/link/link-fino', '/nicho/apostas']))
+  })
+
+  it('sitemap lista só a home quando a faceta e o link são finos, e esconde 18+, indisponível e banido', async () => {
     repo().addLink({ id: 'link-publico', tenantId: TENANT, ownerId: 'ana', status: 'PUBLISHED', name: 'Receitas', description: 'bolos', nicheId: 'niche-jogos' })
     repo().addLink({ id: 'link-adulto', tenantId: TENANT, ownerId: 'ana', status: 'PUBLISHED', name: 'Oculto', description: 'x', nicheId: 'niche-apostas' })
     repo().addLink({ id: 'link-off', tenantId: TENANT, ownerId: 'ana', status: 'UNAVAILABLE', name: 'Fora', description: 'x' })
@@ -225,8 +268,8 @@ describe('contratos HTTP da vitrine', () => {
     const response = await app.inject({ method: 'GET', url: '/api/v1/sitemap', headers: { host: HOST } })
     expect(response.statusCode).toBe(200)
     const paths = response.json().entries.map((row: { path: string }) => row.path)
-    expect(paths).toEqual(expect.arrayContaining(['/', '/nicho/jogos', '/rede/telegram', '/link/link-publico']))
-    for (const hidden of ['/nicho/apostas', '/rede/outro', '/link/link-adulto', '/link/link-off', '/link/link-ban']) {
+    expect(paths).toEqual(['/'])
+    for (const hidden of ['/nicho/jogos', '/rede/telegram', '/link/link-publico', '/nicho/apostas', '/rede/outro', '/link/link-adulto', '/link/link-off', '/link/link-ban']) {
       expect(paths).not.toContain(hidden)
     }
     expect(JSON.stringify(response.json())).not.toMatch(/t\.me|ownerId|Oculto|Banido/)

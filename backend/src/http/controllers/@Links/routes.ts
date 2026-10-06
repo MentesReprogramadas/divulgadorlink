@@ -1,6 +1,7 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
 import { signSurface } from '@/domain/analytics/surface-token'
+import { documentTitle, facetIndexable, linkRobots, substantiveText } from '@/domain/catalog/index-policy'
 import { hitsBlocklist } from '@/domain/links/blocklist'
 import { assertPublicHttps } from '@/adapters/http/safe-fetch'
 import { canonicalUrl } from '@/domain/links/canonical-url'
@@ -283,22 +284,39 @@ async function createLink(request: FastifyRequest, reply: FastifyReply) {
   }
 }
 
-function linkSeo(host: string, id: string, title: string, description: string, indexable: boolean) {
-  const canonical = `https://${host}/link/${id}`
-  const robots = indexable ? 'index,follow' as const : 'noindex,nofollow' as const
+function linkSeo(input: {
+  host: string
+  id: string
+  name: string
+  description: string
+  tenantName: string
+  robots: ReturnType<typeof linkRobots>
+  nicheName: string
+  nicheSlug: string
+}) {
+  const title = documentTitle('named', input.name, input.tenantName)
+  const canonical = `https://${input.host}/link/${input.id}`
+  const indexable = input.robots.startsWith('index')
   return {
     title,
-    description,
+    description: input.description,
     canonical,
-    robots,
-    openGraph: { title, description, url: canonical },
+    robots: input.robots,
+    openGraph: { title, description: input.description, url: canonical },
     ...(indexable ? {
       structuredData: {
         '@context': 'https://schema.org',
-        '@type': 'WebPage',
-        name: title,
-        description,
-        url: canonical,
+        '@graph': [
+          { '@type': 'WebPage', name: input.name, description: input.description, url: canonical },
+          {
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Início', item: `https://${input.host}/` },
+              { '@type': 'ListItem', position: 2, name: input.nicheName, item: `https://${input.host}/nicho/${input.nicheSlug}` },
+              { '@type': 'ListItem', position: 3, name: input.name, item: canonical },
+            ],
+          },
+        ],
       },
     } : {}),
   }
@@ -318,13 +336,29 @@ async function getPublicLink(request: FastifyRequest, reply: FastifyReply) {
       return reply.status(200).send({
         id: link.id,
         available: false,
-        seo: linkSeo(host, link.id, 'Indisponível', 'Indisponível', false),
+        seo: linkSeo({
+          host,
+          id: link.id,
+          name: 'Indisponível',
+          description: 'Indisponível',
+          tenantName: tenant.name,
+          nicheName: '',
+          nicheSlug: '',
+          robots: linkRobots({ blocked: true, substantive: false, nicheIndexable: false }),
+        }),
       })
     }
-    const [network, niche] = await Promise.all([
+    const [network, niche, counts] = await Promise.all([
       repo.findNetwork(tenant.id, link.networkId),
       repo.findNiche(tenant.id, link.nicheId),
+      repo.substantiveCounts(tenant.id),
     ])
+    const nicheIndexable = niche ? facetIndexable({
+      isPublicFacet: niche.isPublicFacet,
+      requiresAge: niche.requiresAge,
+      summary: niche.summary,
+      substantiveCount: counts.niches.find((row) => row.id === niche.id)?.count ?? 0,
+    }) : false
     const surfaceToken = signSurface(tenant.id, link.id, 'organic', env.JWT_SECRET)
     return reply.status(200).send({
       id: link.id,
@@ -335,7 +369,20 @@ async function getPublicLink(request: FastifyRequest, reply: FastifyReply) {
       niche: { name: niche?.name ?? '', slug: niche?.slug ?? '', requiresAge: niche?.requiresAge ?? false },
       surfaceToken,
       goPath: `/go/${link.id}?surfaceToken=${encodeURIComponent(surfaceToken)}`,
-      seo: linkSeo(host, link.id, link.name, link.description, niche?.requiresAge !== true),
+      seo: linkSeo({
+        host,
+        id: link.id,
+        name: link.name,
+        description: link.description,
+        tenantName: tenant.name,
+        nicheName: niche?.name ?? '',
+        nicheSlug: niche?.slug ?? '',
+        robots: linkRobots({
+          substantive: substantiveText(link.name, link.description),
+          nicheIndexable,
+          blocked: niche?.requiresAge === true,
+        }),
+      }),
     })
   } catch (error) {
     if (error instanceof ResourceNotFoundError) return missing()

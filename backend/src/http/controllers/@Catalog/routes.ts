@@ -1,5 +1,13 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { signSurface, type AnalyticsOrigin } from '@/domain/analytics/surface-token'
+import {
+  documentTitle,
+  facetBlurb,
+  facetIndexable,
+  facetRobots,
+  substantiveText,
+  type Robots,
+} from '@/domain/catalog/index-policy'
 import { PUBLIC_LINK_FILTER } from '@/domain/catalog/public-link'
 import { env } from '@/env'
 import { buildError, not_found } from '@/http/errors'
@@ -75,12 +83,39 @@ function card(tenantId: string, row: CardSource, origin: AnalyticsOrigin) {
   }
 }
 
-async function counted(tenantId: string, rows: CardSource[], origin: AnalyticsOrigin) {
+function cardIndexable(row: CardSource, nicheOkBySlug: Map<string, boolean>): boolean {
+  return nicheOkBySlug.get(row.nicheSlug ?? '') === true && substantiveText(row.name, row.description)
+}
+
+async function counted(
+  tenantId: string,
+  rows: CardSource[],
+  origin: AnalyticsOrigin,
+  nicheOkBySlug: Map<string, boolean>,
+) {
   const counts = await getAnalyticsRepository().impressionTotals(tenantId, rows.map((row) => row.id))
   return rows.map((row) => ({
     ...card(tenantId, row, origin),
     impressions: counts.get(row.id) ?? 0,
+    indexable: cardIndexable(row, nicheOkBySlug),
   }))
+}
+
+async function indexSnapshot(tenantId: string) {
+  const [niches, networks, counts] = await Promise.all([
+    getLinksRepository().listNiches(tenantId),
+    getLinksRepository().listNetworks(tenantId),
+    getLinksRepository().substantiveCounts(tenantId),
+  ])
+  const nicheCount = new Map(counts.niches.map((row) => [row.id, row.count]))
+  const networkCount = new Map(counts.networks.map((row) => [row.id, row.count]))
+  const nicheOk = new Map(niches.map((row) => [row.id, facetIndexable({
+    isPublicFacet: row.isPublicFacet,
+    requiresAge: row.requiresAge,
+    summary: row.summary,
+    substantiveCount: nicheCount.get(row.id) ?? 0,
+  })]))
+  return { niches, networks, nicheCount, networkCount, nicheOk }
 }
 
 const HOME_DESCRIPTION = 'Links, comunidades e serviços organizados por tema e rede.'
@@ -89,34 +124,53 @@ function facetPath(kind: 'niche' | 'network', slug: string): string {
   return `${kind === 'niche' ? '/nicho' : '/rede'}/${slug}`
 }
 
-function facetDescription(kind: 'niche' | 'network', name: string): string {
-  return kind === 'niche'
-    ? `Links de ${name} organizados por rede.`
-    : `Links publicados em ${name}.`
+function seo(input: {
+  host: string
+  title: string
+  description: string
+  path: string
+  robots: Robots
+  structuredData?: Record<string, unknown>
+}) {
+  const canonical = `https://${input.host}${input.path}`
+  const structuredData = input.robots.startsWith('index') ? input.structuredData : undefined
+  return {
+    title: input.title,
+    description: input.description,
+    canonical,
+    robots: input.robots,
+    openGraph: { title: input.title, description: input.description, url: canonical },
+    ...(structuredData ? { structuredData } : {}),
+  }
 }
 
-function seo(
+function facetStructuredData(
   host: string,
-  title: string,
+  heading: string,
   description: string,
-  path: string,
-  robots: 'index,follow' | 'noindex,nofollow',
-  type: 'WebSite' | 'CollectionPage' | 'WebPage',
+  canonical: string,
+  indexableIds: string[],
 ) {
-  const canonical = `https://${host}${path}`
   return {
-    title,
-    description,
-    canonical,
-    robots,
-    openGraph: { title, description, url: canonical },
-    structuredData: {
-      '@context': 'https://schema.org',
-      '@type': type,
-      name: title,
-      description,
-      url: canonical,
-    },
+    '@context': 'https://schema.org',
+    '@graph': [
+      { '@type': 'CollectionPage', name: heading, description, url: canonical },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Início', item: `https://${host}/` },
+          { '@type': 'ListItem', position: 2, name: heading, item: canonical },
+        ],
+      },
+      ...(indexableIds.length > 0 ? [{
+        '@type': 'ItemList',
+        itemListElement: indexableIds.map((id, position) => ({
+          '@type': 'ListItem',
+          position: position + 1,
+          url: `https://${host}/link/${id}`,
+        })),
+      }] : []),
+    ],
   }
 }
 
@@ -129,11 +183,6 @@ async function getHome(request: FastifyRequest, reply: FastifyReply) {
     const host = hostFromRequest(request)
     const tenant = await resolveTenant(host)
     const age = ageFromCookie(request)
-    const repo = getLinksRepository()
-    const [networks, niches] = await Promise.all([
-      repo.listNetworks(tenant.id),
-      repo.listNiches(tenant.id),
-    ])
     const rows = process.env.NODE_ENV === 'test' ? linksFor() : []
     const query = request.query as { limit?: string; cursor?: string }
     const limit = capLimit(query.limit)
@@ -143,6 +192,9 @@ async function getHome(request: FastifyRequest, reply: FastifyReply) {
     } catch {
       return reply.status(400).send(buildError({ code: 'validation', message: 'Validation error.', request_id: request.id }))
     }
+    const snapshot = await indexSnapshot(tenant.id)
+    const { networks, niches } = snapshot
+    const nicheOkBySlug = new Map(niches.map((row) => [row.slug, snapshot.nicheOk.get(row.id) === true]))
     type CardRow = { id: string; name: string; description: string; nicheName?: string | null; nicheSlug?: string | null; networkName?: string | null; networkSlug?: string | null }
     let page: { sponsored: CardRow[]; organic: CardRow[]; nextCursor: string | null }
     if (process.env.NODE_ENV === 'test') {
@@ -177,8 +229,22 @@ async function getHome(request: FastifyRequest, reply: FastifyReply) {
         nextCursor: loaded.nextCursor,
       }
     }
+    const homeTitle = documentTitle('home', tenant.name, tenant.name)
     return reply.status(200).send({
-      seo: seo(host, tenant.name, HOME_DESCRIPTION, '/', 'index,follow', 'WebSite'),
+      seo: seo({
+        host,
+        title: homeTitle,
+        description: HOME_DESCRIPTION,
+        path: '/',
+        robots: 'index,follow',
+        structuredData: {
+          '@context': 'https://schema.org',
+          '@type': 'WebSite',
+          name: homeTitle,
+          description: HOME_DESCRIPTION,
+          url: `https://${host}/`,
+        },
+      }),
       networks: networks
         .filter((row) => row.isPublicFacet)
         .map((row) => ({ id: row.id, name: row.name, slug: row.slug, requiresAge: row.requiresAge === true })),
@@ -186,8 +252,8 @@ async function getHome(request: FastifyRequest, reply: FastifyReply) {
         .filter((row) => row.isPublicFacet)
         .map((row) => ({ id: row.id, name: row.name, slug: row.slug, requiresAge: row.requiresAge })),
       showImpressions: await publicImpressions(tenant.id),
-      sponsored: await counted(tenant.id, page.sponsored, 'home'),
-      organic: await counted(tenant.id, page.organic, 'home'),
+      sponsored: await counted(tenant.id, page.sponsored, 'home', nicheOkBySlug),
+      organic: await counted(tenant.id, page.organic, 'home', nicheOkBySlug),
       nextCursor: page.nextCursor,
     })
   } catch (error) {
@@ -265,8 +331,9 @@ async function getFacet(
     const host = hostFromRequest(request)
     const tenant = await resolveTenant(host)
     const age = ageFromCookie(request)
-    const repo = getLinksRepository()
-    const facets = kind === 'niche' ? await repo.listNiches(tenant.id) : await repo.listNetworks(tenant.id)
+    const snapshot = await indexSnapshot(tenant.id)
+    const nicheOkBySlug = new Map(snapshot.niches.map((row) => [row.slug, snapshot.nicheOk.get(row.id) === true]))
+    const facets = kind === 'niche' ? snapshot.niches : snapshot.networks
     const facet = facets.find((row) => row.slug === slug && row.isPublicFacet)
     if (!facet) {
       return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
@@ -276,20 +343,36 @@ async function getFacet(
     const filterNetwork = kind === 'niche' ? slugOf(query.network) : null
     const niches = kind === 'network' ? await companionFacets(tenant.id, 'network', slug) : undefined
     const networks = kind === 'niche' ? await companionFacets(tenant.id, 'niche', slug) : undefined
-    const requiresAge = 'requiresAge' in facet ? facet.requiresAge : false
+    const requiresAge = facet.requiresAge === true
     const filterRequiresAge = Boolean(niches?.find((row) => row.slug === filterNiche)?.requiresAge)
     const adult = Boolean(requiresAge || filterRequiresAge)
-    const facetSeo = seo(
+    const filtered = Boolean(query.network || query.niche || query.cursor)
+    const heading = facet.name
+    const description = facetBlurb(kind, facet.name, facet.summary)
+    const path = facetPath(kind, slug)
+    const canonical = `https://${host}${path}`
+    const substantiveCount = kind === 'niche'
+      ? (snapshot.nicheCount.get(facet.id) ?? 0)
+      : (snapshot.networkCount.get(facet.id) ?? 0)
+    const robots = facetRobots({
+      isPublicFacet: facet.isPublicFacet,
+      requiresAge,
+      summary: facet.summary,
+      substantiveCount,
+      filtered,
+    })
+    const facetSeo = (indexableIds: string[]) => seo({
       host,
-      facet.name,
-      facetDescription(kind, facet.name),
-      facetPath(kind, slug),
-      adult ? 'noindex,nofollow' : 'index,follow',
-      adult ? 'WebPage' : 'CollectionPage',
-    )
+      title: documentTitle('named', facet.name, tenant.name),
+      description,
+      path,
+      robots,
+      structuredData: facetStructuredData(host, heading, description, canonical, indexableIds),
+    })
     if (adult && age !== 'yes') {
       return reply.status(200).send({
-        seo: facetSeo,
+        seo: facetSeo([]),
+        heading,
         ageRequired: age === 'unknown',
         ...(age === 'no' ? { blocked: true } : {}),
         showImpressions: await publicImpressions(tenant.id),
@@ -307,6 +390,25 @@ async function getFacet(
       return reply.status(400).send(buildError({ code: 'validation', message: 'Validation error.', request_id: request.id }))
     }
     const origin: AnalyticsOrigin = kind === 'niche' ? 'niche-home' : 'network-home'
+    const sendPage = async (
+      sponsoredRows: CardSource[],
+      organicRows: CardSource[],
+      nextCursor: string | null,
+    ) => {
+      const sponsored = await counted(tenant.id, sponsoredRows, origin, nicheOkBySlug)
+      const organic = await counted(tenant.id, organicRows, origin, nicheOkBySlug)
+      const indexableIds = [...sponsored, ...organic].filter((row) => row.indexable).map((row) => row.id)
+      return reply.status(200).send({
+        seo: facetSeo(indexableIds),
+        heading,
+        showImpressions: await publicImpressions(tenant.id),
+        ...(niches ? { niches } : {}),
+        ...(networks ? { networks } : {}),
+        sponsored,
+        organic,
+        nextCursor,
+      })
+    }
     if (process.env.NODE_ENV !== 'test') {
       const loaded = await queryCatalogPage(prisma, {
         tenantId: tenant.id,
@@ -317,17 +419,11 @@ async function getFacet(
         limit,
         cursor,
       })
-      const sponsored = loaded.rows.filter((row) => row.homeActivatedAt)
-      const organic = loaded.rows.filter((row) => !row.homeActivatedAt)
-      return reply.status(200).send({
-        seo: facetSeo,
-        showImpressions: await publicImpressions(tenant.id),
-        ...(niches ? { niches } : {}),
-        ...(networks ? { networks } : {}),
-        sponsored: await counted(tenant.id, sponsored, origin),
-        organic: await counted(tenant.id, organic, origin),
-        nextCursor: loaded.nextCursor,
-      })
+      return sendPage(
+        loaded.rows.filter((row) => row.homeActivatedAt),
+        loaded.rows.filter((row) => !row.homeActivatedAt),
+        loaded.nextCursor,
+      )
     }
     const rows = linksFor().filter((row) => {
       if (kind === 'niche') return row.nicheSlug === slug && (!filterNetwork || row.networkSlug === filterNetwork)
@@ -344,15 +440,11 @@ async function getFacet(
     const page = pageRanked(ranked, cursor, limit)
     const byId = new Map(visible.map((row) => [row.id, row]))
     const present = (id: string) => byId.get(id)!
-    return reply.status(200).send({
-      seo: facetSeo,
-      showImpressions: await publicImpressions(tenant.id),
-      ...(niches ? { niches } : {}),
-      ...(networks ? { networks } : {}),
-      sponsored: await counted(tenant.id, page.sponsored.map((row) => present(row.id)), origin),
-      organic: await counted(tenant.id, page.organic.map((row) => present(row.id)), origin),
-      nextCursor: page.nextCursor,
-    })
+    return sendPage(
+      page.sponsored.map((row) => present(row.id)),
+      page.organic.map((row) => present(row.id)),
+      page.nextCursor,
+    )
   } catch (error) {
     if (error instanceof InvalidCursorError) {
       return reply.status(400).send(buildError({ code: 'validation', message: 'Validation error.', request_id: request.id }))
