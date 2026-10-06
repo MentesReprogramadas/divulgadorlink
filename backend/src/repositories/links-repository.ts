@@ -5,6 +5,7 @@ import {
   shouldEnqueueEmbedLink,
   type LinkEmbedSnapshot,
 } from '@/adapters/queues/enqueue-embed-link'
+import { substantiveText } from '@/domain/catalog/index-policy'
 import { prisma } from '@/lib/prisma'
 import { recordEmbeddingIntent, tryDispatchEmbedding } from '@/use-cases/@Search/embedding-outbox'
 import { banAccount } from '@/use-cases/@Admin/ban-account'
@@ -67,6 +68,7 @@ export type NetworkRecord = {
   slug: string
   isPublicFacet: boolean
   requiresAge?: boolean
+  summary: string | null
 }
 export type NicheRecord = {
   id: string
@@ -75,6 +77,7 @@ export type NicheRecord = {
   slug: string
   requiresAge: boolean
   isPublicFacet: boolean
+  summary: string | null
 }
 
 export type LinkRecord = {
@@ -150,6 +153,16 @@ export interface LinksRepository {
     requiresAge: boolean
   }): Promise<NicheRecord>
   updateNicheFacet(input: { id: string; tenantId: string; isPublicFacet: boolean }): Promise<NicheRecord | null>
+  substantiveCounts(tenantId: string): Promise<{
+    niches: Array<{ id: string; count: number }>
+    networks: Array<{ id: string; count: number }>
+  }>
+  updateFacetSummary(input: {
+    kind: 'niche' | 'network'
+    id: string
+    tenantId: string
+    summary: string | null
+  }): Promise<NicheRecord | NetworkRecord | null>
   applyBan(input: {
     userId: string
     tenantId: string
@@ -183,12 +196,12 @@ export class InMemoryLinksRepository implements LinksRepository {
     this.promotions = []
     this.bans = []
     this.networks = [
-      { id: 'net-telegram', tenantId, name: 'Telegram', slug: 'telegram', isPublicFacet: true },
-      { id: 'net-outro', tenantId, name: 'Outro', slug: 'outro', isPublicFacet: false },
+      { id: 'net-telegram', tenantId, name: 'Telegram', slug: 'telegram', isPublicFacet: true, summary: null },
+      { id: 'net-outro', tenantId, name: 'Outro', slug: 'outro', isPublicFacet: false, summary: null },
     ]
     this.niches = [
-      { id: 'niche-jogos', tenantId, name: 'Jogos', slug: 'jogos', requiresAge: false, isPublicFacet: true },
-      { id: 'niche-apostas', tenantId, name: 'Apostas', slug: 'apostas', requiresAge: true, isPublicFacet: true },
+      { id: 'niche-jogos', tenantId, name: 'Jogos', slug: 'jogos', requiresAge: false, isPublicFacet: true, summary: null },
+      { id: 'niche-apostas', tenantId, name: 'Apostas', slug: 'apostas', requiresAge: true, isPublicFacet: true, summary: null },
     ]
   }
 
@@ -304,6 +317,7 @@ export class InMemoryLinksRepository implements LinksRepository {
       id: randomUUID(),
       isPublicFacet: !input.requiresAge,
       ...input,
+      summary: null,
     }
     this.niches.push(row)
     return { ...row }
@@ -317,6 +331,36 @@ export class InMemoryLinksRepository implements LinksRepository {
     const row = this.niches.find((item) => item.id === input.id && item.tenantId === input.tenantId)
     if (!row) return null
     row.isPublicFacet = input.isPublicFacet
+    return { ...row }
+  }
+
+  async substantiveCounts(tenantId: string): Promise<{
+    niches: Array<{ id: string; count: number }>
+    networks: Array<{ id: string; count: number }>
+  }> {
+    const rows = this.links.filter((link) => {
+      if (link.tenantId !== tenantId || link.status !== 'PUBLISHED') return false
+      if (!substantiveText(link.name, link.description)) return false
+      if (link.ownerId !== null) {
+        const owner = this.users.find((user) => user.id === link.ownerId)
+        if (!owner || owner.status === 'BANNED') return false
+      }
+      const niche = this.niches.find((row) => row.id === link.nicheId)
+      return niche !== undefined && niche.requiresAge !== true
+    })
+    return groupFacetCounts(rows)
+  }
+
+  async updateFacetSummary(input: {
+    kind: 'niche' | 'network'
+    id: string
+    tenantId: string
+    summary: string | null
+  }): Promise<NicheRecord | NetworkRecord | null> {
+    const rows = input.kind === 'niche' ? this.niches : this.networks
+    const row = rows.find((item) => item.id === input.id && item.tenantId === input.tenantId)
+    if (!row) return null
+    row.summary = input.summary
     return { ...row }
   }
 
@@ -439,7 +483,7 @@ export class PrismaLinksRepository implements LinksRepository {
   async findNetwork(tenantId: string, id: string): Promise<NetworkRecord | null> {
     return this.client.network.findFirst({
       where: { id, tenantId },
-      select: { id: true, tenantId: true, name: true, slug: true, isPublicFacet: true, requiresAge: true },
+      select: { id: true, tenantId: true, name: true, slug: true, isPublicFacet: true, requiresAge: true, summary: true },
     })
   }
 
@@ -453,6 +497,7 @@ export class PrismaLinksRepository implements LinksRepository {
         slug: true,
         requiresAge: true,
         isPublicFacet: true,
+        summary: true,
       },
     })
   }
@@ -460,7 +505,7 @@ export class PrismaLinksRepository implements LinksRepository {
   async listNetworks(tenantId: string): Promise<NetworkRecord[]> {
     return this.client.network.findMany({
       where: { tenantId },
-      select: { id: true, tenantId: true, name: true, slug: true, isPublicFacet: true, requiresAge: true },
+      select: { id: true, tenantId: true, name: true, slug: true, isPublicFacet: true, requiresAge: true, summary: true },
     })
   }
 
@@ -503,8 +548,50 @@ export class PrismaLinksRepository implements LinksRepository {
         slug: true,
         requiresAge: true,
         isPublicFacet: true,
+        summary: true,
       },
     })
+  }
+
+  async substantiveCounts(tenantId: string): Promise<{
+    niches: Array<{ id: string; count: number }>
+    networks: Array<{ id: string; count: number }>
+  }> {
+    const rows = await this.client.$queryRaw<Array<{ nicheId: string; networkId: string }>>`
+      SELECT l."nicheId", l."networkId"
+      FROM links l
+      JOIN niches n ON n.id = l."nicheId"
+      LEFT JOIN users u ON u.id = l."ownerId"
+      WHERE l."tenantId" = ${tenantId}
+        AND l.status = 'PUBLISHED'
+        AND n."requiresAge" = false
+        AND (l."ownerId" IS NULL OR u.status <> 'BANNED')
+        AND char_length(btrim(l.description)) >= 80
+        AND btrim(l.description) <> btrim(l.name)
+    `
+    return groupFacetCounts(rows)
+  }
+
+  async updateFacetSummary(input: {
+    kind: 'niche' | 'network'
+    id: string
+    tenantId: string
+    summary: string | null
+  }): Promise<NicheRecord | NetworkRecord | null> {
+    if (input.kind === 'niche') {
+      const result = await this.client.niche.updateMany({
+        where: { id: input.id, tenantId: input.tenantId },
+        data: { summary: input.summary },
+      })
+      if (result.count === 0) return null
+      return this.findNiche(input.tenantId, input.id)
+    }
+    const result = await this.client.network.updateMany({
+      where: { id: input.id, tenantId: input.tenantId },
+      data: { summary: input.summary },
+    })
+    if (result.count === 0) return null
+    return this.findNetwork(input.tenantId, input.id)
   }
 
   async listBlocklistTerms(tenantId: string): Promise<string[]> {
@@ -685,7 +772,24 @@ const NICHE_SELECT = {
   slug: true,
   requiresAge: true,
   isPublicFacet: true,
+  summary: true,
 } as const
+
+function groupFacetCounts(rows: Array<{ nicheId: string; networkId: string }>): {
+  niches: Array<{ id: string; count: number }>
+  networks: Array<{ id: string; count: number }>
+} {
+  const niches = new Map<string, number>()
+  const networks = new Map<string, number>()
+  for (const row of rows) {
+    niches.set(row.nicheId, (niches.get(row.nicheId) ?? 0) + 1)
+    networks.set(row.networkId, (networks.get(row.networkId) ?? 0) + 1)
+  }
+  return {
+    niches: [...niches].map(([id, count]) => ({ id, count })),
+    networks: [...networks].map(([id, count]) => ({ id, count })),
+  }
+}
 
 function toLinkRecord(row: PrismaLink): LinkRecord {
   return {
