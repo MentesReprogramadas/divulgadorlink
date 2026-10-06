@@ -3,6 +3,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { app } from '@/app'
 import { signWooviTestBody } from '@/adapters/payments/woovi-test-signing'
 import { resetCheckoutLimitForTest, setCheckoutGatewayForTest, setPaymentGatewayForTest } from '@/http/controllers/@Payments/routes'
+import { migrationNamesOnDisk } from '@/http/migration-names'
 import { getPaymentJobsForTest, resetPaymentJobsForTest } from '@/adapters/queues/enqueue-payment-job'
 import { setTenantsRepositoryForTest } from '@/http/tenant'
 import { PrismaLinksRepository, setLinksRepositoryForTest } from '@/repositories/links-repository'
@@ -167,11 +168,11 @@ describe('checkout no PostgreSQL', () => {
     await db.$disconnect()
   })
 
-  it('aplica as 15 migrations', async () => {
+  it('aplica as migrations do repositório', async () => {
     const migrations = await db.$queryRaw<Array<{ migration_name: string }>>`
       SELECT migration_name FROM _prisma_migrations WHERE finished_at IS NOT NULL
     `
-    expect(migrations).toHaveLength(15)
+    expect(migrations.map((row) => row.migration_name).sort()).toEqual(migrationNamesOnDisk())
   })
 
   it('grava o preço do backend e ignora amountCents do corpo', async () => {

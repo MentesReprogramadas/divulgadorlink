@@ -3,6 +3,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { app } from '@/app'
 import { signSurface } from '@/domain/analytics/surface-token'
 import { resetImpressionLimitForTest } from '@/http/controllers/@Analytics/routes'
+import { migrationNamesOnDisk } from '@/http/migration-names'
 import { setTenantsRepositoryForTest } from '@/http/tenant'
 import { PrismaAnalyticsRepository, setAnalyticsRepositoryForTest } from '@/repositories/analytics-repository'
 import { PrismaLinksRepository, setLinksRepositoryForTest } from '@/repositories/links-repository'
@@ -96,11 +97,12 @@ describe('analytics no PostgreSQL', () => {
     await db.$disconnect()
   })
 
-  it('aplicou as 15 migrations, pgvector, analytics e os índices parciais', async () => {
+  it('aplicou as migrations do repositório, pgvector, analytics e os índices parciais', async () => {
     const migrations = await db.$queryRaw<Array<{ migration_name: string }>>`
       SELECT migration_name FROM _prisma_migrations WHERE finished_at IS NOT NULL ORDER BY finished_at
     `
-    expect(migrations).toHaveLength(15)
+    expect(migrations.map((row) => row.migration_name).sort()).toEqual(migrationNamesOnDisk())
+    expect(migrations.map((row) => row.migration_name)).toContain('20261006120000_facet_summary')
     expect(migrations.map((row) => row.migration_name)).toContain('20261005193000_one_open_moderation_case')
     expect(migrations.map((row) => row.migration_name)).toContain('20261002140000_promotion_offers')
     expect(migrations.map((row) => row.migration_name)).toContain('20261002153000_adult_networks')
