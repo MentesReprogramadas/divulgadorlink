@@ -34,6 +34,15 @@ export type FacetCatalogBody = {
   organic: Card[]
 }
 
+function facetHref(route: 'niche' | 'network', slug: string, next: string | null): string {
+  if (route === 'niche') {
+    const base = `/nicho/${encodeURIComponent(slug)}`
+    return next ? `${base}?rede=${encodeURIComponent(next)}` : base
+  }
+  const base = `/rede/${encodeURIComponent(slug)}`
+  return next ? `${base}?nicho=${encodeURIComponent(next)}` : base
+}
+
 function rowHref(row: Card): string {
   return `/link/${row.id}?surfaceToken=${encodeURIComponent(row.surfaceToken)}`
 }
@@ -86,12 +95,12 @@ export function FacetCatalog({
   backClass,
   listPrefix,
   mark,
+  route,
   slug,
   facetLabel,
   facetKind,
   active,
   facets,
-  hrefFor,
   body,
 }: {
   pageClass: string
@@ -99,12 +108,12 @@ export function FacetCatalog({
   backClass: string
   listPrefix: string
   mark: 'niche' | 'network'
+  route: 'niche' | 'network'
   slug: string
   facetLabel: string
   facetKind: 'niche' | 'network'
   active: string | null
   facets: FacetItem[]
-  hrefFor: (slug: string | null) => string
   body: FacetCatalogBody
 }) {
   const router = useRouter()
@@ -138,7 +147,7 @@ export function FacetCatalog({
         kind={facetKind}
         items={facets}
         active={active}
-        hrefFor={hrefFor}
+        hrefFor={(next) => facetHref(route, slug, next)}
       />
       {body.ageRequired ? <AgePrompt onYes={() => void answer('yes')} onNo={() => void answer('no')} /> : null}
       {body.blocked ? <p className="age-blocked">Este conteúdo é só para maiores de 18 anos.</p> : null}

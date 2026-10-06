@@ -64,12 +64,12 @@ export default async function Page({
       backClass="niche-back"
       listPrefix="niche"
       mark="niche"
+      route="niche"
       slug={slug}
       facetLabel="Redes"
       facetKind="network"
       active={network}
       facets={body.networks ?? []}
-      hrefFor={(next) => next ? `/nicho/${encodeURIComponent(slug)}?rede=${encodeURIComponent(next)}` : `/nicho/${encodeURIComponent(slug)}`}
       body={body}
     />
   )

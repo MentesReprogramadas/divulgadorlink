@@ -48,12 +48,12 @@ describe('catálogo de faceta', () => {
         backClass="niche-back"
         listPrefix="niche"
         mark="niche"
+        route="niche"
         slug="jogos"
         facetLabel="Redes"
         facetKind="network"
         active={null}
         facets={[{ id: 'net-telegram', name: 'Telegram', slug: 'telegram' }]}
-        hrefFor={(slug) => slug ? `/nicho/jogos?rede=${slug}` : '/nicho/jogos'}
         body={{
           seo: {
             title: 'Jogos',
@@ -70,6 +70,7 @@ describe('catálogo de faceta', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Jogos' })).toBeTruthy()
     expect(screen.getByText('Links de Jogos organizados por rede.')).toBeTruthy()
     expect(screen.getByRole('link', { name: 'Receitas' }).getAttribute('href')).toBe('/link/receitas?surfaceToken=token')
+    expect(screen.getAllByRole('link', { name: 'Telegram' }).map((link) => link.getAttribute('href'))).toContain('/nicho/jogos?rede=telegram')
     expect(screen.queryByText('Carregando')).toBeNull()
     expect(document.querySelector('script[type="application/ld+json"]')?.textContent).toContain('CollectionPage')
   })
@@ -82,12 +83,12 @@ describe('catálogo de faceta', () => {
         backClass="niche-back"
         listPrefix="niche"
         mark="niche"
+        route="niche"
         slug="apostas"
         facetLabel="Redes"
         facetKind="network"
         active={null}
         facets={[]}
-        hrefFor={() => '/nicho/apostas'}
         body={{
           seo: { title: 'Apostas', description: 'Apostas', robots: 'noindex,nofollow' },
           ageRequired: true,
