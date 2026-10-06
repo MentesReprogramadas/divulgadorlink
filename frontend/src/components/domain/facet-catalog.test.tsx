@@ -45,7 +45,6 @@ describe('catálogo de faceta', () => {
       <FacetCatalog
         pageClass="niche-page"
         descriptionClass="niche-description"
-        backClass="niche-back"
         listPrefix="niche"
         mark="niche"
         route="niche"
@@ -83,7 +82,6 @@ describe('catálogo de faceta', () => {
       <FacetCatalog
         pageClass="niche-page"
         descriptionClass="niche-description"
-        backClass="niche-back"
         listPrefix="niche"
         mark="niche"
         route="niche"
@@ -111,7 +109,6 @@ describe('catálogo de faceta', () => {
       <FacetCatalog
         pageClass="niche-page"
         descriptionClass="niche-description"
-        backClass="niche-back"
         listPrefix="niche"
         mark="niche"
         route="niche"
@@ -141,7 +138,6 @@ describe('catálogo de faceta', () => {
       <FacetCatalog
         pageClass="niche-page"
         descriptionClass="niche-description"
-        backClass="niche-back"
         listPrefix="niche"
         mark="niche"
         route="niche"
@@ -171,7 +167,6 @@ describe('catálogo de faceta', () => {
       <FacetCatalog
         pageClass="niche-page"
         descriptionClass="niche-description"
-        backClass="niche-back"
         listPrefix="niche"
         mark="niche"
         route="niche"

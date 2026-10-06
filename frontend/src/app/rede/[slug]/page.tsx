@@ -61,7 +61,6 @@ export default async function Page({
     <FacetCatalog
       pageClass="rede-page"
       descriptionClass="rede-description"
-      backClass="rede-back"
       listPrefix="rede"
       mark="network"
       route="network"

@@ -1,76 +1,31 @@
-import { facetIndexable, substantiveText } from '@/domain/catalog/index-policy'
-import { prisma } from '@/lib/prisma'
-import { getLinksRepository, InMemoryLinksRepository } from '@/repositories/links-repository'
+import { facetIndexable } from '@/domain/catalog/index-policy'
+import {
+  getLinksRepository,
+  type NicheRecord,
+  type NetworkRecord,
+  type SitemapLinkRef,
+} from '@/repositories/links-repository'
 
 export type SitemapEntry = { path: string; updatedAt: string }
 
-const LINK_CAP = 49_000
-
-type SitemapLink = {
-  id: string
-  name: string
-  description: string
-  nicheId: string
-  updatedAt: Date
-  status: string
-  ownerStatus: string | null
-}
-
 export async function indexableEntries(tenantId: string): Promise<SitemapEntry[]> {
-  return entriesFrom(tenantId, await loadLinks(tenantId))
-}
-
-async function loadLinks(tenantId: string): Promise<SitemapLink[]> {
-  if (process.env.NODE_ENV === 'test') {
-    const repo = getLinksRepository()
-    if (!(repo instanceof InMemoryLinksRepository)) return []
-    const rows: SitemapLink[] = []
-    for (const link of repo.links) {
-      if (link.tenantId !== tenantId) continue
-      const owner = link.ownerId ? await repo.findSubmitter(tenantId, link.ownerId) : null
-      rows.push({
-        id: link.id,
-        name: link.name,
-        description: link.description,
-        nicheId: link.nicheId,
-        updatedAt: link.updatedAt,
-        status: link.status,
-        ownerStatus: owner?.status ?? null,
-      })
-    }
-    return rows
-  }
-  const rows = await prisma.link.findMany({
-    where: { tenantId, status: 'PUBLISHED' },
-    select: {
-      id: true,
-      name: true,
-      description: true,
-      nicheId: true,
-      updatedAt: true,
-      owner: { select: { status: true } },
-    },
-    orderBy: { updatedAt: 'desc' },
-  })
-  return rows.map((row) => ({
-    id: row.id,
-    name: row.name,
-    description: row.description,
-    nicheId: row.nicheId,
-    updatedAt: row.updatedAt,
-    status: 'PUBLISHED',
-    ownerStatus: row.owner?.status ?? null,
-  }))
-}
-
-async function entriesFrom(tenantId: string, links: SitemapLink[]): Promise<SitemapEntry[]> {
   const repo = getLinksRepository()
-  const now = new Date().toISOString()
-  const [niches, networks, counts] = await Promise.all([
+  const [niches, networks, counts, links] = await Promise.all([
     repo.listNiches(tenantId),
     repo.listNetworks(tenantId),
     repo.substantiveCounts(tenantId),
+    repo.listSubstantiveSitemapLinks(tenantId),
   ])
+  return entriesFrom(niches, networks, counts, links)
+}
+
+function entriesFrom(
+  niches: NicheRecord[],
+  networks: NetworkRecord[],
+  counts: { niches: Array<{ id: string; count: number }>; networks: Array<{ id: string; count: number }> },
+  links: SitemapLinkRef[],
+): SitemapEntry[] {
+  const now = new Date().toISOString()
   const nicheCount = new Map(counts.niches.map((row) => [row.id, row.count]))
   const networkCount = new Map(counts.networks.map((row) => [row.id, row.count]))
   const nicheOk = new Map(niches.map((row) => [row.id, facetIndexable({
@@ -95,11 +50,7 @@ async function entriesFrom(tenantId: string, links: SitemapLink[]): Promise<Site
     entries.push({ path: `/rede/${encodeURIComponent(network.slug)}`, updatedAt: network.updatedAt.toISOString() })
   }
   const linkEntries = links
-    .filter((link) => link.status === 'PUBLISHED' && link.ownerStatus !== 'BANNED')
-    .filter((link) => substantiveText(link.name, link.description))
     .filter((link) => nicheOk.get(link.nicheId) === true)
-    .sort((left, right) => right.updatedAt.getTime() - left.updatedAt.getTime())
-    .slice(0, LINK_CAP)
     .map((link) => ({ path: `/link/${link.id}`, updatedAt: link.updatedAt.toISOString() }))
   return [...entries, ...linkEntries]
 }

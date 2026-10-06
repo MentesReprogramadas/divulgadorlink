@@ -286,6 +286,26 @@ describe('contratos HTTP da vitrine', () => {
       .toBe(niche.updatedAt.toISOString())
   })
 
+  it('faceta indexável inclui o card substantivo no ItemList sem surfaceToken', async () => {
+    const fat = 'd'.repeat(80)
+    const niche = repo().niches.find((row) => row.id === 'niche-jogos')!
+    niche.summary = fat
+    setCatalogLinksForTest([
+      {
+        id: 'card-gordo', name: 'Receitas', description: fat, relevance: 1, requiresAge: false,
+        nicheSlug: 'jogos', networkSlug: 'telegram', homeActivatedAt: null, nicheActivatedAt: null,
+      },
+    ])
+    const page = await app.inject({ method: 'GET', url: '/api/v1/niches/jogos', headers: { host: HOST } })
+    expect(page.statusCode).toBe(200)
+    const graph = page.json().seo.structuredData['@graph'] as Array<{ '@type': string; itemListElement?: Array<{ url: string }> }>
+    const list = graph.find((node) => node['@type'] === 'ItemList')
+    expect(list?.itemListElement).toEqual([
+      expect.objectContaining({ url: 'https://temlinkaqui.com/link/card-gordo' }),
+    ])
+    expect(JSON.stringify(list)).not.toContain('surfaceToken')
+  })
+
   it('sitemap lista só a home quando a faceta e o link são finos, e esconde 18+, indisponível e banido', async () => {
     repo().addLink({ id: 'link-publico', tenantId: TENANT, ownerId: 'ana', status: 'PUBLISHED', name: 'Receitas', description: 'bolos', nicheId: 'niche-jogos' })
     repo().addLink({ id: 'link-adulto', tenantId: TENANT, ownerId: 'ana', status: 'PUBLISHED', name: 'Oculto', description: 'x', nicheId: 'niche-apostas' })

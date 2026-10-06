@@ -106,7 +106,6 @@ export function FacetCatalog({
 }: {
   pageClass: string
   descriptionClass: string
-  backClass: string
   listPrefix: string
   mark: 'niche' | 'network'
   route: 'niche' | 'network'

@@ -43,17 +43,22 @@ function FacetSummaryRow({
     if (saving) return
     setSaving(true)
     setError('')
-    const result = await api<FacetRow & { message?: string }>(`/v1/admin/facets/${kind}/${row.id}`, {
-      method: 'PATCH',
-      body: JSON.stringify({ summary: value.trim() ? value : null }),
-    })
-    setSaving(false)
-    if (result.status === 200) {
-      setValue(result.body.summary ?? '')
-      onSaved(result.body)
-      return
+    try {
+      const result = await api<FacetRow & { message?: string }>(`/v1/admin/facets/${kind}/${row.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ summary: value.trim() ? value : null }),
+      })
+      if (result.status === 200) {
+        setValue(result.body.summary ?? '')
+        onSaved(result.body)
+        return
+      }
+      setError(result.body.message ?? 'Não foi possível salvar.')
+    } catch {
+      setError('Não foi possível salvar.')
+    } finally {
+      setSaving(false)
     }
-    setError(result.body.message ?? 'Não foi possível salvar.')
   }
 
   return (
@@ -101,10 +106,14 @@ export function FacetSummaries() {
   const [loadError, setLoadError] = useState('')
 
   useEffect(() => {
-    void api<FacetLists>('/v1/admin/facets').then((result) => {
-      if (result.status === 200) setLists(result.body)
-      else setLoadError('Não foi possível carregar os textos.')
-    })
+    void api<FacetLists>('/v1/admin/facets')
+      .then((result) => {
+        if (result.status === 200) setLists(result.body)
+        else setLoadError('Não foi possível carregar os textos.')
+      })
+      .catch(() => {
+        setLoadError('Não foi possível carregar os textos.')
+      })
   }, [])
 
   function replace(kind: FacetKind, next: FacetRow) {

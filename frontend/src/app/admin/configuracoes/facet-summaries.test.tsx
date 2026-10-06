@@ -32,6 +32,25 @@ describe('resumos do catálogo', () => {
     expect(screen.queryByRole('textbox')).toBeNull()
   })
 
+  it('mostra o erro quando o carregamento rejeita e não abre os campos', async () => {
+    api.mockRejectedValueOnce(new Error('rede'))
+    render(<FacetSummaries />)
+    expect(await screen.findByText('Não foi possível carregar os textos.')).toBeTruthy()
+    expect(screen.queryByRole('textbox')).toBeNull()
+  })
+
+  it('mostra o erro quando salvar rejeita e conserva o texto digitado', async () => {
+    api.mockResolvedValueOnce({ status: 200, body: { niches: [row], networks: [] } })
+    render(<FacetSummaries />)
+    const field = await screen.findByRole('textbox', { name: 'Resumo de Jogos' })
+    fireEvent.change(field, { target: { value: 'texto' } })
+    api.mockRejectedValueOnce(new Error('rede'))
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar Jogos' }))
+    expect(await screen.findByText('Não foi possível salvar.')).toBeTruthy()
+    expect((field as HTMLTextAreaElement).value).toBe('texto')
+    expect((screen.getByRole('button', { name: 'Salvar Jogos' }) as HTMLButtonElement).disabled).toBe(false)
+  })
+
   it('diz que 18+ continua fora da busca', async () => {
     api.mockResolvedValueOnce({
       status: 200,

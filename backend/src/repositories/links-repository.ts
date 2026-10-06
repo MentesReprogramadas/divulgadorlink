@@ -43,6 +43,13 @@ export type LinkStatus =
 
 export const SLOT_STATUSES: LinkStatus[] = ['PENDING_MODERATION', 'PUBLISHED', 'PRE_REJECTED']
 export const LINK_QUOTA = 4
+export const SITEMAP_LINK_CAP = 49_000
+
+export type SitemapLinkRef = {
+  id: string
+  nicheId: string
+  updatedAt: Date
+}
 
 export type SubmitterIdentifier = {
   id: string
@@ -159,6 +166,7 @@ export interface LinksRepository {
     niches: Array<{ id: string; count: number }>
     networks: Array<{ id: string; count: number }>
   }>
+  listSubstantiveSitemapLinks(tenantId: string): Promise<SitemapLinkRef[]>
   updateFacetSummary(input: {
     kind: 'niche' | 'network'
     id: string
@@ -343,7 +351,18 @@ export class InMemoryLinksRepository implements LinksRepository {
     niches: Array<{ id: string; count: number }>
     networks: Array<{ id: string; count: number }>
   }> {
-    const rows = this.links.filter((link) => {
+    return groupFacetCounts(this.substantiveLinks(tenantId))
+  }
+
+  async listSubstantiveSitemapLinks(tenantId: string): Promise<SitemapLinkRef[]> {
+    return this.substantiveLinks(tenantId)
+      .sort((left, right) => right.updatedAt.getTime() - left.updatedAt.getTime())
+      .slice(0, SITEMAP_LINK_CAP)
+      .map((link) => ({ id: link.id, nicheId: link.nicheId, updatedAt: link.updatedAt }))
+  }
+
+  private substantiveLinks(tenantId: string): LinkRecord[] {
+    return this.links.filter((link) => {
       if (link.tenantId !== tenantId || link.status !== 'PUBLISHED') return false
       if (!substantiveText(link.name, link.description)) return false
       if (link.ownerId !== null) {
@@ -353,7 +372,6 @@ export class InMemoryLinksRepository implements LinksRepository {
       const niche = this.niches.find((row) => row.id === link.nicheId)
       return niche !== undefined && niche.requiresAge !== true
     })
-    return groupFacetCounts(rows)
   }
 
   async updateFacetSummary(input: {
@@ -565,19 +583,45 @@ export class PrismaLinksRepository implements LinksRepository {
     niches: Array<{ id: string; count: number }>
     networks: Array<{ id: string; count: number }>
   }> {
-    const rows = await this.client.$queryRaw<Array<{ nicheId: string; networkId: string }>>`
-      SELECT l."nicheId", l."networkId"
+    const [niches, networks] = await Promise.all([
+      this.client.$queryRaw<Array<{ id: string; count: number }>>`
+        SELECT l."nicheId" AS id, COUNT(*)::int AS count
+        FROM links l
+        JOIN niches n ON n.id = l."nicheId"
+        LEFT JOIN users u ON u.id = l."ownerId"
+        WHERE ${substantiveLinkFilter(tenantId)}
+        GROUP BY l."nicheId"
+      `,
+      this.client.$queryRaw<Array<{ id: string; count: number }>>`
+        SELECT l."networkId" AS id, COUNT(*)::int AS count
+        FROM links l
+        JOIN niches n ON n.id = l."nicheId"
+        LEFT JOIN users u ON u.id = l."ownerId"
+        WHERE ${substantiveLinkFilter(tenantId)}
+        GROUP BY l."networkId"
+      `,
+    ])
+    return {
+      niches: niches.map((row) => ({ id: row.id, count: Number(row.count) })),
+      networks: networks.map((row) => ({ id: row.id, count: Number(row.count) })),
+    }
+  }
+
+  async listSubstantiveSitemapLinks(tenantId: string): Promise<SitemapLinkRef[]> {
+    const rows = await this.client.$queryRaw<Array<{ id: string; nicheId: string; updatedAt: Date }>>`
+      SELECT l.id, l."nicheId", l."updatedAt"
       FROM links l
       JOIN niches n ON n.id = l."nicheId"
       LEFT JOIN users u ON u.id = l."ownerId"
-      WHERE l."tenantId" = ${tenantId}
-        AND l.status = 'PUBLISHED'
-        AND n."requiresAge" = false
-        AND (l."ownerId" IS NULL OR u.status <> 'BANNED')
-        AND char_length(btrim(l.description)) >= 80
-        AND btrim(l.description) <> btrim(l.name)
+      WHERE ${substantiveLinkFilter(tenantId)}
+      ORDER BY l."updatedAt" DESC
+      LIMIT ${SITEMAP_LINK_CAP}
     `
-    return groupFacetCounts(rows)
+    return rows.map((row) => ({
+      id: row.id,
+      nicheId: row.nicheId,
+      updatedAt: row.updatedAt instanceof Date ? row.updatedAt : new Date(row.updatedAt),
+    }))
   }
 
   async updateFacetSummary(input: {
@@ -783,6 +827,17 @@ const NICHE_SELECT = {
   summary: true,
   updatedAt: true,
 } as const
+
+function substantiveLinkFilter(tenantId: string): Prisma.Sql {
+  return Prisma.sql`
+    l."tenantId" = ${tenantId}
+    AND l.status = 'PUBLISHED'
+    AND n."requiresAge" = false
+    AND (l."ownerId" IS NULL OR u.status <> 'BANNED')
+    AND char_length(btrim(l.description)) >= 80
+    AND btrim(l.description) <> btrim(l.name)
+  `
+}
 
 function groupFacetCounts(rows: Array<{ nicheId: string; networkId: string }>): {
   niches: Array<{ id: string; count: number }>
