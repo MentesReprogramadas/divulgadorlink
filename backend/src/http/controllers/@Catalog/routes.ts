@@ -350,7 +350,7 @@ async function getFacet(
     const ageRestricted = requiresAge || companionRequiresAge
     const filtered = Boolean(query.network || query.niche || query.cursor)
     const heading = facet.name
-    const description = facetBlurb(kind, facet.name, facet.summary)
+    const description = facetBlurb(kind, facet.name, requiresAge && age !== 'yes' ? null : facet.summary)
     const path = facetPath(kind, slug)
     const canonical = `https://${host}${path}`
     const substantiveCount = kind === 'niche'

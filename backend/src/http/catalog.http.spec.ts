@@ -218,6 +218,20 @@ describe('contratos HTTP da vitrine', () => {
     })
   })
 
+  it('resumo 18+ só aparece depois da idade confirmada', async () => {
+    const fat = 'c'.repeat(80)
+    const adultNiche = repo().niches.find((row) => row.id === 'niche-apostas')!
+    adultNiche.summary = fat
+    const closed = await app.inject({ method: 'GET', url: '/api/v1/niches/apostas', headers: { host: HOST } })
+    expect(closed.statusCode).toBe(200)
+    expect(closed.json().seo.description).toBe('Links de Apostas organizados por rede.')
+    expect(closed.json().seo.description).not.toContain(fat)
+    expect(closed.json().seo.robots).toBe('noindex,nofollow')
+    const open = await app.inject({ method: 'GET', url: '/api/v1/niches/apostas', headers: { host: HOST, cookie: 'age=yes' } })
+    expect(open.json().seo.description).toBe(fat)
+    expect(open.json().seo.robots).toBe('noindex,nofollow')
+  })
+
   it('rede pública filtrada por nicho 18+ fica noindex,nofollow', async () => {
     const page = await app.inject({
       method: 'GET',
