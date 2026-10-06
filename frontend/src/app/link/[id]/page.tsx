@@ -7,7 +7,7 @@ import { trackedGoPath } from '@/domain/tracked-go'
 import { metadataFromSeo } from '@/domain/crawler-policy'
 import { jsonLdScript } from '@/domain/json-ld'
 import { tenantHost, forward } from '@/lib/upstream'
-import { DetailContext } from './detail-context'
+import { Breadcrumb } from '@/components/domain/breadcrumb'
 import { LinkMeta } from '@/components/domain/link-meta'
 import { AgeWall } from '@/components/domain/age-gate'
 
@@ -31,19 +31,20 @@ type PublicLink = {
   }
 }
 
-type ContextTarget = { href: string; name: string; home: boolean }
-
-function facetTarget(facet: FacetRef | undefined, prefix: '/nicho' | '/rede'): ContextTarget | null {
+function facetTarget(facet: FacetRef | undefined, prefix: '/nicho' | '/rede'): { href: string; name: string } | null {
   const name = facet?.name?.trim() ?? ''
   const slug = facet?.slug?.trim() ?? ''
   if (!name || !slug) return null
-  return { href: `${prefix}/${encodeURIComponent(slug)}`, name, home: false }
+  return { href: `${prefix}/${encodeURIComponent(slug)}`, name }
 }
 
-function contextOf(link: PublicLink): ContextTarget {
-  return facetTarget(link.niche, '/nicho')
-    ?? facetTarget(link.network, '/rede')
-    ?? { href: '/', name: 'Início', home: true }
+function linkTrail(id: string, link: PublicLink): Array<{ href: string; name: string }> {
+  const facet = facetTarget(link.niche, '/nicho') ?? facetTarget(link.network, '/rede')
+  return [
+    { href: '/', name: 'Início' },
+    ...(facet ? [facet] : []),
+    { href: `/link/${id}`, name: link.name?.trim() || 'Link' },
+  ]
 }
 
 function usableDescription(name: string, description: string | undefined): string | null {
@@ -96,14 +97,13 @@ export default async function Page({
   if (!link.available) {
     return (
       <main className="detail-page">
-        <DetailContext href="/" name="Início" home />
+        <Breadcrumb items={[{ href: '/', name: 'Início' }, { href: `/link/${id}`, name: 'Link indisponível' }]} />
         <h1 className="entry-title">Link indisponível</h1>
       </main>
     )
   }
   const token = query.surfaceToken || link.surfaceToken || ''
   const href = trackedGoPath(id, query.surfaceToken, link.surfaceToken)
-  const context = contextOf(link)
   const description = usableDescription(link.name ?? '', link.description)
   return (
     <main className="detail-page">
@@ -111,7 +111,7 @@ export default async function Page({
         {link.seo?.structuredData ? (
           <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(link.seo.structuredData) }} />
         ) : null}
-        <DetailContext href={context.href} name={context.name} home={context.home} />
+        <Breadcrumb items={linkTrail(id, link)} />
         <h1 className="entry-title">{link.name}</h1>
         {description ? <p className="detail-description">{description}</p> : null}
         <LinkMeta niche={link.niche} network={link.network} />

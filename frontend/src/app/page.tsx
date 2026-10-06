@@ -15,7 +15,7 @@ import { forward, tenantHost } from '@/lib/upstream'
 export const dynamic = 'force-dynamic'
 
 type Facet = { name?: string; slug?: string } | null
-type Card = { id: string; name: string; description: string; surfaceToken: string; impressions?: number; niche?: Facet; network?: Facet }
+type Card = { id: string; name: string; description: string; surfaceToken: string; impressions?: number; niche?: Facet; network?: Facet; indexable?: boolean }
 type Home = {
   seo: {
     title: string
@@ -87,7 +87,7 @@ export default async function Page() {
           __html: jsonLdScript(homeStructuredData(
             home.seo.structuredData,
             new URL(home.seo.canonical).origin,
-            [...new Set([...home.sponsored, ...home.organic].map((row) => row.id))],
+            [...home.sponsored, ...home.organic].filter((row) => row.indexable).map((row) => row.id),
           )),
         }}
       />

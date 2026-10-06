@@ -31,6 +31,15 @@ describe('política de rastreio', () => {
     }).robots).toEqual({ index: false, follow: false })
   })
 
+  it('noindex,follow não marca follow como falso', () => {
+    expect(metadataFromSeo({
+      title: 'Jogos | Tem Link Aqui',
+      description: 'Links de Jogos organizados por rede.',
+      canonical: 'https://temlinkaqui.com/nicho/jogos',
+      robots: 'noindex,follow',
+    }).robots).toEqual({ index: false, follow: true })
+  })
+
   it('publica o sitemap só com as URLs absolutas do host', () => {
     expect(sitemapUrls('temlinkaqui.com', [
       { path: '/', updatedAt: '2026-10-01T00:00:00.000Z' },

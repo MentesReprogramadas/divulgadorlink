@@ -7,6 +7,7 @@ import { LinkRow } from '@/components/domain/link-row'
 import { EmptyState } from '@/components/feedback/empty-state'
 import { jsonLdScript } from '@/domain/json-ld'
 import { TitleMark } from '@/components/ui/facet-badge'
+import { Breadcrumb } from '@/components/domain/breadcrumb'
 
 type Facet = { name?: string; slug?: string } | null
 type Card = {
@@ -21,6 +22,7 @@ type Card = {
 type FacetItem = { id: string; name: string; slug: string; requiresAge?: boolean }
 
 export type FacetCatalogBody = {
+  heading: string
   seo: {
     title: string
     description?: string
@@ -47,9 +49,9 @@ function rowHref(row: Card): string {
   return `/link/${row.id}?surfaceToken=${encodeURIComponent(row.surfaceToken)}`
 }
 
-function usableDescription(seo: FacetCatalogBody['seo']): string | null {
+function usableDescription(heading: string, seo: FacetCatalogBody['seo']): string | null {
   const description = seo.description?.trim() ?? ''
-  if (!description || description === seo.title.trim()) return null
+  if (!description || description === heading.trim()) return null
   return description
 }
 
@@ -92,7 +94,6 @@ function ResultList({
 export function FacetCatalog({
   pageClass,
   descriptionClass,
-  backClass,
   listPrefix,
   mark,
   route,
@@ -120,7 +121,7 @@ export function FacetCatalog({
   const showImpressions = body.showImpressions !== false
   const sponsored = body.sponsored ?? []
   const organic = body.organic ?? []
-  const description = usableDescription(body.seo)
+  const description = usableDescription(body.heading, body.seo)
   const indexable = body.seo.robots.startsWith('index')
 
   async function answer(choice: 'yes' | 'no') {
@@ -136,11 +137,8 @@ export function FacetCatalog({
       {indexable && body.seo.structuredData ? (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(body.seo.structuredData) }} />
       ) : null}
-      <a className={backClass} href="/" aria-label="Voltar para início">
-        <span aria-hidden="true">←</span>
-        Início
-      </a>
-      <h1 className="entry-title page-mark"><TitleMark kind={mark} slug={slug} />{body.seo.title}</h1>
+      <Breadcrumb items={[{ href: '/', name: 'Início' }, { href: facetHref(route, slug, null), name: body.heading }]} />
+      <h1 className="entry-title page-mark"><TitleMark kind={mark} slug={slug} />{body.heading}</h1>
       {description ? <p className={descriptionClass}>{description}</p> : null}
       <FacetFilters
         label={facetLabel}

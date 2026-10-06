@@ -55,8 +55,9 @@ describe('catálogo de faceta', () => {
         active={null}
         facets={[{ id: 'net-telegram', name: 'Telegram', slug: 'telegram' }]}
         body={{
+          heading: 'Jogos',
           seo: {
-            title: 'Jogos',
+            title: 'Jogos | Tem Link Aqui',
             description: 'Links de Jogos organizados por rede.',
             robots: 'index,follow',
             structuredData: { '@type': 'CollectionPage' },
@@ -68,6 +69,8 @@ describe('catálogo de faceta', () => {
       />,
     )
     expect(screen.getByRole('heading', { level: 1, name: 'Jogos' })).toBeTruthy()
+    expect(screen.getByRole('navigation', { name: 'Trilha' }).textContent).toContain('Início')
+    expect(screen.getByRole('link', { name: 'Início' }).getAttribute('href')).toBe('/')
     expect(screen.getByText('Links de Jogos organizados por rede.')).toBeTruthy()
     expect(screen.getByRole('link', { name: 'Receitas' }).getAttribute('href')).toBe('/link/receitas?surfaceToken=token')
     expect(screen.getAllByRole('link', { name: 'Telegram' }).map((link) => link.getAttribute('href'))).toContain('/nicho/jogos?rede=telegram')
@@ -90,7 +93,8 @@ describe('catálogo de faceta', () => {
         active={null}
         facets={[]}
         body={{
-          seo: { title: 'Apostas', description: 'Apostas', robots: 'noindex,nofollow' },
+          heading: 'Apostas',
+          seo: { title: 'Apostas | Tem Link Aqui', description: 'Apostas', robots: 'noindex,nofollow' },
           ageRequired: true,
           sponsored: [],
           organic: [],
@@ -99,5 +103,66 @@ describe('catálogo de faceta', () => {
     )
     expect(document.querySelector('script[type="application/ld+json"]')).toBeNull()
     expect(screen.queryByRole('link', { name: 'Receitas' })).toBeNull()
+  })
+
+  it('mostra o resumo longo no lugar da frase automática', () => {
+    const summary = 'c'.repeat(80)
+    render(
+      <FacetCatalog
+        pageClass="niche-page"
+        descriptionClass="niche-description"
+        backClass="niche-back"
+        listPrefix="niche"
+        mark="niche"
+        route="niche"
+        slug="jogos"
+        facetLabel="Redes"
+        facetKind="network"
+        active={null}
+        facets={[]}
+        body={{
+          heading: 'Jogos',
+          seo: {
+            title: 'Jogos | Tem Link Aqui',
+            description: summary,
+            robots: 'index,follow',
+          },
+          sponsored: [],
+          organic: [],
+        }}
+      />,
+    )
+    expect(screen.getByText(summary)).toBeTruthy()
+    expect(screen.queryByText('Links de Jogos organizados por rede.')).toBeNull()
+  })
+
+  it('noindex,follow não publica json-ld', () => {
+    render(
+      <FacetCatalog
+        pageClass="niche-page"
+        descriptionClass="niche-description"
+        backClass="niche-back"
+        listPrefix="niche"
+        mark="niche"
+        route="niche"
+        slug="jogos"
+        facetLabel="Redes"
+        facetKind="network"
+        active={null}
+        facets={[]}
+        body={{
+          heading: 'Jogos',
+          seo: {
+            title: 'Jogos | Tem Link Aqui',
+            description: 'Links de Jogos organizados por rede.',
+            robots: 'noindex,follow',
+            structuredData: { '@type': 'CollectionPage' },
+          },
+          sponsored: [],
+          organic: [],
+        }}
+      />,
+    )
+    expect(document.querySelector('script[type="application/ld+json"]')).toBeNull()
   })
 })
