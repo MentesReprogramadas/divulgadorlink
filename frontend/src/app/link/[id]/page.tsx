@@ -108,7 +108,7 @@ export default async function Page({
   return (
     <main className="detail-page">
       <AgeWall required={link.niche?.requiresAge === true}>
-        {link.seo?.structuredData ? (
+        {link.seo?.robots.startsWith('index') && link.seo.structuredData ? (
           <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(link.seo.structuredData) }} />
         ) : null}
         <Breadcrumb items={linkTrail(id, link)} />

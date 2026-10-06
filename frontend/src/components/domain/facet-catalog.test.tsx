@@ -136,6 +136,36 @@ describe('catálogo de faceta', () => {
     expect(screen.queryByText('Links de Jogos organizados por rede.')).toBeNull()
   })
 
+  it('mantém a description quando ela repete o título com a marca', () => {
+    render(
+      <FacetCatalog
+        pageClass="niche-page"
+        descriptionClass="niche-description"
+        backClass="niche-back"
+        listPrefix="niche"
+        mark="niche"
+        route="niche"
+        slug="jogos"
+        facetLabel="Redes"
+        facetKind="network"
+        active={null}
+        facets={[]}
+        body={{
+          heading: 'Jogos',
+          seo: {
+            title: 'Jogos | Tem Link Aqui',
+            description: 'Jogos | Tem Link Aqui',
+            robots: 'index,follow',
+          },
+          sponsored: [],
+          organic: [],
+        }}
+      />,
+    )
+    expect(screen.getByText('Jogos | Tem Link Aqui')).toBeTruthy()
+    expect(screen.getByRole('heading', { level: 1, name: 'Jogos' })).toBeTruthy()
+  })
+
   it('noindex,follow não publica json-ld', () => {
     render(
       <FacetCatalog
