@@ -1,7 +1,7 @@
 {
   "name": "divulgadorlink",
   "private": true,
-  "description": "Autoração de infraestrutura Railway. A aplicação está em backend/ e frontend/.",
+  "description": "A aplicação está em backend/ e frontend/. O Coolify publica a main.",
   "devDependencies": {
     "railway": "3.12.0"
   }

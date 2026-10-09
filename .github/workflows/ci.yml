@@ -1,5 +1,7 @@
 name: ci
 on: [push, pull_request]
+# O app GitHub do Coolify publica a main no push. Este workflow não chama a API de deploy.
+# Um job de deploy aqui publicaria o mesmo commit de novo, em paralelo com o webhook.
 jobs:
   verify:
     # Push no runner com label divulgador. PR fica no GitHub: fork de repo público não pode executar aqui.
