@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { Button } from '@/components/ui/button'
 
 type Choice = 'marketing' | 'denied' | null
 
@@ -18,13 +19,26 @@ function writeConsent(value: Exclude<Choice, null>) {
 
 export function Consent({ pending }: { pending: boolean }) {
   const [choice, setChoice] = useState<Choice | undefined>(pending ? null : undefined)
+  const ref = useRef<HTMLDialogElement>(null)
 
   useEffect(() => {
     setChoice(readConsent())
   }, [])
 
-  useEffect(() => {
-    document.body.classList.toggle('has-consent', choice === null)
+  useLayoutEffect(() => {
+    const dialog = ref.current
+    if (!dialog || choice !== null) return
+    if (!dialog.open) dialog.showModal()
+    function refuse(event: Event) {
+      event.preventDefault()
+      writeConsent('denied')
+      setChoice('denied')
+    }
+    dialog.addEventListener('cancel', refuse)
+    return () => {
+      dialog.removeEventListener('cancel', refuse)
+      if (dialog.open) dialog.close()
+    }
   }, [choice])
 
   useEffect(() => {
@@ -47,12 +61,13 @@ export function Consent({ pending }: { pending: boolean }) {
   if (choice !== null) return null
 
   return (
-    <div className="consent-bar" role="region" aria-label="Cookies de medição">
-      <p>Usamos um cookie para saber se o anúncio gerou uma publicação. A Meta só é medida se você aceitar.</p>
-      <div className="consent-actions">
-        <button type="button" className="button button-primary" onClick={() => { writeConsent('marketing'); setChoice('marketing') }}>Aceitar</button>
-        <button type="button" className="button button-secondary" onClick={() => { writeConsent('denied'); setChoice('denied') }}>Agora não</button>
+    <dialog ref={ref} className="age-dialog" aria-labelledby="cookie-title">
+      <h2 id="cookie-title">Este site usa cookies</h2>
+      <p>Usamos cookies para o site funcionar e para lembrar suas preferências. Veja a <a href="/privacidade">Política de Privacidade</a>.</p>
+      <div className="age-dialog-actions">
+        <Button type="button" onClick={() => { writeConsent('marketing'); setChoice('marketing') }}>Aceitar</Button>
+        <Button type="button" variant="secondary" onClick={() => { writeConsent('denied'); setChoice('denied') }}>Recusar</Button>
       </div>
-    </div>
+    </dialog>
   )
 }

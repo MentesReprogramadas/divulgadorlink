@@ -39,7 +39,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const account = accountLinks(role)
   return (
     <html lang="pt-BR" className={`${sourceSans.variable} ${sourceSerif.variable} ${outfit.variable}`}>
-      <body className={pending ? 'has-consent' : undefined}>
+      <body>
         <header className="site-header">
           <a className="site-mark" href={advertise ? '/divulgar' : '/'} aria-label="Home">
             <img src="/logo.svg" alt="" width={1292} height={235} />
