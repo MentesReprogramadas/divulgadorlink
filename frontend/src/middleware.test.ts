@@ -9,8 +9,10 @@ function run(path: string, cookie?: string) {
 
 describe('middleware', () => {
   it('não intercepta a ficha: o 404 fica na página', () => {
-    expect(config.matcher).toEqual(['/admin/:path*'])
+    expect(config.matcher).toEqual(['/((?!_next|bff|.*\\..*).*)'])
     expect(run('/link/nao-existe').headers.get('x-middleware-rewrite')).toBeNull()
+    expect(run('/').headers.get('content-security-policy')).toContain("frame-ancestors 'none'")
+    expect(run('/').headers.get('content-security-policy')).toContain("'nonce-")
   })
 
   it('admin sem papel continua na página escondida', () => {

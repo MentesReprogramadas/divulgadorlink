@@ -4,10 +4,30 @@ import type { NextRequest } from 'next/server'
 const TOUCH_TOKEN = /^[a-zA-Z0-9._~-]{1,80}$/
 const TOUCH_OPTIONAL = /^[a-zA-Z0-9._~-]{0,80}$/
 
-function withPath(request: NextRequest): Headers {
+function withPath(request: NextRequest): { headers: Headers; csp: string } {
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-pathname', request.nextUrl.pathname)
-  return requestHeaders
+  const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
+  const csp = [
+    "default-src 'self'",
+    `script-src 'self' 'nonce-${nonce}' https://js.stripe.com https://connect.facebook.net`,
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob: https://www.facebook.com",
+    "font-src 'self'",
+    "connect-src 'self' https://api.stripe.com https://www.facebook.com https://connect.facebook.net",
+    "frame-src https://js.stripe.com https://hooks.stripe.com",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+  ].join('; ')
+  requestHeaders.set('x-nonce', nonce)
+  requestHeaders.set('Content-Security-Policy', csp)
+  return { headers: requestHeaders, csp }
+}
+
+function finish(request: NextRequest, response: NextResponse, csp: string): NextResponse {
+  response.headers.set('Content-Security-Policy', csp)
+  return withTouch(request, response)
 }
 
 function withTouch(request: NextRequest, response: NextResponse): NextResponse {
@@ -34,16 +54,16 @@ function withTouch(request: NextRequest, response: NextResponse): NextResponse {
 }
 
 export function middleware(request: NextRequest) {
-  const requestHeaders = withPath(request)
+  const { headers, csp } = withPath(request)
   const hidden = request.nextUrl.pathname.startsWith('/admin')
     && request.cookies.get('catalogo_role')?.value !== 'ADMIN'
   if (hidden) {
-    return withTouch(request, NextResponse.rewrite(new URL('/nao-encontrado', request.url), {
+    return finish(request, NextResponse.rewrite(new URL('/nao-encontrado', request.url), {
       status: 404,
-      request: { headers: requestHeaders },
-    }))
+      request: { headers },
+    }), csp)
   }
-  return withTouch(request, NextResponse.next({ request: { headers: requestHeaders } }))
+  return finish(request, NextResponse.next({ request: { headers } }), csp)
 }
 
 export const config = {
