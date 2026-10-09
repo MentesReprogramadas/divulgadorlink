@@ -29,4 +29,4 @@ USER app
 ENV NODE_ENV=production
 # Coolify não troca o CMD do Dockerfile pelo start command. APP_ENTRY=worker
 # pula a migração; o default sobe a API depois do migrate.
-CMD ["sh", "-c", "if [ \"$$APP_ENTRY\" = \"worker\" ]; then exec node build/worker.js; fi; npx prisma migrate deploy && node prisma/bootstrap-tenant.mjs && exec node build/server.js"]
+CMD ["sh", "-c", "if [ \"$APP_ENTRY\" = \"worker\" ]; then exec node build/worker.js; fi; npx prisma migrate deploy && node prisma/bootstrap-tenant.mjs && exec node build/server.js"]
