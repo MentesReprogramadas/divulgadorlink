@@ -29,8 +29,6 @@ export function facetIndexable(input: {
   substantiveCount: number
 }): boolean {
   if (!input.isPublicFacet || input.requiresAge) return false
-  const summary = cleanSummary(input.summary)
-  if (summary && summary.length >= MIN_TEXT) return true
   return input.substantiveCount >= MIN_LINKS
 }
 
