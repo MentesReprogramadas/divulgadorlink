@@ -32,9 +32,9 @@ Não prometer expurgo de pedido aos 5 anos. Analytics de sessão, a etapa 7 apag
 
 ID: P-04. O Pixel já existe. O número público é `2981954672158122`. A chave da API de conversões foi colada no chat. Ela não entra em arquivo do repositório, nem neste relatório.
 
-A etapa 3 já lê `META_PIXEL_ID` e `META_CAPI_TOKEN` do ambiente. Sem os dois no Railway, o pixel fica mudo e a API de conversões não envia nada. O snippet que dispara `PageView` sozinho não foi colado no layout. A request à Meta só sai depois do cookie `tla_consent=marketing`.
+A etapa 3 já lê `META_PIXEL_ID` e `META_CAPI_TOKEN` do ambiente. Sem os dois no Coolify, o pixel fica mudo e a API de conversões não envia nada. O snippet que dispara `PageView` sozinho não foi colado no layout. A request à Meta só sai depois do cookie `tla_consent=marketing`.
 
-A chave que está no chat deve ser tratada como exposta. Se este histórico for compartilhado, gere outra no Gerenciador de Eventos e apague a antiga. Não cole a nova neste chat. Coloque direto no ambiente do Railway.
+A chave que está no chat deve ser tratada como exposta. Se este histórico for compartilhado, gere outra no Gerenciador de Eventos e apague a antiga. Não cole a nova neste chat. Coloque direto no ambiente do Coolify.
 
 ## 5. Operação da fila
 
@@ -57,4 +57,4 @@ No dia em que o anúncio começar a gastar, essa análise tem de acontecer nesse
 
 ## 7. Como saber que o programa acabou
 
-As sete etapas estão no branch `feat/pre-marketing-02-legal`, com Vitest e os Playwright citados nos relatórios de cada etapa. O que continua humano: item 5 no dia em que a mídia ligar, o 301 de www se você quiser um host só, e `META_PIXEL_ID` / `META_CAPI_TOKEN` no Railway. O item 1 está decidido: o VHG fica. O item 2 está no ar como segundo host, sem redirect. O texto de destino fora da jurisdição está nas páginas da etapa 2.
+As sete etapas estão no branch `feat/pre-marketing-02-legal`, com Vitest e os Playwright citados nos relatórios de cada etapa. O que continua humano: item 5 no dia em que a mídia ligar, o 301 de www se você quiser um host só, e `META_PIXEL_ID` / `META_CAPI_TOKEN` no Coolify. O item 1 está decidido: o VHG fica. O item 2 está no ar como segundo host, sem redirect. O texto de destino fora da jurisdição está nas páginas da etapa 2.

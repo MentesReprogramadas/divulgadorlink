@@ -16,7 +16,7 @@ Relato de cada uma: `2026-10-09-01-landing.md` até `2026-10-09-07-operacao.md`.
 
 ## O que ainda é gente, não deploy
 
-1. No Railway, `META_PIXEL_ID=2981954672158122` e `META_CAPI_TOKEN`. Sem isso o funil existe no banco e a conta de anúncio continua cega. Se este chat vazou, gere outra chave e não cole aqui.
+1. No Coolify, `META_PIXEL_ID` no site e na API, e `META_CAPI_TOKEN` só na API. Sem isso o funil existe no banco e a conta de anúncio continua cega. Se este chat vazou, gere outra chave e não cole aqui.
 2. No dia em que a mídia gastar, abrir `/admin/moderacao` e decidir a fila no mesmo dia. O e-mail avisa. Não publica. A IA de moderação continua desligada de propósito.
 3. Redirect 301 de `www` para o apex, se quiser um host só. Os dois já respondem 200. Não bloqueia o anúncio.
 4. Não apagar pedido nem pagamento por idade. Analytics de sessão, sim, depois de 12 meses.

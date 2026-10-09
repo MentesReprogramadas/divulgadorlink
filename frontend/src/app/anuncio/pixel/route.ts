@@ -3,7 +3,8 @@ import { NextResponse } from 'next/server'
 
 export async function GET() {
   const consent = (await cookies()).get('tla_consent')?.value
-  const pixelId = process.env.META_PIXEL_ID
+  // O ponto em process.env.X é trocado no build. Colchete lê o valor que o Coolify injeta ao subir.
+  const pixelId = process.env['META_PIXEL_ID']
   if (consent === 'marketing' && pixelId) {
     return NextResponse.json({ enabled: true, pixelId })
   }
