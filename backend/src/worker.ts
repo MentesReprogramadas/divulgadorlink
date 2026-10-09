@@ -24,6 +24,7 @@ import { runtimeCheckoutStore } from '@/use-cases/@Promotions/checkout-prisma'
 import { settleProposedText } from '@/use-cases/@Links/settle-proposed-text'
 import type { ModelVerdict } from '@/use-cases/@Links/proposed-text-decision'
 import { pixExpiresInSeconds } from '@/domain/payments/pix-expiration'
+import { analyticsToPurge, purgeBefore } from '@/use-cases/@Analytics/purge-old-events'
 
 export type ModerateLinkJobData = {
   configRows: Partial<Record<ConfigKey, string>>
@@ -274,6 +275,34 @@ async function startWorker(): Promise<void> {
     })
   }, 30_000)
   drain.unref()
+  const day = 24 * 60 * 60 * 1000
+  const purge = async () => {
+    const before = purgeBefore(new Date())
+    for (let batch = 0; batch < 100; batch += 1) {
+      const rows = await prisma.analyticsEvent.findMany({
+        where: { day: { lt: before } },
+        select: { id: true, day: true },
+        take: 1000,
+      })
+      const doomed = analyticsToPurge(
+        rows.map((row) => ({ id: row.id, day: row.day.toISOString().slice(0, 10) })),
+        before,
+      )
+      if (doomed.length === 0) return
+      await prisma.analyticsEvent.deleteMany({ where: { id: { in: doomed.map((row) => row.id) } } })
+      logDomainEvent('analytics.purged', { entity: String(doomed.length) })
+      if (rows.length < 1000) return
+    }
+  }
+  void purge().catch((error) => {
+    logDomainEvent('analytics.purge_failed', { result: error instanceof Error ? error.message : 'expurgo' })
+  })
+  const retention = setInterval(() => {
+    void purge().catch((error) => {
+      logDomainEvent('analytics.purge_failed', { result: error instanceof Error ? error.message : 'expurgo' })
+    })
+  }, day)
+  retention.unref()
 }
 
 if (require.main === module) {
