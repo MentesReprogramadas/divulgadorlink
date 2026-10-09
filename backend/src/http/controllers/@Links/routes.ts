@@ -1,16 +1,20 @@
+import { promises as dns } from 'node:dns'
+import https from 'node:https'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
 import { signSurface } from '@/domain/analytics/surface-token'
 import { documentTitle, facetIndexable, linkRobots, substantiveText } from '@/domain/catalog/index-policy'
 import { hitsBlocklist } from '@/domain/links/blocklist'
-import { assertPublicHttps } from '@/adapters/http/safe-fetch'
+import { assertPublicHttps, safeFetch, type SafeFetchDeps } from '@/adapters/http/safe-fetch'
 import { canonicalUrl } from '@/domain/links/canonical-url'
+import { hostMatchesNetwork } from '@/domain/links/network-host'
+import { urlAvailability } from '@/domain/links/url-availability'
 import { getAcquisitionStore, startEventId } from '@/use-cases/@Acquisition/record-funnel'
+import { DuplicateLinkError, getLinksRepository } from '@/repositories/links-repository'
 import { env } from '@/env'
 import { buildError, business_rule, forbidden, not_found, validation } from '@/http/errors'
 import { verifyJWT } from '@/http/middlewares/verify-jwt'
 import { resolveTenant } from '@/http/tenant'
-import { getLinksRepository } from '@/repositories/links-repository'
 import {
   canSubmitLink,
   confirmationFlags,
@@ -44,6 +48,54 @@ export const submitLinkBodySchema = z
   .strict()
 
 class QuotaExhaustedError extends Error {}
+
+let linkProbeForTest: ((url: string) => Promise<number | null>) | null = null
+
+export function setLinkProbeForTest(probe: ((url: string) => Promise<number | null>) | null): void {
+  if (process.env.NODE_ENV !== 'test') return
+  linkProbeForTest = probe
+}
+
+async function probeStatus(raw: string): Promise<number | null> {
+  if (process.env.NODE_ENV === 'test') return linkProbeForTest ? linkProbeForTest(raw) : 200
+  if (process.env.E2E_LINK_PROBE === 'example.com') {
+    const host = new URL(raw).hostname
+    if (host === 'example.com' || host.endsWith('.example.com')) return 200
+  }
+  try {
+    const deps: SafeFetchDeps = {
+      resolve: (hostname) => dns.resolve(hostname),
+      connect: (target) => new Promise((resolve, reject) => {
+        const parsed = new URL(target.url)
+        const req = https.request({
+          host: target.address,
+          servername: target.servername,
+          method: 'GET',
+          path: `${parsed.pathname}${parsed.search}`,
+          headers: { host: target.hostname },
+          timeout: 5000,
+        }, (res) => {
+          const chunks: Buffer[] = []
+          res.on('data', (chunk: Buffer) => chunks.push(chunk))
+          res.on('end', () => {
+            const headers = new Headers()
+            for (const [key, value] of Object.entries(res.headers)) {
+              if (typeof value === 'string') headers.set(key, value)
+              else if (Array.isArray(value)) headers.set(key, value.join(', '))
+            }
+            resolve({ status: res.statusCode ?? 0, headers, body: Buffer.concat(chunks) })
+          })
+        })
+        req.on('error', reject)
+        req.on('timeout', () => req.destroy(new Error('timeout')))
+        req.end()
+      }),
+    }
+    return (await safeFetch(raw, deps)).status
+  } catch {
+    return null
+  }
+}
 
 const identifierChange = new ConfirmIdentifierUseCase(new PrismaConfirmCodesRepository(prisma), {
   hashPlain: (plain) => hash(plain, 6),
@@ -201,6 +253,16 @@ async function createLink(request: FastifyRequest, reply: FastifyReply) {
         buildError({ code: validation, message: 'URL não permitida.', request_id: request.id }),
       )
     }
+    if (!hostMatchesNetwork(new URL(url).hostname, network.knownHosts ?? [])) {
+      return reply.status(422).send(
+        buildError({ code: validation, message: 'A URL não pertence a essa rede.', request_id: request.id }),
+      )
+    }
+    if (urlAvailability(await probeStatus(url)) === 'dead') {
+      return reply.status(422).send(
+        buildError({ code: validation, message: 'Não foi possível abrir essa URL.', request_id: request.id }),
+      )
+    }
 
     const [banned, bannedUrls, niches, terms] = await Promise.all([
       repo.listBannedIdentifiers(tenant.id),
@@ -283,6 +345,11 @@ async function createLink(request: FastifyRequest, reply: FastifyReply) {
       ...(link.status === 'PRE_REJECTED' ? { message: 'Envio não aceito.' } : {}),
     })
   } catch (error) {
+    if (error instanceof DuplicateLinkError) {
+      return reply.status(409).send(
+        buildError({ code: business_rule, message: 'Esse link já está no catálogo.', request_id: request.id }),
+      )
+    }
     if (error instanceof QuotaExhaustedError) {
       return reply.status(409).send(
         buildError({ code: business_rule, message: 'cota esgotada', request_id: request.id }),
@@ -454,6 +521,7 @@ async function listMine(request: FastifyRequest, reply: FastifyReply) {
       page,
       pageSize,
       total: links.length,
+      slotsUsed: links.filter((link) => link.occupiesSlot).length,
     })
   } catch (error) {
     if (error instanceof ResourceNotFoundError) {

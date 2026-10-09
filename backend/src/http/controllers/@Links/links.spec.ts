@@ -5,6 +5,7 @@ import {
   InMemoryLinksRepository,
   resetLinksRepositoryForTest,
 } from '@/repositories/links-repository'
+import { setLinkProbeForTest } from '@/http/controllers/@Links/routes'
 import { business_rule } from '@/http/errors'
 import {
   getModerationCasesRepository,
@@ -54,6 +55,7 @@ describe('POST /api/v1/links', () => {
   })
 
   beforeEach(() => {
+    setLinkProbeForTest(null)
     resetLinksRepositoryForTest()
     resetModerationCasesRepositoryForTest()
     const confirmedAt = new Date('2026-09-01T00:00:00Z')
@@ -178,10 +180,24 @@ describe('POST /api/v1/links', () => {
     expect(await getModerationCasesRepository().findOpenByLinkId(repo().links[0]!.id)).toBeNull()
   })
 
-  it('tenantId no body retorna 400', async () => {
-    const response = await submit(VERIFIED_ID, validBody({ tenantId: 'outro' }))
+  it('recusa url de outra rede, url morta e url já ocupada', async () => {
+    const before = repo().links.length
+    const wrongHost = await submit(VERIFIED_ID, validBody({ url: 'https://instagram.com/x' }))
+    expect(wrongHost.statusCode).toBe(422)
+    expect(repo().links).toHaveLength(before)
 
-    expect(response.statusCode).toBe(400)
-    expect(repo().links).toHaveLength(0)
+    setLinkProbeForTest(async () => 404)
+    const dead = await submit(VERIFIED_ID, validBody({ url: 'https://t.me/morta' }))
+    expect(dead.statusCode).toBe(422)
+    expect(dead.json().message).toBe('Não foi possível abrir essa URL.')
+    expect(repo().links).toHaveLength(before)
+
+    setLinkProbeForTest(async () => 403)
+    const alive = await submit(VERIFIED_ID, validBody({ url: 'https://t.me/viva' }))
+    expect(alive.statusCode).toBe(201)
+
+    const duplicate = await submit(VERIFIED_ID, validBody({ url: 'https://t.me/viva' }))
+    expect(duplicate.statusCode).toBe(409)
+    expect(duplicate.json().message).toBe('Esse link já está no catálogo.')
   })
 })
