@@ -5,6 +5,7 @@ import { documentTitle, facetIndexable, linkRobots, substantiveText } from '@/do
 import { hitsBlocklist } from '@/domain/links/blocklist'
 import { assertPublicHttps } from '@/adapters/http/safe-fetch'
 import { canonicalUrl } from '@/domain/links/canonical-url'
+import { getAcquisitionStore, startEventId } from '@/use-cases/@Acquisition/record-funnel'
 import { env } from '@/env'
 import { buildError, business_rule, forbidden, not_found, validation } from '@/http/errors'
 import { verifyJWT } from '@/http/middlewares/verify-jwt'
@@ -253,6 +254,16 @@ async function createLink(request: FastifyRequest, reply: FastifyReply) {
     )
 
     const { runAi, occupiesSlot } = decision!
+    const store = getAcquisitionStore()
+    const touch = await store.findTouch(user.id)
+    await store.stampLink(link.id, touch)
+    await store.recordFunnel({
+      tenantId: tenant.id,
+      eventId: link.id,
+      name: 'SubmitLink',
+      userId: user.id,
+      linkId: link.id,
+    })
     if (link.status === 'PENDING_MODERATION') {
       await getModerationCasesRepository().ensureOpen({
         tenantId: tenant.id,
@@ -563,8 +574,24 @@ async function patchLink(request: FastifyRequest, reply: FastifyReply) {
   }
 }
 
+async function submissionStarted(request: FastifyRequest, reply: FastifyReply) {
+  const tenant = await resolveTenant(hostFromRequest(request))
+  if (request.user.tenantId !== tenant.id) {
+    return reply.status(403).send(buildError({ code: forbidden, message: 'Acesso negado.', request_id: request.id }))
+  }
+  await getAcquisitionStore().recordFunnel({
+    tenantId: tenant.id,
+    eventId: startEventId(request.user.sub),
+    name: 'StartLinkSubmission',
+    userId: request.user.sub,
+    linkId: null,
+  })
+  return reply.status(204).send()
+}
+
 export async function linksRoutes(app: FastifyInstance) {
   app.post('/', { preHandler: [verifyJWT] }, createLink)
+  app.get('/submission-started', { onRequest: [verifyJWT] }, submissionStarted)
   app.get('/mine', { onRequest: [verifyJWT] }, listMine)
   app.get('/:id', getPublicLink)
   app.post('/account/email', { onRequest: [verifyJWT] }, (request, reply) => changeIdentifier(request, reply, 'EMAIL'))

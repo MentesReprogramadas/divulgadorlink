@@ -14,8 +14,7 @@ import {
 import { verifyJWT } from '@/http/middlewares/verify-jwt'
 import { resolveTenant } from '@/http/tenant'
 import { getAuditLogsRepository } from '@/repositories/audit-logs-repository'
-import {
-  getModerationCasesRepository,
+import { getModerationCasesRepository,
   InMemoryModerationCasesRepository,
   PrismaModerationCasesRepository,
 } from '@/repositories/moderation-cases-repository'
@@ -23,6 +22,7 @@ import { getLinksRepository } from '@/repositories/links-repository'
 import { appeal } from '@/use-cases/@Moderation/appeal'
 import { notifyModeration } from '@/adapters/notifications/outbound-mail'
 import { decideCase } from '@/use-cases/@Moderation/decide-case'
+import { getAcquisitionStore, publishEventName } from '@/use-cases/@Acquisition/record-funnel'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
 
 export const appealBodySchema = z.object({ text: z.string() }).strict()
@@ -302,6 +302,16 @@ export async function postAdminModerationDecision(request: FastifyRequest, reply
     }
 
     const updated = await linksRepo.updateLinkModeration(link.id, patch)
+    const published = publishEventName(link.status, decisionResult.status)
+    if (published) {
+      await getAcquisitionStore().recordFunnel({
+        tenantId: tenant.id,
+        eventId: `${link.id}:published`,
+        name: published,
+        userId: link.ownerId,
+        linkId: link.id,
+      })
+    }
     if (decisionResult.requiresAge && targetNicheId) {
       await linksRepo.updateNicheFacet({
         id: targetNicheId,

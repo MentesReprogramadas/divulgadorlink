@@ -30,6 +30,10 @@ export default function Page() {
   const [status, setStatus] = useState('')
 
   useEffect(() => {
+    void api('/v1/links/submission-started')
+  }, [])
+
+  useEffect(() => {
     void api<{ networks: Facet[]; niches: Facet[] }>('/v1/home').then((result) => {
       setNetworks(result.body.networks ?? [])
       setNiches(result.body.niches ?? [])

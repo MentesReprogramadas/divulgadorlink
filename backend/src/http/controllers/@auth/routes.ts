@@ -27,6 +27,8 @@ import { deleteAccount, WrongPasswordError } from '@/use-cases/@Auth/delete-acco
 import { requestPasswordReset, resetPassword } from '@/use-cases/@Auth/password-reset'
 import { emailOutboxEnabled, readOutbound } from '@/adapters/notifications/outbound-mail'
 import { createLoginRateLimiter } from '@/http/controllers/@auth/login-rate'
+import { parseTouch } from '@/domain/acquisition/touch'
+import { getAcquisitionStore } from '@/use-cases/@Acquisition/record-funnel'
 
 const registerUseCase = new RegisterUseCase(prisma)
 const confirmUseCase = new ConfirmIdentifierUseCase(
@@ -137,6 +139,11 @@ async function register(request: FastifyRequest, reply: FastifyReply) {
   try {
     const tenant = await resolveTenant(host)
     const user = await registerUseCase.execute({ ...body, tenantId: tenant.id })
+    await getAcquisitionStore().rememberRegistration({
+      tenantId: tenant.id,
+      userId: user.id,
+      touch: parseTouch(request.cookies.tla_touch),
+    })
     const identifiers = await confirmUseCase.issueInitialCodes(user.id)
     const flags = confirmationFlags(identifiers)
     await signSession(reply, user)
