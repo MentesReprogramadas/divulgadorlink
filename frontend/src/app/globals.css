@@ -815,6 +815,13 @@ a.facet:hover { text-decoration: underline; text-underline-offset: 0.16em; }
   display: none;
 }
 
+@media (width < 720px) {
+  .facet-line {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+}
+
 .facet-line.is-open {
   flex-wrap: wrap;
   overflow: visible;
