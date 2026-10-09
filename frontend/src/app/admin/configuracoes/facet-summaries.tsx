@@ -26,18 +26,30 @@ function searchLabel(row: FacetRow): string {
   return row.indexable ? 'Na busca' : 'Fora da busca'
 }
 
-function FacetSummaryRow({
+function lengthHint(row: FacetRow, count: number): string {
+  const size = `${count} caracteres`
+  if (row.requiresAge) return `${size}. Conteúdo 18+ continua fora da busca.`
+  if (!row.isPublicFacet) return `${size}. Este catálogo fica fora da busca.`
+  if (count < 80) return `${size}. Abaixo de 80, a página só entra na busca com links suficientes.`
+  return `${size}.`
+}
+
+function FacetEditor({
   kind,
   row,
+  value,
+  onChange,
   onSaved,
 }: {
   kind: FacetKind
   row: FacetRow
+  value: string
+  onChange: (value: string) => void
   onSaved: (next: FacetRow) => void
 }) {
-  const [value, setValue] = useState(row.summary ?? '')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
+  const count = value.trim().length
 
   async function save() {
     if (saving) return
@@ -49,7 +61,7 @@ function FacetSummaryRow({
         body: JSON.stringify({ summary: value.trim() ? value : null }),
       })
       if (result.status === 200) {
-        setValue(result.body.summary ?? '')
+        onChange(result.body.summary ?? '')
         onSaved(result.body)
         return
       }
@@ -62,16 +74,18 @@ function FacetSummaryRow({
   }
 
   return (
-    <div>
-      <p className="setting-title">{row.name}</p>
+    <div className="catalog-copy-editor">
+      <h3 className="setting-title">{row.name}</h3>
       <p className="setting-copy">{row.slug}</p>
-      <p>{searchLabel(row)}</p>
       <textarea
         className="field"
+        rows={5}
         aria-label={`Resumo de ${row.name}`}
+        aria-describedby={`resumo-${row.id}-tamanho`}
         value={value}
-        onChange={(event) => setValue(event.target.value)}
+        onChange={(event) => onChange(event.target.value)}
       />
+      <p id={`resumo-${row.id}-tamanho`} className="setting-copy">{lengthHint(row, count)}</p>
       <button type="button" className="button button-primary" disabled={saving} onClick={() => void save()}>
         {`Salvar ${row.name}`}
       </button>
@@ -80,30 +94,13 @@ function FacetSummaryRow({
   )
 }
 
-function FacetList({
-  title,
-  kind,
-  rows,
-  onSaved,
-}: {
-  title: string
-  kind: FacetKind
-  rows: FacetRow[]
-  onSaved: (next: FacetRow) => void
-}) {
-  return (
-    <section>
-      <h3 className="setting-title">{title}</h3>
-      {rows.map((row) => (
-        <FacetSummaryRow key={row.id} kind={kind} row={row} onSaved={onSaved} />
-      ))}
-    </section>
-  )
-}
-
 export function FacetSummaries() {
   const [lists, setLists] = useState<FacetLists | null>(null)
   const [loadError, setLoadError] = useState('')
+  const [kind, setKind] = useState<FacetKind>('niche')
+  const [query, setQuery] = useState('')
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [drafts, setDrafts] = useState<Record<string, string>>({})
 
   useEffect(() => {
     void api<FacetLists>('/v1/admin/facets')
@@ -116,10 +113,10 @@ export function FacetSummaries() {
       })
   }, [])
 
-  function replace(kind: FacetKind, next: FacetRow) {
+  function replace(nextKind: FacetKind, next: FacetRow) {
     setLists((current) => {
       if (!current) return current
-      const key = kind === 'niche' ? 'niches' : 'networks'
+      const key = nextKind === 'niche' ? 'niches' : 'networks'
       return {
         ...current,
         [key]: current[key].map((row) => (row.id === next.id ? next : row)),
@@ -127,14 +124,61 @@ export function FacetSummaries() {
     })
   }
 
+  const rows = lists ? (kind === 'niche' ? lists.niches : lists.networks) : []
+  const needle = query.trim().toLocaleLowerCase('pt-BR')
+  const visible = needle
+    ? rows.filter((row) => `${row.name} ${row.slug}`.toLocaleLowerCase('pt-BR').includes(needle))
+    : rows
+  const selected = rows.find((row) => row.id === selectedId) ?? rows[0] ?? null
+  const draft = selected ? drafts[selected.id] ?? selected.summary ?? '' : ''
+
   return (
-    <section>
+    <section className="catalog-copy">
       <h2 className="panel-section-title">Textos do catálogo</h2>
+      <p className="catalog-copy-lead">Esse texto é a descrição que o Google mostra na página do nicho ou da rede.</p>
       {loadError ? <p>{loadError}</p> : null}
       {lists ? (
         <>
-          <FacetList title="Nichos" kind="niche" rows={lists.niches} onSaved={(row) => replace('niche', row)} />
-          <FacetList title="Redes" kind="network" rows={lists.networks} onSaved={(row) => replace('network', row)} />
+          <div className="filter-row" role="tablist" aria-label="Tipo de catálogo">
+            <button type="button" role="tab" aria-selected={kind === 'niche'} onClick={() => setKind('niche')}>Nichos</button>
+            <button type="button" role="tab" aria-selected={kind === 'network'} onClick={() => setKind('network')}>Redes</button>
+          </div>
+          <div className="catalog-copy-board">
+            <div>
+              <input
+                className="field"
+                aria-label="Filtrar catálogos"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+              />
+              <div className="catalog-copy-list">
+                {visible.length === 0 ? <p className="catalog-copy-empty">Nenhum catálogo com esse nome.</p> : null}
+                {visible.map((row) => (
+                  <button
+                    key={row.id}
+                    type="button"
+                    className="catalog-copy-item"
+                    aria-current={selected?.id === row.id ? 'true' : undefined}
+                    aria-label={row.name}
+                    onClick={() => setSelectedId(row.id)}
+                  >
+                    <span>{row.name}</span>
+                    <span className="catalog-copy-status">{searchLabel(row)}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            {selected ? (
+              <FacetEditor
+                key={selected.id}
+                kind={kind}
+                row={selected}
+                value={draft}
+                onChange={(value) => setDrafts((current) => ({ ...current, [selected.id]: value }))}
+                onSaved={(next) => replace(kind, next)}
+              />
+            ) : null}
+          </div>
         </>
       ) : null}
     </section>

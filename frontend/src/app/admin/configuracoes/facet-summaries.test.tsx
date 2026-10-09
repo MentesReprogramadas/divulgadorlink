@@ -51,6 +51,24 @@ describe('resumos do catálogo', () => {
     expect((screen.getByRole('button', { name: 'Salvar Jogos' }) as HTMLButtonElement).disabled).toBe(false)
   })
 
+  it('abre um catálogo por vez e guarda o rascunho ao trocar', async () => {
+    api.mockResolvedValueOnce({
+      status: 200,
+      body: {
+        niches: [row, { ...row, id: 'niche-filmes', name: 'Filmes', slug: 'filmes-series' }],
+        networks: [],
+      },
+    })
+    render(<FacetSummaries />)
+    expect(await screen.findByRole('textbox', { name: 'Resumo de Jogos' })).toBeTruthy()
+    expect(screen.queryByRole('textbox', { name: 'Resumo de Filmes' })).toBeNull()
+    fireEvent.change(screen.getByRole('textbox', { name: 'Resumo de Jogos' }), { target: { value: 'rascunho' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Filmes' }))
+    expect(screen.getByRole('textbox', { name: 'Resumo de Filmes' })).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Jogos' }))
+    expect((screen.getByRole('textbox', { name: 'Resumo de Jogos' }) as HTMLTextAreaElement).value).toBe('rascunho')
+  })
+
   it('diz que 18+ continua fora da busca', async () => {
     api.mockResolvedValueOnce({
       status: 200,
