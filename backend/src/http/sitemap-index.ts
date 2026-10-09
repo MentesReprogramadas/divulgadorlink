@@ -34,7 +34,11 @@ function entriesFrom(
     summary: row.summary,
     substantiveCount: nicheCount.get(row.id) ?? 0,
   })]))
-  const entries: SitemapEntry[] = [{ path: '/', updatedAt: now }]
+  const entries: SitemapEntry[] = [
+    { path: '/', updatedAt: now },
+    { path: '/privacidade', updatedAt: '2026-10-09T00:00:00.000Z' },
+    { path: '/termos', updatedAt: '2026-10-09T00:00:00.000Z' },
+  ]
   for (const niche of niches) {
     if (nicheOk.get(niche.id) !== true) continue
     entries.push({ path: `/nicho/${encodeURIComponent(niche.slug)}`, updatedAt: niche.updatedAt.toISOString() })

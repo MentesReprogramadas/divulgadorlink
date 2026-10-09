@@ -315,7 +315,7 @@ describe('contratos HTTP da vitrine', () => {
     const response = await app.inject({ method: 'GET', url: '/api/v1/sitemap', headers: { host: HOST } })
     expect(response.statusCode).toBe(200)
     const paths = response.json().entries.map((row: { path: string }) => row.path)
-    expect(paths).toEqual(['/'])
+    expect(paths).toEqual(['/', '/privacidade', '/termos'])
     for (const hidden of ['/nicho/jogos', '/rede/telegram', '/link/link-publico', '/nicho/apostas', '/rede/outro', '/link/link-adulto', '/link/link-off', '/link/link-ban']) {
       expect(paths).not.toContain(hidden)
     }

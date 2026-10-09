@@ -43,6 +43,7 @@ export default function Page() {
         <Field label="Telefone"><Input name="phone" autoComplete="tel" required /></Field>
         <Field label="Senha"><Input name="password" type="password" autoComplete="new-password" minLength={8} required /></Field>
         {error ? <p role="alert">{error}</p> : null}
+        <p>Ao criar a conta você concorda com os <a href="/termos">Termos</a> e a <a href="/privacidade">Privacidade</a>.</p>
         <Button type="submit">Criar conta</Button>
       </form>
       <p className="auth-switch">Já tem conta? <a href="/login">Entrar</a></p>
