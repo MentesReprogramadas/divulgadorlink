@@ -278,7 +278,7 @@ test('criação, SSRF, payload e edição publicada', async ({ browser }) => {
   await page.getByLabel('Rede').selectOption({ label: 'Telegram' })
   await page.getByLabel('Nicho').selectOption({ label: 'Jogos' })
   await page.getByRole('button', { name: 'Enviar' }).click()
-  await expect(page.getByText('Em revisão')).toBeVisible()
+  await expect(page.getByText('Enviado para análise.')).toBeVisible()
   const created = sql(`SELECT status || '|' || "tenantId" FROM links WHERE name = 'Bolo de cenoura'`)
   expect(created).toBe(`PENDING_MODERATION|${state.tenantA}`)
   await page.goto(A)
