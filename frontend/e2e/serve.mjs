@@ -108,6 +108,7 @@ const apiEnv = {
   CONFIRMATION_INBOX: '1',
   EMAIL_OUTBOX: '1',
   TENANT_HOST: '',
+  E2E_LINK_PROBE: 'example.com',
 }
 
 start(['npx', 'tsx', 'src/server.ts'], backend, apiEnv)
