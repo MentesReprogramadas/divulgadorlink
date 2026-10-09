@@ -32,11 +32,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const headerStore = await headers()
   const path = headerStore.get('x-pathname') ?? ''
   const advertise = path === '/divulgar' || path.startsWith('/divulgar/')
-  const role = (await cookies()).get('catalogo_role')?.value
+  const jar = await cookies()
+  const role = jar.get('catalogo_role')?.value
+  const stored = jar.get('tla_consent')?.value
+  const pending = stored !== 'marketing' && stored !== 'denied'
   const account = accountLinks(role)
   return (
     <html lang="pt-BR" className={`${sourceSans.variable} ${sourceSerif.variable} ${outfit.variable}`}>
-      <body>
+      <body className={pending ? 'has-consent' : undefined}>
         <header className="site-header">
           <a className="site-mark" href={advertise ? '/divulgar' : '/'} aria-label="Home">
             <img src="/logo.svg" alt="" width={1292} height={235} />
@@ -47,7 +50,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </nav>
         </header>
         {children}
-        <Consent />
+        <Consent pending={pending} />
       </body>
     </html>
   )

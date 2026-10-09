@@ -12,15 +12,20 @@ function readConsent(): Choice {
 }
 
 function writeConsent(value: Exclude<Choice, null>) {
-  document.cookie = `tla_consent=${value}; Path=/; Max-Age=31536000; SameSite=Lax`
+  const secure = location.protocol === 'https:' ? '; Secure' : ''
+  document.cookie = `tla_consent=${value}; Path=/; Max-Age=31536000; SameSite=Lax${secure}`
 }
 
-export function Consent() {
-  const [choice, setChoice] = useState<Choice | undefined>(undefined)
+export function Consent({ pending }: { pending: boolean }) {
+  const [choice, setChoice] = useState<Choice | undefined>(pending ? null : undefined)
 
   useEffect(() => {
     setChoice(readConsent())
   }, [])
+
+  useEffect(() => {
+    document.body.classList.toggle('has-consent', choice === null)
+  }, [choice])
 
   useEffect(() => {
     if (choice !== 'marketing') return
@@ -42,10 +47,12 @@ export function Consent() {
   if (choice !== null) return null
 
   return (
-    <div className="consent-bar" role="region" aria-label="Medição do anúncio">
-      <p>Usamos a origem da visita para saber se o anúncio gerou uma publicação. A medida da Meta só liga se você aceitar.</p>
-      <button type="button" onClick={() => { writeConsent('marketing'); setChoice('marketing') }}>Aceitar</button>
-      <button type="button" onClick={() => { writeConsent('denied'); setChoice('denied') }}>Agora não</button>
+    <div className="consent-bar" role="region" aria-label="Cookies de medição">
+      <p>Usamos um cookie para saber se o anúncio gerou uma publicação. A Meta só é medida se você aceitar.</p>
+      <div className="consent-actions">
+        <button type="button" className="button button-primary" onClick={() => { writeConsent('marketing'); setChoice('marketing') }}>Aceitar</button>
+        <button type="button" className="button button-secondary" onClick={() => { writeConsent('denied'); setChoice('denied') }}>Agora não</button>
+      </div>
     </div>
   )
 }
