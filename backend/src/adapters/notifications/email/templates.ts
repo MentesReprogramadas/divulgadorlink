@@ -97,6 +97,17 @@ export function moderationEmail(input: {
   return { subject: `${input.brand.name}: ${copy.title}`, ...body }
 }
 
+export function queueEmail(input: { brand: EmailBrand; linkName: string }): RenderedEmail {
+  const body = document({
+    brand: input.brand,
+    preheader: 'Link para analisar',
+    title: 'Link para analisar',
+    blocks: [detail('Link', input.linkName), paragraph('Abra a fila de moderação.')],
+    footnote: input.brand.name,
+  })
+  return { subject: `${input.brand.name}: link para analisar`, ...body }
+}
+
 export function banEmail(input: { brand: EmailBrand; reason?: string }): RenderedEmail {
   const blocks = [
     paragraph('Sua conta foi suspensa. Você não pode enviar links nem alterar e-mail, telefone ou texto.'),

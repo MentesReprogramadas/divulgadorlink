@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { Source_Sans_3, Source_Serif_4, Outfit } from 'next/font/google'
 import { accountLinks } from '@/domain/account-nav'
+import { Consent } from '@/components/domain/consent'
 import './globals.css'
 
 const sourceSans = Source_Sans_3({
@@ -28,21 +29,25 @@ export const metadata: Metadata = {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const headerStore = await headers()
+  const path = headerStore.get('x-pathname') ?? ''
+  const advertise = path === '/divulgar' || path.startsWith('/divulgar/')
   const role = (await cookies()).get('catalogo_role')?.value
   const account = accountLinks(role)
   return (
     <html lang="pt-BR" className={`${sourceSans.variable} ${sourceSerif.variable} ${outfit.variable}`}>
       <body>
         <header className="site-header">
-          <a className="site-mark" href="/" aria-label="Home">
+          <a className="site-mark" href={advertise ? '/divulgar' : '/'} aria-label="Home">
             <img src="/logo.svg" alt="" width={1292} height={235} />
           </a>
           <nav>
-            <a href="/busca">Busca</a>
+            {advertise ? null : <a href="/busca">Busca</a>}
             {account.map((item) => <a key={item.href} href={item.href}>{item.label}</a>)}
           </nav>
         </header>
         {children}
+        <Consent />
       </body>
     </html>
   )

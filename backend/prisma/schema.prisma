@@ -43,6 +43,7 @@ model User {
   identifiers  UserIdentifier[]
   links        Link[]
   orders       Order[]
+  acquisitionTouch AcquisitionTouch?
   @@index([tenantId])
   @@map("users")
 }
@@ -209,6 +210,11 @@ model Link {
   everPublished       Boolean    @default(false)
   approvedName        String?
   approvedDescription String?
+  acquisitionSource   String?
+  acquisitionMedium   String?
+  acquisitionCampaign String?
+  acquisitionContent  String?
+  acquisitionTerm     String?
   embedding           Unsupported("vector(1536)")?
   embeddingState      EmbeddingState @default(ABSENT)
   createdAt           DateTime   @default(now())
@@ -430,4 +436,33 @@ model AuditLog {
   createdAt  DateTime @default(now())
   @@index([tenantId, createdAt])
   @@map("audit_logs")
+}
+
+model AcquisitionTouch {
+  id          String   @id @default(cuid())
+  tenantId    String
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  source      String
+  medium      String
+  campaign    String
+  content     String
+  term        String
+  landingPath String
+  createdAt   DateTime @default(now())
+  @@index([tenantId, campaign])
+  @@map("acquisition_touches")
+}
+
+model FunnelEvent {
+  id        String   @id @default(cuid())
+  tenantId  String
+  eventId   String
+  name      String
+  userId    String?
+  linkId    String?
+  createdAt DateTime @default(now())
+  @@unique([tenantId, eventId])
+  @@index([tenantId, name, createdAt])
+  @@map("funnel_events")
 }

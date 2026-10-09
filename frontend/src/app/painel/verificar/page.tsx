@@ -113,7 +113,7 @@ export default function Page() {
       ) : (
         <>
           <p className="auth-lead">
-            {phase === 'code' ? 'Digite o código que chegou no e-mail.' : 'O código chega no e-mail da conta.'}
+            {phase === 'code' ? 'Digite o código que chegou no e-mail. Olhe também o spam.' : 'O código chega no e-mail da conta. Olhe também o spam.'}
           </p>
           {phase === 'loading' ? <p role="status">Carregando</p> : null}
           {phase === 'send' || phase === 'code' ? (

@@ -5,6 +5,7 @@ import {
   emailBrand,
   type EmailBrand,
   moderationEmail,
+  queueEmail,
   type ModerationOutcome,
   passwordResetEmail,
   siteOrigin,
@@ -74,6 +75,11 @@ function brandOf(input: { name: string; host: string }): EmailBrand {
 export async function notifyPasswordReset(input: { to: string; url: string; name: string; host: string }): Promise<void> {
   const rendered = passwordResetEmail({ brand: brandOf(input), url: input.url })
   await deliverEmail({ to: input.to, kind: 'password_reset', ...rendered }, AbortSignal.timeout(5_000))
+}
+
+export async function notifyModerationQueue(input: { to: string; linkName: string; host: string; name: string }): Promise<void> {
+  const rendered = queueEmail({ brand: brandOf(input), linkName: input.linkName })
+  await sendQuiet({ to: input.to, kind: 'moderation-queue', ...rendered })
 }
 
 export async function notifyModeration(input: {

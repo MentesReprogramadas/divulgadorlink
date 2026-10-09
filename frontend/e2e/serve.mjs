@@ -107,8 +107,9 @@ const apiEnv = {
   HDX_API_KEY: '',
   CONFIRMATION_INBOX: '1',
   EMAIL_OUTBOX: '1',
+  TENANT_HOST: '',
+  E2E_LINK_PROBE: 'example.com',
 }
-delete apiEnv.TENANT_HOST
 
 start(['npx', 'tsx', 'src/server.ts'], backend, apiEnv)
 start(['npx', 'tsx', 'src/worker.ts'], backend, apiEnv)
@@ -132,8 +133,8 @@ const webEnv = {
   ...process.env,
   NODE_ENV: 'production',
   API_ORIGIN: 'http://127.0.0.1:3333',
+  TENANT_HOST: '',
 }
-delete webEnv.TENANT_HOST
 const build = spawnSync('npx', ['next', 'build'], { cwd: frontend, env: webEnv, stdio: 'inherit', shell: true })
 if (build.status !== 0) {
   for (const child of children) {

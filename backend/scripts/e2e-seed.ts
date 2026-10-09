@@ -22,6 +22,9 @@ async function tenantBundle(host: string, name: string) {
   const network = await prisma.network.create({
     data: { tenantId: tenant.id, name: 'Telegram', slug: 'telegram', knownHosts: ['t.me'], isPublicFacet: true },
   })
+  await prisma.network.create({
+    data: { tenantId: tenant.id, name: 'Site', slug: 'site', knownHosts: [], isPublicFacet: true },
+  })
   const niche = await prisma.niche.create({
     data: { tenantId: tenant.id, name: 'Jogos', slug: 'jogos', requiresAge: false, isPublicFacet: true },
   })

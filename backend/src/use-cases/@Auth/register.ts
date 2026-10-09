@@ -8,7 +8,7 @@ export const registerBodySchema = z
   .object({
     name: z.string().min(1),
     email: z.string().email(),
-    phone: z.string().min(8),
+    phone: z.string().min(8).optional(),
     password: z.string().min(8),
   })
 
@@ -23,14 +23,14 @@ export class RegisterUseCase {
 
   async execute(input: RegisterBody & { tenantId: string }): Promise<User> {
     const normalizedEmail = normalizeEmail(input.email)
-    const normalizedPhone = normalizePhone(input.phone)
+    const normalizedPhone = input.phone ? normalizePhone(input.phone) : ''
 
     const conflict = await this.prisma.userIdentifier.findFirst({
       where: {
         tenantId: input.tenantId,
         OR: [
           { kind: 'EMAIL', normalizedValue: normalizedEmail },
-          { kind: 'PHONE', normalizedValue: normalizedPhone },
+          ...(normalizedPhone ? [{ kind: 'PHONE' as const, normalizedValue: normalizedPhone }] : []),
         ],
       },
     })
@@ -52,14 +52,16 @@ export class RegisterUseCase {
             create: [
               {
                 tenantId: input.tenantId,
-                kind: 'EMAIL',
+                kind: 'EMAIL' as const,
                 normalizedValue: normalizedEmail,
               },
-              {
-                tenantId: input.tenantId,
-                kind: 'PHONE',
-                normalizedValue: normalizedPhone,
-              },
+              ...(normalizedPhone
+                ? [{
+                  tenantId: input.tenantId,
+                  kind: 'PHONE' as const,
+                  normalizedValue: normalizedPhone,
+                }]
+                : []),
             ],
           },
         },

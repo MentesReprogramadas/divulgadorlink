@@ -5,6 +5,8 @@ import {
   moderationEmail,
   otpEmail,
   passwordResetEmail,
+  queueEmail,
+  emailBrand,
 } from '@/adapters/notifications/email/templates'
 
 const brand = { name: 'Tem Link Aqui', logoUrl: 'https://temlinkaqui.com/logo.svg' }
@@ -34,5 +36,13 @@ describe('modelos de e-mail', () => {
     expect(banEmail({ brand, reason: 'golpe' }).text).toContain('golpe')
     expect(banEmail({ brand }).text).not.toContain('Motivo')
     expect(accountDeletedEmail({ brand, name: 'Ana' }).text).toContain('Ana, a conta foi excluída.')
+  })
+
+  it('avisa a fila sem dado do dono', () => {
+    const rendered = queueEmail({ brand: emailBrand({}), linkName: 'Grupo de jogos' })
+    expect(rendered.subject).toContain('link para analisar')
+    expect(rendered.text).toContain('Grupo de jogos')
+    expect(rendered.text).toContain('Abra a fila de moderação.')
+    expect(rendered.text).not.toContain('@')
   })
 })

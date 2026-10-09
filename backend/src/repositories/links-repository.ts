@@ -43,6 +43,12 @@ export type LinkStatus =
 
 export const SLOT_STATUSES: LinkStatus[] = ['PENDING_MODERATION', 'PUBLISHED', 'PRE_REJECTED']
 export const LINK_QUOTA = 4
+
+export class DuplicateLinkError extends Error {
+  constructor() {
+    super('Esse link já está no catálogo.')
+  }
+}
 export const SITEMAP_LINK_CAP = 49_000
 
 export type SitemapLinkRef = {
@@ -76,6 +82,7 @@ export type NetworkRecord = {
   isPublicFacet: boolean
   requiresAge?: boolean
   summary: string | null
+  knownHosts: string[]
   updatedAt: Date
 }
 export type NicheRecord = {
@@ -207,8 +214,8 @@ export class InMemoryLinksRepository implements LinksRepository {
     this.bans = []
     const updatedAt = new Date('2026-09-01T00:00:00.000Z')
     this.networks = [
-      { id: 'net-telegram', tenantId, name: 'Telegram', slug: 'telegram', isPublicFacet: true, summary: null, updatedAt },
-      { id: 'net-outro', tenantId, name: 'Outro', slug: 'outro', isPublicFacet: false, summary: null, updatedAt },
+      { id: 'net-telegram', tenantId, name: 'Telegram', slug: 'telegram', isPublicFacet: true, summary: null, knownHosts: ['t.me', 'telegram.me'], updatedAt },
+      { id: 'net-outro', tenantId, name: 'Outro', slug: 'outro', isPublicFacet: false, summary: null, knownHosts: [], updatedAt },
     ]
     this.niches = [
       { id: 'niche-jogos', tenantId, name: 'Jogos', slug: 'jogos', requiresAge: false, isPublicFacet: true, summary: null, updatedAt },
@@ -467,6 +474,9 @@ export class InMemoryLinksRepository implements LinksRepository {
         SLOT_STATUSES.includes(link.status) &&
         link.occupiesSlot,
     ).length
+    if (this.links.some((link) => link.tenantId === data.tenantId && link.canonicalUrl === data.canonicalUrl && link.occupiesSlot)) {
+      throw new DuplicateLinkError()
+    }
     const status = decide(LINK_QUOTA - used)
     return this.addLink({ ...data, status })
   }
@@ -507,7 +517,7 @@ export class PrismaLinksRepository implements LinksRepository {
   async findNetwork(tenantId: string, id: string): Promise<NetworkRecord | null> {
     return this.client.network.findFirst({
       where: { id, tenantId },
-      select: { id: true, tenantId: true, name: true, slug: true, isPublicFacet: true, requiresAge: true, summary: true, updatedAt: true },
+      select: { id: true, tenantId: true, name: true, slug: true, isPublicFacet: true, requiresAge: true, summary: true, knownHosts: true, updatedAt: true },
     })
   }
 
@@ -530,7 +540,7 @@ export class PrismaLinksRepository implements LinksRepository {
   async listNetworks(tenantId: string): Promise<NetworkRecord[]> {
     return this.client.network.findMany({
       where: { tenantId },
-      select: { id: true, tenantId: true, name: true, slug: true, isPublicFacet: true, requiresAge: true, summary: true, updatedAt: true },
+      select: { id: true, tenantId: true, name: true, slug: true, isPublicFacet: true, requiresAge: true, summary: true, knownHosts: true, updatedAt: true },
     })
   }
 
@@ -687,6 +697,11 @@ export class PrismaLinksRepository implements LinksRepository {
             occupiesSlot: true,
           },
         })
+        const duplicate = await tx.link.findFirst({
+          where: { tenantId: data.tenantId, canonicalUrl: data.canonicalUrl, occupiesSlot: true },
+          select: { id: true },
+        })
+        if (duplicate) throw new DuplicateLinkError()
         const status = decide(LINK_QUOTA - used)
         const created = await tx.link.create({ data: { ...data, status, occupiesSlot: true } })
         return toLinkRecord(created)

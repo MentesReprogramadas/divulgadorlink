@@ -19,11 +19,14 @@ describe('régua de índice', () => {
     expect(substantiveText(fat, `  ${fat}  `)).toBe(false)
   })
 
-  it('faceta entra com 3 links ou com resumo de 80', () => {
+  it('faceta só entra com 3 links substantivos', () => {
     const base = { isPublicFacet: true, requiresAge: false, summary: null, substantiveCount: 2 }
+    const open = { ...base, substantiveCount: 3, filtered: false }
     expect(facetIndexable(base)).toBe(false)
     expect(facetIndexable({ ...base, substantiveCount: 3 })).toBe(true)
-    expect(facetIndexable({ ...base, substantiveCount: 0, summary: fat })).toBe(true)
+    expect(facetIndexable({ ...base, substantiveCount: 0, summary: fat })).toBe(false)
+    expect(facetIndexable({ ...base, substantiveCount: 3, summary: fat })).toBe(true)
+    expect(facetRobots({ ...open, substantiveCount: 0, summary: fat })).toBe('noindex,follow')
     expect(facetIndexable({ ...base, substantiveCount: 9, summary: fat, requiresAge: true })).toBe(false)
     expect(facetIndexable({ ...base, substantiveCount: 9, isPublicFacet: false })).toBe(false)
   })

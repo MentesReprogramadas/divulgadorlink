@@ -36,14 +36,13 @@ async function call(page: Page, url: string, init: { method?: string; body?: unk
   }, { url, init })
 }
 
-async function register(page: Page, email: string, phone: string): Promise<void> {
+async function register(page: Page, email: string): Promise<void> {
   await page.goto(`${A}/cadastro`)
   await page.getByLabel('Nome').fill('Mail')
   await page.getByLabel('E-mail').fill(email)
-  await page.getByLabel('Telefone').fill(phone)
   await page.getByLabel('Senha').fill(state.password)
   await page.getByRole('button', { name: 'Criar conta' }).click()
-  await expect(page.getByText('Confirme o e-mail para enviar um link')).toBeVisible()
+  await expect(page).toHaveURL(/\/painel\/verificar/)
 }
 
 async function outbox(page: Page, email: string): Promise<Mail[]> {
@@ -58,14 +57,9 @@ function userId(email: string): string {
 
 let serial = Date.now()
 
-function nextPhone(): string {
-  serial += 1
-  return `5511${String(serial).slice(-8)}`
-}
-
 test('cadastro manda o código no e-mail e a tela não mostra o código', async ({ page }) => {
   const email = `otp-${serial}@tenant-a.test`
-  await register(page, email, nextPhone())
+  await register(page, email)
   const inbox = await call(page, '/bff/v1/auth/confirmation-inbox?kind=EMAIL')
   expect(inbox.status).toBe(200)
   const code = (JSON.parse(inbox.text) as { code: string }).code
@@ -83,7 +77,7 @@ test('cadastro manda o código no e-mail e a tela não mostra o código', async 
 test('esqueci a senha troca a senha e entra com a nova', async ({ page }) => {
   const email = `reset-${serial}@tenant-a.test`
   const next = 'Senha-e2e-2'
-  await register(page, email, nextPhone())
+  await register(page, email)
   await page.goto(`${A}/painel`)
   await page.getByRole('button', { name: 'Sair' }).click()
   await expect(page.getByRole('heading', { name: 'Entrar' })).toBeVisible()
@@ -109,7 +103,7 @@ test('esqueci a senha troca a senha e entra com a nova', async ({ page }) => {
 test('moderação avisa o dono quando o link é publicado', async ({ browser }) => {
   const email = `mod-${serial}@tenant-a.test`
   const owner = await browser.newPage()
-  await register(owner, email, nextPhone())
+  await register(owner, email)
   const ownerId = userId(email)
   const networkId = sql(`SELECT id FROM networks WHERE "tenantId" = '${state.tenantA}' LIMIT 1`)
   const nicheId = sql(`SELECT id FROM niches WHERE "tenantId" = '${state.tenantA}' LIMIT 1`)
@@ -135,7 +129,7 @@ test('moderação avisa o dono quando o link é publicado', async ({ browser }) 
 test('banimento avisa e o painel mostra a conta suspensa', async ({ browser }) => {
   const email = `ban-${serial}@tenant-a.test`
   const user = await browser.newPage()
-  await register(user, email, nextPhone())
+  await register(user, email)
   const admin = await browser.newPage()
   await login(admin, state.admin)
   const banned = await call(admin, `/bff/v1/admin/users/${userId(email)}/ban`, {
@@ -151,7 +145,7 @@ test('banimento avisa e o painel mostra a conta suspensa', async ({ browser }) =
 
 test('excluir a conta avisa e a senha deixa de entrar', async ({ page }) => {
   const email = `del-${serial}@tenant-a.test`
-  await register(page, email, nextPhone())
+  await register(page, email)
   await page.goto(`${A}/painel/conta`)
   await page.getByLabel('Senha atual').fill(state.password)
   await page.getByRole('button', { name: 'Excluir conta' }).click()

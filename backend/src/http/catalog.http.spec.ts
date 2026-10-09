@@ -251,6 +251,14 @@ describe('contratos HTTP da vitrine', () => {
       name: 'Receitas', description: fat, nicheId: 'niche-jogos', networkId: 'net-telegram',
     })
     repo().addLink({
+      id: 'link-gordo-2', tenantId: TENANT, ownerId: 'ana', status: 'PUBLISHED',
+      name: 'Receitas dois', description: fat, nicheId: 'niche-jogos', networkId: 'net-telegram',
+    })
+    repo().addLink({
+      id: 'link-gordo-3', tenantId: TENANT, ownerId: 'ana', status: 'PUBLISHED',
+      name: 'Receitas tres', description: fat, nicheId: 'niche-jogos', networkId: 'net-telegram',
+    })
+    repo().addLink({
       id: 'link-fino', tenantId: TENANT, ownerId: 'ana', status: 'PUBLISHED',
       name: 'Curto', description: 'x', nicheId: 'niche-jogos', networkId: 'net-telegram',
     })
@@ -290,6 +298,12 @@ describe('contratos HTTP da vitrine', () => {
     const fat = 'd'.repeat(80)
     const niche = repo().niches.find((row) => row.id === 'niche-jogos')!
     niche.summary = fat
+    for (const id of ['a', 'b', 'c']) {
+      repo().addLink({
+        id: `base-${id}`, tenantId: TENANT, ownerId: 'ana', status: 'PUBLISHED',
+        name: `Base ${id}`, description: fat, nicheId: 'niche-jogos', networkId: 'net-telegram',
+      })
+    }
     setCatalogLinksForTest([
       {
         id: 'card-gordo', name: 'Receitas', description: fat, relevance: 1, requiresAge: false,
@@ -315,7 +329,7 @@ describe('contratos HTTP da vitrine', () => {
     const response = await app.inject({ method: 'GET', url: '/api/v1/sitemap', headers: { host: HOST } })
     expect(response.statusCode).toBe(200)
     const paths = response.json().entries.map((row: { path: string }) => row.path)
-    expect(paths).toEqual(['/'])
+    expect(paths).toEqual(['/', '/privacidade', '/termos'])
     for (const hidden of ['/nicho/jogos', '/rede/telegram', '/link/link-publico', '/nicho/apostas', '/rede/outro', '/link/link-adulto', '/link/link-off', '/link/link-ban']) {
       expect(paths).not.toContain(hidden)
     }

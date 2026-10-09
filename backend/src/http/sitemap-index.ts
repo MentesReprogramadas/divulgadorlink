@@ -19,13 +19,12 @@ export async function indexableEntries(tenantId: string): Promise<SitemapEntry[]
   return entriesFrom(niches, networks, counts, links)
 }
 
-function entriesFrom(
+export function entriesFrom(
   niches: NicheRecord[],
   networks: NetworkRecord[],
   counts: { niches: Array<{ id: string; count: number }>; networks: Array<{ id: string; count: number }> },
   links: SitemapLinkRef[],
 ): SitemapEntry[] {
-  const now = new Date().toISOString()
   const nicheCount = new Map(counts.niches.map((row) => [row.id, row.count]))
   const networkCount = new Map(counts.networks.map((row) => [row.id, row.count]))
   const nicheOk = new Map(niches.map((row) => [row.id, facetIndexable({
@@ -34,7 +33,16 @@ function entriesFrom(
     summary: row.summary,
     substantiveCount: nicheCount.get(row.id) ?? 0,
   })]))
-  const entries: SitemapEntry[] = [{ path: '/', updatedAt: now }]
+  const indexableLinks = links.filter((link) => nicheOk.get(link.nicheId) === true)
+  const latest = indexableLinks.reduce<Date | null>(
+    (max, link) => (max === null || link.updatedAt > max ? link.updatedAt : max),
+    null,
+  )
+  const entries: SitemapEntry[] = [
+    { path: '/', updatedAt: latest ? latest.toISOString() : '' },
+    { path: '/privacidade', updatedAt: '2026-10-09T00:00:00.000Z' },
+    { path: '/termos', updatedAt: '2026-10-09T00:00:00.000Z' },
+  ]
   for (const niche of niches) {
     if (nicheOk.get(niche.id) !== true) continue
     entries.push({ path: `/nicho/${encodeURIComponent(niche.slug)}`, updatedAt: niche.updatedAt.toISOString() })
@@ -49,8 +57,6 @@ function entriesFrom(
     if (!ok) continue
     entries.push({ path: `/rede/${encodeURIComponent(network.slug)}`, updatedAt: network.updatedAt.toISOString() })
   }
-  const linkEntries = links
-    .filter((link) => nicheOk.get(link.nicheId) === true)
-    .map((link) => ({ path: `/link/${link.id}`, updatedAt: link.updatedAt.toISOString() }))
+  const linkEntries = indexableLinks.map((link) => ({ path: `/link/${link.id}`, updatedAt: link.updatedAt.toISOString() }))
   return [...entries, ...linkEntries]
 }

@@ -27,6 +27,9 @@ import { deleteAccount, WrongPasswordError } from '@/use-cases/@Auth/delete-acco
 import { requestPasswordReset, resetPassword } from '@/use-cases/@Auth/password-reset'
 import { emailOutboxEnabled, readOutbound } from '@/adapters/notifications/outbound-mail'
 import { createLoginRateLimiter } from '@/http/controllers/@auth/login-rate'
+import { DeliveryUnavailableError } from '@/domain/notifications/confirmation-delivery'
+import { parseTouch } from '@/domain/acquisition/touch'
+import { getAcquisitionStore } from '@/use-cases/@Acquisition/record-funnel'
 
 const registerUseCase = new RegisterUseCase(prisma)
 const confirmUseCase = new ConfirmIdentifierUseCase(
@@ -130,14 +133,65 @@ async function signSession(reply: FastifyReply, user: { id: string; role: string
   return { accessToken, refreshToken }
 }
 
+const testAccounts: Array<{ id: string; tenantId: string; name: string; email: string; role: 'USER'; status: 'ACTIVE' }> = []
+let testDelivery: 'ok' | 'down' = 'ok'
+
+export function resetRegistrationForTest(): void {
+  if (process.env.NODE_ENV !== 'test') return
+  testAccounts.length = 0
+  testDelivery = 'ok'
+}
+
+export function setConfirmationDeliveryForTest(mode: 'ok' | 'down'): void {
+  if (process.env.NODE_ENV !== 'test') return
+  testDelivery = mode
+}
+
+export function registrationEmailsForTest(): string[] {
+  return testAccounts.map((row) => row.email)
+}
+
 async function register(request: FastifyRequest, reply: FastifyReply) {
   const body = registerBodySchema.parse(request.body)
   const host = hostFromRequest(request)
 
   try {
     const tenant = await resolveTenant(host)
-    const user = await registerUseCase.execute({ ...body, tenantId: tenant.id })
-    const identifiers = await confirmUseCase.issueInitialCodes(user.id)
+    const user = process.env.NODE_ENV === 'test'
+      ? createTestAccount(tenant.id, body)
+      : await registerUseCase.execute({ ...body, tenantId: tenant.id })
+    let identifiers
+    try {
+      if (process.env.NODE_ENV === 'test') {
+        if (testDelivery === 'down') throw new DeliveryUnavailableError('EMAIL', 'provider_error')
+        identifiers = [{
+          id: `${user.id}-email`,
+          userId: user.id,
+          kind: 'EMAIL' as const,
+          normalizedValue: body.email.toLowerCase(),
+          confirmedAt: null,
+          replacedAt: null,
+        }]
+      } else {
+        identifiers = await confirmUseCase.issueInitialCodes(user.id)
+      }
+    } catch (error) {
+      if (error instanceof DeliveryUnavailableError) {
+        if (process.env.NODE_ENV === 'test') {
+          const index = testAccounts.findIndex((row) => row.id === user.id)
+          if (index >= 0) testAccounts.splice(index, 1)
+        } else {
+          await prisma.user.delete({ where: { id: user.id } })
+        }
+        return reply.status(503).send({ message: 'Não foi possível enviar o código. Tente de novo.' })
+      }
+      throw error
+    }
+    await getAcquisitionStore().rememberRegistration({
+      tenantId: tenant.id,
+      userId: user.id,
+      touch: parseTouch(request.cookies.tla_touch),
+    })
     const flags = confirmationFlags(identifiers)
     await signSession(reply, user)
 
@@ -162,6 +216,16 @@ async function register(request: FastifyRequest, reply: FastifyReply) {
     }
     throw error
   }
+}
+
+function createTestAccount(tenantId: string, body: { name: string; email: string }): { id: string; name: string; role: 'USER'; status: 'ACTIVE' } {
+  const email = body.email.toLowerCase()
+  if (testAccounts.some((row) => row.tenantId === tenantId && row.email === email)) {
+    throw new UserAlreadyExistsError()
+  }
+  const user = { id: randomUUID(), tenantId, name: body.name, email, role: 'USER' as const, status: 'ACTIVE' as const }
+  testAccounts.push(user)
+  return user
 }
 
 async function confirmStatus(request: FastifyRequest, reply: FastifyReply) {

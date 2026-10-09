@@ -43,7 +43,7 @@ export function sitemapUrls(
 ): MetadataRoute.Sitemap {
   return entries.map((entry) => ({
     url: `https://${host}${entry.path}`,
-    lastModified: entry.updatedAt,
+    ...(entry.updatedAt ? { lastModified: entry.updatedAt } : {}),
   }))
 }
 
