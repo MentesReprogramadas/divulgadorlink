@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import { LinkMeta } from '@/components/domain/link-meta'
 import { LinkRow, SponsoredKicker } from '@/components/domain/link-row'
 import { HomeExplore } from '@/components/domain/facet-filters'
+import { HomeMore } from '@/components/domain/home-more'
 import { HomeSearch } from '@/components/domain/home-search'
 import { EmptyState } from '@/components/feedback/empty-state'
 import { ErrorState } from '@/components/feedback/error-state'
@@ -28,16 +29,18 @@ type Home = {
   networks: Array<{ id: string; name: string; slug: string; requiresAge?: boolean }>
   niches: Array<{ id: string; name: string; slug: string; requiresAge: boolean }>
   showImpressions?: boolean
+  nextCursor?: string | null
   sponsored: Card[]
   organic: Card[]
 }
 
-const loadHome = cache(async (): Promise<Home | null> => {
+const loadHome = cache(async (cursor = ''): Promise<Home | null> => {
   const hostHeader = (await headers()).get('host') ?? 'localhost'
+  const query = cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''
   try {
     const result = await forward({
       method: 'GET',
-      path: '/api/v1/home',
+      path: `/api/v1/home${query}`,
       host: tenantHost(hostHeader.split(':')[0] || 'localhost'),
     })
     if (result.status !== 200) return null
@@ -68,8 +71,9 @@ function SponsoredSpot({ row, showImpressions }: { row: Card; showImpressions: b
   )
 }
 
-export default async function Page() {
-  const home = await loadHome()
+export default async function Page({ searchParams }: { searchParams: Promise<{ cursor?: string }> }) {
+  const cursor = (await searchParams).cursor ?? ''
+  const home = await loadHome(cursor)
   if (!home) return <main><ErrorState /></main>
   const showImpressions = home.showImpressions !== false
   const leftSponsored = home.sponsored.filter((_, index) => index % 2 === 0)
@@ -140,6 +144,7 @@ export default async function Page() {
               )}
             </div>
           ) : null}
+          <HomeMore cursor={home.nextCursor ?? null} />
         </div>
       </main>
     </>
