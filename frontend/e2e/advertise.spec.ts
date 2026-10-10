@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 const A = 'http://tenant-a.localhost:3000'
 
-test('a landing do anúncio não vende busca nem faceta restrita', async ({ page }) => {
+test('a landing do anúncio usa o mesmo cabeçalho e não lista faceta restrita', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto(`${A}/divulgar`)
   await expect(page.getByRole('heading', { level: 1, name: 'Publique o seu link.' })).toBeVisible()
@@ -10,15 +10,14 @@ test('a landing do anúncio não vende busca nem faceta restrita', async ({ page
   await expect(page.getByText('Publicar é grátis.')).toBeVisible()
   const html = await page.content()
   expect(html).not.toMatch(/adulto|apostas|ganhar dinheiro|onlyfans|fansly|fatal model|privacy/i)
-  expect(html).not.toContain('href="/busca"')
+  expect(html).toContain('href="/busca"')
   expect(html).not.toContain('href="/nicho/')
   expect(html).not.toContain('href="/rede/')
-  const mark = page.getByRole('link', { name: 'Tem Link Aqui' })
-  await expect(mark).toHaveAttribute('href', '/divulgar')
+  const mark = page.getByRole('link', { name: 'Home' })
+  await expect(mark).toHaveAttribute('href', '/')
   await page.goto(`${A}/cadastro`)
-  await expect(page.getByRole('link', { name: 'Tem Link Aqui' })).toHaveAttribute('href', '/divulgar')
-  expect(await page.content()).not.toContain('href="/busca"')
-  expect(await page.content()).not.toContain('href="/"')
+  await expect(page.getByRole('link', { name: 'Home' })).toHaveAttribute('href', '/')
+  expect(await page.content()).toContain('href="/busca"')
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1)
   expect(overflow).toBe(false)
 })

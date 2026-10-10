@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { cookies, headers } from 'next/headers'
+import { cookies } from 'next/headers'
 import { Source_Sans_3, Source_Serif_4, Outfit } from 'next/font/google'
 import { accountLinks } from '@/domain/account-nav'
 import { Consent } from '@/components/domain/consent'
@@ -30,10 +30,7 @@ export const metadata: Metadata = {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const headerStore = await headers()
-  const path = headerStore.get('x-pathname') ?? ''
   const jar = await cookies()
-  const advertise = path === '/divulgar' || path.startsWith('/divulgar/') || jar.get('tla_shell')?.value === 'ad'
   const role = jar.get('catalogo_role')?.value
   const stored = jar.get('tla_consent')?.value
   const pending = stored !== 'marketing' && stored !== 'denied'
@@ -42,15 +39,19 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="pt-BR" className={`${sourceSans.variable} ${sourceSerif.variable} ${outfit.variable}`}>
       <body>
         <header className="site-header">
-          <a className="site-mark" href={advertise ? '/divulgar' : '/'} aria-label={advertise ? 'Tem Link Aqui' : 'Home'}>
+          <a className="site-mark" href="/" aria-label="Home">
             <img src="/logo.svg" alt="" width={1292} height={235} />
           </a>
           <nav>
-            {advertise ? null : <a href="/busca">Busca</a>}
+            <a href="/busca">Busca</a>
             {account.map((item) => <a key={item.href} href={item.href}>{item.label}</a>)}
           </nav>
         </header>
         {children}
+        <footer className="site-footer">
+          <a href="/termos">Termos</a>
+          <a href="/privacidade">Privacidade</a>
+        </footer>
         <Consent pending={pending} />
         <SiteVisits />
       </body>

@@ -26,21 +26,7 @@ function withPath(request: NextRequest): { headers: Headers; csp: string } {
 
 function finish(request: NextRequest, response: NextResponse, csp: string): NextResponse {
   response.headers.set('Content-Security-Policy', csp)
-  return withAdShell(request, withTouch(request, response))
-}
-
-function withAdShell(request: NextRequest, response: NextResponse): NextResponse {
-  if (request.method !== 'GET' || request.nextUrl.pathname !== '/divulgar') return response
-  if (request.cookies.get('tla_shell')?.value === 'ad') return response
-  response.cookies.set({
-    name: 'tla_shell',
-    value: 'ad',
-    httpOnly: true,
-    sameSite: 'lax',
-    path: '/',
-    secure: request.nextUrl.protocol === 'https:',
-  })
-  return response
+  return withTouch(request, response)
 }
 
 function withTouch(request: NextRequest, response: NextResponse): NextResponse {

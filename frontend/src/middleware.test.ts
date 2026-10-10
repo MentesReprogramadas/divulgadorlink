@@ -15,10 +15,8 @@ describe('middleware', () => {
     expect(run('/').headers.get('content-security-policy')).toContain("'nonce-")
   })
 
-  it('a landing do anúncio marca a sessão fora do catálogo', () => {
-    const shell = run('/divulgar').headers.get('set-cookie') ?? ''
-    expect(shell).toContain('tla_shell=ad')
-    expect(run('/').headers.get('set-cookie') ?? '').not.toContain('tla_shell')
+  it('a landing do anúncio não abre uma sessão diferente', () => {
+    expect(run('/divulgar').headers.get('set-cookie') ?? '').not.toContain('tla_shell')
   })
 
   it('só grava o toque de campanha depois do aceite', () => {
