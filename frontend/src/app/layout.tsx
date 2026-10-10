@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { cookies } from 'next/headers'
 import { Source_Sans_3, Source_Serif_4, Outfit } from 'next/font/google'
 import { accountLinks } from '@/domain/account-nav'
-import { Consent } from '@/components/domain/consent'
+import { Consent, CookieSettings } from '@/components/domain/consent'
 import { SiteVisits } from '@/components/domain/site-visits'
 import './globals.css'
 
@@ -51,6 +51,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <footer className="site-footer">
           <a href="/termos">Termos</a>
           <a href="/privacidade">Privacidade</a>
+          <CookieSettings />
         </footer>
         <Consent pending={pending} />
         <SiteVisits />

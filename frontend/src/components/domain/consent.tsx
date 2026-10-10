@@ -66,11 +66,9 @@ export const COOKIE_REVIEW = 'tla-cookie-review'
 
 export function CookieSettings() {
   return (
-    <p className="auth-switch">
-      <button type="button" className="quiet-button" onClick={() => window.dispatchEvent(new Event(COOKIE_REVIEW))}>
-        Gerenciar cookies
-      </button>
-    </p>
+    <button type="button" className="quiet-button" onClick={() => window.dispatchEvent(new Event(COOKIE_REVIEW))}>
+      Gerenciar cookies
+    </button>
   )
 }
 
