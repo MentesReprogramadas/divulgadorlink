@@ -40,8 +40,8 @@ export function entriesFrom(
   )
   const entries: SitemapEntry[] = [
     { path: '/', updatedAt: latest ? latest.toISOString() : '' },
-    { path: '/privacidade', updatedAt: '2026-10-09T00:00:00.000Z' },
-    { path: '/termos', updatedAt: '2026-10-09T00:00:00.000Z' },
+    { path: '/privacidade', updatedAt: '2026-10-10T00:00:00.000Z' },
+    { path: '/termos', updatedAt: '2026-10-10T00:00:00.000Z' },
   ]
   for (const niche of niches) {
     if (nicheOk.get(niche.id) !== true) continue

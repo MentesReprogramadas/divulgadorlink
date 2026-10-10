@@ -1,16 +1,15 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-
-const TOUCH_TOKEN = /^[a-zA-Z0-9._~-]{1,80}$/
-const TOUCH_OPTIONAL = /^[a-zA-Z0-9._~-]{0,80}$/
+import { touchDecision } from '@/domain/campaign-touch'
 
 function withPath(request: NextRequest): { headers: Headers; csp: string } {
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-pathname', request.nextUrl.pathname)
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
+  const devEval = process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''
   const csp = [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' https://js.stripe.com https://connect.facebook.net`,
+    `script-src 'self'${devEval} 'nonce-${nonce}' https://js.stripe.com https://connect.facebook.net`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https://www.facebook.com",
     "font-src 'self'",
@@ -45,23 +44,25 @@ function withAdShell(request: NextRequest, response: NextResponse): NextResponse
 }
 
 function withTouch(request: NextRequest, response: NextResponse): NextResponse {
-  if (request.method !== 'GET' || request.cookies.has('tla_touch')) return response
-  const params = request.nextUrl.searchParams
-  const source = params.get('utm_source') ?? ''
-  const medium = params.get('utm_medium') ?? ''
-  const campaign = params.get('utm_campaign') ?? ''
-  const content = params.get('utm_content') ?? ''
-  const term = params.get('utm_term') ?? ''
-  if (request.nextUrl.pathname !== '/divulgar') return response
-  if (!TOUCH_TOKEN.test(source) || !TOUCH_TOKEN.test(medium) || !TOUCH_TOKEN.test(campaign)) return response
-  if (!TOUCH_OPTIONAL.test(content) || !TOUCH_OPTIONAL.test(term)) return response
+  if (request.method !== 'GET') return response
+  const decision = touchDecision({
+    consent: request.cookies.get('tla_consent')?.value,
+    existing: request.cookies.has('tla_touch'),
+    pathname: request.nextUrl.pathname,
+    source: request.nextUrl.searchParams.get('utm_source') ?? '',
+    medium: request.nextUrl.searchParams.get('utm_medium') ?? '',
+    campaign: request.nextUrl.searchParams.get('utm_campaign') ?? '',
+    content: request.nextUrl.searchParams.get('utm_content') ?? '',
+    term: request.nextUrl.searchParams.get('utm_term') ?? '',
+  })
+  if (decision.action === 'keep') return response
   response.cookies.set({
     name: 'tla_touch',
-    value: JSON.stringify({ source, medium, campaign, content, term, landingPath: '/divulgar' }),
+    value: decision.action === 'set' ? decision.value : '',
     httpOnly: true,
     sameSite: 'lax',
     path: '/',
-    maxAge: 2_592_000,
+    maxAge: decision.action === 'set' ? 2_592_000 : 0,
     secure: request.nextUrl.protocol === 'https:',
   })
   return response

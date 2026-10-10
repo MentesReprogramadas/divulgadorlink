@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { legalPages } from '@/domain/legal'
+import { LegalArticle } from '@/components/domain/legal-article'
+import { legalDocument } from '@/domain/legal'
 
 export const metadata: Metadata = {
   title: 'Privacidade | Tem Link Aqui',
@@ -7,11 +8,6 @@ export const metadata: Metadata = {
 }
 
 export default function Page() {
-  const { privacy } = legalPages('comercial@contavera.com')
-  return (
-    <main className="auth-page">
-      <h1 className="entry-title">Privacidade</h1>
-      {privacy.split('\n\n').map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
-    </main>
-  )
+  const { privacy } = legalDocument('comercial@contavera.com')
+  return <LegalArticle title="Privacidade" document={privacy} other={{ href: '/termos', label: 'Termos' }} />
 }

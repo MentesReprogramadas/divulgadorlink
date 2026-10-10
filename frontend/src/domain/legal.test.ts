@@ -32,4 +32,18 @@ describe('texto legal', () => {
     expect(pages.terms).toContain('não controlamos')
     expect(pages.privacy).toContain('não controlamos')
   })
+
+  it('cita só os tratamentos que existem e não elege foro', () => {
+    expect(pages.privacy).toContain('Stripe')
+    expect(pages.privacy).toContain('Woovi')
+    expect(pages.privacy).toContain('Meta')
+    expect(pages.privacy).toContain('processo diário')
+    expect(pages.privacy).toContain('Gerenciar cookies')
+    expect(pages.privacy).toContain('só é gravado depois do aceite')
+    expect(pages.privacy).not.toContain('não controla esse registro')
+    expect(pages.terms).not.toMatch(/foro/i)
+    for (const page of [pages.privacy, pages.terms]) {
+      expect(page).not.toMatch(/didit|gerencianet|efí|google analytics|codeqr|statsig|popunder|bet\.br/i)
+    }
+  })
 })

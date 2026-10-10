@@ -16,6 +16,7 @@ import { registerBanRoutes } from '@/http/controllers/@Admin/ban'
 import { registerFacetRoutes } from '@/http/controllers/@Admin/facets'
 import { registerModerationRoutes } from '@/http/controllers/@Admin/moderation'
 import { registerOfficeRoutes } from '@/http/controllers/@Admin/office'
+import { registerRetentionRoutes } from '@/http/controllers/@Admin/retention'
 import { registerSettingsRoutes } from '@/http/controllers/@Admin/settings'
 import {
   ConfigAuthorizeDeniedError,
@@ -120,6 +121,7 @@ export async function adminRoutes(app: FastifyInstance) {
   await registerModerationRoutes(app)
   await registerBanRoutes(app)
   await registerOfficeRoutes(app)
+  await registerRetentionRoutes(app)
   await registerSettingsRoutes(app)
   await registerFacetRoutes(app)
 }

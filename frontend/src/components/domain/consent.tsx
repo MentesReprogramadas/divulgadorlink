@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 
 type Choice = 'marketing' | 'denied' | null
@@ -15,6 +15,14 @@ function readConsent(): Choice {
 function writeConsent(value: Exclude<Choice, null>) {
   const secure = location.protocol === 'https:' ? '; Secure' : ''
   document.cookie = `tla_consent=${value}; Path=/; Max-Age=31536000; SameSite=Lax${secure}`
+}
+
+async function syncTouch() {
+  try {
+    await fetch('/anuncio/toque', { method: 'POST' })
+  } catch {
+    return
+  }
 }
 
 type PixelQueue = {
@@ -49,27 +57,39 @@ function installPixel(pixelId: string) {
 
 export function Consent({ pending }: { pending: boolean }) {
   const [choice, setChoice] = useState<Choice | undefined>(pending ? null : undefined)
+  const [reviewing, setReviewing] = useState(false)
   const ref = useRef<HTMLDialogElement>(null)
+  const open = choice === null || reviewing
 
   useEffect(() => {
     setChoice(readConsent())
   }, [])
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const dialog = ref.current
-    if (!dialog || choice !== null) return
-    if (!dialog.open) dialog.showModal()
+    if (!dialog || choice === undefined) return
+    if (open) {
+      if (!dialog.open) {
+        try { dialog.showModal() } catch { dialog.open = true }
+      }
+    } else if (dialog.open) {
+      dialog.close()
+    }
     function refuse(event: Event) {
       event.preventDefault()
+      if (choice !== null) {
+        setReviewing(false)
+        return
+      }
       writeConsent('denied')
       setChoice('denied')
+      void syncTouch()
     }
     dialog.addEventListener('cancel', refuse)
     return () => {
       dialog.removeEventListener('cancel', refuse)
-      if (dialog.open) dialog.close()
     }
-  }, [choice])
+  }, [choice, open])
 
   useEffect(() => {
     if (choice !== 'marketing') return
@@ -85,16 +105,29 @@ export function Consent({ pending }: { pending: boolean }) {
     }
   }, [choice])
 
-  if (choice !== null) return null
+  function choose(value: Exclude<Choice, null>) {
+    const changing = choice !== null && choice !== value
+    writeConsent(value)
+    setChoice(value)
+    setReviewing(false)
+    void syncTouch().finally(() => {
+      if (changing) location.reload()
+    })
+  }
 
   return (
-    <dialog ref={ref} className="age-dialog" aria-labelledby="cookie-title">
-      <h2 id="cookie-title">Este site usa cookies</h2>
-      <p>Usamos cookies para o site funcionar e para lembrar suas preferências. Veja a <a href="/privacidade">Política de Privacidade</a>.</p>
-      <div className="age-dialog-actions">
-        <Button type="button" onClick={() => { writeConsent('marketing'); setChoice('marketing') }}>Aceitar</Button>
-        <Button type="button" variant="secondary" onClick={() => { writeConsent('denied'); setChoice('denied') }}>Recusar</Button>
-      </div>
-    </dialog>
+    <>
+      <footer className="site-footer">
+        <button type="button" onClick={() => setReviewing(true)}>Gerenciar cookies</button>
+      </footer>
+      <dialog ref={ref} className="age-dialog" aria-labelledby="cookie-title">
+        <h2 id="cookie-title">Este site usa cookies</h2>
+        <p>Usamos cookies para o site funcionar e para lembrar suas preferências. Veja a <a href="/privacidade">Política de Privacidade</a>.</p>
+        <div className="age-dialog-actions">
+          <Button type="button" onClick={() => choose('marketing')}>Aceitar</Button>
+          <Button type="button" variant="secondary" onClick={() => choose('denied')}>Recusar</Button>
+        </div>
+      </dialog>
+    </>
   )
 }

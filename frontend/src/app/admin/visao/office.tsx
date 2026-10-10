@@ -5,6 +5,7 @@ import { ErrorState } from '@/components/feedback/error-state'
 import { Button } from '@/components/ui/button'
 import { formatCents } from '@/domain/money'
 import { api } from '@/lib/api'
+import { RetentionPanel } from './retention-panel'
 
 type Office = {
   windowDays: number
@@ -50,6 +51,7 @@ const SECTIONS = [
   { id: 'pagadores', label: 'Pagadores', gloss: 'Quem mais pagou' },
   { id: 'contas', label: 'Contas', gloss: 'Suspender' },
   { id: 'links', label: 'Links', gloss: 'Tirar do ar' },
+  { id: 'retencao', label: 'Retenção', gloss: 'Analytics de 12 meses' },
 ] as const
 
 type SectionId = (typeof SECTIONS)[number]['id']
@@ -156,6 +158,8 @@ export function OfficeBoard() {
         ))}
       </nav>
       <div className="office-body">
+      {section === 'retencao' ? <RetentionPanel /> : null}
+      {section === 'retencao' ? null : <>
       <p className="office-note">
         Uma seção por vez. Impressões e cliques são dos últimos {office?.windowDays ?? 30} dias. Receita é o total já pago. Contas e links mostram no máximo {office?.listCap ?? 40}; a busca acha o restante.
       </p>
@@ -260,6 +264,7 @@ export function OfficeBoard() {
           ) : null}
         </>
       )}
+      </>}
       </div>
 
       <dialog ref={dialogRef} className="plan-dialog" aria-labelledby="office-dialog-title">

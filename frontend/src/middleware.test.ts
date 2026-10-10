@@ -21,6 +21,25 @@ describe('middleware', () => {
     expect(run('/').headers.get('set-cookie') ?? '').not.toContain('tla_shell')
   })
 
+  it('só grava o toque de campanha depois do aceite', () => {
+    const campaign = '/divulgar?utm_source=meta&utm_medium=cpc&utm_campaign=maio'
+    expect(run(campaign).headers.get('set-cookie') ?? '').not.toContain('tla_touch')
+    const accepted = run(campaign, 'tla_consent=marketing').headers.get('set-cookie') ?? ''
+    expect(accepted).toContain('tla_touch=')
+    const revoked = run('/', 'tla_consent=denied; tla_touch=antigo').headers.get('set-cookie') ?? ''
+    expect(revoked).toContain('tla_touch=')
+    expect(revoked).toMatch(/Max-Age=0|tla_touch=;/i)
+  })
+
+  it('só libera eval no servidor de desenvolvimento', () => {
+    const previous = process.env.NODE_ENV
+    process.env.NODE_ENV = 'development'
+    expect(run('/').headers.get('content-security-policy')).toContain("'unsafe-eval'")
+    process.env.NODE_ENV = 'production'
+    expect(run('/').headers.get('content-security-policy') ?? '').not.toContain('unsafe-eval')
+    process.env.NODE_ENV = previous
+  })
+
   it('admin sem papel continua na página escondida', () => {
     const hidden = run('/admin/moderacao')
     expect(hidden.status).toBe(404)

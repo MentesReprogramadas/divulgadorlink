@@ -251,6 +251,11 @@ export function createWorker(connection: Redis, deps: WorkerDeps, queueName = QU
         if (decision === 'PUBLISH') await enqueueEmbedLink(linkId)
         return decision
       }
+      if (job.name === 'purge-analytics') {
+        const deleted = await runAnalyticsPurge(prismaRetentionView(), new Date())
+        if (deleted > 0) logDomainEvent('analytics.purged', { entity: String(deleted) })
+        return deleted
+      }
       throw new Error(`job desconhecido: ${job.name}`)
       })()
       logJob({
