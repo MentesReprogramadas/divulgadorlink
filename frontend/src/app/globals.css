@@ -2164,7 +2164,65 @@ main.detail-page {
   background: var(--color-moss);
 }
 
-.finance .traffic-bars li { grid-template-columns: 72px minmax(0, 1fr) 96px; }
+.insight-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-2);
+  margin: var(--space-4) 0;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.insight-tabs button {
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--color-muted);
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.insight-tabs button[aria-selected="true"] {
+  color: var(--color-brand-navy);
+  border-bottom-color: var(--color-brand-navy);
+}
+
+.insight-metrics {
+  display: grid;
+  margin: 0 0 var(--space-4);
+}
+
+.insight-metrics div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.insight-metrics dt { color: var(--color-muted); }
+.insight-metrics dd { margin: 0; font-weight: 650; font-variant-numeric: tabular-nums; text-align: right; }
+
+.insight-rows {
+  display: grid;
+  margin: 0 0 var(--space-4);
+  padding: 0;
+  list-style: none;
+}
+
+.insight-rows li {
+  display: grid;
+  gap: 2px;
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.insight-rows span { color: var(--color-muted); font-size: 13px; }
+
+.insight-bars li { grid-template-columns: minmax(88px, 160px) minmax(40px, 1fr) auto; }
 
 .finance-filters {
   display: flex;
@@ -2175,44 +2233,6 @@ main.detail-page {
 }
 
 .finance-filters .field-block { min-width: 140px; }
-
-.finance-heat {
-  display: grid;
-  gap: 2px;
-  overflow-x: auto;
-  font-size: 11px;
-  font-variant-numeric: tabular-nums;
-}
-
-.finance-heat-row {
-  display: grid;
-  grid-template-columns: 36px repeat(24, minmax(14px, 1fr));
-  gap: 2px;
-  align-items: center;
-}
-
-.finance-heat-cell {
-  display: block;
-  height: 18px;
-  background: var(--color-moss);
-}
-
-.finance-table-wrap { overflow-x: auto; }
-
-.finance-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-  font-variant-numeric: tabular-nums;
-}
-
-.finance-table th,
-.finance-table td {
-  padding: var(--space-2);
-  border-bottom: 1px solid var(--color-line);
-  text-align: left;
-  white-space: nowrap;
-}
 
 .office-note {
   margin: var(--space-3) 0 0;

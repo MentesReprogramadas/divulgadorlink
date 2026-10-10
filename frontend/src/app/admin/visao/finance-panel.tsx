@@ -5,6 +5,7 @@ import { ErrorState } from '@/components/feedback/error-state'
 import { Button } from '@/components/ui/button'
 import { formatCents } from '@/domain/money'
 import { api } from '@/lib/api'
+import { InsightTabs, panelProps } from './insight-tabs'
 
 type Method = 'PIX' | 'CARD'
 
@@ -71,6 +72,16 @@ const REFUND_LABEL: Record<string, string> = {
 const WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 const METHOD_LABEL: Record<Method, string> = { PIX: 'Pix', CARD: 'Cartão' }
 
+type Tab = 'resumo' | 'horarios' | 'vendas' | 'pagantes' | 'taxas'
+
+const TABS: Array<{ id: Tab; label: string }> = [
+  { id: 'resumo', label: 'Resumo' },
+  { id: 'horarios', label: 'Horários' },
+  { id: 'vendas', label: 'Vendas' },
+  { id: 'pagantes', label: 'Pagantes' },
+  { id: 'taxas', label: 'Taxas' },
+]
+
 function count(value: number): string {
   return value.toLocaleString('pt-BR')
 }
@@ -109,6 +120,7 @@ export function FinancePanel() {
   const [failed, setFailed] = useState('')
   const [fees, setFees] = useState({ pix: '', card: '', fixed: '' })
   const [notice, setNotice] = useState('')
+  const [tab, setTab] = useState<Tab>('resumo')
 
   async function load(current: Filters) {
     setFailed('')
@@ -146,9 +158,18 @@ export function FinancePanel() {
   }
 
   const update = (patch: Partial<Filters>) => setFilters((current) => ({ ...current, ...patch }))
-  const peak = Math.max(1, ...(view?.heatmap.map((cell) => cell.orders) ?? [1]))
   const dayPeak = Math.max(1, ...(view?.daily.map((row) => row.revenueCents) ?? [1]))
   const payPeak = Math.max(1, ...(view?.timeToPay.map((row) => row.orders) ?? [1]))
+  const weekdays = WEEKDAYS.map((label, weekday) => {
+    const cells = view?.heatmap.filter((cell) => cell.weekday === weekday) ?? []
+    return {
+      label,
+      orders: cells.reduce((total, cell) => total + cell.orders, 0),
+      revenueCents: cells.reduce((total, cell) => total + cell.revenueCents, 0),
+    }
+  })
+  const weekdayPeak = Math.max(1, ...weekdays.map((row) => row.orders))
+  const slots = [...(view?.heatmap ?? [])].sort((a, b) => b.orders - a.orders || b.revenueCents - a.revenueCents)
 
   return (
     <section aria-label="Financeiro" className="finance">
@@ -193,150 +214,153 @@ export function FinancePanel() {
             {view.truncated ? ' O período passou de 20 mil pedidos e foi cortado; reduza o intervalo.' : ''}
           </p>
 
-          <div className="office-metrics">
-            <p className="metric"><span className="metric-value">{formatCents(view.summary.revenueCents)}</span><span className="metric-label">receita · {count(view.summary.paidOrders)} pedidos pagos</span></p>
-            <p className="metric"><span className="metric-value">{formatCents(view.summary.netCents)}</span><span className="metric-label">líquido estimado · {formatCents(view.summary.feesCents)} em taxas</span></p>
-            <p className="metric"><span className="metric-value">{formatCents(view.summary.avgTicketCents)}</span><span className="metric-label">ticket médio · {formatCents(view.summary.savingsCents)} em desconto</span></p>
-            <p className="metric"><span className="metric-value">{count(view.summary.buyers)}</span><span className="metric-label">pagantes · {count(view.summary.newBuyers)} novos · {count(view.summary.renewalOrders)} renovações</span></p>
-          </div>
+          <InsightTabs name="financeiro" label="Financeiro" tabs={TABS} current={tab} onChange={setTab} />
 
-          <h2>Pix e cartão</h2>
-          <div className="refund-grid">
-            {view.methods.map((row) => (
-              <article key={row.method} className="summary-card">
-                <h2>{METHOD_LABEL[row.method]}</h2>
-                <p>{formatCents(row.revenueCents)} · taxa {formatCents(row.feesCents)}</p>
-                <p>{count(row.paid)} de {count(row.checkouts)} checkouts pagos · {percent(row.conversion)}</p>
-                <p>{count(row.expired)} expirados · {count(row.pending)} pendentes · {count(row.paidLate)} pagos fora do prazo</p>
-                <p>Mediana até pagar: {duration(row.medianSecondsToPay)}</p>
-              </article>
-            ))}
-          </div>
-
-          <h2>Receita por dia</h2>
-          {view.daily.length === 0 ? <p>Nenhum pagamento no período.</p> : (
-            <ul className="traffic-bars">
-              {view.daily.map((row) => (
-                <li key={row.day}>
-                  <span>{showDay(row.day).slice(0, 5)}</span>
-                  <span className="traffic-bar" style={{ width: `${(row.revenueCents / dayPeak) * 100}%` }} />
-                  <span>{formatCents(row.revenueCents)}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-
-          <h2>Quando pagam</h2>
-          <div className="finance-heat" role="table" aria-label="Pagamentos por dia da semana e hora">
-            <div role="row" className="finance-heat-row">
-              <span role="columnheader" />
-              {Array.from({ length: 24 }, (_, hour) => <span key={hour} role="columnheader">{hour % 3 === 0 ? hour : ''}</span>)}
-            </div>
-            {WEEKDAYS.map((label, weekday) => (
-              <div key={label} role="row" className="finance-heat-row">
-                <span role="rowheader">{label}</span>
-                {Array.from({ length: 24 }, (_, hour) => {
-                  const cell = view.heatmap.find((item) => item.weekday === weekday && item.hour === hour)
-                  return (
-                    <span
-                      key={hour}
-                      role="cell"
-                      className="finance-heat-cell"
-                      style={{ opacity: cell ? 0.15 + 0.85 * (cell.orders / peak) : 0.04 }}
-                      title={`${label} ${hour}h: ${cell?.orders ?? 0} pagamentos, ${formatCents(cell?.revenueCents ?? 0)}`}
-                    />
-                  )
-                })}
-              </div>
-            ))}
-          </div>
-
-          <h2>Tempo até pagar</h2>
-          <ul className="traffic-bars">
-            {view.timeToPay.map((row) => (
-              <li key={row.label}>
-                <span>{row.label}</span>
-                <span className="traffic-bar" style={{ width: `${(row.orders / payPeak) * 100}%` }} />
-                <span>{count(row.orders)}</span>
-              </li>
-            ))}
-          </ul>
-
-          <h2>Produtos</h2>
-          {view.products.length === 0 ? <p>Nenhum produto vendido.</p> : (
-            <div className="refund-grid">
-              {view.products.map((row) => (
-                <article key={`${row.productCode}-${row.durationDays}`} className="summary-card">
-                  <h2>{PRODUCTS[row.productCode] ?? row.productCode} · {row.durationDays} dias</h2>
-                  <p>{count(row.orders)} pedidos · {formatCents(row.revenueCents)}</p>
-                </article>
-              ))}
-            </div>
-          )}
-
-          <h2>Estornos</h2>
-          <p className="office-note">Recebido no período: {formatCents(view.summary.receivedCents)}. Já devolvido: {formatCents(view.summary.refundedCents)}. Ainda a devolver: {formatCents(view.summary.refundOwedCents)}.</p>
-          <div className="refund-grid">
-            {view.refunds.map((row) => (
-              <article key={row.status} className="summary-card">
-                <h2>{REFUND_LABEL[row.status] ?? row.status}</h2>
-                <p>{count(row.orders)} pedidos · {formatCents(row.amountCents)}</p>
-              </article>
-            ))}
-          </div>
-
-          <h2>Receita por campanha</h2>
-          <p className="office-note">Só links de quem aceitou cookies carregam a campanha. O restante não aparece aqui.</p>
-          {view.campaigns.length === 0 ? <p>Nenhuma venda atribuída.</p> : (
-            <div className="refund-grid">
-              {view.campaigns.map((row) => (
-                <article key={`${row.source}|${row.medium}|${row.campaign}`} className="summary-card">
-                  <h2>{row.campaign}</h2>
-                  <p>{row.source || '—'} / {row.medium || '—'}</p>
-                  <p>{count(row.orders)} pedidos · {formatCents(row.revenueCents)}</p>
-                </article>
-              ))}
-            </div>
-          )}
-
-          <h2>Quem paga</h2>
-          <p className="office-note">
-            {count(view.buyersTotal)} pagantes no filtro{view.buyersTotal > view.buyers.length ? `, mostrando ${view.buyers.length}` : ''}.{' '}
-            <a href={`/bff/v1/admin/finance/export?${financeQuery(applied, { kind: 'buyers' })}`}>Baixar pagantes (CSV)</a>{' · '}
-            <a href={`/bff/v1/admin/finance/export?${financeQuery(applied, { kind: 'orders' })}`}>Baixar pedidos (CSV)</a>
-          </p>
-          {view.buyers.length === 0 ? <p>Ninguém pagou no período.</p> : (
-            <div className="finance-table-wrap">
-              <table className="finance-table">
-                <thead>
-                  <tr><th>Nome</th><th>E-mail</th><th>Pedidos</th><th>Receita</th><th>Método</th><th>Primeiro</th><th>Último</th></tr>
-                </thead>
-                <tbody>
-                  {view.buyers.map((row) => (
-                    <tr key={row.userId}>
-                      <td>{row.name || 'Sem nome'}{row.isNew ? <small> · novo</small> : null}</td>
-                      <td>{row.email}</td>
-                      <td>{count(row.orders)}</td>
-                      <td>{formatCents(row.revenueCents)}</td>
-                      <td>{row.methods.map((item) => METHOD_LABEL[item]).join(' + ')}</td>
-                      <td>{showDay(row.firstPaidAt)}</td>
-                      <td>{showDay(row.lastPaidAt)}</td>
-                    </tr>
+          {tab === 'resumo' ? (
+            <div {...panelProps('financeiro', 'resumo')}>
+              <dl className="insight-metrics">
+                <div><dt>Receita</dt><dd>{formatCents(view.summary.revenueCents)} · {count(view.summary.paidOrders)} pedidos</dd></div>
+                <div><dt>Líquido estimado</dt><dd>{formatCents(view.summary.netCents)} · taxa {formatCents(view.summary.feesCents)}</dd></div>
+                <div><dt>Ticket médio</dt><dd>{formatCents(view.summary.avgTicketCents)} · desconto {formatCents(view.summary.savingsCents)}</dd></div>
+                <div><dt>Pagantes</dt><dd>{count(view.summary.buyers)} · {count(view.summary.newBuyers)} novos · {count(view.summary.renewalOrders)} renovações</dd></div>
+              </dl>
+              <h2>Pix e cartão</h2>
+              <ul className="insight-rows">
+                {view.methods.map((row) => (
+                  <li key={row.method}>
+                    <strong>{METHOD_LABEL[row.method]} · {formatCents(row.revenueCents)}</strong>
+                    <span>Taxa {formatCents(row.feesCents)} · mediana até pagar {duration(row.medianSecondsToPay)}</span>
+                    <span>{count(row.paid)} de {count(row.checkouts)} checkouts pagos · {percent(row.conversion)}</span>
+                    <span>{count(row.expired)} expirados · {count(row.pending)} pendentes · {count(row.paidLate)} pagos fora do prazo</span>
+                  </li>
+                ))}
+              </ul>
+              <h2>Receita por dia</h2>
+              {view.daily.length === 0 ? <p>Nenhum pagamento no período.</p> : (
+                <ul className="traffic-bars insight-bars">
+                  {view.daily.map((row) => (
+                    <li key={row.day}>
+                      <span>{showDay(row.day).slice(0, 5)}</span>
+                      <span className="traffic-bar" style={{ width: `${(row.revenueCents / dayPeak) * 100}%` }} />
+                      <span>{formatCents(row.revenueCents)}</span>
+                    </li>
                   ))}
-                </tbody>
-              </table>
+                </ul>
+              )}
             </div>
-          )}
+          ) : null}
 
-          <h2>Taxas do gateway</h2>
-          <p className="office-note">Estimativa: o gateway não informa a taxa por pedido. Confira os valores do seu contrato com Woovi e Stripe.</p>
-          <form className="finance-filters" onSubmit={(event) => { event.preventDefault(); void saveFees() }}>
-            <label className="field-block"><span className="field-label">Pix (%)</span><input className="field" inputMode="decimal" value={fees.pix} onChange={(event) => setFees({ ...fees, pix: event.target.value })} /></label>
-            <label className="field-block"><span className="field-label">Cartão (%)</span><input className="field" inputMode="decimal" value={fees.card} onChange={(event) => setFees({ ...fees, card: event.target.value })} /></label>
-            <label className="field-block"><span className="field-label">Cartão fixo (R$)</span><input className="field" inputMode="decimal" value={fees.fixed} onChange={(event) => setFees({ ...fees, fixed: event.target.value })} /></label>
-            <Button type="submit" variant="secondary">Salvar taxas</Button>
-          </form>
-          {notice ? <p role="status">{notice}</p> : null}
+          {tab === 'horarios' ? (
+            <div {...panelProps('financeiro', 'horarios')}>
+              <h2>Dia da semana</h2>
+              <ul className="traffic-bars insight-bars">
+                {weekdays.map((row) => (
+                  <li key={row.label}>
+                    <span>{row.label}</span>
+                    <span className="traffic-bar" style={{ width: `${(row.orders / weekdayPeak) * 100}%` }} />
+                    <span>{count(row.orders)}</span>
+                  </li>
+                ))}
+              </ul>
+              <h2>Horários com pagamento</h2>
+              {slots.length === 0 ? <p>Nenhum pagamento no período.</p> : (
+                <ul className="insight-rows">
+                  {slots.map((cell) => (
+                    <li key={`${cell.weekday}-${cell.hour}`}>
+                      <strong>{WEEKDAYS[cell.weekday]} {cell.hour}h</strong>
+                      <span>{count(cell.orders)} pagamentos · {formatCents(cell.revenueCents)}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <h2>Tempo até pagar</h2>
+              <ul className="traffic-bars insight-bars">
+                {view.timeToPay.map((row) => (
+                  <li key={row.label}>
+                    <span>{row.label}</span>
+                    <span className="traffic-bar" style={{ width: `${(row.orders / payPeak) * 100}%` }} />
+                    <span>{count(row.orders)}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
+          {tab === 'vendas' ? (
+            <div {...panelProps('financeiro', 'vendas')}>
+              <h2>Produtos</h2>
+              {view.products.length === 0 ? <p>Nenhum produto vendido.</p> : (
+                <ul className="insight-rows">
+                  {view.products.map((row) => (
+                    <li key={`${row.productCode}-${row.durationDays}`}>
+                      <strong>{PRODUCTS[row.productCode] ?? row.productCode} · {row.durationDays} dias</strong>
+                      <span>{count(row.orders)} pedidos · {formatCents(row.revenueCents)}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <h2>Estornos</h2>
+              <p className="office-note">Recebido no período: {formatCents(view.summary.receivedCents)}. Já devolvido: {formatCents(view.summary.refundedCents)}. Ainda a devolver: {formatCents(view.summary.refundOwedCents)}.</p>
+              {view.refunds.length === 0 ? <p>Nenhum estorno.</p> : (
+                <ul className="insight-rows">
+                  {view.refunds.map((row) => (
+                    <li key={row.status}>
+                      <strong>{REFUND_LABEL[row.status] ?? row.status}</strong>
+                      <span>{count(row.orders)} pedidos · {formatCents(row.amountCents)}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <h2>Campanhas</h2>
+              <p className="office-note">Só links de quem aceitou cookies carregam a campanha. O restante não aparece aqui.</p>
+              {view.campaigns.length === 0 ? <p>Nenhuma venda atribuída.</p> : (
+                <ul className="insight-rows">
+                  {view.campaigns.map((row) => (
+                    <li key={`${row.source}|${row.medium}|${row.campaign}`}>
+                      <strong>{row.campaign}</strong>
+                      <span>{row.source || '—'} / {row.medium || '—'}</span>
+                      <span>{count(row.orders)} pedidos · {formatCents(row.revenueCents)}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ) : null}
+
+          {tab === 'pagantes' ? (
+            <div {...panelProps('financeiro', 'pagantes')}>
+              <p className="office-note">
+                {count(view.buyersTotal)} pagantes no filtro{view.buyersTotal > view.buyers.length ? `, mostrando ${view.buyers.length}` : ''}.{' '}
+                <a href={`/bff/v1/admin/finance/export?${financeQuery(applied, { kind: 'buyers' })}`}>Baixar pagantes (CSV)</a>{' · '}
+                <a href={`/bff/v1/admin/finance/export?${financeQuery(applied, { kind: 'orders' })}`}>Baixar pedidos (CSV)</a>
+              </p>
+              {view.buyers.length === 0 ? <p>Ninguém pagou no período.</p> : (
+                <ul className="insight-rows">
+                  {view.buyers.map((row) => (
+                    <li key={row.userId}>
+                      <strong>{row.name || 'Sem nome'}{row.isNew ? ' · novo' : ''}</strong>
+                      <span>{row.email}</span>
+                      <span>{formatCents(row.revenueCents)} em {count(row.orders)} pedidos · {row.methods.map((item) => METHOD_LABEL[item]).join(' + ')}</span>
+                      <span>Primeiro {showDay(row.firstPaidAt)} · último {showDay(row.lastPaidAt)}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ) : null}
+
+          {tab === 'taxas' ? (
+            <div {...panelProps('financeiro', 'taxas')}>
+              <p className="office-note">Estimativa: o gateway não informa a taxa por pedido. Confira os valores do seu contrato com Woovi e Stripe.</p>
+              <form className="finance-filters" onSubmit={(event) => { event.preventDefault(); void saveFees() }}>
+                <label className="field-block"><span className="field-label">Pix (%)</span><input className="field" inputMode="decimal" value={fees.pix} onChange={(event) => setFees({ ...fees, pix: event.target.value })} /></label>
+                <label className="field-block"><span className="field-label">Cartão (%)</span><input className="field" inputMode="decimal" value={fees.card} onChange={(event) => setFees({ ...fees, card: event.target.value })} /></label>
+                <label className="field-block"><span className="field-label">Cartão fixo (R$)</span><input className="field" inputMode="decimal" value={fees.fixed} onChange={(event) => setFees({ ...fees, fixed: event.target.value })} /></label>
+                <Button type="submit" variant="secondary">Salvar taxas</Button>
+              </form>
+              {notice ? <p role="status">{notice}</p> : null}
+            </div>
+          ) : null}
         </>
       ) : null}
     </section>

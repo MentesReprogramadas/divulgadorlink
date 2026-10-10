@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { ErrorState } from '@/components/feedback/error-state'
 import { api } from '@/lib/api'
+import { InsightTabs, panelProps } from './insight-tabs'
 
 type Traffic = {
   windowDays: number
@@ -16,6 +17,15 @@ type Traffic = {
   funnel: Array<{ name: string; count: number }>
   consentedRegistrations: Array<{ source: string; medium: string; campaign: string; registrations: number }>
 }
+
+type Tab = 'visao' | 'funil' | 'paginas' | 'campanhas'
+
+const TABS: Array<{ id: Tab; label: string }> = [
+  { id: 'visao', label: 'Visão' },
+  { id: 'funil', label: 'Funil' },
+  { id: 'paginas', label: 'Páginas' },
+  { id: 'campanhas', label: 'Campanhas' },
+]
 
 const FUNNEL_LABEL: Record<string, string> = {
   CompleteRegistration: 'Cadastros',
@@ -41,6 +51,7 @@ function showDay(iso: string): string {
 export function TrafficPanel() {
   const [view, setView] = useState<Traffic | null>(null)
   const [failed, setFailed] = useState(false)
+  const [tab, setTab] = useState<Tab>('visao')
 
   async function load() {
     setFailed(false)
@@ -61,6 +72,7 @@ export function TrafficPanel() {
 
   const decided = view.consent.marketing + view.consent.denied
   const peak = Math.max(1, ...view.daily.map((row) => row.entries))
+  const funnelPeak = Math.max(1, view.entries, ...view.funnel.map((row) => row.count))
 
   return (
     <section aria-label="Tráfego interno">
@@ -68,59 +80,81 @@ export function TrafficPanel() {
         Contagem própria, sem IP e sem identificador, inclusive de quem recusou cookies. Últimos {view.windowDays} dias.
         A Meta só vê quem aceitou: {share(view.consent.marketing, decided)} das escolhas.
       </p>
-      <div className="office-metrics">
-        <p className="metric"><span className="metric-value">{count(view.entries)}</span><span className="metric-label">entradas · {count(view.views)} páginas vistas</span></p>
-        <p className="metric"><span className="metric-value">{share(view.consent.marketing, decided)}</span><span className="metric-label">aceite · {count(view.consent.marketing)} aceitaram · {count(view.consent.denied)} recusaram</span></p>
-        {view.funnel.map((row) => (
-          <p key={row.name} className="metric">
-            <span className="metric-value">{count(row.count)}</span>
-            <span className="metric-label">{FUNNEL_LABEL[row.name] ?? row.name} · {share(row.count, view.entries)} das entradas</span>
-          </p>
-        ))}
-      </div>
+      <InsightTabs name="trafego" label="Tráfego" tabs={TABS} current={tab} onChange={setTab} />
 
-      <h2>Entradas por dia</h2>
-      {view.daily.length === 0 ? <p>Nenhuma visita no período.</p> : (
-        <ul className="traffic-bars">
-          {view.daily.map((row) => (
-            <li key={row.day}>
-              <span>{showDay(row.day)}</span>
-              <span className="traffic-bar" style={{ width: `${(row.entries / peak) * 100}%` }} />
-              <span>{count(row.entries)}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      <h2>Páginas</h2>
-      {view.paths.length === 0 ? <p>Nenhuma página vista.</p> : (
-        <div className="refund-grid">
-          {view.paths.map((row) => (
-            <article key={row.path} className="summary-card">
-              <h2>{row.path}</h2>
-              <p>{count(row.views)} vistas · {count(row.entries)} entradas</p>
-            </article>
-          ))}
+      {tab === 'visao' ? (
+        <div {...panelProps('trafego', 'visao')}>
+          <dl className="insight-metrics">
+            <div><dt>Entradas</dt><dd>{count(view.entries)}</dd></div>
+            <div><dt>Páginas vistas</dt><dd>{count(view.views)}</dd></div>
+            <div><dt>Aceitaram cookies</dt><dd>{count(view.consent.marketing)} · {share(view.consent.marketing, decided)}</dd></div>
+            <div><dt>Recusaram cookies</dt><dd>{count(view.consent.denied)}</dd></div>
+          </dl>
+          <h2>Entradas por dia</h2>
+          {view.daily.length === 0 ? <p>Nenhuma visita no período.</p> : (
+            <ul className="traffic-bars insight-bars">
+              {view.daily.map((row) => (
+                <li key={row.day}>
+                  <span>{showDay(row.day)}</span>
+                  <span className="traffic-bar" style={{ width: `${(row.entries / peak) * 100}%` }} />
+                  <span>{count(row.entries)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
-      )}
+      ) : null}
 
-      <h2>Campanhas</h2>
-      <p className="office-note">Entradas contam todo mundo que chegou com UTM. Cadastro por campanha só existe para quem aceitou cookies.</p>
-      {view.campaigns.length === 0 ? <p>Nenhuma entrada com UTM.</p> : (
-        <div className="refund-grid">
-          {view.campaigns.map((row) => {
-            const registered = view.consentedRegistrations.find((item) => item.source === row.source
-              && item.medium === row.medium && item.campaign === row.campaign)?.registrations ?? 0
-            return (
-              <article key={`${row.source}|${row.medium}|${row.campaign}`} className="summary-card">
-                <h2>{row.campaign}</h2>
-                <p>{row.source || '—'} / {row.medium || '—'}</p>
-                <p>{count(row.entries)} entradas · {count(registered)} cadastros com aceite</p>
-              </article>
-            )
-          })}
+      {tab === 'funil' ? (
+        <div {...panelProps('trafego', 'funil')}>
+          <p className="office-note">Cada etapa em relação às entradas do período. A ordem não prova que a mesma pessoa passou por todas.</p>
+          <ul className="traffic-bars insight-bars">
+            {view.funnel.map((row) => (
+              <li key={row.name}>
+                <span>{FUNNEL_LABEL[row.name] ?? row.name}</span>
+                <span className="traffic-bar" style={{ width: `${(row.count / funnelPeak) * 100}%` }} />
+                <span>{count(row.count)} · {share(row.count, view.entries)}</span>
+              </li>
+            ))}
+          </ul>
         </div>
-      )}
+      ) : null}
+
+      {tab === 'paginas' ? (
+        <div {...panelProps('trafego', 'paginas')}>
+          {view.paths.length === 0 ? <p>Nenhuma página vista.</p> : (
+            <ul className="insight-rows">
+              {view.paths.map((row) => (
+                <li key={row.path}>
+                  <strong>{row.path}</strong>
+                  <span>{count(row.views)} vistas · {count(row.entries)} entradas</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ) : null}
+
+      {tab === 'campanhas' ? (
+        <div {...panelProps('trafego', 'campanhas')}>
+          <p className="office-note">Entradas contam todo mundo que chegou com UTM. Cadastro por campanha só existe para quem aceitou cookies.</p>
+          {view.campaigns.length === 0 ? <p>Nenhuma entrada com UTM.</p> : (
+            <ul className="insight-rows">
+              {view.campaigns.map((row) => {
+                const registered = view.consentedRegistrations.find((item) => item.source === row.source
+                  && item.medium === row.medium && item.campaign === row.campaign)?.registrations ?? 0
+                return (
+                  <li key={`${row.source}|${row.medium}|${row.campaign}`}>
+                    <strong>{row.campaign}</strong>
+                    <span>{row.source || '—'} / {row.medium || '—'}</span>
+                    <span>{count(row.entries)} entradas · {count(registered)} cadastros com aceite</span>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+        </div>
+      ) : null}
     </section>
   )
 }

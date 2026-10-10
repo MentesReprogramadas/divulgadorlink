@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { duration, FinancePanel, financeQuery } from './finance-panel'
 
@@ -37,24 +37,27 @@ describe('financeiro na gestão', () => {
   it('mostra Pix contra cartão, pagantes e exporta com o filtro aplicado', async () => {
     api.mockResolvedValue({ status: 200, body: report })
     render(<FinancePanel />)
-    expect(await screen.findByText('ana@example.com')).toBeTruthy()
-    expect(screen.getByText('1 de 2 checkouts pagos · 50%')).toBeTruthy()
-    expect(screen.getByText('Pix + Cartão')).toBeTruthy()
+    expect(await screen.findByText('1 de 2 checkouts pagos · 50%')).toBeTruthy()
+    expect(screen.queryByText('ana@example.com')).toBeNull()
     expect(screen.getByText(/poucos para tirar padrão/)).toBeTruthy()
+    fireEvent.click(screen.getByRole('tab', { name: 'Pagantes' }))
+    expect(await screen.findByText('ana@example.com')).toBeTruthy()
+    expect(screen.getByText(/Pix \+ Cartão/)).toBeTruthy()
     const csv = screen.getByRole('link', { name: 'Baixar pagantes (CSV)' }).getAttribute('href') ?? ''
     expect(csv).toContain('/bff/v1/admin/finance/export?')
     expect(csv).toContain('kind=buyers')
 
+    fireEvent.click(screen.getByRole('tab', { name: 'Resumo' }))
     fireEvent.change(screen.getByLabelText('Método'), { target: { value: 'PIX' } })
     fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }))
-    await screen.findByText('ana@example.com')
-    expect(String(api.mock.calls.at(-1)?.[0])).toContain('method=PIX')
+    await waitFor(() => expect(String(api.mock.calls.at(-1)?.[0])).toContain('method=PIX'))
   })
 
   it('salva taxas em pontos-base e centavos', async () => {
     api.mockResolvedValue({ status: 200, body: report })
     render(<FinancePanel />)
-    await screen.findByText('ana@example.com')
+    await screen.findByText('1 de 2 checkouts pagos · 50%')
+    fireEvent.click(screen.getByRole('tab', { name: 'Taxas' }))
     fireEvent.change(screen.getByLabelText('Pix (%)'), { target: { value: '0,99' } })
     fireEvent.click(screen.getByRole('button', { name: 'Salvar taxas' }))
     await screen.findByText(/Taxas salvas/)
