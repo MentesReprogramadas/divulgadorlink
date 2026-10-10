@@ -12,6 +12,7 @@ import {
   getModerationCasesRepository,
   resetModerationCasesRepositoryForTest,
 } from '@/repositories/moderation-cases-repository'
+import { moderationJobsForTest, resetModerationJobsForTest } from '@/adapters/queues/enqueue-moderation'
 
 const HOST = 'temlinkaqui.com'
 const TENANT_ID = 'seed-temlinkaqui'
@@ -59,6 +60,7 @@ describe('POST /api/v1/links', () => {
     setLinkProbeForTest(null)
     resetLinksRepositoryForTest()
     resetModerationCasesRepositoryForTest()
+    resetModerationJobsForTest()
     const confirmedAt = new Date('2026-09-01T00:00:00Z')
     repo().addUser({
       id: VERIFIED_ID,
@@ -104,6 +106,7 @@ describe('POST /api/v1/links', () => {
       closed: false,
       source: 'SUBMISSION',
     })
+    expect(moderationJobsForTest()).toEqual([body.id])
   })
 
   it('quinto envio com 4 vagas ocupadas retorna 409 e não grava', async () => {
@@ -123,6 +126,7 @@ describe('POST /api/v1/links', () => {
 
     expect(response.statusCode).toBe(201)
     expect(response.json()).toMatchObject({ status: 'PENDING_MODERATION', runAi: false })
+    expect(moderationJobsForTest()).toEqual([])
   })
 
   it('menção a outro nicho com lista de termos vazia não roda IA e não publica', async () => {
@@ -136,6 +140,7 @@ describe('POST /api/v1/links', () => {
     expect(body.runAi).toBe(false)
     expect(body.status).not.toBe('PUBLISHED')
     expect(repo().links[0]?.status).not.toBe('PUBLISHED')
+    expect(moderationJobsForTest()).toEqual([])
   })
 
   it('usuário sem e-mail confirmado recebe 403 e nada é gravado', async () => {

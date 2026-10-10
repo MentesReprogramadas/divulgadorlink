@@ -17,6 +17,36 @@ function writeConsent(value: Exclude<Choice, null>) {
   document.cookie = `tla_consent=${value}; Path=/; Max-Age=31536000; SameSite=Lax${secure}`
 }
 
+type PixelQueue = {
+  (...args: unknown[]): void
+  callMethod?: (...args: unknown[]) => void
+  queue: unknown[]
+  push: PixelQueue
+  loaded: boolean
+  version: string
+}
+
+function installPixel(pixelId: string) {
+  const host = window as Window & { fbq?: PixelQueue; _fbq?: PixelQueue }
+  if (host.fbq) return
+  const fbq = function (...args: unknown[]) {
+    if (fbq.callMethod) fbq.callMethod(...args)
+    else fbq.queue.push(args)
+  } as PixelQueue
+  fbq.queue = []
+  fbq.push = fbq
+  fbq.loaded = true
+  fbq.version = '2.0'
+  host.fbq = fbq
+  host._fbq = fbq
+  fbq('init', pixelId)
+  fbq('track', 'PageView')
+  const script = document.createElement('script')
+  script.async = true
+  script.src = 'https://connect.facebook.net/en_US/fbevents.js'
+  document.head.appendChild(script)
+}
+
 export function Consent({ pending }: { pending: boolean }) {
   const [choice, setChoice] = useState<Choice | undefined>(pending ? null : undefined)
   const ref = useRef<HTMLDialogElement>(null)
@@ -48,10 +78,7 @@ export function Consent({ pending }: { pending: boolean }) {
       .then((response) => response.json())
       .then((body: { enabled?: boolean; pixelId?: string }) => {
         if (cancelled || !body.enabled || !body.pixelId) return
-        const script = document.createElement('script')
-        script.async = true
-        script.src = 'https://connect.facebook.net/en_US/fbevents.js'
-        document.head.appendChild(script)
+        installPixel(body.pixelId)
       })
     return () => {
       cancelled = true

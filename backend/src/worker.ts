@@ -17,6 +17,8 @@ import { env } from '@/env'
 import { prisma } from '@/lib/prisma'
 import { logDomainEvent, logJob } from '@/observability/logger'
 import { applyAiVerdict } from '@/use-cases/@Moderation/apply-ai-verdict'
+import { publishSubmission, settleSubmission } from '@/use-cases/@Moderation/settle-submission'
+import { PrismaConfigsRepository } from '@/repositories/configs-repository'
 import { embedLink } from '@/use-cases/@Search/embed-link'
 import { runExpirePix, runNotifyRefundFailed, runRefundPix } from '@/use-cases/@Payments/payment-jobs'
 import { recoverUnchargedOrder } from '@/use-cases/@Payments/recover-uncharged'
@@ -24,7 +26,8 @@ import { runtimeCheckoutStore } from '@/use-cases/@Promotions/checkout-prisma'
 import { settleProposedText } from '@/use-cases/@Links/settle-proposed-text'
 import type { ModelVerdict } from '@/use-cases/@Links/proposed-text-decision'
 import { pixExpiresInSeconds } from '@/domain/payments/pix-expiration'
-import { analyticsToPurge, purgeBefore } from '@/use-cases/@Analytics/purge-old-events'
+import { prismaRetentionView } from '@/repositories/analytics-retention'
+import { runAnalyticsPurge } from '@/use-cases/@Analytics/purge-old-events'
 
 export type ModerateLinkJobData = {
   configRows: Partial<Record<ConfigKey, string>>
@@ -163,7 +166,39 @@ export function createWorker(connection: Redis, deps: WorkerDeps, queueName = QU
       try {
       const result = await (async () => {
       if (job.name === 'moderate-link') {
-        return moderateLink(job.data as ModerateLinkJobData)
+        const data = job.data as ModerateLinkJobData & { linkId?: string }
+        if (typeof data.linkId === 'string') {
+          return settleSubmission({
+            linkId: data.linkId,
+            judge: deps.textJudge,
+            finalAttempt: job.attemptsMade + 1 >= (job.opts.attempts ?? 1),
+            load: async (linkId) => {
+              const row = await prisma.link.findUnique({
+                where: { id: linkId },
+                include: { niche: { select: { name: true } } },
+              })
+              if (!row) return null
+              return {
+                status: row.status,
+                name: row.name,
+                description: row.description,
+                nicheName: row.niche.name,
+                tenantId: row.tenantId,
+              }
+            },
+            readThreshold: async (tenantId) => {
+              const config = await new PrismaConfigsRepository(prisma).findByTenantAndKey(tenantId, 'MODERATION_AUTO_APPROVE_THRESHOLD')
+              if (!config) return null
+              try {
+                return readConfig({ MODERATION_AUTO_APPROVE_THRESHOLD: config.value }, 'MODERATION_AUTO_APPROVE_THRESHOLD')
+              } catch {
+                return null
+              }
+            },
+            publish: publishSubmission,
+          })
+        }
+        return moderateLink(data)
       }
       if (job.name === 'embed-link') {
         return embedLinkJob(job.data as EmbedLinkJobData)
@@ -277,22 +312,8 @@ async function startWorker(): Promise<void> {
   drain.unref()
   const day = 24 * 60 * 60 * 1000
   const purge = async () => {
-    const before = purgeBefore(new Date())
-    for (let batch = 0; batch < 100; batch += 1) {
-      const rows = await prisma.analyticsEvent.findMany({
-        where: { day: { lt: before } },
-        select: { id: true, day: true },
-        take: 1000,
-      })
-      const doomed = analyticsToPurge(
-        rows.map((row) => ({ id: row.id, day: row.day.toISOString().slice(0, 10) })),
-        before,
-      )
-      if (doomed.length === 0) return
-      await prisma.analyticsEvent.deleteMany({ where: { id: { in: doomed.map((row) => row.id) } } })
-      logDomainEvent('analytics.purged', { entity: String(doomed.length) })
-      if (rows.length < 1000) return
-    }
+    const deleted = await runAnalyticsPurge(prismaRetentionView(), new Date())
+    if (deleted > 0) logDomainEvent('analytics.purged', { entity: String(deleted) })
   }
   void purge().catch((error) => {
     logDomainEvent('analytics.purge_failed', { result: error instanceof Error ? error.message : 'expurgo' })

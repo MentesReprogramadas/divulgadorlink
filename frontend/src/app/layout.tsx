@@ -31,7 +31,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const headerStore = await headers()
   const path = headerStore.get('x-pathname') ?? ''
-  const advertise = path === '/divulgar' || path.startsWith('/divulgar/')
+  const advertise = path === '/divulgar' || path.startsWith('/divulgar/') || jar.get('tla_shell')?.value === 'ad'
   const jar = await cookies()
   const role = jar.get('catalogo_role')?.value
   const stored = jar.get('tla_consent')?.value
@@ -41,7 +41,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="pt-BR" className={`${sourceSans.variable} ${sourceSerif.variable} ${outfit.variable}`}>
       <body>
         <header className="site-header">
-          <a className="site-mark" href={advertise ? '/divulgar' : '/'} aria-label="Home">
+          <a className="site-mark" href={advertise ? '/divulgar' : '/'} aria-label={advertise ? 'Tem Link Aqui' : 'Home'}>
             <img src="/logo.svg" alt="" width={1292} height={235} />
           </a>
           <nav>

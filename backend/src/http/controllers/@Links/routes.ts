@@ -29,6 +29,7 @@ import { compare, hash } from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
 import { UserAlreadyExistsError } from '@/use-cases/errors/user-already-exists-error'
 import { enqueueTextProposal } from '@/adapters/queues/enqueue-text-proposal'
+import { enqueueModeration } from '@/adapters/queues/enqueue-moderation'
 import { editLinkText } from '@/use-cases/@Links/edit-link-text'
 import { publicLinkView } from '@/http/public-link-view'
 import { decideSubmission } from '@/use-cases/@Links/submit-link'
@@ -362,6 +363,13 @@ async function createLink(request: FastifyRequest, reply: FastifyReply) {
       })
     }
     await notifyQueue(tenant.id, body.name, hostFromRequest(request))
+    if (runAi && link.status === 'PENDING_MODERATION') {
+      try {
+        await enqueueModeration(link.id)
+      } catch {
+        // A fila humana já foi avisada. Falha da fila da IA não desfaz o envio.
+      }
+    }
     return reply.status(201).send({
       id: link.id,
       status: link.status,
