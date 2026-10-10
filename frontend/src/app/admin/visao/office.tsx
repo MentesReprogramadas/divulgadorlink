@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { formatCents } from '@/domain/money'
 import { api } from '@/lib/api'
 import { RetentionPanel } from './retention-panel'
+import { TrafficPanel } from './traffic-panel'
 
 type Office = {
   windowDays: number
@@ -47,6 +48,7 @@ const USER_STATUS: Record<string, string> = {
 
 const SECTIONS = [
   { id: 'metricas', label: 'Métricas', gloss: 'Totais do site' },
+  { id: 'trafego', label: 'Tráfego', gloss: 'Visitas, funil e cookies' },
   { id: 'cliques', label: 'Mais clicados', gloss: 'Últimos 30 dias' },
   { id: 'pagadores', label: 'Pagadores', gloss: 'Quem mais pagou' },
   { id: 'contas', label: 'Contas', gloss: 'Suspender' },
@@ -159,7 +161,8 @@ export function OfficeBoard() {
       </nav>
       <div className="office-body">
       {section === 'retencao' ? <RetentionPanel /> : null}
-      {section === 'retencao' ? null : <>
+      {section === 'trafego' ? <TrafficPanel /> : null}
+      {section === 'retencao' || section === 'trafego' ? null : <>
       <p className="office-note">
         Uma seção por vez. Impressões e cliques são dos últimos {office?.windowDays ?? 30} dias. Receita é o total já pago. Contas e links mostram no máximo {office?.listCap ?? 40}; a busca acha o restante.
       </p>

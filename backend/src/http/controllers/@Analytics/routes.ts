@@ -11,6 +11,7 @@ import { getLinksRepository } from '@/repositories/links-repository'
 import { persistAnalyticsEvent, readAnalytics } from '@/use-cases/@Analytics/persist-event'
 import { publicLinkView } from '@/http/public-link-view'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
+import { registerTrafficRoutes } from './traffic'
 
 const IMPRESSION_LIMIT = 30
 const WINDOW_MS = 60 * 60 * 1000
@@ -172,4 +173,5 @@ async function getLinkStats(request: FastifyRequest, reply: FastifyReply) {
 export async function analyticsRoutes(app: FastifyInstance) {
   app.post('/analytics/impressions', postImpression)
   app.get('/analytics/links/:linkId', getLinkStats)
+  await registerTrafficRoutes(app)
 }

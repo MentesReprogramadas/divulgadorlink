@@ -466,3 +466,28 @@ model FunnelEvent {
   @@index([tenantId, name, createdAt])
   @@map("funnel_events")
 }
+
+model SiteTrafficDaily {
+  id       String   @id @default(cuid())
+  tenantId String
+  day      DateTime @db.Date
+  path     String
+  source   String   @default("")
+  medium   String   @default("")
+  campaign String   @default("")
+  views    Int      @default(0)
+  entries  Int      @default(0)
+  @@unique([tenantId, day, path, source, medium, campaign])
+  @@index([tenantId, day])
+  @@map("site_traffic_daily")
+}
+
+model ConsentDaily {
+  id       String   @id @default(cuid())
+  tenantId String
+  day      DateTime @db.Date
+  choice   String
+  count    Int      @default(0)
+  @@unique([tenantId, day, choice])
+  @@map("consent_daily")
+}

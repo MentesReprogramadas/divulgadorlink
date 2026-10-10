@@ -2140,6 +2140,30 @@ main.detail-page {
 
 .office-metrics .metric { border: 1px solid var(--color-line); }
 
+.traffic-bars {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.traffic-bars li {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) 48px;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.traffic-bar {
+  display: block;
+  height: 8px;
+  min-width: 2px;
+  background: var(--color-moss);
+}
+
 .office-note {
   margin: var(--space-3) 0 0;
   color: var(--color-muted);

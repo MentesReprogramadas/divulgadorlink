@@ -1,7 +1,10 @@
 'use client'
 
+import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { trackMeta } from '@/domain/meta-pixel'
+import { api } from '@/lib/api'
 
 type Choice = 'marketing' | 'denied' | null
 
@@ -15,6 +18,10 @@ function readConsent(): Choice {
 function writeConsent(value: Exclude<Choice, null>) {
   const secure = location.protocol === 'https:' ? '; Secure' : ''
   document.cookie = `tla_consent=${value}; Path=/; Max-Age=31536000; SameSite=Lax${secure}`
+}
+
+function countChoice(choice: Exclude<Choice, null>) {
+  void api('/v1/analytics/consent', { method: 'POST', body: JSON.stringify({ choice }) }).catch(() => undefined)
 }
 
 async function syncTouch() {
@@ -60,6 +67,14 @@ export function Consent({ pending }: { pending: boolean }) {
   const [reviewing, setReviewing] = useState(false)
   const ref = useRef<HTMLDialogElement>(null)
   const open = choice === null || reviewing
+  const pathname = usePathname()
+  const lastPath = useRef(pathname)
+
+  useEffect(() => {
+    if (lastPath.current === pathname) return
+    lastPath.current = pathname
+    trackMeta('PageView')
+  }, [pathname])
 
   useEffect(() => {
     setChoice(readConsent())
@@ -83,6 +98,7 @@ export function Consent({ pending }: { pending: boolean }) {
       }
       writeConsent('denied')
       setChoice('denied')
+      countChoice('denied')
       void syncTouch()
     }
     dialog.addEventListener('cancel', refuse)
@@ -107,6 +123,7 @@ export function Consent({ pending }: { pending: boolean }) {
 
   function choose(value: Exclude<Choice, null>) {
     const changing = choice !== null && choice !== value
+    if (choice !== value) countChoice(value)
     writeConsent(value)
     setChoice(value)
     setReviewing(false)

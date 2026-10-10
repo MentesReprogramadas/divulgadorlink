@@ -18,6 +18,7 @@ import { registerModerationRoutes } from '@/http/controllers/@Admin/moderation'
 import { registerOfficeRoutes } from '@/http/controllers/@Admin/office'
 import { registerRetentionRoutes } from '@/http/controllers/@Admin/retention'
 import { registerSettingsRoutes } from '@/http/controllers/@Admin/settings'
+import { registerTrafficAdminRoutes } from '@/http/controllers/@Admin/traffic'
 import {
   ConfigAuthorizeDeniedError,
   ConfigNotFoundError,
@@ -122,6 +123,7 @@ export async function adminRoutes(app: FastifyInstance) {
   await registerBanRoutes(app)
   await registerOfficeRoutes(app)
   await registerRetentionRoutes(app)
+  await registerTrafficAdminRoutes(app)
   await registerSettingsRoutes(app)
   await registerFacetRoutes(app)
 }

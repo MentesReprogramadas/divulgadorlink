@@ -3,6 +3,7 @@ import { cookies, headers } from 'next/headers'
 import { Source_Sans_3, Source_Serif_4, Outfit } from 'next/font/google'
 import { accountLinks } from '@/domain/account-nav'
 import { Consent } from '@/components/domain/consent'
+import { SiteVisits } from '@/components/domain/site-visits'
 import './globals.css'
 
 const sourceSans = Source_Sans_3({
@@ -51,6 +52,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         </header>
         {children}
         <Consent pending={pending} />
+        <SiteVisits />
       </body>
     </html>
   )
