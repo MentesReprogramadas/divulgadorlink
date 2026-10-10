@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useAreaSession } from '@/components/domain/panel'
 import { Button } from '@/components/ui/button'
 import { Field, Input, Select, TextArea } from '@/components/ui/input'
-import { optionsForSubmit } from '@/domain/facets'
+import { spreadFacets } from '@/domain/facets'
 import { trackMeta } from '@/domain/meta-pixel'
 import { api } from '@/lib/api'
 
@@ -54,7 +54,6 @@ export default function Page() {
   const [status, setStatus] = useState('')
   const [pending, setPending] = useState(false)
   const [ready, setReady] = useState(false)
-  const [moreFacets, setMoreFacets] = useState(false)
 
   useEffect(() => {
     setDraft(readDraft())
@@ -78,9 +77,8 @@ export default function Page() {
 
   const confirmed = session?.canSubmit === true
   const canonical = preview(draft.url)
-  const networkOptions = optionsForSubmit(networks, draft.networkId, moreFacets)
-  const nicheOptions = optionsForSubmit(niches, draft.nicheId, moreFacets)
-  const hiddenFacets = networks.length + niches.length > networkOptions.length + nicheOptions.length || moreFacets
+  const networkOptions = spreadFacets(networks)
+  const nicheOptions = spreadFacets(niches)
 
   function update(patch: Partial<Draft>) {
     setDraft((current) => ({ ...current, ...patch }))
@@ -137,11 +135,6 @@ export default function Page() {
               {nicheOptions.map((row) => <option key={row.id} value={row.id}>{row.name}</option>)}
             </Select>
           </Field>
-          {hiddenFacets ? (
-            <button type="button" className="facet-more" aria-expanded={moreFacets} onClick={() => setMoreFacets((current) => !current)}>
-              {moreFacets ? 'Ver menos' : 'Ver mais'}
-            </button>
-          ) : null}
         </div>
         {error ? <p role="alert">{error}</p> : null}
         {status ? <p>{status}</p> : null}

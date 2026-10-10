@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type Ref } from 'react'
 import { FacetBadge } from '@/components/ui/facet-badge'
-import { deferredFacets, exploreNetworks, exploreNiches, leadFirst, NETWORK_LEAD, NICHE_LEAD } from '@/domain/facets'
+import { exploreNetworks, exploreNiches, leadFirst, NETWORK_LEAD, NICHE_LEAD } from '@/domain/facets'
 
 export function FacetFilters({
   label,
@@ -21,7 +21,6 @@ export function FacetFilters({
   const [open, setOpen] = useState(false)
   const [overflow, setOverflow] = useState(false)
   const ordered = leadFirst(items, kind === 'network' ? NETWORK_LEAD : NICHE_LEAD, active)
-  const deferred = deferredFacets(items).filter((item) => item.slug !== active)
 
   useEffect(() => {
     const element = row.current
@@ -53,12 +52,11 @@ export function FacetFilters({
           )
         })}
       </div>
-      {overflow || open || deferred.length > 0 ? (
+      {overflow || open ? (
         <button type="button" className="facet-more" aria-expanded={open} onClick={() => setOpen((current) => !current)}>
           {open ? 'Ver menos' : 'Ver mais'}
         </button>
       ) : null}
-      {open && deferred.length > 0 ? <FacetChips kind={kind} items={deferred} hrefFor={(slug) => hrefFor(slug)} open /> : null}
     </section>
   )
 }
@@ -108,7 +106,6 @@ export function HomeExplore({
   const networkSecond = useRef<HTMLDivElement>(null)
   const niche = exploreNiches(niches)
   const network = exploreNetworks(networks)
-  const deferred = niche.deferred.length + network.deferred.length > 0
   const key = [niche.lead, niche.mild, network.lead, network.second].map((row) => row.map((item) => item.slug).join()).join('|')
 
   useEffect(() => {
@@ -152,16 +149,10 @@ export function HomeExplore({
           />
         </section>
       </div>
-      {overflow || open || deferred ? (
+      {overflow || open ? (
         <button type="button" className="facet-more" aria-expanded={open} onClick={() => setOpen((current) => !current)}>
           {open ? 'Ver menos' : 'Ver mais'}
         </button>
-      ) : null}
-      {open && deferred ? (
-        <div className="facet-deferred">
-          {niche.deferred.length > 0 ? <FacetChips kind="niche" items={niche.deferred} hrefFor={(slug) => `/nicho/${slug}`} open /> : null}
-          {network.deferred.length > 0 ? <FacetChips kind="network" items={network.deferred} hrefFor={(slug) => `/rede/${slug}`} open /> : null}
-        </div>
       ) : null}
     </>
   )

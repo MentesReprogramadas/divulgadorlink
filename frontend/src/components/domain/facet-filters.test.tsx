@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, beforeAll, describe, expect, it } from 'vitest'
 import { HomeExplore } from '@/components/domain/facet-filters'
 
@@ -16,37 +16,46 @@ afterEach(() => {
 })
 
 describe('explorar da home', () => {
-  it('só mostra adulto, apostas e onlyfans depois do ver mais', () => {
+  it('mostra os nichos restritos na lista, fora do topo', () => {
     render(
       <HomeExplore
         niches={[
+          { slug: 'compras', name: 'Compras' },
           { slug: 'jogos', name: 'Jogos' },
-          { slug: 'adulto', name: 'Adulto', requiresAge: true },
-          { slug: 'apostas', name: 'Apostas' },
           { slug: 'ganhar-dinheiro', name: 'Ganhar Dinheiro' },
+          { slug: 'divulgacao', name: 'Divulgação' },
+          { slug: 'adulto', name: 'Adulto', requiresAge: true },
+          { slug: 'musicas', name: 'Músicas' },
+          { slug: 'apostas', name: 'Apostas' },
+          { slug: 'streaming', name: 'Streaming' },
         ]}
         networks={[
           { slug: 'telegram', name: 'Telegram' },
+          { slug: 'kwai', name: 'Kwai' },
           { slug: 'onlyfans', name: 'OnlyFans', requiresAge: true },
           { slug: 'fansly', name: 'Fansly', requiresAge: true },
         ]}
       />,
     )
 
-    expect(screen.getByRole('link', { name: 'Jogos' })).toBeTruthy()
-    expect(screen.getByRole('link', { name: 'Telegram' })).toBeTruthy()
-    expect(screen.queryByRole('link', { name: 'Adulto 18+' })).toBeNull()
-    expect(screen.queryByRole('link', { name: 'Apostas' })).toBeNull()
-    expect(screen.queryByRole('link', { name: 'Ganhar Dinheiro' })).toBeNull()
-    expect(screen.queryByRole('link', { name: 'OnlyFans 18+' })).toBeNull()
-    expect(screen.queryByRole('link', { name: 'Fansly 18+' })).toBeNull()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Ver mais' }))
-
-    expect(screen.getByRole('link', { name: 'Adulto 18+' }).getAttribute('href')).toBe('/nicho/adulto')
-    expect(screen.getByRole('link', { name: 'Apostas' }).getAttribute('href')).toBe('/nicho/apostas')
-    expect(screen.getByRole('link', { name: 'Ganhar Dinheiro' }).getAttribute('href')).toBe('/nicho/ganhar-dinheiro')
-    expect(screen.getByRole('link', { name: 'OnlyFans 18+' }).getAttribute('href')).toBe('/rede/onlyfans')
-    expect(screen.getByRole('link', { name: 'Fansly 18+' }).getAttribute('href')).toBe('/rede/fansly')
+    const nicheLinks = screen.getAllByRole('link').filter((link) => link.getAttribute('href')?.startsWith('/nicho/'))
+    const networkLinks = screen.getAllByRole('link').filter((link) => link.getAttribute('href')?.startsWith('/rede/'))
+    expect(nicheLinks.map((link) => link.getAttribute('href'))).toEqual([
+      '/nicho/compras',
+      '/nicho/ganhar-dinheiro',
+      '/nicho/divulgacao',
+      '/nicho/adulto',
+      '/nicho/streaming',
+      '/nicho/apostas',
+      '/nicho/jogos',
+      '/nicho/musicas',
+    ])
+    expect(networkLinks.map((link) => link.getAttribute('href'))).toEqual([
+      '/rede/telegram',
+      '/rede/kwai',
+      '/rede/onlyfans',
+      '/rede/fansly',
+    ])
+    expect(screen.queryByRole('button', { name: 'Ver mais' })).toBeNull()
   })
 })
