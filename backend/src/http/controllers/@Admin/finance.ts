@@ -1,6 +1,6 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
-import { buyersCsv, filterRows, financeReport, ordersCsv, type FinanceFees, type FinanceFilters, type FinanceRow } from '@/domain/finance/report'
+import { buyersCsv, CONTRACT_FEES, filterRows, financeReport, ordersCsv, type FinanceFees, type FinanceFilters, type FinanceRow } from '@/domain/finance/report'
 import { buildError, forbidden, not_found, validation } from '@/http/errors'
 import { verifyJWT } from '@/http/middlewares/verify-jwt'
 import { resolveTenant } from '@/http/tenant'
@@ -12,7 +12,8 @@ import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-err
 const ROW_CAP = 20_000
 const MAX_DAYS = 366
 const DAY = /^\d{4}-\d{2}-\d{2}$/
-const FEE_KEYS = { pixBp: 'FEE_PIX_BP', cardBp: 'FEE_CARD_BP', cardFixedCents: 'FEE_CARD_FIXED_CENTS' } as const
+const FEE_KEYS = { pixBp: 'FEE_PIX_BP', pixFixedCents: 'FEE_PIX_FIXED_CENTS', cardBp: 'FEE_CARD_BP', cardFixedCents: 'FEE_CARD_FIXED_CENTS' } as const
+const UNSET_FEES: FinanceFees = { pixBp: 0, pixFixedCents: 0, cardBp: 0, cardFixedCents: 0 }
 
 const querySchema = z.object({
   from: z.string().regex(DAY).optional(),
@@ -26,6 +27,7 @@ const querySchema = z.object({
 
 const feesSchema = z.object({
   pixBp: z.number().int().min(0).max(2_000),
+  pixFixedCents: z.number().int().min(0).max(1_000),
   cardBp: z.number().int().min(0).max(2_000),
   cardFixedCents: z.number().int().min(0).max(1_000),
 }).strict()
@@ -73,13 +75,15 @@ function filtersFrom(query: z.infer<typeof querySchema>): FinanceFilters | null 
 }
 
 async function readFees(tenantId: string): Promise<FinanceFees> {
-  if (process.env.NODE_ENV === 'test') return testFees.get(tenantId) ?? { pixBp: 0, cardBp: 0, cardFixedCents: 0 }
+  if (process.env.NODE_ENV === 'test') return testFees.get(tenantId) ?? UNSET_FEES
   const rows = await prisma.config.findMany({ where: { tenantId, key: { in: Object.values(FEE_KEYS) } } })
-  const value = (key: string) => {
-    const parsed = Number(rows.find((row) => row.key === key)?.value ?? 0)
-    return Number.isFinite(parsed) ? parsed : 0
+  const value = (key: keyof typeof FEE_KEYS) => {
+    const raw = rows.find((row) => row.key === FEE_KEYS[key])?.value
+    if (raw == null || raw === '') return CONTRACT_FEES[key]
+    const parsed = Number(raw)
+    return Number.isFinite(parsed) ? parsed : CONTRACT_FEES[key]
   }
-  return { pixBp: value(FEE_KEYS.pixBp), cardBp: value(FEE_KEYS.cardBp), cardFixedCents: value(FEE_KEYS.cardFixedCents) }
+  return { pixBp: value('pixBp'), pixFixedCents: value('pixFixedCents'), cardBp: value('cardBp'), cardFixedCents: value('cardFixedCents') }
 }
 
 async function readRows(tenantId: string, filters: FinanceFilters): Promise<FinanceRow[]> {

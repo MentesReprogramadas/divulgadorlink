@@ -39,7 +39,7 @@ describe('financeiro do admin', () => {
 
   it('aplica a taxa gravada e exporta CSV', async () => {
     const headers = { host: HOST, authorization: `Bearer ${token('ADMIN')}` }
-    const saved = await app.inject({ method: 'PATCH', url: '/api/v1/admin/finance/fees', headers, payload: { pixBp: 80, cardBp: 399, cardFixedCents: 39 } })
+    const saved = await app.inject({ method: 'PATCH', url: '/api/v1/admin/finance/fees', headers, payload: { pixBp: 0, pixFixedCents: 85, cardBp: 399, cardFixedCents: 39 } })
     expect(saved.statusCode).toBe(200)
     const report = await app.inject({ method: 'GET', url: '/api/v1/admin/finance?from=2026-10-01&to=2026-10-31', headers })
     expect(report.json().summary).toMatchObject({ revenueCents: 10_000, feesCents: 438, netCents: 9_562 })

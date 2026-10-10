@@ -12,7 +12,7 @@ afterEach(() => {
 
 const report = {
   filters: { from: '2026-09-11', to: '2026-10-10' },
-  fees: { pixBp: 80, cardBp: 399, cardFixedCents: 39 },
+  fees: { pixBp: 0, pixFixedCents: 85, cardBp: 399, cardFixedCents: 39 },
   truncated: false,
   sample: { paidOrders: 2, checkouts: 3 },
   summary: {
@@ -62,7 +62,7 @@ describe('financeiro na gestão', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Salvar taxas' }))
     await screen.findByText(/Taxas salvas/)
     const patch = api.mock.calls.find((call) => (call[1] as RequestInit | undefined)?.method === 'PATCH')
-    expect(JSON.parse(String((patch?.[1] as RequestInit).body))).toEqual({ pixBp: 99, cardBp: 399, cardFixedCents: 39 })
+    expect(JSON.parse(String((patch?.[1] as RequestInit).body))).toEqual({ pixBp: 99, pixFixedCents: 85, cardBp: 399, cardFixedCents: 39 })
   })
 
   it('formata filtro e duração', () => {

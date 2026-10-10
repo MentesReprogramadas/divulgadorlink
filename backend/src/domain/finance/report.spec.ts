@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buyersCsv, financeReport, type FinanceRow } from '@/domain/finance/report'
+import { buyersCsv, CONTRACT_FEES, feeCents, financeReport, type FinanceRow } from '@/domain/finance/report'
 
 function row(patch: Partial<FinanceRow>): FinanceRow {
   return {
@@ -24,7 +24,7 @@ function row(patch: Partial<FinanceRow>): FinanceRow {
   }
 }
 
-const fees = { pixBp: 100, cardBp: 399, cardFixedCents: 39 }
+const fees = { pixBp: 100, pixFixedCents: 0, cardBp: 399, cardFixedCents: 39 }
 const range = { from: '2026-10-01', to: '2026-10-31' }
 
 describe('relatório financeiro', () => {
@@ -36,6 +36,13 @@ describe('relatório financeiro', () => {
     row({ id: 'e', status: 'REFUNDED', amountCents: 500, paidAt: new Date('2026-10-11T14:00:00Z') }),
     row({ id: 'f', createdAt: new Date('2026-09-20T12:00:00Z'), paidAt: new Date('2026-09-20T12:01:00Z') }),
   ]
+
+  it('reproduz a tarifa vista na Stripe e cobra o Pix por pagamento', () => {
+    expect(feeCents({ method: 'CARD', amountCents: 990 }, CONTRACT_FEES)).toBe(79)
+    expect(feeCents({ method: 'CARD', amountCents: 7990 }, CONTRACT_FEES)).toBe(358)
+    expect(feeCents({ method: 'PIX', amountCents: 7990 }, CONTRACT_FEES)).toBe(85)
+    expect(feeCents({ method: 'PIX', amountCents: 1990 }, CONTRACT_FEES)).toBe(85)
+  })
 
   it('separa receita mantida, recebida, estornada e taxa estimada', () => {
     const report = financeReport(rows, fees, range)

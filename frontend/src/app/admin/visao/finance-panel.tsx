@@ -50,7 +50,7 @@ type Finance = {
   buyersTotal: number
 }
 
-type Fees = { pixBp: number; cardBp: number; cardFixedCents: number }
+type Fees = { pixBp: number; pixFixedCents: number; cardBp: number; cardFixedCents: number }
 
 type Filters = { from: string; to: string; method: string; product: string; durationDays: string; renewal: string }
 
@@ -118,7 +118,7 @@ export function FinancePanel() {
   const [applied, setApplied] = useState(filters)
   const [view, setView] = useState<Finance | null>(null)
   const [failed, setFailed] = useState('')
-  const [fees, setFees] = useState({ pix: '', card: '', fixed: '' })
+  const [fees, setFees] = useState({ pix: '', pixFixed: '', card: '', fixed: '' })
   const [notice, setNotice] = useState('')
   const [tab, setTab] = useState<Tab>('resumo')
 
@@ -132,6 +132,7 @@ export function FinancePanel() {
     setView(response.body)
     setFees({
       pix: String(response.body.fees.pixBp / 100),
+      pixFixed: String(response.body.fees.pixFixedCents / 100),
       card: String(response.body.fees.cardBp / 100),
       fixed: String(response.body.fees.cardFixedCents / 100),
     })
@@ -145,6 +146,7 @@ export function FinancePanel() {
     setNotice('')
     const body = {
       pixBp: Math.round(Number(fees.pix.replace(',', '.')) * 100),
+      pixFixedCents: Math.round(Number(fees.pixFixed.replace(',', '.')) * 100),
       cardBp: Math.round(Number(fees.card.replace(',', '.')) * 100),
       cardFixedCents: Math.round(Number(fees.fixed.replace(',', '.')) * 100),
     }
@@ -351,9 +353,10 @@ export function FinancePanel() {
 
           {tab === 'taxas' ? (
             <div {...panelProps('financeiro', 'taxas')}>
-              <p className="office-note">Estimativa: o gateway não informa a taxa por pedido. Confira os valores do seu contrato com Woovi e Stripe.</p>
+              <p className="office-note">Pix é um valor por pagamento confirmado. No cartão, 3,99% + R$ 0,39: R$ 0,79 em R$ 9,90 e R$ 3,58 em R$ 79,90. A Stripe não manda essa taxa por pedido; o líquido usa esta conta.</p>
               <form className="finance-filters" onSubmit={(event) => { event.preventDefault(); void saveFees() }}>
                 <label className="field-block"><span className="field-label">Pix (%)</span><input className="field" inputMode="decimal" value={fees.pix} onChange={(event) => setFees({ ...fees, pix: event.target.value })} /></label>
+                <label className="field-block"><span className="field-label">Pix por pagamento (R$)</span><input className="field" inputMode="decimal" value={fees.pixFixed} onChange={(event) => setFees({ ...fees, pixFixed: event.target.value })} /></label>
                 <label className="field-block"><span className="field-label">Cartão (%)</span><input className="field" inputMode="decimal" value={fees.card} onChange={(event) => setFees({ ...fees, card: event.target.value })} /></label>
                 <label className="field-block"><span className="field-label">Cartão fixo (R$)</span><input className="field" inputMode="decimal" value={fees.fixed} onChange={(event) => setFees({ ...fees, fixed: event.target.value })} /></label>
                 <Button type="submit" variant="secondary">Salvar taxas</Button>

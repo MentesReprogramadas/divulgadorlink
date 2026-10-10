@@ -21,7 +21,9 @@ export type FinanceRow = {
   campaign: string
 }
 
-export type FinanceFees = { pixBp: number; cardBp: number; cardFixedCents: number }
+export type FinanceFees = { pixBp: number; pixFixedCents: number; cardBp: number; cardFixedCents: number }
+
+export const CONTRACT_FEES: FinanceFees = { pixBp: 0, pixFixedCents: 85, cardBp: 399, cardFixedCents: 39 }
 
 export type FinanceFilters = {
   from: string
@@ -75,7 +77,7 @@ function within(at: Date | null, filters: FinanceFilters): boolean {
 }
 
 export function feeCents(row: Pick<FinanceRow, 'method' | 'amountCents'>, fees: FinanceFees): number {
-  if (row.method === 'PIX') return Math.round(row.amountCents * fees.pixBp / 10_000)
+  if (row.method === 'PIX') return Math.round(row.amountCents * fees.pixBp / 10_000) + fees.pixFixedCents
   return Math.round(row.amountCents * fees.cardBp / 10_000) + fees.cardFixedCents
 }
 
