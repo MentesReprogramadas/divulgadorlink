@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
 import { useAreaSession } from '@/components/domain/panel'
 import { Button } from '@/components/ui/button'
 import { Field, Input, Select, TextArea } from '@/components/ui/input'
@@ -24,6 +25,22 @@ function preview(raw: string): string | null {
 }
 
 const DRAFT_KEY = 'tla-link-draft'
+const LINKS_HREF = '/painel/links'
+
+type SubmissionResult = { title: string; detail: string }
+
+function describeSubmission(status: string | undefined): SubmissionResult {
+  if (status === 'PRE_REJECTED') {
+    return {
+      title: 'Envio não aceito',
+      detail: 'Este link não entrou na fila. Ele aparece em Links como rejeitado.',
+    }
+  }
+  return {
+    title: 'Enviado para análise.',
+    detail: 'A análise é humana. O link aparece em Links como em revisão.',
+  }
+}
 
 type Draft = { name: string; description: string; url: string; networkId: string; nicheId: string }
 
@@ -45,13 +62,15 @@ function readDraft(): Draft {
 }
 
 export default function Page() {
+  const router = useRouter()
   const session = useAreaSession()
+  const dialogRef = useRef<HTMLDialogElement>(null)
   const [networks, setNetworks] = useState<Facet[]>([])
   const [niches, setNiches] = useState<Facet[]>([])
   const [draft, setDraft] = useState<Draft>({ name: '', description: '', url: '', networkId: '', nicheId: '' })
   const [slotsUsed, setSlotsUsed] = useState<number | null>(null)
   const [error, setError] = useState('')
-  const [status, setStatus] = useState('')
+  const [result, setResult] = useState<SubmissionResult | null>(null)
   const [pending, setPending] = useState(false)
   const [ready, setReady] = useState(false)
 
@@ -75,6 +94,25 @@ export default function Page() {
     localStorage.setItem(DRAFT_KEY, JSON.stringify(draft))
   }, [draft, ready])
 
+  useEffect(() => {
+    const dialog = dialogRef.current
+    if (!result || !dialog) return
+    if (!dialog.open) {
+      try { dialog.showModal() } catch { dialog.open = true }
+    }
+    const timer = window.setTimeout(() => router.push(LINKS_HREF), 2500)
+    function leave(event: Event) {
+      event.preventDefault()
+      window.clearTimeout(timer)
+      router.push(LINKS_HREF)
+    }
+    dialog.addEventListener('cancel', leave)
+    return () => {
+      window.clearTimeout(timer)
+      dialog.removeEventListener('cancel', leave)
+    }
+  }, [result, router])
+
   const confirmed = session?.canSubmit === true
   const canonical = preview(draft.url)
   const networkOptions = spreadFacets(networks)
@@ -92,7 +130,7 @@ export default function Page() {
     }
     setPending(true)
     setError('')
-    const result = await api<{ id?: string; status?: string; message?: string }>('/v1/links', {
+    const sent = await api<{ id?: string; status?: string; message?: string }>('/v1/links', {
       method: 'POST',
       body: JSON.stringify({
         url: draft.url,
@@ -103,13 +141,13 @@ export default function Page() {
       }),
     })
     setPending(false)
-    if (result.status === 201) {
-      if (result.body.id) trackMeta('SubmitLink', result.body.id)
+    if (sent.status === 201) {
+      if (sent.body.id) trackMeta('SubmitLink', sent.body.id)
       localStorage.removeItem(DRAFT_KEY)
-      setStatus('Enviado para análise.')
+      setResult(describeSubmission(sent.body.status))
       return
     }
-    setError(result.body.message ?? 'Envio não aceito.')
+    setError(sent.body.message ?? 'Envio não aceito.')
   }
 
   return (
@@ -137,10 +175,19 @@ export default function Page() {
           </Field>
         </div>
         {error ? <p role="alert">{error}</p> : null}
-        {status ? <p>{status}</p> : null}
-        {status ? <a href="/painel/links">Ver meus links</a> : null}
-        <Button type="submit" disabled={pending || !confirmed || session?.status === 'BANNED'}>Enviar</Button>
+        <Button type="submit" disabled={pending || result !== null || !confirmed || session?.status === 'BANNED'}>Enviar</Button>
       </form>
+      <dialog ref={dialogRef} className="age-dialog" aria-labelledby="submit-result-title">
+        {result ? (
+          <>
+            <h2 id="submit-result-title">{result.title}</h2>
+            <p>{result.detail}</p>
+            <div className="age-dialog-actions">
+              <Button type="button" onClick={() => router.push(LINKS_HREF)}>Ver meus links</Button>
+            </div>
+          </>
+        ) : null}
+      </dialog>
     </>
   )
 }
