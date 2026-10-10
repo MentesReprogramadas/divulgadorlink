@@ -13,6 +13,7 @@ import {
 import { OrderGrid, type PanelOrder } from "@/components/domain/order-grid";
 import { linkStatusLabel } from "@/domain/labels";
 import { formatCents } from "@/domain/money";
+import { panelGate } from "@/domain/panel-gate";
 import { clearNotice, clearSession, readNotice, readSession, SESSION_EVENT, subscribeNotice, type Session } from "@/domain/session";
 import { AdminNav } from "@/components/domain/admin-nav";
 import { api, currentSession } from "@/lib/api";
@@ -82,6 +83,17 @@ export function usePanelSession() {
   return { ready, session };
 }
 
+function VerifyRedirect() {
+  useLayoutEffect(() => {
+    window.location.replace("/painel/verificar");
+  }, []);
+  return (
+    <main className="auth-page">
+      <p role="status">Carregando</p>
+    </main>
+  );
+}
+
 export function AreaFrame({
   title,
   create = false,
@@ -93,8 +105,17 @@ export function AreaFrame({
   admin?: boolean;
   children: React.ReactNode;
 }) {
+  const path = usePathname();
   const { ready, session } = usePanelSession();
+  const gate = panelGate(session, path);
   if (!ready) {
+    if (path === "/painel/verificar") {
+      return (
+        <main className="auth-page">
+          <p role="status">Carregando</p>
+        </main>
+      );
+    }
     return (
       <main className="panel-page">
         <div className="panel-bar">
@@ -106,6 +127,12 @@ export function AreaFrame({
         </div>
       </main>
     );
+  }
+  if (gate === "redirect-verify") {
+    return <VerifyRedirect />;
+  }
+  if (gate === "verify" && session) {
+    return <AreaSession.Provider value={session}>{children}</AreaSession.Provider>;
   }
   if (!session || (admin && session.role !== "ADMIN")) {
     if (admin) return <main className="panel-page"><p>Área restrita.</p></main>;
@@ -190,12 +217,6 @@ export function PanelTop({
           </Button>
         </div>
       </div>
-      {!banned && !session.canSubmit ? (
-        <p className="panel-note">
-          Confirme o e-mail para enviar um link.{" "}
-          <a href="/painel/verificar">Verificar</a>
-        </p>
-      ) : null}
     </>
   );
 }

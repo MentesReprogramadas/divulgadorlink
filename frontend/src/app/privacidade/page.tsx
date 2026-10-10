@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { CookieSettings } from '@/components/domain/consent'
 import { LegalArticle } from '@/components/domain/legal-article'
 import { legalDocument } from '@/domain/legal'
 
@@ -9,5 +10,5 @@ export const metadata: Metadata = {
 
 export default function Page() {
   const { privacy } = legalDocument('comercial@contavera.com')
-  return <LegalArticle title="Privacidade" document={privacy} other={{ href: '/termos', label: 'Termos' }} />
+  return <LegalArticle title="Privacidade" document={privacy} other={{ href: '/termos', label: 'Termos' }} extra={<CookieSettings />} />
 }

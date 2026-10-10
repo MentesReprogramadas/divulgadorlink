@@ -55,7 +55,7 @@ export function legalDocument(contact: string | null): { privacy: LegalDocument;
         {
           title: 'Aviso de cookies',
           paragraphs: [
-            'tla_consent guarda aceitar ou recusar por 365 dias. O Meta Pixel só carrega depois do aceite e pode gravar cookies do próprio Meta. Recusar não limita o catálogo. Você revê a escolha em Gerenciar cookies, no rodapé.',
+            'tla_consent guarda aceitar ou recusar por 365 dias. O Meta Pixel só carrega depois do aceite e pode gravar cookies do próprio Meta. Recusar não limita o catálogo. Você revê a escolha em Gerenciar cookies, na página de privacidade.',
           ],
         },
         {

@@ -8,11 +8,12 @@ afterEach(() => {
 })
 
 describe('aviso de cookies', () => {
-  it('reabre a escolha por Gerenciar cookies', async () => {
+  it('reabre a escolha só quando a privacidade pede', async () => {
     document.cookie = 'tla_consent=denied; Path=/'
     render(<Consent pending={false} />)
-    fireEvent.click(await screen.findByRole('button', { name: 'Gerenciar cookies' }))
-    expect(screen.getByRole('heading', { name: 'Este site usa cookies' })).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Gerenciar cookies' })).toBeNull()
+    fireEvent(window, new Event('tla-cookie-review'))
+    expect(await screen.findByRole('heading', { name: 'Este site usa cookies' })).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Recusar' })).toBeTruthy()
   })
 })

@@ -91,6 +91,21 @@ function FacetChips({
   )
 }
 
+const MOBILE_PREVIEW = 4
+
+function useNarrow(): boolean {
+  const [narrow, setNarrow] = useState(false)
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return
+    const query = window.matchMedia('(max-width: 719px)')
+    const apply = () => setNarrow(query.matches)
+    apply()
+    query.addEventListener('change', apply)
+    return () => query.removeEventListener('change', apply)
+  }, [])
+  return narrow
+}
+
 export function HomeExplore({
   niches,
   networks,
@@ -98,6 +113,7 @@ export function HomeExplore({
   niches: FacetItem[]
   networks: FacetItem[]
 }) {
+  const narrow = useNarrow()
   const [open, setOpen] = useState(false)
   const [overflow, setOverflow] = useState(false)
   const nicheLead = useRef<HTMLDivElement>(null)
@@ -106,6 +122,9 @@ export function HomeExplore({
   const networkSecond = useRef<HTMLDivElement>(null)
   const niche = exploreNiches(niches)
   const network = exploreNetworks(networks)
+  const nicheCount = niche.lead.length + niche.mild.length
+  const networkCount = network.lead.length + network.second.length
+  const hasMore = nicheCount > MOBILE_PREVIEW || networkCount > MOBILE_PREVIEW
   const key = [niche.lead, niche.mild, network.lead, network.second].map((row) => row.map((item) => item.slug).join()).join('|')
 
   useEffect(() => {
@@ -123,7 +142,7 @@ export function HomeExplore({
 
   return (
     <>
-      <div className="home-explore-columns">
+      <div className={open ? 'home-explore-columns is-open' : 'home-explore-columns'}>
         <section>
           <h3>Nichos</h3>
           <ExploreLines
@@ -149,7 +168,7 @@ export function HomeExplore({
           />
         </section>
       </div>
-      {overflow || open ? (
+      {(narrow ? hasMore || open : overflow || open) ? (
         <button type="button" className="facet-more" aria-expanded={open} onClick={() => setOpen((current) => !current)}>
           {open ? 'Ver menos' : 'Ver mais'}
         </button>

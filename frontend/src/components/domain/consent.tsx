@@ -62,6 +62,18 @@ function installPixel(pixelId: string) {
   document.head.appendChild(script)
 }
 
+export const COOKIE_REVIEW = 'tla-cookie-review'
+
+export function CookieSettings() {
+  return (
+    <p className="auth-switch">
+      <button type="button" className="quiet-button" onClick={() => window.dispatchEvent(new Event(COOKIE_REVIEW))}>
+        Gerenciar cookies
+      </button>
+    </p>
+  )
+}
+
 export function Consent({ pending }: { pending: boolean }) {
   const [choice, setChoice] = useState<Choice | undefined>(pending ? null : undefined)
   const [reviewing, setReviewing] = useState(false)
@@ -78,6 +90,12 @@ export function Consent({ pending }: { pending: boolean }) {
 
   useEffect(() => {
     setChoice(readConsent())
+  }, [])
+
+  useEffect(() => {
+    function review() { setReviewing(true) }
+    window.addEventListener(COOKIE_REVIEW, review)
+    return () => window.removeEventListener(COOKIE_REVIEW, review)
   }, [])
 
   useEffect(() => {
@@ -134,9 +152,6 @@ export function Consent({ pending }: { pending: boolean }) {
 
   return (
     <>
-      <footer className="site-footer">
-        <button type="button" onClick={() => setReviewing(true)}>Gerenciar cookies</button>
-      </footer>
       <dialog ref={ref} className="age-dialog" aria-labelledby="cookie-title">
         <h2 id="cookie-title">Este site usa cookies</h2>
         <p>Usamos cookies para o site funcionar e para lembrar suas preferências. Veja a <a href="/privacidade">Política de Privacidade</a>.</p>

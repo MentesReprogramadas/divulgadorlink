@@ -839,10 +839,13 @@ a.facet:hover { text-decoration: underline; text-underline-offset: 0.16em; }
   display: none;
 }
 
-@media (width < 720px) {
-  .facet-line {
-    flex-wrap: wrap;
-    overflow-x: visible;
+@media (max-width: 719px) {
+  .home-explore-columns:not(.is-open) .facet-stack .facet-line:first-child .facet:nth-child(n + 5) {
+    display: none;
+  }
+
+  .home-explore-columns:not(.is-open) .facet-stack .facet-line:nth-child(n + 2) {
+    display: none;
   }
 }
 

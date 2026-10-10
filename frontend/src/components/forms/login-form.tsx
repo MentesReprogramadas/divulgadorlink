@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Field, Input } from '@/components/ui/input'
+import { afterAuth } from '@/domain/panel-gate'
 import { writeSession } from '@/domain/session'
 import { api } from '@/lib/api'
 
@@ -25,7 +26,7 @@ export function LoginForm() {
       status: result.body.status ?? 'ACTIVE',
       canSubmit: Boolean(result.body.canSubmit),
     })
-    window.location.assign('/painel')
+    window.location.assign(afterAuth(Boolean(result.body.canSubmit)))
   }
 
   return (
