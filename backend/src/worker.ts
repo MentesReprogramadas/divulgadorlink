@@ -27,6 +27,7 @@ import { settleProposedText } from '@/use-cases/@Links/settle-proposed-text'
 import type { ModelVerdict } from '@/use-cases/@Links/proposed-text-decision'
 import { pixExpiresInSeconds } from '@/domain/payments/pix-expiration'
 import { prismaRetentionView } from '@/repositories/analytics-retention'
+import { getOrderInsightsRepository, META_CONTEXT_TTL_DAYS } from '@/repositories/order-insights-repository'
 import { runAnalyticsPurge } from '@/use-cases/@Analytics/purge-old-events'
 
 export type ModerateLinkJobData = {
@@ -319,6 +320,8 @@ async function startWorker(): Promise<void> {
   const purge = async () => {
     const deleted = await runAnalyticsPurge(prismaRetentionView(), new Date())
     if (deleted > 0) logDomainEvent('analytics.purged', { entity: String(deleted) })
+    const stale = await getOrderInsightsRepository().purgeMetaContexts(new Date(Date.now() - META_CONTEXT_TTL_DAYS * day))
+    if (stale > 0) logDomainEvent('meta.context.purged', { entity: String(stale) })
   }
   void purge().catch((error) => {
     logDomainEvent('analytics.purge_failed', { result: error instanceof Error ? error.message : 'expurgo' })

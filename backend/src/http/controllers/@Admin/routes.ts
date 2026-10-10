@@ -14,6 +14,7 @@ import { prisma } from '@/lib/prisma'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
 import { registerBanRoutes } from '@/http/controllers/@Admin/ban'
 import { registerFacetRoutes } from '@/http/controllers/@Admin/facets'
+import { registerFinanceRoutes } from '@/http/controllers/@Admin/finance'
 import { registerModerationRoutes } from '@/http/controllers/@Admin/moderation'
 import { registerOfficeRoutes } from '@/http/controllers/@Admin/office'
 import { registerRetentionRoutes } from '@/http/controllers/@Admin/retention'
@@ -124,6 +125,7 @@ export async function adminRoutes(app: FastifyInstance) {
   await registerOfficeRoutes(app)
   await registerRetentionRoutes(app)
   await registerTrafficAdminRoutes(app)
+  await registerFinanceRoutes(app)
   await registerSettingsRoutes(app)
   await registerFacetRoutes(app)
 }

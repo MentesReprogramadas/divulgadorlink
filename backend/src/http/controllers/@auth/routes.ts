@@ -191,7 +191,7 @@ async function register(request: FastifyRequest, reply: FastifyReply) {
       tenantId: tenant.id,
       userId: user.id,
       touch: parseTouch(request.cookies.tla_touch),
-      meta: metaContextFrom(request, '/cadastro'),
+      meta: metaContextFrom(request, '/cadastro', { externalId: user.id, email: body.email }),
     })
     const flags = confirmationFlags(identifiers)
     await signSession(reply, user)

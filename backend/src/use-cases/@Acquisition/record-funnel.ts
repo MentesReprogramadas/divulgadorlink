@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { Prisma } from '@prisma/client'
 import type { FastifyRequest } from 'fastify'
 import type { Touch } from '@/domain/acquisition/touch'
@@ -12,6 +13,24 @@ export type MetaContext = {
   fbp: string
   fbc: string
   sourceUrl: string
+  externalId?: string
+  email?: string
+}
+
+export type MetaCustomData = {
+  value?: number
+  currency?: string
+  content_ids?: string[]
+  content_type?: string
+  content_name?: string
+  num_items?: number
+  order_id?: string
+  payment_method?: string
+  renewal?: boolean
+}
+
+function sha256(value: string): string {
+  return createHash('sha256').update(value).digest('hex')
 }
 
 export type FunnelInput = {
@@ -24,7 +43,11 @@ export type FunnelInput = {
   onInserted?: () => Promise<void>
 }
 
-export function metaContextFrom(request: FastifyRequest, path: string): MetaContext {
+export function metaContextFrom(
+  request: FastifyRequest,
+  path: string,
+  identity: { externalId?: string | null; email?: string | null } = {},
+): MetaContext {
   const cookies = request.cookies ?? {}
   const host = String(request.headers.host ?? '').split(':')[0]
   return {
@@ -33,7 +56,13 @@ export function metaContextFrom(request: FastifyRequest, path: string): MetaCont
     fbp: (cookies._fbp ?? '').slice(0, 200),
     fbc: (cookies._fbc ?? '').slice(0, 300),
     sourceUrl: `https://${host}${path}`,
+    ...(identity.externalId ? { externalId: identity.externalId } : {}),
+    ...(identity.email ? { email: identity.email } : {}),
   }
+}
+
+export function currentEmail(identifiers: Array<{ kind: string; normalizedValue: string; replacedAt: Date | null }>): string | null {
+  return identifiers.find((row) => row.kind === 'EMAIL' && row.replacedAt === null)?.normalizedValue ?? null
 }
 
 export type StoredTouch = Touch & { tenantId: string; userId: string }
@@ -214,18 +243,28 @@ class PrismaAcquisitionStore implements AcquisitionStore {
       throw error
     }
     if (input.onInserted) await input.onInserted()
-    else if (input.meta) {
-      void notifyMeta({ name: input.name, eventId: input.eventId, meta: input.meta }).catch((error: unknown) => {
-        logDomainEvent('meta.capi', { result: 'network', name: input.name, error: error instanceof Error ? error.message : 'erro' })
-      })
-    }
+    else if (input.meta) dispatchMeta({ name: input.name, eventId: input.eventId, meta: input.meta })
     return 'inserted'
   }
 }
 
-export function metaPayload(input: { name: string; eventId: string; meta: MetaContext | null | undefined; now?: Date }) {
+export function dispatchMeta(input: { name: string; eventId: string; meta: MetaContext | null | undefined; custom?: MetaCustomData }): void {
+  if (!input.meta) return
+  void notifyMeta(input).catch((error: unknown) => {
+    logDomainEvent('meta.capi', { result: 'network', name: input.name, error: error instanceof Error ? error.message : 'erro' })
+  })
+}
+
+export function metaPayload(input: {
+  name: string
+  eventId: string
+  meta: MetaContext | null | undefined
+  custom?: MetaCustomData
+  now?: Date
+}) {
   const meta = input.meta
   if (!meta || meta.consent !== 'marketing' || !meta.userAgent) return null
+  const email = meta.email?.trim().toLowerCase()
   return {
     event_name: input.name,
     event_id: input.eventId,
@@ -236,7 +275,10 @@ export function metaPayload(input: { name: string; eventId: string; meta: MetaCo
       client_user_agent: meta.userAgent,
       ...(meta.fbp ? { fbp: meta.fbp } : {}),
       ...(meta.fbc ? { fbc: meta.fbc } : {}),
+      ...(meta.externalId ? { external_id: [sha256(meta.externalId)] } : {}),
+      ...(email ? { em: [sha256(email)] } : {}),
     },
+    ...(input.custom ? { custom_data: input.custom } : {}),
   }
 }
 
@@ -244,6 +286,7 @@ export async function notifyMeta(input: {
   name: string
   eventId: string
   meta: MetaContext | null | undefined
+  custom?: MetaCustomData
   token?: string
   pixelId?: string
   fetchImpl?: typeof fetch

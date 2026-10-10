@@ -5,6 +5,7 @@ import { ErrorState } from '@/components/feedback/error-state'
 import { Button } from '@/components/ui/button'
 import { formatCents } from '@/domain/money'
 import { api } from '@/lib/api'
+import { FinancePanel } from './finance-panel'
 import { RetentionPanel } from './retention-panel'
 import { TrafficPanel } from './traffic-panel'
 
@@ -49,6 +50,7 @@ const USER_STATUS: Record<string, string> = {
 const SECTIONS = [
   { id: 'metricas', label: 'Métricas', gloss: 'Totais do site' },
   { id: 'trafego', label: 'Tráfego', gloss: 'Visitas, funil e cookies' },
+  { id: 'financeiro', label: 'Financeiro', gloss: 'Pix, cartão, horários' },
   { id: 'cliques', label: 'Mais clicados', gloss: 'Últimos 30 dias' },
   { id: 'pagadores', label: 'Pagadores', gloss: 'Quem mais pagou' },
   { id: 'contas', label: 'Contas', gloss: 'Suspender' },
@@ -162,7 +164,8 @@ export function OfficeBoard() {
       <div className="office-body">
       {section === 'retencao' ? <RetentionPanel /> : null}
       {section === 'trafego' ? <TrafficPanel /> : null}
-      {section === 'retencao' || section === 'trafego' ? null : <>
+      {section === 'financeiro' ? <FinancePanel /> : null}
+      {section === 'retencao' || section === 'trafego' || section === 'financeiro' ? null : <>
       <p className="office-note">
         Uma seção por vez. Impressões e cliques são dos últimos {office?.windowDays ?? 30} dias. Receita é o total já pago. Contas e links mostram no máximo {office?.listCap ?? 40}; a busca acha o restante.
       </p>

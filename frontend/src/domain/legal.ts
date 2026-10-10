@@ -59,6 +59,14 @@ export function legalDocument(contact: string | null): { privacy: LegalDocument;
           ],
         },
         {
+          title: 'Eventos enviados à Meta',
+          paragraphs: [
+            'Só com o aceite, enviamos à Meta, pelo navegador e pelo servidor, o cadastro, o início e o envio de um link, a abertura do checkout, a escolha de Pix ou cartão e a compra do destaque. A compra leva valor, moeda, produto e método de pagamento.',
+            'Junto vão o user-agent, os cookies _fbp e _fbc, o identificador da conta e o e-mail. Identificador e e-mail saem só como hash SHA-256, nunca em texto. Sem o aceite, nada disso é enviado.',
+            'Para mandar a compra confirmada pelo provedor, o pedido guarda esse contexto do navegador até o pagamento. Ele é apagado no envio, ou em 7 dias se o pagamento não vier.',
+          ],
+        },
+        {
           title: 'Pagamento, e-mail e texto',
           paragraphs: [
             'O destaque é cobrado por cartão na Stripe ou por Pix na Woovi. Não armazenamos número de cartão. O pedido guarda valor, status e o identificador do provedor.',
@@ -82,7 +90,7 @@ export function legalDocument(contact: string | null): { privacy: LegalDocument;
         {
           title: 'Prazos',
           paragraphs: [
-            'A conta dura enquanto existir. A sessão segue os 7 dias do refresh. O toque de campanha dura 30 dias no navegador e, depois do cadastro, enquanto a conta existir. O aceite ou a recusa de cookies dura 365 dias. Analytics de sessão dura 12 meses.',
+            'A conta dura enquanto existir. A sessão segue os 7 dias do refresh. O toque de campanha dura 30 dias no navegador e, depois do cadastro, enquanto a conta existir. O aceite ou a recusa de cookies dura 365 dias. Analytics de sessão dura 12 meses. O contexto de compra para a Meta dura até 7 dias.',
           ],
         },
         {

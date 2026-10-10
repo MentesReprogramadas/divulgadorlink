@@ -4,6 +4,7 @@ import { app } from '@/app'
 import { getPaymentJobsForTest, resetPaymentJobsForTest } from '@/adapters/queues/enqueue-payment-job'
 import { setPaymentGatewayForTest } from '@/http/controllers/@Payments/routes'
 import { getLinksRepository, InMemoryLinksRepository, resetLinksRepositoryForTest } from '@/repositories/links-repository'
+import { memoryOrderInsights } from '@/repositories/order-insights-repository'
 import { runExpirePix } from '@/use-cases/@Payments/payment-jobs'
 import { getCheckoutStore, resetCheckoutStoreForTest } from '@/use-cases/@Promotions/checkout-store'
 
@@ -29,6 +30,7 @@ describe('checkout e webhook', () => {
     resetLinksRepositoryForTest()
     resetCheckoutStoreForTest()
     resetPaymentJobsForTest()
+    memoryOrderInsights().reset()
     setPaymentGatewayForTest(null)
     const confirmedAt = new Date('2026-09-01T00:00:00Z')
     repo().addUser({
@@ -128,6 +130,44 @@ describe('checkout e webhook', () => {
     expect(first.statusCode).toBe(200)
     expect(second.statusCode).toBe(200)
     expect(await getCheckoutStore().listPromotions('link-1')).toHaveLength(1)
+  })
+
+  it('guarda o contexto da Meta só com aceite, consome no pagamento e grava a hora paga', async () => {
+    const denied = await app.inject({
+      method: 'POST',
+      url: '/api/v1/promotions/checkout',
+      headers: { host: HOST, authorization: `Bearer ${token('ana')}`, cookie: 'tla_consent=denied', 'user-agent': 'UA' },
+      payload: { linkId: 'link-1', surfaces: ['SEARCH'], durationDays: 7, method: 'PIX' },
+    })
+    expect(memoryOrderInsights().contexts.has(denied.json().orderId)).toBe(false)
+
+    const created = await app.inject({
+      method: 'POST',
+      url: '/api/v1/promotions/checkout',
+      headers: { host: HOST, authorization: `Bearer ${token('ana')}`, cookie: 'tla_consent=marketing; _fbp=fb.1.2.3', 'user-agent': 'UA' },
+      payload: { linkId: 'link-1', surfaces: ['NICHE'], durationDays: 7, method: 'PIX' },
+    })
+    const orderId = created.json().orderId as string
+    expect(memoryOrderInsights().contexts.get(orderId)?.context).toMatchObject({ externalId: 'ana', email: 'ana@example.com', fbp: 'fb.1.2.3' })
+
+    setPaymentGatewayForTest({
+      method: 'PIX',
+      async getCharge() {
+        return { status: 'PAID', paidAt: new Date() }
+      },
+      async refund() {
+        return { refundId: 'r1', status: 'PROCESSING' }
+      },
+    })
+    const body = JSON.stringify({ eventId: 'evt-meta', charge: { correlationID: orderId } })
+    await app.inject({
+      method: 'POST',
+      url: '/api/v1/payments/woovi/webhook',
+      headers: { 'content-type': 'application/json', 'x-webhook-signature': signWooviTestBody(body) },
+      payload: body,
+    })
+    expect(memoryOrderInsights().contexts.has(orderId)).toBe(false)
+    expect(memoryOrderInsights().paidAt.get(orderId)).toBeInstanceOf(Date)
   })
 
   it('Pix pago depois do prazo não ativa e libera a superfície', async () => {

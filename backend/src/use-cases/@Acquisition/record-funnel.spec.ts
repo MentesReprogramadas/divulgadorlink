@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { describe, expect, it } from 'vitest'
 import {
   getAcquisitionStore,
@@ -51,6 +52,8 @@ describe('funil', () => {
   })
 })
 
+const sha = (value: string) => createHash('sha256').update(value).digest('hex')
+
 const meta: MetaContext = {
   consent: 'marketing',
   userAgent: 'Mozilla/5.0',
@@ -70,6 +73,23 @@ describe('API de conversões', () => {
       event_source_url: 'https://temlinkaqui.com/cadastro',
       user_data: { client_user_agent: 'Mozilla/5.0', fbp: 'fb.1.1700000000000.123' },
     })
+  })
+
+  it('manda id e e-mail só em hash e o valor da compra em custom_data', () => {
+    const payload = metaPayload({
+      name: 'Purchase',
+      eventId: 'o1:purchase',
+      meta: { ...meta, externalId: 'u1', email: ' Ana@Example.com ' },
+      custom: { value: 19.9, currency: 'BRL', content_ids: ['HOME'], order_id: 'o1' },
+    })
+    expect(payload?.user_data).toEqual({
+      client_user_agent: 'Mozilla/5.0',
+      fbp: 'fb.1.1700000000000.123',
+      external_id: [sha('u1')],
+      em: [sha('ana@example.com')],
+    })
+    expect(JSON.stringify(payload)).not.toContain('Ana@Example.com')
+    expect(payload?.custom_data).toEqual({ value: 19.9, currency: 'BRL', content_ids: ['HOME'], order_id: 'o1' })
   })
 
   it('não monta nada sem aceite ou sem navegador', () => {

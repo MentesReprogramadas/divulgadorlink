@@ -11,7 +11,7 @@ import { hostMatchesNetwork } from '@/domain/links/network-host'
 import { urlAvailability } from '@/domain/links/url-availability'
 import { prisma } from '@/lib/prisma'
 import { notifyModerationQueue } from '@/adapters/notifications/outbound-mail'
-import { getAcquisitionStore, metaContextFrom, startEventId } from '@/use-cases/@Acquisition/record-funnel'
+import { currentEmail, getAcquisitionStore, metaContextFrom, startEventId } from '@/use-cases/@Acquisition/record-funnel'
 import { DuplicateLinkError, getLinksRepository } from '@/repositories/links-repository'
 import { env } from '@/env'
 import { buildError, business_rule, forbidden, not_found, validation } from '@/http/errors'
@@ -350,7 +350,7 @@ async function createLink(request: FastifyRequest, reply: FastifyReply) {
       name: 'SubmitLink',
       userId: user.id,
       linkId: link.id,
-      meta: metaContextFrom(request, '/painel/links/novo'),
+      meta: metaContextFrom(request, '/painel/links/novo', { externalId: user.id, email: currentEmail(user.identifiers) }),
     })
     if (link.status === 'PENDING_MODERATION') {
       await getModerationCasesRepository().ensureOpen({
@@ -688,7 +688,7 @@ async function submissionStarted(request: FastifyRequest, reply: FastifyReply) {
     name: 'StartLinkSubmission',
     userId: request.user.sub,
     linkId: null,
-    meta: metaContextFrom(request, '/painel/links/novo'),
+    meta: metaContextFrom(request, '/painel/links/novo', { externalId: request.user.sub }),
   })
   return reply.status(200).send({ eventId, recorded: result === 'inserted' })
 }

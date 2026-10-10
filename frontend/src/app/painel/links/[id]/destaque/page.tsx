@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
 import { Button } from '@/components/ui/button'
+import { orderParams, trackMeta } from '@/domain/meta-pixel'
 import { formatCents } from '@/domain/money'
 import { api } from '@/lib/api'
 
@@ -44,6 +45,9 @@ type OrderView = {
   linkId: string
   status: string
   amountCents: number
+  productCode?: string
+  durationDays?: number
+  method?: 'PIX' | 'CARD'
   pixExpiresAt?: string | null
   brCode?: string
 }
@@ -84,6 +88,7 @@ export default function Page() {
   const [clientSecret, setClientSecret] = useState('')
   const [qr, setQr] = useState('')
   const [idempotencyKey, setIdempotencyKey] = useState(attemptKey)
+  const tracked = useRef(new Set<string>())
 
   const stripePromise = useMemo(
     () => (publishableKey ? loadStripe(publishableKey) : null),
@@ -102,6 +107,7 @@ export default function Page() {
       }
       const rows = result.body.offers ?? []
       setOffers(rows)
+      trackMeta('ViewContent', undefined, { content_type: 'product', content_ids: rows.map((offer) => offer.code) })
       setSelected((current) => current || rows.find((offer) => offer.featured)?.code || '')
       setCardEnabled(Boolean(result.body.cardEnabled && result.body.publishableKey))
       setPublishableKey(result.body.publishableKey ?? '')
@@ -131,6 +137,7 @@ export default function Page() {
       const result = await api<OrderView>(`/v1/orders/${orderId}`)
       if (stopped || result.status !== 200) return
       setStatus(result.body.status)
+      if (result.body.status === 'PAID') purchased(result.body)
       if (result.body.status === 'PAID' || result.body.status === 'PAID_LATE') {
         setStep('done')
         return
@@ -188,6 +195,25 @@ export default function Page() {
     return () => clearTimeout(timer)
   }, [step, router])
 
+  function purchased(order: { id: string; amountCents: number; productCode?: string; durationDays?: number; method?: 'PIX' | 'CARD' }) {
+    if (tracked.current.has(order.id)) return
+    tracked.current.add(order.id)
+    trackMeta('Purchase', `${order.id}:purchase`, orderParams({
+      amountCents: order.amountCents,
+      productCode: order.productCode ?? current?.code ?? '',
+      durationDays: order.durationDays ?? days,
+      method: order.method,
+    }))
+  }
+
+  function startCheckout() {
+    if (current) {
+      const price = priceOf(current, days) ?? 0
+      trackMeta('InitiateCheckout', `${idempotencyKey}:checkout`, orderParams({ amountCents: price, productCode: current.code, durationDays: days }))
+    }
+    setStep('method')
+  }
+
   function chooseDays(value: Duration) {
     setDays(value)
     setMessage('')
@@ -220,7 +246,9 @@ export default function Page() {
       setMessage(result.body.message ?? 'Não foi possível iniciar o pagamento.')
       return
     }
-    setAmount(result.body.amountCents ?? priceOf(current, days))
+    const charged = result.body.amountCents ?? priceOf(current, days) ?? 0
+    trackMeta('AddPaymentInfo', `${result.body.orderId}:payment`, orderParams({ amountCents: charged, productCode: current.code, durationDays: days, method: next }))
+    setAmount(charged)
     setOrderId(result.body.orderId)
     setBrCode(result.body.brCode ?? '')
     setClientSecret(result.body.clientSecret ?? '')
@@ -267,7 +295,7 @@ export default function Page() {
               )
             })}
           </div>
-          <Button type="button" disabled={!current} onClick={() => setStep('method')}>Continuar</Button>
+          <Button type="button" disabled={!current} onClick={startCheckout}>Continuar</Button>
         </>
       ) : null}
 
@@ -326,7 +354,13 @@ export default function Page() {
       {step === 'card' && clientSecret && stripePromise ? (
         <section className="pay-step">
           <Elements stripe={stripePromise} options={{ clientSecret }}>
-            <CardConfirm onBack={() => setStep('method')} onPaid={() => setStep('done')} />
+            <CardConfirm
+              onBack={() => setStep('method')}
+              onPaid={() => {
+                if (orderId && amount !== null) purchased({ id: orderId, amountCents: amount, productCode: current?.code, durationDays: days, method: 'CARD' })
+                setStep('done')
+              }}
+            />
           </Elements>
         </section>
       ) : null}

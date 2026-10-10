@@ -335,6 +335,7 @@ model Order {
   refundIds            Json                 @default("[]")
   idempotencyKey       String?
   renewal              Boolean              @default(false)
+  paidAt               DateTime?
   createdAt            DateTime             @default(now())
   updatedAt            DateTime             @updatedAt
   surfaces             OrderSurface[]
@@ -342,7 +343,17 @@ model Order {
   events               OrderEvent[]
   @@unique([tenantId, userId, idempotencyKey])
   @@index([tenantId, linkId, status])
+  @@index([tenantId, paidAt])
+  @@index([tenantId, createdAt])
   @@map("orders")
+}
+
+model OrderMetaContext {
+  orderId   String   @id
+  context   Json
+  createdAt DateTime @default(now())
+  @@index([createdAt])
+  @@map("order_meta_contexts")
 }
 
 model OrderSurface {

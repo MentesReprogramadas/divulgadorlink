@@ -2164,6 +2164,56 @@ main.detail-page {
   background: var(--color-moss);
 }
 
+.finance .traffic-bars li { grid-template-columns: 72px minmax(0, 1fr) 96px; }
+
+.finance-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.finance-filters .field-block { min-width: 140px; }
+
+.finance-heat {
+  display: grid;
+  gap: 2px;
+  overflow-x: auto;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.finance-heat-row {
+  display: grid;
+  grid-template-columns: 36px repeat(24, minmax(14px, 1fr));
+  gap: 2px;
+  align-items: center;
+}
+
+.finance-heat-cell {
+  display: block;
+  height: 18px;
+  background: var(--color-moss);
+}
+
+.finance-table-wrap { overflow-x: auto; }
+
+.finance-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.finance-table th,
+.finance-table td {
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--color-line);
+  text-align: left;
+  white-space: nowrap;
+}
+
 .office-note {
   margin: var(--space-3) 0 0;
   color: var(--color-muted);

@@ -24,6 +24,8 @@ import { gatewayFor, PIX_EXPIRES_IN_SECONDS, startCheckout, type CheckoutGateway
 import { RefundActivationForbiddenError } from '@/use-cases/errors/refund-activation-forbidden-error'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
 import { logDomainEvent } from '@/observability/logger'
+import { getOrderInsightsRepository } from '@/repositories/order-insights-repository'
+import { currentEmail, dispatchMeta, metaContextFrom, type MetaCustomData } from '@/use-cases/@Acquisition/record-funnel'
 
 const checkoutBody = z.object({
   linkId: z.string().min(1),
@@ -195,7 +197,58 @@ async function confirm(orderId: string, eventId: string, requestId: string) {
       },
     },
   )
-  return useCase.execute({ orderId, eventId })
+  const result = await useCase.execute({ orderId, eventId })
+  const insights = getOrderInsightsRepository()
+  if (result.order.status === 'PAID' || result.order.status === 'PAID_LATE') {
+    await insights.markPaid(result.order.id, new Date())
+  }
+  if (result.activated && current) {
+    const meta = await insights.takeMetaContext(result.order.id)
+    dispatchMeta({
+      name: 'Purchase',
+      eventId: `${result.order.id}:purchase`,
+      meta,
+      custom: {
+        ...orderMetaData(current.order.id, current.productCode, current.durationDays, current.order.amountCents, current.order.method),
+        renewal: current.renewal,
+      },
+    })
+  } else if (result.order.status === 'PAID_LATE') {
+    await insights.takeMetaContext(result.order.id)
+  }
+  return result
+}
+
+function orderMetaData(orderId: string, productCode: string, durationDays: number, amountCents: number, method: 'PIX' | 'CARD'): MetaCustomData {
+  return {
+    value: amountCents / 100,
+    currency: 'BRL',
+    content_ids: [productCode],
+    content_type: 'product',
+    content_name: `${productCode} ${durationDays} dias`,
+    num_items: 1,
+    order_id: orderId,
+    payment_method: method === 'PIX' ? 'pix' : 'card',
+  }
+}
+
+async function startedCheckout(
+  request: FastifyRequest,
+  input: { orderId: string; userId: string; email: string | null; linkId: string; productCode: string; durationDays: number; amountCents: number; method: 'PIX' | 'CARD'; renewal: boolean },
+) {
+  const meta = metaContextFrom(request, `/painel/links/${input.linkId}/destaque`, { externalId: input.userId, email: input.email })
+  if (meta.consent !== 'marketing') return
+  try {
+    await getOrderInsightsRepository().saveMetaContext(input.orderId, meta)
+  } catch (error) {
+    logDomainEvent('meta.context', { orderId: input.orderId, result: error instanceof Error ? error.message : 'erro' })
+  }
+  dispatchMeta({
+    name: 'AddPaymentInfo',
+    eventId: `${input.orderId}:payment`,
+    meta,
+    custom: { ...orderMetaData(input.orderId, input.productCode, input.durationDays, input.amountCents, input.method), renewal: input.renewal },
+  })
 }
 
 export async function postCheckout(request: FastifyRequest, reply: FastifyReply) {
@@ -249,6 +302,17 @@ export async function postCheckout(request: FastifyRequest, reply: FastifyReply)
       store: checkoutStore(),
       gateway: chargeGateway(parsed.data.method),
       scheduleExpire: enqueueExpirePix,
+    })
+    await startedCheckout(request, {
+      orderId: result.orderId,
+      userId: user.id,
+      email: currentEmail(user.identifiers),
+      linkId: link.id,
+      productCode: result.code,
+      durationDays: parsed.data.durationDays,
+      amountCents: result.amountCents,
+      method: parsed.data.method,
+      renewal: false,
     })
     return reply.status(201).send({
       orderId: result.orderId,
@@ -380,6 +444,17 @@ export async function postRenew(request: FastifyRequest, reply: FastifyReply) {
       store: checkoutStore(),
       gateway: chargeGateway(parsed.data.method),
       scheduleExpire: enqueueExpirePix,
+    })
+    await startedCheckout(request, {
+      orderId: result.orderId,
+      userId: user.id,
+      email: currentEmail(user.identifiers),
+      linkId: link.id,
+      productCode: result.code,
+      durationDays: parsed.data.durationDays,
+      amountCents: result.amountCents,
+      method: parsed.data.method,
+      renewal: true,
     })
     return reply.status(201).send({
       orderId: result.orderId,
