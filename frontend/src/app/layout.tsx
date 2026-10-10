@@ -31,8 +31,8 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const headerStore = await headers()
   const path = headerStore.get('x-pathname') ?? ''
-  const advertise = path === '/divulgar' || path.startsWith('/divulgar/') || jar.get('tla_shell')?.value === 'ad'
   const jar = await cookies()
+  const advertise = path === '/divulgar' || path.startsWith('/divulgar/') || jar.get('tla_shell')?.value === 'ad'
   const role = jar.get('catalogo_role')?.value
   const stored = jar.get('tla_consent')?.value
   const pending = stored !== 'marketing' && stored !== 'denied'
