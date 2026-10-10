@@ -353,7 +353,7 @@ export function FinancePanel() {
 
           {tab === 'taxas' ? (
             <div {...panelProps('financeiro', 'taxas')}>
-              <p className="office-note">Pix é um valor por pagamento confirmado. No cartão, 3,99% + R$ 0,39: R$ 0,79 em R$ 9,90 e R$ 3,58 em R$ 79,90. A Stripe não manda essa taxa por pedido; o líquido usa esta conta.</p>
+              <p className="office-note">Pix é um valor por pagamento confirmado. No cartão, 3,99% + R$ 0,39</p>
               <form className="finance-filters" onSubmit={(event) => { event.preventDefault(); void saveFees() }}>
                 <label className="field-block"><span className="field-label">Pix (%)</span><input className="field" inputMode="decimal" value={fees.pix} onChange={(event) => setFees({ ...fees, pix: event.target.value })} /></label>
                 <label className="field-block"><span className="field-label">Pix por pagamento (R$)</span><input className="field" inputMode="decimal" value={fees.pixFixed} onChange={(event) => setFees({ ...fees, pixFixed: event.target.value })} /></label>
