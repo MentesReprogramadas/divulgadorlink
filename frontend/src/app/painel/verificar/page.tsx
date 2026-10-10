@@ -13,6 +13,7 @@ type ConfirmBody = {
   confirmed?: boolean
   canSubmitLink?: boolean
   retryAfter?: number
+  destination?: string
 }
 
 function remember(canSubmit: boolean) {
@@ -25,15 +26,26 @@ function goToForm() {
   window.location.replace('/painel/links/novo')
 }
 
+function maskEmail(email: string): string {
+  const at = email.lastIndexOf('@')
+  if (at <= 0 || at === email.length - 1) return ''
+  const local = email.slice(0, at)
+  const domain = email.slice(at + 1)
+  const hidden = Math.min(8, Math.max(1, local.length - 1))
+  return `${local[0]}${'•'.repeat(hidden)}@${domain}`
+}
+
 export default function Page() {
   const session = useAreaSession()
-  const [phase, setPhase] = useState<'loading' | 'code'>('loading')
+  const [phase, setPhase] = useState<'loading' | 'code' | 'change'>('loading')
   const [code, setCode] = useState('')
   const [message, setMessage] = useState('')
   const [sending, setSending] = useState(false)
   const [retryAfter, setRetryAfter] = useState(0)
   const [email, setEmail] = useState('')
+  const [address, setAddress] = useState('')
   const trimmed = code.replace(/\D/g, '').slice(0, 6)
+  const masked = maskEmail(address)
 
   useEffect(() => {
     if (retryAfter <= 0) return
@@ -55,6 +67,7 @@ export default function Page() {
         goToForm()
         return
       }
+      if (status.body.destination) setAddress(status.body.destination)
       const wait = status.body.retryAfter ?? 0
       if (wait > 0) {
         setRetryAfter(wait)
@@ -127,9 +140,23 @@ export default function Page() {
     }
     setCode('')
     setEmail('')
+    setAddress(email.trim().toLowerCase())
     setPhase('code')
     setRetryAfter(60)
     setMessage('Enviamos o código para o novo e-mail.')
+  }
+
+  function openChange() {
+    if (sending) return
+    setMessage('')
+    setPhase('change')
+  }
+
+  function backToCode() {
+    if (sending) return
+    setMessage('')
+    setEmail('')
+    setPhase('code')
   }
 
   async function logout() {
@@ -140,11 +167,19 @@ export default function Page() {
 
   return (
     <main className="auth-page">
-      <h1 className="entry-title">Confirme o e-mail</h1>
-      <p className="auth-lead">O código chega no e-mail da conta. Depois disso o formulário de publicar abre direto.</p>
+      <h1 className="entry-title">{phase === 'change' ? 'Trocar e-mail' : 'Confirme o e-mail'}</h1>
+      <p className="auth-lead">
+        {phase === 'change'
+          ? 'O código vai para o endereço novo. Até enviar, o código atual continua valendo.'
+          : 'O código chega no e-mail da conta. Depois disso o formulário de publicar abre direto.'}
+      </p>
       {phase === 'loading' ? <p role="status">Carregando</p> : null}
       {phase === 'code' ? (
         <form className="auth-form" onSubmit={(event) => void submit(event)}>
+          <p className="verify-target">
+            {masked ? <>Código enviado para <strong>{masked}</strong></> : null}
+            <button type="button" className="quiet-button" onClick={openChange}>Trocar e-mail</button>
+          </p>
           <CodeBoxes value={trimmed} onChange={setCode} disabled={sending} />
           <Button type="submit" disabled={sending || trimmed.length < 6}>Confirmar e-mail</Button>
           <Button type="button" variant="secondary" disabled={sending || retryAfter > 0} onClick={() => void resend()}>
@@ -152,13 +187,18 @@ export default function Page() {
           </Button>
         </form>
       ) : null}
+      {phase === 'change' ? (
+        <form className="auth-form" onSubmit={(event) => void changeEmail(event)}>
+          <Field label="Novo e-mail">
+            <Input name="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
+          </Field>
+          <Button type="submit" disabled={sending || !email.trim()}>Enviar código</Button>
+          <p className="auth-switch">
+            <button type="button" className="quiet-button" onClick={backToCode}>Voltar para a verificação</button>
+          </p>
+        </form>
+      ) : null}
       {message ? <p role="status">{message}</p> : null}
-      <form className="auth-form" onSubmit={(event) => void changeEmail(event)}>
-        <Field label="O e-mail está errado">
-          <Input name="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
-        </Field>
-        <Button type="submit" variant="secondary" disabled={sending}>Trocar e-mail</Button>
-      </form>
       <p className="auth-switch"><button type="button" className="quiet-button" onClick={() => void logout()}>Sair</button></p>
     </main>
   )

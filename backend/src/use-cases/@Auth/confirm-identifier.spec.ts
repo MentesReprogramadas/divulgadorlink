@@ -199,6 +199,12 @@ function liveCode(
 }
 
 describe('confirmação', () => {
+  it('devolve o e-mail atual para a tela censurar', async () => {
+    const result = await useCase(emailFixture()).status({ userId: 'user-1', kind: 'EMAIL' })
+    expect(result.destination).toBe('ana@example.com')
+    expect(result.confirmed).toBe(false)
+  })
+
   it('libera o envio com o e-mail confirmado', () => {
     expect(canSubmitLink({
       emailConfirmed: true, phoneConfirmed: false, status: 'ACTIVE',

@@ -171,6 +171,7 @@ export type ConfirmResult = {
   kind: 'EMAIL' | 'PHONE'
   resent?: boolean
   confirmed?: boolean
+  destination?: string
   emailConfirmed: boolean
   phoneConfirmed: boolean
   canSubmitLink: boolean
@@ -278,6 +279,7 @@ export class ConfirmIdentifierUseCase {
       confirmed,
       retryAfter: resendRetryAfter(lastSentAt, this.now()),
       ...flags,
+      destination: identifier.normalizedValue,
     }
   }
 

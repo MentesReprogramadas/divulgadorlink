@@ -196,6 +196,18 @@ main.auth-page .entry-title {
   border-radius: var(--radius);
   font-weight: 600;
 }
+.verify-target {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-4);
+  margin: 0 0 var(--space-4);
+  color: var(--color-muted);
+}
+.verify-target strong {
+  color: var(--color-brand-navy);
+  font-weight: 600;
+}
 .auth-form .button { width: 100%; }
 .auth-form .button + .button { margin-top: var(--space-3); }
 .code-boxes {
