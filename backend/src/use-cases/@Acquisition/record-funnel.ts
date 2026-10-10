@@ -1,8 +1,18 @@
 import { Prisma } from '@prisma/client'
+import type { FastifyRequest } from 'fastify'
 import type { Touch } from '@/domain/acquisition/touch'
 import { prisma } from '@/lib/prisma'
+import { logDomainEvent } from '@/observability/logger'
 
 export type FunnelName = 'CompleteRegistration' | 'StartLinkSubmission' | 'SubmitLink' | 'LinkPublished'
+
+export type MetaContext = {
+  consent: string | undefined
+  userAgent: string
+  fbp: string
+  fbc: string
+  sourceUrl: string
+}
 
 export type FunnelInput = {
   tenantId: string
@@ -10,7 +20,20 @@ export type FunnelInput = {
   name: FunnelName
   userId: string | null
   linkId: string | null
+  meta?: MetaContext | null
   onInserted?: () => Promise<void>
+}
+
+export function metaContextFrom(request: FastifyRequest, path: string): MetaContext {
+  const cookies = request.cookies ?? {}
+  const host = String(request.headers.host ?? '').split(':')[0]
+  return {
+    consent: cookies.tla_consent,
+    userAgent: String(request.headers['user-agent'] ?? '').slice(0, 512),
+    fbp: (cookies._fbp ?? '').slice(0, 200),
+    fbc: (cookies._fbc ?? '').slice(0, 300),
+    sourceUrl: `https://${host}${path}`,
+  }
 }
 
 export type StoredTouch = Touch & { tenantId: string; userId: string }
@@ -35,7 +58,7 @@ export function startEventId(userId: string, now = new Date()): string {
 }
 
 type AcquisitionStore = {
-  rememberRegistration(input: { tenantId: string; userId: string; touch: Touch | null }): Promise<'inserted' | 'duplicate'>
+  rememberRegistration(input: { tenantId: string; userId: string; touch: Touch | null; meta?: MetaContext | null }): Promise<'inserted' | 'duplicate'>
   findTouch(userId: string): Promise<Touch | null>
   stampLink(linkId: string, touch: Touch | null): Promise<void>
   linkTouch(linkId: string): Touch | null
@@ -53,7 +76,7 @@ export class MemoryAcquisitionStore implements AcquisitionStore {
   links = new Map<string, Touch>()
   events: FunnelInput[] = []
 
-  async rememberRegistration(input: { tenantId: string; userId: string; touch: Touch | null }): Promise<'inserted' | 'duplicate'> {
+  async rememberRegistration(input: { tenantId: string; userId: string; touch: Touch | null; meta?: MetaContext | null }): Promise<'inserted' | 'duplicate'> {
     if (input.touch && !this.touches.some((row) => row.userId === input.userId)) {
       this.touches.push({ ...input.touch, tenantId: input.tenantId, userId: input.userId })
     }
@@ -63,6 +86,7 @@ export class MemoryAcquisitionStore implements AcquisitionStore {
       name: 'CompleteRegistration',
       userId: input.userId,
       linkId: null,
+      meta: input.meta,
     })
   }
 
@@ -111,7 +135,7 @@ export class MemoryAcquisitionStore implements AcquisitionStore {
 class PrismaAcquisitionStore implements AcquisitionStore {
   events: FunnelInput[] = []
 
-  async rememberRegistration(input: { tenantId: string; userId: string; touch: Touch | null }): Promise<'inserted' | 'duplicate'> {
+  async rememberRegistration(input: { tenantId: string; userId: string; touch: Touch | null; meta?: MetaContext | null }): Promise<'inserted' | 'duplicate'> {
     if (input.touch) {
       const existing = await prisma.acquisitionTouch.findUnique({ where: { userId: input.userId } })
       if (!existing) {
@@ -135,6 +159,7 @@ class PrismaAcquisitionStore implements AcquisitionStore {
       name: 'CompleteRegistration',
       userId: input.userId,
       linkId: null,
+      meta: input.meta,
     })
   }
 
@@ -189,30 +214,55 @@ class PrismaAcquisitionStore implements AcquisitionStore {
       throw error
     }
     if (input.onInserted) await input.onInserted()
-    else await notifyMeta({ name: input.name, eventId: input.eventId })
+    else if (input.meta) {
+      void notifyMeta({ name: input.name, eventId: input.eventId, meta: input.meta }).catch((error: unknown) => {
+        logDomainEvent('meta.capi', { result: 'network', name: input.name, error: error instanceof Error ? error.message : 'erro' })
+      })
+    }
     return 'inserted'
+  }
+}
+
+export function metaPayload(input: { name: string; eventId: string; meta: MetaContext | null | undefined; now?: Date }) {
+  const meta = input.meta
+  if (!meta || meta.consent !== 'marketing' || !meta.userAgent) return null
+  return {
+    event_name: input.name,
+    event_id: input.eventId,
+    event_time: Math.floor((input.now ?? new Date()).getTime() / 1000),
+    action_source: 'website',
+    event_source_url: meta.sourceUrl,
+    user_data: {
+      client_user_agent: meta.userAgent,
+      ...(meta.fbp ? { fbp: meta.fbp } : {}),
+      ...(meta.fbc ? { fbc: meta.fbc } : {}),
+    },
   }
 }
 
 export async function notifyMeta(input: {
   name: string
   eventId: string
+  meta: MetaContext | null | undefined
   token?: string
   pixelId?: string
   fetchImpl?: typeof fetch
-}): Promise<void> {
+}): Promise<'skipped' | 'sent' | 'rejected'> {
   const token = input.token ?? process.env.META_CAPI_TOKEN
   const pixelId = input.pixelId ?? process.env.META_PIXEL_ID
-  if (!token || !pixelId) return
+  const payload = metaPayload(input)
+  if (!token || !pixelId || !payload) return 'skipped'
   const fetchImpl = input.fetchImpl ?? fetch
-  await fetchImpl(`https://graph.facebook.com/v21.0/${pixelId}/events`, {
+  const response = await fetchImpl(`https://graph.facebook.com/v21.0/${pixelId}/events`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({
-      data: [{ event_name: input.name, event_id: input.eventId, action_source: 'website' }],
-      access_token: token,
-    }),
+    body: JSON.stringify({ data: [payload], access_token: token }),
+    signal: AbortSignal.timeout(5_000),
   })
+  if (response.ok) return 'sent'
+  const detail = (await response.text().catch(() => '')).slice(0, 300)
+  logDomainEvent('meta.capi', { result: 'rejected', name: input.name, status: response.status, detail })
+  return 'rejected'
 }
 
 const memory = new MemoryAcquisitionStore()

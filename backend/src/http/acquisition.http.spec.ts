@@ -42,8 +42,11 @@ describe('HTTP de aquisição', () => {
     expect(missing.statusCode).toBe(401)
     const token = app.jwt.sign({ sub: VERIFIED_ID, role: 'USER', tenantId: TENANT_ID, typ: 'access' }, { expiresIn: '5m' })
     const headers = { host: HOST, authorization: `Bearer ${token}` }
-    expect((await app.inject({ method: 'GET', url: '/api/v1/links/submission-started', headers })).statusCode).toBe(204)
-    expect((await app.inject({ method: 'GET', url: '/api/v1/links/submission-started', headers })).statusCode).toBe(204)
+    const first = await app.inject({ method: 'GET', url: '/api/v1/links/submission-started', headers })
+    const second = await app.inject({ method: 'GET', url: '/api/v1/links/submission-started', headers })
+    expect(first.statusCode).toBe(200)
+    expect(first.json()).toEqual({ eventId: expect.stringMatching(/^user-verified:start:\d{4}-\d{2}-\d{2}$/), recorded: true })
+    expect(second.json()).toEqual({ eventId: first.json().eventId, recorded: false })
     expect(getAcquisitionStore().events.filter((row) => row.name === 'StartLinkSubmission')).toHaveLength(1)
   })
 

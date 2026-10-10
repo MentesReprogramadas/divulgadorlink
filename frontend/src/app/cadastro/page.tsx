@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Field, Input } from '@/components/ui/input'
+import { trackMeta } from '@/domain/meta-pixel'
 import { writeSession } from '@/domain/session'
 import { api } from '@/lib/api'
 
@@ -15,7 +16,7 @@ export default function Page() {
     setPending(true)
     setError('')
     const data = new FormData(event.currentTarget)
-    const result = await api<{ role?: string; user?: { status: string; canSubmitLink: boolean }; message?: string }>('/v1/auth/register', {
+    const result = await api<{ role?: string; user?: { id: string; status: string; canSubmitLink: boolean }; message?: string }>('/v1/auth/register', {
       method: 'POST',
       body: JSON.stringify({
         name: data.get('name'),
@@ -43,6 +44,10 @@ export default function Page() {
       status: result.body.user?.status ?? 'ACTIVE',
       canSubmit: Boolean(result.body.user?.canSubmitLink),
     })
+    // A navegação cheia cancela o envio do pixel que ainda está na fila.
+    if (result.body.user && trackMeta('CompleteRegistration', result.body.user.id)) {
+      await new Promise((resolve) => setTimeout(resolve, 300))
+    }
     window.location.assign('/painel/verificar')
   }
 

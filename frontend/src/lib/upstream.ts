@@ -14,6 +14,7 @@ export function forward(input: {
   body?: Buffer
   idempotencyKey?: string
   csrf?: string
+  userAgent?: string
 }): Promise<{ status: number; headers: NodeJS.Dict<string | string[]>; body: Buffer }> {
   const origin = new URL(process.env.API_ORIGIN || 'http://127.0.0.1:3333')
   const transport = origin.protocol === 'https:' ? httpsRequest : httpRequest
@@ -30,6 +31,7 @@ export function forward(input: {
         ...(input.authorization ? { authorization: input.authorization } : {}),
         ...(input.idempotencyKey ? { 'idempotency-key': input.idempotencyKey } : {}),
         ...(input.csrf ? { 'x-csrf-token': input.csrf } : {}),
+        ...(input.userAgent ? { 'user-agent': input.userAgent.slice(0, 512) } : {}),
         ...(input.body ? { 'content-type': 'application/json', 'content-length': input.body.length } : {}),
       },
     }, (res) => {

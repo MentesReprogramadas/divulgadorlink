@@ -16,6 +16,7 @@ async function handle(request: Request, context: { params: Promise<{ path: strin
     authorization: request.headers.get('authorization') ?? '',
     idempotencyKey: request.headers.get('idempotency-key') ?? '',
     csrf: request.headers.get('x-csrf-token') ?? '',
+    userAgent: request.headers.get('user-agent') ?? '',
     body,
   })
   const headers = new Headers()

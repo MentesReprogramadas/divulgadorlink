@@ -29,7 +29,7 @@ import { emailOutboxEnabled, readOutbound } from '@/adapters/notifications/outbo
 import { createLoginRateLimiter } from '@/http/controllers/@auth/login-rate'
 import { DeliveryUnavailableError } from '@/domain/notifications/confirmation-delivery'
 import { parseTouch } from '@/domain/acquisition/touch'
-import { getAcquisitionStore } from '@/use-cases/@Acquisition/record-funnel'
+import { getAcquisitionStore, metaContextFrom } from '@/use-cases/@Acquisition/record-funnel'
 
 const registerUseCase = new RegisterUseCase(prisma)
 const confirmUseCase = new ConfirmIdentifierUseCase(
@@ -191,6 +191,7 @@ async function register(request: FastifyRequest, reply: FastifyReply) {
       tenantId: tenant.id,
       userId: user.id,
       touch: parseTouch(request.cookies.tla_touch),
+      meta: metaContextFrom(request, '/cadastro'),
     })
     const flags = confirmationFlags(identifiers)
     await signSession(reply, user)

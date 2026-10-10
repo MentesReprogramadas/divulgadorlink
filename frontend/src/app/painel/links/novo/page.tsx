@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useAreaSession } from '@/components/domain/panel'
 import { Button } from '@/components/ui/button'
 import { Field, Input, Select, TextArea } from '@/components/ui/input'
+import { trackMeta } from '@/domain/meta-pixel'
 import { api } from '@/lib/api'
 
 type Facet = { id: string; name: string }
@@ -56,7 +57,9 @@ export default function Page() {
   useEffect(() => {
     setDraft(readDraft())
     setReady(true)
-    void api('/v1/links/submission-started')
+    void api<{ eventId?: string; recorded?: boolean }>('/v1/links/submission-started').then((result) => {
+      if (result.body.recorded && result.body.eventId) trackMeta('StartLinkSubmission', result.body.eventId)
+    })
     void api<{ slotsUsed?: number }>('/v1/links/mine?pageSize=24').then((result) => {
       if (typeof result.body.slotsUsed === 'number') setSlotsUsed(result.body.slotsUsed)
     })
@@ -86,7 +89,7 @@ export default function Page() {
     }
     setPending(true)
     setError('')
-    const result = await api<{ status?: string; message?: string }>('/v1/links', {
+    const result = await api<{ id?: string; status?: string; message?: string }>('/v1/links', {
       method: 'POST',
       body: JSON.stringify({
         url: draft.url,
@@ -98,6 +101,7 @@ export default function Page() {
     })
     setPending(false)
     if (result.status === 201) {
+      if (result.body.id) trackMeta('SubmitLink', result.body.id)
       localStorage.removeItem(DRAFT_KEY)
       setStatus('Enviado para análise.')
       return

@@ -11,7 +11,7 @@ import { hostMatchesNetwork } from '@/domain/links/network-host'
 import { urlAvailability } from '@/domain/links/url-availability'
 import { prisma } from '@/lib/prisma'
 import { notifyModerationQueue } from '@/adapters/notifications/outbound-mail'
-import { getAcquisitionStore, startEventId } from '@/use-cases/@Acquisition/record-funnel'
+import { getAcquisitionStore, metaContextFrom, startEventId } from '@/use-cases/@Acquisition/record-funnel'
 import { DuplicateLinkError, getLinksRepository } from '@/repositories/links-repository'
 import { env } from '@/env'
 import { buildError, business_rule, forbidden, not_found, validation } from '@/http/errors'
@@ -350,6 +350,7 @@ async function createLink(request: FastifyRequest, reply: FastifyReply) {
       name: 'SubmitLink',
       userId: user.id,
       linkId: link.id,
+      meta: metaContextFrom(request, '/painel/links/novo'),
     })
     if (link.status === 'PENDING_MODERATION') {
       await getModerationCasesRepository().ensureOpen({
@@ -680,14 +681,16 @@ async function submissionStarted(request: FastifyRequest, reply: FastifyReply) {
   if (request.user.tenantId !== tenant.id) {
     return reply.status(403).send(buildError({ code: forbidden, message: 'Acesso negado.', request_id: request.id }))
   }
-  await getAcquisitionStore().recordFunnel({
+  const eventId = startEventId(request.user.sub)
+  const result = await getAcquisitionStore().recordFunnel({
     tenantId: tenant.id,
-    eventId: startEventId(request.user.sub),
+    eventId,
     name: 'StartLinkSubmission',
     userId: request.user.sub,
     linkId: null,
+    meta: metaContextFrom(request, '/painel/links/novo'),
   })
-  return reply.status(204).send()
+  return reply.status(200).send({ eventId, recorded: result === 'inserted' })
 }
 
 export async function linksRoutes(app: FastifyInstance) {
