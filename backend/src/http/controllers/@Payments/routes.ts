@@ -1,5 +1,5 @@
 import { timingSafeEqual } from 'node:crypto'
-import { verifyWooviSignature, WOOVI_PUBLISHED_PUBLIC_KEY } from '@/adapters/payments/woovi-webhook-signature'
+import { isWooviRegistrationPing, verifyWooviSignature, WOOVI_PUBLISHED_PUBLIC_KEY } from '@/adapters/payments/woovi-webhook-signature'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import Stripe from 'stripe'
 import { z } from 'zod'
@@ -369,6 +369,8 @@ export async function postStripeWebhook(request: FastifyRequest, reply: FastifyR
 }
 
 export async function postWooviWebhook(request: FastifyRequest, reply: FastifyReply) {
+  const payload = Buffer.isBuffer(request.body) ? request.body : Buffer.from(JSON.stringify(request.body ?? {}))
+  if (isWooviRegistrationPing(payload)) return reply.status(200).send()
   return postWebhook(request, reply, readWooviEvent, 'x-webhook-signature')
 }
 

@@ -132,6 +132,29 @@ describe('checkout e webhook', () => {
     expect(await getCheckoutStore().listPromotions('link-1')).toHaveLength(1)
   })
 
+  it('responde 200 ao ping de cadastro da Woovi e não confirma pagamento', async () => {
+    const ping = await app.inject({
+      method: 'POST',
+      url: '/api/v1/payments/woovi/webhook',
+      headers: { 'content-type': 'application/json' },
+      payload: JSON.stringify({
+        data_criacao: '2026-10-11T00:53:14.484Z',
+        evento: 'teste_webhook',
+        event: 'OPENPIX:CHARGE_COMPLETED',
+      }),
+    })
+    expect(ping.statusCode).toBe(200)
+
+    const smuggled = await app.inject({
+      method: 'POST',
+      url: '/api/v1/payments/woovi/webhook',
+      headers: { 'content-type': 'application/json' },
+      payload: JSON.stringify({ evento: 'teste_webhook', charge: { correlationID: 'order-1' } }),
+    })
+    expect(smuggled.statusCode).toBe(400)
+    expect(await getCheckoutStore().listPromotions('link-1')).toHaveLength(0)
+  })
+
   it('guarda o contexto da Meta só com aceite, consome no pagamento e grava a hora paga', async () => {
     const denied = await app.inject({
       method: 'POST',

@@ -7,6 +7,27 @@ WMKbqoG8MNpi/u3fp6zz0mcHCOSqYsPUUG19buW8bis5ZZ2IZgBObWSpTvJ0cnj6
 HKBAA82Jln+lGwS1MwIDAQAB
 -----END PUBLIC KEY-----`
 
+const PAYMENT_KEYS = ['charge', 'correlationID', 'eventId', 'pix', 'payment']
+
+export function isWooviRegistrationPing(payload: Buffer | string): boolean {
+  let body: unknown
+  try {
+    body = JSON.parse(payload.toString())
+  } catch {
+    return false
+  }
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return false
+  const record = body as Record<string, unknown>
+  if (PAYMENT_KEYS.some((key) => key in record)) return false
+  if (record.evento === 'teste_webhook') return true
+  const keys = Object.keys(record)
+  return keys.length > 0
+    && keys.every((key) => key === 'data_criacao' || key === 'event')
+    && typeof record.data_criacao === 'string'
+    && typeof record.event === 'string'
+    && record.event.startsWith('OPENPIX:')
+}
+
 export function verifyWooviSignature(rawBody: Buffer | string, signature: string | undefined, publicKey: string): boolean {
   if (!signature || !publicKey) return false
   try {
