@@ -4,17 +4,47 @@ import Page from './page'
 
 const api = vi.fn()
 vi.mock('@/lib/api', () => ({ api: (...args: unknown[]) => api(...args) }))
-vi.mock('@/components/domain/panel', () => {
-  const session = { role: 'USER', status: 'ACTIVE', canSubmit: false }
-  return { useAreaSession: () => session }
+vi.mock('@/components/domain/panel', async () => {
+  const React = await import('react')
+  const { readSession, SESSION_EVENT } = await import('@/domain/session')
+  const initial = { role: 'USER', status: 'ACTIVE', canSubmit: false }
+  return {
+    useAreaSession: () => {
+      const [session, setSession] = React.useState(initial)
+      React.useEffect(() => {
+        function apply() {
+          const cached = readSession()
+          if (cached) setSession(cached)
+        }
+        window.addEventListener(SESSION_EVENT, apply)
+        return () => window.removeEventListener(SESSION_EVENT, apply)
+      }, [])
+      return session
+    },
+  }
 })
 
 afterEach(() => {
   cleanup()
   api.mockReset()
+  sessionStorage.clear()
 })
 
 describe('tela de confirmar e-mail', () => {
+  it('sai uma vez quando o e-mail já está confirmado', async () => {
+    sessionStorage.setItem('catalogo.session', JSON.stringify({ role: 'USER', status: 'ACTIVE', canSubmit: false }))
+    api.mockResolvedValue({ status: 200, body: { confirmed: true, canSubmitLink: true } })
+    const replace = vi.fn()
+    const current = window.location
+    Object.defineProperty(window, 'location', { configurable: true, value: { ...current, replace } })
+    render(<Page />)
+    await waitFor(() => expect(replace).toHaveBeenCalledTimes(1))
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    expect(replace).toHaveBeenCalledTimes(1)
+    expect(replace).toHaveBeenCalledWith('/painel/links/novo')
+    Object.defineProperty(window, 'location', { configurable: true, value: current })
+  })
+
   it('envia o código sozinha quando o anterior já expirou', async () => {
     api
       .mockResolvedValueOnce({ status: 200, body: { confirmed: false, retryAfter: 0 } })

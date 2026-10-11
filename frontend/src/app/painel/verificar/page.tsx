@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useAreaSession } from '@/components/domain/panel'
 import { CodeBoxes } from '@/components/domain/code-boxes'
 import { Button } from '@/components/ui/button'
@@ -21,7 +21,9 @@ function remember(canSubmit: boolean) {
   if (current) writeSession({ ...current, canSubmit })
 }
 
-function goToForm() {
+function goToForm(leaving: { current: boolean }) {
+  if (leaving.current) return
+  leaving.current = true
   remember(true)
   window.location.replace('/painel/links/novo')
 }
@@ -46,6 +48,9 @@ export default function Page() {
   const [address, setAddress] = useState('')
   const trimmed = code.replace(/\D/g, '').slice(0, 6)
   const masked = maskEmail(address)
+  const leaving = useRef(false)
+  const signedIn = session !== null
+  const canSubmit = session?.canSubmit === true
 
   useEffect(() => {
     if (retryAfter <= 0) return
@@ -54,9 +59,9 @@ export default function Page() {
   }, [retryAfter])
 
   useEffect(() => {
-    if (!session) return
-    if (session.canSubmit) {
-      goToForm()
+    if (!signedIn) return
+    if (canSubmit) {
+      goToForm(leaving)
       return
     }
     let cancelled = false
@@ -64,7 +69,7 @@ export default function Page() {
       const status = await api<ConfirmBody>('/v1/auth/confirm?kind=EMAIL')
       if (cancelled) return
       if (status.status === 200 && (status.body.confirmed || status.body.canSubmitLink)) {
-        goToForm()
+        goToForm(leaving)
         return
       }
       if (status.body.destination) setAddress(status.body.destination)
@@ -89,7 +94,7 @@ export default function Page() {
     return () => {
       cancelled = true
     }
-  }, [session])
+  }, [signedIn, canSubmit])
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -102,7 +107,7 @@ export default function Page() {
     })
     setSending(false)
     if (result.status === 200 && result.body.confirmed) {
-      goToForm()
+      goToForm(leaving)
       return
     }
     setMessage(result.body.message ?? 'Código inválido.')
