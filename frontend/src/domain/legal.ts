@@ -55,7 +55,7 @@ export function legalDocument(contact: string | null): { privacy: LegalDocument;
         {
           title: 'Aviso de cookies',
           paragraphs: [
-            'tla_consent guarda aceitar ou recusar por 365 dias. O Meta Pixel só carrega depois do aceite e pode gravar cookies do próprio Meta. Recusar não limita o catálogo. Você revê a escolha em Gerenciar cookies, no rodapé.',
+            'tla_consent guarda aceitar ou recusar por 365 dias. O Meta Pixel e a tag do Google Ads só carregam depois do aceite e podem gravar cookies dos respectivos provedores. Recusar não limita o catálogo. Você revê a escolha em Gerenciar cookies, no rodapé.',
           ],
         },
         {
@@ -64,6 +64,12 @@ export function legalDocument(contact: string | null): { privacy: LegalDocument;
             'Só com o aceite, enviamos à Meta, pelo navegador e pelo servidor, o cadastro, o início e o envio de um link, a abertura do checkout, a escolha de Pix ou cartão e a compra do destaque. A compra leva valor, moeda, produto e método de pagamento.',
             'Junto vão o user-agent, os cookies _fbp e _fbc, o identificador da conta e o e-mail. Identificador e e-mail saem só como hash SHA-256, nunca em texto. Sem o aceite, nada disso é enviado.',
             'Para mandar a compra confirmada pelo provedor, o pedido guarda esse contexto do navegador até o pagamento. Ele é apagado no envio, ou em 7 dias se o pagamento não vier.',
+          ],
+        },
+        {
+          title: 'Google Ads',
+          paragraphs: [
+            'Só com o aceite, a tag do Google Ads carrega no navegador para medir visitas e campanhas de anúncios. O Google pode tratar dados de navegação e identificadores de publicidade. Ao recusar ou retirar o aceite em Gerenciar cookies, esse rastreamento não é autorizado.',
           ],
         },
         {
@@ -76,15 +82,15 @@ export function legalDocument(contact: string | null): { privacy: LegalDocument;
         {
           title: 'Finalidades',
           paragraphs: [
-            'Criar e autenticar a conta, publicar o link, enviar e-mail transacional e cobrar o destaque se apoiam na execução do contrato. A medição sem IP se apoia no legítimo interesse de operar o catálogo. O primeiro toque de campanha e o Meta Pixel se apoiam no consentimento do aviso.',
+            'Criar e autenticar a conta, publicar o link, enviar e-mail transacional e cobrar o destaque se apoiam na execução do contrato. A medição sem IP se apoia no legítimo interesse de operar o catálogo. O primeiro toque de campanha, o Meta Pixel e a tag do Google Ads se apoiam no consentimento do aviso.',
             'Moderar o texto do link se apoia no legítimo interesse de manter o catálogo lícito.',
           ],
         },
         {
           title: 'Quem mais trata',
           paragraphs: [
-            'Stripe trata o cartão. Woovi trata o Pix, no Brasil. Resend trata o e-mail. Meta trata o pixel, só depois do aceite. OpenAI trata o texto do link na edição e o embedding da busca. Não vendemos dado.',
-            'Stripe, Resend, Meta e OpenAI podem tratar dado fora do Brasil. Pagamento, e-mail e a checagem do texto existem para executar o serviço. O pixel só segue com o aceite.',
+            'Stripe trata o cartão. Woovi trata o Pix, no Brasil. Resend trata o e-mail. Meta e Google tratam as tags de publicidade, só depois do aceite. OpenAI trata o texto do link na edição e o embedding da busca. Não vendemos dado.',
+            'Stripe, Resend, Meta, Google e OpenAI podem tratar dado fora do Brasil. Pagamento, e-mail e a checagem do texto existem para executar o serviço. As tags de publicidade só seguem com o aceite.',
           ],
         },
         {

@@ -37,6 +37,7 @@ describe('texto legal', () => {
     expect(pages.privacy).toContain('Stripe')
     expect(pages.privacy).toContain('Woovi')
     expect(pages.privacy).toContain('Meta')
+    expect(pages.privacy).toContain('Google Ads')
     expect(pages.privacy).toContain('SHA-256')
     expect(pages.privacy).toContain('em 7 dias')
     expect(pages.privacy).toContain('processo diário')

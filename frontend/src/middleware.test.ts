@@ -1,11 +1,13 @@
 import { NextRequest } from 'next/server'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { config, middleware } from '@/middleware'
 
 function run(path: string, cookie?: string) {
   const headers = cookie ? { cookie } : undefined
   return middleware(new NextRequest(`http://localhost${path}`, { headers }))
 }
+
+afterEach(() => vi.unstubAllEnvs())
 
 describe('middleware', () => {
   it('não intercepta a ficha: o 404 fica na página', () => {
@@ -30,12 +32,25 @@ describe('middleware', () => {
   })
 
   it('só libera eval no servidor de desenvolvimento', () => {
-    const previous = process.env.NODE_ENV
-    process.env.NODE_ENV = 'development'
+    vi.stubEnv('NODE_ENV', 'development')
     expect(run('/').headers.get('content-security-policy')).toContain("'unsafe-eval'")
-    process.env.NODE_ENV = 'production'
+    vi.stubEnv('NODE_ENV', 'production')
     expect(run('/').headers.get('content-security-policy') ?? '').not.toContain('unsafe-eval')
-    process.env.NODE_ENV = previous
+  })
+
+  it('permite as origens da tag e das medições Google Ads sem liberar scripts inline', () => {
+    vi.stubEnv('NODE_ENV', 'production')
+    const policy = run('/').headers.get('content-security-policy') ?? ''
+    const directives = new Map(policy.split('; ').map(directive => {
+      const [name, ...sources] = directive.split(' ')
+      return [name, sources]
+    }))
+    expect(directives.get('script-src')).toContain('https://www.googletagmanager.com')
+    expect(directives.get('script-src')).toContain('https://www.googleadservices.com')
+    expect(directives.get('script-src')).not.toContain("'unsafe-inline'")
+    expect(directives.get('connect-src')).toContain('https://googleads.g.doubleclick.net')
+    expect(directives.get('img-src')).toContain('https://www.google.com.br')
+    expect(directives.get('frame-src')).toContain('https://www.googletagmanager.com')
   })
 
   it('admin sem papel continua na página escondida', () => {

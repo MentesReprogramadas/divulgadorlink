@@ -7,14 +7,16 @@ function withPath(request: NextRequest): { headers: Headers; csp: string } {
   requestHeaders.set('x-pathname', request.nextUrl.pathname)
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
   const devEval = process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''
+  const googleScripts = 'https://www.googletagmanager.com https://www.googleadservices.com https://www.google.com'
+  const googleAds = `${googleScripts} https://www.google.com.br https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com`
   const csp = [
     "default-src 'self'",
-    `script-src 'self'${devEval} 'nonce-${nonce}' https://js.stripe.com https://connect.facebook.net`,
+    `script-src 'self'${devEval} 'nonce-${nonce}' https://js.stripe.com https://connect.facebook.net ${googleScripts}`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob: https://www.facebook.com",
+    `img-src 'self' data: blob: https://www.facebook.com ${googleAds}`,
     "font-src 'self'",
-    "connect-src 'self' https://api.stripe.com https://www.facebook.com https://connect.facebook.net",
-    "frame-src https://js.stripe.com https://hooks.stripe.com",
+    `connect-src 'self' https://api.stripe.com https://www.facebook.com https://connect.facebook.net ${googleAds} https://ad.doubleclick.net`,
+    "frame-src https://js.stripe.com https://hooks.stripe.com https://www.googletagmanager.com",
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",

@@ -16,6 +16,10 @@ beforeEach(() => {
 afterEach(() => {
   cleanup()
   document.cookie = 'tla_consent=; Path=/; Max-Age=0'
+  document.getElementById('google-ads-tag')?.remove()
+  const host = window as Window & { dataLayer?: unknown[]; gtag?: unknown }
+  delete host.dataLayer
+  delete host.gtag
   vi.unstubAllGlobals()
 })
 
@@ -25,6 +29,7 @@ describe('aviso de cookies', () => {
     const banner = screen.getByRole('region', { name: 'Este site usa cookies' })
     expect(banner.className).toBe('cookie-banner')
     expect(screen.queryByRole('dialog')).toBeNull()
+    expect(document.getElementById('google-ads-tag')).toBeNull()
     screen.getByRole('link', { name: 'Buscar links' }).focus()
     expect(document.activeElement).toBe(screen.getByRole('link', { name: 'Buscar links' }))
   })
@@ -37,6 +42,7 @@ describe('aviso de cookies', () => {
     fireEvent.click(screen.getByRole('button', { name: button }))
     expect(screen.queryByRole('region', { name: 'Este site usa cookies' })).toBeNull()
     expect(document.cookie).toContain(`tla_consent=${value}`)
+    expect(document.getElementById('google-ads-tag') !== null).toBe(value === 'marketing')
     unmount()
     render(<Consent pending={false} />)
     expect(screen.queryByRole('region', { name: 'Este site usa cookies' })).toBeNull()

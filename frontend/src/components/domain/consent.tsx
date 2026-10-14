@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { trackMeta } from '@/domain/meta-pixel'
+import { installGoogleAds, setGoogleAdsConsent, trackGoogleAdsPageView } from '@/domain/google-ads'
 import { api } from '@/lib/api'
 
 type Choice = 'marketing' | 'denied' | null
@@ -85,6 +86,7 @@ export function Consent({ pending }: { pending: boolean }) {
     if (lastPath.current === pathname) return
     lastPath.current = pathname
     trackMeta('PageView')
+    trackGoogleAdsPageView()
   }, [pathname])
 
   useEffect(() => {
@@ -109,6 +111,7 @@ export function Consent({ pending }: { pending: boolean }) {
 
   useEffect(() => {
     if (choice !== 'marketing') return
+    installGoogleAds()
     let cancelled = false
     void fetch('/anuncio/pixel')
       .then((response) => response.json())
@@ -125,6 +128,7 @@ export function Consent({ pending }: { pending: boolean }) {
     const changing = choice !== null && choice !== value
     if (choice !== value) countChoice(value)
     writeConsent(value)
+    setGoogleAdsConsent(value === 'marketing')
     setChoice(value)
     setReviewing(false)
     void syncTouch().finally(() => {
@@ -140,7 +144,7 @@ export function Consent({ pending }: { pending: boolean }) {
         <div className="cookie-banner-inner">
           <div className="cookie-banner-copy">
             <h2 id="cookie-title">Este site usa cookies</h2>
-            <p id="cookie-description">Usamos cookies para o site funcionar e para lembrar suas preferências. Veja a{' '}<a href="/privacidade">Política de Privacidade</a>.</p>
+            <p id="cookie-description">Usamos cookies para o site funcionar e, com seu aceite, medir anúncios. Veja a{' '}<a href="/privacidade">Política de Privacidade</a>.</p>
           </div>
           <div className="cookie-banner-actions">
             <Button type="button" onClick={() => choose('marketing')}>Aceitar</Button>
