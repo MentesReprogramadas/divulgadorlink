@@ -75,7 +75,8 @@ export function CookieSettings() {
 export function Consent({ pending }: { pending: boolean }) {
   const [choice, setChoice] = useState<Choice | undefined>(pending ? null : undefined)
   const [reviewing, setReviewing] = useState(false)
-  const ref = useRef<HTMLDialogElement>(null)
+  const ref = useRef<HTMLElement>(null)
+  const [bannerHeight, setBannerHeight] = useState(0)
   const open = choice === null || reviewing
   const pathname = usePathname()
   const lastPath = useRef(pathname)
@@ -97,31 +98,14 @@ export function Consent({ pending }: { pending: boolean }) {
   }, [])
 
   useEffect(() => {
-    const dialog = ref.current
-    if (!dialog || choice === undefined) return
-    if (open) {
-      if (!dialog.open) {
-        try { dialog.showModal() } catch { dialog.open = true }
-      }
-    } else if (dialog.open) {
-      dialog.close()
-    }
-    function refuse(event: Event) {
-      event.preventDefault()
-      if (choice !== null) {
-        setReviewing(false)
-        return
-      }
-      writeConsent('denied')
-      setChoice('denied')
-      countChoice('denied')
-      void syncTouch()
-    }
-    dialog.addEventListener('cancel', refuse)
-    return () => {
-      dialog.removeEventListener('cancel', refuse)
-    }
-  }, [choice, open])
+    const banner = ref.current
+    if (!open || !banner) return
+    const measure = () => setBannerHeight(banner.getBoundingClientRect().height)
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(banner)
+    return () => observer.disconnect()
+  }, [open])
 
   useEffect(() => {
     if (choice !== 'marketing') return
@@ -148,16 +132,22 @@ export function Consent({ pending }: { pending: boolean }) {
     })
   }
 
+  if (!open) return null
+
   return (
-    <>
-      <dialog ref={ref} className="age-dialog" aria-labelledby="cookie-title">
-        <h2 id="cookie-title">Este site usa cookies</h2>
-        <p>Usamos cookies para o site funcionar e para lembrar suas preferências. Veja a <a href="/privacidade">Política de Privacidade</a>.</p>
-        <div className="age-dialog-actions">
-          <Button type="button" onClick={() => choose('marketing')}>Aceitar</Button>
-          <Button type="button" variant="secondary" onClick={() => choose('denied')}>Recusar</Button>
+    <div className="cookie-consent" style={{ height: bannerHeight || undefined }}>
+      <section ref={ref} className="cookie-banner" aria-labelledby="cookie-title" aria-describedby="cookie-description">
+        <div className="cookie-banner-inner">
+          <div className="cookie-banner-copy">
+            <h2 id="cookie-title">Este site usa cookies</h2>
+            <p id="cookie-description">Usamos cookies para o site funcionar e para lembrar suas preferências. Veja a{' '}<a href="/privacidade">Política de Privacidade</a>.</p>
+          </div>
+          <div className="cookie-banner-actions">
+            <Button type="button" onClick={() => choose('marketing')}>Aceitar</Button>
+            <Button type="button" variant="secondary" onClick={() => choose('denied')}>Recusar</Button>
+          </div>
         </div>
-      </dialog>
-    </>
+      </section>
+    </div>
   )
 }
