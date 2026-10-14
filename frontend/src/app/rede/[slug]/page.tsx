@@ -33,7 +33,7 @@ export async function generateMetadata({
   const loaded = await loadCatalog(apiPath(slug, oneSlug(query.nicho)))
   if (loaded.status === 404) notFound()
   const body = loaded.body as RedeBody | null
-  if (!body?.seo?.canonical) return { title: 'Tem Link Aqui', robots: { index: false, follow: false } }
+  if (!body?.seo?.canonical) throw new Error('Network SEO missing')
   return metadataFromSeo(body.seo)
 }
 

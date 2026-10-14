@@ -119,13 +119,15 @@ describe('contratos HTTP da vitrine', () => {
       title: 'Jogos | Tem Link Aqui',
       description: 'Links de Jogos organizados por rede.',
       canonical: 'https://temlinkaqui.com/nicho/jogos',
-      robots: 'noindex,follow',
+      robots: 'index,follow',
     })
     expect(niche.json().heading).toBe('Jogos')
-    expect(niche.json().seo.structuredData).toBeUndefined()
+    expect(niche.json().seo.structuredData['@graph']).toEqual(expect.arrayContaining([
+      expect.objectContaining({ '@type': 'CollectionPage' }),
+    ]))
     expect(network.json().seo).toMatchObject({
       title: 'Telegram | Tem Link Aqui',
-      robots: 'noindex,follow',
+      robots: 'index,follow',
     })
     const filtered = await app.inject({ method: 'GET', url: '/api/v1/niches/jogos?network=telegram', headers: { host: HOST } })
     expect(filtered.json().seo).toMatchObject({
@@ -186,7 +188,7 @@ describe('contratos HTTP da vitrine', () => {
     expect(open.json().goPath).toContain('/go/link-publico?surfaceToken=')
     expect(open.json().seo).toMatchObject({
       canonical: 'https://temlinkaqui.com/link/link-publico',
-      robots: 'noindex,follow',
+      robots: 'index,follow',
     })
     expect(readSurface(TENANT, published.id, open.json().surfaceToken, SECRET)).toBe('organic')
     expect(JSON.stringify(open.json())).not.toMatch(/t\.me\/secreto|ownerId|tenantId|Banido|motivo/)
@@ -242,7 +244,7 @@ describe('contratos HTTP da vitrine', () => {
     expect(page.json().seo.robots).toBe('noindex,nofollow')
   })
 
-  it('faceta e link entram juntos quando há substância, e 18+ continua fora', async () => {
+  it('faceta e links públicos entram mesmo com texto curto, e 18+ continua fora', async () => {
     const fat = 'c'.repeat(80)
     const niche = repo().niches.find((row) => row.id === 'niche-jogos')!
     niche.summary = fat
@@ -279,8 +281,8 @@ describe('contratos HTTP da vitrine', () => {
     })
     const thin = await app.inject({ method: 'GET', url: '/api/v1/links/link-fino', headers: { host: HOST } })
     expect(thin.statusCode).toBe(200)
-    expect(thin.json().seo.robots).toBe('noindex,follow')
-    expect(thin.json().seo.structuredData).toBeUndefined()
+    expect(thin.json().seo.robots).toBe('index,follow')
+    expect(thin.json().seo.structuredData).toBeDefined()
     const adultNiche = repo().niches.find((row) => row.id === 'niche-apostas')!
     adultNiche.summary = fat
     const adult = await app.inject({ method: 'GET', url: '/api/v1/niches/apostas', headers: { host: HOST, cookie: 'age=yes' } })
@@ -288,25 +290,16 @@ describe('contratos HTTP da vitrine', () => {
     const map = await app.inject({ method: 'GET', url: '/api/v1/sitemap', headers: { host: HOST } })
     const paths = map.json().entries.map((row: { path: string }) => row.path)
     expect(paths).toEqual(expect.arrayContaining(['/', '/nicho/jogos', '/link/link-gordo']))
-    expect(paths).not.toContain('/link/link-fino')
+    expect(paths).toContain('/link/link-fino')
     expect(paths).not.toContain('/nicho/apostas')
     expect(map.json().entries.find((row: { path: string }) => row.path === '/nicho/jogos').updatedAt)
       .toBe(niche.updatedAt.toISOString())
   })
 
-  it('faceta indexável inclui o card substantivo no ItemList sem surfaceToken', async () => {
-    const fat = 'd'.repeat(80)
-    const niche = repo().niches.find((row) => row.id === 'niche-jogos')!
-    niche.summary = fat
-    for (const id of ['a', 'b', 'c']) {
-      repo().addLink({
-        id: `base-${id}`, tenantId: TENANT, ownerId: 'ana', status: 'PUBLISHED',
-        name: `Base ${id}`, description: fat, nicheId: 'niche-jogos', networkId: 'net-telegram',
-      })
-    }
+  it('faceta indexável inclui o card curto no ItemList sem surfaceToken', async () => {
     setCatalogLinksForTest([
       {
-        id: 'card-gordo', name: 'Receitas', description: fat, relevance: 1, requiresAge: false,
+        id: 'card-gordo', name: 'Receitas', description: 'Bolos', relevance: 1, requiresAge: false,
         nicheSlug: 'jogos', networkSlug: 'telegram', homeActivatedAt: null, nicheActivatedAt: null,
       },
     ])
@@ -320,7 +313,7 @@ describe('contratos HTTP da vitrine', () => {
     expect(JSON.stringify(list)).not.toContain('surfaceToken')
   })
 
-  it('sitemap lista só a home quando a faceta e o link são finos, e esconde 18+, indisponível e banido', async () => {
+  it('sitemap inclui facetas e links curtos, e esconde 18+, indisponível e banido', async () => {
     repo().addLink({ id: 'link-publico', tenantId: TENANT, ownerId: 'ana', status: 'PUBLISHED', name: 'Receitas', description: 'bolos', nicheId: 'niche-jogos' })
     repo().addLink({ id: 'link-adulto', tenantId: TENANT, ownerId: 'ana', status: 'PUBLISHED', name: 'Oculto', description: 'x', nicheId: 'niche-apostas' })
     repo().addLink({ id: 'link-off', tenantId: TENANT, ownerId: 'ana', status: 'UNAVAILABLE', name: 'Fora', description: 'x' })
@@ -329,8 +322,8 @@ describe('contratos HTTP da vitrine', () => {
     const response = await app.inject({ method: 'GET', url: '/api/v1/sitemap', headers: { host: HOST } })
     expect(response.statusCode).toBe(200)
     const paths = response.json().entries.map((row: { path: string }) => row.path)
-    expect(paths).toEqual(['/', '/privacidade', '/termos'])
-    for (const hidden of ['/nicho/jogos', '/rede/telegram', '/link/link-publico', '/nicho/apostas', '/rede/outro', '/link/link-adulto', '/link/link-off', '/link/link-ban']) {
+    expect(paths).toEqual(expect.arrayContaining(['/', '/nicho/jogos', '/rede/telegram', '/link/link-publico', '/privacidade', '/termos']))
+    for (const hidden of ['/nicho/apostas', '/rede/outro', '/link/link-adulto', '/link/link-off', '/link/link-ban']) {
       expect(paths).not.toContain(hidden)
     }
     expect(JSON.stringify(response.json())).not.toMatch(/t\.me|ownerId|Oculto|Banido/)

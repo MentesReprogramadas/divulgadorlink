@@ -61,6 +61,7 @@ const loadLink = cache(async (id: string): Promise<{ status: number; link: Publi
     host: tenantHost(hostHeader.split(':')[0] || 'localhost'),
   })
   if (result.status === 404) return { status: 404, link: null }
+  if (result.status !== 200) throw new Error(`Link upstream returned ${result.status}`)
   return { status: result.status, link: JSON.parse(result.body.toString()) as PublicLink }
 })
 

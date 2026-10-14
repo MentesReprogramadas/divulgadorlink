@@ -3,7 +3,7 @@ import { env } from '@/env'
 import { readSurface } from '@/domain/analytics/surface-token'
 import { recordClick } from '@/http/controllers/@Analytics/routes'
 import { buildError, not_found } from '@/http/errors'
-import { resolveTenant } from '@/http/tenant'
+import { normalizeTenantHost, resolveTenant } from '@/http/tenant'
 import { getLinksRepository } from '@/repositories/links-repository'
 import { publicLinkView } from '@/http/public-link-view'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
@@ -15,10 +15,11 @@ function hostFromRequest(request: FastifyRequest): string {
   if (!raw) {
     throw new ResourceNotFoundError()
   }
-  return raw.split(':')[0]!
+  return normalizeTenantHost(raw)
 }
 
 async function goToLink(request: FastifyRequest<{ Params: GoParams }>, reply: FastifyReply) {
+  reply.header('x-robots-tag', 'noindex, nofollow')
   const notFound = () =>
     reply.status(404).send(
       buildError({

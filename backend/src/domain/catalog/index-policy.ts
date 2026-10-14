@@ -1,4 +1,3 @@
-export const MIN_LINKS = 3
 export const MIN_TEXT = 80
 export const MAX_SUMMARY = 500
 
@@ -25,18 +24,13 @@ export function parseSummary(value: string | null): { ok: true; summary: string 
 export function facetIndexable(input: {
   isPublicFacet: boolean
   requiresAge: boolean
-  summary: string | null
-  substantiveCount: number
 }): boolean {
-  if (!input.isPublicFacet || input.requiresAge) return false
-  return input.substantiveCount >= MIN_LINKS
+  return input.isPublicFacet && !input.requiresAge
 }
 
 export function facetRobots(input: {
   isPublicFacet: boolean
   requiresAge: boolean
-  summary: string | null
-  substantiveCount: number
   filtered: boolean
 }): Robots {
   if (!input.isPublicFacet || input.requiresAge) return 'noindex,nofollow'
@@ -44,14 +38,9 @@ export function facetRobots(input: {
   return 'index,follow'
 }
 
-export function linkRobots(input: {
-  substantive: boolean
-  nicheIndexable: boolean
-  blocked: boolean
-}): Robots {
+export function linkRobots(input: { blocked: boolean }): Robots {
   if (input.blocked) return 'noindex,nofollow'
-  if (input.substantive && input.nicheIndexable) return 'index,follow'
-  return 'noindex,follow'
+  return 'index,follow'
 }
 
 export function documentTitle(kind: 'home' | 'named', name: string, tenant: string): string {

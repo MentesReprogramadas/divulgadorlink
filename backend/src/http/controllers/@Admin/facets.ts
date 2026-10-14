@@ -45,8 +45,6 @@ function toFacetRow(row: FacetRecord, count: number) {
     indexable: facetIndexable({
       isPublicFacet: row.isPublicFacet,
       requiresAge,
-      summary: row.summary,
-      substantiveCount: count,
     }),
   }
 }

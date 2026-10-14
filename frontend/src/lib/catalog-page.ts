@@ -8,18 +8,15 @@ export const loadCatalog = cache(async (path: string): Promise<CatalogResponse> 
   const hostHeader = (await headers()).get('host') ?? 'localhost'
   const age = (await cookies()).get('age')?.value
   const cookie = age === 'yes' || age === 'no' ? `age=${age}` : undefined
-  try {
-    const result = await forward({
-      method: 'GET',
-      path,
-      host: tenantHost(hostHeader.split(':')[0] || 'localhost'),
-      cookie,
-    })
-    if (result.status !== 200) return { status: result.status, body: null }
-    return { status: 200, body: JSON.parse(result.body.toString()) }
-  } catch {
-    return { status: 503, body: null }
-  }
+  const result = await forward({
+    method: 'GET',
+    path,
+    host: tenantHost(hostHeader.split(':')[0] || 'localhost'),
+    cookie,
+  })
+  if (result.status === 404) return { status: 404, body: null }
+  if (result.status !== 200) throw new Error(`Catalog upstream returned ${result.status}`)
+  return { status: 200, body: JSON.parse(result.body.toString()) }
 })
 
 export function oneSlug(value: string | string[] | undefined): string | null {

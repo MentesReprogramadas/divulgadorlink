@@ -173,7 +173,7 @@ export interface LinksRepository {
     niches: Array<{ id: string; count: number }>
     networks: Array<{ id: string; count: number }>
   }>
-  listSubstantiveSitemapLinks(tenantId: string): Promise<SitemapLinkRef[]>
+  listPublicSitemapLinks(tenantId: string): Promise<SitemapLinkRef[]>
   updateFacetSummary(input: {
     kind: 'niche' | 'network'
     id: string
@@ -361,8 +361,16 @@ export class InMemoryLinksRepository implements LinksRepository {
     return groupFacetCounts(this.substantiveLinks(tenantId))
   }
 
-  async listSubstantiveSitemapLinks(tenantId: string): Promise<SitemapLinkRef[]> {
-    return this.substantiveLinks(tenantId)
+  async listPublicSitemapLinks(tenantId: string): Promise<SitemapLinkRef[]> {
+    return this.links.filter((link) => {
+      if (link.tenantId !== tenantId || link.status !== 'PUBLISHED') return false
+      if (link.ownerId !== null) {
+        const owner = this.users.find((user) => user.id === link.ownerId && user.tenantId === tenantId)
+        if (!owner || owner.status === 'BANNED') return false
+      }
+      const niche = this.niches.find((row) => row.id === link.nicheId && row.tenantId === tenantId)
+      return niche?.isPublicFacet === true && !niche.requiresAge
+    })
       .sort((left, right) => right.updatedAt.getTime() - left.updatedAt.getTime())
       .slice(0, SITEMAP_LINK_CAP)
       .map((link) => ({ id: link.id, nicheId: link.nicheId, updatedAt: link.updatedAt }))
@@ -617,13 +625,18 @@ export class PrismaLinksRepository implements LinksRepository {
     }
   }
 
-  async listSubstantiveSitemapLinks(tenantId: string): Promise<SitemapLinkRef[]> {
+  async listPublicSitemapLinks(tenantId: string): Promise<SitemapLinkRef[]> {
     const rows = await this.client.$queryRaw<Array<{ id: string; nicheId: string; updatedAt: Date }>>`
       SELECT l.id, l."nicheId", l."updatedAt"
       FROM links l
       JOIN niches n ON n.id = l."nicheId"
       LEFT JOIN users u ON u.id = l."ownerId"
-      WHERE ${substantiveLinkFilter(tenantId)}
+      WHERE l."tenantId" = ${tenantId}
+        AND l.status = 'PUBLISHED'
+        AND n."tenantId" = ${tenantId}
+        AND n."isPublicFacet" = true
+        AND n."requiresAge" = false
+        AND (l."ownerId" IS NULL OR (u."tenantId" = ${tenantId} AND u.status <> 'BANNED'))
       ORDER BY l."updatedAt" DESC
       LIMIT ${SITEMAP_LINK_CAP}
     `

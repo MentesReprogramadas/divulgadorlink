@@ -10,28 +10,22 @@ export type SitemapEntry = { path: string; updatedAt: string }
 
 export async function indexableEntries(tenantId: string): Promise<SitemapEntry[]> {
   const repo = getLinksRepository()
-  const [niches, networks, counts, links] = await Promise.all([
+  const [niches, networks, links] = await Promise.all([
     repo.listNiches(tenantId),
     repo.listNetworks(tenantId),
-    repo.substantiveCounts(tenantId),
-    repo.listSubstantiveSitemapLinks(tenantId),
+    repo.listPublicSitemapLinks(tenantId),
   ])
-  return entriesFrom(niches, networks, counts, links)
+  return entriesFrom(niches, networks, links)
 }
 
 export function entriesFrom(
   niches: NicheRecord[],
   networks: NetworkRecord[],
-  counts: { niches: Array<{ id: string; count: number }>; networks: Array<{ id: string; count: number }> },
   links: SitemapLinkRef[],
 ): SitemapEntry[] {
-  const nicheCount = new Map(counts.niches.map((row) => [row.id, row.count]))
-  const networkCount = new Map(counts.networks.map((row) => [row.id, row.count]))
   const nicheOk = new Map(niches.map((row) => [row.id, facetIndexable({
     isPublicFacet: row.isPublicFacet,
     requiresAge: row.requiresAge,
-    summary: row.summary,
-    substantiveCount: nicheCount.get(row.id) ?? 0,
   })]))
   const indexableLinks = links.filter((link) => nicheOk.get(link.nicheId) === true)
   const latest = indexableLinks.reduce<Date | null>(
@@ -51,8 +45,6 @@ export function entriesFrom(
     const ok = facetIndexable({
       isPublicFacet: network.isPublicFacet,
       requiresAge: network.requiresAge === true,
-      summary: network.summary,
-      substantiveCount: networkCount.get(network.id) ?? 0,
     })
     if (!ok) continue
     entries.push({ path: `/rede/${encodeURIComponent(network.slug)}`, updatedAt: network.updatedAt.toISOString() })

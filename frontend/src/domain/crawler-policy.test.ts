@@ -1,13 +1,22 @@
 import { describe, expect, it } from 'vitest'
-import { metadataFromSeo, PRIVATE_PATHS, sitemapUrls } from '@/domain/crawler-policy'
+import { metadataFromSeo, PRIVATE_PATHS, publicHost, requestHost, searchMetadata, sitemapUrls } from '@/domain/crawler-policy'
 import { jsonLdScript } from '@/domain/json-ld'
 import { homeStructuredData } from '@/domain/home-structured-data'
 
 describe('política de rastreio', () => {
-  it('marca conta, busca e painel como fora do índice', () => {
+  it('bloqueia áreas privadas, mas deixa o redirect rastreável com noindex próprio', () => {
     expect(PRIVATE_PATHS).toEqual(expect.arrayContaining([
-      '/painel', '/admin', '/login', '/cadastro', '/busca', '/esqueci-senha', '/recuperar-senha', '/nao-encontrado', '/bff', '/go',
+      '/painel', '/admin', '/login', '/cadastro', '/esqueci-senha', '/recuperar-senha', '/nao-encontrado', '/bff',
     ]))
+    expect(PRIVATE_PATHS).not.toContain('/go')
+    expect(PRIVATE_PATHS).not.toContain('/busca')
+    expect(searchMetadata.robots).toEqual({ index: false, follow: true })
+  })
+
+  it('normaliza o host público para sitemap e robots', () => {
+    expect(requestHost('WWW.TemLinkAqui.com:443', 'localhost')).toBe('temlinkaqui.com')
+    expect(publicHost('links.temlinkaqui.com')).toBe('temlinkaqui.com')
+    expect(publicHost('www.outro.example')).toBe('www.outro.example')
   })
 
   it('monta o canonical a partir do robots da API', () => {

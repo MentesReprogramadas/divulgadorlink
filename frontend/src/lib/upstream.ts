@@ -1,8 +1,9 @@
 import { request as httpRequest } from 'node:http'
 import { request as httpsRequest } from 'node:https'
+import { publicHost } from '@/domain/crawler-policy'
 
 export function tenantHost(fallback: string): string {
-  return process.env.TENANT_HOST || fallback
+  return publicHost(process.env.TENANT_HOST || fallback)
 }
 
 export function forward(input: {

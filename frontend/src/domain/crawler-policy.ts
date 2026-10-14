@@ -5,16 +5,18 @@ export const PRIVATE_PATHS = [
   '/admin',
   '/login',
   '/cadastro',
-  '/busca',
   '/esqueci-senha',
   '/recuperar-senha',
   '/nao-encontrado',
   '/bff',
-  '/go',
 ]
 
 export const privateMetadata: Metadata = {
   robots: { index: false, follow: false },
+}
+
+export const searchMetadata: Metadata = {
+  robots: { index: false, follow: true },
 }
 
 type PublicSeo = {
@@ -49,5 +51,11 @@ export function sitemapUrls(
 
 export function requestHost(forwardedHost: string | null, host: string | null): string {
   const raw = (forwardedHost || host || 'localhost').split(',')[0]?.trim() || 'localhost'
-  return raw.split(':')[0] || 'localhost'
+  return publicHost(raw)
+}
+
+export function publicHost(raw: string): string {
+  const normalized = raw.trim().toLowerCase().split(':')[0] || 'localhost'
+  if (normalized === 'www.temlinkaqui.com' || normalized === 'links.temlinkaqui.com') return 'temlinkaqui.com'
+  return normalized
 }

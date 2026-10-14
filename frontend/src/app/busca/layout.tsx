@@ -1,6 +1,6 @@
-import { privateMetadata } from '@/domain/crawler-policy'
+import { searchMetadata } from '@/domain/crawler-policy'
 
-export const metadata = privateMetadata
+export const metadata = searchMetadata
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return children

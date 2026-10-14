@@ -45,6 +45,7 @@ describe('GET /go/:linkId', () => {
 
     expect(response.statusCode).toBe(302)
     expect(response.headers.location).toBe('https://t.me/grupo-oficial')
+    expect(response.headers['x-robots-tag']).toBe('noindex, nofollow')
     const analytics = getAnalyticsRepository()
     if (!(analytics instanceof RecordingAnalyticsRepository)) throw new Error('repositório de analytics em memória esperado')
     expect(analytics.rows.filter((row) => row.linkId === link.id && row.kind === 'CLICK')).toEqual([])

@@ -7,7 +7,6 @@ import { HomeExplore } from '@/components/domain/facet-filters'
 import { HomeMore } from '@/components/domain/home-more'
 import { HomeSearch } from '@/components/domain/home-search'
 import { EmptyState } from '@/components/feedback/empty-state'
-import { ErrorState } from '@/components/feedback/error-state'
 import { metadataFromSeo } from '@/domain/crawler-policy'
 import { homeStructuredData } from '@/domain/home-structured-data'
 import { jsonLdScript } from '@/domain/json-ld'
@@ -34,25 +33,20 @@ type Home = {
   organic: Card[]
 }
 
-const loadHome = cache(async (cursor = ''): Promise<Home | null> => {
+const loadHome = cache(async (cursor = ''): Promise<Home> => {
   const hostHeader = (await headers()).get('host') ?? 'localhost'
   const query = cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''
-  try {
-    const result = await forward({
-      method: 'GET',
-      path: `/api/v1/home${query}`,
-      host: tenantHost(hostHeader.split(':')[0] || 'localhost'),
-    })
-    if (result.status !== 200) return null
-    return JSON.parse(result.body.toString()) as Home
-  } catch {
-    return null
-  }
+  const result = await forward({
+    method: 'GET',
+    path: `/api/v1/home${query}`,
+    host: tenantHost(hostHeader.split(':')[0] || 'localhost'),
+  })
+  if (result.status !== 200) throw new Error(`Home upstream returned ${result.status}`)
+  return JSON.parse(result.body.toString()) as Home
 })
 
 export async function generateMetadata(): Promise<Metadata> {
   const home = await loadHome()
-  if (!home) return { title: 'Tem Link Aqui' }
   return metadataFromSeo(home.seo)
 }
 
@@ -74,7 +68,6 @@ function SponsoredSpot({ row, showImpressions }: { row: Card; showImpressions: b
 export default async function Page({ searchParams }: { searchParams: Promise<{ cursor?: string }> }) {
   const cursor = (await searchParams).cursor ?? ''
   const home = await loadHome(cursor)
-  if (!home) return <main><ErrorState /></main>
   const showImpressions = home.showImpressions !== false
   const leftSponsored = home.sponsored.filter((_, index) => index % 2 === 0)
   const rightSponsored = home.sponsored.filter((_, index) => index % 2 === 1)

@@ -1,5 +1,7 @@
 import { tenantHost, forward } from '@/lib/upstream'
 
+const noindex = { 'x-robots-tag': 'noindex, nofollow' }
+
 export async function GET(request: Request, context: { params: Promise<{ linkId: string }> }) {
   const params = await context.params
   const url = new URL(request.url)
@@ -12,10 +14,10 @@ export async function GET(request: Request, context: { params: Promise<{ linkId:
   })
   const location = result.headers.location
   if (typeof location === 'string' && result.status >= 300 && result.status < 400) {
-    return Response.redirect(location, result.status)
+    return new Response(null, { status: result.status, headers: { ...noindex, location } })
   }
   return new Response(new Uint8Array(result.body), {
     status: result.status,
-    headers: { 'content-type': String(result.headers['content-type'] ?? 'application/json') },
+    headers: { ...noindex, 'content-type': String(result.headers['content-type'] ?? 'application/json') },
   })
 }

@@ -19,31 +19,24 @@ describe('régua de índice', () => {
     expect(substantiveText(fat, `  ${fat}  `)).toBe(false)
   })
 
-  it('faceta só entra com 3 links substantivos', () => {
-    const base = { isPublicFacet: true, requiresAge: false, summary: null, substantiveCount: 2 }
-    const open = { ...base, substantiveCount: 3, filtered: false }
-    expect(facetIndexable(base)).toBe(false)
-    expect(facetIndexable({ ...base, substantiveCount: 3 })).toBe(true)
-    expect(facetIndexable({ ...base, substantiveCount: 0, summary: fat })).toBe(false)
-    expect(facetIndexable({ ...base, substantiveCount: 3, summary: fat })).toBe(true)
-    expect(facetRobots({ ...open, substantiveCount: 0, summary: fat })).toBe('noindex,follow')
-    expect(facetIndexable({ ...base, substantiveCount: 9, summary: fat, requiresAge: true })).toBe(false)
-    expect(facetIndexable({ ...base, substantiveCount: 9, isPublicFacet: false })).toBe(false)
+  it('faceta pública independe de quantidade de links e tamanho do resumo', () => {
+    const base = { isPublicFacet: true, requiresAge: false }
+    expect(facetIndexable(base)).toBe(true)
+    expect(facetIndexable({ ...base, requiresAge: true })).toBe(false)
+    expect(facetIndexable({ ...base, isPublicFacet: false })).toBe(false)
   })
 
-  it('separa fino, filtrado e bloqueado', () => {
-    const open = { isPublicFacet: true, requiresAge: false, summary: null, substantiveCount: 3, filtered: false }
+  it('separa público, filtrado e bloqueado', () => {
+    const open = { isPublicFacet: true, requiresAge: false, filtered: false }
     expect(facetRobots(open)).toBe('index,follow')
-    expect(facetRobots({ ...open, substantiveCount: 2 })).toBe('noindex,follow')
     expect(facetRobots({ ...open, filtered: true })).toBe('noindex,follow')
     expect(facetRobots({ ...open, requiresAge: true })).toBe('noindex,nofollow')
+    expect(facetRobots({ ...open, isPublicFacet: false })).toBe('noindex,nofollow')
   })
 
-  it('link só entra com nicho indexável e texto substantivo', () => {
-    expect(linkRobots({ substantive: true, nicheIndexable: true, blocked: false })).toBe('index,follow')
-    expect(linkRobots({ substantive: false, nicheIndexable: true, blocked: false })).toBe('noindex,follow')
-    expect(linkRobots({ substantive: true, nicheIndexable: false, blocked: false })).toBe('noindex,follow')
-    expect(linkRobots({ substantive: true, nicheIndexable: true, blocked: true })).toBe('noindex,nofollow')
+  it('link público entra sem exigência de tamanho do texto', () => {
+    expect(linkRobots({ blocked: false })).toBe('index,follow')
+    expect(linkRobots({ blocked: true })).toBe('noindex,nofollow')
   })
 
   it('título, resumo e frase automática', () => {

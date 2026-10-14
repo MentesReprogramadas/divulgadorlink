@@ -3,7 +3,7 @@ import https from 'node:https'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
 import { signSurface } from '@/domain/analytics/surface-token'
-import { documentTitle, facetIndexable, linkRobots, substantiveText } from '@/domain/catalog/index-policy'
+import { documentTitle, facetIndexable, linkRobots } from '@/domain/catalog/index-policy'
 import { hitsBlocklist } from '@/domain/links/blocklist'
 import { assertPublicHttps, safeFetch, type SafeFetchDeps } from '@/adapters/http/safe-fetch'
 import { canonicalUrl } from '@/domain/links/canonical-url'
@@ -16,7 +16,7 @@ import { DuplicateLinkError, getLinksRepository } from '@/repositories/links-rep
 import { env } from '@/env'
 import { buildError, business_rule, forbidden, not_found, validation } from '@/http/errors'
 import { verifyJWT } from '@/http/middlewares/verify-jwt'
-import { resolveTenant } from '@/http/tenant'
+import { normalizeTenantHost, resolveTenant } from '@/http/tenant'
 import {
   canSubmitLink,
   confirmationFlags,
@@ -26,7 +26,6 @@ import {
   PrismaConfirmCodesRepository,
 } from '@/use-cases/@Auth/confirm-identifier'
 import { compare, hash } from 'bcryptjs'
-import { prisma } from '@/lib/prisma'
 import { UserAlreadyExistsError } from '@/use-cases/errors/user-already-exists-error'
 import { enqueueTextProposal } from '@/adapters/queues/enqueue-text-proposal'
 import { enqueueModeration } from '@/adapters/queues/enqueue-moderation'
@@ -197,7 +196,7 @@ function hostFromRequest(request: FastifyRequest): string {
   if (!raw) {
     throw new ResourceNotFoundError()
   }
-  return raw.split(':')[0]!
+  return normalizeTenantHost(raw)
 }
 
 function toCanonicalUrl(raw: string): string | null {
@@ -456,20 +455,17 @@ async function getPublicLink(request: FastifyRequest, reply: FastifyReply) {
           tenantName: tenant.name,
           nicheName: '',
           nicheSlug: '',
-          robots: linkRobots({ blocked: true, substantive: false, nicheIndexable: false }),
+          robots: linkRobots({ blocked: true }),
         }),
       })
     }
-    const [network, niche, counts] = await Promise.all([
+    const [network, niche] = await Promise.all([
       repo.findNetwork(tenant.id, link.networkId),
       repo.findNiche(tenant.id, link.nicheId),
-      repo.substantiveCounts(tenant.id),
     ])
     const nicheIndexable = niche ? facetIndexable({
       isPublicFacet: niche.isPublicFacet,
       requiresAge: niche.requiresAge,
-      summary: niche.summary,
-      substantiveCount: counts.niches.find((row) => row.id === niche.id)?.count ?? 0,
     }) : false
     const surfaceToken = signSurface(tenant.id, link.id, 'organic', env.JWT_SECRET)
     return reply.status(200).send({
@@ -490,9 +486,7 @@ async function getPublicLink(request: FastifyRequest, reply: FastifyReply) {
         nicheName: niche?.name ?? '',
         nicheSlug: niche?.slug ?? '',
         robots: linkRobots({
-          substantive: substantiveText(link.name, link.description),
-          nicheIndexable,
-          blocked: niche?.requiresAge === true,
+          blocked: !nicheIndexable,
         }),
       }),
     })

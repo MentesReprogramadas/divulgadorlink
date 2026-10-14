@@ -5,13 +5,12 @@ import {
   facetBlurb,
   facetIndexable,
   facetRobots,
-  substantiveText,
   type Robots,
 } from '@/domain/catalog/index-policy'
 import { PUBLIC_LINK_FILTER } from '@/domain/catalog/public-link'
 import { env } from '@/env'
 import { buildError, not_found } from '@/http/errors'
-import { resolveTenant } from '@/http/tenant'
+import { normalizeTenantHost, resolveTenant } from '@/http/tenant'
 import { prisma } from '@/lib/prisma'
 import { impressionsEnabled } from '@/domain/config/read-config'
 import { getAnalyticsRepository } from '@/repositories/analytics-repository'
@@ -53,7 +52,7 @@ async function publicImpressions(tenantId: string): Promise<boolean> {
 function hostFromRequest(request: FastifyRequest): string {
   const raw = request.headers.host
   if (!raw) throw new ResourceNotFoundError()
-  return raw.split(':')[0]!
+  return normalizeTenantHost(raw)
 }
 
 function ageFromCookie(request: FastifyRequest): 'yes' | 'no' | 'unknown' {
@@ -84,7 +83,7 @@ function card(tenantId: string, row: CardSource, origin: AnalyticsOrigin) {
 }
 
 function cardIndexable(row: CardSource, nicheOkBySlug: Map<string, boolean>): boolean {
-  return nicheOkBySlug.get(row.nicheSlug ?? '') === true && substantiveText(row.name, row.description)
+  return nicheOkBySlug.get(row.nicheSlug ?? '') === true
 }
 
 async function counted(
@@ -102,20 +101,15 @@ async function counted(
 }
 
 async function indexSnapshot(tenantId: string) {
-  const [niches, networks, counts] = await Promise.all([
+  const [niches, networks] = await Promise.all([
     getLinksRepository().listNiches(tenantId),
     getLinksRepository().listNetworks(tenantId),
-    getLinksRepository().substantiveCounts(tenantId),
   ])
-  const nicheCount = new Map(counts.niches.map((row) => [row.id, row.count]))
-  const networkCount = new Map(counts.networks.map((row) => [row.id, row.count]))
   const nicheOk = new Map(niches.map((row) => [row.id, facetIndexable({
     isPublicFacet: row.isPublicFacet,
     requiresAge: row.requiresAge,
-    summary: row.summary,
-    substantiveCount: nicheCount.get(row.id) ?? 0,
   })]))
-  return { niches, networks, nicheCount, networkCount, nicheOk }
+  return { niches, networks, nicheOk }
 }
 
 const HOME_DESCRIPTION = 'Links, comunidades e serviços organizados por tema e rede.'
@@ -353,14 +347,9 @@ async function getFacet(
     const description = facetBlurb(kind, facet.name, requiresAge && age !== 'yes' ? null : facet.summary)
     const path = facetPath(kind, slug)
     const canonical = `https://${host}${path}`
-    const substantiveCount = kind === 'niche'
-      ? (snapshot.nicheCount.get(facet.id) ?? 0)
-      : (snapshot.networkCount.get(facet.id) ?? 0)
     const robots = facetRobots({
       isPublicFacet: facet.isPublicFacet,
       requiresAge: ageRestricted,
-      summary: facet.summary,
-      substantiveCount,
       filtered,
     })
     const facetSeo = (indexableIds: string[]) => seo({

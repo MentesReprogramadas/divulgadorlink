@@ -4,7 +4,7 @@ import type { NicheRecord, NetworkRecord, SitemapLinkRef } from '@/repositories/
 
 const updated = new Date('2026-10-06T00:00:00.000Z')
 
-function niche(countReady = false): NicheRecord {
+function niche(): NicheRecord {
   return {
     id: 'niche-jogos',
     tenantId: 't',
@@ -36,12 +36,20 @@ describe('lastmod da home', () => {
     const withLink = entriesFrom(
       [niche()],
       [network()],
-      { niches: [{ id: 'niche-jogos', count: 3 }], networks: [{ id: 'net-telegram', count: 3 }] },
       [link],
     )
     expect(withLink[0]).toEqual({ path: '/', updatedAt: '2026-10-06T00:00:00.000Z' })
-    const empty = entriesFrom([niche()], [network()], { niches: [], networks: [] }, [])
+    const empty = entriesFrom([niche()], [network()], [])
     expect(empty[0]).toEqual({ path: '/', updatedAt: '' })
     expect(empty[0]?.updatedAt).not.toBe(new Date().toISOString())
+  })
+
+  it('inclui facetas públicas mesmo sem links e exclui facetas privadas e 18+', () => {
+    const entries = entriesFrom(
+      [niche(), { ...niche(), id: 'adult', slug: 'adulto', requiresAge: true }, { ...niche(), id: 'private', slug: 'privado', isPublicFacet: false }],
+      [network(), { ...network(), id: 'private-network', slug: 'privada', isPublicFacet: false }],
+      [{ id: 'hidden', nicheId: 'adult', updatedAt: updated }],
+    )
+    expect(entries.map((entry) => entry.path)).toEqual(['/', '/privacidade', '/termos', '/nicho/jogos', '/rede/telegram'])
   })
 })

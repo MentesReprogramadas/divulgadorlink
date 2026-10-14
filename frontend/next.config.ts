@@ -5,6 +5,14 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   allowedDevOrigins: ['tenant-a.localhost', 'tenant-b.localhost', 'localhost', '192.168.15.56', 'temlinkaqui.com', `divulguelinkaqui.com.br`],
+  async redirects() {
+    return [{
+      source: '/:path*',
+      has: [{ type: 'host', value: '(www|links)\\.temlinkaqui\\.com' }],
+      destination: 'https://temlinkaqui.com/:path*',
+      permanent: true,
+    }]
+  },
   async headers() {
     return [
       {
