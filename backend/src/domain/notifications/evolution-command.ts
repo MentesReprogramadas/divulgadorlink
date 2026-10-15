@@ -31,13 +31,20 @@ export function matchesReference(ref: string, id: string, secret: string): boole
   return secretEquals(ref, actionReference(id, secret))
 }
 
+const contextInfoSchema = z.object({
+  stanzaId: z.string().min(1).max(200).optional(),
+  isForwarded: z.boolean().optional(),
+  forwardingScore: z.number().optional(),
+}).passthrough()
+
 const envelope = z.object({
   event: z.string(), instance: z.string(),
   data: z.object({
     key: z.object({ id: z.string().min(1).max(200), remoteJid: z.string(), fromMe: z.boolean(), participant: z.string().optional(), participantAlt: z.string().optional() }),
     messageTimestamp: z.union([z.number(), z.string()]),
     messageType: z.string().optional(),
-    message: z.object({ conversation: z.string().max(1000).optional(), extendedTextMessage: z.object({ text: z.string().max(1000), contextInfo: z.object({ stanzaId: z.string().min(1).max(200).optional(), isForwarded: z.boolean().optional(), forwardingScore: z.number().optional() }).passthrough().optional() }).optional() }).passthrough(),
+    contextInfo: contextInfoSchema.nullish(),
+    message: z.object({ conversation: z.string().max(1000).optional(), extendedTextMessage: z.object({ text: z.string().max(1000), contextInfo: contextInfoSchema.nullish() }).optional() }).passthrough(),
   }).passthrough(),
 })
 
@@ -54,13 +61,18 @@ export function parseEvolutionMessage(raw: unknown, expected: { instance: string
   const age = (expected.now ?? Date.now()) - Number(data.messageTimestamp) * 1000
   if (!Number.isFinite(age) || age < -60_000 || age > 300_000) return null
   const extended = data.message.extendedTextMessage
-  if (extended?.contextInfo?.isForwarded || (extended?.contextInfo?.forwardingScore ?? 0) > 0) return null
+  // Evolution normalizes Baileys replies to conversation + data.contextInfo.
+  // Validate both representations, including forwarding flags, without trusting quoted text.
+  const contexts = [data.contextInfo, extended?.contextInfo]
+  if (contexts.some(context => context?.isForwarded || (context?.forwardingScore ?? 0) > 0)) return null
+  const quotedIds = new Set(contexts.flatMap(context => context?.stanzaId ? [context.stanzaId] : []))
+  if (quotedIds.size > 1) return null
   if (data.messageType && !['conversation', 'extendedTextMessage'].includes(data.messageType)) return null
   const text = data.message.conversation ?? extended?.text
   if (!text) return null
   // LID alone does not establish a phone identity. Only an explicit PN supplied by the trusted provider is admissible.
   const sender = normalizePhoneJid(data.key.participant ?? '') ?? normalizePhoneJid(data.key.participantAlt ?? '')
-  const quotedMessageId = extended?.contextInfo?.stanzaId ?? null
+  const quotedMessageId = quotedIds.values().next().value ?? null
   // The quoted body is untrusted. Only the provider's message ID may identify a review.
   const reply = /^(APROVAR|RECUSAR)(?: ([^\r\n]{1,500}))?$/.exec(text.trim())
   const command = parseCommand(text) ?? (quotedMessageId && reply &&

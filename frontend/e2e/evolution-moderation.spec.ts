@@ -67,12 +67,16 @@ async function reviewReference(request: APIRequestContext, name: string) {
   return legacyReference(message!.text)
 }
 
-test('F42-E10 respostas com várias pendências nunca escolhem o último link e ignoram citação falsa', async ({ request }) => {
+test('F42-E10 respostas normalizadas pela Evolution escolhem a citação exata entre várias pendências', async ({ request }) => {
   const first = await fixture(request, 'Primeiro')
   const second = await fixture(request, 'Segundo')
   const reply = async (text: string, quotedId?: string, referenceText = 'texto citado não autoriza decisões') => {
     const inbound = payload(text)
-    return request.post(hook, { headers: { 'x-evolution-secret': 'fixture-webhook-secret' }, data: { ...inbound, data: { ...inbound.data, message: { extendedTextMessage: { text, contextInfo: { stanzaId: quotedId, quotedMessage: { conversation: referenceText } } } } } } })
+    return request.post(hook, { headers: { 'x-evolution-secret': 'fixture-webhook-secret' }, data: { ...inbound, data: {
+      ...inbound.data, key: { ...inbound.data.key, participant: '12345678900000@lid', participantAlt: '5511999999999@s.whatsapp.net' },
+      messageType: 'conversation', message: { conversation: text, messageContextInfo: {} },
+      contextInfo: { stanzaId: quotedId, quotedType: 0, participant: '98765432100000@lid', quotedMessage: { conversation: referenceText } },
+    } } })
   }
   await reply('APROVAR')
   await reply('APROVAR', 'unknown', `APROVAR ${first.reference}`)

@@ -95,6 +95,14 @@ Resultados em execução não constituem aceite. O ledger e a matriz CSV devem a
 
 ## Operação e recuperação
 
+### Correção de respostas normalizadas pela Evolution (15/10/2026)
+
+Incidente observado: duas respostas `APROVAR` do operador autorizado chegaram como `messageType=conversation`, com `message.conversation` e `data.contextInfo.stanzaId`. O parser só procurava a citação em `message.extendedTextMessage.contextInfo`, retornando mensagem não admitida antes de criar receipt. O HTTP 200 do webhook, nesse caso, não significava decisão processada.
+
+Correção: aceitar os dois locais de contexto, mantendo autenticação, PN alternativo fornecido pelo provedor, tenant/grupo, janela de recebimento, consulta do aviso enviado e transação de decisão. Encaminhamento em qualquer contexto e citações conflitantes continuam rejeitados. O conteúdo citado nunca fornece comandos. Não ampliar a janela nem reaplicar automaticamente comandos antigos.
+
+Validação: o novo teste unitário reproduziu o erro antes do fix; depois passaram os 13 testes focados, lint/typecheck/build backend e typecheck do E2E. F42-E10 passou nos dois projetos Playwright com o formato normalizado, identidade LID/PN, duas pendências, aprovação/recusa, ausência de motivo, citação falsa e resposta tardia, usando HTTP, PostgreSQL, Redis, worker e stub reais. A execução isolou portas/containers do CI e dispensou Next/login porque E10 só usa a API. O build completo do frontend da base falhou por variável `notice` não utilizada em `features/catalog/components/home-catalog.tsx`; essa alteração de outra atividade não foi incluída no fix. Artefatos locais em `output/p0-evolution-reply-fix/`.
+
 1. Em `/admin/integracoes`, conferir configuração, conexão, operadores e fila. Participação no grupo não substitui vínculo ADMIN. Se houver vários ADMINs e nenhum vínculo, cada operador deve ser vinculado explicitamente a uma conta, ou o responsável deve definir `EVOLUTION_OPERATOR_ADMIN_ID`.
 2. Para decidir, usar **Responder** no aviso específico e enviar `APROVAR` ou `RECUSAR <motivo>`. A mensagem citada identifica a revisão; o texto citado não é interpretado. Sem citação, os comandos antigos com referência assinada continuam válidos. Nunca há seleção automática do último aviso. Se houver referência explícita e citação, ambas devem coincidir.
 3. Referência vencida/desatualizada ou revisão já decidida não muda o link. Usar o painel para decisões de avisos antigos. Resposta do grupo confirma a transação; aceite de envio não confirma leitura.
