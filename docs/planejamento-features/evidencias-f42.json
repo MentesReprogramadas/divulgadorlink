@@ -122,5 +122,144 @@
   },
   "state": "COMPLETE",
   "completedAtUTC": "2026-10-15T14:46:48.668564+00:00",
-  "validatedReleaseCommit": "9204cefb7488b97410dbf91bb62fea8656343b9b"
+  "validatedReleaseCommit": "9204cefb7488b97410dbf91bb62fea8656343b9b",
+  "refinements": [
+    {
+      "id": "F42-R01",
+      "scope": "Reply-to moderation and concise notifications separated into sections",
+      "releaseCommit": "fafb6bc05d479aad2ef42e55b79aab327dfef01d",
+      "implementationCommits": [
+        "78cbeccd31aaf5ed1fe7cd50b14a39e8cfea4da4",
+        "d528025ff930e349cd946ab652e2535b546e6dad",
+        "fafb6bc05d479aad2ef42e55b79aab327dfef01d"
+      ],
+      "localValidation": {
+        "compactBackend": 353,
+        "compactPostgres": 51,
+        "compactPlaywright": 19,
+        "finalPresentationFocusedUnit": 12,
+        "backendLintTypecheckBuild": "PASS",
+        "frontendTypecheck": "PASS",
+        "playwrightCompactReportSHA256": "55CDA81F68703E4E2853822031BBF706BA7FD1EDE61E06DD79B686E0F3F38778"
+      },
+      "ci": {
+        "replyFlow": {
+          "runId": 38756973650,
+          "result": "SUCCESS"
+        },
+        "compactContext": {
+          "runId": 38758489973,
+          "result": "SUCCESS"
+        },
+        "finalPresentation": {
+          "runId": 38759066116,
+          "statusAtObservation": "IN_PROGRESS",
+          "url": "https://github.com/MentesReprogramadas/divulgadorlink/actions/runs/38759066116"
+        }
+      },
+      "production": {
+        "apiDeployment": {
+          "uuid": "yprkekwjaxmtfn7pgtkoasx6",
+          "result": "FINISHED"
+        },
+        "workerDeployment": {
+          "uuid": "umvdra2x81l2zqibhig9q01f",
+          "result": "FINISHED"
+        },
+        "webDeployment": {
+          "uuid": "lckgr10f8j8q4tdu2tf0updu",
+          "result": "FINISHED"
+        },
+        "apiReadinessHttp": 200,
+        "webHealthHttp": 200
+      },
+      "visualDemonstrations": {
+        "initial": [
+          {
+            "acceptedAt": "2026-10-15T15:01:46.0804637Z",
+            "sequence": 1,
+            "providerMessageId": "3EB05B3DDB0A48367DB1EE"
+          },
+          {
+            "acceptedAt": "2026-10-15T15:01:47.6511196Z",
+            "sequence": 2,
+            "providerMessageId": "3EB0CB9F77AB6CA9798342"
+          },
+          {
+            "acceptedAt": "2026-10-15T15:01:49.2041857Z",
+            "sequence": 3,
+            "providerMessageId": "3EB0A6CBB311C8233D3AA8"
+          },
+          {
+            "acceptedAt": "2026-10-15T15:01:50.7632158Z",
+            "sequence": 4,
+            "providerMessageId": "3EB0E6F4F991398162EA54"
+          },
+          {
+            "acceptedAt": "2026-10-15T15:01:52.3435104Z",
+            "sequence": 5,
+            "providerMessageId": "3EB04CDB53284505AACBE5"
+          },
+          {
+            "acceptedAt": "2026-10-15T15:01:53.9793142Z",
+            "sequence": 6,
+            "providerMessageId": "3EB09BC81C8F219BCE41F4"
+          }
+        ],
+        "compact": [
+          {
+            "acceptedAt": "2026-10-15T15:09:35.5931939Z",
+            "sequence": 1,
+            "providerMessageId": "3EB0CEF42CF2106DD747E8"
+          },
+          {
+            "acceptedAt": "2026-10-15T15:09:37.1795186Z",
+            "sequence": 2,
+            "providerMessageId": "3EB08266766472798F9B2D"
+          },
+          {
+            "acceptedAt": "2026-10-15T15:09:38.6727758Z",
+            "sequence": 3,
+            "providerMessageId": "3EB02DC78FE8C2541D4E3D"
+          },
+          {
+            "acceptedAt": "2026-10-15T15:09:40.2367018Z",
+            "sequence": 4,
+            "providerMessageId": "3EB0486B0651D9CFCDFD39"
+          },
+          {
+            "acceptedAt": "2026-10-15T15:09:41.7745986Z",
+            "sequence": 5,
+            "providerMessageId": "3EB04C339E371FA4E4E701"
+          },
+          {
+            "acceptedAt": "2026-10-15T15:09:43.2263528Z",
+            "sequence": 6,
+            "providerMessageId": "3EB0B4F2213D7E7EFB7931"
+          },
+          {
+            "acceptedAt": "2026-10-15T15:09:44.8071793Z",
+            "sequence": 7,
+            "providerMessageId": "3EB06F371EE6D6E91EF07A"
+          },
+          {
+            "acceptedAt": "2026-10-15T15:09:46.3476572Z",
+            "sequence": 8,
+            "providerMessageId": "3EB042DD73D89EA6635CB7"
+          }
+        ],
+        "sections": [
+          {
+            "sequence": 1,
+            "acceptedAt": "2026-10-15T15:16:35.8324975Z",
+            "providerMessageId": "3EB00AD4EFFD537216C189"
+          }
+        ],
+        "realLinksModified": false,
+        "deliveryMeaning": "Provider accepted; does not prove reading or human reply-to execution"
+      },
+      "humanReplyToSmoke": "NOT_PERFORMED; prior iPhone smoke used legacy signed reference",
+      "observedAtUTC": "2026-10-15T15:20:29.797556+00:00"
+    }
+  ]
 }
