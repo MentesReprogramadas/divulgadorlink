@@ -14,14 +14,27 @@ const row = {
 }
 
 describe('LinkRow', () => {
+  it.each(['organic', 'sponsored'] as const)('indica a navegação sem criar outro controle: %s', (placement) => {
+    render(<LinkRow {...row} placement={placement} />)
+    const action = screen.getByText('Ver link')
+    expect(action.getAttribute('aria-hidden')).toBe('true')
+    expect(action.closest('a, button')).toBeNull()
+    expect(action.querySelector('svg')).not.toBeNull()
+    expect(screen.getAllByRole('link')).toHaveLength(1)
+    expect(screen.getByRole('link', { name: 'Receitas' }).getAttribute('href')).toBe(row.href)
+    expect(screen.queryByRole('button', { name: /Ver link/ })).toBeNull()
+  })
+
   it('expõe só o nome no link e mostra nicho e rede fora dele', () => {
     render(<LinkRow {...row} placement="organic" />)
     const link = screen.getByRole('link', { name: 'Receitas' })
     expect(link.getAttribute('href')).toBe(row.href)
     expect(link.textContent).toBe('Receitas')
+    expect(screen.getByTitle('Receitas').textContent).toBe('Receitas')
     expect(screen.getByText('Bolo de cenoura').closest('a')).toBeNull()
-    expect(screen.getByRole('link', { name: 'Culinária' }).getAttribute('href')).toBe('/nicho/culinaria')
-    expect(screen.getByRole('link', { name: 'Telegram' }).getAttribute('href')).toBe('/rede/telegram')
+    expect(screen.getByText('Culinária').closest('a')).toBeNull()
+    expect(screen.getByText('Telegram').closest('a')).toBeNull()
+    expect(screen.getAllByRole('link')).toHaveLength(1)
     expect(screen.queryByText('Patrocinado')).toBeNull()
     expect(screen.getByLabelText('0 impressões')).toBeTruthy()
   })
@@ -37,6 +50,7 @@ describe('LinkRow', () => {
     const kicker = container.querySelector('.sponsored-kicker')
     expect(kicker?.textContent).toContain('Patrocinado')
     expect(kicker?.querySelector('.impression-mark')).not.toBeNull()
+    expect(kicker?.querySelector('.ad-mark svg')?.getAttribute('viewBox')).toBe('0 0 16 16')
   })
 
   it('esconde o olho quando a flag está desligada', () => {

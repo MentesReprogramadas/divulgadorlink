@@ -8,25 +8,36 @@ import { api } from '@/lib/api'
 export function ResetForm({ token }: { token: string }) {
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const [pending, setPending] = useState(false)
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    const data = new FormData(event.currentTarget)
-    const result = await api<{ message?: string }>('/v1/auth/reset-password', {
-      method: 'POST',
-      body: JSON.stringify({ token, password: data.get('password') }),
-    })
-    if (result.status !== 200) {
-      setError(result.body.message ?? 'Link inválido ou vencido.')
-      setMessage('')
-      return
-    }
+    if (pending) return
+    setPending(true)
     setError('')
-    setMessage('Senha salva.')
+    const data = new FormData(event.currentTarget)
+    try {
+      const result = await api<{ message?: string }>('/v1/auth/reset-password', {
+        method: 'POST',
+        body: JSON.stringify({ token, password: data.get('password') }),
+      })
+      if (result.status !== 200) {
+        setError(result.body.message ?? 'Link inválido ou vencido.')
+        setMessage('')
+        return
+      }
+      setError('')
+      setMessage('Senha salva.')
+    } catch {
+      setError('Não foi possível conectar. Verifique sua conexão e tente novamente.')
+      setMessage('')
+    } finally {
+      setPending(false)
+    }
   }
 
   if (!token) {
-    return <p role="alert">Link inválido. Peça outro.</p>
+    return <div role="alert"><p>Link inválido. Peça outro.</p><a href="/esqueci-senha">Pedir um novo link</a></div>
   }
 
   return (
@@ -36,7 +47,7 @@ export function ResetForm({ token }: { token: string }) {
       </Field>
       {error ? <p role="alert">{error}</p> : null}
       {message ? <p role="status">{message}</p> : null}
-      {message ? <p className="auth-switch"><a href="/login">Entrar</a></p> : <Button type="submit">Salvar senha</Button>}
+      {message ? <p className="auth-switch"><a href="/login">Entrar</a></p> : <Button type="submit" loading={pending}>Salvar senha</Button>}
     </form>
   )
 }

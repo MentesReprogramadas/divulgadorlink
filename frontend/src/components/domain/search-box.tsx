@@ -7,6 +7,7 @@ import { AgePrompt, confirmAge } from '@/components/domain/age-gate'
 import { ImpressionMark } from '@/components/domain/link-row'
 import { Input } from '@/components/ui/input'
 import { api } from '@/lib/api'
+import styles from './search-box.module.css'
 
 type Facet = { name?: string; slug?: string } | null
 export type SuggestItem = {
@@ -43,6 +44,7 @@ export function SearchBox({
   const router = useRouter()
   const listId = useId()
   const box = useRef<HTMLDivElement>(null)
+  const latestRequest = useRef(0)
   const [value, setValue] = useState(initial)
   const [choices, setChoices] = useState<Choice[]>([])
   const [open, setOpen] = useState(false)
@@ -62,6 +64,7 @@ export function SearchBox({
   }, [])
 
   async function suggest(next: string) {
+    const requestId = ++latestRequest.current
     setValue(next)
     setActive(-1)
     if (next.trim().length === 0) {
@@ -71,6 +74,7 @@ export function SearchBox({
       return
     }
     const result = await api<SuggestBody>(`/v1/search/suggest?q=${encodeURIComponent(next)}`)
+    if (requestId !== latestRequest.current) return
     const body = result.status === 200 ? result.body : {}
     const items = body.items ?? []
     const rows: Choice[] = []
@@ -127,6 +131,14 @@ export function SearchBox({
   }
 
   const activeId = active >= 0 ? `${listId}-${active}` : undefined
+  const groups = [
+    { label: 'Nichos e redes', rows: choices.filter((choice) => choice.kind === 'facet') },
+    { label: 'Links sugeridos', rows: choices.filter((choice) => choice.kind === 'link') },
+  ].filter((group) => group.rows.length > 0)
+
+  useEffect(() => {
+    if (activeId) document.getElementById(activeId)?.scrollIntoView({ block: 'nearest' })
+  }, [activeId])
 
   return (
     <div className={className ? `suggest ${className}` : 'suggest'} ref={box}>
@@ -145,6 +157,7 @@ export function SearchBox({
         autoComplete="off"
         aria-expanded={open}
         aria-controls={listId}
+        aria-autocomplete="list"
         aria-activedescendant={activeId}
         value={value}
         placeholder="Buscar links, temas ou comunidades..."
@@ -153,52 +166,73 @@ export function SearchBox({
         onKeyDown={onKeyDown}
       />
       {open ? (
-        <div className="suggest-pop">
+        <div className={styles.popup}>
           {choices.length > 0 ? (
-            <ul id={listId} className="search-suggestions" role="listbox" aria-label="Sugestões">
-              {choices.map((choice, index) => (
-                <li key={choice.key} role="presentation">
-                  <a
-                    id={`${listId}-${index}`}
-                    role="option"
-                    aria-selected={index === active}
-                    href={choice.href}
-                    onMouseEnter={() => setActive(index)}
-                    onClick={(event) => {
-                      event.preventDefault()
-                      go(choice)
-                    }}
-                  >
-                    {choice.kind === 'facet' ? (
-                      <FacetBadge
-                        kind={choice.label === 'Rede' ? 'network' : 'niche'}
-                        slug={decodeURIComponent(choice.href.split('/').filter(Boolean).at(-1) ?? '')}
-                        name={choice.name}
-                      />
-                    ) : (
-                      <>
-                        <span>{choice.item.name}</span>
-                        {choice.item.sponsored ? <AdMark /> : null}
-                        <span className="suggest-tags">
-                          {choice.item.niche?.name && choice.item.niche.slug ? (
-                            <FacetBadge kind="niche" slug={choice.item.niche.slug} name={choice.item.niche.name} />
-                          ) : null}
-                          {choice.item.network?.name && choice.item.network.slug ? (
-                            <FacetBadge kind="network" slug={choice.item.network.slug} name={choice.item.network.name} />
-                          ) : null}
-                        </span>
-                        {showImpressions ? <ImpressionMark value={choice.item.impressions ?? 0} /> : null}
-                      </>
-                    )}
-                  </a>
-                </li>
+            <div id={listId} className={styles.list} role="listbox" aria-label="Sugestões">
+              {groups.map((group) => (
+                <div key={group.label} className={styles.group} role="group" aria-label={group.label}>
+                  <div className={styles.groupTitle} aria-hidden="true">{group.label}</div>
+                  {group.rows.map((choice) => {
+                    const index = choices.indexOf(choice)
+                    return (
+                      <a
+                        key={choice.key}
+                        id={`${listId}-${index}`}
+                        className={styles.option}
+                        role="option"
+                        aria-selected={index === active}
+                        href={choice.href}
+                        onMouseEnter={() => setActive(index)}
+                        onClick={(event) => {
+                          if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return
+                          event.preventDefault()
+                          go(choice)
+                        }}
+                      >
+                        <SuggestionContent choice={choice} showImpressions={showImpressions} />
+                        <svg className={styles.arrow} width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                          <path d="m8 5 5 5-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </a>
+                    )
+                  })}
+                </div>
               ))}
-            </ul>
+            </div>
           ) : null}
           {none ? <p className="search-none">Nenhuma sugestão</p> : null}
+          <a className={styles.allResults} href={`/busca?q=${encodeURIComponent(value)}`}>
+            Ver todos os resultados <span aria-hidden="true">→</span>
+          </a>
         </div>
       ) : null}
       {askAge ? <AgePrompt onYes={() => void answerAge('yes')} onNo={() => void answerAge('no')} /> : null}
     </div>
+  )
+}
+
+function SuggestionContent({ choice, showImpressions }: { choice: Choice; showImpressions: boolean }) {
+  if (choice.kind === 'facet') {
+    return (
+      <span className={styles.content}>
+        <span className={styles.title}>{choice.name}</span>
+        <span className={styles.metadata}>Explorar {choice.label === 'Rede' ? 'rede' : 'nicho'}</span>
+      </span>
+    )
+  }
+  return (
+    <span className={styles.content}>
+      <span className={styles.title}>{choice.item.name}</span>
+      <span className={styles.metadata}>
+        {choice.item.sponsored ? <AdMark /> : null}
+        {choice.item.niche?.name && choice.item.niche.slug ? (
+          <FacetBadge kind="niche" slug={choice.item.niche.slug} name={choice.item.niche.name} />
+        ) : null}
+        {choice.item.network?.name && choice.item.network.slug ? (
+          <FacetBadge kind="network" slug={choice.item.network.slug} name={choice.item.network.name} />
+        ) : null}
+        {showImpressions ? <ImpressionMark value={choice.item.impressions ?? 0} /> : null}
+      </span>
+    </span>
   )
 }

@@ -159,7 +159,6 @@ export function FacetSummaries() {
                     type="button"
                     className="catalog-copy-item"
                     aria-current={selected?.id === row.id ? 'true' : undefined}
-                    aria-label={row.name}
                     onClick={() => setSelectedId(row.id)}
                   >
                     <span>{row.name}</span>

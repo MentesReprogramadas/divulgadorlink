@@ -51,6 +51,6 @@ describe('renovação', () => {
     const rows = await store.listPromotions('link-1')
     expect(rows).toHaveLength(2)
     expect(rows.every((row) => row.activatedAt.toISOString() === activatedAt.toISOString())).toBe(true)
-    expect(rows.every((row) => row.expiresAt.toISOString() === '2026-09-22T00:00:00.000Z')).toBe(true)
+    expect(rows.every((row) => row.expiresAt?.toISOString() === '2026-09-22T00:00:00.000Z')).toBe(true)
   })
 })

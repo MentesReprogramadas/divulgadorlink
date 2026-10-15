@@ -1,16 +1,14 @@
 import { cache } from 'react'
 import { headers } from 'next/headers'
 import type { Metadata } from 'next'
-import { LinkMeta } from '@/components/domain/link-meta'
-import { LinkRow, SponsoredKicker } from '@/components/domain/link-row'
 import { HomeExplore } from '@/components/domain/facet-filters'
-import { HomeMore } from '@/components/domain/home-more'
 import { HomeSearch } from '@/components/domain/home-search'
-import { EmptyState } from '@/components/feedback/empty-state'
 import { metadataFromSeo } from '@/domain/crawler-policy'
 import { homeStructuredData } from '@/domain/home-structured-data'
 import { jsonLdScript } from '@/domain/json-ld'
 import { forward, tenantHost } from '@/lib/upstream'
+import styles from './home.module.css'
+import { HomeCatalog } from '@/features/catalog/components/home-catalog'
 
 export const dynamic = 'force-dynamic'
 
@@ -50,32 +48,10 @@ export async function generateMetadata(): Promise<Metadata> {
   return metadataFromSeo(home.seo)
 }
 
-function rowHref(row: Card): string {
-  return `/link/${row.id}?surfaceToken=${encodeURIComponent(row.surfaceToken)}`
-}
-
-function SponsoredSpot({ row, showImpressions }: { row: Card; showImpressions: boolean }) {
-  return (
-    <article className="home-spot lift" data-placement="sponsored" data-link-id={row.id}>
-      <SponsoredKicker impressions={row.impressions ?? 0} show={showImpressions} />
-      <a className="home-spot-name" href={rowHref(row)}>{row.name}</a>
-      {row.description ? <p className="home-spot-description">{row.description}</p> : null}
-      <LinkMeta niche={row.niche} network={row.network} />
-    </article>
-  )
-}
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ cursor?: string }> }) {
   const cursor = (await searchParams).cursor ?? ''
   const home = await loadHome(cursor)
-  const showImpressions = home.showImpressions !== false
-  const leftSponsored = home.sponsored.filter((_, index) => index % 2 === 0)
-  const rightSponsored = home.sponsored.filter((_, index) => index % 2 === 1)
-  const layoutClass = [
-    'home-layout',
-    leftSponsored.length > 0 ? 'has-start' : '',
-    rightSponsored.length > 0 ? 'has-end' : '',
-  ].filter(Boolean).join(' ')
   return (
     <>
       <script
@@ -88,56 +64,20 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ c
           )),
         }}
       />
-      <main>
-        <div className={layoutClass}>
-          {leftSponsored.length > 0 ? (
-            <aside className="home-rail home-rail-start" aria-labelledby="patrocinados">
-              <h2 id="patrocinados" className="home-sponsored-heading">Patrocinados</h2>
-              {leftSponsored.map((row) => <SponsoredSpot key={row.id} row={row} showImpressions={showImpressions} />)}
-            </aside>
-          ) : null}
-          <section className="home-masthead">
-            <h1 className="entry-title">Encontre o que você procura.</h1>
-            <p className="home-description">Links, comunidades e serviços organizados por tema e rede.</p>
+      <main className={styles.page}>
+        <div className={styles.layout}>
+          <section className={`home-masthead ${styles.masthead}`}>
+            <div>
+              <h1 className="entry-title">Encontre o que você procura.</h1>
+              <p className="home-description">Links, comunidades e serviços organizados por tema e rede.</p>
+            </div>
             <HomeSearch />
           </section>
-          {rightSponsored.length > 0 ? (
-            <aside className="home-rail home-rail-end" aria-labelledby="patrocinados">
-              {rightSponsored.map((row) => <SponsoredSpot key={row.id} row={row} showImpressions={showImpressions} />)}
-            </aside>
-          ) : null}
-          <section className="home-explore" aria-labelledby="home-explore">
+          <section className={`home-explore ${styles.explore}`} aria-labelledby="home-explore">
             <h2 id="home-explore" className="home-explore-title">Explorar</h2>
             <HomeExplore niches={home.niches} networks={home.networks} />
           </section>
-          {home.organic.length > 0 || home.sponsored.length === 0 ? (
-            <div className="home-catalog">
-              {home.organic.length > 0 ? (
-                <section className="home-list" aria-labelledby="organicos">
-                  <h2 id="organicos">Orgânicos</h2>
-                  <div className="home-organic">
-                    {home.organic.map((row) => (
-                      <LinkRow
-                        key={row.id}
-                        id={row.id}
-                        name={row.name}
-                        description={row.description}
-                        href={rowHref(row)}
-                        placement="organic"
-                        niche={row.niche}
-                        network={row.network}
-                        impressions={row.impressions}
-                        showImpressions={showImpressions}
-                      />
-                    ))}
-                  </div>
-                </section>
-              ) : (
-                <div className="home-empty"><EmptyState>Nenhum link publicado</EmptyState></div>
-              )}
-            </div>
-          ) : null}
-          <HomeMore cursor={home.nextCursor ?? null} />
+          <HomeCatalog key={cursor} initial={{ sponsored: home.sponsored, organic: home.organic, nextCursor: home.nextCursor, showImpressions: home.showImpressions }} />
         </div>
       </main>
     </>

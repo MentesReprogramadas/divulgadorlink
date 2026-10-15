@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useRef, useState, type Ref } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { FacetBadge } from '@/components/ui/facet-badge'
 import { exploreNetworks, exploreNiches, leadFirst, NETWORK_LEAD, NICHE_LEAD } from '@/domain/facets'
+import styles from './home-explore.module.css'
 
 export function FacetFilters({
   label,
@@ -63,48 +64,7 @@ export function FacetFilters({
 
 type FacetItem = { slug: string; name: string; requiresAge?: boolean }
 
-function FacetChips({
-  kind,
-  items,
-  hrefFor,
-  open = false,
-  lineRef,
-}: {
-  kind: 'niche' | 'network'
-  items: FacetItem[]
-  hrefFor: (slug: string) => string
-  open?: boolean
-  lineRef?: Ref<HTMLDivElement>
-}) {
-  return (
-    <div ref={lineRef} className={open ? 'facet-line is-open' : 'facet-line'}>
-      {items.map((item) => (
-        <FacetBadge
-          key={item.slug}
-          kind={kind}
-          slug={item.slug}
-          name={item.requiresAge ? `${item.name} 18+` : item.name}
-          href={hrefFor(item.slug)}
-        />
-      ))}
-    </div>
-  )
-}
-
-const MOBILE_PREVIEW = 4
-
-function useNarrow(): boolean {
-  const [narrow, setNarrow] = useState(false)
-  useEffect(() => {
-    if (typeof window.matchMedia !== 'function') return
-    const query = window.matchMedia('(max-width: 719px)')
-    const apply = () => setNarrow(query.matches)
-    apply()
-    query.addEventListener('change', apply)
-    return () => query.removeEventListener('change', apply)
-  }, [])
-  return narrow
-}
+const HOME_PREVIEW = 6
 
 export function HomeExplore({
   niches,
@@ -113,94 +73,41 @@ export function HomeExplore({
   niches: FacetItem[]
   networks: FacetItem[]
 }) {
-  const narrow = useNarrow()
   const [open, setOpen] = useState(false)
-  const [overflow, setOverflow] = useState(false)
-  const nicheLead = useRef<HTMLDivElement>(null)
-  const nicheSecond = useRef<HTMLDivElement>(null)
-  const networkLead = useRef<HTMLDivElement>(null)
-  const networkSecond = useRef<HTMLDivElement>(null)
+  const groupId = useId()
   const niche = exploreNiches(niches)
   const network = exploreNetworks(networks)
-  const nicheCount = niche.lead.length + niche.mild.length
-  const networkCount = network.lead.length + network.second.length
-  const hasMore = nicheCount > MOBILE_PREVIEW || networkCount > MOBILE_PREVIEW
-  const key = [niche.lead, niche.mild, network.lead, network.second].map((row) => row.map((item) => item.slug).join()).join('|')
-
-  useEffect(() => {
-    if (open) return
-    const elements = [nicheLead, nicheSecond, networkLead, networkSecond]
-      .map((ref) => ref.current)
-      .filter((element): element is HTMLDivElement => element !== null)
-    if (elements.length === 0) return
-    const measure = () => setOverflow(elements.some((element) => element.scrollWidth > element.clientWidth + 1))
-    measure()
-    const observer = new ResizeObserver(measure)
-    for (const element of elements) observer.observe(element)
-    return () => observer.disconnect()
-  }, [key, open])
+  const groups = [
+    { kind: 'niche' as const, name: 'Nichos', base: '/nicho', items: [...niche.lead, ...niche.mild] },
+    { kind: 'network' as const, name: 'Redes', base: '/rede', items: [...network.lead, ...network.second] },
+  ]
+  const hasMore = groups.some((group) => group.items.length > HOME_PREVIEW)
 
   return (
     <>
       <div className={open ? 'home-explore-columns is-open' : 'home-explore-columns'}>
-        <section>
-          <h3>Nichos</h3>
-          <ExploreLines
-            kind="niche"
-            base="/nicho"
-            lead={niche.lead}
-            second={niche.mild}
-            open={open}
-            leadRef={nicheLead}
-            secondRef={nicheSecond}
-          />
-        </section>
-        <section>
-          <h3>Redes</h3>
-          <ExploreLines
-            kind="network"
-            base="/rede"
-            lead={network.lead}
-            second={network.second}
-            open={open}
-            leadRef={networkLead}
-            secondRef={networkSecond}
-          />
-        </section>
+        {groups.map((group) => (
+          <section key={group.kind} aria-labelledby={`${groupId}-${group.kind}-title`}>
+            <h3 id={`${groupId}-${group.kind}-title`}>{group.name}</h3>
+            <div id={`${groupId}-${group.kind}`} className={styles.grid}>
+              {(open ? group.items : group.items.slice(0, HOME_PREVIEW)).map((item) => (
+                <FacetBadge
+                  key={item.slug}
+                  kind={group.kind}
+                  slug={item.slug}
+                  name={item.requiresAge ? `${item.name} 18+` : item.name}
+                  href={`${group.base}/${encodeURIComponent(item.slug)}`}
+                />
+              ))}
+            </div>
+          </section>
+        ))}
       </div>
-      {(narrow ? hasMore || open : overflow || open) ? (
-        <button type="button" className="facet-more" aria-expanded={open} onClick={() => setOpen((current) => !current)}>
+      {hasMore ? (
+        <button type="button" className="facet-more" aria-expanded={open} aria-controls={groups.map((group) => `${groupId}-${group.kind}`).join(' ')} onClick={() => setOpen((current) => !current)}>
           {open ? 'Ver menos' : 'Ver mais'}
         </button>
       ) : null}
     </>
-  )
-}
-
-function ExploreLines({
-  kind,
-  base,
-  lead,
-  second,
-  open,
-  leadRef,
-  secondRef,
-}: {
-  kind: 'niche' | 'network'
-  base: string
-  lead: FacetItem[]
-  second: FacetItem[]
-  open: boolean
-  leadRef: Ref<HTMLDivElement>
-  secondRef: Ref<HTMLDivElement>
-}) {
-  const hrefFor = (slug: string) => `${base}/${slug}`
-  if (lead.length === 0 && second.length === 0) return null
-  if (open) return <FacetChips kind={kind} items={[...lead, ...second]} hrefFor={hrefFor} open />
-  return (
-    <div className="facet-stack">
-      <FacetChips kind={kind} items={lead} hrefFor={hrefFor} lineRef={leadRef} />
-      {second.length > 0 ? <FacetChips kind={kind} items={second} hrefFor={hrefFor} lineRef={secondRef} /> : null}
-    </div>
   )
 }

@@ -288,7 +288,7 @@ describe('checkout no PostgreSQL', () => {
     expect(webhook.statusCode).toBe(200)
     const after = await db.promotion.findFirst({ where: { linkId: 'link-renova', status: 'ACTIVE' } })
     expect(after?.activatedAt.toISOString()).toBe(before?.activatedAt.toISOString())
-    expect(after?.expiresAt.getTime()).toBeGreaterThan(before?.expiresAt.getTime() ?? 0)
+    expect(after?.expiresAt?.getTime()).toBeGreaterThan(before?.expiresAt?.getTime() ?? 0)
     expect(await db.promotion.count({ where: { linkId: 'link-renova' } })).toBe(1)
     const expired = await app.inject({
       method: 'POST',

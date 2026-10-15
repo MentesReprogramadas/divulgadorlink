@@ -12,9 +12,17 @@ const CLASS: Record<Variant, string> = {
 export function Button({
   variant = 'primary',
   className,
+  loading = false,
+  disabled,
+  children,
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant }) {
-  return <button data-variant={variant} className={[CLASS[variant], className].filter(Boolean).join(' ')} {...props} />
+}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; loading?: boolean }) {
+  return (
+    <button data-variant={variant} className={[CLASS[variant], className].filter(Boolean).join(' ')} disabled={disabled || loading} aria-busy={loading || undefined} {...props}>
+      {loading ? <span className="button-spinner" aria-hidden="true" /> : null}
+      {children}
+    </button>
+  )
 }
 
 export function ButtonLink({

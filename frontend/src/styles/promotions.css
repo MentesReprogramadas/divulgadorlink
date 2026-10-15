@@ -1,0 +1,172 @@
+.checkout,
+.plan-admin {
+  display: grid;
+  gap: 20px;
+}
+
+.duration-tabs,
+.plan-grid,
+.method-grid,
+.step-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.duration-tab,
+.plan-card,
+.method-card {
+  position: relative;
+  display: grid;
+  gap: 6px;
+  border: 1px solid var(--color-line);
+  border-radius: 16px;
+  background: white;
+  color: var(--color-brand-navy);
+  cursor: pointer;
+}
+
+.duration-tab {
+  padding: 10px 16px;
+  font-weight: 600;
+}
+
+.duration-tab input,
+.plan-card input,
+.method-card input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--color-brand-navy);
+}
+
+.duration-tab.is-on,
+.method-card.is-on {
+  border-color: var(--color-brand-navy);
+  box-shadow: inset 0 -3px 0 var(--color-brand-turquoise);
+}
+
+.plan-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.plan-card,
+.method-card {
+  padding: 16px 16px 18px;
+}
+
+.plan-card.is-selected {
+  align-content: end;
+  min-height: 148px;
+  padding: 22px 18px 24px;
+  border-color: var(--color-brand-navy);
+  background: var(--color-brand-navy);
+  color: white;
+  box-shadow: 0 14px 28px rgb(10 25 47 / 18%);
+  transform: none;
+}
+
+.plan-card.is-selected input {
+  accent-color: var(--color-brand-turquoise);
+}
+
+.plan-card.is-selected:has(input:checked) {
+  box-shadow: 0 14px 28px rgb(10 25 47 / 18%), inset 0 -4px 0 var(--color-brand-turquoise);
+}
+
+.plan-mark {
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+.plan-card.is-selected .plan-mark,
+.plan-card.is-selected .plan-price {
+  color: var(--color-brand-turquoise);
+}
+
+.plan-card.is-selected .plan-name {
+  font-size: 22px;
+}
+
+.plan-card.is-selected .plan-price {
+  font-size: 28px;
+}
+
+.plan-name {
+  font-size: 18px;
+  font-weight: 650;
+}
+
+.plan-price,
+.pay-summary {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 650;
+}
+
+.pay-step {
+  display: grid;
+  gap: 16px;
+  justify-items: start;
+}
+
+.pay-quiet {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.pix-panel code {
+  display: block;
+  max-width: 100%;
+  padding: 12px;
+  overflow-wrap: anywhere;
+  border-radius: 12px;
+  background: var(--color-paper);
+}
+
+.pix-qr {
+  width: 220px;
+  height: 220px;
+  background: white;
+}
+
+.plan-drag {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 4px 8px;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: grab;
+}
+
+.plan-card.is-selected .plan-drag {
+  border-color: rgb(255 255 255 / 35%);
+  background: transparent;
+  color: white;
+}
+
+.plan-card.is-selected .button-secondary {
+  color: white;
+  border-color: rgb(255 255 255 / 40%);
+}
+
+.plan-dialog {
+  width: min(520px, calc(100% - 32px));
+  margin: auto;
+  padding: var(--space-6);
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  background: var(--color-control-bg);
+  color: var(--color-ink);
+  box-shadow: 0 16px 48px rgb(10 25 47 / 18%);
+}
+
+.plan-dialog::backdrop { background: rgb(10 25 47 / 48%); }
+.plan-dialog h2 { margin: 0 0 var(--space-4); font-size: var(--text-lg); }

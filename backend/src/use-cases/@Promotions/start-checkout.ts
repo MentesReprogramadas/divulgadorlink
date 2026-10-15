@@ -131,6 +131,12 @@ export async function startCheckout(input: {
   } else if (input.surfaces.some((surface) => !activeSurfaces.includes(surface))) {
     throw new Error('expirada')
   }
+  if (input.renewal) {
+    const promotions = await input.store.listPromotions(input.linkId)
+    if (promotions.some((row) => row.status === 'ACTIVE' && row.administrative && input.surfaces.includes(row.surface))) {
+      throw new Error('Destaque administrativo indisponível para renovação pelo checkout.')
+    }
+  }
   const price = priceFor(input.rows, input.surfaces, input.durationDays)
   const ttlSeconds = pixExpiresInSeconds()
 

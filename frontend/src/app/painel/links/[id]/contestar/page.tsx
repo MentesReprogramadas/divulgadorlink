@@ -9,24 +9,38 @@ import { api } from '@/lib/api'
 export default function Page() {
   const params = useParams<{ id: string }>()
   const [done, setDone] = useState(false)
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState('')
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (pending) return
+    setPending(true)
+    setError('')
     const data = new FormData(event.currentTarget)
-    const result = await api(`/v1/links/${params.id}/appeal`, {
-      method: 'POST',
-      body: JSON.stringify({ text: data.get('text') }),
-    })
-    if (result.status === 200 || result.status === 201) setDone(true)
+    try {
+      const result = await api(`/v1/links/${params.id}/appeal`, {
+        method: 'POST',
+        body: JSON.stringify({ text: data.get('text') }),
+      })
+      if (result.status === 200 || result.status === 201) setDone(true)
+      else setError('Não foi possível enviar a contestação. Revise o link e tente novamente.')
+    } catch {
+      setError('Não foi possível conectar. Seu texto foi mantido; tente novamente.')
+    } finally {
+      setPending(false)
+    }
   }
 
   return (
     <>
       <h2 className="panel-section-title">Contestar</h2>
-      {done ? <p>Em revisão</p> : (
+      <p className="panel-section-description">Explique o motivo da revisão. O envio de uma contestação não altera a publicação automaticamente.</p>
+      {done ? <p role="status">Em revisão</p> : (
         <form className="auth-form" onSubmit={onSubmit}>
           <Field label="Explique o que aconteceu"><TextArea name="text" required /></Field>
-          <Button type="submit">Enviar contestação</Button>
+          {error ? <p role="alert">{error}</p> : null}
+          <Button type="submit" loading={pending}>Enviar contestação</Button>
         </form>
       )}
     </>

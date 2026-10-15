@@ -9,6 +9,7 @@ import { substantiveText } from '@/domain/catalog/index-policy'
 import { prisma } from '@/lib/prisma'
 import { recordEmbeddingIntent, tryDispatchEmbedding } from '@/use-cases/@Search/embedding-outbox'
 import { banAccount } from '@/use-cases/@Admin/ban-account'
+import { getCheckoutStore } from '@/use-cases/@Promotions/checkout-store'
 import { queueCaseReview } from '@/use-cases/@Notifications/evolution-operations'
 import { facetMatchesProbe, escapeLikePrefix, FACET_ACCENTS, FACET_PLAIN, type SearchFacetProbe } from '@/use-cases/@Search/rank-links'
 
@@ -293,6 +294,9 @@ export class InMemoryLinksRepository implements LinksRepository {
       promotions: promos.map((row) => ({ id: row.id, status: row.status })),
     })
     user.status = 'BANNED'
+    for (const promotion of getCheckoutStore().promotions) {
+      if (promotion.administrative && promotion.status === 'ACTIVE' && owned.some(link => link.id === promotion.linkId)) promotion.status = 'CANCELLED'
+    }
     this.bans.push({
       userId: input.userId,
       actorId: input.actorId,
@@ -318,6 +322,11 @@ export class InMemoryLinksRepository implements LinksRepository {
 
   async cancelActivePromotions(tenantId: string, linkId: string): Promise<number> {
     let cancelled = 0
+    if (this.links.some(link => link.id === linkId && link.tenantId === tenantId)) {
+      for (const row of getCheckoutStore().promotions) {
+        if (row.linkId === linkId && row.administrative && row.status === 'ACTIVE') { row.status = 'CANCELLED'; cancelled += 1 }
+      }
+    }
     for (const row of this.promotions) {
       if (row.tenantId !== tenantId || row.linkId !== linkId || row.status !== 'ACTIVE') continue
       row.status = 'CANCELLED'

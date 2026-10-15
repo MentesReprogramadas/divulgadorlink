@@ -194,7 +194,7 @@ describe('checkout', () => {
     const now = new Date('2026-09-29T12:00:00.000Z')
     await store.activatePaid(result.orderId, now)
     const promotions = await store.listPromotions('link-1')
-    expect(promotions.map((row) => row.expiresAt.toISOString())).toEqual([
+    expect(promotions.map((row) => row.expiresAt?.toISOString())).toEqual([
       '2026-10-27T12:00:00.000Z',
       '2026-10-27T12:00:00.000Z',
     ])

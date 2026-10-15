@@ -27,7 +27,6 @@ export function LinkMeta({
           kind="niche"
           slug={nicheFacet.slug}
           name={nicheFacet.name}
-          href={nicheFacet.slug ? `/nicho/${encodeURIComponent(nicheFacet.slug)}` : undefined}
         />
       ) : null}
       {networkFacet ? (
@@ -35,7 +34,6 @@ export function LinkMeta({
           kind="network"
           slug={networkFacet.slug}
           name={networkFacet.name}
-          href={networkFacet.slug ? `/rede/${encodeURIComponent(networkFacet.slug)}` : undefined}
         />
       ) : null}
       {status}

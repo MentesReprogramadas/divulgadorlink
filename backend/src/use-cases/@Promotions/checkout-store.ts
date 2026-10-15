@@ -52,7 +52,8 @@ export type ActivePromotion = {
   surface: Surface
   status: 'ACTIVE' | 'EXPIRED' | 'CANCELLED'
   activatedAt: Date
-  expiresAt: Date
+  expiresAt: Date | null
+  administrative?: boolean
 }
 
 export interface CheckoutStore {
@@ -104,6 +105,9 @@ export class InMemoryCheckoutStore implements CheckoutStore {
   }
 
   async activeSurfaces(linkId: string): Promise<Surface[]> {
+    for (const row of this.promotions) {
+      if (row.linkId === linkId && row.administrative && row.status === 'ACTIVE' && row.expiresAt && row.expiresAt <= new Date()) row.status = 'EXPIRED'
+    }
     return this.promotions.filter((row) => row.linkId === linkId && row.status === 'ACTIVE').map((row) => row.surface)
   }
 
@@ -114,6 +118,9 @@ export class InMemoryCheckoutStore implements CheckoutStore {
   async createPending(input: CreatePendingInput): Promise<CommercialOrder> {
     return withLock(input.linkId, async () => {
       const pending = await this.pendingSurfaces(input.linkId)
+      const active = await this.activeSurfaces(input.linkId)
+      if (this.promotions.some(row => row.linkId === input.linkId && row.status === 'ACTIVE' && row.administrative && input.surfaces.includes(row.surface))) throw new CheckoutConflictError()
+      if (!input.renewal && input.surfaces.some((surface) => active.includes(surface))) throw new CheckoutConflictError()
       if (input.surfaces.some((surface) => pending.includes(surface))) {
         throw new CheckoutConflictError()
       }

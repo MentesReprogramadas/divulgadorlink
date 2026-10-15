@@ -1,0 +1,64 @@
+@import './primitives.css';
+
+:root {
+  color-scheme: light;
+
+  --surface-page: var(--neutral-50);
+  --surface-raised: var(--neutral-0);
+  --surface-subtle: var(--neutral-100);
+  --text-primary: var(--neutral-950);
+  --text-secondary: var(--neutral-500);
+  --border-default: var(--neutral-200);
+  --action-primary-bg: var(--brand-900);
+  --action-primary-hover: var(--brand-800);
+  --focus-ring: #146dca;
+  --status-success-text: var(--green-700);
+  --status-error-text: var(--red-700);
+
+  --color-paper: var(--surface-page);
+  --color-ink: var(--text-primary);
+  --color-moss: var(--status-success-text);
+  --color-moss-hover: var(--green-800);
+  --color-line: var(--border-default);
+  --color-muted: var(--text-secondary);
+  --color-clay: var(--status-error-text);
+  --color-control-bg: var(--surface-raised);
+  --color-lift: var(--surface-raised);
+  --color-primary-ink: var(--neutral-0);
+
+  --color-brand-navy: var(--brand-900);
+  --color-brand-turquoise: var(--brand-300);
+  --color-brand-white: var(--neutral-0);
+
+  --color-bg: var(--color-paper);
+  --color-primary: var(--action-primary-bg);
+  --color-primary-hover: var(--action-primary-hover);
+  --color-danger: var(--color-clay);
+
+  --font-sans: var(--font-source-sans, "Source Sans 3"), sans-serif;
+  --font-serif: var(--font-product);
+  --font-product: var(--font-outfit, "Outfit"), sans-serif;
+
+  --text-sm: 0.875rem;
+  --text-body: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.75rem;
+  --text-display: 2.5rem;
+  --leading-body: 1.55;
+  --leading-title: 1.15;
+  --measure: 65ch;
+  --leading-name: 1.2;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --radius: var(--radius-sm);
+  --shadow: 0 4px 20px rgb(10 25 47 / 5%);
+  --bp-md: 768px;
+  --form-max: var(--container-form);
+}

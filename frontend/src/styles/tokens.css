@@ -1,36 +1,50 @@
+@import './primitives.css';
+
 :root {
   color-scheme: light;
 
-  --color-paper: #f3f6f4;
-  --color-ink: #14241c;
-  --color-moss: #0e6b4c;
-  --color-moss-hover: #0a5340;
-  --color-line: #d5ddd8;
-  --color-muted: #3e5148;
-  --color-clay: #8c3a24;
-  --color-control-bg: #ffffff;
-  --color-lift: color-mix(in srgb, var(--color-paper) 82%, white);
-  --color-primary-ink: #ffffff;
+  --surface-page: var(--neutral-50);
+  --surface-raised: var(--neutral-0);
+  --surface-subtle: var(--neutral-100);
+  --text-primary: var(--neutral-950);
+  --text-secondary: var(--neutral-500);
+  --border-default: var(--neutral-200);
+  --action-primary-bg: var(--brand-900);
+  --action-primary-hover: var(--brand-800);
+  --focus-ring: #146dca;
+  --status-success-text: var(--green-700);
+  --status-error-text: var(--red-700);
 
-  --color-brand-navy: #0a192f;
-  --color-brand-turquoise: #4af9eb;
-  --color-brand-white: #ffffff;
+  --color-paper: var(--surface-page);
+  --color-ink: var(--text-primary);
+  --color-moss: var(--status-success-text);
+  --color-moss-hover: var(--green-800);
+  --color-line: var(--border-default);
+  --color-muted: var(--text-secondary);
+  --color-clay: var(--status-error-text);
+  --color-control-bg: var(--surface-raised);
+  --color-lift: var(--surface-raised);
+  --color-primary-ink: var(--neutral-0);
+
+  --color-brand-navy: var(--brand-900);
+  --color-brand-turquoise: var(--brand-300);
+  --color-brand-white: var(--neutral-0);
 
   --color-bg: var(--color-paper);
-  --color-primary: var(--color-brand-navy);
-  --color-primary-hover: #16324f;
+  --color-primary: var(--action-primary-bg);
+  --color-primary-hover: var(--action-primary-hover);
   --color-danger: var(--color-clay);
 
-  --font-sans: var(--font-source-sans), "Source Sans 3", sans-serif;
-  --font-serif: var(--font-source-serif), "Source Serif 4", serif;
-  --font-product: var(--font-outfit), "Outfit", sans-serif;
+  --font-sans: var(--font-source-sans, "Source Sans 3"), sans-serif;
+  --font-serif: var(--font-product);
+  --font-product: var(--font-outfit, "Outfit"), sans-serif;
 
   --text-sm: 0.875rem;
   --text-body: 1rem;
   --text-lg: 1.25rem;
   --text-xl: 1.75rem;
   --text-display: 2.5rem;
-  --leading-body: 1.45;
+  --leading-body: 1.55;
   --leading-title: 1.15;
   --measure: 65ch;
   --leading-name: 1.2;
@@ -43,8 +57,8 @@
   --space-8: 32px;
   --space-12: 48px;
   --space-16: 64px;
-  --radius: 4px;
-  --shadow: 0 8px 24px rgb(15 23 42 / 8%);
+  --radius: var(--radius-sm);
+  --shadow: 0 4px 20px rgb(10 25 47 / 5%);
   --bp-md: 768px;
-  --form-max: 28rem;
+  --form-max: var(--container-form);
 }

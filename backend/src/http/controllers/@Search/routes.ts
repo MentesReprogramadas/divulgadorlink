@@ -273,7 +273,7 @@ export async function getSuggest(request: FastifyRequest, reply: FastifyReply) {
           l."embeddingState",
           (
             SELECT p."activatedAt" FROM "promotions" p
-            WHERE p."linkId" = l."id" AND p."status" = 'ACTIVE' AND p."surface" = 'SEARCH'
+            WHERE p."linkId" = l."id" AND p."status" = 'ACTIVE' AND (NOT p.administrative OR p."expiresAt" IS NULL OR p."expiresAt" > NOW()) AND p."surface" = 'SEARCH'
             ORDER BY p."activatedAt" ASC
             LIMIT 1
           ) AS "searchActivatedAt",

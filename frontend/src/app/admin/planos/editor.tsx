@@ -198,7 +198,7 @@ export function PlanEditor() {
 
   return (
     <div className="plan-admin">
-      <p className="pay-quiet">Os cards são os do checkout. Arraste para mudar a ordem. Editar abre o preço e o destaque.</p>
+      <p className="pay-quiet">Os cards são os do checkout. Arraste ou use as setas para cima e para baixo no botão Arrastar para mudar a ordem. Editar abre o preço e o destaque.</p>
       <div className="duration-tabs" role="radiogroup" aria-label="Duração">
         {([7, 14, 28] as const).map((value) => (
           <label key={value} className={days === value ? 'duration-tab is-on' : 'duration-tab'}>
@@ -230,7 +230,18 @@ export function PlanEditor() {
                 type="button"
                 className="plan-drag"
                 draggable
-                aria-label={`Mover ${offer.name}`}
+                aria-label={`Arrastar para mover ${offer.name}`}
+                onKeyDown={(event) => {
+                  if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return
+                  event.preventDefault()
+                  const currentIndex = offersRef.current.findIndex((row) => row.code === offer.code)
+                  const target = offersRef.current[currentIndex + (event.key === 'ArrowUp' ? -1 : 1)]
+                  if (!target) return
+                  const next = remember(move(offersRef.current, offer.code, target.code))
+                  offersRef.current = next
+                  setOffers(next)
+                  void persist(next)
+                }}
                 onDragStart={() => {
                   dragCode.current = offer.code
                   startOrder.current = offersRef.current.map((row) => row.code)

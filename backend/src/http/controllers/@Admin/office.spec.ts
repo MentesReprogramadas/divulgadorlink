@@ -114,4 +114,22 @@ describe('gestão HTTP', () => {
     expect(response.statusCode).toBe(403)
     expect(linksRepo().users.find((row) => row.id === ADMIN_ID)?.status).toBe('ACTIVE')
   })
+
+  it('filtra no servidor e conta todos os status antes do limite, incluindo rascunhos', async () => {
+    for (let index = 0; index < 45; index += 1) linksRepo().addLink({ tenantId: TENANT_ID, ownerId: OWNER_ID, name: `Publicado ${index}`, status: 'PUBLISHED' })
+    for (const status of ['DRAFT', 'PENDING_MODERATION', 'PRE_REJECTED', 'UNAVAILABLE'] as const) linksRepo().addLink({ tenantId: TENANT_ID, ownerId: OWNER_ID, name: `Estado ${status}`, status })
+    linksRepo().addLink({ tenantId: 'other', status: 'DRAFT', name: 'Outro tenant' })
+    const headers = { host: HOST, authorization: `Bearer ${accessToken({ sub: ADMIN_ID, role: 'ADMIN', tenantId: TENANT_ID })}` }
+    const all = await app.inject({ method: 'GET', url: '/api/v1/admin/office', headers })
+    expect(all.json().links).toHaveLength(40)
+    expect(all.json().linkStatusCounts).toEqual({ DRAFT: 1, PENDING_MODERATION: 1, PRE_REJECTED: 1, UNAVAILABLE: 1, PUBLISHED: 45 })
+    const drafts = await app.inject({ method: 'GET', url: '/api/v1/admin/office?status=DRAFT', headers })
+    expect(drafts.json().links.map((row: { status: string }) => row.status)).toEqual(['DRAFT'])
+    expect(drafts.json().linkStatusCounts.PUBLISHED).toBe(45)
+    const search = await app.inject({ method: 'GET', url: '/api/v1/admin/office?q=Publicado&status=UNAVAILABLE', headers })
+    expect(search.json().links).toEqual([])
+    expect(search.json().linkStatusCounts.PUBLISHED).toBe(45)
+    expect(search.json().linkStatusCounts.UNAVAILABLE).toBe(0)
+    expect((await app.inject({ method: 'GET', url: '/api/v1/admin/office?status=INVALID', headers })).statusCode).toBe(400)
+  })
 })

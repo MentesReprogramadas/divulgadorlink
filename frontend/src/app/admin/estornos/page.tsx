@@ -2,6 +2,9 @@
 
 import { useEffect, useLayoutEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { ErrorState } from '@/components/feedback/error-state'
+import { EmptyState } from '@/components/feedback/empty-state'
+import { Loading } from '@/components/feedback/loading'
 import { formatCents } from '@/domain/money'
 import { formatWhen } from '@/domain/format'
 import { readSession } from '@/domain/session'
@@ -39,6 +42,22 @@ let refundCache: Refund[] | null = null
 export default function Page() {
   const [rows, setRows] = useState<Refund[] | null>(null)
   const [pending, setPending] = useState<string | null>(null)
+  const [error, setError] = useState('')
+
+  async function load() {
+    setError('')
+    try {
+      const result = await api<{ refunds?: Refund[] }>('/v1/admin/refunds')
+      if (result.status !== 200) {
+        setError('Não foi possível carregar os estornos.')
+        return
+      }
+      refundCache = result.body.refunds ?? []
+      setRows(refundCache)
+    } catch {
+      setError('Não foi possível conectar para carregar os estornos.')
+    }
+  }
 
   useLayoutEffect(() => {
     if (refundCache) setRows(refundCache)
@@ -46,29 +65,37 @@ export default function Page() {
 
   useEffect(() => {
     if (readSession()?.role !== 'ADMIN') return
-    void api<{ refunds: Refund[] }>('/v1/admin/refunds').then((result) => {
-      refundCache = result.body.refunds ?? []
-      setRows(refundCache)
-    })
+    void load()
   }, [])
 
   async function resolve(orderId: string) {
     if (pending) return
     setPending(orderId)
-    const result = await api(`/v1/admin/refunds/${orderId}/resolved`, { method: 'POST', body: '{}' })
-    setPending(null)
-    if (result.status === 200) {
-      setRows((current) => {
-        const next = (current ?? []).filter((row) => row.orderId !== orderId)
-        refundCache = next
-        return next
-      })
+    setError('')
+    try {
+      const result = await api(`/v1/admin/refunds/${orderId}/resolved`, { method: 'POST', body: '{}' })
+      setPending(null)
+      if (result.status === 200) {
+        setRows((current) => {
+          const next = (current ?? []).filter((row) => row.orderId !== orderId)
+          refundCache = next
+          return next
+        })
+      } else setError('Não foi possível registrar a resolução. Atualize e tente novamente.')
+    } catch {
+      setError('Não foi possível conectar. Confira a situação antes de tentar novamente.')
+    } finally {
+      setPending(null)
     }
   }
 
   return (
     <>
-      {rows && rows.length === 0 ? <p>Nenhum estorno</p> : null}
+      <h2 className="panel-section-title">Estornos</h2>
+      <p className="panel-section-description">Confira solicitações e falhas antes de registrar uma resolução.</p>
+      {error ? <ErrorState onRetry={() => void load()} /> : null}
+      {!rows && !error ? <Loading /> : null}
+      {rows && rows.length === 0 && !error ? <EmptyState>Nenhum estorno</EmptyState> : null}
       <div className="refund-grid">
         {(rows ?? []).map((row) => {
           const user = [row.userName, row.userEmail].filter(Boolean).join(' · ') || row.userId || 'Usuário removido'
@@ -86,7 +113,7 @@ export default function Page() {
               {row.message ? <p>{row.message}</p> : null}
               {formatWhen(row.createdAt) ? <p className="panel-meta">{formatWhen(row.createdAt)}</p> : null}
               {row.status === 'REFUND_FAILED' ? (
-                <Button type="button" disabled={pending === row.orderId} onClick={() => void resolve(row.orderId)}>
+                <Button type="button" loading={pending === row.orderId} disabled={pending !== null && pending !== row.orderId} onClick={() => void resolve(row.orderId)}>
                   Marcar como estornado
                 </Button>
               ) : null}

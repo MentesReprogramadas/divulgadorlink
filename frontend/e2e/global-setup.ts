@@ -66,8 +66,9 @@ export default async function globalSetup(): Promise<void> {
     run('npx', ['prisma', 'migrate', 'deploy'])
     run('npx', ['tsx', 'scripts/e2e-seed.ts'])
     const frontend = path.join(__dirname, '..')
-    mkdirSync(path.join(frontend, 'test-results'), { recursive: true })
-    const log = openSync(path.join(frontend, 'test-results', 'server.log'), 'w')
+    const runtime = path.join(frontend, 'e2e', '.runtime')
+    mkdirSync(runtime, { recursive: true })
+    const log = openSync(path.join(runtime, 'server.log'), 'w')
     const child = spawn('node', ['e2e/serve.mjs'], {
       cwd: frontend,
       detached: true,

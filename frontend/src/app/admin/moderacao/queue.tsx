@@ -7,6 +7,7 @@ import { api } from '@/lib/api'
 
 type CaseRow = {
   id: string
+  linkId: string
   name: string
   description: string
   url: string
@@ -40,7 +41,7 @@ const SOURCE: Record<string, string> = {
 
 let caseCache: CaseRow[] | null = null
 
-export function ModerationQueue() {
+export function ModerationQueue({ linkId }: { linkId?: string }) {
   const [cases, setCases] = useState<CaseRow[]>([])
   const [ready, setReady] = useState(false)
   const [failed, setFailed] = useState(false)
@@ -87,12 +88,15 @@ export function ModerationQueue() {
     })
   }
 
+  const visibleCases = linkId ? cases.filter(row => row.linkId === linkId) : cases
+
   return (
     <>
+      {linkId ? <p>Revisões do link selecionado. <a href="/admin/moderacao">Ver toda a fila</a></p> : null}
       {failed ? <ErrorState onRetry={load} /> : null}
-      {ready && !failed && cases.length === 0 ? <p>Nenhum caso aberto</p> : null}
+      {ready && !failed && visibleCases.length === 0 ? <p>{linkId ? 'Este link não tem uma revisão aberta.' : 'Nenhum caso aberto'}</p> : null}
       <div className="moderation-grid">
-        {cases.map((row) => {
+        {visibleCases.map((row) => {
           const owner = [row.ownerName, row.ownerEmail].filter(Boolean).join(' · ')
           const place = [row.network, row.niche].filter(Boolean).join(' · ')
           return (

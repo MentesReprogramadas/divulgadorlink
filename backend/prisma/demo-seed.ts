@@ -775,7 +775,7 @@ async function ensureAnalytics(tenantId: string, linkId: string, impressions: nu
         },
       },
       create: {
-        id: `${sessionId}-impression`,
+        id: `${sessionId}-${day.toISOString().slice(0, 10)}-impression`,
         tenantId,
         sessionId,
         linkId,
@@ -797,7 +797,7 @@ async function ensureAnalytics(tenantId: string, linkId: string, impressions: nu
           },
         },
         create: {
-          id: `${sessionId}-click`,
+          id: `${sessionId}-${day.toISOString().slice(0, 10)}-click`,
           tenantId,
           sessionId,
           linkId,

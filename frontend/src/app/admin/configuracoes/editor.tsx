@@ -14,6 +14,9 @@ export function SettingsEditor() {
       if (result.status === 200) setOn(result.body.showImpressions !== false)
       else setError('Não foi possível carregar a configuração.')
       setReady(true)
+    }).catch(() => {
+      setError('Não foi possível conectar para carregar a configuração.')
+      setReady(true)
     })
   }, [])
 
@@ -22,13 +25,19 @@ export function SettingsEditor() {
     const next = !on
     setSaving(true)
     setError('')
-    const result = await api<{ showImpressions?: boolean; message?: string }>('/v1/admin/settings/impressions', {
-      method: 'PATCH',
-      body: JSON.stringify({ showImpressions: next }),
-    })
-    setSaving(false)
-    if (result.status === 200) setOn(result.body.showImpressions === true)
-    else setError(result.body.message ?? 'Não foi possível salvar.')
+    try {
+      const result = await api<{ showImpressions?: boolean; message?: string }>('/v1/admin/settings/impressions', {
+        method: 'PATCH',
+        body: JSON.stringify({ showImpressions: next }),
+      })
+      setSaving(false)
+      if (result.status === 200) setOn(result.body.showImpressions === true)
+      else setError(result.body.message ?? 'Não foi possível salvar.')
+    } catch {
+      setError('Não foi possível conectar. A configuração foi mantida.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -44,13 +53,14 @@ export function SettingsEditor() {
           className={on ? 'switch is-on' : 'switch'}
           aria-checked={on}
           aria-label="Impressões no catálogo"
+          aria-busy={saving || undefined}
           disabled={!ready || saving}
           onClick={() => void toggle()}
         >
           <span className="switch-knob" />
         </button>
       </div>
-      {error ? <p>{error}</p> : null}
+      {error ? <p role="alert">{error}</p> : null}
     </>
   )
 }

@@ -82,7 +82,7 @@ export function homePageSql(surface: 'HOME' | 'NICHE'): { sponsored: string; org
     FROM (
       SELECT p."linkId", MIN(p."activatedAt") AS activated
       FROM "promotions" p
-      WHERE p."status" = 'ACTIVE' AND p."surface" = '${surface}'::"PromotionSurface"
+      WHERE p."status" = 'ACTIVE' AND (NOT p.administrative OR p."expiresAt" IS NULL OR p."expiresAt" > NOW()) AND p."surface" = '${surface}'::"PromotionSurface"
       GROUP BY p."linkId"
     ) pmin
     JOIN "links" l ON l."id" = pmin."linkId"
@@ -110,7 +110,7 @@ export function homePageSql(surface: 'HOME' | 'NICHE'): { sponsored: string; org
       AND ($4::text IS NULL OR net."slug" = $4)
       AND NOT EXISTS (
         SELECT 1 FROM "promotions" p
-        WHERE p."linkId" = l."id" AND p."status" = 'ACTIVE' AND p."surface" = '${surface}'::"PromotionSurface"
+        WHERE p."linkId" = l."id" AND p."status" = 'ACTIVE' AND (NOT p.administrative OR p."expiresAt" IS NULL OR p."expiresAt" > NOW()) AND p."surface" = '${surface}'::"PromotionSurface"
       )
       AND ($5::text IS NULL OR l."id" > $5)
     ORDER BY l."id" ASC

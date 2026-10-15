@@ -1,5 +1,5 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
+import { afterEach, beforeAll, describe, expect, it } from 'vitest'
 import { HomeExplore } from '@/components/domain/facet-filters'
 
 beforeAll(() => {
@@ -38,6 +38,8 @@ describe('explorar da home', () => {
       />,
     )
 
+    expect(within(screen.getByRole('region', { name: 'Nichos' })).getAllByRole('link')).toHaveLength(6)
+    fireEvent.click(screen.getByRole('button', { name: 'Ver mais' }))
     const nicheLinks = screen.getAllByRole('link').filter((link) => link.getAttribute('href')?.startsWith('/nicho/'))
     const networkLinks = screen.getAllByRole('link').filter((link) => link.getAttribute('href')?.startsWith('/rede/'))
     expect(nicheLinks.map((link) => link.getAttribute('href'))).toEqual([
@@ -56,21 +58,10 @@ describe('explorar da home', () => {
       '/rede/onlyfans',
       '/rede/fansly',
     ])
-    expect(screen.queryByRole('button', { name: 'Ver mais' })).toBeNull()
+    expect(screen.getByRole('button', { name: 'Ver menos' })).toBeTruthy()
   })
 
-  it('no celular mostra quatro de cada e o restante atrás de ver mais', async () => {
-    const query = {
-      matches: true,
-      media: '(max-width: 719px)',
-      addEventListener: () => undefined,
-      removeEventListener: () => undefined,
-      dispatchEvent: () => false,
-      onchange: null,
-      addListener: () => undefined,
-      removeListener: () => undefined,
-    }
-    vi.stubGlobal('matchMedia', () => query)
+  it('mostra até seis por grupo e permite expandir e recolher', async () => {
     render(
       <HomeExplore
         niches={[
@@ -80,6 +71,7 @@ describe('explorar da home', () => {
           { slug: 'divulgacao', name: 'Divulgação' },
           { slug: 'adulto', name: 'Adulto', requiresAge: true },
           { slug: 'musicas', name: 'Músicas' },
+          { slug: 'streaming', name: 'Streaming' },
         ]}
         networks={[
           { slug: 'telegram', name: 'Telegram' },
@@ -92,10 +84,18 @@ describe('explorar da home', () => {
     )
     expect(await screen.findByRole('button', { name: 'Ver mais' })).toBeTruthy()
     expect(document.querySelector('.home-explore-columns')?.className).not.toContain('is-open')
+    expect(within(screen.getByRole('region', { name: 'Nichos' })).getAllByRole('link')).toHaveLength(6)
     fireEvent.click(screen.getByRole('button', { name: 'Ver mais' }))
     expect(document.querySelector('.home-explore-columns')?.className).toContain('is-open')
     expect(screen.getByRole('link', { name: 'Músicas' })).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Ver menos' })).toBeTruthy()
-    vi.unstubAllGlobals()
+    fireEvent.click(screen.getByRole('button', { name: 'Ver menos' }))
+    expect(within(screen.getByRole('region', { name: 'Nichos' })).getAllByRole('link')).toHaveLength(6)
+  })
+
+  it('não oferece expansão sem itens adicionais', () => {
+    render(<HomeExplore niches={[{ slug: 'jogos', name: 'Jogos' }]} networks={[{ slug: 'discord', name: 'Discord' }]} />)
+    expect(screen.getAllByRole('link')).toHaveLength(2)
+    expect(screen.queryByRole('button')).toBeNull()
   })
 })

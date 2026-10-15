@@ -345,7 +345,8 @@ model Promotion {
   status      PromotionStatus
   surface     PromotionSurface
   activatedAt DateTime
-  expiresAt   DateTime
+  expiresAt   DateTime?
+  administrative Boolean      @default(false)
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
   @@index([tenantId, linkId, status])

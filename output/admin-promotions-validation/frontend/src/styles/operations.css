@@ -1,0 +1,312 @@
+.desk {
+  display: grid;
+  grid-template-columns: 188px minmax(0, 1fr);
+  column-gap: var(--space-8);
+  align-items: start;
+}
+
+.office-body { min-width: 0; }
+
+.office-glossary {
+  position: sticky;
+  top: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+}
+
+.office-glossary button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 0;
+  border-left: 2px solid transparent;
+  background: transparent;
+  color: var(--color-muted);
+  font: inherit;
+  font-weight: 650;
+  line-height: 1.2;
+  text-align: left;
+  cursor: pointer;
+}
+
+.office-glossary button small {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-muted);
+}
+
+.office-glossary button[aria-current="true"] {
+  color: var(--color-brand-navy);
+  border-left-color: var(--color-brand-navy);
+}
+
+.office-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.office-metrics .metric { border: 1px solid var(--color-line); }
+
+.traffic-bars {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.traffic-bars li {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) 48px;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.traffic-bar {
+  display: block;
+  height: 8px;
+  min-width: 2px;
+  background: var(--color-moss);
+}
+
+.insight-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-2);
+  margin: var(--space-4) 0;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.insight-tabs button {
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--color-muted);
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.insight-tabs button[aria-selected="true"] {
+  color: var(--color-brand-navy);
+  border-bottom-color: var(--color-brand-navy);
+}
+
+.insight-metrics {
+  display: grid;
+  margin: 0 0 var(--space-4);
+}
+
+.insight-metrics div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.insight-metrics dt { color: var(--color-muted); }
+.insight-metrics dd { margin: 0; font-weight: 650; font-variant-numeric: tabular-nums; text-align: right; }
+
+.insight-rows {
+  display: grid;
+  margin: 0 0 var(--space-4);
+  padding: 0;
+  list-style: none;
+}
+
+.insight-rows li {
+  display: grid;
+  gap: 2px;
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.insight-rows span { color: var(--color-muted); font-size: 13px; }
+
+.insight-bars li { grid-template-columns: minmax(88px, 160px) minmax(40px, 1fr) auto; }
+
+.finance-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.finance-filters .field-block { min-width: 140px; }
+
+.office-note {
+  margin: var(--space-3) 0 0;
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+.office-search {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-4) 0;
+}
+
+.office-search input {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.moderation-grid,
+.refund-grid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.moderation-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.refund-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.moderation-card h2,
+.refund-grid h2 {
+  margin: 0;
+  font-size: var(--text-body);
+  font-weight: 650;
+}
+
+.moderation-card p,
+.refund-grid p { margin: var(--space-2) 0 0; }
+
+.moderation-card a {
+  overflow-wrap: anywhere;
+}
+
+.moderation-kicker {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.moderation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.button.button-approve {
+  background: var(--color-moss);
+  color: white;
+  border: 0;
+}
+
+.button.button-approve:hover:not(:disabled) { background: var(--color-moss-hover); }
+
+.button.button-reject {
+  background: var(--color-clay);
+  color: white;
+  border: 0;
+}
+
+.button.button-reject:hover:not(:disabled) { background: #6f2e1c; }
+
+@media (width < 1100px) {
+  .office-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .refund-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (width < 900px) {
+  .desk {
+    display: block;
+  }
+
+  .panel-nav,
+  .office-glossary,
+  .insight-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .panel-nav::-webkit-scrollbar,
+  .office-glossary::-webkit-scrollbar,
+  .insight-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .panel-nav a,
+  .office-glossary button,
+  .insight-tabs button {
+    flex: none;
+  }
+
+  .office-glossary {
+    position: static;
+    flex-direction: row;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+    border-bottom: 0;
+  }
+
+  .office-glossary button {
+    width: auto;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    background: var(--color-paper);
+  }
+
+  .office-glossary button small { display: none; }
+
+  .office-glossary button[aria-current="true"] {
+    border-color: var(--color-brand-navy);
+    background: var(--color-lift);
+  }
+}
+
+@media (width < 800px) {
+  .office-metrics,
+  .moderation-grid,
+  .refund-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (width < 48rem) {
+  .panel-stage { padding: var(--space-4); }
+  .summary-card, .order-card, .link-card { padding: var(--space-4); }
+  .panel-nav { gap: var(--space-4); }
+  .setting-row { align-items: flex-start; }
+  .panel-stats .metric { padding: var(--space-3) var(--space-2); }
+  .detail-back { flex-wrap: wrap; }
+}
+
+.featured-choice {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-weight: 600;
+}
+
+@media (max-width: 720px) {
+  .plan-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .plan-card.is-selected {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plan-card.is-selected {
+    transform: none;
+  }
+}

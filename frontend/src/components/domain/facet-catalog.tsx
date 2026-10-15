@@ -7,7 +7,8 @@ import { LinkRow } from '@/components/domain/link-row'
 import { EmptyState } from '@/components/feedback/empty-state'
 import { jsonLdScript } from '@/domain/json-ld'
 import { TitleMark } from '@/components/ui/facet-badge'
-import { Breadcrumb } from '@/components/domain/breadcrumb'
+import { BackButton } from '@/components/ui/back-button'
+import { CatalogGrid } from './catalog-grid'
 
 type Facet = { name?: string; slug?: string } | null
 type Card = {
@@ -71,7 +72,7 @@ function ResultList({
   return (
     <section className={`${id.split('-')[0]}-list`} aria-labelledby={id}>
       <h2 id={id}>{title}</h2>
-      <div className={`${id.split('-')[0]}-results`}>
+      <CatalogGrid>
         {rows.map((row) => (
           <LinkRow
             key={row.id}
@@ -86,7 +87,7 @@ function ResultList({
             showImpressions={showImpressions}
           />
         ))}
-      </div>
+      </CatalogGrid>
     </section>
   )
 }
@@ -136,7 +137,7 @@ export function FacetCatalog({
       {indexable && body.seo.structuredData ? (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(body.seo.structuredData) }} />
       ) : null}
-      <Breadcrumb items={[{ href: '/', name: 'Início' }, { href: facetHref(route, slug, null), name: body.heading }]} />
+      <BackButton />
       <h1 className="entry-title page-mark"><TitleMark kind={mark} slug={slug} />{body.heading}</h1>
       {description ? <p className={descriptionClass}>{description}</p> : null}
       <FacetFilters

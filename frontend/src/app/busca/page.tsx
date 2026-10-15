@@ -5,11 +5,14 @@ import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 import { AgePrompt, confirmAge } from '@/components/domain/age-gate'
 import { LinkRow } from '@/components/domain/link-row'
+import { CatalogGrid } from '@/components/domain/catalog-grid'
+import { BackButton } from '@/components/ui/back-button'
 import { SearchBox } from '@/components/domain/search-box'
 import { EmptyState } from '@/components/feedback/empty-state'
 import { ErrorState } from '@/components/feedback/error-state'
 import { Loading } from '@/components/feedback/loading'
 import { api } from '@/lib/api'
+import styles from './search-results.module.css'
 
 type Facet = { name?: string; slug?: string } | null
 type Card = {
@@ -31,9 +34,9 @@ function SearchContext({ target }: { target: SearchTarget }) {
     ? `/nicho/${encodeURIComponent(target.slug)}`
     : `/rede/${encodeURIComponent(target.slug)}`
   return (
-    <div className="search-context">
+    <div className={styles.context}>
       <p className="search-context-label">{target.kind === 'niche' ? 'Nicho encontrado' : 'Rede encontrada'}</p>
-      <a className={name ? 'search-context-name' : 'search-context-slug'} href={href}>{name ?? target.slug}</a>
+      <a href={href}>Explorar {name ?? target.slug} <span aria-hidden="true">→</span></a>
     </div>
   )
 }
@@ -86,7 +89,9 @@ function SearchResults() {
 
   return (
     <main className="search-page">
+      <BackButton />
       <h1 className="entry-title">Buscar</h1>
+      <p className={styles.summary}>{q.trim() ? `Resultados para “${q}”` : 'Encontre links ou explore por nicho e rede.'}</p>
       <form className="search-form" action="/busca">
         <SearchBox id="search-query" label="Busca" initial={q} />
       </form>
@@ -96,23 +101,23 @@ function SearchResults() {
       {state === 'ready' && ageRequired ? <AgePrompt onYes={() => void answer('yes')} onNo={() => void answer('no')} /> : null}
       {state === 'ready' && target ? <SearchContext target={target} /> : null}
       {state === 'ready' && sponsored.length > 0 ? (
-        <section className="search-list" aria-labelledby="search-patrocinados">
+        <section className={`search-list ${styles.section}`} aria-labelledby="search-patrocinados">
           <h2 id="search-patrocinados">Patrocinados</h2>
-          <div className="search-results">
+          <CatalogGrid>
             {sponsored.map((row) => (
               <LinkRow key={row.id} id={row.id} name={row.name} description={row.description} href={rowHref(row)} placement="sponsored" niche={row.niche} network={row.network} impressions={row.impressions} showImpressions={showImpressions} />
             ))}
-          </div>
+          </CatalogGrid>
         </section>
       ) : null}
       {state === 'ready' && organic.length > 0 ? (
-        <section className="search-list" aria-labelledby="search-organicos">
-          <h2 id="search-organicos">Orgânicos</h2>
-          <div className="search-results">
+        <section className={`search-list ${styles.section}`} aria-labelledby="search-organicos">
+          <h2 id="search-organicos">Links encontrados</h2>
+          <CatalogGrid>
             {organic.map((row) => (
               <LinkRow key={row.id} id={row.id} name={row.name} description={row.description} href={rowHref(row)} placement="organic" niche={row.niche} network={row.network} impressions={row.impressions} showImpressions={showImpressions} />
             ))}
-          </div>
+          </CatalogGrid>
         </section>
       ) : null}
     </main>

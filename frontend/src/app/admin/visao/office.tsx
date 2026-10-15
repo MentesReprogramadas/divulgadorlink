@@ -5,6 +5,7 @@ import { ErrorState } from '@/components/feedback/error-state'
 import { Button } from '@/components/ui/button'
 import { formatCents } from '@/domain/money'
 import { api } from '@/lib/api'
+import { AdminLinksBoard, type AdminLinkFilter, type AdminLinkRow, type AdminLinkStatus } from '@/features/administration/components/admin-links-board'
 import { FinancePanel } from './finance-panel'
 import { RetentionPanel } from './retention-panel'
 import { TrafficPanel } from './traffic-panel'
@@ -12,6 +13,7 @@ import { TrafficPanel } from './traffic-panel'
 type Office = {
   windowDays: number
   listCap: number
+  linkStatusCounts: Record<AdminLinkStatus, number>
   metrics: {
     users: number
     bannedUsers: number
@@ -27,12 +29,12 @@ type Office = {
   topLinks: Array<{ id: string; name: string; status: string; impressions: number; clicks: number; ctr: number }>
   topPayers: Array<{ userId: string; name: string; email: string; status: string; paidCents: number; orders: number }>
   users: Array<{ id: string; name: string; email: string; status: string; role: string; links: number }>
-  links: Array<{ id: string; name: string; status: string; url: string; ownerName: string; ownerEmail: string }>
+  links: AdminLinkRow[]
 }
 
 type Prompt =
   | { kind: 'ban'; id: string; name: string }
-  | { kind: 'withdraw'; id: string; name: string }
+  | { kind: 'withdraw'; id: string; name: string; status: AdminLinkStatus }
 
 const LINK_STATUS: Record<string, string> = {
   PENDING_MODERATION: 'Aguardando',
@@ -54,7 +56,7 @@ const SECTIONS = [
   { id: 'cliques', label: 'Mais clicados', gloss: 'Últimos 30 dias' },
   { id: 'pagadores', label: 'Pagadores', gloss: 'Quem mais pagou' },
   { id: 'contas', label: 'Contas', gloss: 'Suspender' },
-  { id: 'links', label: 'Links', gloss: 'Tirar do ar' },
+  { id: 'links', label: 'Links', gloss: 'Destaque e publicação' },
   { id: 'retencao', label: 'Retenção', gloss: 'Analytics de 12 meses' },
 ] as const
 
@@ -80,6 +82,9 @@ export function OfficeBoard() {
   const [notice, setNotice] = useState('')
   const [busy, setBusy] = useState(false)
   const [section, setSection] = useState<SectionId>('metricas')
+  const [linkStatus, setLinkStatus] = useState<AdminLinkFilter>('ALL')
+  const [loading, setLoading] = useState(false)
+  const loadSequence = useRef(0)
   const dialogRef = useRef<HTMLDialogElement>(null)
   const pendingRef = useRef(false)
 
@@ -87,22 +92,30 @@ export function OfficeBoard() {
     if (officeCache) setOffice(officeCache)
   }, [])
 
-  async function load(query: string) {
+  async function load(query: string, status: AdminLinkFilter = linkStatus) {
+    const sequence = ++loadSequence.current
+    setLoading(true)
     setFailed(false)
-    const path = query ? `/v1/admin/office?q=${encodeURIComponent(query)}` : '/v1/admin/office'
-    const response = await api<Office>(path)
-    if (response.status !== 200) {
-      setFailed(true)
-      return
+    const params = new URLSearchParams()
+    if (query) params.set('q', query)
+    if (status !== 'ALL') params.set('status', status)
+    try {
+      const response = await api<Office>(`/v1/admin/office${params.size ? `?${params}` : ''}`)
+      if (sequence !== loadSequence.current) return
+      if (response.status !== 200) { setFailed(true); return }
+      setOffice(response.body)
+      if (!query && status === 'ALL') officeCache = response.body
+    } catch {
+      if (sequence === loadSequence.current) setFailed(true)
+    } finally {
+      if (sequence === loadSequence.current) setLoading(false)
     }
-    setOffice(response.body)
-    if (!query) officeCache = response.body
   }
 
   useEffect(() => {
-    const pending = load(q)
+    const pending = load(q, linkStatus)
     return () => { void pending }
-  }, [q])
+  }, [q, linkStatus])
 
   useEffect(() => {
     const dialog = dialogRef.current
@@ -247,26 +260,7 @@ export function OfficeBoard() {
           ) : null}
 
           {section === 'links' ? (
-            <section aria-label="Links">
-              <h2>Links</h2>
-              {office.links.length === 0 ? <p>Nenhum link.</p> : (
-                <div className="moderation-grid">
-                  {office.links.map((row) => (
-                    <article key={row.id} className="summary-card moderation-card">
-                      <p className="moderation-kicker">{LINK_STATUS[row.status] ?? row.status}</p>
-                      <h2>{row.name}</h2>
-                      <p><a href={row.url} target="_blank" rel="noreferrer">{row.url}</a></p>
-                      <p>{row.ownerName || 'Sem dono'}{row.ownerEmail ? ` · ${row.ownerEmail}` : ''}</p>
-                      {row.status !== 'UNAVAILABLE' ? (
-                        <div className="moderation-actions">
-                          <Button variant="danger" onClick={() => setPrompt({ kind: 'withdraw', id: row.id, name: row.name })}>Tirar do ar</Button>
-                        </div>
-                      ) : null}
-                    </article>
-                  ))}
-                </div>
-              )}
-            </section>
+            <AdminLinksBoard links={office.links} counts={office.linkStatusCounts} filter={linkStatus} onFilterChange={setLinkStatus} loading={loading} query={q} onWithdraw={row => setPrompt({ kind: 'withdraw', id: row.id, name: row.name, status: row.status })} />
           ) : null}
         </>
       )}
@@ -276,11 +270,11 @@ export function OfficeBoard() {
       <dialog ref={dialogRef} className="plan-dialog" aria-labelledby="office-dialog-title">
         {prompt ? (
           <form method="dialog" onSubmit={(event) => { event.preventDefault(); void confirm() }}>
-            <h2 id="office-dialog-title">{prompt.kind === 'ban' ? 'Suspender conta' : 'Tirar link do ar'}</h2>
+            <h2 id="office-dialog-title">{prompt.kind === 'ban' ? 'Suspender conta' : prompt.status === 'PUBLISHED' ? 'Tirar link do ar' : 'Retirar envio'}</h2>
             <p>
               {prompt.kind === 'ban'
                 ? `${prompt.name} perde a conta. Todos os links saem do ar, o destaque é cancelado e um e-mail é enviado. O que já foi pago não volta, e a suspensão não tem desfazer.`
-                : `${prompt.name} sai do catálogo e o destaque deste link é cancelado. A conta continua ativa. O dono não é avisado. Não dá para publicar de novo.`}
+                : prompt.status === 'PUBLISHED' ? `${prompt.name} sai do catálogo e o destaque deste link é cancelado. A conta continua ativa. O dono não é avisado. Não dá para publicar de novo.` : `${prompt.name} será retirado do fluxo de publicação e ficará fora do ar. A conta continua ativa. O dono não é avisado. Esta ação não pode ser desfeita.`}
             </p>
             {prompt.kind === 'ban' ? (
               <label className="field-block">
@@ -289,7 +283,7 @@ export function OfficeBoard() {
               </label>
             ) : null}
             <div className="moderation-actions">
-              <Button type="submit" variant="danger" disabled={busy}>{prompt.kind === 'ban' ? 'Suspender' : 'Tirar do ar'}</Button>
+              <Button type="submit" variant="danger" disabled={busy}>{prompt.kind === 'ban' ? 'Suspender' : prompt.status === 'PUBLISHED' ? 'Tirar do ar' : 'Retirar envio'}</Button>
               <Button type="button" variant="secondary" disabled={busy} onClick={() => setPrompt(null)}>Cancelar</Button>
             </div>
           </form>

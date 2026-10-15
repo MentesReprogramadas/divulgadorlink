@@ -18,11 +18,13 @@ const PAID = ['PAID', 'PAID_LATE', 'REFUND_PENDING', 'REFUND_FAILED']
 
 const querySchema = z.object({
   q: z.string().max(80).optional(),
+  status: z.enum(['DRAFT', 'PENDING_MODERATION', 'PRE_REJECTED', 'PUBLISHED', 'UNAVAILABLE']).optional(),
 })
 
 type OfficeBody = {
   windowDays: number
   listCap: number
+  linkStatusCounts: Record<LinkStatus, number>
   metrics: {
     users: number
     bannedUsers: number
@@ -70,6 +72,7 @@ function emptyOffice(): OfficeBody {
   return {
     windowDays: WINDOW_DAYS,
     listCap: LIST_CAP,
+    linkStatusCounts: { DRAFT: 0, PENDING_MODERATION: 0, PRE_REJECTED: 0, PUBLISHED: 0, UNAVAILABLE: 0 },
     metrics: {
       users: 0,
       bannedUsers: 0,
@@ -89,7 +92,7 @@ function emptyOffice(): OfficeBody {
   }
 }
 
-function officeFromMemory(tenantId: string, q: string): OfficeBody {
+function officeFromMemory(tenantId: string, q: string, status: LinkStatus | null): OfficeBody {
   const repo = getLinksRepository()
   if (!(repo instanceof InMemoryLinksRepository)) return emptyOffice()
   const needle = q.trim().toLowerCase()
@@ -100,9 +103,17 @@ function officeFromMemory(tenantId: string, q: string): OfficeBody {
     const email = row.identifiers.find((item) => item.kind === 'EMAIL' && item.replacedAt === null)?.normalizedValue
     return matches(row.name) || matches(email)
   })
-  const listedLinks = links.filter((row) => row.status !== 'DRAFT' && matches(row.name))
+  const matchingLinks = links.filter((row) => {
+    const owner = users.find(user => user.id === row.ownerId)
+    const email = owner?.identifiers.find(item => item.kind === 'EMAIL' && item.replacedAt === null)?.normalizedValue
+    return matches(row.name) || matches(row.canonicalUrl) || matches(owner?.name) || matches(email)
+  })
+  const linkStatusCounts = emptyOffice().linkStatusCounts
+  for (const row of matchingLinks) linkStatusCounts[row.status] += 1
+  const listedLinks = matchingLinks.filter(row => !status || row.status === status)
   return {
     ...emptyOffice(),
+    linkStatusCounts,
     metrics: {
       ...emptyOffice().metrics,
       users: users.length,
@@ -137,16 +148,16 @@ function countOf(rows: Array<{ status: string; n: number }>, status: string): nu
   return Number(rows.find((row) => row.status === status)?.n ?? 0)
 }
 
-async function officeFromDatabase(tenantId: string, needle: string | null): Promise<OfficeBody> {
+async function officeFromDatabase(tenantId: string, needle: string | null, status: LinkStatus | null): Promise<OfficeBody> {
   const userFilter = needle
     ? Prisma.sql`AND (u.name ILIKE ${needle} OR COALESCE(i."normalizedValue", '') ILIKE ${needle})`
     : Prisma.empty
   const linkFilter = needle
-    ? Prisma.sql`AND (l.name ILIKE ${needle} OR COALESCE(u.name, '') ILIKE ${needle} OR COALESCE(i."normalizedValue", '') ILIKE ${needle})`
+    ? Prisma.sql`AND (l.name ILIKE ${needle} OR l."canonicalUrl" ILIKE ${needle} OR COALESCE(u.name, '') ILIKE ${needle} OR COALESCE(i."normalizedValue", '') ILIKE ${needle})`
     : Prisma.empty
   const paidList = Prisma.join(PAID)
 
-  const [userCounts, linkCounts, traffic, paid, topLinks, topPayers, users, links] = await Promise.all([
+  const [userCounts, linkCounts, traffic, paid, topLinks, topPayers, users, links, filteredLinkCounts] = await Promise.all([
     prisma.$queryRaw<Array<{ status: string; n: number }>>`
       SELECT status::text AS status, COUNT(*)::int AS n
       FROM users
@@ -235,19 +246,34 @@ async function officeFromDatabase(tenantId: string, needle: string | null): Prom
         LIMIT 1
       ) i ON true
       WHERE l."tenantId" = ${tenantId}
-        AND l.status <> 'DRAFT'
+        AND (${status}::text IS NULL OR l.status::text = ${status})
         ${linkFilter}
       ORDER BY l."updatedAt" DESC
       LIMIT ${LIST_CAP}
+    `,
+    prisma.$queryRaw<Array<{ status: LinkStatus; n: number }>>`
+      SELECT l.status::text AS status, COUNT(*)::int AS n
+      FROM links l
+      LEFT JOIN users u ON u.id = l."ownerId"
+      LEFT JOIN LATERAL (
+        SELECT "normalizedValue" FROM user_identifiers
+        WHERE "userId" = u.id AND kind = 'EMAIL' AND "replacedAt" IS NULL
+        ORDER BY "createdAt" DESC LIMIT 1
+      ) i ON true
+      WHERE l."tenantId" = ${tenantId} ${linkFilter}
+      GROUP BY l.status
     `,
   ])
 
   const impressions = Number(traffic.find((row) => row.kind === 'IMPRESSION')?.n ?? 0)
   const clicks = Number(traffic.find((row) => row.kind === 'CLICK')?.n ?? 0)
   const paidRow = paid[0]
+  const linkStatusCounts = emptyOffice().linkStatusCounts
+  for (const row of filteredLinkCounts) linkStatusCounts[row.status] = Number(row.n)
   return {
     windowDays: WINDOW_DAYS,
     listCap: LIST_CAP,
+    linkStatusCounts,
     metrics: {
       users: userCounts.reduce((sum, row) => sum + Number(row.n), 0),
       bannedUsers: countOf(userCounts, 'BANNED'),
@@ -291,8 +317,8 @@ export async function getOffice(request: FastifyRequest, reply: FastifyReply) {
     if (!tenant) return
     const q = parsed.data.q ?? ''
     const body = process.env.NODE_ENV === 'test'
-      ? officeFromMemory(tenant.id, q)
-      : await officeFromDatabase(tenant.id, needleOf(q))
+      ? officeFromMemory(tenant.id, q, parsed.data.status ?? null)
+      : await officeFromDatabase(tenant.id, needleOf(q), parsed.data.status ?? null)
     return reply.status(200).send(body)
   } catch (error) {
     if (error instanceof ResourceNotFoundError) {

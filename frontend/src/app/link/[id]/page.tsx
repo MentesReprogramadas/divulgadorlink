@@ -7,7 +7,7 @@ import { trackedGoPath } from '@/domain/tracked-go'
 import { metadataFromSeo } from '@/domain/crawler-policy'
 import { jsonLdScript } from '@/domain/json-ld'
 import { tenantHost, forward } from '@/lib/upstream'
-import { Breadcrumb } from '@/components/domain/breadcrumb'
+import { BackButton } from '@/components/ui/back-button'
 import { LinkMeta } from '@/components/domain/link-meta'
 import { AgeWall } from '@/components/domain/age-gate'
 
@@ -29,22 +29,6 @@ type PublicLink = {
     openGraph?: { title: string; description: string; url: string }
     structuredData?: Record<string, string>
   }
-}
-
-function facetTarget(facet: FacetRef | undefined, prefix: '/nicho' | '/rede'): { href: string; name: string } | null {
-  const name = facet?.name?.trim() ?? ''
-  const slug = facet?.slug?.trim() ?? ''
-  if (!name || !slug) return null
-  return { href: `${prefix}/${encodeURIComponent(slug)}`, name }
-}
-
-function linkTrail(id: string, link: PublicLink): Array<{ href: string; name: string }> {
-  const facet = facetTarget(link.niche, '/nicho') ?? facetTarget(link.network, '/rede')
-  return [
-    { href: '/', name: 'Início' },
-    ...(facet ? [facet] : []),
-    { href: `/link/${id}`, name: link.name?.trim() || 'Link' },
-  ]
 }
 
 function usableDescription(name: string, description: string | undefined): string | null {
@@ -98,7 +82,7 @@ export default async function Page({
   if (!link.available) {
     return (
       <main className="detail-page">
-        <Breadcrumb items={[{ href: '/', name: 'Início' }, { href: `/link/${id}`, name: 'Link indisponível' }]} />
+        <BackButton />
         <h1 className="entry-title">Link indisponível</h1>
       </main>
     )
@@ -112,7 +96,7 @@ export default async function Page({
         {link.seo?.robots.startsWith('index') && link.seo.structuredData ? (
           <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(link.seo.structuredData) }} />
         ) : null}
-        <Breadcrumb items={linkTrail(id, link)} />
+        <BackButton />
         <h1 className="entry-title">{link.name}</h1>
         {description ? <p className="detail-description">{description}</p> : null}
         <LinkMeta niche={link.niche} network={link.network} />

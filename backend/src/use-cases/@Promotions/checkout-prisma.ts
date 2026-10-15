@@ -100,6 +100,10 @@ export class PrismaCheckoutStore implements CheckoutStore {
   }
 
   async activeSurfaces(linkId: string): Promise<Surface[]> {
+    await this.client.$executeRawUnsafe(
+      `UPDATE promotions SET status = 'EXPIRED', "updatedAt" = NOW()
+       WHERE "linkId" = $1 AND administrative AND status = 'ACTIVE' AND "expiresAt" <= NOW()`, linkId,
+    )
     const rows = await this.client.$queryRawUnsafe<Array<{ surface: Surface }>>(
       `SELECT surface FROM promotions WHERE "linkId" = $1 AND status = 'ACTIVE'`,
       linkId,
@@ -120,6 +124,12 @@ export class PrismaCheckoutStore implements CheckoutStore {
     try {
       await this.client.$transaction(async (tx) => {
         await tx.$executeRawUnsafe('SELECT id FROM links WHERE id = $1 FOR UPDATE', input.linkId)
+        const administrative = await tx.promotion.count({ where: { linkId: input.linkId, status: 'ACTIVE', administrative: true, surface: { in: input.surfaces } } })
+        if (administrative > 0) throw new CheckoutConflictError()
+        if (!input.renewal) {
+          const active = await tx.promotion.count({ where: { linkId: input.linkId, status: 'ACTIVE', surface: { in: input.surfaces } } })
+          if (active > 0) throw new CheckoutConflictError()
+        }
         await tx.$executeRawUnsafe(
           `INSERT INTO orders (
             id, "tenantId", "userId", "linkId", status, method, "productCode", "durationDays",
@@ -214,7 +224,7 @@ export class PrismaCheckoutStore implements CheckoutStore {
     if (row.renewal) {
       for (const surface of row.surfaces) {
         const current = await this.client.$queryRawUnsafe<ActivePromotion[]>(
-          `SELECT id, "linkId", surface, status, "activatedAt", "expiresAt" FROM promotions
+          `SELECT id, "linkId", surface, status, "activatedAt", "expiresAt", administrative FROM promotions
            WHERE "linkId" = $1 AND surface = $2::"PromotionSurface" AND status = 'ACTIVE' LIMIT 1`,
           row.linkId,
           surface,
@@ -252,7 +262,7 @@ export class PrismaCheckoutStore implements CheckoutStore {
 
   async listPromotions(linkId: string): Promise<ActivePromotion[]> {
     return this.client.$queryRawUnsafe(
-      `SELECT id, "linkId", surface, status, "activatedAt", "expiresAt" FROM promotions WHERE "linkId" = $1`,
+      `SELECT id, "linkId", surface, status, "activatedAt", "expiresAt", administrative FROM promotions WHERE "linkId" = $1`,
       linkId,
     )
   }
@@ -261,7 +271,7 @@ export class PrismaCheckoutStore implements CheckoutStore {
     if (linkIds.length === 0) return []
     const placeholders = linkIds.map((_, index) => `$${index + 1}`).join(', ')
     return this.client.$queryRawUnsafe(
-      `SELECT id, "linkId", surface, status, "activatedAt", "expiresAt" FROM promotions WHERE "linkId" IN (${placeholders})`,
+      `SELECT id, "linkId", surface, status, "activatedAt", "expiresAt", administrative FROM promotions WHERE "linkId" IN (${placeholders})`,
       ...linkIds,
     )
   }

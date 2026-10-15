@@ -1,4 +1,6 @@
-import type { InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react'
+'use client'
+
+import { cloneElement, isValidElement, useId, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react'
 
 function controlClass(invalid: boolean | undefined, className: string | undefined): string {
   return ['field', invalid ? 'field-invalid' : '', className].filter(Boolean).join(' ')
@@ -17,13 +19,18 @@ export function Field({
   error?: string
   children: ReactNode
 }) {
+  const generatedId = useId()
+  const control = isValidElement<{ id?: string; invalid?: boolean; 'aria-describedby'?: string }>(children) ? children : null
+  const id = htmlFor ?? control?.props.id ?? generatedId
+  const descriptionId = error || hint ? `${id}-description` : undefined
+  const describedBy = [control?.props['aria-describedby'], descriptionId].filter(Boolean).join(' ') || undefined
   return (
-    <label className="field-block" htmlFor={htmlFor}>
-      <span className="field-label">{label}</span>
-      {children}
-      {error ? <span className="field-error" role="alert">{error}</span> : null}
-      {hint && !error ? <span className="field-hint">{hint}</span> : null}
-    </label>
+    <div className="field-block">
+      <label className="field-label" htmlFor={id}>{label}</label>
+      {control ? cloneElement(control, { id, 'aria-describedby': describedBy, invalid: Boolean(error) || control.props.invalid }) : children}
+      {error ? <span id={descriptionId} className="field-error" role="alert">{error}</span> : null}
+      {hint && !error ? <span id={descriptionId} className="field-hint">{hint}</span> : null}
+    </div>
   )
 }
 

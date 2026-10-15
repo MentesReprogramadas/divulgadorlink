@@ -12,5 +12,5 @@
     "isolatedModules": true,
     "types": ["node"]
   },
-  "include": ["*.ts", "../playwright.config.ts"]
+  "include": ["*.ts", "../playwright.config.ts", "../playwright.visual.config.ts"]
 }

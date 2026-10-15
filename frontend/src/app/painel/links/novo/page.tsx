@@ -8,6 +8,7 @@ import { Field, Input, Select, TextArea } from '@/components/ui/input'
 import { spreadFacets } from '@/domain/facets'
 import { trackMeta } from '@/domain/meta-pixel'
 import { api } from '@/lib/api'
+import styles from '@/features/link-submission/components/submission-form.module.css'
 
 type Facet = { id: string; name: string; slug: string }
 
@@ -124,43 +125,54 @@ export default function Page() {
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (pending || result) return
     if (!canonical) {
       setError('Informe uma URL https')
       return
     }
     setPending(true)
     setError('')
-    const sent = await api<{ id?: string; status?: string; message?: string }>('/v1/links', {
-      method: 'POST',
-      body: JSON.stringify({
-        url: draft.url,
-        name: draft.name,
-        description: draft.description,
-        networkId: draft.networkId,
-        nicheId: draft.nicheId,
-      }),
-    })
-    setPending(false)
-    if (sent.status === 201) {
-      if (sent.body.id) trackMeta('SubmitLink', sent.body.id)
-      localStorage.removeItem(DRAFT_KEY)
-      setResult(describeSubmission(sent.body.status))
-      return
+    try {
+      const sent = await api<{ id?: string; status?: string; message?: string }>('/v1/links', {
+        method: 'POST',
+        body: JSON.stringify({
+          url: draft.url,
+          name: draft.name,
+          description: draft.description,
+          networkId: draft.networkId,
+          nicheId: draft.nicheId,
+        }),
+      })
+      setPending(false)
+      if (sent.status === 201) {
+        if (sent.body.id) trackMeta('SubmitLink', sent.body.id)
+        localStorage.removeItem(DRAFT_KEY)
+        setResult(describeSubmission(sent.body.status))
+        return
+      }
+      setError(sent.body.message ?? 'Envio não aceito.')
+    } catch {
+      setError('Não foi possível conectar. Seu rascunho foi mantido. Tente novamente.')
+    } finally {
+      setPending(false)
     }
-    setError(sent.body.message ?? 'Envio não aceito.')
   }
 
   return (
     <>
       <h2 className="panel-section-title">Novo link</h2>
+      <p className="panel-section-description">Apresente o seu conteúdo. Publicar é grátis; você acompanha a análise em Links.</p>
       {slotsUsed !== null ? <p>Vagas em uso: {slotsUsed} de 4.</p> : null}
       {!confirmed ? <p>Confirme o e-mail para enviar um link</p> : null}
-      <form className="form-grid" onSubmit={onSubmit}>
-        <Field label="Nome"><Input name="name" value={draft.name} onChange={(event) => update({ name: event.target.value })} required /></Field>
-        <Field label="Descrição"><TextArea name="description" value={draft.description} onChange={(event) => update({ description: event.target.value })} required /></Field>
-        <Field label="URL"><Input name="url" value={draft.url} onChange={(event) => update({ url: event.target.value })} required /></Field>
+      <form className={`form-grid ${styles.form}`} onSubmit={onSubmit}>
+        <Field label="Titulo"><Input name="name" value={draft.name} onChange={(event) => update({ name: event.target.value })} required /></Field>
         <div>
-          {canonical ? <p className="panel-meta">{canonical}</p> : null}
+          <Field label="URL" hint="Use uma URL pública que comece com https://."><Input name="url" type="url" autoComplete="url" value={draft.url} onChange={(event) => update({ url: event.target.value })} required /></Field>
+          {canonical ? <p className={styles.preview}>{canonical}</p> : null}
+        </div>
+        <div className={styles.description}><Field label="Descrição" hint="Explique o que a pessoa vai encontrar ao acessar."><TextArea name="description" value={draft.description} onChange={(event) => update({ description: event.target.value })} required /></Field></div>
+        <fieldset className={styles.facets}>
+          <legend>Organização no catálogo</legend>
           <Field label="Rede">
             <Select name="networkId" value={draft.networkId} onChange={(event) => update({ networkId: event.target.value })} required>
               <option value="">Escolha</option>
@@ -173,9 +185,9 @@ export default function Page() {
               {nicheOptions.map((row) => <option key={row.id} value={row.id}>{row.name}</option>)}
             </Select>
           </Field>
-        </div>
+        </fieldset>
         {error ? <p role="alert">{error}</p> : null}
-        <Button type="submit" disabled={pending || result !== null || !confirmed || session?.status === 'BANNED'}>Enviar</Button>
+        <Button type="submit" loading={pending} disabled={result !== null || !confirmed || session?.status === 'BANNED'}>Enviar</Button>
       </form>
       <dialog ref={dialogRef} className="age-dialog" aria-labelledby="submit-result-title">
         {result ? (

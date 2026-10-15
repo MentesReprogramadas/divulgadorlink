@@ -6,6 +6,12 @@ import { Field, Input } from './input'
 import { Pagination } from './pagination'
 
 describe('controles', () => {
+  it('bloqueia ações enquanto carrega sem perder o nome acessível', () => {
+    render(<Button loading>Enviar</Button>)
+    const button = screen.getByRole('button', { name: 'Enviar' }) as HTMLButtonElement
+    expect(button.disabled).toBe(true)
+    expect(button.getAttribute('aria-busy')).toBe('true')
+  })
   it('renderiza botão, link de ação, campo e paginação', () => {
     render(
       <>

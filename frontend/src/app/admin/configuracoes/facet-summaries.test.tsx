@@ -63,9 +63,9 @@ describe('resumos do catálogo', () => {
     expect(await screen.findByRole('textbox', { name: 'Resumo de Jogos' })).toBeTruthy()
     expect(screen.queryByRole('textbox', { name: 'Resumo de Filmes' })).toBeNull()
     fireEvent.change(screen.getByRole('textbox', { name: 'Resumo de Jogos' }), { target: { value: 'rascunho' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Filmes' }))
+    fireEvent.click(screen.getByRole('button', { name: /^Filmes\b/ }))
     expect(screen.getByRole('textbox', { name: 'Resumo de Filmes' })).toBeTruthy()
-    fireEvent.click(screen.getByRole('button', { name: 'Jogos' }))
+    fireEvent.click(screen.getByRole('button', { name: /^Jogos\b/ }))
     expect((screen.getByRole('textbox', { name: 'Resumo de Jogos' }) as HTMLTextAreaElement).value).toBe('rascunho')
   })
 

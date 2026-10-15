@@ -17,6 +17,7 @@ import { registerFacetRoutes } from '@/http/controllers/@Admin/facets'
 import { registerFinanceRoutes } from '@/http/controllers/@Admin/finance'
 import { registerModerationRoutes } from '@/http/controllers/@Admin/moderation'
 import { registerOfficeRoutes } from '@/http/controllers/@Admin/office'
+import { registerAdminPromotionRoutes } from '@/http/controllers/@Admin/promotions'
 import { registerRetentionRoutes } from '@/http/controllers/@Admin/retention'
 import { registerSettingsRoutes } from '@/http/controllers/@Admin/settings'
 import { registerTrafficAdminRoutes } from '@/http/controllers/@Admin/traffic'
@@ -123,6 +124,7 @@ export async function adminRoutes(app: FastifyInstance) {
   await registerModerationRoutes(app)
   await registerBanRoutes(app)
   await registerOfficeRoutes(app)
+  await registerAdminPromotionRoutes(app)
   await registerRetentionRoutes(app)
   await registerTrafficAdminRoutes(app)
   await registerFinanceRoutes(app)

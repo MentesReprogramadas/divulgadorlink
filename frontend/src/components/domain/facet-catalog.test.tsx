@@ -68,8 +68,8 @@ describe('catálogo de faceta', () => {
       />,
     )
     expect(screen.getByRole('heading', { level: 1, name: 'Jogos' })).toBeTruthy()
-    expect(screen.getByRole('navigation', { name: 'Trilha' }).textContent).toContain('Início')
-    expect(screen.getByRole('link', { name: 'Início' }).getAttribute('href')).toBe('/')
+    expect(screen.getByRole('button', { name: 'Voltar' })).toBeTruthy()
+    expect(screen.queryByRole('navigation', { name: 'Trilha' })).toBeNull()
     expect(screen.getByText('Links de Jogos organizados por rede.')).toBeTruthy()
     expect(screen.getByRole('link', { name: 'Receitas' }).getAttribute('href')).toBe('/link/receitas?surfaceToken=token')
     expect(screen.getAllByRole('link', { name: 'Telegram' }).map((link) => link.getAttribute('href'))).toContain('/nicho/jogos?rede=telegram')

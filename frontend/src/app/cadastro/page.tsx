@@ -13,42 +13,49 @@ export default function Page() {
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (pending) return
     setPending(true)
     setError('')
     const data = new FormData(event.currentTarget)
-    const result = await api<{ role?: string; user?: { id: string; status: string; canSubmitLink: boolean }; message?: string }>('/v1/auth/register', {
-      method: 'POST',
-      body: JSON.stringify({
-        name: data.get('name'),
-        email: data.get('email'),
-        password: data.get('password'),
-      }),
-    })
-    if (result.status === 409) {
-      setError('Esse e-mail já está cadastrado. Entre.')
+    try {
+      const result = await api<{ role?: string; user?: { id: string; status: string; canSubmitLink: boolean }; message?: string }>('/v1/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: data.get('name'),
+          email: data.get('email'),
+          password: data.get('password'),
+        }),
+      })
+      if (result.status === 409) {
+        setError('Esse e-mail já está cadastrado. Entre.')
+        setPending(false)
+        return
+      }
+      if (result.status === 503) {
+        setError(result.body.message ?? 'Não foi possível enviar o código. Tente de novo.')
+        setPending(false)
+        return
+      }
+      if (result.status !== 201 || !result.body.role) {
+        setError(result.body.message ?? 'Não foi possível criar a conta.')
+        setPending(false)
+        return
+      }
+      writeSession({
+        role: result.body.role,
+        status: result.body.user?.status ?? 'ACTIVE',
+        canSubmit: Boolean(result.body.user?.canSubmitLink),
+      })
+      // A navegação cheia cancela o envio do pixel que ainda está na fila.
+      if (result.body.user && trackMeta('CompleteRegistration', result.body.user.id)) {
+        await new Promise((resolve) => setTimeout(resolve, 300))
+      }
+      window.location.assign('/painel/verificar')
+    } catch {
+      setError('Não foi possível conectar. Verifique sua conexão e tente novamente.')
+    } finally {
       setPending(false)
-      return
     }
-    if (result.status === 503) {
-      setError(result.body.message ?? 'Não foi possível enviar o código. Tente de novo.')
-      setPending(false)
-      return
-    }
-    if (result.status !== 201 || !result.body.role) {
-      setError(result.body.message ?? 'Não foi possível criar a conta.')
-      setPending(false)
-      return
-    }
-    writeSession({
-      role: result.body.role,
-      status: result.body.user?.status ?? 'ACTIVE',
-      canSubmit: Boolean(result.body.user?.canSubmitLink),
-    })
-    // A navegação cheia cancela o envio do pixel que ainda está na fila.
-    if (result.body.user && trackMeta('CompleteRegistration', result.body.user.id)) {
-      await new Promise((resolve) => setTimeout(resolve, 300))
-    }
-    window.location.assign('/painel/verificar')
   }
 
   return (
@@ -63,7 +70,7 @@ export default function Page() {
           <p role="alert">Esse e-mail já está cadastrado. <a href="/login">Entre.</a></p>
         ) : error ? <p role="alert">{error}</p> : null}
         <p>Ao criar a conta você concorda com os <a href="/termos">Termos</a> e a <a href="/privacidade">Privacidade</a>.</p>
-        <Button type="submit" disabled={pending}>Criar conta</Button>
+        <Button type="submit" loading={pending}>Criar conta</Button>
       </form>
       <p className="auth-switch">Já tem conta? <a href="/login">Entrar</a></p>
     </main>

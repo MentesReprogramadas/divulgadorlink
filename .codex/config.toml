@@ -1,0 +1,28 @@
+[mcp_servers.context7]
+url = "https://mcp.context7.com/mcp"
+enabled = true
+startup_timeout_sec = 30
+tool_timeout_sec = 60
+
+[mcp_servers.shadcn]
+command = "npx.cmd"
+args = ["-y", "shadcn@4.21.5", "mcp"]
+cwd = "C:/VSCODE/divulgadorlinks/frontend"
+enabled = true
+enabled_tools = ["get_project_registries", "list_items_in_registries", "search_items_in_registries", "view_items_in_registries", "get_item_examples_from_registries", "get_add_command_for_items", "get_audit_checklist"]
+startup_timeout_sec = 90
+tool_timeout_sec = 60
+
+[mcp_servers.chrome_devtools]
+command = "npx.cmd"
+args = ["-y", "chrome-devtools-mcp@1.11.0", "--headless", "--isolated", "--executablePath", "C:/Users/ferna/AppData/Local/ms-playwright/chromium-1243/chrome-win64/chrome.exe", "--no-usage-statistics", "--no-performance-crux"]
+enabled = true
+startup_timeout_sec = 60
+tool_timeout_sec = 60
+
+[mcp_servers.twentyfirst]
+url = "https://21st.dev/api/mcp"
+env_http_headers = { "x-api-key" = "API_KEY_21ST" }
+enabled = false
+startup_timeout_sec = 30
+tool_timeout_sec = 120
