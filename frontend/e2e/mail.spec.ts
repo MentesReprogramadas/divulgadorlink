@@ -51,6 +51,15 @@ async function outbox(page: Page, email: string): Promise<Mail[]> {
   return (JSON.parse(result.text) as { messages: Mail[] }).messages
 }
 
+async function confirmEmail(page: Page): Promise<void> {
+  await page.goto(`${A}/painel/verificar`)
+  const inbox = await call(page, '/bff/v1/auth/confirmation-inbox?kind=EMAIL')
+  expect(inbox.status, inbox.text).toBe(200)
+  await page.getByLabel('Dígito 1 de 6').fill((JSON.parse(inbox.text) as { code: string }).code)
+  await page.getByRole('button', { name: 'Confirmar e-mail' }).click()
+  await expect(page).toHaveURL(`${A}/painel/links/novo`)
+}
+
 function userId(email: string): string {
   return sql(`SELECT "userId" FROM user_identifiers WHERE "normalizedValue" = '${email}' AND "replacedAt" IS NULL`)
 }
@@ -78,6 +87,7 @@ test('esqueci a senha troca a senha e entra com a nova', async ({ page }) => {
   const email = `reset-${serial}@tenant-a.test`
   const next = 'Senha-e2e-2'
   await register(page, email)
+  await confirmEmail(page)
   await page.goto(`${A}/painel`)
   await page.getByRole('button', { name: 'Sair' }).click()
   await expect(page.getByRole('heading', { name: 'Entrar' })).toBeVisible()
@@ -146,6 +156,7 @@ test('banimento avisa e o painel mostra a conta suspensa', async ({ browser }) =
 test('excluir a conta avisa e a senha deixa de entrar', async ({ page }) => {
   const email = `del-${serial}@tenant-a.test`
   await register(page, email)
+  await confirmEmail(page)
   await page.goto(`${A}/painel/conta`)
   await page.getByLabel('Senha atual').fill(state.password)
   await page.getByRole('button', { name: 'Excluir conta' }).click()

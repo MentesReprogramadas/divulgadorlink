@@ -314,19 +314,25 @@ export class PrismaCheckoutStore implements CheckoutStore {
   }
 
   async saveOrder(order: Order): Promise<void> {
-    await this.client.$executeRawUnsafe(
-      `UPDATE orders SET status = $2::"OrderStatus", "pixExpiresAt" = $3, "gatewayChargeId" = $4,
-        "refundCorrelationId" = $5, "refundAttempts" = $6, "refundErrors" = $7::jsonb, "refundIds" = $8::jsonb,
-        "updatedAt" = NOW() WHERE id = $1`,
-      order.id,
-      order.status,
-      order.pixExpiresAt,
-      order.gatewayChargeId,
-      order.refundCorrelationId,
-      order.refundAttempts,
-      JSON.stringify(order.refundErrors ?? []),
-      JSON.stringify(order.refundIds ?? []),
-    )
+    await this.client.$transaction(async tx => {
+      await tx.$executeRawUnsafe(
+        `UPDATE orders SET status = $2::"OrderStatus", "pixExpiresAt" = $3, "gatewayChargeId" = $4,
+          "refundCorrelationId" = $5, "refundAttempts" = $6, "refundErrors" = $7::jsonb, "refundIds" = $8::jsonb,
+          "updatedAt" = NOW() WHERE id = $1`,
+        order.id,
+        order.status,
+        order.pixExpiresAt,
+        order.gatewayChargeId,
+        order.refundCorrelationId,
+        order.refundAttempts,
+        JSON.stringify(order.refundErrors ?? []),
+        JSON.stringify(order.refundIds ?? []),
+      )
+      if (order.status === 'REFUND_FAILED') {
+        const persisted = await tx.order.findUnique({ where: { id: order.id }, select: { tenantId: true } })
+        if (persisted) await tx.operationalMessage.upsert({ where: { occurrenceKey: `refund-failed:${order.id}` }, create: { tenantId: persisted.tenantId, resourceId: order.id, kind: 'REFUND_FAILED', occurrenceKey: `refund-failed:${order.id}`, payload: {} }, update: {} })
+      }
+    })
     if (order.status === 'PAID' || order.status === 'PAID_LATE' || order.status === 'REFUNDED' || order.status === 'REFUND_FAILED') {
       await this.client.$executeRawUnsafe(
         'UPDATE payments SET status = $2 WHERE "orderId" = $1',

@@ -52,6 +52,32 @@ const stub = createServer((req, res) => {
   req.on('end', () => {
     const raw = Buffer.concat(chunks).toString()
     res.setHeader('content-type', 'application/json')
+    if (req.method === 'GET' && req.url === '/instance/connectionState/E2E%20Bot') {
+      res.end(JSON.stringify({ instance: { state: evolutionFailure ? 'close' : 'open' } })); return
+    }
+    if (req.method === 'POST' && req.url === '/message/sendText/E2E%20Bot') {
+      const body = JSON.parse(raw)
+      evolutionMessages.push(body)
+      if (evolutionGate) {
+        evolutionHeld.push(res)
+        return
+      }
+      res.statusCode = evolutionFailure ? 503 : 200
+      res.end(JSON.stringify(evolutionFailure ? { error: 'fixture failure' } : { key: { id: 'e2e-message-' + evolutionMessages.length } }))
+      return
+    }
+    if (req.method === 'GET' && req.url === '/evolution/messages') {
+      res.end(JSON.stringify(evolutionMessages)); return
+    }
+    if (req.method === 'POST' && req.url === '/evolution/failure') {
+      evolutionFailure = JSON.parse(raw).enabled === true
+      res.end('{}'); return
+    }
+    if (req.method === 'POST' && req.url === '/evolution/gate') {
+      evolutionGate = JSON.parse(raw).enabled === true
+      if (!evolutionGate) for (const held of evolutionHeld.splice(0)) held.end(JSON.stringify({ key: { id: 'released-' + evolutionMessages.length } }))
+      res.end('{}'); return
+    }
     if (req.method === 'POST' && req.url === '/api/v1/charge') {
       const body = JSON.parse(raw)
       res.end(JSON.stringify({
@@ -78,6 +104,10 @@ const stub = createServer((req, res) => {
   })
 })
 
+const evolutionMessages = []
+let evolutionFailure = false
+let evolutionGate = false
+const evolutionHeld = []
 stub.on('error', (error) => {
   console.error(`stub Woovi não subiu: ${error.message}`)
   process.exit(1)
@@ -107,7 +137,15 @@ const apiEnv = {
   HDX_API_KEY: '',
   CONFIRMATION_INBOX: '1',
   EMAIL_OUTBOX: '1',
-  TENANT_HOST: '',
+  TENANT_HOST: 'evolution.localhost',
+  EVOLUTION_ENABLED: '1',
+  EVOLUTION_ACTIONS_ENABLED: '1',
+  EVOLUTION_BASE_URL: 'http://127.0.0.1:4099',
+  EVOLUTION_INSTANCE_NAME: 'E2E Bot',
+  EVOLUTION_API_KEY: 'fixture-api-key',
+  EVOLUTION_GROUP_JID: 'fixture@g.us',
+  EVOLUTION_WEBHOOK_AUTH_SECRET: 'fixture-webhook-secret',
+  EVOLUTION_OPERATOR_PHONES: '5511999999999',
   E2E_LINK_PROBE: 'example.com',
 }
 

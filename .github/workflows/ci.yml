@@ -53,6 +53,7 @@ jobs:
           ANALYTICS_DATABASE_URL: postgresql://divulgador:divulgador@127.0.0.1:5433/divulgador?schema=public
           CHECKOUT_DATABASE_URL: postgresql://divulgador:divulgador@127.0.0.1:5433/divulgador?schema=public
           SEARCH_DATABASE_URL: postgresql://divulgador:divulgador@127.0.0.1:5433/divulgador?schema=public
+          EVOLUTION_DATABASE_URL: postgresql://divulgador:divulgador@127.0.0.1:5433/divulgador?schema=public
           REDIS_URL: redis://127.0.0.1:6380
           JWT_SECRET: ci-jwt-secret-min-16
       - run: npm run build
@@ -99,3 +100,11 @@ jobs:
         working-directory: frontend
       - run: npm run test:e2e
         working-directory: frontend
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-reports
+          path: |
+            frontend/playwright-report
+            frontend/test-results
+          retention-days: 7

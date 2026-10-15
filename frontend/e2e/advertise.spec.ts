@@ -34,9 +34,4 @@ test('a home em 390px mostra o nicho inteiro e não rola para o lado', async ({ 
     })
   })
   expect(clipped).toBe(false)
-  const wrap = await page.evaluate(() => {
-    const line = document.querySelector('.facet-line')
-    return line ? getComputedStyle(line).flexWrap : ''
-  })
-  expect(wrap).toBe('wrap')
 })

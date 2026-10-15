@@ -4,6 +4,7 @@ import { prisma as defaultPrisma } from '@/lib/prisma'
 import { PrismaAuditLogsRepository } from '@/repositories/audit-logs-repository'
 import { PrismaConfigsRepository } from '@/repositories/configs-repository'
 import { decideProposedText, type ModelVerdict } from '@/use-cases/@Links/proposed-text-decision'
+import { queueTextReview } from '@/use-cases/@Notifications/evolution-operations'
 
 export async function settleProposedText(input: {
   linkId: string
@@ -53,32 +54,40 @@ export async function settleProposedText(input: {
     verdict,
     threshold,
   })
-  if (decided.decision === 'PUBLISH') {
-    await prisma.link.update({
-      where: { id: link.id },
-      data: {
-        name: proposedName,
-        description: proposedDescription,
-        approvedName: proposedName,
-        approvedDescription: proposedDescription,
-        embeddingState: 'PENDING',
+  return prisma.$transaction(async tx => {
+    await tx.$queryRaw`SELECT id FROM links WHERE id = ${link.id} FOR UPDATE`
+    const current = await tx.link.findUnique({ where: { id: link.id } })
+    const latest = await tx.auditLog.findFirst({ where: { tenantId: link.tenantId, entityId: link.id, action: 'link.text.proposed' }, orderBy: [{ createdAt: 'desc' }, { id: 'desc' }] })
+    const resolved = await tx.auditLog.findFirst({ where: { tenantId: link.tenantId, entityId: link.id, action: 'link.text.verdict', createdAt: { gte: proposal.createdAt! } } })
+    if (!current || current.status !== 'PUBLISHED' || latest?.id !== proposal.id || resolved) return 'SKIPPED'
+    if (decided.decision === 'PUBLISH') {
+      await tx.link.update({
+        where: { id: link.id },
+        data: {
+          name: proposedName,
+          description: proposedDescription,
+          approvedName: proposedName,
+          approvedDescription: proposedDescription,
+          embeddingState: 'PENDING',
+        },
+      })
+    }
+    await tx.auditLog.create({ data: {
+      tenantId: link.tenantId,
+      actorId: null,
+      action: 'link.text.verdict',
+      entityType: 'link',
+      entityId: link.id,
+      before: { name: link.name },
+      after: {
+        decision: decided.decision,
+        provider: providerFailed ? 'error' : decided.provider,
+        confidence: verdict?.confidence ?? null,
+        threshold,
       },
-    })
-  }
-  await audits.create({
-    tenantId: link.tenantId,
-    actorId: null,
-    action: 'link.text.verdict',
-    entityType: 'link',
-    entityId: link.id,
-    before: { name: link.name },
-    after: {
-      decision: decided.decision,
-      provider: providerFailed ? 'error' : decided.provider,
-      confidence: verdict?.confidence ?? null,
-      threshold,
-    },
-    requestId: null,
+      requestId: null,
+    } })
+    if (decided.decision === 'ADMIN') await queueTextReview(tx, link.tenantId, link.id)
+    return decided.decision
   })
-  return decided.decision
 }

@@ -35,6 +35,7 @@ const SOURCE: Record<string, string> = {
   PRE_REFUSAL: 'Pré-recusa',
   APPEAL: 'Contestação',
   SUBMISSION: 'Envio',
+  TEXT: 'Alteração de texto',
 }
 
 let caseCache: CaseRow[] | null = null

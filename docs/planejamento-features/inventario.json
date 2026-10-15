@@ -1,0 +1,2158 @@
+{
+  "version": 2,
+  "date": "2026-10-15",
+  "source": "../features-propostas.md",
+  "sourceSHA256": "6CBD63F2210EC98635C3D3643D9826B656EDB091DBED70DAE07783FE12E79B22",
+  "execution": "P0_IN_PROGRESS",
+  "features": [
+    {
+      "id": "F42",
+      "title": "Moderação e alertas operacionais no grupo pela Evolution API",
+      "order": 1,
+      "wave": 0,
+      "priority": "P0",
+      "dependencies": [],
+      "spec": "specs/f42-evolution-moderacao.md",
+      "plan": "planos/f42-evolution-moderacao.md",
+      "criteria": [
+        {
+          "id": "F42-AC01",
+          "test": "F42-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F42-AC02",
+          "test": "F42-T02",
+          "layer": "U/I/E"
+        },
+        {
+          "id": "F42-AC03",
+          "test": "F42-T03",
+          "layer": "U/I/PG/E"
+        },
+        {
+          "id": "F42-AC04",
+          "test": "F42-T04",
+          "layer": "U/I/PG/E"
+        },
+        {
+          "id": "F42-AC05",
+          "test": "F42-T05",
+          "layer": "U/I/PG"
+        },
+        {
+          "id": "F42-AC06",
+          "test": "F42-T06",
+          "layer": "I/E"
+        },
+        {
+          "id": "F42-AC07",
+          "test": "F42-T07",
+          "layer": "U/I/PG"
+        },
+        {
+          "id": "F42-AC08",
+          "test": "F42-T08",
+          "layer": "U/I"
+        },
+        {
+          "id": "F42-AC09",
+          "test": "F42-T09",
+          "layer": "U/I/PG"
+        },
+        {
+          "id": "F42-AC10",
+          "test": "F42-T10",
+          "layer": "I/PG/E"
+        },
+        {
+          "id": "F42-AC11",
+          "test": "F42-T11",
+          "layer": "U/I/PG/E"
+        },
+        {
+          "id": "F42-AC12",
+          "test": "F42-T12",
+          "layer": "U/I/PG/E"
+        },
+        {
+          "id": "F42-AC13",
+          "test": "F42-T13",
+          "layer": "I/PG/Redis"
+        },
+        {
+          "id": "F42-AC14",
+          "test": "F42-T14",
+          "layer": "I/Redis/E"
+        },
+        {
+          "id": "F42-AC15",
+          "test": "F42-T15",
+          "layer": "U/I/Redis"
+        },
+        {
+          "id": "F42-AC16",
+          "test": "F42-T16",
+          "layer": "U/I/Redis"
+        },
+        {
+          "id": "F42-AC17",
+          "test": "F42-T17",
+          "layer": "U/I/E"
+        },
+        {
+          "id": "F42-AC18",
+          "test": "F42-T18",
+          "layer": "U/I/E"
+        },
+        {
+          "id": "F42-AC19",
+          "test": "F42-T19",
+          "layer": "I/PG/E"
+        },
+        {
+          "id": "F42-AC20",
+          "test": "F42-T20",
+          "layer": "U/I/E"
+        },
+        {
+          "id": "F42-AC21",
+          "test": "F42-T21",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F42-AC22",
+          "test": "F42-T22",
+          "layer": "I/E"
+        },
+        {
+          "id": "F42-AC23",
+          "test": "F42-T23",
+          "layer": "I/E/M"
+        },
+        {
+          "id": "F42-AC24",
+          "test": "F42-T24",
+          "layer": "U/I/PG/Redis/E/M"
+        },
+        {
+          "id": "F42-AC25",
+          "test": "F42-T25",
+          "layer": "I/Redis/E"
+        },
+        {
+          "id": "F42-AC26",
+          "test": "F42-T26",
+          "layer": "U/I/PG"
+        }
+      ],
+      "stages": [
+        "F42-S0",
+        "F42-S1",
+        "F42-S2",
+        "F42-S3",
+        "F42-S4",
+        "F42-S5",
+        "F42-S6",
+        "F42-S7"
+      ],
+      "execution": "IN_REVIEW",
+      "executionEvidence": "execucao-f42.md"
+    },
+    {
+      "id": "F01",
+      "title": "Relatório de resultado do destaque",
+      "order": 2,
+      "wave": 1,
+      "dependencies": [],
+      "spec": "specs/f01-resultado-destaque.md",
+      "plan": "planos/f01-resultado-destaque.md",
+      "criteria": [
+        {
+          "id": "F01-AC01",
+          "test": "F01-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F01-AC02",
+          "test": "F01-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F01-AC03",
+          "test": "F01-T03",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F01-AC04",
+          "test": "F01-T04",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F01-AC05",
+          "test": "F01-T05",
+          "layer": "ADR + I/E"
+        }
+      ],
+      "stages": [
+        "F01-S0",
+        "F01-S1",
+        "F01-S2",
+        "F01-S3",
+        "F01-S4",
+        "F01-S5",
+        "F01-S6",
+        "F01-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F06",
+      "title": "Denunciar um link",
+      "order": 3,
+      "wave": 1,
+      "dependencies": [],
+      "spec": "specs/f06-denuncias.md",
+      "plan": "planos/f06-denuncias.md",
+      "criteria": [
+        {
+          "id": "F06-AC01",
+          "test": "F06-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F06-AC02",
+          "test": "F06-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F06-AC03",
+          "test": "F06-T03",
+          "layer": "ADR + I/E"
+        },
+        {
+          "id": "F06-AC04",
+          "test": "F06-T04",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F06-AC05",
+          "test": "F06-T05",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F06-S0",
+        "F06-S1",
+        "F06-S2",
+        "F06-S3",
+        "F06-S4",
+        "F06-S5",
+        "F06-S6",
+        "F06-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F07",
+      "title": "Acompanhamento de disponibilidade",
+      "order": 4,
+      "wave": 1,
+      "dependencies": [],
+      "spec": "specs/f07-disponibilidade.md",
+      "plan": "planos/f07-disponibilidade.md",
+      "criteria": [
+        {
+          "id": "F07-AC01",
+          "test": "F07-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F07-AC02",
+          "test": "F07-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F07-AC03",
+          "test": "F07-T03",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F07-AC04",
+          "test": "F07-T04",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F07-AC05",
+          "test": "F07-T05",
+          "layer": "ADR + I/E"
+        }
+      ],
+      "stages": [
+        "F07-S0",
+        "F07-S1",
+        "F07-S2",
+        "F07-S3",
+        "F07-S4",
+        "F07-S5",
+        "F07-S6",
+        "F07-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F02",
+      "title": "Lembrete de renovação",
+      "order": 5,
+      "wave": 2,
+      "dependencies": [
+        "F01"
+      ],
+      "spec": "specs/f02-lembrete-renovacao.md",
+      "plan": "planos/f02-lembrete-renovacao.md",
+      "criteria": [
+        {
+          "id": "F02-AC01",
+          "test": "F02-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F02-AC02",
+          "test": "F02-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F02-AC03",
+          "test": "F02-T03",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F02-AC04",
+          "test": "F02-T04",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F02-AC05",
+          "test": "F02-T05",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F02-S0",
+        "F02-S1",
+        "F02-S2",
+        "F02-S3",
+        "F02-S4",
+        "F02-S5",
+        "F02-S6",
+        "F02-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F03",
+      "title": "Links relacionados",
+      "order": 6,
+      "wave": 2,
+      "dependencies": [],
+      "spec": "specs/f03-links-relacionados.md",
+      "plan": "planos/f03-links-relacionados.md",
+      "criteria": [
+        {
+          "id": "F03-AC01",
+          "test": "F03-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F03-AC02",
+          "test": "F03-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F03-AC03",
+          "test": "F03-T03",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F03-AC04",
+          "test": "F03-T04",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F03-S0",
+        "F03-S1",
+        "F03-S2",
+        "F03-S3",
+        "F03-S4",
+        "F03-S5",
+        "F03-S6",
+        "F03-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F04",
+      "title": "Favoritos e coleções",
+      "order": 7,
+      "wave": 2,
+      "dependencies": [],
+      "spec": "specs/f04-favoritos-colecoes.md",
+      "plan": "planos/f04-favoritos-colecoes.md",
+      "criteria": [
+        {
+          "id": "F04-AC01",
+          "test": "F04-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F04-AC02",
+          "test": "F04-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F04-AC03",
+          "test": "F04-T03",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F04-AC04",
+          "test": "F04-T04",
+          "layer": "C/E"
+        },
+        {
+          "id": "F04-AC05",
+          "test": "F04-T05",
+          "layer": "ADR + I/E"
+        }
+      ],
+      "stages": [
+        "F04-S0",
+        "F04-S1",
+        "F04-S2",
+        "F04-S3",
+        "F04-S4",
+        "F04-S5",
+        "F04-S6",
+        "F04-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F09",
+      "title": "Perfil público com categorias próprias",
+      "order": 8,
+      "wave": 2,
+      "dependencies": [],
+      "spec": "specs/f09-perfil-publico.md",
+      "plan": "planos/f09-perfil-publico.md",
+      "criteria": [
+        {
+          "id": "F09-AC01",
+          "test": "F09-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F09-AC02",
+          "test": "F09-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F09-AC03",
+          "test": "F09-T03",
+          "layer": "C/E"
+        },
+        {
+          "id": "F09-AC04",
+          "test": "F09-T04",
+          "layer": "C/E"
+        },
+        {
+          "id": "F09-AC05",
+          "test": "F09-T05",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F09-AC06",
+          "test": "F09-T06",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F09-S0",
+        "F09-S1",
+        "F09-S2",
+        "F09-S3",
+        "F09-S4",
+        "F09-S5",
+        "F09-S6",
+        "F09-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F12",
+      "title": "Link permanente para convites",
+      "order": 9,
+      "wave": 2,
+      "dependencies": [
+        "F07"
+      ],
+      "spec": "specs/f12-link-permanente.md",
+      "plan": "planos/f12-link-permanente.md",
+      "criteria": [
+        {
+          "id": "F12-AC01",
+          "test": "F12-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F12-AC02",
+          "test": "F12-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F12-AC03",
+          "test": "F12-T03",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F12-AC04",
+          "test": "F12-T04",
+          "layer": "C/E"
+        },
+        {
+          "id": "F12-AC05",
+          "test": "F12-T05",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F12-S0",
+        "F12-S1",
+        "F12-S2",
+        "F12-S3",
+        "F12-S4",
+        "F12-S5",
+        "F12-S6",
+        "F12-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F19",
+      "title": "Prévia e histórico de versões",
+      "order": 10,
+      "wave": 2,
+      "dependencies": [
+        "F09"
+      ],
+      "spec": "specs/f19-historico-versoes.md",
+      "plan": "planos/f19-historico-versoes.md",
+      "criteria": [
+        {
+          "id": "F19-AC01",
+          "test": "F19-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F19-AC02",
+          "test": "F19-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F19-AC03",
+          "test": "F19-T03",
+          "layer": "ADR + I/E"
+        },
+        {
+          "id": "F19-AC04",
+          "test": "F19-T04",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F19-S0",
+        "F19-S1",
+        "F19-S2",
+        "F19-S3",
+        "F19-S4",
+        "F19-S5",
+        "F19-S6",
+        "F19-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F08",
+      "title": "Painel de oportunidades de busca",
+      "order": 11,
+      "wave": 3,
+      "dependencies": [],
+      "spec": "specs/f08-oportunidades-busca.md",
+      "plan": "planos/f08-oportunidades-busca.md",
+      "criteria": [
+        {
+          "id": "F08-AC01",
+          "test": "F08-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F08-AC02",
+          "test": "F08-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F08-AC03",
+          "test": "F08-T03",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F08-AC04",
+          "test": "F08-T04",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F08-AC05",
+          "test": "F08-T05",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F08-AC06",
+          "test": "F08-T06",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F08-S0",
+        "F08-S1",
+        "F08-S2",
+        "F08-S3",
+        "F08-S4",
+        "F08-S5",
+        "F08-S6",
+        "F08-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F11",
+      "title": "Planos para perfis e páginas",
+      "order": 12,
+      "wave": 3,
+      "dependencies": [
+        "F09"
+      ],
+      "spec": "specs/f11-planos-perfis.md",
+      "plan": "planos/f11-planos-perfis.md",
+      "criteria": [
+        {
+          "id": "F11-AC01",
+          "test": "F11-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F11-AC02",
+          "test": "F11-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F11-AC03",
+          "test": "F11-T03",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F11-AC04",
+          "test": "F11-T04",
+          "layer": "ADR + I/E"
+        }
+      ],
+      "stages": [
+        "F11-S0",
+        "F11-S1",
+        "F11-S2",
+        "F11-S3",
+        "F11-S4",
+        "F11-S5",
+        "F11-S6",
+        "F11-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F13",
+      "title": "QR Code permanente",
+      "order": 13,
+      "wave": 3,
+      "dependencies": [
+        "F09",
+        "F12"
+      ],
+      "spec": "specs/f13-qr-permanente.md",
+      "plan": "planos/f13-qr-permanente.md",
+      "criteria": [
+        {
+          "id": "F13-AC01",
+          "test": "F13-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F13-AC02",
+          "test": "F13-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F13-AC03",
+          "test": "F13-T03",
+          "layer": "C/E"
+        },
+        {
+          "id": "F13-AC04",
+          "test": "F13-T04",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F13-S0",
+        "F13-S1",
+        "F13-S2",
+        "F13-S3",
+        "F13-S4",
+        "F13-S5",
+        "F13-S6",
+        "F13-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F14",
+      "title": "Agendamento de links",
+      "order": 14,
+      "wave": 3,
+      "dependencies": [
+        "F09"
+      ],
+      "spec": "specs/f14-agendamento.md",
+      "plan": "planos/f14-agendamento.md",
+      "criteria": [
+        {
+          "id": "F14-AC01",
+          "test": "F14-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F14-AC02",
+          "test": "F14-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F14-AC03",
+          "test": "F14-T03",
+          "layer": "C/E"
+        },
+        {
+          "id": "F14-AC04",
+          "test": "F14-T04",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F14-S0",
+        "F14-S1",
+        "F14-S2",
+        "F14-S3",
+        "F14-S4",
+        "F14-S5",
+        "F14-S6",
+        "F14-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F16",
+      "title": "Templates por atividade",
+      "order": 15,
+      "wave": 3,
+      "dependencies": [
+        "F09",
+        "F19"
+      ],
+      "spec": "specs/f16-templates.md",
+      "plan": "planos/f16-templates.md",
+      "criteria": [
+        {
+          "id": "F16-AC01",
+          "test": "F16-T01",
+          "layer": "C/E"
+        },
+        {
+          "id": "F16-AC02",
+          "test": "F16-T02",
+          "layer": "C/E"
+        },
+        {
+          "id": "F16-AC03",
+          "test": "F16-T03",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F16-AC04",
+          "test": "F16-T04",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F16-S0",
+        "F16-S1",
+        "F16-S2",
+        "F16-S3",
+        "F16-S4",
+        "F16-S5",
+        "F16-S6",
+        "F16-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F17",
+      "title": "Importação em lote",
+      "order": 16,
+      "wave": 3,
+      "dependencies": [
+        "F09"
+      ],
+      "spec": "specs/f17-importacao-lote.md",
+      "plan": "planos/f17-importacao-lote.md",
+      "criteria": [
+        {
+          "id": "F17-AC01",
+          "test": "F17-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F17-AC02",
+          "test": "F17-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F17-AC03",
+          "test": "F17-T03",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F17-AC04",
+          "test": "F17-T04",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F17-AC05",
+          "test": "F17-T05",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F17-S0",
+        "F17-S1",
+        "F17-S2",
+        "F17-S3",
+        "F17-S4",
+        "F17-S5",
+        "F17-S6",
+        "F17-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F18",
+      "title": "Busca dentro do perfil",
+      "order": 17,
+      "wave": 3,
+      "dependencies": [
+        "F09",
+        "F14"
+      ],
+      "spec": "specs/f18-busca-perfil.md",
+      "plan": "planos/f18-busca-perfil.md",
+      "criteria": [
+        {
+          "id": "F18-AC01",
+          "test": "F18-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F18-AC02",
+          "test": "F18-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F18-AC03",
+          "test": "F18-T03",
+          "layer": "C/E"
+        },
+        {
+          "id": "F18-AC04",
+          "test": "F18-T04",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F18-S0",
+        "F18-S1",
+        "F18-S2",
+        "F18-S3",
+        "F18-S4",
+        "F18-S5",
+        "F18-S6",
+        "F18-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F27",
+      "title": "Filtros por cidade idioma e modalidade",
+      "order": 18,
+      "wave": 3,
+      "dependencies": [],
+      "spec": "specs/f27-filtros-locais.md",
+      "plan": "planos/f27-filtros-locais.md",
+      "criteria": [
+        {
+          "id": "F27-AC01",
+          "test": "F27-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F27-AC02",
+          "test": "F27-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F27-AC03",
+          "test": "F27-T03",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F27-AC04",
+          "test": "F27-T04",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F27-AC05",
+          "test": "F27-T05",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F27-S0",
+        "F27-S1",
+        "F27-S2",
+        "F27-S3",
+        "F27-S4",
+        "F27-S5",
+        "F27-S6",
+        "F27-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F31",
+      "title": "Mapa de interação da página",
+      "order": 19,
+      "wave": 3,
+      "dependencies": [
+        "F09",
+        "F19"
+      ],
+      "spec": "specs/f31-interacao-pagina.md",
+      "plan": "planos/f31-interacao-pagina.md",
+      "criteria": [
+        {
+          "id": "F31-AC01",
+          "test": "F31-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F31-AC02",
+          "test": "F31-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F31-AC03",
+          "test": "F31-T03",
+          "layer": "ADR + I/E"
+        },
+        {
+          "id": "F31-AC04",
+          "test": "F31-T04",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F31-AC05",
+          "test": "F31-T05",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F31-S0",
+        "F31-S1",
+        "F31-S2",
+        "F31-S3",
+        "F31-S4",
+        "F31-S5",
+        "F31-S6",
+        "F31-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F34",
+      "title": "Checklist de publicação",
+      "order": 20,
+      "wave": 3,
+      "dependencies": [
+        "F09"
+      ],
+      "spec": "specs/f34-checklist-publicacao.md",
+      "plan": "planos/f34-checklist-publicacao.md",
+      "criteria": [
+        {
+          "id": "F34-AC01",
+          "test": "F34-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F34-AC02",
+          "test": "F34-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F34-AC03",
+          "test": "F34-T03",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F34-AC04",
+          "test": "F34-T04",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F34-AC05",
+          "test": "F34-T05",
+          "layer": "C/E"
+        }
+      ],
+      "stages": [
+        "F34-S0",
+        "F34-S1",
+        "F34-S2",
+        "F34-S3",
+        "F34-S4",
+        "F34-S5",
+        "F34-S6",
+        "F34-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F37",
+      "title": "Botão com alternativas de acesso",
+      "order": 21,
+      "wave": 3,
+      "dependencies": [
+        "F09",
+        "F12"
+      ],
+      "spec": "specs/f37-alternativas-acesso.md",
+      "plan": "planos/f37-alternativas-acesso.md",
+      "criteria": [
+        {
+          "id": "F37-AC01",
+          "test": "F37-T01",
+          "layer": "C/E"
+        },
+        {
+          "id": "F37-AC02",
+          "test": "F37-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F37-AC03",
+          "test": "F37-T03",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F37-AC04",
+          "test": "F37-T04",
+          "layer": "C/E"
+        },
+        {
+          "id": "F37-AC05",
+          "test": "F37-T05",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F37-AC06",
+          "test": "F37-T06",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F37-S0",
+        "F37-S1",
+        "F37-S2",
+        "F37-S3",
+        "F37-S4",
+        "F37-S5",
+        "F37-S6",
+        "F37-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F38",
+      "title": "Exportação do perfil",
+      "order": 22,
+      "wave": 3,
+      "dependencies": [
+        "F09",
+        "F19"
+      ],
+      "spec": "specs/f38-exportacao-perfil.md",
+      "plan": "planos/f38-exportacao-perfil.md",
+      "criteria": [
+        {
+          "id": "F38-AC01",
+          "test": "F38-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F38-AC02",
+          "test": "F38-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F38-AC03",
+          "test": "F38-T03",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F38-AC04",
+          "test": "F38-T04",
+          "layer": "C/E"
+        },
+        {
+          "id": "F38-AC05",
+          "test": "F38-T05",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F38-S0",
+        "F38-S1",
+        "F38-S2",
+        "F38-S3",
+        "F38-S4",
+        "F38-S5",
+        "F38-S6",
+        "F38-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F05",
+      "title": "Seguir nichos",
+      "order": 23,
+      "wave": 4,
+      "dependencies": [
+        "F02"
+      ],
+      "spec": "specs/f05-seguir-nichos.md",
+      "plan": "planos/f05-seguir-nichos.md",
+      "criteria": [
+        {
+          "id": "F05-AC01",
+          "test": "F05-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F05-AC02",
+          "test": "F05-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F05-AC03",
+          "test": "F05-T03",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F05-AC04",
+          "test": "F05-T04",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F05-AC05",
+          "test": "F05-T05",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F05-S0",
+        "F05-S1",
+        "F05-S2",
+        "F05-S3",
+        "F05-S4",
+        "F05-S5",
+        "F05-S6",
+        "F05-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F15",
+      "title": "Página por campanha",
+      "order": 24,
+      "wave": 4,
+      "dependencies": [
+        "F09",
+        "F19"
+      ],
+      "spec": "specs/f15-pagina-campanha.md",
+      "plan": "planos/f15-pagina-campanha.md",
+      "criteria": [
+        {
+          "id": "F15-AC01",
+          "test": "F15-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F15-AC02",
+          "test": "F15-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F15-AC03",
+          "test": "F15-T03",
+          "layer": "ADR + I/E"
+        },
+        {
+          "id": "F15-AC04",
+          "test": "F15-T04",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F15-S0",
+        "F15-S1",
+        "F15-S2",
+        "F15-S3",
+        "F15-S4",
+        "F15-S5",
+        "F15-S6",
+        "F15-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F20",
+      "title": "Equipe e permissões",
+      "order": 25,
+      "wave": 4,
+      "dependencies": [
+        "F09"
+      ],
+      "spec": "specs/f20-equipe-permissoes.md",
+      "plan": "planos/f20-equipe-permissoes.md",
+      "criteria": [
+        {
+          "id": "F20-AC01",
+          "test": "F20-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F20-AC02",
+          "test": "F20-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F20-AC03",
+          "test": "F20-T03",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F20-AC04",
+          "test": "F20-T04",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F20-AC05",
+          "test": "F20-T05",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F20-S0",
+        "F20-S1",
+        "F20-S2",
+        "F20-S3",
+        "F20-S4",
+        "F20-S5",
+        "F20-S6",
+        "F20-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F21",
+      "title": "Mídia kit do divulgador",
+      "order": 26,
+      "wave": 4,
+      "dependencies": [
+        "F09",
+        "F01"
+      ],
+      "spec": "specs/f21-midia-kit.md",
+      "plan": "planos/f21-midia-kit.md",
+      "criteria": [
+        {
+          "id": "F21-AC01",
+          "test": "F21-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F21-AC02",
+          "test": "F21-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F21-AC03",
+          "test": "F21-T03",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F21-AC04",
+          "test": "F21-T04",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F21-S0",
+        "F21-S1",
+        "F21-S2",
+        "F21-S3",
+        "F21-S4",
+        "F21-S5",
+        "F21-S6",
+        "F21-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F22",
+      "title": "Formulário de contato na página",
+      "order": 27,
+      "wave": 4,
+      "dependencies": [
+        "F09",
+        "F20"
+      ],
+      "spec": "specs/f22-formulario-contato.md",
+      "plan": "planos/f22-formulario-contato.md",
+      "criteria": [
+        {
+          "id": "F22-AC01",
+          "test": "F22-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F22-AC02",
+          "test": "F22-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F22-AC03",
+          "test": "F22-T03",
+          "layer": "C/E"
+        },
+        {
+          "id": "F22-AC04",
+          "test": "F22-T04",
+          "layer": "ADR + I/E"
+        },
+        {
+          "id": "F22-AC05",
+          "test": "F22-T05",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F22-S0",
+        "F22-S1",
+        "F22-S2",
+        "F22-S3",
+        "F22-S4",
+        "F22-S5",
+        "F22-S6",
+        "F22-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F23",
+      "title": "Distribuidor de convites",
+      "order": 28,
+      "wave": 4,
+      "dependencies": [
+        "F12"
+      ],
+      "spec": "specs/f23-distribuidor-convites.md",
+      "plan": "planos/f23-distribuidor-convites.md",
+      "criteria": [
+        {
+          "id": "F23-AC01",
+          "test": "F23-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F23-AC02",
+          "test": "F23-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F23-AC03",
+          "test": "F23-T03",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F23-AC04",
+          "test": "F23-T04",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F23-AC05",
+          "test": "F23-T05",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F23-S0",
+        "F23-S1",
+        "F23-S2",
+        "F23-S3",
+        "F23-S4",
+        "F23-S5",
+        "F23-S6",
+        "F23-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F25",
+      "title": "Assistente de criação de perfil",
+      "order": 29,
+      "wave": 4,
+      "dependencies": [
+        "F09",
+        "F16",
+        "F17"
+      ],
+      "spec": "specs/f25-assistente-perfil.md",
+      "plan": "planos/f25-assistente-perfil.md",
+      "criteria": [
+        {
+          "id": "F25-AC01",
+          "test": "F25-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F25-AC02",
+          "test": "F25-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F25-AC03",
+          "test": "F25-T03",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F25-AC04",
+          "test": "F25-T04",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F25-AC05",
+          "test": "F25-T05",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F25-S0",
+        "F25-S1",
+        "F25-S2",
+        "F25-S3",
+        "F25-S4",
+        "F25-S5",
+        "F25-S6",
+        "F25-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F28",
+      "title": "Comprovação de propriedade",
+      "order": 30,
+      "wave": 4,
+      "dependencies": [
+        "F12"
+      ],
+      "spec": "specs/f28-comprovacao-propriedade.md",
+      "plan": "planos/f28-comprovacao-propriedade.md",
+      "criteria": [
+        {
+          "id": "F28-AC01",
+          "test": "F28-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F28-AC02",
+          "test": "F28-T02",
+          "layer": "ADR + I/E"
+        },
+        {
+          "id": "F28-AC03",
+          "test": "F28-T03",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F28-AC04",
+          "test": "F28-T04",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F28-S0",
+        "F28-S1",
+        "F28-S2",
+        "F28-S3",
+        "F28-S4",
+        "F28-S5",
+        "F28-S6",
+        "F28-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F29",
+      "title": "Página de evento",
+      "order": 31,
+      "wave": 4,
+      "dependencies": [
+        "F09",
+        "F14"
+      ],
+      "spec": "specs/f29-evento.md",
+      "plan": "planos/f29-evento.md",
+      "criteria": [
+        {
+          "id": "F29-AC01",
+          "test": "F29-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F29-AC02",
+          "test": "F29-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F29-AC03",
+          "test": "F29-T03",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F29-AC04",
+          "test": "F29-T04",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F29-S0",
+        "F29-S1",
+        "F29-S2",
+        "F29-S3",
+        "F29-S4",
+        "F29-S5",
+        "F29-S6",
+        "F29-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F32",
+      "title": "Kit de divulgação",
+      "order": 32,
+      "wave": 4,
+      "dependencies": [
+        "F09",
+        "F13"
+      ],
+      "spec": "specs/f32-kit-divulgacao.md",
+      "plan": "planos/f32-kit-divulgacao.md",
+      "criteria": [
+        {
+          "id": "F32-AC01",
+          "test": "F32-T01",
+          "layer": "C/E"
+        },
+        {
+          "id": "F32-AC02",
+          "test": "F32-T02",
+          "layer": "C/E"
+        },
+        {
+          "id": "F32-AC03",
+          "test": "F32-T03",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F32-AC04",
+          "test": "F32-T04",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F32-AC05",
+          "test": "F32-T05",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F32-S0",
+        "F32-S1",
+        "F32-S2",
+        "F32-S3",
+        "F32-S4",
+        "F32-S5",
+        "F32-S6",
+        "F32-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F33",
+      "title": "Coleções públicas compartilháveis",
+      "order": 33,
+      "wave": 4,
+      "dependencies": [
+        "F04"
+      ],
+      "spec": "specs/f33-colecoes-publicas.md",
+      "plan": "planos/f33-colecoes-publicas.md",
+      "criteria": [
+        {
+          "id": "F33-AC01",
+          "test": "F33-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F33-AC02",
+          "test": "F33-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F33-AC03",
+          "test": "F33-T03",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F33-AC04",
+          "test": "F33-T04",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F33-AC05",
+          "test": "F33-T05",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F33-AC06",
+          "test": "F33-T06",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F33-S0",
+        "F33-S1",
+        "F33-S2",
+        "F33-S3",
+        "F33-S4",
+        "F33-S5",
+        "F33-S6",
+        "F33-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F10",
+      "title": "Página premium com subdomínio",
+      "order": 34,
+      "wave": 5,
+      "dependencies": [
+        "F09",
+        "F11",
+        "F19",
+        "F16"
+      ],
+      "spec": "specs/f10-pagina-premium-subdominio.md",
+      "plan": "planos/f10-pagina-premium-subdominio.md",
+      "criteria": [
+        {
+          "id": "F10-AC01",
+          "test": "F10-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F10-AC02",
+          "test": "F10-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F10-AC03",
+          "test": "F10-T03",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F10-AC04",
+          "test": "F10-T04",
+          "layer": "C/E"
+        },
+        {
+          "id": "F10-AC05",
+          "test": "F10-T05",
+          "layer": "C/E"
+        },
+        {
+          "id": "F10-AC06",
+          "test": "F10-T06",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F10-S0",
+        "F10-S1",
+        "F10-S2",
+        "F10-S3",
+        "F10-S4",
+        "F10-S5",
+        "F10-S6",
+        "F10-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F24",
+      "title": "Descoberta de perfis",
+      "order": 35,
+      "wave": 5,
+      "dependencies": [
+        "F09",
+        "F03"
+      ],
+      "spec": "specs/f24-descoberta-perfis.md",
+      "plan": "planos/f24-descoberta-perfis.md",
+      "criteria": [
+        {
+          "id": "F24-AC01",
+          "test": "F24-T01",
+          "layer": "C/E"
+        },
+        {
+          "id": "F24-AC02",
+          "test": "F24-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F24-AC03",
+          "test": "F24-T03",
+          "layer": "C/E"
+        },
+        {
+          "id": "F24-AC04",
+          "test": "F24-T04",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F24-S0",
+        "F24-S1",
+        "F24-S2",
+        "F24-S3",
+        "F24-S4",
+        "F24-S5",
+        "F24-S6",
+        "F24-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F30",
+      "title": "Integrações e avisos automáticos",
+      "order": 36,
+      "wave": 5,
+      "dependencies": [
+        "F22",
+        "F02"
+      ],
+      "spec": "specs/f30-integracoes-webhooks.md",
+      "plan": "planos/f30-integracoes-webhooks.md",
+      "criteria": [
+        {
+          "id": "F30-AC01",
+          "test": "F30-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F30-AC02",
+          "test": "F30-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F30-AC03",
+          "test": "F30-T03",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F30-AC04",
+          "test": "F30-T04",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F30-AC05",
+          "test": "F30-T05",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F30-AC06",
+          "test": "F30-T06",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F30-AC07",
+          "test": "F30-T07",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F30-S0",
+        "F30-S1",
+        "F30-S2",
+        "F30-S3",
+        "F30-S4",
+        "F30-S5",
+        "F30-S6",
+        "F30-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F35",
+      "title": "Central de contatos recebidos",
+      "order": 37,
+      "wave": 5,
+      "dependencies": [
+        "F22",
+        "F20"
+      ],
+      "spec": "specs/f35-central-contatos.md",
+      "plan": "planos/f35-central-contatos.md",
+      "criteria": [
+        {
+          "id": "F35-AC01",
+          "test": "F35-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F35-AC02",
+          "test": "F35-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F35-AC03",
+          "test": "F35-T03",
+          "layer": "ADR + I/E"
+        },
+        {
+          "id": "F35-AC04",
+          "test": "F35-T04",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F35-AC05",
+          "test": "F35-T05",
+          "layer": "C/E"
+        }
+      ],
+      "stages": [
+        "F35-S0",
+        "F35-S1",
+        "F35-S2",
+        "F35-S3",
+        "F35-S4",
+        "F35-S5",
+        "F35-S6",
+        "F35-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F39",
+      "title": "Página em vários idiomas",
+      "order": 38,
+      "wave": 5,
+      "dependencies": [
+        "F09",
+        "F19"
+      ],
+      "spec": "specs/f39-multilingue.md",
+      "plan": "planos/f39-multilingue.md",
+      "criteria": [
+        {
+          "id": "F39-AC01",
+          "test": "F39-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F39-AC02",
+          "test": "F39-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F39-AC03",
+          "test": "F39-T03",
+          "layer": "C/E"
+        },
+        {
+          "id": "F39-AC04",
+          "test": "F39-T04",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F39-AC05",
+          "test": "F39-T05",
+          "layer": "ADR + I/E"
+        }
+      ],
+      "stages": [
+        "F39-S0",
+        "F39-S1",
+        "F39-S2",
+        "F39-S3",
+        "F39-S4",
+        "F39-S5",
+        "F39-S6",
+        "F39-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F26",
+      "title": "Teste de versões de botões",
+      "order": 39,
+      "wave": 6,
+      "dependencies": [
+        "F09",
+        "F31"
+      ],
+      "spec": "specs/f26-teste-botoes.md",
+      "plan": "planos/f26-teste-botoes.md",
+      "criteria": [
+        {
+          "id": "F26-AC01",
+          "test": "F26-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F26-AC02",
+          "test": "F26-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F26-AC03",
+          "test": "F26-T03",
+          "layer": "ADR + I/E"
+        },
+        {
+          "id": "F26-AC04",
+          "test": "F26-T04",
+          "layer": "C/E"
+        },
+        {
+          "id": "F26-AC05",
+          "test": "F26-T05",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F26-S0",
+        "F26-S1",
+        "F26-S2",
+        "F26-S3",
+        "F26-S4",
+        "F26-S5",
+        "F26-S6",
+        "F26-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F36",
+      "title": "Pacotes para agências",
+      "order": 40,
+      "wave": 6,
+      "dependencies": [
+        "F20",
+        "F11",
+        "F21"
+      ],
+      "spec": "specs/f36-agencias.md",
+      "plan": "planos/f36-agencias.md",
+      "criteria": [
+        {
+          "id": "F36-AC01",
+          "test": "F36-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F36-AC02",
+          "test": "F36-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F36-AC03",
+          "test": "F36-T03",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F36-AC04",
+          "test": "F36-T04",
+          "layer": "ADR + I/E"
+        },
+        {
+          "id": "F36-AC05",
+          "test": "F36-T05",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F36-S0",
+        "F36-S1",
+        "F36-S2",
+        "F36-S3",
+        "F36-S4",
+        "F36-S5",
+        "F36-S6",
+        "F36-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F40",
+      "title": "Diagnóstico da página",
+      "order": 41,
+      "wave": 6,
+      "dependencies": [
+        "F09",
+        "F07",
+        "F31"
+      ],
+      "spec": "specs/f40-diagnostico.md",
+      "plan": "planos/f40-diagnostico.md",
+      "criteria": [
+        {
+          "id": "F40-AC01",
+          "test": "F40-T01",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F40-AC02",
+          "test": "F40-T02",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F40-AC03",
+          "test": "F40-T03",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F40-AC04",
+          "test": "F40-T04",
+          "layer": "I/PG"
+        },
+        {
+          "id": "F40-AC05",
+          "test": "F40-T05",
+          "layer": "I/PG"
+        }
+      ],
+      "stages": [
+        "F40-S0",
+        "F40-S1",
+        "F40-S2",
+        "F40-S3",
+        "F40-S4",
+        "F40-S5",
+        "F40-S6",
+        "F40-S7"
+      ],
+      "priorityGate": "F42"
+    },
+    {
+      "id": "F41",
+      "title": "App instalável",
+      "order": 42,
+      "wave": 6,
+      "dependencies": [
+        "F09"
+      ],
+      "spec": "specs/f41-pwa.md",
+      "plan": "planos/f41-pwa.md",
+      "criteria": [
+        {
+          "id": "F41-AC01",
+          "test": "F41-T01",
+          "layer": "U/C/E + M"
+        },
+        {
+          "id": "F41-AC02",
+          "test": "F41-T02",
+          "layer": "U/C/E + M"
+        },
+        {
+          "id": "F41-AC03",
+          "test": "F41-T03",
+          "layer": "U/C/E + M"
+        },
+        {
+          "id": "F41-AC04",
+          "test": "F41-T04",
+          "layer": "U/C/E + M"
+        },
+        {
+          "id": "F41-AC05",
+          "test": "F41-T05",
+          "layer": "U/C/E + M"
+        }
+      ],
+      "stages": [
+        "F41-S0",
+        "F41-S1",
+        "F41-S2",
+        "F41-S3",
+        "F41-S4",
+        "F41-S5",
+        "F41-S6",
+        "F41-S7"
+      ],
+      "priorityGate": "F42"
+    }
+  ],
+  "previousSourceSHA256": "D682998DB91E320F5B703C05C501D9490781E0B67EA22C3FD436524A9B0ED724",
+  "priorityPolicy": "G00 minimo -> F42 P0 -> F01-F41 na ordem anterior; IDs preservados"
+}

@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from 'node:child_process'
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { closeSync, existsSync, mkdirSync, openSync, readFileSync, writeFileSync } from 'node:fs'
 import { connect } from 'node:net'
 import path from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
@@ -66,18 +66,21 @@ export default async function globalSetup(): Promise<void> {
     run('npx', ['prisma', 'migrate', 'deploy'])
     run('npx', ['tsx', 'scripts/e2e-seed.ts'])
     const frontend = path.join(__dirname, '..')
+    mkdirSync(path.join(frontend, 'test-results'), { recursive: true })
+    const log = openSync(path.join(frontend, 'test-results', 'server.log'), 'w')
     const child = spawn('node', ['e2e/serve.mjs'], {
       cwd: frontend,
       detached: true,
-      stdio: 'inherit',
+      stdio: ['ignore', log, log],
       shell: true,
     })
+    closeSync(log)
     if (!child.pid) throw new Error('não subiu o servidor do E2E')
     writeFileSync(path.join(__dirname, 'serve.pid'), String(child.pid))
     child.unref()
     for (let attempt = 0; attempt < 240; attempt += 1) {
       try {
-        const response = await fetch('http://127.0.0.1:3000')
+        const response = await fetch('http://127.0.0.1:3000/login', { signal: AbortSignal.timeout(5_000) })
         if (response.status < 500) return
       } catch {
         // o Next ainda não escuta

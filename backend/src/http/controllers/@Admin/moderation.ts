@@ -24,6 +24,9 @@ import { notifyModeration } from '@/adapters/notifications/outbound-mail'
 import { decideCase } from '@/use-cases/@Moderation/decide-case'
 import { getAcquisitionStore, publishEventName } from '@/use-cases/@Acquisition/record-funnel'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
+import { prisma } from '@/lib/prisma'
+import { resolveHumanReview, ReviewError, pendingText } from '@/use-cases/@Moderation/resolve-human-review'
+import { deliverOperationalMessage } from '@/use-cases/@Notifications/evolution-operations'
 
 export const appealBodySchema = z.object({ text: z.string() }).strict()
 
@@ -151,7 +154,7 @@ export async function postLinkAppeal(request: FastifyRequest, reply: FastifyRepl
           buildError({ code: business_rule, message: 'contestação uma vez', request_id: request.id }),
         )
       }
-      await linksRepo.updateLinkModeration(linkId, { status: outcome.status, occupiesSlot: true })
+      if (!(casesRepo instanceof PrismaModerationCasesRepository)) await linksRepo.updateLinkModeration(linkId, { status: outcome.status, occupiesSlot: true })
       return reply.status(200).send({ status: outcome.status })
     } catch (error) {
       if (error instanceof Error && /uma vez|texto/.test(error.message)) {
@@ -187,6 +190,20 @@ export async function postAdminModerationDecision(request: FastifyRequest, reply
   const linksRepo = getLinksRepository()
   const casesRepo = getModerationCasesRepository()
   const auditRepo = getAuditLogsRepository()
+
+  if (casesRepo instanceof PrismaModerationCasesRepository) {
+    try {
+      const tenant = await resolveTenant(hostFromRequest(request))
+      if (request.user.tenantId !== tenant.id) return reply.status(403).send(buildError({ code: forbidden, message: 'Acesso negado.', request_id: request.id }))
+      const resolved = await resolveHumanReview(prisma, { tenantId: tenant.id, actorId: request.user.sub, reviewId: caseId, fields: body, channel: 'PANEL', requestId: request.id })
+      const mail = await prisma.operationalMessage.findMany({ where: { tenantId: tenant.id, resourceId: resolved.linkId, kind: 'MODERATION_EMAIL', state: 'WAITING_API' } })
+      for (const event of mail) await deliverOperationalMessage(prisma, event)
+      return reply.status(200).send(resolved)
+    } catch (error) {
+      if (error instanceof ReviewError) return reply.status(error.status).send(buildError({ code: business_rule, message: error.code, request_id: request.id }))
+      throw error
+    }
+  }
 
   try {
     const tenant = await resolveTenant(hostFromRequest(request))
@@ -402,8 +419,22 @@ export async function getModerationQueue(request: FastifyRequest, reply: Fastify
     )))
     const nicheName = new Map(niches.map((row) => [row.id, row.name]))
     const networkName = new Map(networks.map((row) => [row.id, row.name]))
+    const textCases = []
+    if (casesRepo instanceof PrismaModerationCasesRepository) {
+      const candidates = await prisma.auditLog.findMany({ where: { tenantId: tenant.id, action: 'link.text.verdict', after: { path: ['decision'], equals: 'ADMIN' } }, take: 100, orderBy: { createdAt: 'desc' } })
+      const seen = new Set<string>()
+      for (const candidate of candidates) {
+        if (seen.has(candidate.entityId)) continue
+        seen.add(candidate.entityId)
+        const proposal = await pendingText(prisma, tenant.id, candidate.entityId)
+        const link = proposal ? await prisma.link.findFirst({ where: { id: candidate.entityId, tenantId: tenant.id, status: 'PUBLISHED' } }) : null
+        if (!proposal || !link) continue
+        const after = proposal.after as { name?: string; description?: string }
+        textCases.push({ id: `text:${proposal.id}`, linkId: link.id, name: after.name ?? link.name, description: after.description ?? link.description, url: link.canonicalUrl, status: link.status, niche: nicheName.get(link.nicheId) ?? '', network: networkName.get(link.networkId) ?? '', ownerName: '', ownerEmail: '', source: 'TEXT', appealText: null, previousName: link.approvedName, previousDescription: link.approvedDescription })
+      }
+    }
     return reply.status(200).send({
-      cases: cases.map((row, index) => {
+      cases: [...cases.map((row, index) => {
         const link = links[index]
         const owner = owners[index]
         const email = owner?.identifiers.find((item) => item.kind === 'EMAIL' && item.replacedAt === null)
@@ -423,7 +454,7 @@ export async function getModerationQueue(request: FastifyRequest, reply: Fastify
           previousName: row.lastApprovedName,
           previousDescription: row.lastApprovedDescription,
         }
-      }),
+      }), ...textCases],
     })
   } catch (error) {
     if (error instanceof ResourceNotFoundError) {

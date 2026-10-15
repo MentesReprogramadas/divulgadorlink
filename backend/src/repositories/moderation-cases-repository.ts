@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { Prisma, PrismaClient } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
+import { queueCaseReview } from '@/use-cases/@Notifications/evolution-operations'
 
 export type ModerationSource = 'AI' | 'BLOCKLIST' | 'PRE_REFUSAL' | 'APPEAL' | 'SUBMISSION'
 
@@ -231,11 +232,19 @@ export class PrismaModerationCasesRepository implements ModerationCasesRepositor
   }
 
   async saveAppeal(id: string, text: string): Promise<ModerationCaseRecord | null> {
-    const result = await this.client.moderationCase.updateMany({
-      where: { id, appealedAt: null },
-      data: { appealText: text, appealedAt: new Date() },
+    const changed = await this.client.$transaction(async tx => {
+      const review = await tx.moderationCase.findUnique({ where: { id } })
+      if (!review) return false
+      await tx.$queryRaw`SELECT id FROM links WHERE id = ${review.linkId} FOR UPDATE`
+      const link = await tx.link.findFirst({ where: { id: review.linkId, tenantId: review.tenantId, status: 'PRE_REJECTED' } })
+      if (!link) return false
+      const result = await tx.moderationCase.updateMany({ where: { id, appealedAt: null }, data: { appealText: text, appealedAt: new Date() } })
+      if (!result.count) return false
+      await tx.link.update({ where: { id: link.id }, data: { status: 'PENDING_MODERATION', occupiesSlot: true } })
+      await queueCaseReview(tx, id)
+      return true
     })
-    if (result.count === 0) return null
+    if (!changed) return null
     return this.findById(id)
   }
 

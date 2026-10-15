@@ -176,7 +176,7 @@ test('cadastro sem confirmação não envia link', async ({ browser }) => {
   expect((await call(anonymous, '/bff/v1/auth/confirmation-inbox?kind=EMAIL')).status).toBe(401)
 
   await page.goto(`${A}/painel/verificar`)
-  await expect(page.getByRole('link', { name: 'Voltar para o painel' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Confirme o e-mail', exact: true })).toBeVisible()
   await expect(page.getByRole('button', { name: /Reenviar/ })).toBeDisabled()
   await page.getByLabel('Dígito 1 de 6').fill('999999')
   await page.getByRole('button', { name: 'Confirmar e-mail' }).click()
@@ -190,8 +190,7 @@ test('cadastro sem confirmação não envia link', async ({ browser }) => {
   const freshCode = (JSON.parse(fresh.text) as { code: string }).code
   await page.getByLabel('Dígito 1 de 6').fill(freshCode)
   await page.getByRole('button', { name: 'Confirmar e-mail' }).click()
-  await expect(page).toHaveURL(`${A}/painel`)
-  await expect(page.getByRole('status').filter({ hasText: 'E-mail confirmado.' })).toBeVisible()
+  await expect(page).toHaveURL(`${A}/painel/links/novo`)
   await expect(page.getByText('Confirme o e-mail para enviar um link')).toHaveCount(0)
   await page.goto(`${A}/painel/links/novo`)
   await expect(page.getByRole('button', { name: 'Enviar' })).toBeEnabled()

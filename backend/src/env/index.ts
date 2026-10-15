@@ -36,6 +36,15 @@ const schema = z.object({
   EMAIL_FROM: z.preprocess(blankAsUnset, z.string().min(3).optional()),
   APP_PUBLIC_URL: optionalUrl,
   EMAIL_BRAND_NAME: textOr('Tem Link Aqui'),
+  EVOLUTION_ENABLED: z.enum(['0', '1']).default('0'),
+  EVOLUTION_ACTIONS_ENABLED: z.enum(['0', '1']).default('0'),
+  EVOLUTION_BASE_URL: optionalUrl,
+  EVOLUTION_INSTANCE_NAME: optionalText,
+  EVOLUTION_API_KEY: optionalText,
+  EVOLUTION_GROUP_JID: optionalText,
+  EVOLUTION_WEBHOOK_AUTH_SECRET: optionalText,
+  EVOLUTION_OPERATOR_PHONES: optionalText,
+  EVOLUTION_OPERATOR_ADMIN_ID: optionalText,
 })
 
 const parsed = schema.safeParse(process.env)

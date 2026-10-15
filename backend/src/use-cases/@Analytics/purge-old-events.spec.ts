@@ -13,7 +13,7 @@ describe('expurgo de analytics', () => {
 
   it('não apaga pedido passado no lugar do evento', () => {
     const orders = [{ id: 'order-1', createdAt: '2020-01-01' }]
-    expect(analyticsToPurge(orders as Array<{ day: string }>, purgeBefore(now))).toEqual([])
+    expect(analyticsToPurge(orders as unknown as Array<{ day: string }>, purgeBefore(now))).toEqual([])
   })
 
   it('apaga só o evento anterior ao corte e devolve a contagem', async () => {

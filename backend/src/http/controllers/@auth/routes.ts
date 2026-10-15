@@ -219,7 +219,7 @@ async function register(request: FastifyRequest, reply: FastifyReply) {
   }
 }
 
-function createTestAccount(tenantId: string, body: { name: string; email: string }): { id: string; name: string; role: 'USER'; status: 'ACTIVE' } {
+function createTestAccount(tenantId: string, body: { name: string; email: string }): { id: string; tenantId: string; name: string; role: 'USER'; status: 'ACTIVE' } {
   const email = body.email.toLowerCase()
   if (testAccounts.some((row) => row.tenantId === tenantId && row.email === email)) {
     throw new UserAlreadyExistsError()

@@ -97,6 +97,7 @@ async function main() {
   const eva = await user({
     tenantId: a.tenant.id, name: 'Eva', email: 'eva@tenant-a.test', phone: '5511911110002', confirmed: true,
   })
+  await user({ tenantId: a.tenant.id, name: 'Autora de submissão', email: 'submitter@tenant-a.test', phone: '5511911110005', confirmed: true })
   await user({
     tenantId: a.tenant.id, name: 'Admin', email: 'admin@tenant-a.test', phone: '5511911110003', role: 'ADMIN', confirmed: true,
   })
@@ -129,7 +130,14 @@ async function main() {
   })
   const approveCase = await prisma.moderationCase.create({ data: { tenantId: a.tenant.id, linkId: approve.id } })
   const rejectCase = await prisma.moderationCase.create({ data: { tenantId: a.tenant.id, linkId: reject.id } })
+  // F42 owns a separate tenant so moderation tests cannot change catalog fixtures.
+  const evolution = await tenantBundle('evolution.localhost', 'Evolution fixture')
+  const evolutionOwner = await user({ tenantId: evolution.tenant.id, name: 'Operadora fixture', email: 'owner@evolution.test', phone: '5511911120001', confirmed: true })
+  await user({ tenantId: evolution.tenant.id, name: 'Autora fixture', email: 'submitter@evolution.test', phone: '5511911120003', confirmed: true })
+  await user({ tenantId: evolution.tenant.id, name: 'Admin fixture', email: 'admin@evolution.test', phone: '5511911120002', role: 'ADMIN', confirmed: true })
+  const evolutionLink = await link({ tenantId: evolution.tenant.id, ownerId: evolutionOwner.id, networkId: evolution.network.id, nicheId: evolution.niche.id, name: 'Referência fixture', description: 'Comunidade de estudo', url: 'https://example.com/evolution-fixture', status: 'PUBLISHED' })
   const state = {
+    evolution: { tenantA: evolution.tenant.id, receitas: evolutionLink.id, password: 'Senha-e2e-1', bia: 'owner@evolution.test', eva: 'submitter@evolution.test', admin: 'admin@evolution.test' },
     tenantA: a.tenant.id,
     tenantB: b.tenant.id,
     receitas: receitas.id,
@@ -142,6 +150,7 @@ async function main() {
     secret: secret.id,
     password: 'Senha-e2e-1',
     bia: 'bia@tenant-a.test',
+    submitter: 'submitter@tenant-a.test',
     eva: 'eva@tenant-a.test',
     admin: 'admin@tenant-a.test',
     dora: 'dora@tenant-b.test',

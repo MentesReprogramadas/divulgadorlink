@@ -9,6 +9,7 @@ import { substantiveText } from '@/domain/catalog/index-policy'
 import { prisma } from '@/lib/prisma'
 import { recordEmbeddingIntent, tryDispatchEmbedding } from '@/use-cases/@Search/embedding-outbox'
 import { banAccount } from '@/use-cases/@Admin/ban-account'
+import { queueCaseReview } from '@/use-cases/@Notifications/evolution-operations'
 import { facetMatchesProbe, escapeLikePrefix, FACET_ACCENTS, FACET_PLAIN, type SearchFacetProbe } from '@/use-cases/@Search/rank-links'
 
 function scheduleEmbedding(linkId: string, snapshot: LinkEmbedSnapshot): void {
@@ -717,6 +718,10 @@ export class PrismaLinksRepository implements LinksRepository {
         if (duplicate) throw new DuplicateLinkError()
         const status = decide(LINK_QUOTA - used)
         const created = await tx.link.create({ data: { ...data, status, occupiesSlot: true } })
+        if (status === 'PENDING_MODERATION') {
+          const review = await tx.moderationCase.create({ data: { tenantId: created.tenantId, linkId: created.id } })
+          await queueCaseReview(tx, review.id)
+        }
         return toLinkRecord(created)
       },
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
@@ -742,6 +747,10 @@ export class PrismaLinksRepository implements LinksRepository {
     }
     const updated = await this.client.$transaction(async (tx) => {
       const row = await tx.link.update({ where: { id: linkId }, data })
+      if (row.status === 'PENDING_MODERATION') {
+        const review = await tx.moderationCase.findFirst({ where: { linkId, closedAt: null } })
+        if (review) await queueCaseReview(tx, review.id)
+      }
       const after = linkEmbedSnapshot(row)
       if (shouldEnqueueEmbedLink(before, after)) {
         await tx.link.update({ where: { id: linkId }, data: { embeddingState: 'PENDING' } })

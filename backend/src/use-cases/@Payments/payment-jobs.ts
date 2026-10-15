@@ -5,6 +5,8 @@ import { ExpirePixOrderUseCase } from '@/use-cases/@Payments/expire-pix-order'
 import { RequestPixRefundUseCase } from '@/use-cases/@Payments/request-pix-refund'
 import { getCheckoutStore, StoreOrdersRepository } from '@/use-cases/@Promotions/checkout-store'
 import { PrismaCheckoutStore, runtimeCheckoutStore } from '@/use-cases/@Promotions/checkout-prisma'
+import { operationalEvent } from '@/use-cases/@Moderation/resolve-human-review'
+import { prisma } from '@/lib/prisma'
 
 const notices: string[] = []
 
@@ -56,7 +58,11 @@ export async function runRefundPix(orderId: string, gateway: PaymentGateway): Pr
 
 export async function runNotifyRefundFailed(orderId: string): Promise<void> {
   const row = await runtimeCheckoutStore().findCommercial(orderId)
-  if (!row || notices.includes(orderId)) return
+  if (!row || row.order.status !== 'REFUND_FAILED') return
+  if (runtimeCheckoutStore() instanceof PrismaCheckoutStore) {
+    await operationalEvent(prisma, { tenantId: row.tenantId, resourceId: orderId, kind: 'REFUND_FAILED', occurrenceKey: `refund-failed:${orderId}`, payload: {} })
+  }
+  if (notices.includes(orderId)) return
   notices.push(orderId)
   logDomainEvent('refund.failed', {
     orderId,

@@ -12,7 +12,7 @@ import { urlAvailability } from '@/domain/links/url-availability'
 import { prisma } from '@/lib/prisma'
 import { notifyModerationQueue } from '@/adapters/notifications/outbound-mail'
 import { currentEmail, getAcquisitionStore, metaContextFrom, startEventId } from '@/use-cases/@Acquisition/record-funnel'
-import { DuplicateLinkError, getLinksRepository } from '@/repositories/links-repository'
+import { DuplicateLinkError, getLinksRepository, PrismaLinksRepository } from '@/repositories/links-repository'
 import { env } from '@/env'
 import { buildError, business_rule, forbidden, not_found, validation } from '@/http/errors'
 import { verifyJWT } from '@/http/middlewares/verify-jwt'
@@ -643,7 +643,7 @@ async function patchLink(request: FastifyRequest, reply: FastifyReply) {
         ranAi: edited.ranAi,
       })
     }
-    await getAuditLogsRepository().create({
+    const proposal = {
       tenantId: tenant.id,
       actorId: user.id,
       action: 'link.text.proposed',
@@ -652,7 +652,15 @@ async function patchLink(request: FastifyRequest, reply: FastifyReply) {
       before: { name: link.name, description: link.description },
       after: { name: parsed.data.name, description: parsed.data.description },
       requestId: request.id,
-    })
+    }
+    if (repo instanceof PrismaLinksRepository) {
+      await prisma.$transaction(async tx => {
+        await tx.$queryRaw`SELECT id FROM links WHERE id = ${link.id} FOR UPDATE`
+        const current = await tx.link.findFirst({ where: { id: link.id, tenantId: tenant.id, status: 'PUBLISHED' } })
+        if (!current) throw new ResourceNotFoundError()
+        await tx.auditLog.create({ data: { ...proposal, before: { name: current.name, description: current.description } } })
+      })
+    } else await getAuditLogsRepository().create(proposal)
     await enqueueTextProposal(link.id)
     return reply.status(200).send({
       id: link.id,

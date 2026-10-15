@@ -1,9 +1,17 @@
 import { expect, test } from '@playwright/test'
 import path from 'node:path'
+import { readFileSync } from 'node:fs'
 
 const A = 'http://tenant-a.localhost:3000'
 
-test.use({ storageState: path.join(__dirname, 'bia.storage.json') })
+const state = JSON.parse(readFileSync(path.join(__dirname, 'state.json'), 'utf8')) as { submitter: string; password: string }
+test.beforeEach(async ({ page }) => {
+  await page.goto(`${A}/login`)
+  await page.getByLabel('E-mail').fill(state.submitter)
+  await page.getByLabel('Senha').fill(state.password)
+  await page.getByRole('button', { name: 'Entrar' }).click()
+  await expect(page.getByRole('heading', { name: 'Painel' })).toBeVisible()
+})
 
 test('o envio guarda rascunho, mostra a vaga e não chama de publicado', async ({ page }) => {
   await page.goto(`${A}/painel/links/novo`)

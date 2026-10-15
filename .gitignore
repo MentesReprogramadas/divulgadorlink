@@ -5,6 +5,11 @@ build/
 .superpowers/
 *.log
 *.tsbuildinfo
+frontend/playwright-report/
+frontend/test-results/
+frontend/e2e/*.storage.json
+frontend/e2e/serve.pid
+frontend/e2e/state.json
 pnpm-lock.yaml
 pnpm-workspace.yaml
 yarn.lock

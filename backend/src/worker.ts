@@ -15,6 +15,8 @@ import { enqueueExpirePix, enqueueUnchargedOrders } from '@/adapters/queues/enqu
 import { readConfig, type ConfigKey } from '@/domain/config/read-config'
 import { env } from '@/env'
 import { prisma } from '@/lib/prisma'
+import { runEvolutionCycle, queueTextReview, queueCaseReview } from '@/use-cases/@Notifications/evolution-operations'
+import { enqueueEvolutionCycle, EVOLUTION_QUEUE_NAME } from '@/adapters/queues/enqueue-evolution'
 import { logDomainEvent, logJob } from '@/observability/logger'
 import { applyAiVerdict } from '@/use-cases/@Moderation/apply-ai-verdict'
 import { publishSubmission, settleSubmission } from '@/use-cases/@Moderation/settle-submission'
@@ -166,10 +168,11 @@ export function createWorker(connection: Redis, deps: WorkerDeps, queueName = QU
       const started = Date.now()
       try {
       const result = await (async () => {
+      if (job.name === 'evolution-cycle') return runEvolutionCycle(deps.db ?? prisma)
       if (job.name === 'moderate-link') {
         const data = job.data as ModerateLinkJobData & { linkId?: string }
         if (typeof data.linkId === 'string') {
-          return settleSubmission({
+          const decision = await settleSubmission({
             linkId: data.linkId,
             judge: deps.textJudge,
             finalAttempt: job.attemptsMade + 1 >= (job.opts.attempts ?? 1),
@@ -198,6 +201,12 @@ export function createWorker(connection: Redis, deps: WorkerDeps, queueName = QU
             },
             publish: publishSubmission,
           })
+          if (decision === 'ADMIN') {
+            const review = await prisma.moderationCase.findFirst({ where: { linkId: data.linkId, closedAt: null } })
+            if (review) await queueCaseReview(prisma, review.id)
+          }
+          void enqueueEvolutionCycle().catch(() => undefined)
+          return decision
         }
         return moderateLink(data)
       }
@@ -250,6 +259,10 @@ export function createWorker(connection: Redis, deps: WorkerDeps, queueName = QU
           finalAttempt: job.attemptsMade + 1 >= (job.opts.attempts ?? 1),
         })
         if (decision === 'PUBLISH') await enqueueEmbedLink(linkId)
+        if (decision === 'ADMIN') {
+          const link = await (deps.db ?? prisma).link.findUnique({ where: { id: linkId } })
+          if (link) await queueTextReview(deps.db ?? prisma, link.tenantId, linkId)
+        }
         return decision
       }
       if (job.name === 'purge-analytics') {
@@ -306,8 +319,12 @@ async function startWorker(): Promise<void> {
   const connection = createRedis(env.REDIS_URL, { maxRetriesPerRequest: null })
   const moderation = env.OPENAI_API_KEY ? new OpenAiTextModeration(env.OPENAI_API_KEY) : null
   createWorker(connection, { textJudge: moderation ? (text) => moderation.judge(text) : null })
+  // Separate BullMQ consumer in this process: a slow provider cannot occupy the payment/moderation worker.
+  createWorker(connection, { textJudge: null }, EVOLUTION_QUEUE_NAME)
   await enqueuePendingEmbeddingJobs()
+  await enqueueEvolutionCycle()
   const drain = setInterval(() => {
+    void enqueueEvolutionCycle().catch(() => logDomainEvent('evolution.drain.failed', { result: 'queue_unavailable' }))
     void enqueuePendingEmbeddingJobs().catch((error) => {
       logDomainEvent('embedding.drain.failed', { result: error instanceof Error ? error.message : 'fila' })
     })

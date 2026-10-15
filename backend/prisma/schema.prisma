@@ -2,6 +2,62 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model OperationalMessage {
+  id                String   @id @default(cuid())
+  tenantId          String
+  tenant            Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  occurrenceKey     String   @unique
+  kind              String
+  resourceId        String
+  snapshotHash      String?
+  payload           Json
+  state             String   @default("PENDING")
+  attempts          Int      @default(0)
+  nextAttemptAt     DateTime @default(now())
+  lockedAt          DateTime?
+  providerMessageId String?
+  lastErrorCode     String?
+  expiresAt         DateTime?
+  consumedAt        DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  @@index([tenantId, state, nextAttemptAt])
+  @@index([kind, resourceId])
+  @@map("operational_messages")
+}
+
+model EvolutionReceipt {
+  id                String   @id @default(cuid())
+  tenantId          String
+  tenant            Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  instance          String
+  providerMessageId String
+  sender            String
+  reference         String
+  decision          String
+  reason            String?
+  state             String   @default("PENDING")
+  resultCode        String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  @@unique([instance, providerMessageId])
+  @@index([state, createdAt])
+  @@map("evolution_receipts")
+}
+
+model EvolutionOperator {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  phone     String
+  userId    String
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  @@unique([tenantId, phone])
+  @@map("evolution_operators")
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -27,6 +83,9 @@ model Tenant {
   embeddingJobs   EmbeddingJob[]
   orders          Order[]
   analyticsEvents AnalyticsEvent[]
+  operationalMessages OperationalMessage[]
+  evolutionReceipts EvolutionReceipt[]
+  evolutionOperators EvolutionOperator[]
   @@map("tenants")
 }
 
@@ -44,6 +103,7 @@ model User {
   links        Link[]
   orders       Order[]
   acquisitionTouch AcquisitionTouch?
+  evolutionOperators EvolutionOperator[]
   @@index([tenantId])
   @@map("users")
 }

@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 const ITEMS = [
   { id: 'visao', href: '/admin/visao', label: 'Gestão' },
   { id: 'moderacao', href: '/admin/moderacao', label: 'Moderação' },
+  { id: 'integracoes', href: '/admin/integracoes', label: 'Integrações' },
   { id: 'planos', href: '/admin/planos', label: 'Planos' },
   { id: 'estornos', href: '/admin/estornos', label: 'Estornos' },
   { id: 'configuracoes', href: '/admin/configuracoes', label: 'Configurações' },
