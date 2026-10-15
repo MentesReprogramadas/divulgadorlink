@@ -2,6 +2,22 @@ import { describe, expect, it } from 'vitest'
 import { parseEvolutionMessage, parseCommand, actionReference, matchesReference, safeText } from './evolution-command'
 
 describe('F42 comandos de moderação', () => {
+  it('aceita resposta normalizada pela Evolution com contextInfo ao lado de message', () => {
+    const payload = { event: 'messages.upsert', instance: 'test', data: {
+      key: { id: 'inbound-normalized', remoteJid: 'test@g.us', participant: '12345678900000@lid', participantAlt: '5511999999999@s.whatsapp.net', fromMe: false },
+      messageTimestamp: 1000, messageType: 'conversation',
+      message: { conversation: 'APROVAR', messageContextInfo: {} },
+      contextInfo: { stanzaId: 'sent-review-a', quotedType: 0, quotedMessage: { conversation: 'Texto citado nunca autoriza decisões' } },
+    } }
+    const expected = { instance: 'test', group: 'test@g.us', now: 1000_000 }
+    expect(parseEvolutionMessage(payload, expected)).toMatchObject({ sender: '5511999999999', quotedMessageId: 'sent-review-a', command: { decision: 'APPROVE', reference: '', reason: null } })
+    expect(parseEvolutionMessage({ ...payload, data: { ...payload.data, message: { conversation: 'RECUSAR Fora do tema' } } }, expected)).toMatchObject({ command: { decision: 'REJECT', reason: 'Fora do tema' } })
+    for (const contextInfo of [null, {}, { quotedMessage: { conversation: 'APROVAR abc.def' } }, { stanzaId: 'sent-review-a', isForwarded: true }, { stanzaId: 'sent-review-a', forwardingScore: 1 }]) {
+      expect(parseEvolutionMessage({ ...payload, data: { ...payload.data, contextInfo } }, expected)).toBeNull()
+    }
+    const conflicting = { ...payload, data: { ...payload.data, message: { extendedTextMessage: { text: 'APROVAR', contextInfo: { stanzaId: 'other-review' } } } } }
+    expect(parseEvolutionMessage(conflicting, expected)).toBeNull()
+  })
   it('F42-U01 exige comando exato e motivo para recusar', () => {
     expect(parseCommand('APROVAR abc.def')).toEqual({ decision: 'APPROVE', reference: 'abc.def', reason: null })
     expect(parseCommand('RECUSAR abc.def Fora do tema')).toEqual({ decision: 'REJECT', reference: 'abc.def', reason: 'Fora do tema' })
