@@ -96,7 +96,7 @@ Resultados em execução não constituem aceite. O ledger e a matriz CSV devem a
 ## Operação e recuperação
 
 1. Em `/admin/integracoes`, conferir configuração, conexão, operadores e fila. Participação no grupo não substitui vínculo ADMIN. Se houver vários ADMINs e nenhum vínculo, cada operador deve ser vinculado explicitamente a uma conta, ou o responsável deve definir `EVOLUTION_OPERATOR_ADMIN_ID`.
-2. Para decidir, enviar uma mensagem própria contendo exatamente `APROVAR <referência>` ou `RECUSAR <referência> <motivo>`. Não encaminhar a mensagem do bot como autorização. Responder citando o aviso é permitido somente quando o corpo novo contém o comando completo; texto citado não é interpretado.
+2. Para decidir, usar **Responder** no aviso específico e enviar `APROVAR` ou `RECUSAR <motivo>`. A mensagem citada identifica a revisão; o texto citado não é interpretado. Sem citação, os comandos antigos com referência assinada continuam válidos. Nunca há seleção automática do último aviso. Se houver referência explícita e citação, ambas devem coincidir.
 3. Referência vencida/desatualizada ou revisão já decidida não muda o link. Usar o painel para decisões de avisos antigos. Resposta do grupo confirma a transação; aceite de envio não confirma leitura.
 4. RETRY possui retentativa limitada. DEAD exige investigar erro/configuração. UNCERTAIN exige conferir o grupo e confirmar o reenvio no painel; repetir o aviso preserva a referência e não permite duas decisões.
 5. Para suspender: desligar comandos/envio no painel. Para rollback de código: primeiro desligar as duas envs na API/worker e redeploy; manter migration aditiva e auditoria. Não remover tabelas nem executar reset/down de banco em produção.
@@ -104,6 +104,18 @@ Resultados em execução não constituem aceite. O ledger e a matriz CSV devem a
 7. Purge local não apaga mensagens já entregues no WhatsApp. O bot não processa OTP, Pix, QR de sessão, mensagens privadas ou outros grupos.
 
 ## Fechamento
+
+### Refinamento posterior: decidir respondendo ao aviso (15/10/2026)
+
+Solicitação posterior ao fechamento original: tornar as mensagens claras e permitir decidir com várias pendências no grupo. A nova modalidade usa o **Responder** nativo do WhatsApp, com `APROVAR` ou `RECUSAR <motivo>`, sem copiar a referência longa. Botões interativos não foram habilitados. As referências assinadas antigas continuam compatíveis.
+
+O webhook resolve o ID exato da mensagem citada contra o aviso SENT do tenant. Citação desconhecida, ambígua, de outro tipo ou conflitante com referência explícita não produz decisão. Texto citado nunca fornece autorização. A referência assinada é construída no servidor para reutilizar os receipts, a autorização e a transação de decisão já existentes. Índice aditivo por tenant/providerMessageId atende à nova consulta; nenhuma nova tabela ou serviço foi criado.
+
+Avisos e confirmações identificam a revisão e o nome. Erros explicam revisão antiga/alterada/já decidida; recusa sem motivo em resposta ao aviso orienta o operador sem consumir a revisão. Recusar proposta de texto explica que o link continua publicado com o texto anterior. Aprovação A, recusa B e respostas atrasadas foram verificadas sem selecionar a última pendência por posição.
+
+Validação local em snapshot isolado das alterações pré-existentes: lint/typecheck backend e frontend aprovados, build backend aprovado, 352 testes backend, 51 PostgreSQL (incluindo 15 F42), 19 Playwright incluindo setup e nove cenários F42 em desktop/mobile. F42-E10 cobre duas pendências, ausência/falsificação de citação, conflito de referência, motivo ausente com feedback e decisão tardia. Esses números pertencem ao refinamento; não substituem o registro histórico do aceite inicial.
+
+Seis demonstrações visuais foram aceitas pela Evolution entre 15:01:46 e 15:01:54 UTC, todas identificadas como fictícias e sem revisão persistida: introdução, dois avisos, duas confirmações e resposta tardia. IDs na ordem: `3EB05B3DDB0A48367DB1EE`, `3EB0CB9F77AB6CA9798342`, `3EB0A6CBB311C8233D3AA8`, `3EB0E6F4F991398162EA54`, `3EB04CDB53284505AACBE5`, `3EB09BC81C8F219BCE41F4`. Nenhum link real foi criado ou alterado para as demonstrações. Aceite da API não comprova leitura; o ensaio humano anterior em iPhone foi do comando com referência e não é prova de execução humana da nova modalidade Responder.
 
 - [x] Regressão E2E ampliada e CI final aprovados: 46/46, sem skips.
 - [x] Snapshot de publicação validado; alterações locais de outra atividade preservadas.

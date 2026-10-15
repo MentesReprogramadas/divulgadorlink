@@ -109,7 +109,7 @@ export async function resolveHumanReview(db: PrismaClient, input: {
       before: { status: link.status, name: link.name, description: link.description, canonicalUrl: link.canonicalUrl },
       after: { status: updated.status, name: updated.name, description: updated.description, reason: body.reason ?? null, channel: input.channel, correlationId: input.messageId ?? input.requestId },
     } })
-    await operationalEvent(tx, { tenantId: link.tenantId, kind: 'DECISION', resourceId: review.id, occurrenceKey: `decision:${audit.id}`, payload: { name: link.name, decision: body.decision, reason: body.reason ?? null, operator: actor.name, channel: input.channel, status: updated.status } })
+    await operationalEvent(tx, { tenantId: link.tenantId, kind: 'DECISION', resourceId: review.id, occurrenceKey: `decision:${audit.id}`, payload: { name: isText ? proposed?.name ?? link.name : link.name, decision: body.decision, reason: body.reason ?? null, operator: actor.name, channel: input.channel, status: updated.status, reviewMessageId: input.messageId } })
     await operationalEvent(tx, { tenantId: link.tenantId, kind: 'MODERATION_EMAIL', resourceId: link.id, occurrenceKey: `moderation-email:${audit.id}`, state: input.channel === 'PANEL' ? 'WAITING_API' : 'PENDING', payload: { outcome: approved ? 'published' : updated.status === 'PRE_REJECTED' ? 'rejected' : 'change_rejected' } })
     if (input.receiptId) await tx.evolutionReceipt.update({ where: { id: input.receiptId }, data: { state: 'DONE', resultCode: updated.status } })
     return { id: input.reviewId, linkId: link.id, status: updated.status, url: link.canonicalUrl, occupiesSlot: updated.occupiesSlot }

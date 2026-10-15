@@ -37,7 +37,7 @@ const envelope = z.object({
     key: z.object({ id: z.string().min(1).max(200), remoteJid: z.string(), fromMe: z.boolean(), participant: z.string().optional(), participantAlt: z.string().optional() }),
     messageTimestamp: z.union([z.number(), z.string()]),
     messageType: z.string().optional(),
-    message: z.object({ conversation: z.string().max(1000).optional(), extendedTextMessage: z.object({ text: z.string().max(1000), contextInfo: z.object({ isForwarded: z.boolean().optional(), forwardingScore: z.number().optional() }).passthrough().optional() }).optional() }).passthrough(),
+    message: z.object({ conversation: z.string().max(1000).optional(), extendedTextMessage: z.object({ text: z.string().max(1000), contextInfo: z.object({ stanzaId: z.string().min(1).max(200).optional(), isForwarded: z.boolean().optional(), forwardingScore: z.number().optional() }).passthrough().optional() }).optional() }).passthrough(),
   }).passthrough(),
 })
 
@@ -60,7 +60,12 @@ export function parseEvolutionMessage(raw: unknown, expected: { instance: string
   if (!text) return null
   // LID alone does not establish a phone identity. Only an explicit PN supplied by the trusted provider is admissible.
   const sender = normalizePhoneJid(data.key.participant ?? '') ?? normalizePhoneJid(data.key.participantAlt ?? '')
-  const command = parseCommand(text)
+  const quotedMessageId = extended?.contextInfo?.stanzaId ?? null
+  // The quoted body is untrusted. Only the provider's message ID may identify a review.
+  const reply = /^(APROVAR|RECUSAR)(?: ([^\r\n]{1,500}))?$/.exec(text.trim())
+  const command = parseCommand(text) ?? (quotedMessageId && reply &&
+    ((reply[1] === 'APROVAR' && !reply[2]) || reply[1] === 'RECUSAR')
+    ? { decision: reply[1] === 'APROVAR' ? 'APPROVE' as const : 'REJECT' as const, reference: '', reason: reply[1] === 'RECUSAR' ? safeText(reply[2] ?? '', 500) || null : null } : null)
   if (!sender || !command) return null
-  return { messageId: data.key.id, sender, command }
+  return { messageId: data.key.id, sender, command, quotedMessageId }
 }

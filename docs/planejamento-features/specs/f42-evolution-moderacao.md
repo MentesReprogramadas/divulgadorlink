@@ -29,7 +29,7 @@ Nenhum segredo ou valor real de credencial neste repositório. Confirmar suporte
 1. Submissão ou proposta é persistida pelo fluxo atual.
 2. Ao entrar efetivamente na fila humana, gravar ocorrência de revisão e outbox; enfileirar/processar fora do request.
 3. Worker lê evento, revalida revisão e envia resumo para a instância/grupo configurados.
-4. Operador responde explicitamente `APROVAR <referencia>` ou `RECUSAR <referencia> <motivo>`.
+4. Operador usa **Responder** no aviso específico e envia `APROVAR` ou `RECUSAR <motivo>`. O ID da mensagem citada identifica uma única revisão enviada pelo bot no tenant. Comandos antigos com referência assinada continuam compatíveis.
 5. Webhook autenticado normaliza a mensagem admitida, valida contexto/remetente e persiste receipt durável antes de confirmar recebimento.
 6. Worker/caso de uso processa ação válida com verificação atômica de estado, versão e consumo da referência.
 7. Commit registra decisão e intenção de efeitos; resposta no grupo informa resultado real. Se não foi possível confirmar entrega da resposta, a decisão não é desfeita.
@@ -43,12 +43,22 @@ Proposta de texto da notificação, a validar sem dados reais:
 > Rede: Telegram · Nicho: Educação  
 > Resumo: descrição limitada e tratada como texto  
 > Revisar no painel: endereço interno construído pelo servidor  
-> APROVAR REF_EXEMPLO  
-> RECUSAR REF_EXEMPLO motivo
+> Responda a ESTA mensagem com APROVAR ou RECUSAR motivo.  
+> Cada resposta vale somente para a revisão citada.
 
 A referência de exemplo não é uma chave válida. A mensagem contém tipo da revisão e dados mínimos; não expor e-mail/telefone, tokens, prompts, provas sensíveis ou conteúdo integral desnecessário. Links e marcação enviados por usuários devem ser limitados/escapados; texto de usuário nunca se torna comando do bot.
 
 Botões podem apresentar Aprovar, Recusar e Abrir painel se o ensaio da instalação comprovar suporte no grupo e dispositivo. Não especificar um formato de payload de botão como garantido. Parser normaliza somente variantes explicitamente testadas; texto explícito e painel são alternativas obrigatórias.
+
+### Refinamento solicitado: várias revisões no grupo
+
+- A nova mensagem recebida deve conter o comando explícito. O corpo da mensagem citada nunca fornece comandos ou referências para executar.
+- `contextInfo.stanzaId` deve corresponder a exatamente um `providerMessageId` de aviso REVIEW_CASE/REVIEW_TEXT com entrega SENT no tenant configurado. IDs ausentes, desconhecidos, ambíguos ou de confirmação não selecionam revisão alguma. Nunca selecionar o aviso mais recente.
+- O webhook autenticado conserva a autorização por número/ADMIN, gera internamente a referência assinada e reutiliza receipt, worker e transação existentes. Se houver referência explícita e citação, ambas precisam apontar para o mesmo aviso.
+- Respostas fora de ordem não interferem nas outras pendências; decisão repetida/tardia não modifica a decisão anterior; revisão expirada ou alterada exige revisão atual no painel. RECUSAR sem motivo, quando enviado como resposta, retorna orientação e mantém a revisão aberta.
+- Avisos usam nome, rede, categoria, tipo, descrição limitada, identificação da revisão e painel. Confirmações e erros mostram nome/identificação quando disponíveis e resultado em português. Recusar edição mantém o texto publicado anterior.
+- **F42-E10:** criar A e B, responder A após B chegar, conferir apenas A publicado; recusar B com motivo, conferir apenas B recusado; testar comando sem citação, citação falsa com corpo forjado, referência/citação conflitantes, motivo ausente e decisão tardia. Rodar desktop e mobile com API, PostgreSQL, filas e adapter reais contra stub do provedor.
+- Demonstrações no grupo são identificadas como TESTE visual, sem revisão persistida e sem alterar links reais. Entrega aceita pela API não comprova leitura nem ensaio humano da nova modalidade Responder; registrar essa distinção.
 
 GET, prévia de link e leitura automática por WhatsApp nunca alteram estado. Link de painel exige login ADMIN, proteção CSRF e confirmação por ação mutável. Rejeição com motivo insuficiente devolve instrução sem consumir a decisão como concluída.
 

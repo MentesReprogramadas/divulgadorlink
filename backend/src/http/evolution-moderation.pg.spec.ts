@@ -4,7 +4,7 @@ import { afterAll, beforeEach, describe, expect, it } from 'vitest'
 import { env } from '@/env'
 import { actionReference } from '@/domain/notifications/evolution-command'
 import { resolveHumanReview, operationalEvent, reviewHash } from '@/use-cases/@Moderation/resolve-human-review'
-import { queueCaseReview, queueTextReview, deliverOperationalMessage, processEvolutionReceipt, seedEvolutionOperators, authorizedOperator, runEvolutionCycle } from '@/use-cases/@Notifications/evolution-operations'
+import { queueCaseReview, queueTextReview, deliverOperationalMessage, processEvolutionReceipt, seedEvolutionOperators, authorizedOperator, runEvolutionCycle, quotedReviewReference } from '@/use-cases/@Notifications/evolution-operations'
 import { PrismaCheckoutStore } from '@/use-cases/@Promotions/checkout-prisma'
 
 const url = process.env.EVOLUTION_DATABASE_URL
@@ -35,6 +35,21 @@ function decision(decision: 'APPROVE' | 'REJECT', messageId?: string) {
 }
 
 describe('F42 PostgreSQL decisão e outbox', () => {
+  it('resolve apenas citação de aviso enviado ao tenant e recusa ID ambíguo', async () => {
+    const notice = await event()
+    const resolve = (tenant = tenantId) => quotedReviewReference(db, tenant, 'outbound-a', 'secret')
+    await db.operationalMessage.update({ where: { id: notice.id }, data: { providerMessageId: 'outbound-a' } })
+    expect(await resolve()).toBeNull()
+    await db.operationalMessage.update({ where: { id: notice.id }, data: { state: 'SENT' } })
+    expect(await resolve()).toBe(actionReference(notice.id, 'secret'))
+    expect(await resolve('other-tenant')).toBeNull()
+    await db.operationalMessage.update({ where: { id: notice.id }, data: { consumedAt: new Date() } })
+    // Consumed notices still resolve so the shared transaction can explain the previous decision.
+    expect(await resolve()).toBe(actionReference(notice.id, 'secret'))
+    await db.operationalMessage.create({ data: { tenantId, occurrenceKey: `ambiguous-${tenantId}`, resourceId: caseId, kind: 'REVIEW_CASE', payload: {}, state: 'SENT', providerMessageId: 'outbound-a' } })
+    expect(await resolve()).toBeNull()
+    expect(await quotedReviewReference(db, tenantId, 'unknown', 'secret')).toBeNull()
+  })
   it('F42-T01/T13/U08 persiste aviso único e cancela versão antiga', async () => {
     const first = await event(); await event()
     expect(await db.operationalMessage.count({ where: { tenantId } })).toBe(1)

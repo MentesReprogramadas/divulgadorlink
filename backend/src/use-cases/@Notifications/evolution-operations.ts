@@ -49,6 +49,12 @@ export async function authorizedOperator(db: PrismaClient, tenantId: string, pho
   return db.user.findFirst({ where: { id: binding.userId, tenantId, role: 'ADMIN', status: 'ACTIVE' }, select: { id: true } })
 }
 
+export async function quotedReviewReference(db: PrismaClient, tenantId: string, providerMessageId: string, secret: string): Promise<string | null> {
+  const matches = await db.operationalMessage.findMany({ where: { tenantId, providerMessageId, state: 'SENT', kind: { in: ['REVIEW_CASE', 'REVIEW_TEXT'] } }, select: { id: true }, take: 2 })
+  // Never guess the latest review or accept a quote of a confirmation, user message or another tenant.
+  return matches.length === 1 ? actionReference(matches[0]!.id, secret) : null
+}
+
 export async function queueCaseReview(tx: Prisma.TransactionClient, caseId: string) {
   const row = await tx.moderationCase.findUnique({ where: { id: caseId }, include: { link: { include: { network: true, niche: true } } } })
   if (!row || row.closedAt || row.link.status !== 'PENDING_MODERATION') return
@@ -84,17 +90,19 @@ async function reviewStillCurrent(db: PrismaClient, event: OperationalMessage) {
   return Boolean(link && link.status === 'PUBLISHED' && current?.id === proposal.id && event.snapshotHash === reviewHash(link, proposal.id))
 }
 
-export function renderOperationalMessage(event: Pick<OperationalMessage, 'id' | 'kind' | 'payload'> & { resourceId?: string }, secret: string, origin: string): string {
+export function renderOperationalMessage(event: Pick<OperationalMessage, 'id' | 'kind' | 'payload'> & { resourceId?: string }, _secret: string, origin: string): string {
   const p = event.payload as Record<string, unknown>
   const name = safeText(String(p.name ?? ''))
   const panel = `${origin.replace(/\/$/, '')}/admin/moderacao`
   if (event.kind.startsWith('REVIEW_')) {
-    const ref = actionReference(event.id, secret)
-    return [`Revisão pendente — ${safeText(String(p.type ?? 'Link'))}`, name, `${safeText(String(p.network ?? ''))} · ${safeText(String(p.niche ?? ''))}`, safeText(String(p.description ?? '')), `Revisar: ${panel}`, '', `APROVAR ${ref}`, `RECUSAR ${ref} motivo`, 'Referência válida por 24 horas.'].join('\n')
+    return [`🔎 *AGUARDANDO SUA REVISÃO*`, `${safeText(String(p.type ?? 'Link'))} • ${name}`, `Rede: ${safeText(String(p.network ?? ''))} | Categoria: ${safeText(String(p.niche ?? ''))}`, '', safeText(String(p.description ?? '')), '', '*Como decidir no WhatsApp*', '1. Toque e segure ESTA mensagem e escolha Responder.', '2. Envie uma das opções:', 'APROVAR', 'RECUSAR motivo da recusa', '', 'Cada resposta vale apenas para o link da mensagem citada, mesmo que outros avisos cheguem depois.', 'Prazo: 24 horas. Após isso ou se o conteúdo mudar, revise pelo painel.', `Revisão: ${event.id}`, `Painel: ${panel}`].join('\n')
   }
-  if (event.kind === 'DECISION') return [`Moderação concluída: ${p.decision === 'APPROVE' ? 'aprovado' : 'recusado'}`, name, `Estado: ${safeText(String(p.status ?? ''))}`, p.reason ? `Motivo: ${safeText(String(p.reason))}` : '', `Operador: ${safeText(String(p.operator ?? 'administrador autorizado'))}`, `Canal: ${p.channel === 'WHATSAPP' ? 'WhatsApp' : 'Painel'}`, panel].filter(Boolean).join('\n')
+  if (event.kind === 'DECISION') return [p.decision === 'APPROVE' ? '✅ *REVISÃO APROVADA*' : '❌ *REVISÃO RECUSADA*', name, `Resultado: ${p.status === 'PUBLISHED' ? (p.decision === 'REJECT' ? 'O link continua publicado com o texto anterior.' : 'Link publicado.') : p.status === 'PRE_REJECTED' ? 'Link não publicado. O responsável poderá contestar pelo painel.' : 'Decisão registrada no painel.'}`, p.reason ? `Motivo: ${safeText(String(p.reason))}` : '', `Decisão de: ${safeText(String(p.operator ?? 'administrador autorizado'))} • ${p.channel === 'WHATSAPP' ? 'WhatsApp' : 'Painel'}`, p.reviewMessageId ? `Revisão: ${safeText(String(p.reviewMessageId), 100)}` : '', panel].filter(Boolean).join('\n')
   if (event.kind === 'REFUND_FAILED') return `Estorno não concluído — REFUND_FAILED. Pedido: ${safeText(event.resourceId ?? event.id, 100)}. Consulte ${origin.replace(/\/$/, '')}/admin/estornos. Nenhuma promoção será ativada por esta mensagem.`
-  if (event.kind === 'COMMAND_RESULT') return `Comando não aplicado: ${safeText(String(p.resultCode ?? 'revisão indisponível'))}. Consulte o painel: ${panel}`
+  if (event.kind === 'COMMAND_RESULT') {
+    const explanations: Record<string, string> = { review_already_resolved: 'Essa revisão já foi decidida. A decisão anterior foi mantida.', review_reference_expired: 'Esse aviso expirou ou o conteúdo do link mudou. Abra a revisão atual no painel.', review_not_found: 'Essa revisão não está mais disponível.', reason_required: 'Para recusar, responda ao aviso com RECUSAR e o motivo.' }
+    return ['⚠️ *NENHUMA ALTERAÇÃO FEITA*', p.name ? safeText(String(p.name)) : '', explanations[String(p.resultCode)] ?? 'Não foi possível aplicar o comando. Confira a revisão no painel.', p.reviewMessageId ? `Revisão: ${safeText(String(p.reviewMessageId), 100)}` : '', panel].filter(Boolean).join('\n')
+  }
   return `Integração recuperada. Consulte os alertas e entregas pendentes no painel: ${origin.replace(/\/$/, '')}/admin/integracoes`
 }
 
@@ -149,7 +157,10 @@ export async function processEvolutionReceipt(db: PrismaClient, id: string) {
     }
     // Unknown failure may have occurred after a database commit: consumed references prevent duplicate decisions on recovery.
     await db.evolutionReceipt.update({ where: { id }, data: { state: 'REJECTED', resultCode: code } })
-    if (error instanceof ReviewError && error.status !== 403) await operationalEvent(db, { tenantId: receipt.tenantId, kind: 'COMMAND_RESULT', resourceId: id, occurrenceKey: `command-result:${id}`, payload: { resultCode: code } })
+    if (error instanceof ReviewError && error.status !== 403) {
+      const notice = await db.operationalMessage.findFirst({ where: { id: receipt.reference.split('.')[0], tenantId: receipt.tenantId } })
+      await operationalEvent(db, { tenantId: receipt.tenantId, kind: 'COMMAND_RESULT', resourceId: id, occurrenceKey: `command-result:${id}`, payload: { resultCode: code, reviewMessageId: notice?.id ?? null, name: String((notice?.payload as Record<string, unknown> | undefined)?.name ?? '') } })
+    }
   }
 }
 

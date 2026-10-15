@@ -5,10 +5,20 @@ const config = { baseUrl: 'https://evolution.example.com', instance: 'Test bot',
 describe('F42 contrato de entrega', () => {
   it('F42-U06 envia template mínimo sem serializar campos privados', () => {
     const text = renderOperationalMessage({ id: 'message', kind: 'REVIEW_CASE', payload: { name: '*Nome*', description: 'Descrição', email: 'private@example.test', apiKey: 'synthetic-secret', type: 'Novo link' } }, 'reference-secret', 'https://tenant.test')
-    expect(text).toContain('APROVAR message.')
-    expect(text).toContain('RECUSAR message.')
+    expect(text).toContain('\nAPROVAR\n')
+    expect(text).toContain('RECUSAR motivo da recusa')
+    expect(text).toContain('Revisão: message')
+    expect(text).not.toContain('APROVAR message.')
     expect(text).not.toContain('private@example.test')
     expect(text).not.toContain('synthetic-secret')
+  })
+  it('explica decisões e falhas sem códigos internos e distingue edição recusada', () => {
+    const render = (kind: string, payload: Record<string, string>) => renderOperationalMessage({ id: 'decision', kind, payload }, 'secret', 'https://tenant.test')
+    expect(render('DECISION', { name: 'Edição A', status: 'PUBLISHED', decision: 'REJECT', reviewMessageId: 'review-a' })).toContain('continua publicado com o texto anterior')
+    const stale = render('COMMAND_RESULT', { resultCode: 'review_already_resolved', name: 'Link A', reviewMessageId: 'review-a' })
+    expect(stale).toContain('A decisão anterior foi mantida')
+    expect(stale).toContain('Revisão: review-a')
+    expect(stale).not.toContain('review_already_resolved')
   })
   it('F42-U07 classifica 500, 401, timeout e aceite sem ID distintamente', async () => {
     for (const [status, disposition] of [[500, 'RETRY'], [429, 'RETRY'], [401, 'DEAD']] as const) {

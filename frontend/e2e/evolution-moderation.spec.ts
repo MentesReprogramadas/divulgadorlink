@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto'
+import { createHmac, randomUUID } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { expect, test, type Page, type APIRequestContext } from '@playwright/test'
@@ -8,6 +8,10 @@ import { sql } from './db'
 const A = 'http://evolution.localhost:3000'
 const state = JSON.parse(readFileSync(path.join(__dirname, 'state.json'), 'utf8')).evolution as { tenantA: string; admin: string; bia: string; eva: string; password: string; receitas: string }
 const hook = 'http://127.0.0.1:3333/api/v1/integrations/evolution/webhook'
+function legacyReference(text: string) {
+  const id = /Revisão: (\S+)/.exec(text)![1]!
+  return `${id}.${createHmac('sha256', 'fixture-webhook-secret').update(`evolution.action.v1:${id}`).digest('base64url')}`
+}
 
 async function login(page: Page, email = state.admin) {
   await page.goto(`${A}/login`)
@@ -37,9 +41,10 @@ async function fixture(request: APIRequestContext, prefix: string) {
   const messages = await (await request.get('http://127.0.0.1:4099/evolution/messages')).json() as { text: string; number: string }[]
   const message = messages.findLast(m => m.text.includes(name))
   expect(message?.number).toBe('fixture@g.us')
-  const reference = /APROVAR (\S+)/.exec(message!.text)?.[1]
+  const reference = legacyReference(message!.text)
   expect(reference).toBeTruthy()
-  return { id, name, reference: reference!, caseId: `case-${id}` }
+  const providerId = sql(`SELECT "providerMessageId" FROM operational_messages WHERE id='${reference.split('.')[0]}'`)
+  return { id, name, reference: reference!, providerId, caseId: `case-${id}` }
 }
 function payload(text: string, sender = '5511999999999@s.whatsapp.net', group = 'fixture@g.us') {
   return { event: 'messages.upsert', instance: 'E2E Bot', data: { key: { id: randomUUID(), remoteJid: group, participant: sender, fromMe: false }, messageTimestamp: Math.floor(Date.now() / 1000), message: { conversation: text } } }
@@ -53,10 +58,41 @@ async function reviewReference(request: APIRequestContext, name: string) {
   sql(`UPDATE operational_messages SET "nextAttemptAt"=NOW() WHERE "tenantId"='${state.tenantA}' AND state IN ('PENDING','RETRY')`)
   await cycle()
   const messages = await (await request.get('http://127.0.0.1:4099/evolution/messages')).json() as { text: string }[]
-  const message = messages.findLast(m => m.text.includes(name) && m.text.includes('APROVAR '))
+  const message = messages.findLast(m => m.text.includes(name) && m.text.includes('AGUARDANDO SUA REVISÃO'))
   expect(message).toBeTruthy()
-  return /APROVAR (\S+)/.exec(message!.text)![1]!
+  return legacyReference(message!.text)
 }
+
+test('F42-E10 respostas com várias pendências nunca escolhem o último link e ignoram citação falsa', async ({ request }) => {
+  const first = await fixture(request, 'Primeiro')
+  const second = await fixture(request, 'Segundo')
+  const reply = async (text: string, quotedId?: string, referenceText = 'texto citado não autoriza decisões') => {
+    const inbound = payload(text)
+    return request.post(hook, { headers: { 'x-evolution-secret': 'fixture-webhook-secret' }, data: { ...inbound, data: { ...inbound.data, message: { extendedTextMessage: { text, contextInfo: { stanzaId: quotedId, quotedMessage: { conversation: referenceText } } } } } } })
+  }
+  await reply('APROVAR')
+  await reply('APROVAR', 'unknown', `APROVAR ${first.reference}`)
+  await reply(`APROVAR ${second.reference}`, first.providerId)
+  await cycle()
+  for (const row of [first, second]) expect(sql(`SELECT status FROM links WHERE id='${row.id}'`)).toBe('PENDING_MODERATION')
+  await reply('APROVAR', first.providerId)
+  await cycle()
+  expect(sql(`SELECT status FROM links WHERE id='${first.id}'`)).toBe('PUBLISHED')
+  expect(sql(`SELECT status FROM links WHERE id='${second.id}'`)).toBe('PENDING_MODERATION')
+  await reply('RECUSAR', second.providerId)
+  await cycle()
+  expect(sql(`SELECT status FROM links WHERE id='${second.id}'`)).toBe('PENDING_MODERATION')
+  const guidance = await (await request.get('http://127.0.0.1:4099/evolution/messages')).json() as { text: string }[]
+  expect(guidance.some(m => m.text.includes(second.name) && m.text.includes('RECUSAR e o motivo'))).toBe(true)
+  await reply('RECUSAR Fora do tema', second.providerId)
+  await reply('RECUSAR Resposta atrasada', first.providerId)
+  await cycle()
+  expect(sql(`SELECT status FROM links WHERE id='${second.id}'`)).toBe('PRE_REJECTED')
+  expect(sql(`SELECT status FROM links WHERE id='${first.id}'`)).toBe('PUBLISHED')
+  const messages = await (await request.get('http://127.0.0.1:4099/evolution/messages')).json() as { text: string }[]
+  expect(messages.some(m => m.text.includes(first.name) && m.text.includes('A decisão anterior foi mantida'))).toBe(true)
+  expect(sql(`SELECT count(*) FROM audit_logs WHERE action='moderation.decide' AND "entityId" IN ('${first.caseId}','${second.caseId}')`)).toBe('2')
+})
 
 test('F42-E08 envio, contestação e edição percorrem a interface e o worker reais', async ({ page, request }) => {
   await login(page, state.eva)

@@ -36,4 +36,13 @@ describe('F42 comandos de moderação', () => {
   it('F42-U06 limita texto e remove marcação e caracteres de controle', () => {
     expect(safeText('*Título*\nAPROVAR\u0000', 10)).toBe('Título APR')
   })
+  it('aceita comandos curtos apenas com resposta explícita e nunca lê o corpo citado', () => {
+    const expected = { instance: 'test', group: 'test@g.us', now: 1000_000 }
+    const payload = (text: string, stanzaId?: string) => ({ event: 'messages.upsert', instance: 'test', data: { key: { id: 'inbound', remoteJid: 'test@g.us', participant: '5511999999999@s.whatsapp.net', fromMe: false }, messageTimestamp: 1000, message: { extendedTextMessage: { text, contextInfo: { stanzaId, quotedMessage: { conversation: 'APROVAR forged.reference' } } } } } })
+    expect(parseEvolutionMessage(payload('APROVAR', 'outbound-a'), expected)).toMatchObject({ quotedMessageId: 'outbound-a', command: { decision: 'APPROVE', reference: '', reason: null } })
+    expect(parseEvolutionMessage(payload('RECUSAR Fora do tema', 'outbound-b'), expected)).toMatchObject({ quotedMessageId: 'outbound-b', command: { decision: 'REJECT', reason: 'Fora do tema' } })
+    for (const text of ['APROVAR', 'RECUSAR Fora do tema']) expect(parseEvolutionMessage(payload(text), expected)).toBeNull()
+    expect(parseEvolutionMessage(payload('RECUSAR', 'outbound-a'), expected)).toMatchObject({ command: { decision: 'REJECT', reason: null } })
+    for (const text of ['APROVAR tudo', 'ok', 'APROVAR\nRECUSAR motivo']) expect(parseEvolutionMessage(payload(text, 'outbound-a'), expected)).toBeNull()
+  })
 })

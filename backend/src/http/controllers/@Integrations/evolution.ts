@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma'
 import { verifyJWT } from '@/http/middlewares/verify-jwt'
 import { resolveTenant } from '@/http/tenant'
 import { parseEvolutionMessage, secretEquals } from '@/domain/notifications/evolution-command'
-import { authorizedOperator, evolutionConfiguration, evolutionConnection, EVOLUTION_SETTINGS_KEY } from '@/use-cases/@Notifications/evolution-operations'
+import { authorizedOperator, evolutionConfiguration, evolutionConnection, EVOLUTION_SETTINGS_KEY, quotedReviewReference } from '@/use-cases/@Notifications/evolution-operations'
 import { enqueueEvolutionCycle } from '@/adapters/queues/enqueue-evolution'
 
 async function requireAdmin(request: FastifyRequest, reply: FastifyReply) {
@@ -26,8 +26,14 @@ export async function registerEvolutionRoutes(app: FastifyInstance) {
     const message = parseEvolutionMessage(request.body, { instance: config.instance, group: config.group })
     if (!message) return reply.code(200).send({ accepted: false })
     if (!await authorizedOperator(prisma, tenant.id, message.sender)) return reply.code(403).send({ accepted: false })
+    let reference = message.command.reference
+    if (message.quotedMessageId) {
+      const quoted = await quotedReviewReference(prisma, tenant.id, message.quotedMessageId, config.secret)
+      if (!quoted || (reference && reference !== quoted)) return reply.code(200).send({ accepted: false })
+      reference = quoted
+    }
     await prisma.evolutionReceipt.upsert({ where: { instance_providerMessageId: { instance: config.instance, providerMessageId: message.messageId } },
-      create: { tenantId: tenant.id, instance: config.instance, providerMessageId: message.messageId, sender: message.sender, reference: message.command.reference, decision: message.command.decision, reason: message.command.reason }, update: {},
+      create: { tenantId: tenant.id, instance: config.instance, providerMessageId: message.messageId, sender: message.sender, reference, decision: message.command.decision, reason: message.command.reason }, update: {},
     })
     void enqueueEvolutionCycle().catch(() => undefined) // durable receipt is drained after Redis recovers
     return reply.code(200).send({ accepted: true })
