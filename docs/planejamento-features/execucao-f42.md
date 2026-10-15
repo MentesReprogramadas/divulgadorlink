@@ -123,6 +123,8 @@ Oito exemplos compactos foram aceitos entre 15:09:35 e 15:09:46 UTC: introduçã
 
 Validação do formato compacto: 353 testes backend, 51 PostgreSQL e 19 Playwright desktop/mobile aprovados; lint/typecheck e build backend aprovados. Novas verificações conferem persistência de usuário/URL/contexto e dados financeiros do estorno, tamanho do aviso, preservação de underscores, bloqueio de URLs inseguras e campos privados fora do template. Uma execução local foi descartada por indisponibilidade de portas dos containers descartáveis; o log foi preservado e a suíte reexecutada integralmente após recriar os serviços. Artefatos em `output/p0-evolution-respostas/compacto/`.
 
+O usuário pediu depois mais respiro visual. Todos os templates foram organizados em blocos com títulos em negrito e linhas em branco: Usuário, Link, Classificação e Ação; resultado/motivo/operador, pedido ou entrega conforme evento. A alteração é de apresentação, preservando dados, comandos e regra de seleção. Os 12 testes focados passaram, assim como lint/typecheck e build backend. A asserção de limite de linhas foi substituída por separação explícita dos blocos, pois linhas em branco melhoram a leitura sem adicionar texto. Um novo exemplo visual de revisão foi aceito às 15:16:35 UTC, ID `3EB00AD4EFFD537216C189`, sem revisão real persistida.
+
 - [x] Regressão E2E ampliada e CI final aprovados: 46/46, sem skips.
 - [x] Snapshot de publicação validado; alterações locais de outra atividade preservadas.
 - [x] API/worker/web publicados, webhook autenticado configurado e saúde verificada.

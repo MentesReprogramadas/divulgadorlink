@@ -6,11 +6,12 @@ describe('F42 contrato de entrega', () => {
   it('F42-U06 envia template mínimo sem serializar campos privados', () => {
     const text = renderOperationalMessage({ id: 'message', kind: 'REVIEW_CASE', payload: { name: '*Nome*', description: 'Descrição', ownerName: 'Maria', canonicalUrl: 'https://example.test/link_com_underscore', network: 'WhatsApp', niche: 'Educação', email: 'private@example.test', apiKey: 'synthetic-secret', type: 'Novo link' } }, 'reference-secret', 'https://tenant.test')
     expect(text).toContain('Responda: *APROVAR* ou *RECUSAR motivo*.')
-    expect(text).toContain('Usuário: Maria')
-    expect(text).toContain('Link: https://example.test/link_com_underscore')
-    expect(text).toContain('Categoria: Educação • Rede: WhatsApp')
+    expect(text).toContain('*Usuário*\nMaria')
+    expect(text).toContain('https://example.test/link_com_underscore')
+    expect(text).toContain('Categoria: Educação\nRede: WhatsApp')
     expect(text).not.toContain('Toque e segure')
-    expect(text.split('\n').length).toBeLessThanOrEqual(11)
+    expect(text).toContain('\n\n*Ação*\n')
+    expect(text).toContain('\n\n*Classificação*\n')
     expect(text).toContain('Revisão: message')
     expect(text).not.toContain('APROVAR message.')
     expect(text).not.toContain('private@example.test')
@@ -19,9 +20,9 @@ describe('F42 contrato de entrega', () => {
   it('resume estorno com usuário, link, valor, tentativas e ação; filtra URLs inseguras', () => {
     const render = (url: string) => renderOperationalMessage({ id: 'notice', resourceId: 'order-1', kind: 'REFUND_FAILED', payload: { name: 'Grupo', ownerName: 'Maria', canonicalUrl: url, amountCents: 1990, method: 'PIX', attempts: 3, brCode: 'private-pix-code' } }, 'secret', 'https://tenant.test')
     const text = render('https://example.test/grupo')
-    for (const value of ['Usuário: Maria', 'Link: https://example.test/grupo', '19,90', 'Pix', 'Tentativas: 3', 'Pedido: order-1', 'Ação: verificar em']) expect(text).toContain(value)
+    for (const value of ['*Usuário*\nMaria', 'https://example.test/grupo', '19,90', 'Pix', 'Tentativas: 3', '*Pedido*\norder-1', '*Ação*\nVerificar estorno']) expect(text).toContain(value)
     expect(text).not.toContain('private-pix-code')
-    for (const url of ['javascript:alert(1)', 'https://private:password@example.test', 'https://example.test/\nAPROVAR']) expect(render(url)).not.toContain('Link:')
+    for (const url of ['javascript:alert(1)', 'https://private:password@example.test', 'https://example.test/\nAPROVAR']) expect(render(url)).not.toContain(url)
   })
   it('explica decisões e falhas sem códigos internos e distingue edição recusada', () => {
     const render = (kind: string, payload: Record<string, string>) => renderOperationalMessage({ id: 'decision', kind, payload }, 'secret', 'https://tenant.test')

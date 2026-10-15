@@ -95,17 +95,23 @@ export function renderOperationalMessage(event: Pick<OperationalMessage, 'id' | 
   const p = event.payload as Record<string, unknown>
   const name = safeText(String(p.name ?? ''))
   const panel = `${origin.replace(/\/$/, '')}/admin/moderacao`
-  const details = [name ? `*${name}*` : '', p.ownerName ? `Usuário: ${safeText(String(p.ownerName), 100)}` : '', p.description ? `Descrição: ${safeText(String(p.description))}` : '', notificationUrl(p.canonicalUrl) ? `Link: ${notificationUrl(p.canonicalUrl)}` : '', p.niche || p.network ? `Categoria: ${safeText(String(p.niche ?? '—'), 100)} • Rede: ${safeText(String(p.network ?? '—'), 100)}` : '', p.note ? `Obs.: ${safeText(String(p.note), 200)}` : ''].filter(Boolean)
+  const url = notificationUrl(p.canonicalUrl)
+  const details = [
+    p.ownerName ? `*Usuário*\n${safeText(String(p.ownerName), 100)}` : '',
+    name || url ? ['*Link*', name ? `*${name}*` : '', p.description ? safeText(String(p.description)) : '', url ?? ''].filter(Boolean).join('\n') : '',
+    p.niche || p.network ? `*Classificação*\nCategoria: ${safeText(String(p.niche ?? '—'), 100)}\nRede: ${safeText(String(p.network ?? '—'), 100)}` : '',
+    p.note ? `*Observação*\n${safeText(String(p.note), 200)}` : '',
+  ].filter(Boolean)
   if (event.kind.startsWith('REVIEW_')) {
-    return [`🔎 *${safeText(String(p.type ?? 'Revisão')).toUpperCase()}*`, ...details, p.appeal ? `Contestação: ${safeText(String(p.appeal), 240)}` : '', '', 'Responda: *APROVAR* ou *RECUSAR motivo*.', `Revisão: ${event.id}`, `Validade: 24h • Painel: ${panel}`].filter(line => line !== '').join('\n')
+    return [`🔎 *${safeText(String(p.type ?? 'Revisão')).toUpperCase()}*`, ...details, p.appeal ? `*Contestação*\n${safeText(String(p.appeal), 240)}` : '', '*Ação*\nResponda: *APROVAR* ou *RECUSAR motivo*.', `Revisão: ${event.id}\nValidade: 24h\nPainel: ${panel}`].filter(Boolean).join('\n\n')
   }
-  if (event.kind === 'DECISION') return [p.decision === 'APPROVE' ? '✅ *APROVADO*' : '❌ *RECUSADO*', ...details, `Resultado: ${p.status === 'PUBLISHED' ? (p.decision === 'REJECT' ? 'Link continua publicado com o texto anterior.' : 'Link publicado.') : p.status === 'PRE_REJECTED' ? 'Não publicado • contestação disponível.' : 'Decisão registrada.'}`, p.reason ? `Motivo: ${safeText(String(p.reason))}` : '', `Por: ${safeText(String(p.operator ?? 'Administrador'), 100)} • ${p.channel === 'WHATSAPP' ? 'WhatsApp' : 'Painel'}`, p.reviewMessageId ? `Revisão: ${safeText(String(p.reviewMessageId), 100)}` : '', `Painel: ${panel}`].filter(Boolean).join('\n')
-  if (event.kind === 'REFUND_FAILED') return ['💰 *FALHA NO ESTORNO*', ...details, `Pedido: ${safeText(event.resourceId ?? event.id, 100)}`, typeof p.amountCents === 'number' && Number.isFinite(p.amountCents) ? `Valor: ${(p.amountCents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} • ${p.method === 'CARD' ? 'Cartão' : p.method === 'PIX' ? 'Pix' : 'Pagamento'}` : '', typeof p.attempts === 'number' ? `Tentativas: ${p.attempts}` : '', `Ação: verificar em ${origin.replace(/\/$/, '')}/admin/estornos`].filter(Boolean).join('\n')
+  if (event.kind === 'DECISION') return [p.decision === 'APPROVE' ? '✅ *APROVADO*' : '❌ *RECUSADO*', ...details, `*Resultado*\n${p.status === 'PUBLISHED' ? (p.decision === 'REJECT' ? 'Link continua publicado com o texto anterior.' : 'Link publicado.') : p.status === 'PRE_REJECTED' ? 'Não publicado • contestação disponível.' : 'Decisão registrada.'}`, p.reason ? `*Motivo*\n${safeText(String(p.reason))}` : '', `*Decidido por*\n${safeText(String(p.operator ?? 'Administrador'), 100)} • ${p.channel === 'WHATSAPP' ? 'WhatsApp' : 'Painel'}`, [p.reviewMessageId ? `Revisão: ${safeText(String(p.reviewMessageId), 100)}` : '', `Painel: ${panel}`].filter(Boolean).join('\n')].filter(Boolean).join('\n\n')
+  if (event.kind === 'REFUND_FAILED') return ['💰 *FALHA NO ESTORNO*', ...details, ['*Pedido*', safeText(event.resourceId ?? event.id, 100), typeof p.amountCents === 'number' && Number.isFinite(p.amountCents) ? `Valor: ${(p.amountCents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} • ${p.method === 'CARD' ? 'Cartão' : p.method === 'PIX' ? 'Pix' : 'Pagamento'}` : '', typeof p.attempts === 'number' ? `Tentativas: ${p.attempts}` : ''].filter(Boolean).join('\n'), `*Ação*\nVerificar estorno\n${origin.replace(/\/$/, '')}/admin/estornos`].join('\n\n')
   if (event.kind === 'COMMAND_RESULT') {
     const explanations: Record<string, string> = { review_already_resolved: 'Essa revisão já foi decidida. A decisão anterior foi mantida.', review_reference_expired: 'Esse aviso expirou ou o conteúdo do link mudou. Abra a revisão atual no painel.', review_not_found: 'Essa revisão não está mais disponível.', reason_required: 'Para recusar, responda ao aviso com RECUSAR e o motivo.' }
-    return ['⚠️ *COMANDO NÃO APLICADO*', ...details, explanations[String(p.resultCode)] ?? 'Confira a revisão no painel.', p.reviewMessageId ? `Revisão: ${safeText(String(p.reviewMessageId), 100)}` : '', `Painel: ${panel}`].filter(Boolean).join('\n')
+    return ['⚠️ *COMANDO NÃO APLICADO*', ...details, `*Resultado*\n${explanations[String(p.resultCode)] ?? 'Confira a revisão no painel.'}`, `*Ação*\nAcessar o painel\n${panel}`, p.reviewMessageId ? `Revisão: ${safeText(String(p.reviewMessageId), 100)}` : ''].filter(Boolean).join('\n\n')
   }
-  return ['🟢 *ENVIO RECUPERADO*', ...details, `Aviso: ${safeText(event.resourceId ?? event.id, 100)}`, 'Entrega pendente concluída.', `Painel: ${origin.replace(/\/$/, '')}/admin/integracoes`].join('\n')
+  return ['🟢 *ENVIO RECUPERADO*', ...details, `*Entrega*\nAviso: ${safeText(event.resourceId ?? event.id, 100)}\nEntrega pendente concluída.`, `*Ação*\n${origin.replace(/\/$/, '')}/admin/integracoes`].join('\n\n')
 }
 
 export class EvolutionDeliveryError extends Error {
