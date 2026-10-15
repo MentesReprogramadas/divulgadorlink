@@ -1,0 +1,104 @@
+{
+  "feature": "F42",
+  "priority": "P0",
+  "date": "2026-10-15",
+  "implementationCommit": "6c2d648aade9e070dae65cad924c339aa95bf467",
+  "runtime": {
+    "localNode": "24.21.0",
+    "ciNode": "22",
+    "postgres": "16",
+    "redis": "7"
+  },
+  "localValidation": {
+    "backendUnit": {
+      "files": 86,
+      "passed": 350,
+      "exitCode": 0
+    },
+    "frontendUnit": {
+      "files": 30,
+      "passed": 101,
+      "exitCode": 0
+    },
+    "postgresFullSuiteBeforeFinalSnapshotRegression": {
+      "files": 7,
+      "passed": 49,
+      "exitCode": 0
+    },
+    "postgresF42Final": {
+      "files": 1,
+      "passed": 14,
+      "exitCode": 0
+    },
+    "playwrightFull": {
+      "passed": 46,
+      "skipped": 0,
+      "failed": 0,
+      "exitCode": 0
+    },
+    "playwrightVisual": {
+      "passed": 3,
+      "exitCode": 0
+    },
+    "lintTypecheckBuild": "PASS",
+    "stagedCredentialScan": "PASS",
+    "playwrightResultsSHA256": "AB231D4242A0B93EADFEFDBA958771C18E427DEF7485D0ADC2E896DD4A80D470"
+  },
+  "production": {
+    "apiDeployment": "zjdcvefkbzlmexhxotqmmawm",
+    "webDeployment": "gpevvaywluv2xakuh3bf4roe",
+    "workerDeployment": "p6vlrcibeqrjlzia0qj0ido1",
+    "apiReadyHTTP": 200,
+    "webHealthHTTP": 200,
+    "anonymousAdminHTTP": 404,
+    "unauthenticatedWebhookHTTP": 401,
+    "authenticatedIrrelevantWebhookHTTP": 200,
+    "configuredOperatorsBoundToActiveAdmin": 2,
+    "workerDrain": "SUCCESS",
+    "evolutionVersion": "2.3.7",
+    "evolutionConnection": "open",
+    "webhookEvents": [
+      "MESSAGES_UPSERT"
+    ],
+    "webhookByEvents": false,
+    "webhookBase64": false,
+    "webhookAuthentication": "private x-evolution-secret header, verified by readback",
+    "secretsStoredIn": [
+      "Coolify API environment",
+      "Coolify worker environment",
+      "Evolution webhook header"
+    ]
+  },
+  "realGroupSmoke": {
+    "id": "F42-M01",
+    "state": "PASS",
+    "operatorSuffix": "8391",
+    "device": "iPhone, confirmed by user",
+    "providerIdentity": "LID plus participantAlt PN; suffix matched authorized operator",
+    "outgoingProviderMessageId": "3EB0470C1888BC54D9CA97",
+    "operatorProviderMessageId": "3A01C9915FFA5929B85A",
+    "responseProviderMessageId": "3EB02C9646110682139665",
+    "referenceId": "p0-check-02f84149d6254926adf169cbe3e46842",
+    "expectedOutcome": "review_not_found for synthetic reference with no real resource",
+    "observedResponse": "Comando não aplicado: review not found.",
+    "realLinksChanged": false,
+    "buttonsEnabled": false,
+    "scope": "Real provider transport, authenticated webhook, PN/LID normalization, operator authorization and worker response. Domain approval/rejection are covered by real application E2E with simulated provider."
+  },
+  "ci": {
+    "firstRun": "https://github.com/MentesReprogramadas/divulgadorlink/actions/runs/38750851243",
+    "firstRunResults": {
+      "e2e": "SUCCESS",
+      "images": "SUCCESS",
+      "verify": "SUCCESS",
+      "web": "FAILED_MISSING_BACKEND_BULLMQ_DEPENDENCY_DURING_E2E_TYPECHECK"
+    },
+    "correction": "Install existing backend dependencies in web job before frontend E2E typecheck",
+    "finalRun": "PENDING",
+    "firstRunCounts": {
+      "backendUnit": 350,
+      "postgres": 50,
+      "playwright": 46
+    }
+  }
+}

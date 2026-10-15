@@ -75,10 +75,10 @@ Atualização de 15 de outubro de 2026. Resolver estes assuntos antes de impleme
 
 | ID | Decisão | Gate | Estado |
 | --- | --- | --- | --- |
-| D44 | Versão, base real, instância, conexão, autenticação verificável do webhook e contratos de mensagem, botões e participante | F42-S0/S3 | PENDENTE |
-| D45 | Operadores vinculados a ADMIN ativo, identidade PN/LID, conta de bot dedicada e revogação | F42-S0/S3 | PENDENTE |
-| D46 | Validade da referência, retenção, retry/backoff, entrega incerta, alertas opcionais e frequência | F42-S0/S2/S3 | PENDENTE |
-| D47 | Serviço de decisão compartilhado, transação, efeitos e dispatch de propostas e contestações | F42-S0/S2 | PENDENTE |
+| D44 | Versão, base real, instância, conexão, autenticação verificável do webhook e contratos de mensagem, botões e participante | F42-S0/S3 | RESOLVIDA |
+| D45 | Operadores vinculados a ADMIN ativo, identidade PN/LID, conta de bot dedicada e revogação | F42-S0/S3 | RESOLVIDA |
+| D46 | Validade da referência, retenção, retry/backoff, entrega incerta, alertas opcionais e frequência | F42-S0/S2/S3 | RESOLVIDA |
+| D47 | Serviço de decisão compartilhado, transação, efeitos e dispatch de propostas e contestações | F42-S0/S2 | RESOLVIDA |
 
-Possíveis credenciais enviadas na conversa não foram reproduzidas nem classificadas em arquivos. Confirmar sua finalidade antes da configuração futura e usar mecanismo seguro de segredos. Grupo e endereço de manager constam na spec; nenhum envio ou conexão foi realizado.
+As credenciais foram classificadas e configuradas somente no mecanismo de segredos da instalação, sem reprodução em arquivos. D44–D47 e o ensaio real estão documentados em [execução F42](execucao-f42.md). O usuário autorizou somente P0/F42; as decisões das demais features permanecem pendentes.
 

@@ -36,10 +36,26 @@ Eventos entregues: revisão inicial, contestação, proposta de texto com result
 | PG-02 | Mesmo snapshot, suíte completa PostgreSQL | 7 arquivos, 49 testes aprovados, exit 0; posteriormente acrescentada regressão específica de snapshot/embedding |
 | E2E-03 | Snapshot isolado, `npx playwright test --project=features --project=features-mobile --project=catalog` | 46 testes aprovados, exit 0; inclui E08 (interface completa) e E09 (isolamento de fila) em desktop/mobile |
 | PROD-01 | Coolify API + worker | Oito envs do canal gravadas. Flags preparadas para ativação no próximo deploy, após validação local. Nenhuma chave no frontend ou neste relatório |
+| PG-03 | Regressão final F42 após revisão de snapshot | 14 testes aprovados, exit 0; embedding não invalida revisão e mudança de faceta invalida |
+| ROLLBACK-01 | API do commit anterior 4801384 em porta local 3344, contra schema com as três tabelas novas | `/actuator/ready` retornou 200; compatibilidade aditiva sem reset/down |
+| VISUAL-01 | E05/E06 em desktop e mobile | 3 testes aprovados, exit 0, capturas com dados sintéticos inspecionadas |
+| CI-01 | [GitHub Actions do código publicado](https://github.com/MentesReprogramadas/divulgadorlink/actions/runs/38750851243) | E2E, imagens Docker e verify aprovados; web falhou porque seu typecheck E2E não tinha BullMQ do backend instalado. Job corrigido para instalar a dependência já existente; não foi adicionada biblioteca |
 
 As diferenças nas contagens U01/U02 decorrem das mudanças locais de outra atividade, excluídas do snapshot de publicação. Foram preservadas sem entrar no commit do P0. Para tornar a regressão executável, corrigiram-se seletores ambíguos e expectativas de navegação/consentimento dos testes existentes; os testes de submissão agora têm usuário próprio, e os da Evolution têm tenant próprio. Nenhuma regra de sessão, conta ou consentimento foi alterada por esses ajustes.
 
 Relatórios locais: `frontend/playwright-report/index.html`, `frontend/test-results/results.json`; screenshots e traces são retidos em falha. O CI retém artefatos por sete dias. Relatórios do harness contêm somente credenciais sintéticas; não anexar exports de env nem conversas reais.
+
+Cópias auditáveis da execução completa estão em `output/p0-evolution/`, incluindo relatório Playwright e logs de unitários/PG. [Manifesto de evidências](evidencias-f42.json) registra contagens, hash do relatório, commit e IDs de entrega sem incluir chaves.
+
+## Rollout e ensaio real F42-M01
+
+Commit de implementação: `6c2d648aade9e070dae65cad924c339aa95bf467`, publicado em main. Deploys Coolify: API `zjdcvefkbzlmexhxotqmmawm`, web `gpevvaywluv2xakuh3bf4roe`, worker `p6vlrcibeqrjlzia0qj0ido1`; todos concluídos. API ready e web health retornaram 200. O worker não possui healthcheck HTTP; sua execução foi comprovada por ciclos bem-sucedidos e pelo processamento do comando real.
+
+O webhook foi configurado e relido na Evolution: habilitado, somente MESSAGES_UPSERT, cabeçalho privado coincidente, sem base64 ou eventos por URL. Chamada sem autenticação retornou 401; evento irrelevante autenticado retornou 200 sem efeito. A instância informou conexão open. O bootstrap vinculou os dois números autorizados ao único ADMIN ativo e registrou `configuredOperators: 2`, sem gravar os números em logs.
+
+O usuário confirmou envio pelo número final **8391**, usando **iPhone**. A mensagem real continha LID e participantAlt PN correspondente; foi recebida com HTTP 200 e o bot respondeu ao grupo. IDs de provedor: aviso `3EB0470C1888BC54D9CA97`, comando do operador `3A01C9915FFA5929B85A`, resposta `3EB02C9646110682139665`. Resultado esperado e observado: “Comando não aplicado: review not found.” A referência era sintética e não pertencia a link algum; nenhum link real foi alterado. Aprovação, recusa, contestação e edição com mutação do domínio foram comprovadas no E2E da aplicação real com provedor simulado. Botões continuam desligados.
+
+O worker foi atualizado antes de a API concluir sua migration no rollout automático. Os primeiros ciclos do canal falharam sem perder intenções; após a migration, o drain se recuperou automaticamente e processou o comando. A fila principal permaneceu separada. Não houve reset de banco nem rollback destrutivo.
 
 ## Matriz de evidência dos ACs
 
@@ -88,6 +104,6 @@ Resultados em execução não constituem aceite. O ledger e a matriz CSV devem a
 
 - Regressão E2E ampliada concluída: 46/46.
 - Snapshot do índice validado sem incorporar alterações locais de outra atividade.
-- Publicar API/worker/web, configurar webhook autenticado e verificar saúde.
-- Registrar prova real de conexão/envio e resultado do smoke de recebimento, sem publicar credenciais.
-- Atualizar ledger, matriz e estado final. Parar ao final do P0.
+- API/worker/web publicados, webhook autenticado configurado e saúde verificada.
+- Smoke real de envio, recebimento e autorização concluído com iPhone/número final 8391.
+- Reexecutar CI com o ajuste de dependência do job web; fechar ledger/matriz após resultado. Parar ao final do P0.

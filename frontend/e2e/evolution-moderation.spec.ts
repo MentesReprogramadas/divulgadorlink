@@ -150,15 +150,30 @@ test('F42-E03 painel vence mensagem tardia e preserva decisão', async ({ page, 
   expect(sql(`SELECT count(*) FROM audit_logs WHERE "entityId"='${row.caseId}' AND action='moderation.decide'`)).toBe('1')
 })
 
-test('F42-E05/E06 painel de integração limita acesso e funciona no mobile', async ({ page, browser }) => {
+test('F42-E05/E06 painel de integração limita acesso e funciona no mobile', async ({ page, browser }, testInfo) => {
   await login(page)
   await page.goto(`${A}/admin/integracoes`)
+  const cookieChoice = page.getByRole('button', { name: 'Recusar', exact: true })
+  if (await cookieChoice.count()) await cookieChoice.click()
   await expect(page.getByRole('heading', { name: 'Avisos e moderação pelo WhatsApp' })).toBeVisible()
   await expect(page.getByText('E2E Bot', { exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Desativar comandos', exact: true }).click()
+  await expect(page.getByText('Comandos desativados', { exact: true })).toBeVisible()
+  expect(sql(`SELECT value::jsonb->>'actionsEnabled' FROM configs WHERE "tenantId"='${state.tenantA}' AND key='EVOLUTION_INTEGRATION'`)).toBe('false')
+  await page.getByRole('button', { name: 'Ativar comandos', exact: true }).click()
+  await expect(page.getByText('Aprovação e recusa ativadas', { exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Revogar final 9999', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Vincular final 9999', exact: true })).toBeVisible()
+  await cycle()
+  expect(sql(`SELECT enabled FROM evolution_operators WHERE "tenantId"='${state.tenantA}'`)).toBe('f')
+  await page.getByRole('button', { name: 'Vincular final 9999', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Revogar final 9999', exact: true })).toBeVisible()
   expect(await page.locator('body').innerText()).not.toContain('fixture-webhook-secret')
   expect(await page.locator('body').innerText()).not.toContain('fixture-api-key')
   const viewport = page.viewportSize()!
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(viewport.width)
+  await expect(page.getByText('Conexão da instância: conectada.', { exact: false })).toBeVisible()
+  await page.screenshot({ path: testInfo.outputPath('evolution-integration.png'), fullPage: true })
   const context = await browser.newContext()
   try {
     const other = await context.newPage()
