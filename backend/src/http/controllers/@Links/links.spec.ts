@@ -1,11 +1,12 @@
-import { beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { app } from '@/app'
 import {
   getLinksRepository,
   InMemoryLinksRepository,
   resetLinksRepositoryForTest,
 } from '@/repositories/links-repository'
-import { setLinkProbeForTest, setQueueRecipientsForTest } from '@/http/controllers/@Links/routes'
+import { setLinkProbeForTest } from '@/http/controllers/@Links/routes'
+import { prisma } from '@/lib/prisma'
 import { readOutbound, resetOutboundForTest } from '@/adapters/notifications/outbound-mail'
 import { business_rule } from '@/http/errors'
 import {
@@ -52,6 +53,12 @@ function submit(sub: string, payload: Record<string, unknown>) {
 }
 
 describe('POST /api/v1/links', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs()
+    vi.restoreAllMocks()
+    resetOutboundForTest()
+  })
+
   beforeAll(async () => {
     await app.ready()
   })
@@ -207,15 +214,19 @@ describe('POST /api/v1/links', () => {
     expect(duplicate.json().message).toBe('Esse link já está no catálogo.')
   })
 
-  it('avisa a fila sem derrubar o envio', async () => {
-    process.env.EMAIL_OUTBOX = '1'
-    resetOutboundForTest()
-    setQueueRecipientsForTest(['fila@example.com'])
+  it('cria o caso de moderação sem buscar admins nem enviar e-mail de fila', async () => {
+    vi.stubEnv('EMAIL_OUTBOX', '1')
+    const findAdmins = vi.spyOn(prisma.user, 'findMany')
     const response = await submit(VERIFIED_ID, validBody({ url: 'https://t.me/fila' }))
     expect(response.statusCode).toBe(201)
-    const mail = readOutbound('fila@example.com')
-    expect(mail[0]?.kind).toBe('moderation-queue')
-    expect(mail[0]?.subject).toContain('link para analisar')
-    expect(mail[0]?.text).not.toContain('fila@example.com')
+    expect(findAdmins).not.toHaveBeenCalled()
+    expect(readOutbound('fila@example.com')).toEqual([])
+    expect(readOutbound('ana@example.com')).toEqual([])
+    expect(await getModerationCasesRepository().findOpenByLinkId(response.json().id)).toMatchObject({
+      tenantId: TENANT_ID,
+      source: 'SUBMISSION',
+      closed: false,
+    })
+    expect(moderationJobsForTest()).toEqual([response.json().id])
   })
 })

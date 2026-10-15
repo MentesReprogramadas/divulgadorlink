@@ -10,7 +10,6 @@ import { canonicalUrl } from '@/domain/links/canonical-url'
 import { hostMatchesNetwork } from '@/domain/links/network-host'
 import { urlAvailability } from '@/domain/links/url-availability'
 import { prisma } from '@/lib/prisma'
-import { notifyModerationQueue } from '@/adapters/notifications/outbound-mail'
 import { currentEmail, getAcquisitionStore, metaContextFrom, startEventId } from '@/use-cases/@Acquisition/record-funnel'
 import { DuplicateLinkError, getLinksRepository, PrismaLinksRepository } from '@/repositories/links-repository'
 import { env } from '@/env'
@@ -52,29 +51,6 @@ export const submitLinkBodySchema = z
 class QuotaExhaustedError extends Error {}
 
 let linkProbeForTest: ((url: string) => Promise<number | null>) | null = null
-let queueRecipientsForTest: string[] = []
-
-export function setQueueRecipientsForTest(emails: string[]): void {
-  if (process.env.NODE_ENV !== 'test') return
-  queueRecipientsForTest = emails
-}
-
-async function notifyQueue(tenantId: string, linkName: string, host: string): Promise<void> {
-  try {
-    const recipients = process.env.NODE_ENV === 'test'
-      ? queueRecipientsForTest
-      : (await prisma.user.findMany({
-        where: { tenantId, role: 'ADMIN', status: 'ACTIVE' },
-        include: { identifiers: { where: { kind: 'EMAIL', replacedAt: null, confirmedAt: { not: null } } } },
-      })).flatMap((admin) => admin.identifiers.map((row) => row.normalizedValue))
-    for (const to of recipients) {
-      await notifyModerationQueue({ to, linkName, host, name: 'Tem Link Aqui' })
-    }
-  } catch {
-    // o link já foi gravado; a falha do aviso não desfaz o envio
-  }
-}
-
 export function setLinkProbeForTest(probe: ((url: string) => Promise<number | null>) | null): void {
   if (process.env.NODE_ENV !== 'test') return
   linkProbeForTest = probe
@@ -362,12 +338,11 @@ async function createLink(request: FastifyRequest, reply: FastifyReply) {
         internalSignals: [],
       })
     }
-    await notifyQueue(tenant.id, body.name, hostFromRequest(request))
     if (runAi && link.status === 'PENDING_MODERATION') {
       try {
         await enqueueModeration(link.id)
       } catch {
-        // A fila humana já foi avisada. Falha da fila da IA não desfaz o envio.
+        // O caso de moderação já foi criado. Falha da fila da IA não desfaz o envio.
       }
     }
     return reply.status(201).send({
