@@ -106,7 +106,7 @@ test('F42-E08 envio, contestação e edição percorrem a interface e o worker r
   await login(page, state.eva)
   const name = `Jornada F42 ${randomUUID()}`
   await page.goto(`${A}/painel/links/novo`)
-  await page.getByLabel('Nome', { exact: true }).fill(name)
+  await page.getByLabel('Titulo', { exact: true }).fill(name)
   await page.getByLabel('Descrição', { exact: true }).fill('Comunidade de estudo')
   await page.getByLabel('URL', { exact: true }).fill(`https://example.com/${randomUUID()}`)
   await page.getByLabel('Rede').selectOption({ label: 'Site' })

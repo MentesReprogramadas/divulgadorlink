@@ -98,7 +98,7 @@ export function HomeCatalog({ initial }: { initial: HomePage }) {
         </div>
       ) : null}
       {error ? <p className={styles.feedback} role="alert">Não foi possível carregar mais links. Os anteriores continuam aqui. Tente novamente.</p> : null}
-      {/* <p className={styles.feedback} role="status" aria-live="polite">{notice}</p> */}
+      <p className={styles.status} role="status" aria-live="polite">{notice}</p>
       {catalog.nextCursor ? (
         <div className={styles.pagination}>
           <HomeMore cursor={catalog.nextCursor} loading={loading} onLoad={() => void loadMore()} />

@@ -271,7 +271,7 @@ test('vitrine pagina por cursor com limite no servidor', async ({ browser }) => 
 test('criação, SSRF, payload e edição publicada', async ({ browser }) => {
   const { page } = await asBia(browser)
   await page.goto(`${A}/painel/links/novo`)
-  await page.getByLabel('Nome').fill('Bolo de cenoura')
+  await page.getByLabel('Titulo').fill('Bolo de cenoura')
   await page.getByLabel('Descrição').fill('Receita simples')
   await page.getByLabel('URL').fill('https://t.me/bolo')
   await page.getByLabel('Rede').selectOption({ label: 'Telegram' })
@@ -284,7 +284,7 @@ test('criação, SSRF, payload e edição publicada', async ({ browser }) => {
   await expect(page.getByText('Bolo de cenoura')).toHaveCount(0)
 
   await page.goto(`${A}/painel/links/novo`)
-  await page.getByLabel('Nome').fill('Loopback')
+  await page.getByLabel('Titulo').fill('Loopback')
   await page.getByLabel('Descrição').fill('nao')
   await page.getByLabel('URL').fill('https://127.0.0.1/privado')
   await page.getByLabel('Rede').selectOption({ label: 'Telegram' })

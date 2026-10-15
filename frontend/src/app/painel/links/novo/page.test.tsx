@@ -34,7 +34,7 @@ beforeEach(() => {
 afterEach(cleanup)
 
 async function fillAndSend() {
-  fireEvent.change(await screen.findByLabelText('Nome'), { target: { value: 'Grupo' } })
+  fireEvent.change(await screen.findByLabelText('Titulo'), { target: { value: 'Grupo' } })
   fireEvent.change(screen.getByLabelText('Descrição'), { target: { value: 'Descrição do grupo' } })
   fireEvent.change(screen.getByLabelText('URL'), { target: { value: 'https://example.com/grupo' } })
   fireEvent.change(screen.getByLabelText('Rede'), { target: { value: 'net' } })

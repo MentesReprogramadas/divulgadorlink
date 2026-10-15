@@ -1,11 +1,14 @@
 name: ci
 on: [push, pull_request]
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 # O app GitHub do Coolify publica a main no push. Este workflow não chama a API de deploy.
 # Um job de deploy aqui publicaria o mesmo commit de novo, em paralelo com o webhook.
 jobs:
   verify:
-    # Push no runner com label divulgador. PR fica no GitHub: fork de repo público não pode executar aqui.
-    runs-on: ${{ github.event_name == 'push' && 'divulgador' || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
     services:
       postgres:
         image: pgvector/pgvector:pg16
@@ -65,7 +68,8 @@ jobs:
       - run: npm audit --audit-level=high
         working-directory: backend
   web:
-    runs-on: ${{ github.event_name == 'push' && 'divulgador' || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -83,13 +87,15 @@ jobs:
       - run: npm audit --audit-level=high
         working-directory: frontend
   images:
-    runs-on: ${{ github.event_name == 'push' && 'divulgador' || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - run: docker build -t divulgador-api backend
       - run: docker build -t divulgador-web frontend
   e2e:
-    runs-on: ${{ github.event_name == 'push' && 'divulgador' || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

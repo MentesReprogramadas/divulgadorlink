@@ -16,10 +16,10 @@ test.beforeEach(async ({ page }) => {
 test('o envio guarda rascunho, mostra a vaga e não chama de publicado', async ({ page }) => {
   await page.goto(`${A}/painel/links/novo`)
   await expect(page.getByText(/Vagas em uso: \d+ de 4\./)).toBeVisible()
-  await page.getByLabel('Nome').fill('Rascunho do anúncio')
+  await page.getByLabel('Titulo').fill('Rascunho do anúncio')
   await page.getByLabel('Descrição').fill('Texto que precisa voltar')
   await page.reload()
-  await expect(page.getByLabel('Nome')).toHaveValue('Rascunho do anúncio')
+  await expect(page.getByLabel('Titulo')).toHaveValue('Rascunho do anúncio')
   await expect(page.getByLabel('Descrição')).toHaveValue('Texto que precisa voltar')
 
   const url = `https://example.com/envio-${Date.now()}`
@@ -32,7 +32,7 @@ test('o envio guarda rascunho, mostra a vaga e não chama de publicado', async (
   await expect(page).toHaveURL(/\/painel\/links\/?$/)
 
   await page.goto(`${A}/painel/links/novo`)
-  await page.getByLabel('Nome').fill('Rascunho do anúncio')
+  await page.getByLabel('Titulo').fill('Rascunho do anúncio')
   await page.getByLabel('Descrição').fill('Texto que precisa voltar')
   await page.getByLabel('URL').fill(url)
   await page.getByLabel('Rede').selectOption({ label: 'Site' })
@@ -55,7 +55,7 @@ test('o botão de envio não dispara duas vezes', async ({ page }) => {
     await route.continue()
   })
   await page.goto(`${A}/painel/links/novo`)
-  await page.getByLabel('Nome').fill('Segura')
+  await page.getByLabel('Titulo').fill('Segura')
   await page.getByLabel('Descrição').fill('Espera o pedido')
   await page.getByLabel('URL').fill('https://example.com/segura')
   await page.getByLabel('Rede').selectOption({ label: 'Site' })
