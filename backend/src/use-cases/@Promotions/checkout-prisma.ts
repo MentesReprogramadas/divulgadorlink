@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import type { PrismaClient } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
+import { linkNotificationSnapshot } from '@/domain/notifications/link-notification'
 import type { Order, PaymentMethod } from '@/domain/payments/order'
 import type { PriceRow, ProductCode, Surface } from '@/domain/promotions/price-for'
 import { PRICE_ROWS } from '@/domain/promotions/price-for'
@@ -329,8 +330,8 @@ export class PrismaCheckoutStore implements CheckoutStore {
         JSON.stringify(order.refundIds ?? []),
       )
       if (order.status === 'REFUND_FAILED') {
-        const persisted = await tx.order.findUnique({ where: { id: order.id }, select: { tenantId: true } })
-        if (persisted) await tx.operationalMessage.upsert({ where: { occurrenceKey: `refund-failed:${order.id}` }, create: { tenantId: persisted.tenantId, resourceId: order.id, kind: 'REFUND_FAILED', occurrenceKey: `refund-failed:${order.id}`, payload: {} }, update: {} })
+        const persisted = await tx.order.findUnique({ where: { id: order.id }, include: { user: { select: { name: true } }, link: { include: { owner: { select: { name: true } }, network: true, niche: true } } } })
+        if (persisted) await tx.operationalMessage.upsert({ where: { occurrenceKey: `refund-failed:${order.id}` }, create: { tenantId: persisted.tenantId, resourceId: order.id, kind: 'REFUND_FAILED', occurrenceKey: `refund-failed:${order.id}`, payload: { ...linkNotificationSnapshot(persisted.link), ownerName: persisted.user?.name ?? persisted.link.owner?.name ?? 'Não informado', amountCents: persisted.amountCents, method: persisted.method, attempts: order.refundAttempts } }, update: {} })
       }
     })
     if (order.status === 'PAID' || order.status === 'PAID_LATE' || order.status === 'REFUNDED' || order.status === 'REFUND_FAILED') {

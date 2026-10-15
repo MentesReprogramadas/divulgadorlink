@@ -2,6 +2,7 @@ import type { Prisma, PrismaClient, OperationalMessage } from '@prisma/client'
 import { z } from 'zod'
 import { env } from '@/env'
 import { actionReference, matchesReference, safeText } from '@/domain/notifications/evolution-command'
+import { linkNotificationSnapshot, notificationUrl } from '@/domain/notifications/link-notification'
 import { operationalEvent, pendingText, resolveHumanReview, ReviewError, reviewHash } from '@/use-cases/@Moderation/resolve-human-review'
 import { deliverEmail } from '@/adapters/notifications/outbound-mail'
 import { emailBrand, moderationEmail, type ModerationOutcome } from '@/adapters/notifications/email/templates'
@@ -56,24 +57,24 @@ export async function quotedReviewReference(db: PrismaClient, tenantId: string, 
 }
 
 export async function queueCaseReview(tx: Prisma.TransactionClient, caseId: string) {
-  const row = await tx.moderationCase.findUnique({ where: { id: caseId }, include: { link: { include: { network: true, niche: true } } } })
+  const row = await tx.moderationCase.findUnique({ where: { id: caseId }, include: { link: { include: { network: true, niche: true, owner: { select: { name: true } } } } } })
   if (!row || row.closedAt || row.link.status !== 'PENDING_MODERATION') return
   const revision = `${row.id}:${row.appealedAt?.toISOString() ?? 'submission'}`
   const snapshotHash = reviewHash(row.link, revision)
   await operationalEvent(tx, { tenantId: row.tenantId, occurrenceKey: `review:${caseId}:${snapshotHash}`, kind: 'REVIEW_CASE', resourceId: caseId, snapshotHash,
-    payload: { name: row.link.name, description: row.link.description, network: row.link.network.name, niche: row.link.niche.name, type: row.appealedAt ? 'Contestação' : 'Novo link' },
+    payload: { ...linkNotificationSnapshot(row.link), type: row.appealedAt ? 'Contestação' : 'Novo link', appeal: row.appealedAt ? row.appealText : null },
     expiresAt: new Date(Date.now() + REFERENCE_TTL_MS), nextAttemptAt: new Date(Date.now() + 10_000),
   })
 }
 
 export async function queueTextReview(tx: Prisma.TransactionClient, tenantId: string, linkId: string) {
   const proposal = await pendingText(tx, tenantId, linkId)
-  const link = await tx.link.findFirst({ where: { id: linkId, tenantId, status: 'PUBLISHED' }, include: { network: true, niche: true } })
+  const link = await tx.link.findFirst({ where: { id: linkId, tenantId, status: 'PUBLISHED' }, include: { network: true, niche: true, owner: { select: { name: true } } } })
   if (!proposal || !link) return
   const after = proposal.after as { name?: string; description?: string }
   const snapshotHash = reviewHash(link, proposal.id)
   await operationalEvent(tx, { tenantId, occurrenceKey: `text:${proposal.id}:${snapshotHash}`, kind: 'REVIEW_TEXT', resourceId: `text:${proposal.id}`, snapshotHash,
-    payload: { name: after.name ?? link.name, description: after.description ?? link.description, network: link.network.name, niche: link.niche.name, type: 'Alteração de texto' }, expiresAt: new Date(Date.now() + REFERENCE_TTL_MS),
+    payload: { ...linkNotificationSnapshot(link), name: after.name ?? link.name, description: after.description ?? link.description, type: 'Alteração de texto' }, expiresAt: new Date(Date.now() + REFERENCE_TTL_MS),
   })
 }
 
@@ -94,16 +95,17 @@ export function renderOperationalMessage(event: Pick<OperationalMessage, 'id' | 
   const p = event.payload as Record<string, unknown>
   const name = safeText(String(p.name ?? ''))
   const panel = `${origin.replace(/\/$/, '')}/admin/moderacao`
+  const details = [name ? `*${name}*` : '', p.ownerName ? `Usuário: ${safeText(String(p.ownerName), 100)}` : '', p.description ? `Descrição: ${safeText(String(p.description))}` : '', notificationUrl(p.canonicalUrl) ? `Link: ${notificationUrl(p.canonicalUrl)}` : '', p.niche || p.network ? `Categoria: ${safeText(String(p.niche ?? '—'), 100)} • Rede: ${safeText(String(p.network ?? '—'), 100)}` : '', p.note ? `Obs.: ${safeText(String(p.note), 200)}` : ''].filter(Boolean)
   if (event.kind.startsWith('REVIEW_')) {
-    return [`🔎 *AGUARDANDO SUA REVISÃO*`, `${safeText(String(p.type ?? 'Link'))} • ${name}`, `Rede: ${safeText(String(p.network ?? ''))} | Categoria: ${safeText(String(p.niche ?? ''))}`, '', safeText(String(p.description ?? '')), '', '*Como decidir no WhatsApp*', '1. Toque e segure ESTA mensagem e escolha Responder.', '2. Envie uma das opções:', 'APROVAR', 'RECUSAR motivo da recusa', '', 'Cada resposta vale apenas para o link da mensagem citada, mesmo que outros avisos cheguem depois.', 'Prazo: 24 horas. Após isso ou se o conteúdo mudar, revise pelo painel.', `Revisão: ${event.id}`, `Painel: ${panel}`].join('\n')
+    return [`🔎 *${safeText(String(p.type ?? 'Revisão')).toUpperCase()}*`, ...details, p.appeal ? `Contestação: ${safeText(String(p.appeal), 240)}` : '', '', 'Responda: *APROVAR* ou *RECUSAR motivo*.', `Revisão: ${event.id}`, `Validade: 24h • Painel: ${panel}`].filter(line => line !== '').join('\n')
   }
-  if (event.kind === 'DECISION') return [p.decision === 'APPROVE' ? '✅ *REVISÃO APROVADA*' : '❌ *REVISÃO RECUSADA*', name, `Resultado: ${p.status === 'PUBLISHED' ? (p.decision === 'REJECT' ? 'O link continua publicado com o texto anterior.' : 'Link publicado.') : p.status === 'PRE_REJECTED' ? 'Link não publicado. O responsável poderá contestar pelo painel.' : 'Decisão registrada no painel.'}`, p.reason ? `Motivo: ${safeText(String(p.reason))}` : '', `Decisão de: ${safeText(String(p.operator ?? 'administrador autorizado'))} • ${p.channel === 'WHATSAPP' ? 'WhatsApp' : 'Painel'}`, p.reviewMessageId ? `Revisão: ${safeText(String(p.reviewMessageId), 100)}` : '', panel].filter(Boolean).join('\n')
-  if (event.kind === 'REFUND_FAILED') return `Estorno não concluído — REFUND_FAILED. Pedido: ${safeText(event.resourceId ?? event.id, 100)}. Consulte ${origin.replace(/\/$/, '')}/admin/estornos. Nenhuma promoção será ativada por esta mensagem.`
+  if (event.kind === 'DECISION') return [p.decision === 'APPROVE' ? '✅ *APROVADO*' : '❌ *RECUSADO*', ...details, `Resultado: ${p.status === 'PUBLISHED' ? (p.decision === 'REJECT' ? 'Link continua publicado com o texto anterior.' : 'Link publicado.') : p.status === 'PRE_REJECTED' ? 'Não publicado • contestação disponível.' : 'Decisão registrada.'}`, p.reason ? `Motivo: ${safeText(String(p.reason))}` : '', `Por: ${safeText(String(p.operator ?? 'Administrador'), 100)} • ${p.channel === 'WHATSAPP' ? 'WhatsApp' : 'Painel'}`, p.reviewMessageId ? `Revisão: ${safeText(String(p.reviewMessageId), 100)}` : '', `Painel: ${panel}`].filter(Boolean).join('\n')
+  if (event.kind === 'REFUND_FAILED') return ['💰 *FALHA NO ESTORNO*', ...details, `Pedido: ${safeText(event.resourceId ?? event.id, 100)}`, typeof p.amountCents === 'number' && Number.isFinite(p.amountCents) ? `Valor: ${(p.amountCents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} • ${p.method === 'CARD' ? 'Cartão' : p.method === 'PIX' ? 'Pix' : 'Pagamento'}` : '', typeof p.attempts === 'number' ? `Tentativas: ${p.attempts}` : '', `Ação: verificar em ${origin.replace(/\/$/, '')}/admin/estornos`].filter(Boolean).join('\n')
   if (event.kind === 'COMMAND_RESULT') {
     const explanations: Record<string, string> = { review_already_resolved: 'Essa revisão já foi decidida. A decisão anterior foi mantida.', review_reference_expired: 'Esse aviso expirou ou o conteúdo do link mudou. Abra a revisão atual no painel.', review_not_found: 'Essa revisão não está mais disponível.', reason_required: 'Para recusar, responda ao aviso com RECUSAR e o motivo.' }
-    return ['⚠️ *NENHUMA ALTERAÇÃO FEITA*', p.name ? safeText(String(p.name)) : '', explanations[String(p.resultCode)] ?? 'Não foi possível aplicar o comando. Confira a revisão no painel.', p.reviewMessageId ? `Revisão: ${safeText(String(p.reviewMessageId), 100)}` : '', panel].filter(Boolean).join('\n')
+    return ['⚠️ *COMANDO NÃO APLICADO*', ...details, explanations[String(p.resultCode)] ?? 'Confira a revisão no painel.', p.reviewMessageId ? `Revisão: ${safeText(String(p.reviewMessageId), 100)}` : '', `Painel: ${panel}`].filter(Boolean).join('\n')
   }
-  return `Integração recuperada. Consulte os alertas e entregas pendentes no painel: ${origin.replace(/\/$/, '')}/admin/integracoes`
+  return ['🟢 *ENVIO RECUPERADO*', ...details, `Aviso: ${safeText(event.resourceId ?? event.id, 100)}`, 'Entrega pendente concluída.', `Painel: ${origin.replace(/\/$/, '')}/admin/integracoes`].join('\n')
 }
 
 export class EvolutionDeliveryError extends Error {
@@ -159,7 +161,7 @@ export async function processEvolutionReceipt(db: PrismaClient, id: string) {
     await db.evolutionReceipt.update({ where: { id }, data: { state: 'REJECTED', resultCode: code } })
     if (error instanceof ReviewError && error.status !== 403) {
       const notice = await db.operationalMessage.findFirst({ where: { id: receipt.reference.split('.')[0], tenantId: receipt.tenantId } })
-      await operationalEvent(db, { tenantId: receipt.tenantId, kind: 'COMMAND_RESULT', resourceId: id, occurrenceKey: `command-result:${id}`, payload: { resultCode: code, reviewMessageId: notice?.id ?? null, name: String((notice?.payload as Record<string, unknown> | undefined)?.name ?? '') } })
+      await operationalEvent(db, { tenantId: receipt.tenantId, kind: 'COMMAND_RESULT', resourceId: id, occurrenceKey: `command-result:${id}`, payload: { ...(notice?.payload as Prisma.JsonObject ?? {}), resultCode: code, reviewMessageId: notice?.id ?? null } })
     }
   }
 }
@@ -185,7 +187,7 @@ export async function deliverOperationalMessage(db: PrismaClient, event: Operati
     await db.$transaction(async tx => {
       await tx.operationalMessage.update({ where: { id: event.id }, data: { state: 'SENT', providerMessageId, lastErrorCode: null, lockedAt: null } })
       if (event.lastErrorCode && event.kind !== 'RECOVERY' && event.kind !== 'MODERATION_EMAIL') {
-        await operationalEvent(tx, { tenantId: event.tenantId, kind: 'RECOVERY', resourceId: event.id, occurrenceKey: `recovery:${event.id}`, payload: {} })
+        await operationalEvent(tx, { tenantId: event.tenantId, kind: 'RECOVERY', resourceId: event.id, occurrenceKey: `recovery:${event.id}`, payload: event.payload as Prisma.InputJsonValue })
       }
     })
   } catch (error) {

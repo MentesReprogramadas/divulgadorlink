@@ -41,6 +41,10 @@ async function fixture(request: APIRequestContext, prefix: string) {
   const messages = await (await request.get('http://127.0.0.1:4099/evolution/messages')).json() as { text: string; number: string }[]
   const message = messages.findLast(m => m.text.includes(name))
   expect(message?.number).toBe('fixture@g.us')
+  expect(message!.text).toContain('Usuário:')
+  expect(message!.text).toContain(`Link: https://example.com/${id}`)
+  expect(message!.text).toContain('Categoria:')
+  expect(message!.text.split('\n').length).toBeLessThanOrEqual(11)
   const reference = legacyReference(message!.text)
   expect(reference).toBeTruthy()
   const providerId = sql(`SELECT "providerMessageId" FROM operational_messages WHERE id='${reference.split('.')[0]}'`)
@@ -58,7 +62,7 @@ async function reviewReference(request: APIRequestContext, name: string) {
   sql(`UPDATE operational_messages SET "nextAttemptAt"=NOW() WHERE "tenantId"='${state.tenantA}' AND state IN ('PENDING','RETRY')`)
   await cycle()
   const messages = await (await request.get('http://127.0.0.1:4099/evolution/messages')).json() as { text: string }[]
-  const message = messages.findLast(m => m.text.includes(name) && m.text.includes('AGUARDANDO SUA REVISÃO'))
+  const message = messages.findLast(m => m.text.includes(name) && m.text.includes('Responda:'))
   expect(message).toBeTruthy()
   return legacyReference(message!.text)
 }

@@ -52,6 +52,7 @@ describe('F42 PostgreSQL decisão e outbox', () => {
   })
   it('F42-T01/T13/U08 persiste aviso único e cancela versão antiga', async () => {
     const first = await event(); await event()
+    expect(first.payload).toMatchObject({ ownerName: 'Admin fixture', canonicalUrl: 'https://example.com/test', network: 'Telegram', niche: 'Educação', description: 'Descrição teste' })
     expect(await db.operationalMessage.count({ where: { tenantId } })).toBe(1)
     await db.link.update({ where: { id: linkId }, data: { name: 'Texto revisado' } })
     await expect(decision('APPROVE', first.id)).rejects.toMatchObject({ code: 'review_reference_expired' })
@@ -187,5 +188,6 @@ describe('F42 PostgreSQL decisão e outbox', () => {
     await store.saveOrder(order)
     expect((await db.order.findUniqueOrThrow({ where: { id: row.id } })).status).toBe('REFUND_FAILED')
     expect(await db.operationalMessage.count({ where: { tenantId, resourceId: row.id, kind: 'REFUND_FAILED' } })).toBe(1)
+    expect((await db.operationalMessage.findFirstOrThrow({ where: { tenantId, kind: 'REFUND_FAILED' } })).payload).toMatchObject({ ownerName: 'Admin fixture', name: 'Grupo teste', canonicalUrl: 'https://example.com/test', amountCents: 100, method: 'PIX', attempts: 3 })
   })
 })
