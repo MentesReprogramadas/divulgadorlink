@@ -4,6 +4,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
 import { isRefreshRevoked, refreshTtlSeconds, resetRefreshRevocationsForTest, revokeRefreshJti } from '@/adapters/auth/refresh-revocation'
 import { confirmationInboxEnabled, readConfirmation } from '@/adapters/auth/confirmation-inbox'
+import { banReasonOf } from '@/domain/account/ban-reason'
 import { env } from '@/env'
 import { buildError, forbidden, internal_error, not_found, unauthenticated } from '@/http/errors'
 import { resolveTenant } from '@/http/tenant'
@@ -297,10 +298,12 @@ async function login(request: FastifyRequest, reply: FastifyReply) {
   const identifiers = await prisma.userIdentifier.findMany({
     where: { userId: user.id, replacedAt: null },
   })
+  const banReason = await banReasonFor(user)
   return reply.status(200).send({
     role: user.role,
     status: user.status,
     canSubmit: canSubmitLinkFromIdentifiers(user.status, identifiers),
+    ...(banReason ? { banReason } : {}),
   })
 }
 
@@ -363,6 +366,16 @@ async function logout(request: FastifyRequest, reply: FastifyReply) {
   return reply.status(204).send()
 }
 
+async function banReasonFor(user: { id: string; tenantId: string; status: string }): Promise<string | null> {
+  if (user.status !== 'BANNED') return null
+  const row = await prisma.auditLog.findFirst({
+    where: { tenantId: user.tenantId, entityType: 'User', entityId: user.id, action: 'account.ban' },
+    orderBy: { createdAt: 'desc' },
+    select: { after: true },
+  })
+  return banReasonOf(row?.after)
+}
+
 async function currentSession(request: FastifyRequest, reply: FastifyReply) {
   try {
     const tenant = await resolveTenant(hostFromRequest(request))
@@ -374,10 +387,12 @@ async function currentSession(request: FastifyRequest, reply: FastifyReply) {
       return reply.status(401).send(buildError({ code: unauthenticated, message: 'Sessão inválida.', request_id: request.id }))
     }
     const identifiers = await prisma.userIdentifier.findMany({ where: { userId: user.id, replacedAt: null } })
+    const banReason = await banReasonFor(user)
     return reply.status(200).send({
       role: user.role,
       status: user.status,
       canSubmit: canSubmitLinkFromIdentifiers(user.status, identifiers),
+      ...(banReason ? { banReason } : {}),
     })
   } catch (error) {
     if (error instanceof ResourceNotFoundError) {

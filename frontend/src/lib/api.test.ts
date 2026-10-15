@@ -23,6 +23,8 @@ describe('sessão por cookie no cliente', () => {
     expect(document.cookie).toContain('catalogo_role=USER')
     sessionStorage.setItem('catalogo.session', JSON.stringify({ token: 'antigo', role: 'USER', status: 'ACTIVE', canSubmit: false }))
     expect(readSession()).toEqual({ role: 'USER', status: 'ACTIVE', canSubmit: false })
+    writeSession({ role: 'USER', status: 'BANNED', canSubmit: false, banReason: ' golpe ' })
+    expect(readSession()).toEqual({ role: 'USER', status: 'BANNED', canSubmit: false, banReason: 'golpe' })
   })
 
   it('mutação envia x-csrf-token do cookie e GET não envia', async () => {

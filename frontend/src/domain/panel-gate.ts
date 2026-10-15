@@ -9,6 +9,7 @@ export function panelGate(
   return 'panel'
 }
 
-export function afterAuth(canSubmit: boolean): string {
+export function afterAuth(canSubmit: boolean, status?: string): string {
+  if (status === 'BANNED') return '/painel'
   return canSubmit ? '/painel' : '/painel/verificar'
 }

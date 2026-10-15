@@ -150,7 +150,10 @@ test('banimento avisa e o painel mostra a conta suspensa', async ({ browser }) =
   const messages = await outbox(user, email)
   expect(messages.find((item) => item.kind === 'ban')?.text).toContain('golpe')
   await user.goto(`${A}/painel`)
-  await expect(user.getByText('Conta suspensa')).toBeVisible()
+  await expect(user.getByRole('heading', { name: 'Conta suspensa' })).toBeVisible()
+  await expect(user.getByRole('heading', { name: 'Motivo' })).toBeVisible()
+  await expect(user.getByText('golpe')).toBeVisible()
+  await expect(user.getByRole('navigation', { name: 'Áreas do painel' })).toHaveCount(0)
 })
 
 test('excluir a conta avisa e a senha deixa de entrar', async ({ page }) => {

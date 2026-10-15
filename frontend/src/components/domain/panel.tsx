@@ -83,6 +83,29 @@ export function usePanelSession() {
   return { ready, session };
 }
 
+export function SuspendedAccount({ reason }: { reason?: string }) {
+  async function logout() {
+    await api("/v1/auth/logout", { method: "POST" });
+    clearSession();
+    window.location.href = "/painel";
+  }
+  return (
+    <main className="auth-page">
+      <h1 className="entry-title">Conta suspensa</h1>
+      <p className="auth-lead">Você não pode enviar links, comprar destaque nem alterar a conta.</p>
+      {reason ? (
+        <>
+          <h2>Motivo</h2>
+          <p>{reason}</p>
+        </>
+      ) : null}
+      <p className="auth-switch">
+        <button type="button" className="quiet-button" onClick={() => void logout()}>Sair</button>
+      </p>
+    </main>
+  );
+}
+
 function VerifyRedirect() {
   useLayoutEffect(() => {
     window.location.replace("/painel/verificar");
@@ -133,6 +156,13 @@ export function AreaFrame({
   }
   if (gate === "verify" && session) {
     return <AreaSession.Provider value={session}>{children}</AreaSession.Provider>;
+  }
+  if (session?.status === "BANNED") {
+    return (
+      <AreaSession.Provider value={session}>
+        <SuspendedAccount reason={session.banReason} />
+      </AreaSession.Provider>
+    );
   }
   if (!session || (admin && session.role !== "ADMIN")) {
     if (admin) return <main className="panel-page"><p>Área restrita.</p></main>;
@@ -185,7 +215,6 @@ export function PanelGate({
 }
 
 export function PanelTop({
-  session,
   title = "Painel",
   create = true,
 }: {
@@ -198,14 +227,12 @@ export function PanelTop({
     clearSession();
     window.location.href = "/painel";
   }
-  const banned = session.status === "BANNED";
   return (
     <>
       <div className="panel-bar">
         <h1 className="entry-title">{title}</h1>
         <div className="page-header-actions">
-          {banned ? <p className="panel-notice">Conta suspensa</p> : null}
-          {!banned && create ? (
+          {create ? (
             <ButtonLink href="/painel/links/novo">Novo link</ButtonLink>
           ) : null}
           <Button

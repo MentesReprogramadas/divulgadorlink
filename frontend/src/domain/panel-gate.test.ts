@@ -19,5 +19,6 @@ describe('porta do painel', () => {
     expect(panelGate(banned, '/painel')).toBe('panel')
     expect(afterAuth(false)).toBe('/painel/verificar')
     expect(afterAuth(true)).toBe('/painel')
+    expect(afterAuth(false, 'BANNED')).toBe('/painel')
   })
 })

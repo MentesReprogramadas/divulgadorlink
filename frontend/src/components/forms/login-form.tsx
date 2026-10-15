@@ -13,7 +13,7 @@ export function LoginForm() {
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const data = new FormData(event.currentTarget)
-    const result = await api<{ role?: string; status?: string; canSubmit?: boolean; message?: string }>('/v1/auth/login', {
+    const result = await api<{ role?: string; status?: string; canSubmit?: boolean; banReason?: string; message?: string }>('/v1/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email: data.get('email'), password: data.get('password') }),
     })
@@ -21,12 +21,15 @@ export function LoginForm() {
       setError(result.body.message ?? 'Credenciais inválidas.')
       return
     }
+    const status = result.body.status ?? 'ACTIVE'
+    const reason = result.body.banReason?.trim()
     writeSession({
       role: result.body.role,
-      status: result.body.status ?? 'ACTIVE',
+      status,
       canSubmit: Boolean(result.body.canSubmit),
+      ...(reason ? { banReason: reason } : {}),
     })
-    window.location.assign(afterAuth(Boolean(result.body.canSubmit)))
+    window.location.assign(afterAuth(Boolean(result.body.canSubmit), status))
   }
 
   return (

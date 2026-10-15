@@ -1,4 +1,4 @@
-export type Session = { role: string; status: string; canSubmit: boolean }
+export type Session = { role: string; status: string; canSubmit: boolean; banReason?: string }
 
 const KEY = 'catalogo.session'
 const NOTICE_KEY = 'catalogo.notice'
@@ -35,7 +35,9 @@ export function readSession(): Session | null {
   try {
     const parsed = JSON.parse(raw) as Partial<Session> & { token?: unknown }
     if (typeof parsed.role !== 'string' || typeof parsed.status !== 'string') return null
-    return { role: parsed.role, status: parsed.status, canSubmit: Boolean(parsed.canSubmit) }
+    const session: Session = { role: parsed.role, status: parsed.status, canSubmit: Boolean(parsed.canSubmit) }
+    if (typeof parsed.banReason === 'string' && parsed.banReason.trim()) session.banReason = parsed.banReason.trim()
+    return session
   } catch {
     return null
   }
@@ -47,10 +49,12 @@ function rememberRole(role: string): void {
 }
 
 export function writeSession(session: Session): void {
+  const reason = session.banReason?.trim()
   window.sessionStorage.setItem(KEY, JSON.stringify({
     role: session.role,
     status: session.status,
     canSubmit: session.canSubmit,
+    ...(reason ? { banReason: reason } : {}),
   }))
   rememberRole(session.role)
   window.dispatchEvent(new Event(SESSION_EVENT))
@@ -69,7 +73,13 @@ export async function loadSession(
     clearSession()
     return null
   }
-  const session = { role: result.body.role, status: result.body.status, canSubmit: Boolean(result.body.canSubmit) }
+  const reason = typeof result.body.banReason === 'string' ? result.body.banReason.trim() : ''
+  const session: Session = {
+    role: result.body.role,
+    status: result.body.status,
+    canSubmit: Boolean(result.body.canSubmit),
+    ...(reason ? { banReason: reason } : {}),
+  }
   writeSession(session)
   return session
 }
