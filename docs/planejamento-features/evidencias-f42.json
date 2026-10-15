@@ -67,7 +67,13 @@
       "Coolify API environment",
       "Coolify worker environment",
       "Evolution webhook header"
-    ]
+    ],
+    "validatedReleaseCommit": "9204cefb7488b97410dbf91bb62fea8656343b9b",
+    "releaseDeployments": {
+      "api": "11dpl5iidnkzavrzyxabfvsz",
+      "web": "b8pe8cdii6cu0eycdgqr5r8l",
+      "worker": "r2hqifheivs7erwqmxfg1he2"
+    }
   },
   "realGroupSmoke": {
     "id": "F42-M01",
@@ -94,11 +100,27 @@
       "web": "FAILED_MISSING_BACKEND_BULLMQ_DEPENDENCY_DURING_E2E_TYPECHECK"
     },
     "correction": "Install existing backend dependencies in web job before frontend E2E typecheck",
-    "finalRun": "PENDING",
+    "finalRun": "https://github.com/MentesReprogramadas/divulgadorlink/actions/runs/38753110997",
     "firstRunCounts": {
       "backendUnit": 350,
       "postgres": 50,
       "playwright": 46
+    },
+    "finalState": "SUCCESS",
+    "finalCounts": {
+      "frontendUnit": 101,
+      "playwright": 46,
+      "backendUnit": 350,
+      "postgres": 50
+    },
+    "jobs": {
+      "web": "success",
+      "e2e": "success",
+      "images": "success",
+      "verify": "success"
     }
-  }
+  },
+  "state": "COMPLETE",
+  "completedAtUTC": "2026-10-15T14:46:48.668564+00:00",
+  "validatedReleaseCommit": "9204cefb7488b97410dbf91bb62fea8656343b9b"
 }

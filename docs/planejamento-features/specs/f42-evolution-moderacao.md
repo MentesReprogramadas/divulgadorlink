@@ -1,6 +1,6 @@
 # F42 Moderação e alertas no grupo pela Evolution API
 
-**Estado:** IMPLEMENTADA, EM VALIDAÇÃO. [Execução e decisões concretizadas](../execucao-f42.md).  
+**Estado:** IMPLEMENTADA E VALIDADA; P0 CONCLUÍDO. [Execução e decisões concretizadas](../execucao-f42.md).  
 **Atualização:** 15 de outubro de 2026. **Ordem:** 1. **Onda:** P0, prioridade operacional anterior às ondas 1–6.  
 **Pré-requisito:** G00 mínimo para esta feature; nenhuma dependência de F01–F41.  
 **Plano:** [F42 implementação](../planos/f42-evolution-moderacao.md).  

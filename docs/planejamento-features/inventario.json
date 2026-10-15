@@ -3,7 +3,7 @@
   "date": "2026-10-15",
   "source": "../features-propostas.md",
   "sourceSHA256": "6CBD63F2210EC98635C3D3643D9826B656EDB091DBED70DAE07783FE12E79B22",
-  "execution": "P0_IN_PROGRESS",
+  "execution": "P0_COMPLETE_REMAINING_NOT_STARTED",
   "features": [
     {
       "id": "F42",
@@ -156,8 +156,9 @@
         "F42-S6",
         "F42-S7"
       ],
-      "execution": "IN_REVIEW",
-      "executionEvidence": "execucao-f42.md"
+      "execution": "COMPLETE",
+      "executionEvidence": "execucao-f42.md",
+      "validatedReleaseCommit": "9204cefb7488b97410dbf91bb62fea8656343b9b"
     },
     {
       "id": "F01",
@@ -204,7 +205,8 @@
         "F01-S6",
         "F01-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F06",
@@ -251,7 +253,8 @@
         "F06-S6",
         "F06-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F07",
@@ -298,7 +301,8 @@
         "F07-S6",
         "F07-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F02",
@@ -347,7 +351,8 @@
         "F02-S6",
         "F02-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F03",
@@ -389,7 +394,8 @@
         "F03-S6",
         "F03-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F04",
@@ -436,7 +442,8 @@
         "F04-S6",
         "F04-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F09",
@@ -488,7 +495,8 @@
         "F09-S6",
         "F09-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F12",
@@ -537,7 +545,8 @@
         "F12-S6",
         "F12-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F19",
@@ -581,7 +590,8 @@
         "F19-S6",
         "F19-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F08",
@@ -633,7 +643,8 @@
         "F08-S6",
         "F08-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F11",
@@ -677,7 +688,8 @@
         "F11-S6",
         "F11-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F13",
@@ -722,7 +734,8 @@
         "F13-S6",
         "F13-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F14",
@@ -766,7 +779,8 @@
         "F14-S6",
         "F14-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F16",
@@ -811,7 +825,8 @@
         "F16-S6",
         "F16-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F17",
@@ -860,7 +875,8 @@
         "F17-S6",
         "F17-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F18",
@@ -905,7 +921,8 @@
         "F18-S6",
         "F18-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F27",
@@ -952,7 +969,8 @@
         "F27-S6",
         "F27-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F31",
@@ -1002,7 +1020,8 @@
         "F31-S6",
         "F31-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F34",
@@ -1051,7 +1070,8 @@
         "F34-S6",
         "F34-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F37",
@@ -1106,7 +1126,8 @@
         "F37-S6",
         "F37-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F38",
@@ -1156,7 +1177,8 @@
         "F38-S6",
         "F38-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F05",
@@ -1205,7 +1227,8 @@
         "F05-S6",
         "F05-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F15",
@@ -1250,7 +1273,8 @@
         "F15-S6",
         "F15-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F20",
@@ -1299,7 +1323,8 @@
         "F20-S6",
         "F20-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F21",
@@ -1344,7 +1369,8 @@
         "F21-S6",
         "F21-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F22",
@@ -1394,7 +1420,8 @@
         "F22-S6",
         "F22-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F23",
@@ -1443,7 +1470,8 @@
         "F23-S6",
         "F23-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F25",
@@ -1494,7 +1522,8 @@
         "F25-S6",
         "F25-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F28",
@@ -1538,7 +1567,8 @@
         "F28-S6",
         "F28-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F29",
@@ -1583,7 +1613,8 @@
         "F29-S6",
         "F29-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F32",
@@ -1633,7 +1664,8 @@
         "F32-S6",
         "F32-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F33",
@@ -1687,7 +1719,8 @@
         "F33-S6",
         "F33-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F10",
@@ -1744,7 +1777,8 @@
         "F10-S6",
         "F10-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F24",
@@ -1789,7 +1823,8 @@
         "F24-S6",
         "F24-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F30",
@@ -1849,7 +1884,8 @@
         "F30-S6",
         "F30-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F35",
@@ -1899,7 +1935,8 @@
         "F35-S6",
         "F35-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F39",
@@ -1949,7 +1986,8 @@
         "F39-S6",
         "F39-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F26",
@@ -1999,7 +2037,8 @@
         "F26-S6",
         "F26-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F36",
@@ -2050,7 +2089,8 @@
         "F36-S6",
         "F36-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F40",
@@ -2101,7 +2141,8 @@
         "F40-S6",
         "F40-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     },
     {
       "id": "F41",
@@ -2150,7 +2191,8 @@
         "F41-S6",
         "F41-S7"
       ],
-      "priorityGate": "F42"
+      "priorityGate": "F42",
+      "execution": "NOT_STARTED"
     }
   ],
   "previousSourceSHA256": "D682998DB91E320F5B703C05C501D9490781E0B67EA22C3FD436524A9B0ED724",

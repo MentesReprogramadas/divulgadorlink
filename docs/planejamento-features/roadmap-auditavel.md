@@ -1,6 +1,6 @@
 # Roadmap auditável por etapa
 
-**Baseline inicial:** 14 de outubro de 2026. **Repriorização:** 15 de outubro de 2026, F42 em primeiro lugar. **Execução:** P0/F42 em validação, por autorização posterior. F01–F41 não iniciadas. Evidências em [execução F42](execucao-f42.md).
+**Baseline inicial:** 14 de outubro de 2026. **Repriorização:** 15 de outubro de 2026, F42 em primeiro lugar. **Execução:** P0/F42 concluído em produção e validado, por autorização posterior. F01–F41 não iniciadas. Evidências em [execução F42](execucao-f42.md).
 
 [Índice](README.md) · [Ordem](ordem-de-entrega.md) · [Decisões](decisoes.md) · [Qualidade](qualidade-e-testes.md) · [Ledger em CSV](roadmap-etapas.csv) · [Matriz AC](matriz-aceitacao.csv).
 
@@ -51,7 +51,7 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 | F42-S4 | CONCLUÍDA | F42-S3 | CONCLUÍDA |
 | F42-S5 | CONCLUÍDA | F42-S4 | CONCLUÍDA |
 | F42-S6 | CONCLUÍDA | F42-S5 | CONCLUÍDA |
-| F42-S7 | EM ANDAMENTO | F42-S6 | CONCLUÍDA |
+| F42-S7 | CONCLUÍDA | F42-S6 | CONCLUÍDA |
 
 
 ### 2 F01 Relatório de resultado do destaque

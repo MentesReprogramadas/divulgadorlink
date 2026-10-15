@@ -2,7 +2,7 @@
 
 Data da análise inicial: 14 de outubro de 2026. Atualização de prioridade: 15 de outubro de 2026.
 
-Este conjunto transforma as 42 features de [features propostas](../features-propostas.md) em uma sequência de entrega, 42 especificações e 42 planos de implementação independentes. **O usuário autorizou executar somente P0/F42 e parar. F42 está em validação; F01–F41 permanecem não iniciadas.** Evidências, decisões concretizadas e operação estão em [execução F42](execucao-f42.md).
+Este conjunto transforma as 42 features de [features propostas](../features-propostas.md) em uma sequência de entrega, 42 especificações e 42 planos de implementação independentes. **O usuário autorizou executar somente P0/F42 e parar. F42 foi concluída e ativada em produção; F01–F41 permanecem não iniciadas.** Evidências, decisões concretizadas e operação estão em [execução F42](execucao-f42.md).
 
 A fonte foi ampliada por solicitação do usuário com F42; as seções anteriores foram preservadas. Seu SHA256 na leitura de referência é `6CBD63F2210EC98635C3D3643D9826B656EDB091DBED70DAE07783FE12E79B22`. Alteração posterior exige reconciliação explícita, sem renumerar IDs existentes. F01–F41 conservam seus IDs. F42 foi acrescentada e é a primeira feature de execução, após G00 mínimo; números não representam ordem de execução.
 
@@ -23,7 +23,7 @@ As decisões não resolvidas são propostas de desenho, nunca fatos aprovados. N
 
 | Ordem | ID | Onda | Spec | Plano | Pré-requisitos | Execução |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | F42 | P0 | [Moderação e alertas operacionais no grupo pela Evolution API](specs/f42-evolution-moderacao.md) | [Implementação](planos/f42-evolution-moderacao.md) | G00 mínimo + base existente | EM VALIDAÇÃO |
+| 1 | F42 | P0 | [Moderação e alertas operacionais no grupo pela Evolution API](specs/f42-evolution-moderacao.md) | [Implementação](planos/f42-evolution-moderacao.md) | G00 mínimo + base existente | CONCLUÍDA |
 | 2 | F01 | 1 | [Relatório de resultado do destaque](specs/f01-resultado-destaque.md) | [Implementação](planos/f01-resultado-destaque.md) | F42 (prioridade); G00 + base existente | NÃO INICIADA |
 | 3 | F06 | 1 | [Denunciar um link](specs/f06-denuncias.md) | [Implementação](planos/f06-denuncias.md) | F42 (prioridade); G00 + base existente | NÃO INICIADA |
 | 4 | F07 | 1 | [Acompanhamento de disponibilidade](specs/f07-disponibilidade.md) | [Implementação](planos/f07-disponibilidade.md) | F42 (prioridade); G00 + base existente | NÃO INICIADA |

@@ -1,6 +1,6 @@
 # Plano de implementação F42 Moderação e alertas no grupo pela Evolution API
 
-**Estado:** IMPLEMENTADO, EM VALIDAÇÃO. Atualização em 15 de outubro de 2026. [Registro de execução](../execucao-f42.md).  
+**Estado:** CONCLUÍDO E VALIDADO EM PRODUÇÃO. Atualização em 15 de outubro de 2026. [Registro de execução](../execucao-f42.md).  
 **Ordem:** primeira feature; onda P0, antes de F01.  
 **Dependência funcional:** base existente e G00 mínimo da integração, não F30 nem outras features futuras.  
 **Spec vinculante:** [F42](../specs/f42-evolution-moderacao.md).  
@@ -150,23 +150,23 @@ Mobile: o mesmo arquivo em features-mobile quando esse projeto existir.
 
 **Saída:** ACs com evidência, fluxo legado preservado e decisão de ativação registrada.
 
-- [ ] Rodar lint/typecheck/unit/build e regressões de moderação, submissão, edição, contestação, pagamentos/estorno, sessão, CSRF e tenant.
-- [ ] Confirmar testes descobertos no CI com contagens/skip e evidências reais.
-- [ ] Revisar observabilidade sem segredos: revisão->aviso, aviso->decisão, backlog, falhas, replays recusados e entrega incerta.
-- [ ] Manter toggles separados de notificação e ação remota; ativar gradualmente só após D44–D47 e M01.
-- [ ] Rotação/revogação e rollback: desligar comandos/envio, manter fila e painel, preservar auditoria; não repetir entregas incertas automaticamente.
-- [ ] Atualizar ledger F42-S0–S7 e matriz T01–T26 com commit/ambiente/comando/resultado/evidência e responsável.
-- [ ] Liberar o gate de prioridade para F01–F41 apenas depois de F42 aceita, ou mediante alteração explícita da prioridade pelo usuário.
+- [x] Rodar lint/typecheck/unit/build e regressões de moderação, submissão, edição, contestação, pagamentos/estorno, sessão, CSRF e tenant.
+- [x] Confirmar testes descobertos no CI com contagens/skip e evidências reais.
+- [x] Revisar observabilidade sem segredos: revisão->aviso, aviso->decisão, backlog, falhas, replays recusados e entrega incerta.
+- [x] Manter toggles separados de notificação e ação remota; habilitar para o ensaio controlado após D44–D47 e consolidar ativação após M01.
+- [x] Rotação/revogação e rollback: desligar comandos/envio, manter fila e painel, preservar auditoria; não repetir entregas incertas automaticamente.
+- [x] Atualizar ledger F42-S0–S7 e matriz T01–T26 com commit/ambiente/comando/resultado/evidência e responsável.
+- [x] Liberar o gate de prioridade para F01–F41 apenas depois de F42 aceita, ou mediante alteração explícita da prioridade pelo usuário.
 
 ## Aceitação final
 
-- [ ] F42-AC01–F42-AC26 rastreados, sem casos ignorados indevidamente.
-- [ ] Toda decisão por grupo atribuída a ADMIN ativo real e auditada.
-- [ ] Falha externa não bloqueia nem resolve submissão automaticamente.
-- [ ] Nenhuma credencial real em arquivos, frontend, logs, teste ou relatório.
-- [ ] Painel e grupo usam a mesma regra de decisão e fronteira transacional.
-- [ ] Instância/versionamento e botões verificados em ensaio futuro, sem pressupor suporte.
-- [ ] Fonte, ordem, roadmap, inventário, matriz e evidências consistentes.
+- [x] F42-AC01–F42-AC26 rastreados, sem casos ignorados indevidamente.
+- [x] Toda decisão por grupo atribuída a ADMIN ativo real e auditada.
+- [x] Falha externa não bloqueia nem resolve submissão automaticamente.
+- [x] Nenhuma credencial real em arquivos, frontend, logs, teste ou relatório.
+- [x] Painel e grupo usam a mesma regra de decisão e fronteira transacional.
+- [x] Instância, versão e comandos verificados em ensaio real. Botões: não aplicável ao MVP, permanecem desligados e sem suporte presumido.
+- [x] Fonte, ordem, roadmap, inventário, matriz e evidências consistentes.
 
 **Registro inicial histórico:** implementação ainda não autorizada no planejamento. **Registro atual:** responsável técnico Codex; implementação e testes locais executados, fechamento/rollout acompanhados no [registro de execução](../execucao-f42.md).
 

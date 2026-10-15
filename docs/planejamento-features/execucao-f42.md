@@ -1,6 +1,6 @@
 # Execução do P0 — F42
 
-Data: 15/10/2026. Responsável técnico: Codex. Escopo autorizado: implementar e ativar somente F42, depois parar. F01–F41 permanecem não iniciadas. Estado: EM ANDAMENTO; fechamento depende dos resultados finais de regressão e rollout registrados abaixo.
+Data: 15/10/2026. Responsável técnico: Codex. Escopo autorizado: implementar e ativar somente F42, depois parar. **Estado: P0/F42 CONCLUÍDO E ATIVO EM PRODUÇÃO.** F01–F41 permanecem não iniciadas. As oito etapas e os 26 critérios têm evidência de validação.
 
 ## Decisões concretizadas
 
@@ -40,6 +40,9 @@ Eventos entregues: revisão inicial, contestação, proposta de texto com result
 | ROLLBACK-01 | API do commit anterior 4801384 em porta local 3344, contra schema com as três tabelas novas | `/actuator/ready` retornou 200; compatibilidade aditiva sem reset/down |
 | VISUAL-01 | E05/E06 em desktop e mobile | 3 testes aprovados, exit 0, capturas com dados sintéticos inspecionadas |
 | CI-01 | [GitHub Actions do código publicado](https://github.com/MentesReprogramadas/divulgadorlink/actions/runs/38750851243) | E2E, imagens Docker e verify aprovados; web falhou porque seu typecheck E2E não tinha BullMQ do backend instalado. Job corrigido para instalar a dependência já existente; não foi adicionada biblioteca |
+| CI-02 | [CI final da release 9204cef](https://github.com/MentesReprogramadas/divulgadorlink/actions/runs/38753110997) | TODOS OS JOBS APROVADOS: web, verify, e2e e images. 350 unitários backend, 101 frontend, 50 PostgreSQL e 46 Playwright. Lint/typecheck/build e audit no limiar configurado passaram |
+
+O ajuste do pipeline não alterou `backend/src` nem `frontend/src` em relação a `6c2d648`. A release validada é `9204cefb7488b97410dbf91bb62fea8656343b9b`; foi implantada em API `11dpl5iidnkzavrzyxabfvsz`, web `b8pe8cdii6cu0eycdgqr5r8l` e worker `r2hqifheivs7erwqmxfg1he2`. Saúde pública reconfirmada com HTTP 200. A execução inicial com falha foi preservada para auditoria e não é contada como sucesso.
 
 As diferenças nas contagens U01/U02 decorrem das mudanças locais de outra atividade, excluídas do snapshot de publicação. Foram preservadas sem entrar no commit do P0. Para tornar a regressão executável, corrigiram-se seletores ambíguos e expectativas de navegação/consentimento dos testes existentes; os testes de submissão agora têm usuário próprio, e os da Evolution têm tenant próprio. Nenhuma regra de sessão, conta ou consentimento foi alterada por esses ajustes.
 
@@ -100,10 +103,13 @@ Resultados em execução não constituem aceite. O ledger e a matriz CSV devem a
 6. Para rotacionar: desligar comandos, gerar novo segredo aleatório, atualizar API/worker e header do webhook, reiniciar/reimplantar e verificar autenticação. Referências antigas deixam de validar; decidir revisões remanescentes pelo painel. Rotacionar API key na instância e nos dois serviços quando necessário, sem imprimir valores.
 7. Purge local não apaga mensagens já entregues no WhatsApp. O bot não processa OTP, Pix, QR de sessão, mensagens privadas ou outros grupos.
 
-## Pendências de fechamento
+## Fechamento
 
-- Regressão E2E ampliada concluída: 46/46.
-- Snapshot do índice validado sem incorporar alterações locais de outra atividade.
-- API/worker/web publicados, webhook autenticado configurado e saúde verificada.
-- Smoke real de envio, recebimento e autorização concluído com iPhone/número final 8391.
-- Reexecutar CI com o ajuste de dependência do job web; fechar ledger/matriz após resultado. Parar ao final do P0.
+- [x] Regressão E2E ampliada e CI final aprovados: 46/46, sem skips.
+- [x] Snapshot de publicação validado; alterações locais de outra atividade preservadas.
+- [x] API/worker/web publicados, webhook autenticado configurado e saúde verificada.
+- [x] Ensaio real de envio, recebimento e autorização aprovado com iPhone/número final 8391.
+- [x] Operadores finais 4330 e 8391 vinculados; nenhuma aprovação de link real foi simulada no ensaio.
+- [x] Ledger F42-S0–S7 concluído e matriz F42-AC01–AC26 aprovada.
+- [x] Fonte preservada, inventário e links conferidos. Capturas desktop/mobile em `output/p0-evolution/`.
+- [x] Trabalho encerrado no P0. Nenhuma implementação de F01–F41 foi iniciada.
