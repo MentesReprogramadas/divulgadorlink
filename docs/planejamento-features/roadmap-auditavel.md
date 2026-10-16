@@ -60,14 +60,14 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 
 | Etapa | Estado | Pré-requisito imediato | Entregável a verificar |
 | --- | --- | --- | --- |
-| F01-S0 | EM ANDAMENTO | F42 (prioridade), G00 | [Escopo contratos e reuso](planos/f01-resultado-destaque.md#f01-s0-escopo-contratos-e-revisão-de-reutilização) |
-| F01-S1 | NÃO INICIADA | F01-S0 | [Testes U e C](planos/f01-resultado-destaque.md#f01-s1-testes-unitários-e-componentes-antes-da-regra) |
-| F01-S2 | NÃO INICIADA | F01-S1 | [Dados e migração](planos/f01-resultado-destaque.md#f01-s2-dados-invariantes-e-migração) |
-| F01-S3 | NÃO INICIADA | F01-S2 | [Domínio API e jobs](planos/f01-resultado-destaque.md#f01-s3-regra-de-negócio-api-e-jobs) |
-| F01-S4 | NÃO INICIADA | F01-S3 | [Interface](planos/f01-resultado-destaque.md#f01-s4-interface-composição-e-estados) |
-| F01-S5 | NÃO INICIADA | F01-S4 | [Integração e ACs](planos/f01-resultado-destaque.md#f01-s5-integração-contrato-persistência-e-falhas) |
-| F01-S6 | NÃO INICIADA | F01-S5 | [Playwright e QA](planos/f01-resultado-destaque.md#f01-s6-e2e-playwright-e-revisão-visual) |
-| F01-S7 | NÃO INICIADA | F01-S6 | [Regressão e liberação](planos/f01-resultado-destaque.md#f01-s7-regressão-rollout-e-fechamento-auditável) |
+| F01-S0 | CONCLUÍDA | F42 (prioridade), G00 | [Escopo contratos e reuso](planos/f01-resultado-destaque.md#f01-s0-escopo-contratos-e-revisão-de-reutilização) |
+| F01-S1 | EM REVISÃO | F01-S0 | CONCLUÍDA |
+| F01-S2 | CONCLUÍDA | F01-S1 | EM REVISÃO |
+| F01-S3 | CONCLUÍDA | F01-S2 | CONCLUÍDA |
+| F01-S4 | EM REVISÃO | F01-S3 | CONCLUÍDA |
+| F01-S5 | CONCLUÍDA | F01-S4 | EM REVISÃO |
+| F01-S6 | EM ANDAMENTO | F01-S5 | CONCLUÍDA |
+| F01-S7 | NÃO INICIADA | F01-S6 | EM ANDAMENTO |
 
 ### 3 F06 Denunciar um link
 

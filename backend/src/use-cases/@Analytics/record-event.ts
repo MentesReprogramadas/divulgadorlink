@@ -10,7 +10,4 @@ export function surfaceFor(origin: 'search' | 'niche-home' | 'network-home' | 'h
   return 'ORGANIC'
 }
 
-export function ctr(clicks: number, impressions: number): number {
-  if (impressions === 0) return 0
-  return (clicks / impressions) * 100
-}
+export { ctr } from '@/domain/analytics/rates'

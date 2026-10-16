@@ -3,20 +3,8 @@ import type { AnalyticsOrigin } from '@/domain/analytics/surface-token'
 import type { AnalyticsKind, AnalyticsRepository } from '@/repositories/analytics-repository'
 import { logDomainEvent } from '@/observability/logger'
 
-const ANALYTICS_TIME_ZONE = 'America/Sao_Paulo'
-
-export function analyticsDay(now: Date): string {
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: ANALYTICS_TIME_ZONE,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).formatToParts(now)
-  const year = parts.find((part) => part.type === 'year')?.value
-  const month = parts.find((part) => part.type === 'month')?.value
-  const day = parts.find((part) => part.type === 'day')?.value
-  return `${year}-${month}-${day}`
-}
+import { analyticsDay } from '@/domain/analytics/day'
+export { analyticsDay } from '@/domain/analytics/day'
 
 export async function persistAnalyticsEvent(input: {
   viewer: 'OWNER' | 'ADMIN' | 'VISITOR'

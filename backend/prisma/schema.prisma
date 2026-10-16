@@ -88,6 +88,8 @@ model Tenant {
   evolutionReceipts EvolutionReceipt[]
   evolutionOperators EvolutionOperator[]
   @@map("tenants")
+  promotionInvestments PromotionInvestment[]
+
 }
 
 model User {
@@ -352,6 +354,9 @@ model Promotion {
   @@index([tenantId, linkId, status])
   @@index([surface, status, activatedAt])
   @@map("promotions")
+  investments PromotionInvestment[]
+  @@unique([id, tenantId])
+
 }
 
 enum OrderStatus {
@@ -408,6 +413,9 @@ model Order {
   @@index([tenantId, paidAt])
   @@index([tenantId, createdAt])
   @@map("orders")
+  promotionInvestments PromotionInvestment[]
+  @@unique([id, tenantId])
+
 }
 
 model OrderMetaContext {
@@ -467,6 +475,7 @@ model AnalyticsEvent {
   @@index([tenantId, day])
   @@index([tenantId, linkId, day])
   @@map("analytics_events")
+  @@index([tenantId, linkId, createdAt])
 }
 
 model ModerationCase {
@@ -563,4 +572,22 @@ model ConsentDaily {
   count    Int      @default(0)
   @@unique([tenantId, day, choice])
   @@map("consent_daily")
+}
+
+model PromotionInvestment {
+  id String @id @default(cuid())
+  tenantId String
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  orderId String
+  order Order @relation(fields: [orderId, tenantId], references: [id, tenantId])
+  promotionId String
+  promotion Promotion @relation(fields: [promotionId, tenantId], references: [id, tenantId])
+  surface PromotionSurface
+  amountCents Int
+  startsAt DateTime
+  endsAt DateTime
+  createdAt DateTime @default(now())
+  @@unique([orderId, surface])
+  @@index([tenantId, promotionId, startsAt, endsAt])
+  @@map("promotion_investments")
 }

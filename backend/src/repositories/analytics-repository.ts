@@ -1,6 +1,9 @@
 import { randomUUID } from 'node:crypto'
 import { Prisma, type PrismaClient } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
+import { analyticsDayStart } from '@/domain/analytics/day'
+import { purgeBefore } from '@/use-cases/@Analytics/purge-old-events'
+import type { PerformanceQuery, PerformanceSeriesRow } from '@/use-cases/@Analytics/promotion-performance'
 
 export type AnalyticsKind = 'IMPRESSION' | 'CLICK'
 
@@ -21,6 +24,28 @@ export interface AnalyticsRepository {
 
 export class PrismaAnalyticsRepository implements AnalyticsRepository {
   constructor(private readonly client: PrismaClient) {}
+
+  async performanceSeries(query: PerformanceQuery): Promise<PerformanceSeriesRow[]> {
+    const currentEnd = new Date(Math.min(query.end.getTime(), query.now.getTime()))
+    const comparisonStart = analyticsDayStart(query.comparisonFrom)
+    const comparisonEnd = new Date(comparisonStart.getTime() + currentEnd.getTime() - query.start.getTime())
+    const sql = [
+      'SELECT a.day::text AS day, a.surface,',
+      "COUNT(*) FILTER (WHERE a.kind = 'IMPRESSION')::int AS impressions,",
+      "COUNT(*) FILTER (WHERE a.kind = 'CLICK')::int AS clicks,",
+      "COUNT(*) FILTER (WHERE a.kind = 'CLICK' AND EXISTS (",
+      'SELECT 1 FROM promotions p WHERE p."tenantId" = a."tenantId" AND p."linkId" = a."linkId"',
+      'AND p.surface::text = a.surface AND p."activatedAt" <= a."createdAt" AND (p."expiresAt" IS NULL OR p."expiresAt" > a."createdAt")',
+      'AND ($7::text IS NULL OR p.id = $7)))::int AS "paidClicks"',
+      'FROM analytics_events a WHERE a."tenantId" = $1 AND a."linkId" = $2 AND a.day >= $8::date',
+      'AND ((a."createdAt" >= $3 AND a."createdAt" < $4) OR (a."createdAt" >= $5 AND a."createdAt" < $6))',
+      'AND ($7::text IS NULL OR EXISTS (SELECT 1 FROM promotions selected WHERE selected.id = $7',
+      'AND selected."tenantId" = a."tenantId" AND selected."linkId" = a."linkId" AND selected.surface::text = a.surface',
+      'AND (a."createdAt" < $5 OR (a."createdAt" >= selected."activatedAt" AND (selected."expiresAt" IS NULL OR a."createdAt" < selected."expiresAt")))))',
+      'GROUP BY a.day, a.surface ORDER BY a.day, a.surface',
+    ].join(' ')
+    return this.client.$queryRawUnsafe<PerformanceSeriesRow[]>(sql, query.tenantId, query.linkId, comparisonStart, comparisonEnd, query.start, currentEnd, query.promotionId ?? null, purgeBefore(query.now).toISOString().slice(0, 10))
+  }
 
   async insert(event: AnalyticsInsert): Promise<'inserted' | 'duplicate'> {
     const written = await this.client.$executeRaw`

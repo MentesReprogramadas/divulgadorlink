@@ -1,3 +1,4 @@
+import { seedPerformance } from './e2e-performance-seed'
 import { writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { PrismaClient } from '@prisma/client'
@@ -136,7 +137,9 @@ async function main() {
   await user({ tenantId: evolution.tenant.id, name: 'Autora fixture', email: 'submitter@evolution.test', phone: '5511911120003', confirmed: true })
   await user({ tenantId: evolution.tenant.id, name: 'Admin fixture', email: 'admin@evolution.test', phone: '5511911120002', role: 'ADMIN', confirmed: true })
   const evolutionLink = await link({ tenantId: evolution.tenant.id, ownerId: evolutionOwner.id, networkId: evolution.network.id, nicheId: evolution.niche.id, name: 'Referência fixture', description: 'Comunidade de estudo', url: 'https://example.com/evolution-fixture', status: 'PUBLISHED' })
+  const performance = await seedPerformance(prisma, { tenantId: evolution.tenant.id, ownerId: evolutionOwner.id, networkId: evolution.network.id, nicheId: evolution.niche.id })
   const state = {
+    performance,
     evolution: { tenantA: evolution.tenant.id, receitas: evolutionLink.id, password: 'Senha-e2e-1', bia: 'owner@evolution.test', eva: 'submitter@evolution.test', admin: 'admin@evolution.test' },
     tenantA: a.tenant.id,
     tenantB: b.tenant.id,

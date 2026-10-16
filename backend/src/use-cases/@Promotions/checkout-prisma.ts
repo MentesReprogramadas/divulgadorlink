@@ -5,7 +5,7 @@ import { linkNotificationSnapshot } from '@/domain/notifications/link-notificati
 import type { Order, PaymentMethod } from '@/domain/payments/order'
 import type { PriceRow, ProductCode, Surface } from '@/domain/promotions/price-for'
 import { PRICE_ROWS } from '@/domain/promotions/price-for'
-import { renew } from '@/use-cases/@Promotions/renew'
+import { activatePaidWithInvestment } from './activate-paid-with-investment'
 import {
   CheckoutConflictError,
   getCheckoutStore,
@@ -218,46 +218,7 @@ export class PrismaCheckoutStore implements CheckoutStore {
   }
 
   async activatePaid(orderId: string, now: Date): Promise<void> {
-    const row = await this.findCommercial(orderId)
-    if (!row || row.order.status !== 'PAID') return
-    await this.releasePending(orderId)
-    if (row.renewal) {
-      for (const surface of row.surfaces) {
-        const current = await this.client.$queryRawUnsafe<ActivePromotion[]>(
-          `SELECT id, "linkId", surface, status, "activatedAt", "expiresAt", administrative FROM promotions
-           WHERE "linkId" = $1 AND surface = $2::"PromotionSurface" AND status = 'ACTIVE' LIMIT 1`,
-          row.linkId,
-          surface,
-        )
-        const promotion = current[0]
-        if (!promotion) continue
-        const next = renew({
-          status: 'ACTIVE',
-          activatedAt: promotion.activatedAt,
-          expiresAt: promotion.expiresAt,
-          durationDays: row.durationDays,
-        })
-        await this.client.$executeRawUnsafe(
-          'UPDATE promotions SET "expiresAt" = $2, "updatedAt" = NOW() WHERE id = $1',
-          promotion.id,
-          next.expiresAt,
-        )
-      }
-      return
-    }
-    const expiresAt = new Date(now.getTime() + row.durationDays * 24 * 60 * 60 * 1000)
-    for (const surface of row.surfaces) {
-      await this.client.$executeRawUnsafe(
-        `INSERT INTO promotions (id, "tenantId", "linkId", status, surface, "activatedAt", "expiresAt", "createdAt", "updatedAt")
-         VALUES ($1, $2, $3, 'ACTIVE'::"PromotionStatus", $4::"PromotionSurface", $5, $6, NOW(), NOW())`,
-        randomUUID(),
-        row.tenantId,
-        row.linkId,
-        surface,
-        now,
-        expiresAt,
-      )
-    }
+    await activatePaidWithInvestment(this.client, orderId, now)
   }
 
   async listPromotions(linkId: string): Promise<ActivePromotion[]> {
