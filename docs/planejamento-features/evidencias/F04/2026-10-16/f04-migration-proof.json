@@ -1,0 +1,9 @@
+{
+  "database": "f04_migration_proof",
+  "baseline": "f03_migration_proof manual clone, no Prisma history; 10002 links/promotions",
+  "before": "5f15efbbb5c6b05bd01be2edfe451324\n21004892a690dde331b56be7f3a1e83a\n78a6cb60018632ff3f1b53a11f395af9",
+  "after": "5f15efbbb5c6b05bd01be2edfe451324\n21004892a690dde331b56be7f3a1e83a\n78a6cb60018632ff3f1b53a11f395af9",
+  "preserved": true,
+  "ddl": "CREATE INDEX\nCREATE TABLE\nCREATE INDEX\nCREATE TABLE\nCREATE INDEX\nCREATE TABLE\nCREATE INDEX",
+  "privateTablesInitiallyEmpty": "0\n0\n0"
+}

@@ -2,12 +2,24 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 7.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
+**Estado:** CONCLUÍDA NA BRANCH; S0–S7 e AC01–AC05 verificados.
 **Onda:** 2. **Ordem:** 7.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Favoritos e coleções”.  
 **Plano:** [F04 implementação](../planos/f04-favoritos-colecoes.md).  
 **Dependências obrigatórias:** G00; base atual, sem outra feature nova.  
 **Governança:** [arquitetura](../arquitetura-e-reuso.md), [testes](../qualidade-e-testes.md), [decisões](../decisoes.md), [roadmap](../roadmap-auditavel.md).
+
+## Reconciliação da execução — 16/10/2026
+
+[Execução F04: contratos, decisões, arquivos, comandos, evidências, riscos e reversão](../execucao-f04.md). Concluída na branch `codex/roadmap-features`; próxima feature F09 não iniciada. Sem deploy ou main.
+
+Arquivos efetivos: domínio `backend/src/domain/collections/favorites.ts`, transações/consultas em `backend/src/repositories/favorites-repository.ts`, controller `backend/src/http/controllers/@Collections/routes.ts`, três modelos/migration aditiva e composições em `frontend/src/features/favorites`. LinkRow recebeu slot de ações; home/busca/facetas/detalhe fornecem a ação de salvar. Não se criou use case vazio ou CRUD universal. Categorias públicas de perfil não são reutilizadas para dados privados.
+
+D05: múltiplas coleções por favorito. Coleção excluída preserva favorito e catálogo. Nome normalizado de 1–80 caracteres; lotes de 20, sem quota de produto nova. UUID de criação para retry; versão para nome/itens/exclusão; PATCH de item usa move up/down e troca atômica de posições. Leituras privadas ordenadas por ID e itens por posição/ID. Conteúdo que deixa de ser elegível retorna placeholder sem nome/destino. Hard delete remove referência por FK. ADMIN acessa somente seus próprios favoritos; sessão/tenant/status são revalidados no servidor.
+
+U01/U02 exigem provar unicidade/cascata no banco e foram implementados no spec PG/HTTP, mantendo os oráculos originais. U03 tem teste puro de projeção; U04 acrescenta validação de nome. C01/C02 têm arquivos específicos de formulário, botão e lista. HTTP/PG compartilham o mesmo spec com persistência real, concorrência, rollback por trigger e constraints. Não se criou store em memória para simular garantias de PostgreSQL.
+
+Tarefas condicionais de worker, reentrega, provedor, download, QR, TLS, PWA, compartilhamento público e liberação comercial não se aplicam à F04. Não foram marcadas como testes executados. Checkboxes concluídos abaixo indicam a tarefa aplicável comprovada ou a condição explicitamente inaplicável deste registro. A política de tracking/cobrança/publicação não foi ampliada.
 
 ## Objetivo e fronteira
 
@@ -52,7 +64,7 @@ Rotas/operações: PUT/DELETE /api/v1/me/favorites/:linkId; GET /me/favorites; C
 
 **Saída específica:** `favorite{id,linkId},collection{id,name,items,version},nextCursor`.
 
-Todos os caminhos são propostas a reconciliar com rotas atuais em S0; não estão implementados. Quando a rota abreviada omite prefixo, o prefixo é /api/v1. PATCH/POST/DELETE com sessão preservam CSRF do app e enviam host pelo BFF; tenant não vem do corpo. GET público não exige autenticação indevida. Exportações, tokens e respostas privadas usam política de cache que impeça exposição.
+Os contratos implementados estão reconciliados em execução F04; caminhos antigos sugeridos permanecem apenas como histórico. Quando a rota abreviada omite prefixo, o prefixo é /api/v1. PATCH/POST/DELETE com sessão preservam CSRF do app e enviam host pelo BFF; tenant não vem do corpo. GET público não exige autenticação indevida. Exportações, tokens e respostas privadas usam política de cache que impeça exposição.
 
 Erros: aplicar o envelope existente code/message/request_id; 400 para entrada inválida, 401 sem sessão em recurso privado, 403 para contexto de tenant incompatível quando contrato atual exige, 404 para recurso alheio/ausente sem enumerar dados, 409 para conflito de versão/identidade, 429 para limite, 503 para indisponibilidade externa quando apropriado. Rotas existentes podem ter semântica específica; preservar testes de contrato e documentar divergência antes de mudar.
 
@@ -116,16 +128,16 @@ Criar um teste com ID Tnn para cada AC, com o seguinte protocolo específico da 
 
 ## Arquivos de teste propostos
 
-- U: `backend/src/domain/collections/favoritos-colecoes.spec.ts`.
-- C: `frontend/src/components/domain/favoritos-colecoes.test.tsx`.
-- I: `backend/src/http/favoritos-colecoes.http.spec.ts`.
-- PG: `backend/src/http/favoritos-colecoes.pg.spec.ts`; registrar no comando/CI de PG.
-- E: `frontend/e2e/favoritos-colecoes.spec.ts`; registrar no projeto features e features-mobile antes de executar.
+- U: `backend/src/domain/collections/favorites.spec.ts`.
+- C: `frontend/src/features/favorites/components/collection-name-form.test.tsx`.
+- I: `backend/src/http/favorites.pg.spec.ts`.
+- PG: `backend/src/http/favorites.pg.spec.ts`; registrar no comando/CI de PG.
+- E: `frontend/e2e/favorites.spec.ts`; registrar no projeto features e features-mobile antes de executar.
 - Consumidores e novos caminhos sugeridos estão no plano; todos devem ser reconciliados com a árvore existente em S0.
 
 ## Decisões e condições de liberação
 
-D05 permitir múltiplas coleções por favorito, limites e ordenação.
+D05 RESOLVIDA: múltiplas coleções privadas por favorito; nome até 80 caracteres; lotes de 20, sem quota comercial nova; ordem posição/ID com Subir/Descer.
 
 Risco específico: Não reutilizar categorias de perfil para favoritos privados; são relações e regras de publicação distintas.
 

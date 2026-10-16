@@ -1,0 +1,18 @@
+{
+  "before": {
+    "favorites": 10002,
+    "collections": 10000,
+    "items": 10002,
+    "links": 10002,
+    "promotions": 10002
+  },
+  "after": {
+    "favorites": 10002,
+    "collections": 10000,
+    "items": 10002,
+    "links": 10002,
+    "promotions": 10002
+  },
+  "catalogRows": 6,
+  "policy": "Remove new entry/route/UI; retain additive tables and private data. Old catalog remains readable. No destructive downgrade."
+}

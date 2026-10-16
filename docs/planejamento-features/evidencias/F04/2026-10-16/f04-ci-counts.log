@@ -1,0 +1,9 @@
+web	Run npm run lint && npm run typecheck && npm test && npm run build	2026-10-16T15:21:41.5761344Z  Test Files  54 passed (54)
+web	Run npm run lint && npm run typecheck && npm test && npm run build	2026-10-16T15:21:41.5761929Z       Tests  183 passed (183)
+e2e	Run npm run test:e2e	2026-10-16T15:25:38.4746163Z   84 passed (3.6m)
+images	Run docker build -t divulgador-api backend	2026-10-16T15:21:33.8079559Z #18 2.651 CJS ⚡️ Build success in 96ms
+verify	Run npm run lint && npm run typecheck && npm test	2026-10-16T15:22:34.9599243Z  Test Files  98 passed (98)
+verify	Run npm run lint && npm run typecheck && npm test	2026-10-16T15:22:34.9601509Z       Tests  403 passed (403)
+verify	Run npm run test:pg	2026-10-16T15:23:09.1680373Z  Test Files  13 passed (13)
+verify	Run npm run test:pg	2026-10-16T15:23:09.1681673Z       Tests  127 passed (127)
+verify	Run npm run build	2026-10-16T15:23:09.7810506Z CJS ⚡️ Build success in 140ms

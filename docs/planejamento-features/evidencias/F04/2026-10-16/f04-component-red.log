@@ -1,0 +1,35 @@
+npm notice run divulgador-links-web@0.1.0 npx
+npm notice run vitest run src/features/favorites/components/collection-name-form.test.tsx
+
+ RUN  v5.0.3 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend
+
+ ❯ src/features/favorites/components/collection-name-form.test.tsx (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/favorites/components/collection-name-form.test.tsx [ src/features/favorites/components/collection-name-form.test.tsx ]
+Error: Failed to resolve import "./collection-name-form" from "src/features/favorites/components/collection-name-form.test.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend/src/features/favorites/components/collection-name-form.test.tsx:3:35
+  2  |  import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+  3  |  import { afterEach, expect, it, vi } from "vitest";
+  4  |  import { CollectionNameForm } from "./collection-name-form";
+     |                                      ^
+  5  |  afterEach(cleanup);
+  6  |  it("F04-C01 preserves draft and creation identity after offline failure, prevents double submit", async () => {
+ ❯ TransformPluginContext._formatLog node_modules/vite/dist/node/chunks/config.js:29079:43
+ ❯ TransformPluginContext.error node_modules/vite/dist/node/chunks/config.js:29076:14
+ ❯ normalizeUrl node_modules/vite/dist/node/chunks/config.js:27199:18
+ ❯ node_modules/vite/dist/node/chunks/config.js:27257:32
+ ❯ TransformPluginContext.transform node_modules/vite/dist/node/chunks/config.js:27225:4
+ ❯ EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/config.js:28877:14
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/config.js:22746:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  12:01:10
+   Duration  612ms (environment 99%, worker 1%)
+

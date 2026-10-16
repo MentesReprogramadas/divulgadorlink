@@ -1,0 +1,6 @@
+npm notice run divulgador-links-api@0.1.0 typecheck
+npm notice run tsc --noEmit
+src/http/controllers/@Collections/routes.ts(36,162): error TS2322: Type '{ expectedVersion: number; move?: unknown; id: string; favoriteId: string; kind: "item"; method: "PUT" | "DELETE" | "PATCH"; }' is not assignable to type 'Operation'.
+  Type '{ expectedVersion: number; move?: unknown; id: string; favoriteId: string; kind: "item"; method: "PUT" | "DELETE" | "PATCH"; }' is not assignable to type '{ kind: "item"; id: string; favoriteId: string; method: "PUT" | "DELETE" | "PATCH"; expectedVersion: number; move?: "up" | "down" | undefined; }'.
+    Types of property 'move' are incompatible.
+      Type 'unknown' is not assignable to type '"up" | "down" | undefined'.

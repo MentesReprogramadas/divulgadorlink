@@ -1,0 +1,26 @@
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run vitest run src/domain/collections/favorites.spec.ts
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+ ❯ src/domain/collections/favorites.spec.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/domain/collections/favorites.spec.ts [ src/domain/collections/favorites.spec.ts ]
+Error: Cannot find module './favorites' imported from C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend/src/domain/collections/favorites.spec.ts
+ ❯ src/domain/collections/favorites.spec.ts:2:1
+      1| import { expect, it } from 'vitest'
+      2| import { favoriteView, collectionName } from './favorites'
+       | ^
+      3| it('F04-U03/T04 unavailable item never exposes name or navigation', ()…
+      4|   expect(favoriteView({ id: 'f', linkId: 'l', visible: false, name: 'P…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  11:56:02
+   Duration  155ms (worker 94%, environment 6%)
+

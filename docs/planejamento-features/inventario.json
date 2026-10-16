@@ -3,7 +3,7 @@
   "date": "2026-10-16",
   "source": "../features-propostas.md",
   "sourceSHA256": "6CBD63F2210EC98635C3D3643D9826B656EDB091DBED70DAE07783FE12E79B22",
-  "execution": "STOPPED_AFTER_F03_BY_USER",
+  "execution": "STOPPED_AFTER_F04_BY_USER",
   "features": [
     {
       "id": "F42",
@@ -448,7 +448,8 @@
         "F04-S7"
       ],
       "priorityGate": "F42",
-      "execution": "NOT_STARTED"
+      "execution": "COMPLETE_ON_BRANCH",
+      "executionEvidence": "execucao-f04.md"
     },
     {
       "id": "F09",

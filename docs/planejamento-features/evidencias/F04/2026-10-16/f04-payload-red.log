@@ -1,0 +1,35 @@
+npm notice run divulgador-links-web@0.1.0 npx
+npm notice run vitest run src/lib/upstream.test.ts
+
+ RUN  v5.0.3 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend
+
+ ❯ src/lib/upstream.test.ts (2 tests | 1 failed) 79ms
+   × F04 regression: API payload above the existing 1 MiB transport limit returns 413 before a socket write 21ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/upstream.test.ts > F04 regression: API payload above the existing 1 MiB transport limit returns 413 before a socket write
+AssertionError: expected 204 to be 413 // Object.is equality
+
+- Expected
++ Received
+
+- 413
++ 204
+
+ ❯ src/lib/upstream.test.ts:16:27
+     14|   try {
+     15|     const result = await forward({ method: 'POST', path: '/oversize', …
+     16|     expect(result.status).toBe(413); expect(received).toBe(0)
+       |                           ^
+     17|     expect(JSON.parse(result.body.toString())).toMatchObject({ code: '…
+     18|   } finally { server.closeAllConnections(); await new Promise<void>(re…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  12:18:15
+   Duration  245ms (tests 60%, transform 22%, import 16%, worker 2%)
+

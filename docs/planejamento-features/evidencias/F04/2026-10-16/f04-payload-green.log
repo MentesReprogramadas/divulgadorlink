@@ -1,0 +1,11 @@
+npm notice run divulgador-links-web@0.1.0 npx
+npm notice run vitest run src/lib/upstream.test.ts
+
+ RUN  v5.0.3 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend
+
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  12:20:00
+   Duration  245ms (tests 58%, transform 23%, import 17%, worker 3%)
+

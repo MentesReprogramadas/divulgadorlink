@@ -1,0 +1,13 @@
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run vitest run src/use-cases/@Payments/pix-worker.redis.spec.ts
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+(node:48464) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  12:09:02
+   Duration  3.75s (tests 99%)
+

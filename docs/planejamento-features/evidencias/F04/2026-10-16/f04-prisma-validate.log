@@ -1,0 +1,16 @@
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run prisma validate
+Prisma schema loaded from prisma\schema.prisma
+Error: Prisma schema validation - (get-config wasm)
+Error code: P1012
+error: Environment variable not found: DATABASE_URL.
+  -->  prisma\schema.prisma:64
+   | 
+63 |   provider = "postgresql"
+64 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+[Context: getConfig]
+
+Prisma CLI Version : 6.0.1

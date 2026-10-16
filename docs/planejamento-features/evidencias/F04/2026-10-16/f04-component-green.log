@@ -1,0 +1,11 @@
+npm notice run divulgador-links-web@0.1.0 npx
+npm notice run vitest run src/features/favorites/components
+
+ RUN  v5.0.3 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend
+
+
+ Test Files  3 passed (3)
+      Tests  3 passed (3)
+   Start at  12:05:01
+   Duration  963ms (environment 57%, import 23%, transform 12%, tests 7%, worker 1%)
+

@@ -1,0 +1,11 @@
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run vitest run src/domain/catalog/related-links.spec.ts
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  11:54:35
+   Duration  166ms (transform 59%, import 25%, tests 8%, worker 7%)
+

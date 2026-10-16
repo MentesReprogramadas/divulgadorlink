@@ -1,0 +1,152 @@
+npm notice run divulgador-links-web@0.1.0 test
+npm notice run vitest run
+
+ RUN  v5.0.3 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend
+
+ ❯ src/features/favorites/components/collection-name-form.test.tsx (1 test | 1 failed) 1049ms
+   × F04-C01 preserves draft and creation identity after offline failure, prevents double submit 1048ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/favorites/components/collection-name-form.test.tsx > F04-C01 preserves draft and creation identity after offline failure, prevents double submit
+TestingLibraryElementError: Found multiple elements with the role "alert"
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+<span
+  class="field-error"
+  id=":r0:-description"
+  role="alert"
+>
+  Sem conexão.
+</span>
+
+Ignored nodes: comments, script, style
+<p
+  role="alert"
+>
+  Sem conexão.
+</p>
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <form
+      aria-label="Nova coleção"
+      class="_form_c3a769"
+    >
+      <div
+        class="field-block"
+      >
+        <label
+          class="field-label"
+          for=":r0:"
+        >
+          Nome da coleção
+        </label>
+        <input
+          aria-describedby=":r0:-description"
+          aria-invalid="true"
+          class="field field-invalid"
+          id=":r0:"
+          maxlength="80"
+          required=""
+          value="Grupo de estudos"
+        />
+        <span
+          class="field-error"
+          id=":r0:-description"
+          role="alert"
+        >
+          Sem conexão.
+        </span>
+      </div>
+      <button
+        class="button button-primary"
+        data-variant="primary"
+        type="submit"
+      >
+        Criar coleção
+      </button>
+      <p
+        role="alert"
+      >
+        Sem conexão.
+      </p>
+    </form>
+  </div>
+</body>
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <form
+      aria-label="Nova coleção"
+      class="_form_c3a769"
+    >
+      <div
+        class="field-block"
+      >
+        <label
+          class="field-label"
+          for=":r0:"
+        >
+          Nome da coleção
+        </label>
+        <input
+          aria-describedby=":r0:-description"
+          aria-invalid="true"
+          class="field field-invalid"
+          id=":r0:"
+          maxlength="80"
+          required=""
+          value="Grupo de estudos"
+        />
+        <span
+          class="field-error"
+          id=":r0:-description"
+          role="alert"
+        >
+          Sem conexão.
+        </span>
+      </div>
+      <button
+        class="button button-primary"
+        data-variant="primary"
+        type="submit"
+      >
+        Criar coleção
+      </button>
+      <p
+        role="alert"
+      >
+        Sem conexão.
+      </p>
+    </form>
+  </div>
+</body>
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/features/favorites/components/collection-name-form.test.tsx:10:16
+      8|   fireEvent.change(screen.getByLabelText('Nome da coleção'), { target:…
+      9|   fireEvent.click(screen.getByRole('button', { name: 'Criar coleção' }…
+     10|   await screen.findByRole('alert')
+       |                ^
+     11|   expect((screen.getByLabelText('Nome da coleção') as HTMLInputElement…
+     12|   fireEvent.click(screen.getByRole('button', { name: 'Criar coleção' }…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 53 passed (54)
+      Tests  1 failed | 181 passed (182)
+   Start at  12:04:13
+   Duration  12.01s (environment 52%, transform 19%, tests 15%, import 14%)
+
+Environment  jsdom was created 54 times · 36.08s total, 52% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+

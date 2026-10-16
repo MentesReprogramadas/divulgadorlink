@@ -50,3 +50,7 @@ Nova solicitação: fazer a próxima e parar ao acabar. F02 implementada na mesm
 ## Continuação limitada à F03 — 16/10/2026
 
 Solicitação posterior: fazer a próxima e parar. F03 concluída em `2672f834a3f2e34c6e7c794e0f9c31cfb57a885c`, com CI 38917846538 aprovado e evidências em [execução F03](execucao-f03.md). Esta autorização supera a parada após F02 somente para esta feature. Encerramento após F03; F04 não iniciada. Nenhum deploy, main ou envio real.
+
+## Continuação limitada ao ajuste F03 e à F04 — 16/10/2026
+
+Pedido posterior do usuário: sugestões aleatórias, depois próxima feature e parar. F03 ajustada em bbcd415; F04 implementada em 71e5a23, com correção de fronteira/privacidade em `1f283a46cfe0a71cea2afb2abde223cb6dd9eb43`. [CI 38923117928](https://github.com/MentesReprogramadas/divulgadorlink/actions/runs/38923117928) aprovado. Ver [execução F04](execucao-f04.md). Encerramento após F04; F09 não iniciada. Sem deploy, main ou envio real.

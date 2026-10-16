@@ -9,7 +9,7 @@ Uma proposta dentro de spec não altera regra de produto aprovada. Sem decisão,
 | F01 | D01 atribuição entre promoções sobrepostas e rateio do investimento por superfície; D02 cobertura e retenção. | F01-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
 | F02 | D03 RESOLVIDA: 3 dias, uma vez por promoção/vencimento, e-mail opt-in desligado por padrão; painel independente. | 16/10/2026; [execução F02](execucao-f02.md) |
 | F03 | D04 RESOLVIDA: seis por página, nicho+rede → nicho → rede, empates embaralhados por abertura com seed preservado no cursor (pedido posterior); RELATED analítica e sem posição paga nova. | 16/10/2026; [execução F03](execucao-f03.md) |
-| F04 | D05 permitir múltiplas coleções por favorito, limites e ordenação. | F04-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
+| F04 | D05 RESOLVIDA: múltiplas coleções privadas; nome 1–80, páginas de 20, sem quota comercial; posição/ID e troca Subir/Descer. | 16/10/2026; [execução F04](execucao-f04.md) |
 | F05 | D06 frequência, consentimento, retenção do histórico de resumo e regras de conteúdo restrito. | F05-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
 | F06 | D07 denúncia anônima ou autenticada, janela de deduplicação e retenção. | F06-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
 | F07 | D08 RESOLVIDA: pausa do tempo pago e retomada após aprovação; 360 min, limiar 3, backoff 30/60 min e host 60 s. | Decisão do usuário em 15/10/2026; implementação e limites em [execução F07](execucao-f07.md) |

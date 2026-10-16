@@ -1,0 +1,16 @@
+npm notice run divulgador-links-api@0.1.0 db:deploy
+npm notice run prisma migrate deploy
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": PostgreSQL database "divulgador", schema "public" at "127.0.0.1:5433"
+
+30 migrations found in prisma/migrations
+
+Applying migration `20261016140000_favorites_collections`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20261016140000_favorites_collections/
+    └─ migration.sql
+      
+All migrations have been successfully applied.
