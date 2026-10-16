@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Field, Input, Select, TextArea } from '@/components/ui/input'
 import { spreadFacets } from '@/domain/facets'
 import { trackMeta } from '@/domain/meta-pixel'
+import { trackGoogleAdsLinkSubmission } from '@/domain/google-ads'
 import { api } from '@/lib/api'
 import styles from '@/features/link-submission/components/submission-form.module.css'
 
@@ -146,6 +147,9 @@ export default function Page() {
       setPending(false)
       if (sent.status === 201) {
         if (sent.body.id) trackMeta('SubmitLink', sent.body.id)
+        if (sent.body.id && (sent.body.status === 'PENDING_MODERATION' || sent.body.status === 'PUBLISHED')) {
+          trackGoogleAdsLinkSubmission(sent.body.id)
+        }
         localStorage.removeItem(DRAFT_KEY)
         setResult(describeSubmission(sent.body.status))
         return

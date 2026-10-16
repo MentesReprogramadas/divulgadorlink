@@ -21,6 +21,6 @@ export default defineConfig({
     { name: 'setup', testMatch: /auth\.setup\.ts/ },
     { name: 'features', testMatch: /evolution-moderation\.spec\.ts/, dependencies: ['setup'], timeout: 120_000 },
     { name: 'features-mobile', testMatch: /evolution-moderation\.spec\.ts/, dependencies: ['setup'], timeout: 120_000, use: { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
-    { name: 'catalog', testMatch: /catalog\.spec\.ts|mail\.spec\.ts|advertise\.spec\.ts|legal\.spec\.ts|funnel\.spec\.ts|signup\.spec\.ts|submit-link\.spec\.ts|security-headers\.spec\.ts/, dependencies: ['setup'] },
+    { name: 'catalog', testMatch: /catalog\.spec\.ts|mail\.spec\.ts|advertise\.spec\.ts|legal\.spec\.ts|funnel\.spec\.ts|signup\.spec\.ts|submit-link\.spec\.ts|security-headers\.spec\.ts|google-ads-submission\.spec\.ts/, dependencies: ['setup'] },
   ],
 })
