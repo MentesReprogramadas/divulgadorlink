@@ -20,6 +20,8 @@ async function handle(request: Request, context: { params: Promise<{ path: strin
     body,
   })
   const headers = new Headers()
+  const cacheControl = result.headers['cache-control']
+  if (typeof cacheControl === 'string') headers.set('cache-control', cacheControl)
   const setCookie = result.headers['set-cookie']
   if (Array.isArray(setCookie)) setCookie.forEach((cookie) => headers.append('set-cookie', cookie))
   else if (typeof setCookie === 'string') headers.set('set-cookie', setCookie)

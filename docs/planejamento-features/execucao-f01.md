@@ -27,7 +27,7 @@ Ambiente: Windows, Node 24.21.0/npm 12.1.0; PostgreSQL pgvector16 e Redis7 locai
 | `f01-playwright.log`, `f01-playwright-retry.log` | Falha de seletor ambíguo entre alerta de negócio e anunciador do Next. Seletor passou a identificar a mensagem exata; servidor já negava corretamente. |
 | `f01-pg-first.log` e `f01-postgres-concurrency.log` | Fixtures tentavam criar duas promoções ativas/reservas simultâneas proibidas pelas constraints atuais. Corrigidas para sobreposição histórica e pedidos pagos com reservas liberadas; constraints preservadas. |
 
-S1: domínio foi validado em vermelho antes da implementação. Testes de componente foram escritos após a primeira composição; registrar essa diferença de sequência, sem apresentá-los como test-first. A validação de sensibilidade e a regressão final ficam registradas ao fechar a etapa.
+S1: domínio foi validado em vermelho antes da implementação. Testes de componente foram escritos após a primeira composição; registrar essa diferença de sequência, sem apresentá-los como test-first. A verificação controlada removeu temporariamente a apresentação, constatou 3 falhas de comportamento e 2 negativos passando, restaurou os bytes originais em finally e executou a regressão: 158 testes verdes. Evidência: `f01-component-sensitivity.log` e `f01-frontend-final.log`.
 
 ## QA e revisão visual
 
@@ -35,7 +35,11 @@ Referências e direção estão no diário contínuo. Chrome DevTools inspeciono
 
 Texto secundário medido em rgb(92,107,127) sobre branco: contraste 5,43:1. Foco de teclado observado com outline azul de 3px; controles possuem labels. Documento privado permanece `noindex, nofollow`. Revisão identificou densidade dos indicadores, nota longa em tabela e margem dos controles; ajustes feitos no CSS Module/composição. Não equivale a auditoria completa de acessibilidade.
 
-E2E exige filtros persistidos após reload, campanha sem cliques e CPC de R$1,00 com dez cliques, acesso negado real, recuperação de rede, teclado, fonte ampliada e 320px. A execução final e capturas devem ser registradas antes de concluir S6/S7.
+E2E: 54 testes da regressão completa aprovados (incluindo catálogo, pagamentos, sessão, consentimento, moderação e F42). Após ajuste final de cache/rede, os 7 testes de aceitação/setup passaram em desktop/mobile, sem skips. A falha de rede usa o modo offline real do navegador e atualização do relatório, com recuperação por teclado; nenhuma resposta interna é fabricada. Cabeçalho privado do BFF é verificado no navegador. Consentimento recusado antes das capturas para não encobrir o conteúdo. Fonte ampliada em 200% é uma verificação de texto/reflow, não um ensaio em aparelho físico.
+
+Capturas e resultados rastreáveis em [evidências F01](evidencias/F01/2026-10-15/resultados.json). A revisão de 320px identificou truncamento do ano nos campos de data lado a lado: nessa largura passam a uma coluna, com regressão específica de largura mínima. As tabelas mantêm rolagem horizontal local acessível, sem overflow da página.
+
+O CI do backend `ce895e4` passou em Node22: [run 38830161858](https://github.com/MentesReprogramadas/divulgadorlink/actions/runs/38830161858). CI do commit de frontend ainda pendente. A inicialização local do harness apresentou falha intermitente de processos shell no Windows; passou a executar Node/tsx/Next diretamente e reportar encerramento antes da prontidão, sem aumentar retries dos testes.
 
 ## Migração, rollout e reversão
 

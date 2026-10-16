@@ -2,7 +2,7 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 2.
 
-**Estado:** EM IMPLEMENTAÇÃO na branch `codex/roadmap-features`. Ver [execução F01](../execucao-f01.md).  
+**Estado:** EM IMPLEMENTAÇÃO na branch `codex/roadmap-features`. Ver [execução F01](../execucao-f01.md).
 **Onda:** 1. **Ordem:** 2.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Relatório de resultado do destaque”.  
 **Plano:** [F01 implementação](../planos/f01-resultado-destaque.md).  
@@ -118,11 +118,11 @@ Criar um teste com ID Tnn para cada AC, com o seguinte protocolo específico da 
 
 ## Arquivos de teste propostos
 
-- U: `backend/src/domain/analytics/resultado-destaque.spec.ts`.
-- C: `frontend/src/components/domain/resultado-destaque.test.tsx`.
-- I: `backend/src/http/resultado-destaque.http.spec.ts`.
-- PG: `backend/src/http/resultado-destaque.pg.spec.ts`; registrar no comando/CI de PG.
-- E: `frontend/e2e/resultado-destaque.spec.ts`; registrar no projeto features e features-mobile antes de executar.
+- U: `backend/src/domain/analytics/performance.spec.ts`.
+- C: `frontend/src/features/promotions/components/performance-report.test.tsx`.
+- I: `backend/src/http/promotion-performance.pg.spec.ts`.
+- PG: `backend/src/http/promotion-performance.pg.spec.ts`; registrar no comando/CI de PG.
+- E: `frontend/e2e/promotion-performance.spec.ts`; registrar no projeto features e features-mobile antes de executar.
 - Consumidores e novos caminhos sugeridos estão no plano; todos devem ser reconciliados com a árvore existente em S0.
 
 ## Decisões e condições de liberação

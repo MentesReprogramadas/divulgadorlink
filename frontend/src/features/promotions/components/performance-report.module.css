@@ -1,0 +1,25 @@
+.report { display: grid; gap: var(--space-6); min-width: 0; }
+.report h2, .report h3, .report p { margin: 0; }
+.report h2 { margin-block: var(--space-2); font-size: clamp(1.5rem, 3vw, 2rem); overflow-wrap: anywhere; }
+.eyebrow { color: var(--text-secondary); font-size: .875rem; font-weight: 600; }
+.filters { display: grid; grid-template-columns: 1fr 1fr 2fr auto; align-items: end; gap: var(--space-4); min-width: 0; }
+.filters > * { min-width: 0; }
+.filters input, .filters select { width: 100%; min-width: 0; margin-bottom: 0; }
+.note, .caption { color: var(--text-secondary); font-size: .875rem; line-height: 1.6; }
+.warning { padding: var(--space-4); border: 1px solid var(--border-default); border-left: 4px solid var(--text-secondary); background: var(--surface-raised); line-height: 1.6; }
+.metrics { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr)); border-block: 1px solid var(--border-default); }
+.metrics > div { padding: var(--space-6) var(--space-4); min-width: 0; }
+.metrics dt { font-size: .875rem; color: var(--text-secondary); }
+.metrics dd { margin: var(--space-2) 0; font-size: 1.65rem; font-weight: 650; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.metrics p { font-size: .8125rem; color: var(--text-secondary); }
+.section { display: grid; gap: var(--space-4); min-width: 0; }
+.tableWrap { overflow-x: auto; border: 1px solid var(--border-default); border-radius: var(--radius); }
+.tableWrap:focus-visible { outline: 2px solid var(--action-primary-bg); outline-offset: 3px; }
+.tableWrap table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+.tableWrap th, .tableWrap td { padding: var(--space-3) var(--space-4); text-align: right; white-space: nowrap; border-bottom: 1px solid var(--border-default); }
+.tableWrap th:first-child { text-align: left; }
+.tableWrap thead { background: var(--surface-raised); }
+.tableWrap tbody th { font-weight: 500; }
+.caption { text-align: left; padding: var(--space-4); caption-side: bottom; white-space: normal; }
+@media (max-width: 800px) { .filters { grid-template-columns: 1fr 1fr; } .filters > :nth-child(3), .filters > button { grid-column: 1 / -1; } }
+@media (max-width: 360px) { .filters { grid-template-columns: 1fr; } }

@@ -22,7 +22,8 @@ kwIDAQAB
 const children = []
 
 function start(args, cwd, env) {
-  const child = spawn(args[0], args.slice(1), { cwd, env, stdio: 'inherit', shell: true })
+  const child = spawn(args[0], args.slice(1), { cwd, env, stdio: 'inherit', shell: false })
+  child.once('error', error => console.error('E2E child failed to start:', args[1], error.message))
   children.push(child)
   return child
 }
@@ -150,8 +151,10 @@ const apiEnv = {
   E2E_LINK_PROBE: 'example.com',
 }
 
-start(['npx', 'tsx', 'src/server.ts'], backend, apiEnv)
-start(['npx', 'tsx', 'src/worker.ts'], backend, apiEnv)
+const tsx = path.join(backend, 'node_modules/tsx/dist/cli.mjs')
+const next = path.join(frontend, 'node_modules/next/dist/bin/next')
+start([process.execPath, tsx, 'src/server.ts'], backend, apiEnv)
+start([process.execPath, tsx, 'src/worker.ts'], backend, apiEnv)
 
 async function waitOk(url) {
   for (let attempt = 0; attempt < 60; attempt += 1) {
@@ -174,7 +177,7 @@ const webEnv = {
   API_ORIGIN: (e2eRuntime.apiOrigin),
   TENANT_HOST: '',
 }
-const build = spawnSync('npx', ['next', 'build'], { cwd: frontend, env: webEnv, stdio: 'inherit', shell: true })
+const build = spawnSync(process.execPath, [next, 'build'], { cwd: frontend, env: webEnv, stdio: 'inherit', shell: false })
 if (build.status !== 0) {
   for (const child of children) {
     if (child.pid) killTree(child.pid)
@@ -182,7 +185,7 @@ if (build.status !== 0) {
   stub.close()
   process.exit(1)
 }
-start(['npx', 'next', 'start', '--hostname', '0.0.0.0', '-p', String(e2eRuntime.webPort)], frontend, webEnv)
+start([process.execPath, next, 'start', '--hostname', '0.0.0.0', '-p', String(e2eRuntime.webPort)], frontend, webEnv)
 
 process.on('SIGTERM', shutdown)
 process.on('SIGINT', shutdown)

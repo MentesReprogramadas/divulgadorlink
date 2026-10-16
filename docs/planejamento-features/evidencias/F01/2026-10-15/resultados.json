@@ -1,0 +1,101 @@
+{
+  "feature": "F01",
+  "date": "2026-10-15",
+  "backendCommit": "ce895e4",
+  "branch": "codex/roadmap-features",
+  "ciBackend": "https://github.com/MentesReprogramadas/divulgadorlink/actions/runs/38830161858",
+  "local": {
+    "backendUnit": 367,
+    "backendPgFullBeforeAdditionalCases": 59,
+    "backendPgFeatureFinal": 10,
+    "frontendUnitFinal": 158,
+    "e2eFullBeforeFinalCacheAndOfflineAdjustment": 54,
+    "e2eAcceptanceFinal": {
+      "startTime": "2026-10-16T00:39:15.015Z",
+      "duration": 41159.753,
+      "expected": 7,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "e2eNarrowAndOfflineFinal": {
+      "startTime": "2026-10-16T00:42:42.525Z",
+      "duration": 38897.01,
+      "expected": 3,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    }
+  },
+  "tests": [
+    {
+      "title": "sessão da Bia para os testes do painel",
+      "project": "setup",
+      "status": "passed"
+    },
+    {
+      "title": "F01-E01/T03/T05 campanha sem cliques, CPC real e filtros persistentes",
+      "project": "features",
+      "status": "passed"
+    },
+    {
+      "title": "F01-E02/T01 nega outro dono e exige sessão sem revelar dados",
+      "project": "features",
+      "status": "passed"
+    },
+    {
+      "title": "F01-E03 recuperação de rede, teclado, zoom e 320px",
+      "project": "features",
+      "status": "passed"
+    },
+    {
+      "title": "F01-E01/T03/T05 campanha sem cliques, CPC real e filtros persistentes",
+      "project": "features-mobile",
+      "status": "passed"
+    },
+    {
+      "title": "F01-E02/T01 nega outro dono e exige sessão sem revelar dados",
+      "project": "features-mobile",
+      "status": "passed"
+    },
+    {
+      "title": "F01-E03 recuperação de rede, teclado, zoom e 320px",
+      "project": "features-mobile",
+      "status": "passed"
+    }
+  ],
+  "screenshots": [
+    "desktop-performance-320.png",
+    "desktop-performance-zoom.png",
+    "mobile-performance-320.png",
+    "mobile-performance-zoom.png",
+    "desktop-performance.png",
+    "mobile-performance.png"
+  ],
+  "logs": [
+    {
+      "path": "f01-unit-red.log",
+      "sha256": "978fdf777738738e84c2dcd4394a8b08102891814365db126905417aa8e1473d"
+    },
+    {
+      "path": "f01-component-sensitivity.log",
+      "sha256": "eebaaed4e96a708b25fa5f2943070544702a58e0c2c356a9c274d541fc72dfe9"
+    },
+    {
+      "path": "f01-cache-red.log",
+      "sha256": "766fee144bd5183a9f292c76b64a5feb7846a8d125870caa63750a92ac6f13e8"
+    },
+    {
+      "path": "f01-migration-proof.log",
+      "sha256": "45ac48ca99645e11ee318670de9b4ef51dd61e51499fa110bd15cfc87a055f4a"
+    },
+    {
+      "path": "f01-postgres-concurrency-final.log",
+      "sha256": "d1f648a248a26dc0057245f8a10d2bba9eb67efb2f1dfe89dcfbbe809e4d9d41"
+    },
+    {
+      "path": "f01-playwright-qa.log",
+      "sha256": "ea386266ced3e5d08ed19f2e99c90e1fb6672e379ae949d6e0d6844e6aff7651"
+    }
+  ]
+}

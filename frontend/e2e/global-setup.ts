@@ -70,17 +70,21 @@ export default async function globalSetup(): Promise<void> {
     const runtime = path.join(frontend, 'e2e', '.runtime')
     mkdirSync(runtime, { recursive: true })
     const log = openSync(path.join(runtime, 'server.log'), 'w')
-    const child = spawn('node', ['e2e/serve.mjs'], {
+    const child = spawn(process.execPath, ['e2e/serve.mjs'], {
       cwd: frontend,
       detached: true,
       stdio: ['ignore', log, log],
-      shell: true,
+      shell: false,
     })
     closeSync(log)
     if (!child.pid) throw new Error('não subiu o servidor do E2E')
+    let startupError: Error | null = null
+    child.once('error', error => { startupError = error })
+    child.once('exit', code => { startupError = new Error('Servidor E2E encerrou antes de ficar pronto: ' + code + '. Consulte .runtime/server.log.') })
     writeFileSync(path.join(__dirname, 'serve.pid'), String(child.pid))
     child.unref()
     for (let attempt = 0; attempt < 240; attempt += 1) {
+      if (startupError) throw startupError
       try {
         const response = await fetch((e2eRuntime.web('127.0.0.1') + '/login'), { signal: AbortSignal.timeout(5_000) })
         if (response.status < 500) return

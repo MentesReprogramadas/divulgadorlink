@@ -61,13 +61,13 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 | Etapa | Estado | Pré-requisito imediato | Entregável a verificar |
 | --- | --- | --- | --- |
 | F01-S0 | CONCLUÍDA | F42 (prioridade), G00 | [Escopo contratos e reuso](planos/f01-resultado-destaque.md#f01-s0-escopo-contratos-e-revisão-de-reutilização) |
-| F01-S1 | EM REVISÃO | F01-S0 | CONCLUÍDA |
-| F01-S2 | CONCLUÍDA | F01-S1 | EM REVISÃO |
+| F01-S1 | CONCLUÍDA | F01-S0 | CONCLUÍDA |
+| F01-S2 | CONCLUÍDA | F01-S1 | CONCLUÍDA |
 | F01-S3 | CONCLUÍDA | F01-S2 | CONCLUÍDA |
-| F01-S4 | EM REVISÃO | F01-S3 | CONCLUÍDA |
-| F01-S5 | CONCLUÍDA | F01-S4 | EM REVISÃO |
-| F01-S6 | EM ANDAMENTO | F01-S5 | CONCLUÍDA |
-| F01-S7 | NÃO INICIADA | F01-S6 | EM ANDAMENTO |
+| F01-S4 | CONCLUÍDA | F01-S3 | CONCLUÍDA |
+| F01-S5 | CONCLUÍDA | F01-S4 | CONCLUÍDA |
+| F01-S6 | CONCLUÍDA | F01-S5 | CONCLUÍDA |
+| F01-S7 | EM REVISÃO | F01-S6 | CONCLUÍDA |
 
 ### 3 F06 Denunciar um link
 
