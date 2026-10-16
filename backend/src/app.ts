@@ -1,4 +1,5 @@
 import { favoritesRoutes } from '@/http/controllers/@Collections/routes'
+import { profilesRoutes } from '@/http/controllers/@Profiles/routes'
 import { relatedLinksRoutes } from '@/http/controllers/@Catalog/related-links'
 import { renewalReminderRoutes } from '@/http/controllers/@Notifications/renewal-reminders'
 import { randomUUID, timingSafeEqual } from 'node:crypto'
@@ -115,6 +116,7 @@ app.register(
     await instance.register(catalogRoutes)
     await instance.register(relatedLinksRoutes)
     await instance.register(favoritesRoutes)
+    await instance.register(profilesRoutes)
     await instance.register(analyticsRoutes)
     await instance.register(paymentRoutes)
     await instance.register(paymentWebhookRoutes)

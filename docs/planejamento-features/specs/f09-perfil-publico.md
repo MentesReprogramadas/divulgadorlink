@@ -2,9 +2,25 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 8.
 
-**Estado:** INICIADA; S0 aguarda D10 sobre moderação de URLs próprias. Feature não concluída.
+**Estado:** EM VALIDAÇÃO. D10 resolvida pelo usuário; implementação na branch, fechamento e CI pendentes.
 
-Registro atual: [execução F09](../execucao-f09.md). Preparação isolada de U01/U02, sem API, persistência ou interface; nenhum AC aceito. Os critérios e cenários abaixo permanecem vinculantes.
+Registro atual: [execução F09](../execucao-f09.md). Os critérios e cenários abaixo permanecem vinculantes. A seção de reconciliação registra os contratos implementados; o fechamento exige evidências de todos os gates.
+
+## Reconciliação de execução e D10 — 16/10/2026
+
+O usuário escolheu: **“Validação automática; bloquear conteúdo suspeito e manter rascunho para correção”**. Não há revisão humana de perfil nesta feature nem aprovação automática de entrada no catálogo por consequência da publicação do perfil.
+
+Slug é único por tenant, 3–40 caracteres ASCII, com normalização de caixa/espaços externos e recusa de nomes reservados. Enquanto publicado, precisa retirar do ar antes de mudar o endereço; isso preserva a identidade do snapshot público durante edição do rascunho. Retirada incrementa a versão, impedindo republicação por uma requisição antiga. Sem histórico de revisões restauráveis, que permanece em F19.
+
+PATCH `/api/v1/me/profile` recebe `{expectedVersion,content}`; content reúne identidade, `requiresAge`, `primaryItemId`, categorias e itens ordenados por arrays. CRUD e reordenação dos grupos/itens são uma gravação atômica do agregado, substituindo a proposta de endpoints independentes para evitar estados intermediários e múltiplas versões de uma mesma edição. GET privado retorna `{draft,publishedVersion}`; POST `/me/profile/publish` e `/me/profile/unpublish` recebem expectedVersion; GET `/me/profile/preview` usa a mesma projeção pública e renderer; GET `/profiles/:slug` não exige sessão. Erros mantêm envelope e CSRF existente. API privada não recebe owner/tenant por corpo nem dá bypass ao admin.
+
+Profile, ProfileCategory e ProfileItem são tabelas novas; a publicação é uma única projeção JSON allowlist em Profile. Referências CATALOG exigem link próprio do mesmo tenant e publicado na publicação; URL/SOCIAL usam HTTPS público validado e normalizado, listas de bloqueio e probe com DNS/redirecionamento seguro. O adapter existente de moderação ganhou uma instrução específica de perfil, conservando a instrução original do catálogo; usa o limiar MODERATION_AUTO_APPROVE_THRESHOLD. Veredito suspeito/baixa confiança bloqueia com 422; falta de configuração, timeout, erro ou resultado inconclusivo bloqueia com 503; rascunho e publicação anterior são preservados. A revisão valida também campos/itens ocultos do rascunho antes de publicar. Não se promete inspeção completa do conteúdo remoto ou segurança futura de um destino que pode mudar.
+
+Fotos passam por porta de mídia com adapter PostgreSQL existente, sem provedor novo. Browser aceita PNG/JPG/WebP até 5 MiB, normaliza/redimensiona e envia somente PNG; servidor valida assinatura, CRC, estrutura, dimensões (até 512 px), inflate limitado, filtros e até 256 KiB, reencodando sem metadados. Assets são isolados por dono/tenant e o endpoint público serve apenas a foto do snapshot vigente, respeitando idade/suspensão. Não há classificação semântica de imagem por IA nesta entrega. Fotos anteriores sem referência no rascunho/publicação são removidas; um upload recente ainda não salvo é mantido até a próxima limpeza. Limites de engenharia do agregado: 100 grupos, 500 itens, nome 80, bio 500, rótulo 100, URL 2048, além do body limit existente de 1 MiB; não são quotas de catálogo ou benefícios pagos.
+
+Público exige dono ativo; referências de catálogo são revalidadas em cada leitura. Idade considera perfil, nicho ou rede de referências visíveis. Antes do aceite, API/SSR entregam apenas o estado restrito, sem nome, bio, foto ou itens. Respostas usam no-store. Canonical e SSR próprios; noindex no MVP, sem inclusão no sitemap ou ranking de descoberta (F24). Eventos de catálogo/go, consentimento e atribuição ficam preservados; métricas específicas de perfil/cliques não são inventadas, permanecendo para F31.
+
+Caminhos finais: backend `domain/profiles`, `repositories/profiles-repository.ts`, `repositories/profile-media.ts`, `use-cases/@Profiles/validate-profile.ts`, `http/controllers/@Profiles/routes.ts`, `http/profiles.pg.spec.ts`; frontend `features/profiles`, `app/painel/perfil`, `app/p/[slug]`, `e2e/profiles.spec.ts`. HTTP/I/PG são provados no mesmo arquivo com Fastify e PostgreSQL reais, sem repository em memória. U04/U05 contam também com prova PG de ausência de criação de catálogo/facetas. Testes novos estão registrados em test:pg e nos dois projetos Playwright.
 **Onda:** 2. **Ordem:** 8.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Perfil público com categorias próprias”.  
 **Plano:** [F09 implementação](../planos/f09-perfil-publico.md).  

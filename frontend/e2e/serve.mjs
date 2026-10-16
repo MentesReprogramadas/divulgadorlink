@@ -55,6 +55,11 @@ const stub = createServer((req, res) => {
   req.on('end', () => {
     const raw = Buffer.concat(chunks).toString()
     res.setHeader('content-type', 'application/json')
+    if (req.method === 'POST' && req.url === '/profile-validation') {
+      const text = JSON.parse(raw)
+      if (String(text.description).includes('FalhaProvedorFixture')) { res.statusCode = 503; res.end('{}'); return }
+      res.end(JSON.stringify({ pass: !String(text.description).includes('SuspeitoFixture'), confidence: 0.99, reasons: [] })); return
+    }
     if (req.method === 'GET' && req.url.startsWith('/related-destination?')) {
       res.setHeader('content-type', 'text/html; charset=utf-8'); res.end('<h1>Destino externo fixture</h1>'); return
     }
@@ -173,6 +178,7 @@ const apiEnv = {
   E2E_RELATED_SEED: '00000000000000000000000000000000',
   E2E_LINK_PROBE: 'example.com,t.me',
   E2E_AVAILABILITY_STUB_URL: e2eRuntime.stubOrigin,
+  E2E_PROFILE_STUB_URL: e2eRuntime.stubOrigin,
   AVAILABILITY_ENABLED: '1',
   RENEWAL_REMINDERS_ENABLED: '1',
   E2E_RENEWAL_MAIL_URL: e2eRuntime.stubOrigin + '/renewal-mail',

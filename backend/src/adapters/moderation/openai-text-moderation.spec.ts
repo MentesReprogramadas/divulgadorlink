@@ -13,6 +13,19 @@ function chat(content: string, status = 200): typeof fetch {
 }
 
 describe('moderação de texto por modelo', () => {
+  it('F09 reutiliza transporte e contrato com instrução de perfil, preservando a instrução do catálogo', async () => {
+    const instructions: string[] = []
+    const fetchImpl = (async (_url: unknown, init?: RequestInit) => {
+      const body = JSON.parse(String(init?.body)) as { messages: Array<{ content: string }> }
+      instructions.push(body.messages[0].content)
+      return new Response(JSON.stringify({ choices: [{ message: { content: '{"pass":true,"confidence":0.95,"reasons":[]}' } }] }))
+    }) as typeof fetch
+    const adapter = new OpenAiTextModeration('fixture', fetchImpl)
+    expect(await adapter.judgeProfile({ name: 'Ana', description: 'Projetos pessoais' })).toMatchObject({ pass: true })
+    await adapter.judge(TEXT)
+    expect(instructions[0]).toContain('categorias pessoais')
+    expect(instructions[1]).toContain('link de grupo combinam com o nicho')
+  })
   it('parseVerdict aceita só o contrato e rejeita confiança fora de 0..1', () => {
     expect(parseVerdict('{"pass":true,"confidence":0.9,"reasons":["ok",1]}')).toEqual({ pass: true, confidence: 0.9, reasons: ['ok'] })
     expect(parseVerdict('{"pass":"sim","confidence":0.9}')).toBeNull()

@@ -1,5 +1,21 @@
 const RESERVED_SLUGS = new Set(['admin', 'api', 'painel', 'login', 'cadastro', 'suporte', 'temlinkaqui'])
 
+export class ProfileError extends Error {
+  constructor(public readonly status: number, message: string) { super(message) }
+}
+export type ProfileContent = {
+  slug: string; name: string; bio: string; avatarAssetId: string | null; requiresAge: boolean; primaryItemId: string | null
+  categories: Array<{ id: string; name: string; visible: boolean }>
+  items: Array<{ id: string; categoryId: string; type: 'URL' | 'CATALOG' | 'SOCIAL'; label: string; destination: string; visible: boolean }>
+}
+export function visibleProfile(content: ProfileContent, eligibleCatalog: ReadonlySet<string>): ProfileContent {
+  const categories = content.categories.filter(c => c.visible).map(c => ({ id: c.id, name: c.name, visible: true }))
+  const groups = new Set(categories.map(c => c.id))
+  const items = content.items.filter(i => i.visible && groups.has(i.categoryId) && (i.type !== 'CATALOG' || eligibleCatalog.has(i.destination)))
+    .map(i => ({ id: i.id, categoryId: i.categoryId, type: i.type, label: i.label, destination: i.destination, visible: true }))
+  return { slug: content.slug, name: content.name, bio: content.bio, avatarAssetId: content.avatarAssetId, requiresAge: content.requiresAge, primaryItemId: items.some(i => i.id === content.primaryItemId) ? content.primaryItemId : null, categories, items }
+}
+
 /** Identity within the originating tenant; uniqueness must also be enforced by PostgreSQL. */
 export function profileSlug(input: string): string {
   const slug = input.trim().toLowerCase()
@@ -7,13 +23,4 @@ export function profileSlug(input: string): string {
     throw new Error('Use um endereço de 3 a 40 letras sem acentos, números ou hífens, sem nome reservado.')
   }
   return slug
-}
-
-/** A reorder cannot add, remove or duplicate identities. The caller owns membership authorization. */
-export function orderIds(current: readonly string[], requested: readonly string[]): string[] {
-  const members = new Set(current)
-  if (members.size !== current.length || requested.length !== current.length || new Set(requested).size !== requested.length || requested.some(id => !members.has(id))) {
-    throw new Error('A ordem precisa conter cada item atual exatamente uma vez.')
-  }
-  return [...requested]
 }
