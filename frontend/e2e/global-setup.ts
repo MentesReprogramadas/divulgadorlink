@@ -1,13 +1,14 @@
+import { runtime as e2eRuntime } from './runtime.cjs'
 import { spawn, spawnSync } from 'node:child_process'
 import { closeSync, existsSync, mkdirSync, openSync, readFileSync, writeFileSync } from 'node:fs'
 import { connect } from 'node:net'
 import path from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 
-const PG = 'divulgador-e2e-pg'
-const REDIS = 'divulgador-e2e-redis'
+const PG = e2eRuntime.pgContainer
+const REDIS = e2eRuntime.redisContainer
 const backend = path.join(__dirname, '../../backend')
-const databaseUrl = 'postgresql://divulgador:divulgador@127.0.0.1:5433/divulgador?schema=public'
+const databaseUrl = e2eRuntime.databaseUrl
 
 function run(command: string, args: string[], cwd = backend): void {
   const result = spawnSync(command, args, {
@@ -32,7 +33,7 @@ function listening(port: number): Promise<boolean> {
 
 async function assertPortsFree(): Promise<void> {
   const busy: number[] = []
-  for (const port of [3000, 3333, 4099]) {
+  for (const port of [e2eRuntime.webPort, e2eRuntime.apiPort, e2eRuntime.stubPort]) {
     if (await listening(port)) busy.push(port)
   }
   if (busy.length === 0) return
@@ -53,10 +54,10 @@ export default async function globalSetup(): Promise<void> {
     '-e', 'POSTGRES_PASSWORD=divulgador',
     '-e', 'POSTGRES_USER=divulgador',
     '-e', 'POSTGRES_DB=divulgador',
-    '-p', '5433:5432',
+    '-p', String(e2eRuntime.pgPort) + ':5432',
     'pgvector/pgvector:pg16',
   ])
-  run('docker', ['run', '-d', '--name', REDIS, '-p', '6380:6379', 'redis:7'])
+  run('docker', ['run', '-d', '--name', REDIS, '-p', String(e2eRuntime.redisPort) + ':6379', 'redis:7'])
   for (let attempt = 0; attempt < 40; attempt += 1) {
     const ready = spawnSync('docker', ['exec', PG, 'pg_isready', '-U', 'divulgador'], { stdio: 'ignore', shell: true })
     if (ready.status === 0) break
@@ -81,7 +82,7 @@ export default async function globalSetup(): Promise<void> {
     child.unref()
     for (let attempt = 0; attempt < 240; attempt += 1) {
       try {
-        const response = await fetch('http://127.0.0.1:3000/login', { signal: AbortSignal.timeout(5_000) })
+        const response = await fetch((e2eRuntime.web('127.0.0.1') + '/login'), { signal: AbortSignal.timeout(5_000) })
         if (response.status < 500) return
       } catch {
         // o Next ainda não escuta

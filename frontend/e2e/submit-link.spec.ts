@@ -1,8 +1,9 @@
+import { runtime as e2eRuntime } from './runtime.cjs'
 import { expect, test } from '@playwright/test'
 import path from 'node:path'
 import { readFileSync } from 'node:fs'
 
-const A = 'http://tenant-a.localhost:3000'
+const A = (e2eRuntime.web('tenant-a.localhost'))
 
 const state = JSON.parse(readFileSync(path.join(__dirname, 'state.json'), 'utf8')) as { submitter: string; password: string }
 test.beforeEach(async ({ page }) => {

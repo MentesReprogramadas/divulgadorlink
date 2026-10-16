@@ -1,6 +1,7 @@
+import { runtime as e2eRuntime } from './runtime.cjs'
 import { expect, test } from '@playwright/test'
 
-const A = 'http://tenant-a.localhost:3000'
+const A = (e2eRuntime.web('tenant-a.localhost'))
 
 test('cadastro aponta para privacidade e termos', async ({ page }) => {
   await page.goto(`${A}/cadastro`)

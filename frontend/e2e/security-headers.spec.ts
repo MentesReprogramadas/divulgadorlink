@@ -1,7 +1,8 @@
+import { runtime as e2eRuntime } from './runtime.cjs'
 import { expect, test } from '@playwright/test'
 
 test('a home manda os headers e não anuncia o Next', async ({ page }) => {
-  const response = await page.goto('http://tenant-a.localhost:3000/')
+  const response = await page.goto((e2eRuntime.web('tenant-a.localhost') + '/'))
   const headers = response?.headers() ?? {}
   expect(headers['strict-transport-security']).toContain('max-age=31536000')
   expect(headers['referrer-policy']).toBe('strict-origin-when-cross-origin')

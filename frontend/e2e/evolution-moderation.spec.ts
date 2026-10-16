@@ -1,3 +1,4 @@
+import { runtime as e2eRuntime } from './runtime.cjs'
 import { createHmac, randomUUID } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
@@ -5,9 +6,9 @@ import { expect, test, type Page, type APIRequestContext } from '@playwright/tes
 import { Queue, QueueEvents } from '../../backend/node_modules/bullmq'
 import { sql } from './db'
 
-const A = 'http://evolution.localhost:3000'
+const A = (e2eRuntime.web('evolution.localhost'))
 const state = JSON.parse(readFileSync(path.join(__dirname, 'state.json'), 'utf8')).evolution as { tenantA: string; admin: string; bia: string; eva: string; password: string; receitas: string }
-const hook = 'http://127.0.0.1:3333/api/v1/integrations/evolution/webhook'
+const hook = (e2eRuntime.apiOrigin + '/api/v1/integrations/evolution/webhook')
 function legacyReference(text: string) {
   const id = /Revisão: (\S+)/.exec(text)![1]!
   return `${id}.${createHmac('sha256', 'fixture-webhook-secret').update(`evolution.action.v1:${id}`).digest('base64url')}`
@@ -21,7 +22,7 @@ async function login(page: Page, email = state.admin) {
   await expect(page.getByRole('heading', { name: 'Painel' })).toBeVisible()
 }
 async function cycle() {
-  const connection = { host: '127.0.0.1', port: 6380 }
+  const connection = { host: '127.0.0.1', port: e2eRuntime.redisPort }
   const queue = new Queue('divulgador-evolution', { connection })
   const events = new QueueEvents('divulgador-evolution', { connection })
   try {
@@ -38,7 +39,7 @@ async function fixture(request: APIRequestContext, prefix: string) {
   await cycle()
   sql(`UPDATE operational_messages SET "nextAttemptAt"=NOW() WHERE "tenantId"='${state.tenantA}' AND state IN ('PENDING','RETRY')`)
   await cycle()
-  const messages = await (await request.get('http://127.0.0.1:4099/evolution/messages')).json() as { text: string; number: string }[]
+  const messages = await (await request.get((e2eRuntime.stubOrigin + '/evolution/messages'))).json() as { text: string; number: string }[]
   const message = messages.findLast(m => m.text.includes(name))
   expect(message?.number).toBe('fixture@g.us')
   expect(message!.text).toContain('\n\n*Usuário*\n')
@@ -61,7 +62,7 @@ async function reviewReference(request: APIRequestContext, name: string) {
   await cycle()
   sql(`UPDATE operational_messages SET "nextAttemptAt"=NOW() WHERE "tenantId"='${state.tenantA}' AND state IN ('PENDING','RETRY')`)
   await cycle()
-  const messages = await (await request.get('http://127.0.0.1:4099/evolution/messages')).json() as { text: string }[]
+  const messages = await (await request.get((e2eRuntime.stubOrigin + '/evolution/messages'))).json() as { text: string }[]
   const message = messages.findLast(m => m.text.includes(name) && m.text.includes('Responda:'))
   expect(message).toBeTruthy()
   return legacyReference(message!.text)
@@ -90,14 +91,14 @@ test('F42-E10 respostas normalizadas pela Evolution escolhem a citação exata e
   await reply('RECUSAR', second.providerId)
   await cycle()
   expect(sql(`SELECT status FROM links WHERE id='${second.id}'`)).toBe('PENDING_MODERATION')
-  const guidance = await (await request.get('http://127.0.0.1:4099/evolution/messages')).json() as { text: string }[]
+  const guidance = await (await request.get((e2eRuntime.stubOrigin + '/evolution/messages'))).json() as { text: string }[]
   expect(guidance.some(m => m.text.includes(second.name) && m.text.includes('RECUSAR e o motivo'))).toBe(true)
   await reply('RECUSAR Fora do tema', second.providerId)
   await reply('RECUSAR Resposta atrasada', first.providerId)
   await cycle()
   expect(sql(`SELECT status FROM links WHERE id='${second.id}'`)).toBe('PRE_REJECTED')
   expect(sql(`SELECT status FROM links WHERE id='${first.id}'`)).toBe('PUBLISHED')
-  const messages = await (await request.get('http://127.0.0.1:4099/evolution/messages')).json() as { text: string }[]
+  const messages = await (await request.get((e2eRuntime.stubOrigin + '/evolution/messages'))).json() as { text: string }[]
   expect(messages.some(m => m.text.includes(first.name) && m.text.includes('A decisão anterior foi mantida'))).toBe(true)
   expect(sql(`SELECT count(*) FROM audit_logs WHERE action='moderation.decide' AND "entityId" IN ('${first.caseId}','${second.caseId}')`)).toBe('2')
 })
@@ -240,7 +241,7 @@ test('F42-E07 webhook forjado, grupo errado e operador não autorizado não deci
 test('F42-E04 Evolution indisponível não impede a decisão no painel', async ({ page, request }) => {
   const id = `e2e-f42-off-${randomUUID()}`
   await login(page)
-  await request.post('http://127.0.0.1:4099/evolution/failure', { data: { enabled: true } })
+  await request.post((e2eRuntime.stubOrigin + '/evolution/failure'), { data: { enabled: true } })
   try {
     sql(`INSERT INTO links (id,"tenantId","ownerId","canonicalUrl",name,description,"networkId","nicheId",status,"updatedAt") SELECT '${id}',"tenantId","ownerId",'https://example.com/${id}','F42 indisponível ${id}','Revisão',"networkId","nicheId",'PENDING_MODERATION',NOW() FROM links WHERE id='${state.receitas}'`)
     sql(`INSERT INTO moderation_cases (id,"tenantId","linkId","updatedAt") VALUES ('case-${id}','${state.tenantA}','${id}',NOW())`)
@@ -253,15 +254,15 @@ test('F42-E04 Evolution indisponível não impede a decisão no painel', async (
     await card.getByRole('button', { name: 'Aprovar' }).click()
     await expect(card).toHaveCount(0)
     expect(sql(`SELECT status FROM links WHERE id='${id}'`)).toBe('PUBLISHED')
-  } finally { await request.post('http://127.0.0.1:4099/evolution/failure', { data: { enabled: false } }) }
+  } finally { await request.post((e2eRuntime.stubOrigin + '/evolution/failure'), { data: { enabled: false } }) }
 })
 
 test('F42-E09 envio bloqueado no provedor não ocupa a fila de pagamentos', async ({ request }) => {
   const row = await fixture(request, 'Canal lento')
   sql(`UPDATE operational_messages SET state='PENDING',"nextAttemptAt"=NOW() WHERE "resourceId"='${row.caseId}'`)
-  await request.post('http://127.0.0.1:4099/evolution/gate', { data: { enabled: true } })
+  await request.post((e2eRuntime.stubOrigin + '/evolution/gate'), { data: { enabled: true } })
   const blocked = cycle()
-  const connection = { host: '127.0.0.1', port: 6380 }
+  const connection = { host: '127.0.0.1', port: e2eRuntime.redisPort }
   const queue = new Queue('divulgador-links', { connection })
   const events = new QueueEvents('divulgador-links', { connection })
   try {
@@ -271,7 +272,7 @@ test('F42-E09 envio bloqueado no provedor não ocupa a fila de pagamentos', asyn
     await job.waitUntilFinished(events, 5_000)
     expect(sql(`SELECT state FROM operational_messages WHERE "resourceId"='${row.caseId}'`)).toBe('PROCESSING')
   } finally {
-    await request.post('http://127.0.0.1:4099/evolution/gate', { data: { enabled: false } })
+    await request.post((e2eRuntime.stubOrigin + '/evolution/gate'), { data: { enabled: false } })
     await blocked
     await events.close(); await queue.close()
   }

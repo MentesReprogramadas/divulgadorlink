@@ -1,3 +1,4 @@
+import { runtime as e2eRuntime } from './runtime.cjs'
 import { createSign, generateKeyPairSync } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
@@ -5,8 +6,8 @@ import { expect, test, type Browser, type Page } from '@playwright/test'
 import { signWooviTestBody } from '../../backend/src/adapters/payments/woovi-test-signing'
 import { getRaw, postRaw, promoteJob, redisScan, sql } from './db'
 
-const A = 'http://tenant-a.localhost:3000'
-const B = 'http://tenant-b.localhost:3000'
+const A = (e2eRuntime.web('tenant-a.localhost'))
+const B = (e2eRuntime.web('tenant-b.localhost'))
 const state = JSON.parse(readFileSync(path.join(__dirname, 'state.json'), 'utf8')) as {
   receitas: string
   off: string

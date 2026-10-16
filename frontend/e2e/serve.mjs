@@ -1,3 +1,4 @@
+import { runtime as e2eRuntime } from './runtime.cjs'
 import { spawn, spawnSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import { createServer } from 'node:http'
@@ -112,11 +113,11 @@ stub.on('error', (error) => {
   console.error(`stub Woovi não subiu: ${error.message}`)
   process.exit(1)
 })
-stub.listen(4099, '127.0.0.1')
+stub.listen(e2eRuntime.stubPort, '127.0.0.1')
 
 const stateFile = path.join(here, 'state.json')
 for (let attempt = 0; attempt < 90; attempt += 1) {
-  const ready = spawnSync('docker', ['exec', 'divulgador-e2e-pg', 'pg_isready', '-U', 'divulgador'], { stdio: 'ignore', shell: true })
+  const ready = spawnSync('docker', ['exec', e2eRuntime.pgContainer, 'pg_isready', '-U', 'divulgador'], { stdio: 'ignore', shell: true })
   if (ready.status === 0 && existsSync(stateFile)) break
   if (attempt === 89) throw new Error('PostgreSQL do E2E não ficou pronto antes da API')
   await delay(1000)
@@ -125,13 +126,13 @@ for (let attempt = 0; attempt < 90; attempt += 1) {
 const apiEnv = {
   ...process.env,
   NODE_ENV: 'dev',
-  PORT: '3333',
+  PORT: String(e2eRuntime.apiPort),
   HOST: '0.0.0.0',
-  DATABASE_URL: 'postgresql://divulgador:divulgador@127.0.0.1:5433/divulgador?schema=public',
-  REDIS_URL: 'redis://127.0.0.1:6380',
+  DATABASE_URL: e2eRuntime.databaseUrl,
+  REDIS_URL: e2eRuntime.redisUrl,
   JWT_SECRET: 'e2e-jwt-secret-min-16',
   WOOVI_APP_ID: 'e2e-app',
-  WOOVI_API_BASE_URL: 'http://127.0.0.1:4099',
+  WOOVI_API_BASE_URL: (e2eRuntime.stubOrigin),
   WOOVI_WEBHOOK_PUBLIC_KEY: publicKey,
   OPENAI_API_KEY: '',
   HDX_API_KEY: '',
@@ -140,7 +141,7 @@ const apiEnv = {
   TENANT_HOST: 'evolution.localhost',
   EVOLUTION_ENABLED: '1',
   EVOLUTION_ACTIONS_ENABLED: '1',
-  EVOLUTION_BASE_URL: 'http://127.0.0.1:4099',
+  EVOLUTION_BASE_URL: (e2eRuntime.stubOrigin),
   EVOLUTION_INSTANCE_NAME: 'E2E Bot',
   EVOLUTION_API_KEY: 'fixture-api-key',
   EVOLUTION_GROUP_JID: 'fixture@g.us',
@@ -165,12 +166,12 @@ async function waitOk(url) {
   throw new Error(`${url} não ficou pronto`)
 }
 
-await waitOk('http://127.0.0.1:3333/api/v1/actuator/live')
+await waitOk((e2eRuntime.apiOrigin + '/api/v1/actuator/live'))
 
 const webEnv = {
   ...process.env,
   NODE_ENV: 'production',
-  API_ORIGIN: 'http://127.0.0.1:3333',
+  API_ORIGIN: (e2eRuntime.apiOrigin),
   TENANT_HOST: '',
 }
 const build = spawnSync('npx', ['next', 'build'], { cwd: frontend, env: webEnv, stdio: 'inherit', shell: true })
@@ -181,7 +182,7 @@ if (build.status !== 0) {
   stub.close()
   process.exit(1)
 }
-start(['npx', 'next', 'start', '--hostname', '0.0.0.0', '-p', '3000'], frontend, webEnv)
+start(['npx', 'next', 'start', '--hostname', '0.0.0.0', '-p', String(e2eRuntime.webPort)], frontend, webEnv)
 
 process.on('SIGTERM', shutdown)
 process.on('SIGINT', shutdown)

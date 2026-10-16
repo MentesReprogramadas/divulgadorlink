@@ -1,9 +1,10 @@
+import { runtime as e2eRuntime } from './runtime.cjs'
 import { expect, test, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { sql } from './db'
 
-const A = 'http://tenant-a.localhost:3000'
+const A = (e2eRuntime.web('tenant-a.localhost'))
 const state = JSON.parse(readFileSync(path.join(__dirname, 'state.json'), 'utf8')) as {
   tenantA: string
   password: string

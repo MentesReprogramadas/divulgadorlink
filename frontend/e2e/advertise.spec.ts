@@ -1,6 +1,7 @@
+import { runtime as e2eRuntime } from './runtime.cjs'
 import { expect, test } from '@playwright/test'
 
-const A = 'http://tenant-a.localhost:3000'
+const A = (e2eRuntime.web('tenant-a.localhost'))
 
 test('a landing do anúncio usa o mesmo cabeçalho e não lista faceta restrita', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })

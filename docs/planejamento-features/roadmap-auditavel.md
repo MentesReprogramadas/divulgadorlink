@@ -1,6 +1,6 @@
 # Roadmap auditável por etapa
 
-**Baseline inicial:** 14 de outubro de 2026. **Repriorização:** 15 de outubro de 2026, F42 em primeiro lugar. **Execução:** P0/F42 concluído em produção e validado, por autorização posterior. F01–F41 não iniciadas. Evidências em [execução F42](execucao-f42.md).
+**Baseline inicial:** 14 de outubro de 2026. **Repriorização:** 15 de outubro de 2026, F42 em primeiro lugar. **Execução:** P0/F42 concluído em produção e validado, por autorização posterior. Continuação F01–F41 autorizada em branch separada; F01 em andamento. Ver [execução contínua](execucao-roadmap.md). Evidências em [execução F42](execucao-f42.md).
 
 [Índice](README.md) · [Ordem](ordem-de-entrega.md) · [Decisões](decisoes.md) · [Qualidade](qualidade-e-testes.md) · [Ledger em CSV](roadmap-etapas.csv) · [Matriz AC](matriz-aceitacao.csv).
 
@@ -40,7 +40,7 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 
 ### 1 F42 Moderação e alertas operacionais no grupo pela Evolution API
 
-[Spec](specs/f42-evolution-moderacao.md) · [Plano](planos/f42-evolution-moderacao.md). Onda P0. Dependência: G00 mínimo. D44–D47 resolvidas. Execução autorizada somente para F42; o trabalho para após P0.
+[Spec](specs/f42-evolution-moderacao.md) · [Plano](planos/f42-evolution-moderacao.md). Onda P0. Dependência: G00 mínimo. D44–D47 resolvidas. O limite anterior de parar no P0 foi substituído pela autorização de continuação do roadmap em branch separada.
 
 | Etapa | Estado | Pré-requisito imediato | Entregável a verificar |
 | --- | --- | --- | --- |
@@ -60,7 +60,7 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 
 | Etapa | Estado | Pré-requisito imediato | Entregável a verificar |
 | --- | --- | --- | --- |
-| F01-S0 | NÃO INICIADA | F42 (prioridade), G00 | [Escopo contratos e reuso](planos/f01-resultado-destaque.md#f01-s0-escopo-contratos-e-revisão-de-reutilização) |
+| F01-S0 | EM ANDAMENTO | F42 (prioridade), G00 | [Escopo contratos e reuso](planos/f01-resultado-destaque.md#f01-s0-escopo-contratos-e-revisão-de-reutilização) |
 | F01-S1 | NÃO INICIADA | F01-S0 | [Testes U e C](planos/f01-resultado-destaque.md#f01-s1-testes-unitários-e-componentes-antes-da-regra) |
 | F01-S2 | NÃO INICIADA | F01-S1 | [Dados e migração](planos/f01-resultado-destaque.md#f01-s2-dados-invariantes-e-migração) |
 | F01-S3 | NÃO INICIADA | F01-S2 | [Domínio API e jobs](planos/f01-resultado-destaque.md#f01-s3-regra-de-negócio-api-e-jobs) |

@@ -1,10 +1,11 @@
+import { runtime as e2eRuntime } from './runtime.cjs'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { expect, test } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { sql } from './db'
 
-const origin = 'http://tenant-a.localhost:3000'
+const origin = (e2eRuntime.web('tenant-a.localhost'))
 
 test('admin define período, prazo indeterminado e remove o destaque sem cobrança', async ({ page }, testInfo) => {
   test.setTimeout(120_000)

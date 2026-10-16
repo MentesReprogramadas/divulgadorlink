@@ -1,3 +1,4 @@
+import { runtime as e2eRuntime } from './runtime.cjs'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { spawnSync } from 'node:child_process'
@@ -25,5 +26,5 @@ export default function globalTeardown(): void {
   } catch {
     // o servidor já saiu
   }
-  spawnSync('docker', ['rm', '-f', 'divulgador-e2e-pg', 'divulgador-e2e-redis'], { stdio: 'ignore', shell: true })
+  spawnSync('docker', ['rm', '-f', e2eRuntime.pgContainer, e2eRuntime.redisContainer], { stdio: 'ignore', shell: true })
 }

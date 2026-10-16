@@ -2,7 +2,7 @@
 
 Data da análise inicial: 14 de outubro de 2026. Atualização de prioridade: 15 de outubro de 2026.
 
-Este conjunto transforma as 42 features de [features propostas](../features-propostas.md) em uma sequência de entrega, 42 especificações e 42 planos de implementação independentes. **O usuário autorizou executar somente P0/F42 e parar. F42 foi concluída e ativada em produção; F01–F41 permanecem não iniciadas.** Evidências, decisões concretizadas e operação estão em [execução F42](execucao-f42.md).
+Este conjunto transforma as 42 features de [features propostas](../features-propostas.md) em uma sequência de entrega, 42 especificações e 42 planos de implementação independentes. **F42 foi concluída em produção. Em 15/10/2026 o usuário autorizou continuar todas as features, com testes e commits em codex/roadmap-features, sem publicar na main. F01 está em andamento; as seguintes respeitam a ordem abaixo.** Evidências, decisões concretizadas e operação estão em [execução F42](execucao-f42.md).
 
 A fonte foi ampliada por solicitação do usuário com F42; as seções anteriores foram preservadas. Seu SHA256 na leitura de referência é `6CBD63F2210EC98635C3D3643D9826B656EDB091DBED70DAE07783FE12E79B22`. Alteração posterior exige reconciliação explícita, sem renumerar IDs existentes. F01–F41 conservam seus IDs. F42 foi acrescentada e é a primeira feature de execução, após G00 mínimo; números não representam ordem de execução.
 
@@ -17,14 +17,14 @@ A fonte foi ampliada por solicitação do usuário com F42; as seções anterior
 7. Specs e planos individuais na tabela abaixo.
 8. [Auditoria documental realizada](auditoria-documental.md).
 
-As decisões não resolvidas são propostas de desenho, nunca fatos aprovados. Não há preços, SLAs ou estimativas de calendário inventados. Ordem de dependência é obrigatória; prioridade de negócio pode ser revista com registro. A autorização de execução posterior abrange somente F42, incluindo configuração no Coolify. Não autoriza iniciar as demais features.
+As decisões não resolvidas são propostas de desenho, nunca fatos aprovados. Não há preços, SLAs ou estimativas de calendário inventados. Ordem de dependência é obrigatória; prioridade de negócio pode ser revista com registro. A autorização mais recente permite executar o roadmap completo em branch separada. Evidências e decisões ficam em [execução contínua](execucao-roadmap.md). Deploy e cobrança reais não são consequência automática dos commits nessa branch.
 
 ## Índice e sequência única
 
 | Ordem | ID | Onda | Spec | Plano | Pré-requisitos | Execução |
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | F42 | P0 | [Moderação e alertas operacionais no grupo pela Evolution API](specs/f42-evolution-moderacao.md) | [Implementação](planos/f42-evolution-moderacao.md) | G00 mínimo + base existente | CONCLUÍDA |
-| 2 | F01 | 1 | [Relatório de resultado do destaque](specs/f01-resultado-destaque.md) | [Implementação](planos/f01-resultado-destaque.md) | F42 (prioridade); G00 + base existente | NÃO INICIADA |
+| 2 | F01 | 1 | [Relatório de resultado do destaque](specs/f01-resultado-destaque.md) | [Implementação](planos/f01-resultado-destaque.md) | F42 (prioridade); G00 + base existente | EM ANDAMENTO |
 | 3 | F06 | 1 | [Denunciar um link](specs/f06-denuncias.md) | [Implementação](planos/f06-denuncias.md) | F42 (prioridade); G00 + base existente | NÃO INICIADA |
 | 4 | F07 | 1 | [Acompanhamento de disponibilidade](specs/f07-disponibilidade.md) | [Implementação](planos/f07-disponibilidade.md) | F42 (prioridade); G00 + base existente | NÃO INICIADA |
 | 5 | F02 | 2 | [Lembrete de renovação](specs/f02-lembrete-renovacao.md) | [Implementação](planos/f02-lembrete-renovacao.md) | F42 (prioridade); F01 | NÃO INICIADA |

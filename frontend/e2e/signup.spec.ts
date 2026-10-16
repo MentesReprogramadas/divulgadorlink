@@ -1,8 +1,9 @@
+import { runtime as e2eRuntime } from './runtime.cjs'
 import { expect, test } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
-const A = 'http://tenant-a.localhost:3000'
+const A = (e2eRuntime.web('tenant-a.localhost'))
 const state = JSON.parse(readFileSync(path.join(__dirname, 'state.json'), 'utf8')) as { password: string }
 
 test('cadastro sem telefone cai na verificação e avisa o spam', async ({ page }) => {

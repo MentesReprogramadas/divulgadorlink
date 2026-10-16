@@ -1,7 +1,8 @@
+import { runtime as e2eRuntime } from './runtime.cjs'
 import { expect, test } from '@playwright/test'
 import { sql } from './db'
 
-const A = 'http://tenant-a.localhost:3000'
+const A = (e2eRuntime.web('tenant-a.localhost'))
 
 test('sem aceite não guarda campanha nem chama a Meta', async ({ page }) => {
   let facebook = 0

@@ -1,10 +1,11 @@
+import { runtime as e2eRuntime } from './runtime.cjs'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { expect, test } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 
 type Fixture = { receitas: string; bia: string; admin: string; password: string }
-const origin = 'http://tenant-a.localhost:3000'
+const origin = (e2eRuntime.web('tenant-a.localhost'))
 const publicRoutes = ['/', '/divulgar', '/busca', '/nicho/jogos', '/rede/telegram', '/login', '/cadastro', '/esqueci-senha', '/recuperar-senha', '/termos', '/privacidade', '/nao-encontrado']
 const stableScreens = new Set(['/divulgar', '/cadastro', '/login', '/recuperar-senha', '/painel/links/novo', '/admin/configuracoes'])
 
