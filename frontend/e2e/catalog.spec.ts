@@ -417,7 +417,7 @@ test('checkout, webhook RSA, replay e assinatura inválida', async ({ browser })
   expect(sql(`SELECT count(*) FROM payments WHERE "orderId" = '${orderId}'`)).toBe('1')
   expect(redisScan(`*${orderId}*`)).toContain(orderId)
 
-  const body = JSON.stringify({ eventId: 'evt-1', charge: { correlationID: orderId } })
+  const body = JSON.stringify({ event: 'OPENPIX:CHARGE_COMPLETED', charge: { correlationID: orderId } })
   const paid = await postRaw({
     path: '/api/v1/payments/woovi/webhook',
     host: 'tenant-a.localhost',
