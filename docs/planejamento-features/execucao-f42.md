@@ -143,3 +143,15 @@ Publicação do formato final: commit `fafb6bc05d479aad2ef42e55b79aab327dfef01d`
 - [x] Ledger F42-S0–S7 concluído e matriz F42-AC01–AC26 aprovada.
 - [x] Fonte preservada, inventário e links conferidos. Capturas desktop/mobile em `output/p0-evolution/`.
 - [x] Trabalho encerrado no P0. Nenhuma implementação de F01–F41 foi iniciada.
+
+## Avisos adicionais — 2026-10-16
+
+Pedido: avisar novos cadastros e aprovações automáticas pelo WhatsApp, com justificativa da IA, e enviar a alteração para main.
+
+- `NEW_USER`: gerado após emissão bem-sucedida dos códigos iniciais, sem e-mail, telefone, senha ou códigos na mensagem. Cadastro não implica contato confirmado. Deduplicação por tenant/usuário.
+- `AI_APPROVED`: novas publicações e alterações de texto aprovadas geram aviso na mesma transação da publicação e auditoria. Inclui resumo dos motivos retornados pelo modelo, confiança informada e limiar efetivamente usado. Os motivos são limitados e saneados; ausência de justificativa é informada, sem inventar explicação. Não há exposição de raciocínio interno nem promessa de inspeção do conteúdo interno do grupo. Decisão e limiar existentes foram preservados.
+- O webhook registra resultado de aceite/ignoração, operador não autorizado e citação desconhecida/conflitante, sem registrar corpo, telefone ou referência assinada. Os logs de produção consultados não permitem atribuir com certeza a falha do comando anterior `RECUSAR Link suspeito`. HTTP 200 também pode significar comando ignorado.
+
+Validação: backend lint/typecheck/build, 366 testes unitários/HTTP e 17 testes PostgreSQL; frontend lint/typecheck/build e 159 testes; Playwright com API, PostgreSQL, Redis e worker reais passou cadastro/aviso sem contatos e respostas normalizadas com aprovação/recusa (F42-E11 e F42-E10). Evolution foi simulado; não houve envio de testes ao WhatsApp real nem chamada paga ao modelo. Como 5433/6380 pertenciam a containers existentes, a execução Playwright usou cópia temporária do harness com PostgreSQL 5546, Redis 5547, API 4334 e stub 4100; os containers existentes foram preservados. Nenhuma mudança de layout foi feita.
+
+Os avisos são prospectivos, respeitam a configuração existente da integração e usam sua outbox/retry. Reversão: reverter o commit desta entrega; não há migração de banco nem alteração de dependências.

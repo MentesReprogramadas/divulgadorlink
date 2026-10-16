@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { settleSubmission, type SubmissionSnapshot } from '@/use-cases/@Moderation/settle-submission'
 
 const pending: SubmissionSnapshot = {
@@ -10,6 +10,12 @@ const pending: SubmissionSnapshot = {
 }
 
 describe('settleSubmission', () => {
+  it('encaminha ao publicador a justificativa e o limiar usados na decisão', async () => {
+    const verdict = { pass: true, confidence: 0.94, reasons: ['Nome e descrição compatíveis com culinária.'] }
+    const publish = vi.fn(async () => undefined)
+    await settleSubmission({ linkId: 'link-1', judge: async () => verdict, load: async () => pending, readThreshold: async () => 0.85, publish })
+    expect(publish).toHaveBeenCalledWith('link-1', { verdict, threshold: 0.85 })
+  })
   it('publica só quando o veredito passa do limiar', async () => {
     const published: string[] = []
     const decision = await settleSubmission({

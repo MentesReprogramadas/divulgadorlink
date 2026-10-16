@@ -13,6 +13,12 @@ export const EVOLUTION_SETTINGS_KEY = 'EVOLUTION_INTEGRATION'
 export const MAX_DELIVERY_ATTEMPTS = 5
 export const REFERENCE_TTL_MS = 24 * 60 * 60 * 1000
 
+export async function queueNewUser(db: PrismaClient, tenantId: string, userId: string) {
+  const user = await db.user.findFirst({ where: { id: userId, tenantId }, select: { id: true, name: true, createdAt: true } })
+  if (!user) return
+  await operationalEvent(db, { tenantId, kind: 'NEW_USER', resourceId: user.id, occurrenceKey: `new-user:${tenantId}:${user.id}`, payload: { ownerName: user.name, registeredAt: user.createdAt.toISOString() } })
+}
+
 export async function evolutionConfiguration(db: PrismaClient, tenantId: string) {
   const tenant = await db.tenant.findUnique({ where: { id: tenantId } })
   if (!tenant || tenant.host !== env.TENANT_HOST) return null
@@ -102,6 +108,12 @@ export function renderOperationalMessage(event: Pick<OperationalMessage, 'id' | 
     p.niche || p.network ? `*Classificação*\nCategoria: ${safeText(String(p.niche ?? '—'), 100)}\nRede: ${safeText(String(p.network ?? '—'), 100)}` : '',
     p.note ? `*Observação*\n${safeText(String(p.note), 200)}` : '',
   ].filter(Boolean)
+  if (event.kind === 'NEW_USER') return ['👤 *NOVO USUÁRIO*', ...details, '*Cadastro*\nConta criada; a confirmação dos contatos é uma etapa separada.', `*Painel*\n${origin.replace(/\/$/, '')}/admin/usuarios`].join('\n\n')
+  if (event.kind === 'AI_APPROVED') {
+    const reasons = Array.isArray(p.reasons) ? p.reasons.filter((reason): reason is string => typeof reason === 'string').map(reason => safeText(reason, 240)).filter(Boolean).slice(0, 5) : []
+    const percent = (value: unknown) => typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 1 ? `${(value * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%` : 'Não informado'
+    return ['🤖 *APROVADO PELA IA*', ...details, `*Resultado*\n${p.type === 'Alteração de texto' ? 'Alteração de texto publicada.' : 'Link publicado.'}`, `*Justificativa da IA*\n${reasons.length ? reasons.map(reason => `• ${reason}`).join('\n') : 'A IA não forneceu uma justificativa textual.'}`, `*Critério de aprovação*\nConfiança informada pela IA: ${percent(p.confidence)}\nLimiar configurado: ${percent(p.threshold)}`, '*Escopo da análise*\nNome e descrição em relação à categoria e às regras de conteúdo. Não verifica o conteúdo interno do grupo nem garante a segurança do destino.', `*Painel*\n${panel}`].join('\n\n')
+  }
   if (event.kind.startsWith('REVIEW_')) {
     return [`🔎 *${safeText(String(p.type ?? 'Revisão')).toUpperCase()}*`, ...details, p.appeal ? `*Contestação*\n${safeText(String(p.appeal), 240)}` : '', '*Ação*\nResponda: *APROVAR* ou *RECUSAR motivo*.', `Revisão: ${event.id}\nValidade: 24h\nPainel: ${panel}`].filter(Boolean).join('\n\n')
   }

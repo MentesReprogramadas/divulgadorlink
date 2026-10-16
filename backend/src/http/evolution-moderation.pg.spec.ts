@@ -4,7 +4,9 @@ import { afterAll, beforeEach, describe, expect, it } from 'vitest'
 import { env } from '@/env'
 import { actionReference } from '@/domain/notifications/evolution-command'
 import { resolveHumanReview, operationalEvent, reviewHash } from '@/use-cases/@Moderation/resolve-human-review'
-import { queueCaseReview, queueTextReview, deliverOperationalMessage, processEvolutionReceipt, seedEvolutionOperators, authorizedOperator, runEvolutionCycle, quotedReviewReference } from '@/use-cases/@Notifications/evolution-operations'
+import { queueNewUser, queueCaseReview, queueTextReview, deliverOperationalMessage, processEvolutionReceipt, seedEvolutionOperators, authorizedOperator, runEvolutionCycle, quotedReviewReference } from '@/use-cases/@Notifications/evolution-operations'
+import { publishSubmission } from '@/use-cases/@Moderation/settle-submission'
+import { settleProposedText } from '@/use-cases/@Links/settle-proposed-text'
 import { PrismaCheckoutStore } from '@/use-cases/@Promotions/checkout-prisma'
 
 const url = process.env.EVOLUTION_DATABASE_URL
@@ -35,6 +37,40 @@ function decision(decision: 'APPROVE' | 'REJECT', messageId?: string) {
 }
 
 describe('F42 PostgreSQL decisão e outbox', () => {
+  it('avisa cadastro e publicação automática uma única vez, com motivos auditados', async () => {
+    await queueNewUser(db, 'other-tenant', adminId)
+    await queueNewUser(db, tenantId, adminId)
+    await queueNewUser(db, tenantId, adminId)
+    const registered = await db.operationalMessage.findMany({ where: { tenantId, kind: 'NEW_USER' } })
+    expect(registered).toHaveLength(1)
+    expect(Object.keys(registered[0]!.payload as object).sort()).toEqual(['ownerName', 'registeredAt'])
+    const evidence = { verdict: { pass: true, confidence: 0.96, reasons: ['*Texto* compatível com a categoria.\nSem conteúdo proibido.'] }, threshold: 0.85 }
+    await publishSubmission(linkId, evidence, db)
+    await publishSubmission(linkId, evidence, db)
+    const notices = await db.operationalMessage.findMany({ where: { tenantId, kind: 'AI_APPROVED' } })
+    expect(notices).toHaveLength(1)
+    expect(notices[0]!.payload).toMatchObject({ confidence: 0.96, threshold: 0.85, reasons: ['Texto compatível com a categoria. Sem conteúdo proibido.'], name: 'Grupo teste' })
+    expect((await db.auditLog.findFirstOrThrow({ where: { tenantId, action: 'moderation.ai' } })).after).toMatchObject({ status: 'PUBLISHED', reasons: ['Texto compatível com a categoria. Sem conteúdo proibido.'] })
+    const sent: string[] = []
+    await runEvolutionCycle(db, async (_url, init) => { sent.push(JSON.parse(String(init?.body)).text); return new Response(JSON.stringify({ key: { id: randomUUID() } })) })
+    expect(sent.filter(text => text.includes('NOVO USUÁRIO'))).toHaveLength(1)
+    expect(sent.filter(text => text.includes('APROVADO PELA IA'))).toHaveLength(1)
+    expect((await db.link.findUniqueOrThrow({ where: { id: linkId } })).status).toBe('PUBLISHED')
+  })
+  it('avisa edição aprovada pela IA sem repetir nem notificar decisão encaminhada ao admin', async () => {
+    await db.link.update({ where: { id: linkId }, data: { status: 'PUBLISHED', everPublished: true } })
+    await db.config.create({ data: { tenantId, key: 'MODERATION_AUTO_APPROVE_THRESHOLD', value: '0.85' } })
+    await db.auditLog.create({ data: { tenantId, entityType: 'link', entityId: linkId, action: 'link.text.proposed', after: { name: 'Novo nome', description: 'Nova descrição' }, createdAt: new Date(Date.now() - 2000) } })
+    const input = { db, linkId, judge: async () => ({ pass: true, confidence: 0.95, reasons: ['Texto adequado ao nicho.'] }) }
+    expect(await settleProposedText(input)).toBe('PUBLISH')
+    expect(await settleProposedText(input)).toBe('SKIPPED')
+    const notices = await db.operationalMessage.findMany({ where: { tenantId, kind: 'AI_APPROVED' } })
+    expect(notices).toHaveLength(1)
+    expect(notices[0]!.payload).toMatchObject({ name: 'Novo nome', type: 'Alteração de texto', reasons: ['Texto adequado ao nicho.'] })
+    await db.auditLog.create({ data: { tenantId, entityType: 'link', entityId: linkId, action: 'link.text.proposed', after: { name: 'Revisar' }, createdAt: new Date(Date.now() + 1000) } })
+    expect(await settleProposedText({ db, linkId, judge: async () => ({ pass: false, confidence: 0.95, reasons: ['Requer revisão.'] }) })).toBe('ADMIN')
+    expect(await db.operationalMessage.count({ where: { tenantId, kind: 'AI_APPROVED' } })).toBe(1)
+  })
   it('resolve apenas citação de aviso enviado ao tenant e recusa ID ambíguo', async () => {
     const notice = await event()
     const resolve = (tenant = tenantId) => quotedReviewReference(db, tenant, 'outbound-a', 'secret')
