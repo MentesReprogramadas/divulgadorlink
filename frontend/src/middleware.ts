@@ -28,6 +28,11 @@ function withPath(request: NextRequest): { headers: Headers; csp: string } {
 
 function finish(request: NextRequest, response: NextResponse, csp: string): NextResponse {
   response.headers.set('Content-Security-Policy', csp)
+  const session = request.cookies.get('analyticsSession')?.value
+  if (request.method === 'GET' && !(session && /^[0-9a-f-]{36}$/i.test(session))) {
+    // Mint once on HTML, before visits and impressions can race to set cookies.
+    response.cookies.set({ name: 'analyticsSession', value: crypto.randomUUID(), httpOnly: true, sameSite: 'lax', path: '/', secure: request.nextUrl.protocol === 'https:' })
+  }
   return withTouch(request, response)
 }
 

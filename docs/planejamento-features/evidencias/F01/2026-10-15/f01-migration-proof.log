@@ -1,0 +1,5 @@
+Legacy projection preserved: legacy-proof|legacy-proof.test|Legacy
+No ledger backfill. Application rollback keeps additive schema.
+SET
+Index Scan using "analytics_events_tenantId_linkId_createdAt_idx" on analytics_events  (cost=0.15..8.17 rows=1 width=32)
+  Index Cond: (("tenantId" = 'legacy-proof'::text) AND ("linkId" = 'proof-link'::text) AND ("createdAt" >= '2026-10-01 00:00:00'::timestamp without time zone) AND ("createdAt" < '2026-10-08 00:00:00'::timestamp without time zone))

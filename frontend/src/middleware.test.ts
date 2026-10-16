@@ -10,6 +10,22 @@ function run(path: string, cookie?: string) {
 afterEach(() => vi.unstubAllEnvs())
 
 describe('middleware', () => {
+  it('inicializa a sessão operacional antes dos pedidos paralelos de analytics', () => {
+    const response = run('/link/publico')
+    const cookie = response.cookies.get('analyticsSession')
+    expect(cookie?.value).toMatch(/^[0-9a-f-]{36}$/i)
+    expect(cookie).toMatchObject({ httpOnly: true, sameSite: 'lax', path: '/' })
+    expect(response.cookies.get('tla_touch')).toBeUndefined()
+  })
+  it('conserva a sessão existente, protege HTTPS e não cria sessão em mutações', () => {
+    const existing = '11111111-1111-1111-1111-111111111111'
+    expect(run('/link/publico', 'analyticsSession=' + existing).cookies.get('analyticsSession')).toBeUndefined()
+    const https = middleware(new NextRequest('https://temlink.test/link/publico'))
+    expect(https.cookies.get('analyticsSession')?.secure).toBe(true)
+    const mutation = middleware(new NextRequest('http://localhost/link/publico', { method: 'POST' }))
+    expect(mutation.cookies.get('analyticsSession')).toBeUndefined()
+    expect(run('/link/publico', 'analyticsSession=invalid').cookies.get('analyticsSession')?.value).toMatch(/^[0-9a-f-]{36}$/i)
+  })
   it('não intercepta a ficha: o 404 fica na página', () => {
     expect(config.matcher).toEqual(['/((?!_next|bff|.*\\..*).*)'])
     expect(run('/link/nao-existe').headers.get('x-middleware-rewrite')).toBeNull()

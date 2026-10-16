@@ -1,0 +1,29 @@
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run vitest run src/http/promotion-performance.pg.spec.ts --no-file-parallelism
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+{"event":"http.completed","request_id":"b3f53fb5-e488-4172-8875-337870cceb2e","tenant":"f01-6d7b346f-da01-4ba1-8ad2-eb527e3d13ea.test","entity":"GET /api/v1/analytics/links/:linkId/performance","duration_ms":19.537199999999984,"status":200}
+{"event":"http.completed","request_id":"4654431b-12b9-4a8f-a48f-01a5a678f9c6","tenant":"f01-6d7b346f-da01-4ba1-8ad2-eb527e3d13ea.test","entity":"GET /api/v1/analytics/links/:linkId/performance","duration_ms":5.313100000000077,"status":404}
+{"event":"http.completed","request_id":"a7b85769-bf0c-4eab-95df-d2833c23a984","tenant":"f01-6d7b346f-da01-4ba1-8ad2-eb527e3d13ea.test","entity":"GET /api/v1/analytics/links/:linkId/performance","duration_ms":0.11130000000002838,"status":401}
+{"event":"http.completed","request_id":"453b0382-819c-416f-8b58-53700546077f","tenant":"f01-6d7b346f-da01-4ba1-8ad2-eb527e3d13ea.test","entity":"GET /api/v1/analytics/links/:linkId/performance","duration_ms":0.9472000000000662,"status":403}
+{"event":"http.completed","request_id":"7dba7b9c-39cd-4048-a2ca-614e9805a6b1","tenant":"f01-6d7b346f-da01-4ba1-8ad2-eb527e3d13ea.test","entity":"GET /api/v1/analytics/links/:linkId/performance","duration_ms":5.410499999999956,"status":200}
+{"event":"http.completed","request_id":"bb6b5577-1806-4832-94e9-1923b21fd917","tenant":"f01-6d7b346f-da01-4ba1-8ad2-eb527e3d13ea.test","entity":"GET /api/v1/analytics/links/:linkId/performance","duration_ms":1.9862000000000535,"status":404}
+{"event":"http.completed","request_id":"e8311813-c85e-45e8-8511-75436aadfab0","tenant":"f01-6d7b346f-da01-4ba1-8ad2-eb527e3d13ea.test","entity":"GET /api/v1/analytics/links/:linkId/performance","duration_ms":4.066900000000032,"status":200}
+{"event":"http.completed","request_id":"490af612-4c1c-4669-80e8-a366ce74b917","tenant":"f01-74f661a9-8bd8-4947-a314-da8cb162c731.test","entity":"GET /api/v1/analytics/links/:linkId/performance","duration_ms":4.034400000000005,"status":200}
+{"event":"http.completed","request_id":"e440e389-ae7a-4b0c-af04-c02e7f9505e4","tenant":"f01-74f661a9-8bd8-4947-a314-da8cb162c731.test","entity":"GET /api/v1/analytics/links/:linkId/performance","duration_ms":3.981399999999894,"status":200}
+{"event":"http.completed","request_id":"235b3c99-c42f-406b-a9a3-8ac12dc4c98d","tenant":"f01-8ee0919b-8384-448e-ab12-3aa52d2c017c.test","entity":"GET /api/v1/analytics/links/:linkId/performance","duration_ms":7.933899999999994,"status":200}
+{"event":"http.completed","request_id":"05c12119-45db-4326-a5d0-b3a1cbab225d","tenant":"f01-8bc0648b-2f01-4c17-9487-7729c35e90bf.test","entity":"GET /api/v1/analytics/links/:linkId/performance","duration_ms":4.802699999999959,"status":200}
+{"event":"http.completed","request_id":"50e78313-79fd-40ff-b1b5-10a4d8bd8727","tenant":"f01-8bc0648b-2f01-4c17-9487-7729c35e90bf.test","entity":"GET /api/v1/analytics/links/:linkId/performance","duration_ms":4.296899999999823,"status":200}
+{"event":"http.completed","request_id":"c98bbd65-5c67-4ab5-974f-1b1a9b0bdd6a","tenant":"f01-8bc0648b-2f01-4c17-9487-7729c35e90bf.test","entity":"GET /api/v1/analytics/links/:linkId/performance","duration_ms":0.988800000000083,"status":400}
+{"event":"http.completed","request_id":"edf55b3e-e38d-4d2a-b328-119f97328878","tenant":"f01-8be72e17-76c1-4ac1-8e15-a48189107249.test","entity":"GET /api/v1/analytics/links/:linkId/performance","duration_ms":5.884800000000041,"status":200}
+{"event":"http.completed","request_id":"bbdb0d00-ae7c-4250-85e1-6449d3606729","tenant":"f01-8be72e17-76c1-4ac1-8e15-a48189107249.test","entity":"GET /api/v1/analytics/links/:linkId/performance","duration_ms":5.718200000000024,"status":200}
+{"event":"http.completed","request_id":"22f33bd4-6920-42ed-96e6-9d0fb47006c3","tenant":"f01-8be72e17-76c1-4ac1-8e15-a48189107249.test","entity":"GET /api/v1/analytics/links/:linkId/performance","duration_ms":4.422500000000127,"status":404}
+{"event":"http.completed","request_id":"4579411a-5464-4cdb-a707-9b2f70ba1756","tenant":"f01-f64d9da1-9ad5-4e80-bddf-10c1fc400a4d.test","entity":"GET /api/v1/analytics/links/:linkId/performance","duration_ms":4.421100000000024,"status":200}
+{"event":"http.completed","request_id":"8f07a20c-f373-40a9-a37d-4a2071c0cc4f","tenant":"f01-06e3d878-b3ef-42d0-84a1-ffbbb28172ed.test","entity":"GET /api/v1/analytics/links/:linkId/performance","duration_ms":5.815299999999752,"status":200}
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  21:25:36
+   Duration  2.26s (transform 37%, import 32%, tests 31%)
+

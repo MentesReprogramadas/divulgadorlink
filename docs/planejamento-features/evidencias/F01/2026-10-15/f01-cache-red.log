@@ -1,0 +1,31 @@
+npm notice run divulgador-links-web@0.1.0 npx
+npm notice run vitest run src/app/bff/[...path]/route.test.ts
+
+ RUN  v5.0.3 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend
+
+ ❯ src/app/bff/[...path]/route.test.ts (3 tests | 1 failed) 21ms
+   ❯ BFF de destaque administrativo (3)
+     × F01 preserva a política de cache privada do relatório 18ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/app/bff/[...path]/route.test.ts > BFF de destaque administrativo > F01 preserva a política de cache privada do relatório
+AssertionError: expected null to be 'private, no-store' // Object.is equality
+
+- Expected:
+"private, no-store"
+
++ Received:
+null
+
+ ❯ src/app/bff/[...path]/route.test.ts:13:51
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  21:29:35
+   Duration  251ms (transform 50%, tests 27%, import 17%, worker 5%)
+

@@ -1,0 +1,61 @@
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run vitest run src/domain/analytics/performance.spec.ts
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+ ❯ src/domain/analytics/performance.spec.ts (6 tests | 5 failed) 5ms
+   ❯ F01 resultado do destaque (6)
+     × F01-U01/U02 usa totais agregados para CTR 2ms
+     × F01-U03/T03 não inventa CPC sem cliques ou investimento conhecido 0ms
+     × F01-U04/T04 usa datas inclusivas e comparação equivalente em São Paulo 0ms
+     × F01-T05 distribui centavos uma vez sem depender da ordem das superfícies 0ms
+     × F01-T05 calcula investimento do recorte sem duplicar valor ou perder precisão 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/domain/analytics/performance.spec.ts > F01 resultado do destaque > F01-U01/U02 usa totais agregados para CTR
+Error: F01: totais ainda não implementados
+ ❯ performanceTotals src/domain/analytics/performance.ts:2:242
+
+ ❯ src/domain/analytics/performance.spec.ts:6:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  src/domain/analytics/performance.spec.ts > F01 resultado do destaque > F01-U03/T03 não inventa CPC sem cliques ou investimento conhecido
+Error: F01: totais ainda não implementados
+ ❯ performanceTotals src/domain/analytics/performance.ts:2:242
+
+ ❯ src/domain/analytics/performance.spec.ts:9:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  src/domain/analytics/performance.spec.ts > F01 resultado do destaque > F01-U04/T04 usa datas inclusivas e comparação equivalente em São Paulo
+Error: F01: intervalo ainda não implementado
+ ❯ performanceRange src/domain/analytics/performance.ts:1:208
+
+ ❯ src/domain/analytics/performance.spec.ts:13:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  src/domain/analytics/performance.spec.ts > F01 resultado do destaque > F01-T05 distribui centavos uma vez sem depender da ordem das superfícies
+Error: F01: alocação ainda não implementada
+ ❯ allocateSurfaceCents src/domain/analytics/performance.ts:3:108
+
+ ❯ src/domain/analytics/performance.spec.ts:25:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  src/domain/analytics/performance.spec.ts > F01 resultado do destaque > F01-T05 calcula investimento do recorte sem duplicar valor ou perder precisão
+Error: F01: rateio ainda não implementado
+ ❯ proratedCents src/domain/analytics/performance.ts:4:114
+
+ ❯ src/domain/analytics/performance.spec.ts:31:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 1 passed (6)
+   Start at  21:06:58
+   Duration  186ms (transform 58%, import 22%, tests 12%, worker 8%)
+

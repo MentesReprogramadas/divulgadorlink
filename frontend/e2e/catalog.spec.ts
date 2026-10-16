@@ -345,8 +345,16 @@ test('analytics, clique e open redirect', async ({ browser }) => {
   const impressionsBefore = Number(sql(`SELECT count(*) FROM analytics_events WHERE "linkId" = '${state.receitas}' AND kind = 'IMPRESSION'`))
   const clicksBefore = Number(sql(`SELECT count(*) FROM analytics_events WHERE "linkId" = '${state.receitas}' AND kind = 'CLICK'`))
   const counted = page.waitForResponse((response) => response.url().includes('/analytics/impressions') && response.status() === 201)
-  await page.goto(`${A}/link/${state.receitas}`)
-  await counted
+  const visited = page.waitForResponse((response) => response.url().includes('/analytics/visits') && response.status() === 204)
+  const document = await page.goto(`${A}/link/${state.receitas}`)
+  expect((await document!.allHeaders())['set-cookie']).toContain('analyticsSession=')
+  const initialResponses = await Promise.all([counted, visited])
+  const session = (await page.context().cookies()).find(cookie => cookie.name === 'analyticsSession')?.value
+  expect(session).toMatch(/^[0-9a-f-]{36}$/i)
+  for (const response of initialResponses) {
+    expect((await response.request().allHeaders()).cookie).toContain('analyticsSession=' + session)
+    expect(response.headers()['set-cookie'] ?? '').not.toContain('analyticsSession=')
+  }
   const href = await page.getByRole('link', { name: 'Acessar' }).getAttribute('href')
   expect(href).toContain('/go/')
   expect(href).toContain('surfaceToken=')

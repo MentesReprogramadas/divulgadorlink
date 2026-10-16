@@ -1,0 +1,49 @@
+npm notice run divulgador-links-web@0.1.0 npx
+npm notice run vitest run src/middleware.test.ts
+
+ RUN  v5.0.3 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend
+
+ ❯ src/middleware.test.ts (8 tests | 2 failed) 12ms
+   ❯ middleware (8)
+     × inicializa a sessão operacional antes dos pedidos paralelos de analytics 5ms
+     × conserva a sessão existente, protege HTTPS e não cria sessão em mutações 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/middleware.test.ts > middleware > inicializa a sessão operacional antes dos pedidos paralelos de analytics
+TypeError: .toMatch() expects to receive a string, but got undefined
+ ❯ src/middleware.test.ts:16:27
+     14|     const response = run('/link/publico')
+     15|     const cookie = response.cookies.get('analyticsSession')
+     16|     expect(cookie?.value).toMatch(/^[0-9a-f-]{36}$/i)
+       |                           ^
+     17|     expect(cookie).toMatchObject({ httpOnly: true, sameSite: 'lax', pa…
+     18|     expect(response.cookies.get('tla_touch')).toBeUndefined()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/middleware.test.ts > middleware > conserva a sessão existente, protege HTTPS e não cria sessão em mutações
+AssertionError: expected undefined to be true // Object.is equality
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ src/middleware.test.ts:24:59
+     22|     expect(run('/link/publico', 'analyticsSession=' + existing).cookie…
+     23|     const https = middleware(new NextRequest('https://temlink.test/lin…
+     24|     expect(https.cookies.get('analyticsSession')?.secure).toBe(true)
+       |                                                           ^
+     25|     const mutation = middleware(new NextRequest('http://localhost/link…
+     26|     expect(mutation.cookies.get('analyticsSession')).toBeUndefined()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 6 passed (8)
+   Start at  21:57:06
+   Duration  756ms (environment 82%, import 8%, transform 6%, tests 2%, worker 1%)
+

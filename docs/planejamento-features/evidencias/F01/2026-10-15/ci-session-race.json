@@ -1,0 +1,31 @@
+{
+  "run": "https://github.com/MentesReprogramadas/divulgadorlink/actions/runs/38831188543",
+  "result": "53 passed, 1 failed; no retry",
+  "traceObservations": [
+    {
+      "endpoint": "/v1/analytics/visits",
+      "status": 204,
+      "requestSessionHash": null,
+      "responseSessionHash": "f27bcea217"
+    },
+    {
+      "endpoint": "/v1/analytics/impressions",
+      "status": 201,
+      "requestSessionHash": null,
+      "responseSessionHash": "54bc01acb6"
+    },
+    {
+      "endpoint": "/v1/analytics/visits",
+      "status": 204,
+      "requestSessionHash": "f27bcea217",
+      "responseSessionHash": null
+    },
+    {
+      "endpoint": "/v1/analytics/impressions",
+      "status": 201,
+      "requestSessionHash": "f27bcea217",
+      "responseSessionHash": null
+    }
+  ],
+  "fixLocal": "f01-session-race-e2e.log: 2 passed, includes setup"
+}

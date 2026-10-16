@@ -41,6 +41,12 @@ Capturas e resultados rastreáveis em [evidências F01](evidencias/F01/2026-10-1
 
 O CI do backend `ce895e4` passou em Node22: [run 38830161858](https://github.com/MentesReprogramadas/divulgadorlink/actions/runs/38830161858). CI do commit de frontend ainda pendente. A inicialização local do harness apresentou falha intermitente de processos shell no Windows; passou a executar Node/tsx/Next diretamente e reportar encerramento antes da prontidão, sem aumentar retries dos testes.
 
+### Regressão identificada no CI de frontend
+
+O run [38831188543](https://github.com/MentesReprogramadas/divulgadorlink/actions/runs/38831188543) aprovou backend, frontend, imagens e 53 de 54 E2E; falhou o teste preexistente de deduplicação do catálogo. O trace prova uma corrida: na primeira visita, `/analytics/visits` e `/analytics/impressions` chegavam sem cookie e emitiam sessões diferentes; o último Set-Cookie substituía a sessão da primeira impressão. No reload, outra sessão gerava 201 em vez de deduplicar com 200. Não é motivo para aumentar retry ou relaxar a asserção.
+
+Correção delimitada: inicializar o mesmo cookie operacional `analyticsSession` na resposta HTML antes dos pedidos paralelos do cliente. Conservar nome, formato UUID, duração de sessão, HttpOnly/SameSite e finalidade de deduplicação; backend conserva fallback para consumidores diretos da API. Não adicionar evento, atribuição ou marketing e não modificar consentimento, `tla_touch`, preços ou permissões. Testes de middleware em vermelho antes da correção e E2E conferindo sessão idêntica nas duas chamadas e deduplicação real no reload. S7 permanece em revisão até novo CI aprovado.
+
 ## Migração, rollout e reversão
 
 Migrations aditivas `20261016090000_promotion_investments` e `20261016090100_performance_query_index`; ambas instaladas em bancos descartáveis. Ordens/promoções antigas continuam legíveis, sem ledger artificial. A tabela não acrescenta contatos ou identificadores de visitantes; mantém referências financeiras existentes. Retenção de analytics inalterada; ledger acompanha a conservação dos pedidos, sem novo prazo inventado.

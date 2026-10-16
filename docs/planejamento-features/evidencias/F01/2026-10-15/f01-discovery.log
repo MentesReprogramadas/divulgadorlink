@@ -1,0 +1,11 @@
+npm notice run divulgador-links-web@0.1.0 npx
+npm notice run playwright test --list --config frontend/playwright.config.ts --project=features --project=features-mobile promotion-performance.spec.ts
+Listing tests:
+  [setup] › auth.setup.ts:8:6 › sessão da Bia para os testes do painel
+  [features] › promotion-performance.spec.ts:21:5 › F01-E01/T03/T05 campanha sem cliques, CPC real e filtros persistentes
+  [features] › promotion-performance.spec.ts:44:5 › F01-E02/T01 nega outro dono e exige sessão sem revelar dados
+  [features] › promotion-performance.spec.ts:60:5 › F01-E03 recuperação de rede, teclado, zoom e 320px
+  [features-mobile] › promotion-performance.spec.ts:21:5 › F01-E01/T03/T05 campanha sem cliques, CPC real e filtros persistentes
+  [features-mobile] › promotion-performance.spec.ts:44:5 › F01-E02/T01 nega outro dono e exige sessão sem revelar dados
+  [features-mobile] › promotion-performance.spec.ts:60:5 › F01-E03 recuperação de rede, teclado, zoom e 320px
+Total: 7 tests in 2 files
