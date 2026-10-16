@@ -1,4 +1,5 @@
-import { cache } from 'react'
+import { cache, Suspense } from 'react'
+import { RelatedLinksSection } from '@/features/catalog/server/related-links'
 import { headers } from 'next/headers'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
@@ -103,6 +104,7 @@ export default async function Page({
         <Impression linkId={id} surfaceToken={token} />
         <a className="detail-access" href={href}>Acessar</a>
         <p><a href={'/painel/denunciar/' + encodeURIComponent(id)}>Denunciar um link</a></p>
+        <Suspense fallback={null}><RelatedLinksSection linkId={id} requiresAge={link.niche?.requiresAge === true} /></Suspense>
       </AgeWall>
     </main>
   )

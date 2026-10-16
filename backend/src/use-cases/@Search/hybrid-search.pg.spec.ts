@@ -61,7 +61,8 @@ async function run(sql: string, input: Case): Promise<Row[]> {
 
 function ranked(rows: Row[], threshold: number) {
   const result = rankSearch(
-    rows.map((row) => ({
+    // SQL has no ORDER BY. Normalize input to compare ranking without imposing an undefined tie order.
+    [...rows].sort((a, b) => a.id.localeCompare(b.id)).map((row) => ({
       id: row.id,
       relevance: relevanceScore(Number(row.text_score), row.semantic_score === null ? 0 : Number(row.semantic_score), TEXT_WEIGHT, SEMANTIC_WEIGHT),
       searchActivatedAt: row.search_activated_at,

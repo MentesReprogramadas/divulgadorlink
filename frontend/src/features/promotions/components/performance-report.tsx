@@ -5,7 +5,7 @@ import { formatCents } from '@/domain/money'
 import type { PerformanceFilters, PerformanceReport as Report } from '../performance-contract'
 import styles from './performance-report.module.css'
 
-const surfaces: Record<string, string> = { HOME: 'Início', SEARCH: 'Busca', NICHE: 'Categoria', ORGANIC: 'Orgânico' }
+const surfaces: Record<string, string> = { HOME: 'Início', SEARCH: 'Busca', NICHE: 'Categoria', ORGANIC: 'Orgânico', RELATED: 'Relacionados' }
 function day(value: string) { return value.split('-').reverse().join('/') }
 function number(value: number) { return value.toLocaleString('pt-BR') }
 function money(value: number | null) { return value === null ? 'Indisponível' : formatCents(value) }

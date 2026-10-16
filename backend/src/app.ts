@@ -1,3 +1,4 @@
+import { relatedLinksRoutes } from '@/http/controllers/@Catalog/related-links'
 import { renewalReminderRoutes } from '@/http/controllers/@Notifications/renewal-reminders'
 import { randomUUID, timingSafeEqual } from 'node:crypto'
 import { SpanStatusCode, trace } from '@opentelemetry/api'
@@ -111,6 +112,7 @@ app.register(
     await instance.register(linksRoutes, { prefix: '/links' })
     await instance.register(searchRoutes)
     await instance.register(catalogRoutes)
+    await instance.register(relatedLinksRoutes)
     await instance.register(analyticsRoutes)
     await instance.register(paymentRoutes)
     await instance.register(paymentWebhookRoutes)

@@ -55,6 +55,9 @@ const stub = createServer((req, res) => {
   req.on('end', () => {
     const raw = Buffer.concat(chunks).toString()
     res.setHeader('content-type', 'application/json')
+    if (req.method === 'GET' && req.url.startsWith('/related-destination?')) {
+      res.setHeader('content-type', 'text/html; charset=utf-8'); res.end('<h1>Destino externo fixture</h1>'); return
+    }
     if (req.method === 'POST' && req.url === '/renewal-mail') {
       const mail = JSON.parse(raw)
       const key = req.headers['idempotency-key']

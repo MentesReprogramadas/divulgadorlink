@@ -16,6 +16,7 @@ export function forward(input: {
   idempotencyKey?: string
   csrf?: string
   userAgent?: string
+  timeoutMs?: number
 }): Promise<{ status: number; headers: NodeJS.Dict<string | string[]>; body: Buffer }> {
   const origin = new URL(process.env.API_ORIGIN || 'http://127.0.0.1:3333')
   const transport = origin.protocol === 'https:' ? httpsRequest : httpRequest
@@ -26,6 +27,7 @@ export function forward(input: {
       family: 0,
       path: input.path,
       method: input.method,
+      ...(input.timeoutMs ? { signal: AbortSignal.timeout(input.timeoutMs) } : {}),
       headers: {
         host: input.host,
         ...(input.cookie ? { cookie: input.cookie } : {}),
@@ -37,6 +39,7 @@ export function forward(input: {
       },
     }, (res) => {
       const chunks: Buffer[] = []
+      res.on('error', reject)
       res.on('data', (chunk: Buffer) => chunks.push(chunk))
       res.on('end', () => resolve({ status: res.statusCode ?? 500, headers: res.headers, body: Buffer.concat(chunks) }))
     })

@@ -56,7 +56,7 @@ export async function promotionPerformance(input: {
   return {
     link, from: range.from, to: range.to, days: range.days, promotionId: input.promotionId ?? null,
     series: current, daily, totals: { ...totals, paidClicks },
-    surfaces: ['HOME', 'SEARCH', 'NICHE', 'ORGANIC'].map(surface => ({ surface, ...performanceTotals(current.filter(row => row.surface === surface), null) })),
+    surfaces: ['HOME', 'SEARCH', 'NICHE', 'ORGANIC', 'RELATED'].map(surface => ({ surface, ...performanceTotals(current.filter(row => row.surface === surface), null) })),
     coverage: { status: coverage, availableFrom: cutoff, investment: moneyKnown ? 'COMPLETE' : 'UNLINKED_HISTORY', currentDayPartial: range.to === analyticsDay(now) },
     dataState: coverage === 'UNAVAILABLE' ? 'OUTSIDE_RETENTION' : current.some(row => row.impressions || row.clicks) ? 'RECORDED' : 'NO_EVENTS',
     comparison: { from: range.comparisonFrom, to: range.comparisonTo, days: range.days, totals: performanceTotals(previous, null), coverage: range.comparisonTo < cutoff ? 'UNAVAILABLE' : range.comparisonFrom < cutoff ? 'PARTIAL' : 'COMPLETE' },

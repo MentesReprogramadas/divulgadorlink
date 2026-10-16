@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from 'node:crypto'
 
-const ORIGINS = ['search', 'niche-home', 'network-home', 'home', 'organic'] as const
+const ORIGINS = ['search', 'niche-home', 'network-home', 'home', 'organic', 'related'] as const
 
 export type AnalyticsOrigin = (typeof ORIGINS)[number]
 

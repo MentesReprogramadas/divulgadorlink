@@ -23,7 +23,7 @@ export interface AnalyticsRepository {
 }
 
 export class PrismaAnalyticsRepository implements AnalyticsRepository {
-  constructor(private readonly client: PrismaClient) {}
+  constructor(private readonly client: PrismaClient | Prisma.TransactionClient) {}
 
   async performanceSeries(query: PerformanceQuery): Promise<PerformanceSeriesRow[]> {
     const currentEnd = new Date(Math.min(query.end.getTime(), query.now.getTime()))

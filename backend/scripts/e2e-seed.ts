@@ -155,7 +155,9 @@ async function main() {
   const renewalNetwork = await prisma.network.findFirstOrThrow({ where: { tenantId: renewalTenant.tenant.id, slug: 'site' } })
   const renewalOwner = await user({ tenantId: renewalTenant.tenant.id, name: 'Responsavel pela comunidade', email: 'owner@renewal.test', phone: '5511911150001', confirmed: true })
   await user({ tenantId: renewalTenant.tenant.id, name: 'Outro responsavel', email: 'other@renewal.test', phone: '5511911150002', confirmed: true })
+  const relatedTenant = await tenantBundle('related.localhost', 'Relacionados fixture')
   const state = {
+    related: { tenantId: relatedTenant.tenant.id, networkId: relatedTenant.network.id, nicheId: relatedTenant.niche.id },
     renewal: { tenantId: renewalTenant.tenant.id, ownerId: renewalOwner.id, networkId: renewalNetwork.id, nicheId: renewalTenant.niche.id, owner: 'owner@renewal.test', other: 'other@renewal.test', password: 'Senha-e2e-1' },
     availability: { ...availability, tenantId: availabilityTenant.tenant.id, ownerId: availabilityOwner.id, networkId: availabilityNetwork.id, nicheId: availabilityTenant.niche.id, owner: 'owner@availability.test', other: 'other@availability.test', admin: 'admin@availability.test', password: 'Senha-e2e-1' },
     reports: { ...reports, tenantId: reportsTenant.tenant.id, reader: 'reader@reports.test', admin: 'admin@reports.test', password: 'Senha-e2e-1' },
