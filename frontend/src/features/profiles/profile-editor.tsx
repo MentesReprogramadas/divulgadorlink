@@ -1,5 +1,5 @@
 'use client'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { ProfileFields } from './components/profile-fields'
 import { ProfileView } from './components/profile-view'
@@ -14,6 +14,7 @@ export function ProfileEditor() {
   const [catalog, setCatalog] = useState<Array<{ id: string; name: string }>>([]), [phase, setPhase] = useState<'loading' | 'ready' | 'error'>('loading')
   const [preview, setPreview] = useState<PublicProfile | null>(null), [pending, setPending] = useState(false), [error, setError] = useState(''), [notice, setNotice] = useState(''), [confirmReload, setConfirmReload] = useState(false), [confirmUnpublish, setConfirmUnpublish] = useState(false)
   const busy = useRef(false), status = useRef<HTMLParagraphElement>(null)
+  useLayoutEffect(() => { if (notice) status.current?.focus() }, [notice])
   const [dirty, setDirty] = useState(false)
   const load = useCallback(async () => {
     setError('')
@@ -44,7 +45,6 @@ export function ProfileEditor() {
           setPublished(result.publishedRevisionId); setNotice('Perfil publicado.')
         } else setNotice('Rascunho salvo. Publique para atualizar sua página.')
       }
-      requestAnimationFrame(() => status.current?.focus())
     } catch (e) { setError(e instanceof Error ? e.message : 'Não foi possível salvar. Seus dados foram mantidos.') }
     finally { busy.current = false; setPending(false) }
   }

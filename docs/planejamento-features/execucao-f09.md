@@ -64,3 +64,7 @@ Migration 20261016160000_public_profiles aditiva: Profile, ProfileCategory, Prof
 Consulta de catálogo existente e inalterada retornou seis linhas no schema expandido, preservando contagens de perfis, grupos, links, promoções, favoritos e coleções. Não foi executado o binário completo da aplicação antiga. Rollout futuro por ambientes: migration aditiva, build compatível, ensaio em staging/contas piloto e autorização específica de produção. Sem flag numérica improvisada. Rollback por código retira aba/rotas/renderer e mantém tabelas/assets para recuperação; não apagar perfis nem resetar banco. Produção não foi publicada.
 
 AC01: U01 e I01/T01 no PG; AC02: I02/T02/CSRF e E02; AC03: C/E01/E03/mobile e revisão visual; AC04: renderer compartilhado e T04/E01 com foto decodificada; AC05: U03/C02/T05/E01, ausência no DTO/DOM; AC06: T06/I01/I03, mídia e E02/E04. Matriz, S0–S7, spec, plano, D10 e inventário encerrados com evidências. **Parar após F09; F12 não iniciada.**
+
+## Correção de foco em 16/10/2026 durante retomada contínua
+
+O CI 38964298636 encontrou uma corrida de foco em F09-E03 mobile: o editor tentava focar a confirmação de rascunho antes de o React inserir o texto, enquanto `.status:empty` ocultava o elemento. Novo teste reproduziu o texto vazio no momento da tentativa de foco. A correção sincroniza com o commit do DOM por `useLayoutEffect`, preservando o Playwright original e os contratos de perfil. Estado final e evidências em [execução F12](execucao-f12.md#regressão-de-foco-encontrada-durante-a-preparação).

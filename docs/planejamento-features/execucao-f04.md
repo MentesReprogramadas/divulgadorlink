@@ -77,3 +77,7 @@ Código final `1f283a46cfe0a71cea2afb2abde223cb6dd9eb43`, com [CI 38923117928](h
 AC01/T01: PG I01 + E01 persistência entre sessões. AC02/T02: I02/PG01 e E02 para dono/tenant/ADMIN/visitante/CSRF; rollback e cascata de conta. AC03/T03: cinco saves concorrentes no PG, duplo clique C01/E01 e UUID idempotente. AC04/T04: U03/C02/PG02/E02 redigem conteúdo/destino quando indisponível. AC05/T05: PG e E01 comprovam duas coleções, exclusão de uma com outra e favorito preservados e catálogo publicado intacto.
 
 Spec, plano, D05, S0–S7, inventário e matriz atualizados. Parada após F04 solicitada pelo usuário. Nenhum deploy, alteração na main, Coolify, envio ou cobrança real. A próxima feature da sequência, F09, não foi iniciada.
+
+## Correção de foco em 16/10/2026 durante retomada do roadmap
+
+O CI 38963209066 encontrou uma corrida de foco em F04-E03 mobile: a mensagem de sucesso recebia tentativa de foco antes de ter texto e permanecia oculta por `.status:empty`. O commit `1066fec` usa `useLayoutEffect` após o commit do DOM, com teste de regressão reproduzindo a falha. Frontend 197 testes, lint/typecheck/build e regressão local 92 E2E passaram. Registro, evidências e estado do CI em [execução F12](execucao-f12.md#regressão-de-foco-encontrada-durante-a-preparação). Nenhuma alteração de privacidade, autorização ou persistência de favoritos.

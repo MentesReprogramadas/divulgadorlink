@@ -1,0 +1,37 @@
+npm notice run divulgador-links-web@0.1.0 npx
+npm notice run vitest run src/features/profiles/profile-editor.test.tsx
+
+ RUN  v5.0.3 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend
+
+ ❯ src/features/profiles/profile-editor.test.tsx (3 tests | 1 failed) 147ms
+   × F09-C01 confirmação recebe foco somente após o texto ser renderizado 49ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/profiles/profile-editor.test.tsx > F09-C01 confirmação recebe foco somente após o texto ser renderizado
+AssertionError: expected [ '' ] to deeply equal [ Array(1) ]
+
+- Expected
++ Received
+
+  [
+-   "Rascunho salvo. Publique para atualizar sua página.",
++   "",
+  ]
+
+ ❯ src/features/profiles/profile-editor.test.tsx:42:17
+     40|   const status = await screen.findByText('Rascunho salvo. Publique par…
+     41|   await waitFor(() => expect(document.activeElement).toBe(status))
+     42|   expect(texts).toEqual(['Rascunho salvo. Publique para atualizar sua …
+       |                 ^
+     43| })
+     44|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  17:50:02
+   Duration  957ms (environment 45%, import 23%, tests 17%, transform 14%)
+

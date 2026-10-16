@@ -4,7 +4,7 @@ import { ProfileEditor } from './profile-editor'
 import { emptyProfile } from './profile-contract'
 const { request, catalog } = vi.hoisted(() => ({ request: vi.fn(), catalog: vi.fn() }))
 vi.mock('./profile-api', () => ({ profileRequest: request, profileCatalog: catalog }))
-afterEach(() => { cleanup(); vi.resetAllMocks() })
+afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.resetAllMocks() })
 it('F09-C01 vazio, falha recuperável e envio duplicado mantêm rascunho e só confirmam após persistência', async () => {
   catalog.mockResolvedValue([]); request.mockResolvedValueOnce({ draft: null, publishedVersion: null })
   render(<ProfileEditor />); await screen.findByLabelText('Nome público')
@@ -25,4 +25,19 @@ it('F09-C01 falha ao carregar oferece recuperação sem editor nem sucesso falso
   request.mockRejectedValueOnce(new Error('Não foi possível carregar.')); catalog.mockResolvedValue([])
   render(<ProfileEditor />); await screen.findByRole('alert'); expect(screen.queryByLabelText('Nome público')).toBeNull()
   request.mockResolvedValueOnce({ draft: null, publishedVersion: null }); fireEvent.click(screen.getByRole('button', { name: 'Atualizar dados' })); await screen.findByLabelText('Nome público')
+})
+it('F09-C01 confirmação recebe foco somente após o texto ser renderizado', async () => {
+  vi.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => { callback(0); return 0 })
+  const texts: string[] = [], focus = HTMLElement.prototype.focus
+  vi.spyOn(HTMLElement.prototype, 'focus').mockImplementation(function (this: HTMLElement) {
+    if (this.getAttribute('role') === 'status') texts.push(this.textContent ?? '')
+    focus.call(this)
+  })
+  catalog.mockResolvedValue([]); request.mockResolvedValueOnce({ draft: null, publishedVersion: null })
+  render(<ProfileEditor />); await screen.findByLabelText('Nome público')
+  request.mockResolvedValueOnce({ draft: { ...emptyProfile(), slug: 'ana', name: 'Ana', version: 1 }, publishedVersion: null })
+  fireEvent.submit(screen.getByRole('form', { name: 'Editar perfil' }))
+  const status = await screen.findByText('Rascunho salvo. Publique para atualizar sua página.')
+  await waitFor(() => expect(document.activeElement).toBe(status))
+  expect(texts).toEqual(['Rascunho salvo. Publique para atualizar sua página.'])
 })

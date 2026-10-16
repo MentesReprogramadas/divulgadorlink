@@ -1,0 +1,11 @@
+npm notice run divulgador-links-web@0.1.0 npx
+npm notice run vitest run src/features/profiles/profile-editor.test.tsx src/features/favorites/favorites-screen.test.tsx
+
+ RUN  v5.0.3 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend
+
+
+ Test Files  2 passed (2)
+      Tests  4 passed (4)
+   Start at  17:50:13
+   Duration  1.07s (environment 47%, import 25%, transform 16%, tests 12%)
+
