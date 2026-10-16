@@ -1,12 +1,13 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { Prisma, type PrismaClient } from '@prisma/client'
-import { z } from 'zod'
+import { z, ZodError } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { readAccessUser } from '@/http/middlewares/verify-jwt'
 import { normalizeTenantHost, resolveTenant } from '@/http/tenant'
 import { buildError } from '@/http/errors'
 import { favoritesOperation } from '@/repositories/favorites-repository'
 import { FavoritesError } from '@/domain/collections/favorites'
+import { logDomainEvent } from '@/observability/logger'
 
 let testDb: PrismaClient | null = null
 export function setFavoritesDbForTest(db: PrismaClient | null) { if (process.env.NODE_ENV === 'test') testDb = db }
@@ -22,7 +23,12 @@ async function run(request: FastifyRequest, reply: FastifyReply, operation: () =
   try { return await favoritesOperation(testDb ?? prisma, { tenantId: tenant.id, userId: user.sub, age: request.cookies.age === 'yes' }, operation()) }
   catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') return reply.code(409).send(buildError({ code: 'conflict', message: 'Identificador já utilizado. Atualize os dados.', request_id: request.id }))
-    if (!(error instanceof FavoritesError)) throw error
+    if (error instanceof ZodError) throw error
+    if (!(error instanceof FavoritesError)) {
+      // Prisma errors may embed private names or SQL parameters; keep those out of traces/logs.
+      logDomainEvent('favorites.failed', { request_id: request.id, result: error instanceof Prisma.PrismaClientKnownRequestError ? error.code : 'unexpected' })
+      throw new Error('Falha de persistência em favoritos.')
+    }
     return reply.code(error.status).send(buildError({ code: error.status === 409 ? 'conflict' : error.status === 400 ? 'validation' : error.status === 403 ? 'forbidden' : 'not_found', message: error.message, request_id: request.id }))
   }
 }

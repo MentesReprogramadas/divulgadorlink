@@ -1,4 +1,5 @@
 import { request as httpRequest } from 'node:http'
+import { randomUUID } from 'node:crypto'
 import { request as httpsRequest } from 'node:https'
 import { publicHost } from '@/domain/crawler-policy'
 
@@ -18,6 +19,13 @@ export function forward(input: {
   userAgent?: string
   timeoutMs?: number
 }): Promise<{ status: number; headers: NodeJS.Dict<string | string[]>; body: Buffer }> {
+  // Match the API's existing Fastify 1 MiB body limit before writing to a socket.
+  // An early upstream 413 may close that socket while a larger body is still being sent.
+  if (input.body && input.body.length > 1024 * 1024) return Promise.resolve({
+    status: 413,
+    headers: { 'content-type': 'application/json' },
+    body: Buffer.from(JSON.stringify({ code: 'validation', message: 'Corpo grande demais.', request_id: randomUUID() })),
+  })
   const origin = new URL(process.env.API_ORIGIN || 'http://127.0.0.1:3333')
   const transport = origin.protocol === 'https:' ? httpsRequest : httpRequest
   return new Promise((resolve, reject) => {
