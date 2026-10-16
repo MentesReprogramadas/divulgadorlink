@@ -2,7 +2,9 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 8.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
+**Estado:** INICIADA; S0 aguarda D10 sobre moderação de URLs próprias. Feature não concluída.
+
+Registro atual: [execução F09](../execucao-f09.md). Preparação isolada de U01/U02, sem API, persistência ou interface; nenhum AC aceito. Os critérios e cenários abaixo permanecem vinculantes.
 **Onda:** 2. **Ordem:** 8.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Perfil público com categorias próprias”.  
 **Plano:** [F09 implementação](../planos/f09-perfil-publico.md).  

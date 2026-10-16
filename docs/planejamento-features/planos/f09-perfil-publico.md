@@ -2,7 +2,9 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 8.
 
-**Estado:** NÃO INICIADO. Somente planejamento autorizado.  
+**Estado:** INICIADO por autorização do usuário em 16/10/2026; S0 aguarda decisão D10. Feature não concluída.
+
+[Execução F09](../execucao-f09.md) registra o inventário de reuso, o bloqueio de produto e U01/U02 preparados isoladamente. Nenhuma etapa completa nem critério de aceitação foi aprovado. Retomar somente F09 após a decisão; F12 não iniciada.
 **Spec vinculante:** [F09](../specs/f09-perfil-publico.md).  
 **Dependências:** G00, base existente.  
 **Onda:** 2. Etapas rastreadas no [roadmap](../roadmap-auditavel.md) e na [matriz](../matriz-aceitacao.csv).
@@ -15,7 +17,7 @@ Contrato a entregar: GET/PATCH /api/v1/me/profile; CRUD /me/profile/categories e
 
 Dados: Profile, ProfileCategory e ProfileItem com tenantId e ownerId; categoria pessoal não é Niche/Network; ProfileItem pode referenciar Link do catálogo ou URL própria validada; versão mínima draft/published nasce aqui, histórico em F19. Avatar precisa de porta de mídia e limites, sem escolher provedor novo.
 
-Todos os itens abaixo são tarefas futuras. Não executar comandos, criar migration ou escrever aplicação só porque este plano existe. Não acionar implantação automática via push na main: o projeto publica a main pelo Coolify.
+O usuário autorizou implementar F09, testar, documentar e parar. Os checkboxes abaixo continuam pendentes até haver evidência da obrigação inteira; a preparação de U01/U02 não fecha S0/S1. Não acionar implantação automática via push na main: o projeto publica a main pelo Coolify.
 
 ## Arquivos e pontos de integração
 

@@ -54,3 +54,8 @@ Solicitação posterior: fazer a próxima e parar. F03 concluída em `2672f834a3
 ## Continuação limitada ao ajuste F03 e à F04 — 16/10/2026
 
 Pedido posterior do usuário: sugestões aleatórias, depois próxima feature e parar. F03 ajustada em bbcd415; F04 implementada em 71e5a23, com correção de fronteira/privacidade em `1f283a46cfe0a71cea2afb2abde223cb6dd9eb43`. [CI 38923117928](https://github.com/MentesReprogramadas/divulgadorlink/actions/runs/38923117928) aprovado. Ver [execução F04](execucao-f04.md). Encerramento após F04; F09 não iniciada. Sem deploy, main ou envio real.
+
+
+## 16/10/2026 — início da F09 e decisão pendente
+
+O usuário autorizou somente a próxima feature, F09. [Execução F09](execucao-f09.md) registra inventário, reuso e preparo isolado de normalização de slug/ordenação (21 casos; regressão backend 424 testes, lint/typecheck/build aprovados). S0 aguarda a resposta D10: liberação automática com bloqueio para correção ou revisão humana de URLs que ficam exclusivamente no perfil. Não usar Link/ModerationCase do catálogo como atalho que consuma quota ou publique itens. Nenhuma API, migration ou UI implementada; nenhum AC ou etapa completa aceito; PG/E2E F09 ainda não executados. F12 e seguintes não iniciadas. Sem main, deploy, cobrança ou notificações reais.

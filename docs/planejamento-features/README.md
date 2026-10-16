@@ -2,7 +2,7 @@
 
 Data da análise inicial: 14 de outubro de 2026. Atualização de prioridade: 15 de outubro de 2026.
 
-Este conjunto transforma as 42 features de [features propostas](../features-propostas.md) em uma sequência de entrega, 42 especificações e 42 planos de implementação independentes. **F42 foi concluída em produção. Em 15/10/2026 o usuário autorizou continuar todas as features, com testes e commits em codex/roadmap-features, sem publicar na main. F01 concluída na branch; F06 concluída na branch e F07 concluída na branch, com CI aprovado. Em 16/10/2026 o usuário autorizou somente a próxima feature: F02 concluída na branch com CI aprovado. Nova autorização limitada à F03: concluída na branch com CI aprovado. Autorização posterior incluiu aleatoriedade na F03 e execução da F04, concluídas na branch com CI aprovado. Trabalho encerrado após F04; F09 e seguintes não iniciadas.** Evidências, decisões concretizadas e operação estão em [execução F42](execucao-f42.md).
+Este conjunto transforma as 42 features de [features propostas](../features-propostas.md) em uma sequência de entrega, 42 especificações e 42 planos de implementação independentes. **F42 foi concluída em produção. Em 15/10/2026 o usuário autorizou continuar todas as features, com testes e commits em codex/roadmap-features, sem publicar na main. F01 concluída na branch; F06 concluída na branch e F07 concluída na branch, com CI aprovado. Em 16/10/2026 o usuário autorizou somente a próxima feature: F02 concluída na branch com CI aprovado. Nova autorização limitada à F03: concluída na branch com CI aprovado. Autorização posterior incluiu aleatoriedade na F03 e execução da F04, concluídas na branch com CI aprovado. Nova autorização em 16/10/2026 iniciou F09; S0 aguarda decisão D10 sobre moderação de URLs exclusivas do perfil. F09 não concluída; F12 e seguintes não iniciadas.** Evidências, decisões concretizadas e operação estão em [execução F42](execucao-f42.md).
 
 A fonte foi ampliada por solicitação do usuário com F42; as seções anteriores foram preservadas. Seu SHA256 na leitura de referência é `6CBD63F2210EC98635C3D3643D9826B656EDB091DBED70DAE07783FE12E79B22`. Alteração posterior exige reconciliação explícita, sem renumerar IDs existentes. F01–F41 conservam seus IDs. F42 foi acrescentada e é a primeira feature de execução, após G00 mínimo; números não representam ordem de execução.
 
@@ -17,7 +17,7 @@ A fonte foi ampliada por solicitação do usuário com F42; as seções anterior
 7. Specs e planos individuais na tabela abaixo.
 8. [Auditoria documental realizada](auditoria-documental.md).
 
-As decisões não resolvidas são propostas de desenho, nunca fatos aprovados. Não há preços, SLAs ou estimativas de calendário inventados. Ordem de dependência é obrigatória; prioridade de negócio pode ser revista com registro. A autorização mais recente limita esta execução ao ajuste aleatório da F03 e à próxima feature, F04, exigindo parar ao concluí-la. Evidências e decisões ficam em [execução contínua](execucao-roadmap.md). Deploy e cobrança reais não são consequência automática dos commits nessa branch.
+As decisões não resolvidas são propostas de desenho, nunca fatos aprovados. Não há preços, SLAs ou estimativas de calendário inventados. Ordem de dependência é obrigatória; prioridade de negócio pode ser revista com registro. A autorização mais recente limita esta execução à F09, exigindo parar ao concluí-la. A preparação iniciou, mas S0 aguarda D10; ver [execução F09](execucao-f09.md). Evidências e decisões ficam em [execução contínua](execucao-roadmap.md). Deploy e cobrança reais não são consequência automática dos commits nessa branch.
 
 ## Índice e sequência única
 
@@ -30,7 +30,7 @@ As decisões não resolvidas são propostas de desenho, nunca fatos aprovados. N
 | 5 | F02 | 2 | [Lembrete de renovação](specs/f02-lembrete-renovacao.md) | [Implementação](planos/f02-lembrete-renovacao.md) | F42 (prioridade); F01 | CONCLUÍDA NA BRANCH |
 | 6 | F03 | 2 | [Links relacionados](specs/f03-links-relacionados.md) | [Implementação](planos/f03-links-relacionados.md) | F42 (prioridade); G00 + base existente | CONCLUÍDA NA BRANCH |
 | 7 | F04 | 2 | [Favoritos e coleções](specs/f04-favoritos-colecoes.md) | [Implementação](planos/f04-favoritos-colecoes.md) | F42 (prioridade); G00 + base existente | CONCLUÍDA NA BRANCH |
-| 8 | F09 | 2 | [Perfil público com categorias próprias](specs/f09-perfil-publico.md) | [Implementação](planos/f09-perfil-publico.md) | F42 (prioridade); G00 + base existente | NÃO INICIADA |
+| 8 | F09 | 2 | [Perfil público com categorias próprias](specs/f09-perfil-publico.md) | [Implementação](planos/f09-perfil-publico.md) | F42 (prioridade); G00 + base existente | INICIADA; AGUARDA D10 |
 | 9 | F12 | 2 | [Link permanente para convites](specs/f12-link-permanente.md) | [Implementação](planos/f12-link-permanente.md) | F42 (prioridade); F07 | NÃO INICIADA |
 | 10 | F19 | 2 | [Prévia e histórico de versões](specs/f19-historico-versoes.md) | [Implementação](planos/f19-historico-versoes.md) | F42 (prioridade); F09 | NÃO INICIADA |
 | 11 | F08 | 3 | [Painel de oportunidades de busca](specs/f08-oportunidades-busca.md) | [Implementação](planos/f08-oportunidades-busca.md) | F42 (prioridade); G00 + base existente | NÃO INICIADA |

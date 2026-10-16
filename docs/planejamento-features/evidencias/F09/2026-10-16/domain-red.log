@@ -1,0 +1,40 @@
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run vitest run src/domain/profiles/profile.spec.ts
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+ ❯ src/domain/profiles/profile.spec.ts (21 tests | 2 failed) 5ms
+   ❯ F09 contratos independentes da decisão de moderação (21)
+     × F09-U01/T01 normaliza caixa e bordas sem transformar nomes distintos em outro slug 2ms
+     × F09-U02 conserva todos os IDs exatamente uma vez ao ordenar 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/domain/profiles/profile.spec.ts > F09 contratos independentes da decisão de moderação > F09-U01/T01 normaliza caixa e bordas sem transformar nomes distintos em outro slug
+Error: F09: implementar normalização de slug
+ ❯ profileSlug src/domain/profiles/profile.ts:1:61
+      1| export function profileSlug(_input: string): string { throw new Error(…
+       |                                                             ^
+      2| export function orderIds(_current: string[], _requested: string[]): st…
+      3|
+ ❯ src/domain/profiles/profile.spec.ts:6:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/domain/profiles/profile.spec.ts > F09 contratos independentes da decisão de moderação > F09-U02 conserva todos os IDs exatamente uma vez ao ordenar
+Error: F09: implementar ordenação validada
+ ❯ orderIds src/domain/profiles/profile.ts:2:86
+      1| export function profileSlug(_input: string): string { throw new Error(…
+      2| export function orderIds(_current: string[], _requested: string[]): st…
+       |                                                                                      ^
+      3|
+ ❯ src/domain/profiles/profile.spec.ts:14:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 19 passed (21)
+   Start at  13:07:26
+   Duration  163ms (transform 54%, import 25%, tests 12%, worker 8%, environment 1%)
+

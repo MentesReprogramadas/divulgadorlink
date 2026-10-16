@@ -1,0 +1,11 @@
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run vitest run src/domain/profiles/profile.spec.ts
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+
+ Test Files  1 passed (1)
+      Tests  21 passed (21)
+   Start at  13:07:49
+   Duration  153ms (transform 55%, import 26%, tests 10%, worker 8%, environment 1%)
+
