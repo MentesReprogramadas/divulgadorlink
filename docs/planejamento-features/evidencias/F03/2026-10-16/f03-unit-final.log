@@ -1,0 +1,11 @@
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run vitest run src/domain/analytics/surface-token.spec.ts src/domain/catalog/related-links.spec.ts
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+
+ Test Files  2 passed (2)
+      Tests  6 passed (6)
+   Start at  11:33:38
+   Duration  277ms (transform 61%, import 24%, worker 8%, tests 6%)
+

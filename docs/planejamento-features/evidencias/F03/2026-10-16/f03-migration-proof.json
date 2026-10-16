@@ -1,0 +1,9 @@
+{
+  "database": "f03_migration_proof",
+  "baseline": "f02_migration_proof; 10002 existing links and promotions; manual clone lacks Prisma history",
+  "sql": "CREATE INDEX links_related_niche_idx ON links (\"tenantId\", \"nicheId\", id) WHERE status='PUBLISHED';\nCREATE INDEX links_related_network_idx ON links (\"tenantId\", \"networkId\", id) WHERE status='PUBLISHED';\n",
+  "result": "CREATE INDEX\nCREATE INDEX",
+  "before": "6eb09d13dcb84d1668fc33d9deba5637\n21004892a690dde331b56be7f3a1e83a",
+  "after": "6eb09d13dcb84d1668fc33d9deba5637\n21004892a690dde331b56be7f3a1e83a",
+  "preserved": true
+}

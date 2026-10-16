@@ -1,0 +1,208 @@
+npm notice run divulgador-links-web@0.1.0 npx
+npm notice run playwright test e2e/related-links.spec.ts --project=features --project=features-mobile
+d0bac1f73713c693cec71698ca61cdaf81e553c449ad84a2ffb399e454c48f86
+2aba568dd7ac86983ddd7dae4650e570e7d4ec3748e43586506a6a20c433cdb8
+(node:21976) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run prisma migrate deploy
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": PostgreSQL database "divulgador", schema "public" at "127.0.0.1:5533"
+
+29 migrations found in prisma/migrations
+
+Applying migration `20260929191730_tenant_user_identifiers`
+Applying migration `20260929200000_verification_code_binds_identifier`
+Applying migration `20260929210000_prices_networks_niches_config`
+Applying migration `20260929220000_links_and_blocklist`
+Applying migration `20260929230000_moderation_cases`
+Applying migration `20260929231000_link_ever_published`
+Applying migration `20260929232000_link_embedding`
+Applying migration `20260929233000_submission_outbox_ban`
+Applying migration `20260929234000_orders_payments`
+Applying migration `20260929235000_analytics_events`
+Applying migration `20260930140000_order_br_code_and_catalog_indexes`
+Applying migration `20260930180000_analytics_link_totals_index`
+Applying migration `20261002140000_promotion_offers`
+Applying migration `20261002153000_adult_networks`
+Applying migration `20261005193000_one_open_moderation_case`
+Applying migration `20261006120000_facet_summary`
+Applying migration `20261009120000_acquisition_funnel`
+Applying migration `20261010120000_site_traffic`
+Applying migration `20261010150000_order_finance`
+Applying migration `20261015140000_evolution_operations`
+Applying migration `20261015153000_evolution_quoted_review`
+Applying migration `20261015180000_admin_promotions`
+Applying migration `20261016090000_promotion_investments`
+Applying migration `20261016090100_performance_query_index`
+Applying migration `20261016100000_link_reports`
+Applying migration `20261016100100_report_key_comparison`
+Applying migration `20261016110000_availability_paid_pause`
+Applying migration `20261016120000_renewal_reminders`
+Applying migration `20261016130000_related_link_indexes`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20260929191730_tenant_user_identifiers/
+    └─ migration.sql
+  └─ 20260929200000_verification_code_binds_identifier/
+    └─ migration.sql
+  └─ 20260929210000_prices_networks_niches_config/
+    └─ migration.sql
+  └─ 20260929220000_links_and_blocklist/
+    └─ migration.sql
+  └─ 20260929230000_moderation_cases/
+    └─ migration.sql
+  └─ 20260929231000_link_ever_published/
+    └─ migration.sql
+  └─ 20260929232000_link_embedding/
+    └─ migration.sql
+  └─ 20260929233000_submission_outbox_ban/
+    └─ migration.sql
+  └─ 20260929234000_orders_payments/
+    └─ migration.sql
+  └─ 20260929235000_analytics_events/
+    └─ migration.sql
+  └─ 20260930140000_order_br_code_and_catalog_indexes/
+    └─ migration.sql
+  └─ 20260930180000_analytics_link_totals_index/
+    └─ migration.sql
+  └─ 20261002140000_promotion_offers/
+    └─ migration.sql
+  └─ 20261002153000_adult_networks/
+    └─ migration.sql
+  └─ 20261005193000_one_open_moderation_case/
+    └─ migration.sql
+  └─ 20261006120000_facet_summary/
+    └─ migration.sql
+  └─ 20261009120000_acquisition_funnel/
+    └─ migration.sql
+  └─ 20261010120000_site_traffic/
+    └─ migration.sql
+  └─ 20261010150000_order_finance/
+    └─ migration.sql
+  └─ 20261015140000_evolution_operations/
+    └─ migration.sql
+  └─ 20261015153000_evolution_quoted_review/
+    └─ migration.sql
+  └─ 20261015180000_admin_promotions/
+    └─ migration.sql
+  └─ 20261016090000_promotion_investments/
+    └─ migration.sql
+  └─ 20261016090100_performance_query_index/
+    └─ migration.sql
+  └─ 20261016100000_link_reports/
+    └─ migration.sql
+  └─ 20261016100100_report_key_comparison/
+    └─ migration.sql
+  └─ 20261016110000_availability_paid_pause/
+    └─ migration.sql
+  └─ 20261016120000_renewal_reminders/
+    └─ migration.sql
+  └─ 20261016130000_related_link_indexes/
+    └─ migration.sql
+      
+All migrations have been successfully applied.
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run tsx scripts/e2e-seed.ts
+
+Running 7 tests using 1 worker
+
+(node:27688) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [setup] › e2e\auth.setup.ts:8:6 › sessão da Bia para os testes do painel (408ms)
+(node:54604) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  2 [features] › e2e\related-links.spec.ts:23:5 › F03-E01/T01/T03/T04 sugestões reais, destino e analytics RELATED; vazio remove seção (31.5s)
+(node:44772) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 3 [features] › e2e\related-links.spec.ts:45:5 › F03-E02/T01 privacidade no HTML, payload e DOM; aceite adulto usa API real (3.6s)
+  ok 4 [features] › e2e\related-links.spec.ts:62:5 › F03-E03/T01/T03 paginação, offline recuperável, teclado e 320px com texto 200% (4.3s)
+(node:39108) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  5 [features-mobile] › e2e\related-links.spec.ts:23:5 › F03-E01/T01/T03/T04 sugestões reais, destino e analytics RELATED; vazio remove seção (24.1s)
+(node:32816) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 6 [features-mobile] › e2e\related-links.spec.ts:45:5 › F03-E02/T01 privacidade no HTML, payload e DOM; aceite adulto usa API real (3.5s)
+  ok 7 [features-mobile] › e2e\related-links.spec.ts:62:5 › F03-E03/T01/T03 paginação, offline recuperável, teclado e 320px com texto 200% (3.9s)
+
+
+  1) [features] › e2e\related-links.spec.ts:23:5 › F03-E01/T01/T03/T04 sugestões reais, destino e analytics RELATED; vazio remove seção 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Destino externo fixture' })
+    Expected: visible
+    Timeout: 20000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Destino externo fixture' }) with timeout 20000ms
+      - waiting for getByRole('heading', { name: 'Destino externo fixture' })
+
+
+      35 |   await page.route('https://example.com/**', route => route.fulfill({ contentType: 'text/html', body: '<h1>Destino externo fixture</h1>' }))
+      36 |   await page.getByRole('link', { name: 'Acessar', exact: true }).click()
+    > 37 |   await expect(page.getByRole('heading', { name: 'Destino externo fixture' })).toBeVisible()
+         |                                                                                ^
+      38 |   expect(sql(`SELECT COUNT(*) FROM analytics_events WHERE "linkId"='${s.prefix}-item-0' AND surface='RELATED' AND kind='CLICK'`)).toBe('1')
+      39 |   sql(`UPDATE links SET status='UNAVAILABLE' WHERE "tenantId"='${s.tenantId}' AND id<>'${s.source}'`)
+      40 |   await page.goto(A + '/link/' + s.source)
+        at C:\Users\ferna\.codex\worktrees\roadmap-features\divulgadorlinks\frontend\e2e\related-links.spec.ts:37:80
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\related-links-F03-E01-T01--a4f8a--RELATED-vazio-remove-seção-features\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\related-links-F03-E01-T01--a4f8a--RELATED-vazio-remove-seção-features\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\related-links-F03-E01-T01--a4f8a--RELATED-vazio-remove-seção-features\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\related-links-F03-E01-T01--a4f8a--RELATED-vazio-remove-seção-features\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [features-mobile] › e2e\related-links.spec.ts:23:5 › F03-E01/T01/T03/T04 sugestões reais, destino e analytics RELATED; vazio remove seção 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Destino externo fixture' })
+    Expected: visible
+    Timeout: 20000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Destino externo fixture' }) with timeout 20000ms
+      - waiting for getByRole('heading', { name: 'Destino externo fixture' })
+
+
+      35 |   await page.route('https://example.com/**', route => route.fulfill({ contentType: 'text/html', body: '<h1>Destino externo fixture</h1>' }))
+      36 |   await page.getByRole('link', { name: 'Acessar', exact: true }).click()
+    > 37 |   await expect(page.getByRole('heading', { name: 'Destino externo fixture' })).toBeVisible()
+         |                                                                                ^
+      38 |   expect(sql(`SELECT COUNT(*) FROM analytics_events WHERE "linkId"='${s.prefix}-item-0' AND surface='RELATED' AND kind='CLICK'`)).toBe('1')
+      39 |   sql(`UPDATE links SET status='UNAVAILABLE' WHERE "tenantId"='${s.tenantId}' AND id<>'${s.source}'`)
+      40 |   await page.goto(A + '/link/' + s.source)
+        at C:\Users\ferna\.codex\worktrees\roadmap-features\divulgadorlinks\frontend\e2e\related-links.spec.ts:37:80
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\related-links-F03-E01-T01--a4f8a--RELATED-vazio-remove-seção-features-mobile\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\related-links-F03-E01-T01--a4f8a--RELATED-vazio-remove-seção-features-mobile\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\related-links-F03-E01-T01--a4f8a--RELATED-vazio-remove-seção-features-mobile\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\related-links-F03-E01-T01--a4f8a--RELATED-vazio-remove-seção-features-mobile\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [features] › e2e\related-links.spec.ts:23:5 › F03-E01/T01/T03/T04 sugestões reais, destino e analytics RELATED; vazio remove seção 
+    [features-mobile] › e2e\related-links.spec.ts:23:5 › F03-E01/T01/T03/T04 sugestões reais, destino e analytics RELATED; vazio remove seção 
+  5 passed (1.8m)

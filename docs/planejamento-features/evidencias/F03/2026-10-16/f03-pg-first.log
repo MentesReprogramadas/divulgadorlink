@@ -1,0 +1,115 @@
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run vitest run src/http/related-links.pg.spec.ts
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+{"event":"http.completed","request_id":"15251018-cfa8-440d-8036-b6db78ccbf7d","tenant":"2b8dd810-7be9-4323-857b-09d38225851a.test","entity":"GET /api/v1/links/:id/related","duration_ms":17.045100000000048,"status":200}
+{"event":"http.completed","request_id":"2f48aade-c386-420f-ac2a-0b730c04dfb4","tenant":"e4f3c344-1fdd-4d60-8b9b-9c5b85b3096c.test","entity":"GET /api/v1/links/:id/related","duration_ms":3.396099999999933,"status":404}
+{"event":"http.completed","request_id":"cfcb756d-9f4d-493f-9a10-8b4aef71f758","tenant":"2b8dd810-7be9-4323-857b-09d38225851a.test","entity":"GET /api/v1/links/:id/related","duration_ms":3.157699999999977,"status":404}
+{"event":"http.completed","request_id":"7e77d58d-0977-4acd-80ed-b148d58ffa4c","tenant":"2b8dd810-7be9-4323-857b-09d38225851a.test","entity":"GET /api/v1/links/:id/related","duration_ms":3.363399999999956,"status":404}
+{"event":"http.completed","request_id":"91e3a078-b822-42ec-b55e-ba04df4de2c0","tenant":"7b909fb0-2ff4-467f-9ab6-6f6a15e4f62d.test","entity":"GET /api/v1/links/:id/related","duration_ms":6.747699999999895,"status":200}
+{"event":"http.completed","request_id":"02ce023d-c83a-4d15-baf3-4a3eebe92459","tenant":"7b909fb0-2ff4-467f-9ab6-6f6a15e4f62d.test","entity":"GET /api/v1/links/:id/related","duration_ms":3.2414000000001124,"status":400}
+{"event":"http.completed","request_id":"4dfb6ca4-53ce-4f72-a263-74bedb5a14f7","tenant":"7b909fb0-2ff4-467f-9ab6-6f6a15e4f62d.test","entity":"GET /api/v1/links/:id/related","duration_ms":0.8399999999999181,"status":400}
+{"event":"http.completed","request_id":"e9687de2-5c0c-40b2-ac68-da07417c9928","tenant":"7b909fb0-2ff4-467f-9ab6-6f6a15e4f62d.test","entity":"GET /api/v1/links/:id/related","duration_ms":3.0032999999998538,"status":400}
+{"event":"http.completed","request_id":"ee250827-3d21-485a-850a-514ba14f4686","tenant":"7b909fb0-2ff4-467f-9ab6-6f6a15e4f62d.test","entity":"GET /api/v1/links/:id/related","duration_ms":3.033999999999878,"status":400}
+{"event":"http.completed","request_id":"ff4fe875-e269-4d00-b043-9562ae2fed39","tenant":"7b909fb0-2ff4-467f-9ab6-6f6a15e4f62d.test","entity":"GET /api/v1/links/:id/related","duration_ms":2.8969999999999345,"status":200}
+{"event":"http.completed","request_id":"5bb1b336-2fdb-4d16-bcbc-14ac14a9fc26","tenant":"7b909fb0-2ff4-467f-9ab6-6f6a15e4f62d.test","entity":"GET /api/v1/links/:id/related","duration_ms":2.8922000000000025,"status":200}
+{"event":"http.completed","request_id":"8f8fb93e-7a76-485e-b73e-0d7a16b62cc8","tenant":"7b909fb0-2ff4-467f-9ab6-6f6a15e4f62d.test","entity":"GET /api/v1/links/:id/related","duration_ms":5.72869999999989,"status":200}
+{"event":"http.completed","request_id":"c17ae5c8-e91c-49f9-b952-a02ea9ad7979","tenant":"7b909fb0-2ff4-467f-9ab6-6f6a15e4f62d.test","entity":"GET /api/v1/links/:id/related","duration_ms":6.660699999999906,"status":200}
+{"event":"http.completed","request_id":"e23f8100-547b-4355-ab68-53b0cd6f9d2b","tenant":"7b909fb0-2ff4-467f-9ab6-6f6a15e4f62d.test","entity":"GET /api/v1/links/:id/related","duration_ms":5.585800000000063,"status":200}
+{"event":"http.completed","request_id":"9f54e52c-2ec0-4115-b767-c8f0216e85cf","tenant":"7b909fb0-2ff4-467f-9ab6-6f6a15e4f62d.test","entity":"GET /api/v1/links/:id/related","duration_ms":5.641000000000076,"status":200}
+{"event":"http.completed","request_id":"a6b2f937-ea5a-43e0-b037-1b22a72f9bdd","tenant":"597157e4-87cb-4554-ac18-65004b1ce68c.test","entity":"GET /api/v1/links/:id/related","duration_ms":6.225000000000136,"status":200}
+{"event":"http.completed","request_id":"075c541c-7d7d-4e2f-b2b1-9f733b2c5cba","tenant":"91ce955a-5c7a-4440-8da5-daecf180153f.test","entity":"GET /api/v1/links/:id/related","duration_ms":5.572699999999941,"status":200}
+{"event":"analytics.recorded","request_id":"f8f1d3fd-263c-4ace-86bb-42ae49abc0c9","tenant":"91ce955a-5c7a-4440-8da5-daecf180153f","entity":"visit-91ce955a-5c7a-4440-8da5-daecf180153f","requestId":"f8f1d3fd-263c-4ace-86bb-42ae49abc0c9","tenantId":"91ce955a-5c7a-4440-8da5-daecf180153f","linkId":"visit-91ce955a-5c7a-4440-8da5-daecf180153f","kind":"IMPRESSION","surface":"RELATED"}
+{"event":"http.completed","request_id":"f8f1d3fd-263c-4ace-86bb-42ae49abc0c9","tenant":"91ce955a-5c7a-4440-8da5-daecf180153f.test","entity":"POST /api/v1/analytics/impressions","duration_ms":9.842799999999897,"status":201}
+{"event":"analytics.duplicate","request_id":"9d8c9962-eba2-413c-b6b3-1e573aea0a46","tenant":"91ce955a-5c7a-4440-8da5-daecf180153f","entity":"visit-91ce955a-5c7a-4440-8da5-daecf180153f","requestId":"9d8c9962-eba2-413c-b6b3-1e573aea0a46","tenantId":"91ce955a-5c7a-4440-8da5-daecf180153f","linkId":"visit-91ce955a-5c7a-4440-8da5-daecf180153f","kind":"IMPRESSION","surface":"RELATED"}
+{"event":"http.completed","request_id":"9d8c9962-eba2-413c-b6b3-1e573aea0a46","tenant":"91ce955a-5c7a-4440-8da5-daecf180153f.test","entity":"POST /api/v1/analytics/impressions","duration_ms":3.8826000000001386,"status":200}
+{"event":"http.completed","request_id":"25637074-6acd-479d-b83d-d60c5243f929","tenant":"91ce955a-5c7a-4440-8da5-daecf180153f.test","entity":"POST /api/v1/analytics/impressions","duration_ms":0.9039000000000215,"status":400}
+{"event":"http.completed","request_id":"ed51ff84-ae8f-4ebc-a89c-a5831b3bc571","tenant":"91ce955a-5c7a-4440-8da5-daecf180153f.test","entity":"POST /api/v1/analytics/impressions","duration_ms":0.9076999999999771,"status":400}
+{"event":"http.completed","request_id":"6fd0bea7-3bcc-4ac7-8d2e-8587682da9ed","tenant":"91ce955a-5c7a-4440-8da5-daecf180153f.test","entity":"POST /api/v1/analytics/impressions","duration_ms":0.948699999999917,"status":400}
+{"event":"http.completed","request_id":"e7b7fa99-24cf-45f8-b015-7ed95c1363c8","tenant":"91ce955a-5c7a-4440-8da5-daecf180153f.test","entity":"GET /api/v1/go/visit-91ce955a-5c7a-4440-8da5-daecf180153f","duration_ms":0.13940000000002328,"status":404}
+ ❯ src/http/related-links.pg.spec.ts (5 tests | 3 failed) 340ms
+   × F03-I01/PG01/T01 eligibility, stable keysets and canonical URL deduplication before pagination 84ms
+   × F03-PG04/T02 paid placement elsewhere does not sponsor RELATED; hidden counters stay absent 36ms
+   × F03-I01/PG05/T04 related impression and exit are separate, deduplicated, signed and revalidated 45ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/http/related-links.pg.spec.ts > F03-I01/PG01/T01 eligibility, stable keysets and canonical URL deduplication before pagination
+PrismaClientValidationError: 
+Invalid `db.link.create()` invocation in
+C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend/src/http/related-links.pg.spec.ts:38:18
+
+  35 afterAll(async () => { setRelatedLinksDbForTest(null); await db.$disconnect() })
+  36 async function seed(id: string, overrides: { tenantId?: string; nicheId?: string; networkId?: string; ownerId?: string; canonicalUrl?: string; status?: LinkStatus } = {}) {
+  37   const t = overrides.tenantId ?? tenant
+→ 38   return db.link.create({
+         data: {
+           id: "REJECTED52f5b091-e20e-4bbb-bde7-daaacad007de",
+           tenantId: "52f5b091-e20e-4bbb-bde7-daaacad007de",
+           ownerId: "u-52f5b091-e20e-4bbb-bde7-daaacad007de",
+           nicheId: "n52f5b091-e20e-4bbb-bde7-daaacad007de",
+           networkId: "r52f5b091-e20e-4bbb-bde7-daaacad007de",
+           canonicalUrl: "https://example.com/REJECTED52f5b091-e20e-4bbb-bde7-daaacad007de",
+           name: "REJECTED52f5b091-e20e-4bbb-bde7-daaacad007de",
+           description: "Public description",
+           status: "REJECTED"
+                   ~~~~~~~~~~
+         }
+       })
+
+Invalid value for argument `status`. Expected LinkStatus.
+ ❯ En node_modules/@prisma/client/runtime/library.js:29:1363
+ ❯ Mn.handleRequestError node_modules/@prisma/client/runtime/library.js:121:6981
+ ❯ Mn.handleAndLogRequestError node_modules/@prisma/client/runtime/library.js:121:6663
+ ❯ Mn.request node_modules/@prisma/client/runtime/library.js:121:6370
+ ❯ l node_modules/@prisma/client/runtime/library.js:130:9633
+ ❯ src/http/related-links.pg.spec.ts:48:84
+     46|   await seed('duplicate' + tenant, { canonicalUrl: 'https://example.co…
+     47|   await seed('same-source' + tenant, { canonicalUrl: 'https://example.…
+     48|   for (const status of ['PENDING_MODERATION', 'UNAVAILABLE', 'REJECTED…
+       |                                                                                    ^
+     49|   await seed('foreign' + tenant, { tenantId: foreign })
+     50|   await seed('corrupt-niche' + tenant, { nicheId: 'n' + foreign })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/http/related-links.pg.spec.ts > F03-PG04/T02 paid placement elsewhere does not sponsor RELATED; hidden counters stay absent
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/http/related-links.pg.spec.ts:92:67
+     90|   await db.promotion.create({ data: { tenantId: tenant, linkId: id, su…
+     91|   await db.config.create({ data: { tenantId: tenant, key: 'SHOW_IMPRES…
+     92|   const body = (await get()).json(); expect(body.showImpressions).toBe…
+       |                                                                   ^
+     93|   expect(body.items).toHaveLength(1); expect(body.items[0].sponsored).…
+     94| })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/http/related-links.pg.spec.ts > F03-I01/PG05/T04 related impression and exit are separate, deduplicated, signed and revalidated
+AssertionError: expected 404 to be 302 // Object.is equality
+
+- Expected
++ Received
+
+- 302
++ 404
+
+ ❯ src/http/related-links.pg.spec.ts:106:25
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 2 passed (5)
+   Start at  11:26:21
+   Duration  1.95s (transform 43%, import 38%, tests 19%)
+

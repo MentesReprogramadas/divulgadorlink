@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-16",
+  "method": "Chrome DevTools real local Next production build; isolated synthetic tenant",
+  "desktop": [
+    1280,
+    720
+  ],
+  "mobile": [
+    390,
+    844
+  ],
+  "reflow": {
+    "viewport": 320,
+    "rootText": "200%",
+    "scrollWidth": 320
+  },
+  "keyboard": {
+    "source": "Tab between actual card anchors",
+    "outline": "2px solid rgb(10,25,47)",
+    "offset": "3px",
+    "focusVisible": true,
+    "finalPagination": "Playwright desktop/mobile asserts focus on visible confirmation after final page"
+  },
+  "secondaryColor": "rgb(92,107,127)",
+  "cardBackground": "rgb(255,255,255)",
+  "contrast": 5.43,
+  "canonical": "https://f03-review.localhost/link/f03-review-source",
+  "robots": "index, follow",
+  "screenshotsInspected": [
+    "desktop Chrome inline",
+    "390 touch Chrome inline",
+    "320 text200 Chrome inline",
+    "Playwright desktop/mobile/320 PNG opened"
+  ],
+  "limits": [
+    "Chromium emulation; no physical iPhone/Android or screen reader claim",
+    "MCP keyboard zoom shortcuts did not change viewport/DPR; effective proof is text200 reflow",
+    "F03 protects related suggestions for adult network; preexisting detail AgeWall only examines niche requiresAge"
+  ],
+  "console": {
+    "warnings": 0,
+    "errors": 0,
+    "scope": "Chrome local page since navigation"
+  },
+  "network": {
+    "detail": 200,
+    "impressions": 200,
+    "visits": 204,
+    "scope": "Only own application requests recorded; browser security-extension traffic excluded"
+  },
+  "visualMethod": "Qualitative inspection of new section and screenshots; no preexisting pixel baseline for F03"
+}

@@ -1,6 +1,6 @@
 # Roadmap auditável por etapa
 
-**Baseline inicial:** 14 de outubro de 2026. **Repriorização:** 15 de outubro de 2026, F42 em primeiro lugar. **Execução:** P0/F42 concluído em produção e validado, por autorização posterior. Continuação F01–F41 autorizada em branch separada; F01 concluída na branch; F06 concluída na branch e F07 concluída na branch, com CI aprovado. Ver [execução contínua](execucao-roadmap.md). Evidências em [execução F42](execucao-f42.md).
+**Baseline inicial:** 14 de outubro de 2026. **Repriorização:** 15 de outubro de 2026, F42 em primeiro lugar. **Execução:** P0/F42 concluído em produção e validado, por autorização posterior. Continuação F01–F41 autorizada em branch separada; F01 concluída na branch; F06 concluída na branch e F07 concluída na branch, com CI aprovado. F02 e F03 concluídas na branch; parada solicitada após F03. Ver [execução contínua](execucao-roadmap.md). Evidências em [execução F42](execucao-f42.md).
 
 [Índice](README.md) · [Ordem](ordem-de-entrega.md) · [Decisões](decisoes.md) · [Qualidade](qualidade-e-testes.md) · [Ledger em CSV](roadmap-etapas.csv) · [Matriz AC](matriz-aceitacao.csv).
 
@@ -120,14 +120,14 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 
 | Etapa | Estado | Pré-requisito imediato | Entregável a verificar |
 | --- | --- | --- | --- |
-| F03-S0 | NÃO INICIADA | F42 (prioridade), G00 | [Escopo contratos e reuso](planos/f03-links-relacionados.md#f03-s0-escopo-contratos-e-revisão-de-reutilização) |
-| F03-S1 | NÃO INICIADA | F03-S0 | [Testes U e C](planos/f03-links-relacionados.md#f03-s1-testes-unitários-e-componentes-antes-da-regra) |
-| F03-S2 | NÃO INICIADA | F03-S1 | [Dados e migração](planos/f03-links-relacionados.md#f03-s2-dados-invariantes-e-migração) |
-| F03-S3 | NÃO INICIADA | F03-S2 | [Domínio API e jobs](planos/f03-links-relacionados.md#f03-s3-regra-de-negócio-api-e-jobs) |
-| F03-S4 | NÃO INICIADA | F03-S3 | [Interface](planos/f03-links-relacionados.md#f03-s4-interface-composição-e-estados) |
-| F03-S5 | NÃO INICIADA | F03-S4 | [Integração e ACs](planos/f03-links-relacionados.md#f03-s5-integração-contrato-persistência-e-falhas) |
-| F03-S6 | NÃO INICIADA | F03-S5 | [Playwright e QA](planos/f03-links-relacionados.md#f03-s6-e2e-playwright-e-revisão-visual) |
-| F03-S7 | NÃO INICIADA | F03-S6 | [Regressão e liberação](planos/f03-links-relacionados.md#f03-s7-regressão-rollout-e-fechamento-auditável) |
+| F03-S0 | CONCLUÍDA | F42 (prioridade), G00 | [Escopo contratos e reuso](planos/f03-links-relacionados.md#f03-s0-escopo-contratos-e-revisão-de-reutilização) |
+| F03-S1 | CONCLUÍDA | F03-S0 | [Testes U e C](planos/f03-links-relacionados.md#f03-s1-testes-unitários-e-componentes-antes-da-regra) |
+| F03-S2 | CONCLUÍDA | F03-S1 | [Dados e migração](planos/f03-links-relacionados.md#f03-s2-dados-invariantes-e-migração) |
+| F03-S3 | CONCLUÍDA | F03-S2 | [Domínio API e jobs](planos/f03-links-relacionados.md#f03-s3-regra-de-negócio-api-e-jobs) |
+| F03-S4 | CONCLUÍDA | F03-S3 | [Interface](planos/f03-links-relacionados.md#f03-s4-interface-composição-e-estados) |
+| F03-S5 | CONCLUÍDA | F03-S4 | [Integração e ACs](planos/f03-links-relacionados.md#f03-s5-integração-contrato-persistência-e-falhas) |
+| F03-S6 | CONCLUÍDA | F03-S5 | [Playwright e QA](planos/f03-links-relacionados.md#f03-s6-e2e-playwright-e-revisão-visual) |
+| F03-S7 | CONCLUÍDA | F03-S6 | [Regressão e liberação](planos/f03-links-relacionados.md#f03-s7-regressão-rollout-e-fechamento-auditável) |
 
 ### 7 F04 Favoritos e coleções
 

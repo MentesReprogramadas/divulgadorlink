@@ -46,3 +46,7 @@ F01 e F06 concluídas na branch; F07 implementada com pausa do tempo pago e recu
 ## Continuação limitada à F02 — 16/10/2026
 
 Nova solicitação: fazer a próxima e parar ao acabar. F02 implementada na mesma branch; validação e fechamento em [execução F02](execucao-f02.md). Esta autorização supera a parada anterior somente para F02; não iniciar a seguinte.
+
+## Continuação limitada à F03 — 16/10/2026
+
+Solicitação posterior: fazer a próxima e parar. F03 concluída em `2672f834a3f2e34c6e7c794e0f9c31cfb57a885c`, com CI 38917846538 aprovado e evidências em [execução F03](execucao-f03.md). Esta autorização supera a parada após F02 somente para esta feature. Encerramento após F03; F04 não iniciada. Nenhum deploy, main ou envio real.

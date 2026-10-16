@@ -1,0 +1,42 @@
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run vitest run --config backend/vitest.config.ts backend/src/http/related-links.pg.spec.ts
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks
+
+{"event":"http.completed","request_id":"b0812dba-15c7-4c4d-a647-efa61d6e7509","tenant":"9184eb24-f91c-432a-bd70-da1cc8a0d829.test","entity":"GET /api/v1/links/:id/related","duration_ms":13.51260000000002,"status":200}
+{"event":"http.completed","request_id":"0cb8b5d5-5ca0-4a54-8801-fb0b0eb06457","tenant":"9184eb24-f91c-432a-bd70-da1cc8a0d829.test","entity":"GET /api/v1/links/:id/related","duration_ms":7.2538999999999305,"status":200}
+{"event":"http.completed","request_id":"18d257be-9432-4e8d-8952-e69253558b10","tenant":"66358a08-bd14-43f7-99de-d5249e16e8b0.test","entity":"GET /api/v1/links/:id/related","duration_ms":5.749700000000075,"status":200}
+{"event":"http.completed","request_id":"426c255f-52d0-4720-ae56-2558eb33a195","tenant":"fd2db773-09ae-42b2-859b-4dc05054eadb.test","entity":"GET /api/v1/links/:id/related","duration_ms":3.141300000000001,"status":404}
+{"event":"http.completed","request_id":"79e589ce-2353-4a1a-968e-e086bff701ee","tenant":"66358a08-bd14-43f7-99de-d5249e16e8b0.test","entity":"GET /api/v1/links/:id/related","duration_ms":3.169199999999819,"status":404}
+{"event":"http.completed","request_id":"14b0870a-1c99-48c1-b73b-178672baa864","tenant":"66358a08-bd14-43f7-99de-d5249e16e8b0.test","entity":"GET /api/v1/links/:id/related","duration_ms":3.139599999999973,"status":404}
+{"event":"http.completed","request_id":"6f72e3d0-8033-470b-ae20-06de930f33fe","tenant":"6d664384-c9c7-4ef6-95e6-ffab88b651fe.test","entity":"GET /api/v1/links/:id/related","duration_ms":5.541300000000092,"status":200}
+{"event":"http.completed","request_id":"40c5a122-6675-438b-93a1-3aad24a0b8c2","tenant":"6d664384-c9c7-4ef6-95e6-ffab88b651fe.test","entity":"GET /api/v1/links/:id/related","duration_ms":2.9138000000000375,"status":400}
+{"event":"http.completed","request_id":"995aee81-f4e9-4eec-a793-c017ee28063c","tenant":"6d664384-c9c7-4ef6-95e6-ffab88b651fe.test","entity":"GET /api/v1/links/:id/related","duration_ms":0.6942999999998847,"status":400}
+{"event":"http.completed","request_id":"20b1cb9f-e144-4c9c-9063-f147af87c674","tenant":"6d664384-c9c7-4ef6-95e6-ffab88b651fe.test","entity":"GET /api/v1/links/:id/related","duration_ms":3.141300000000001,"status":400}
+{"event":"http.completed","request_id":"d016a6ef-2b91-472e-a922-7ed9f8f26c00","tenant":"6d664384-c9c7-4ef6-95e6-ffab88b651fe.test","entity":"GET /api/v1/links/:id/related","duration_ms":2.8047999999998865,"status":400}
+{"event":"http.completed","request_id":"b5997b26-1003-4071-9808-212baaee12f6","tenant":"6d664384-c9c7-4ef6-95e6-ffab88b651fe.test","entity":"GET /api/v1/links/:id/related","duration_ms":2.677400000000034,"status":200}
+{"event":"http.completed","request_id":"6c6da4a2-7f18-4a2f-b292-f6c44d158e7b","tenant":"6d664384-c9c7-4ef6-95e6-ffab88b651fe.test","entity":"GET /api/v1/links/:id/related","duration_ms":2.6306999999999334,"status":200}
+{"event":"http.completed","request_id":"879a4193-2ead-413a-8a82-a8a2e8bba3df","tenant":"6d664384-c9c7-4ef6-95e6-ffab88b651fe.test","entity":"GET /api/v1/links/:id/related","duration_ms":5.814499999999953,"status":200}
+{"event":"http.completed","request_id":"38147f20-aa20-4948-a94a-d4b70f7fe45c","tenant":"6d664384-c9c7-4ef6-95e6-ffab88b651fe.test","entity":"GET /api/v1/links/:id/related","duration_ms":5.82140000000004,"status":200}
+{"event":"http.completed","request_id":"ab06ce8d-5ce6-479a-8057-6f36d7ef5ce1","tenant":"6d664384-c9c7-4ef6-95e6-ffab88b651fe.test","entity":"GET /api/v1/links/:id/related","duration_ms":5.394199999999955,"status":200}
+{"event":"http.completed","request_id":"dd536451-a820-44d6-bd89-23775efeb015","tenant":"6d664384-c9c7-4ef6-95e6-ffab88b651fe.test","entity":"GET /api/v1/links/:id/related","duration_ms":5.286299999999983,"status":200}
+{"event":"http.completed","request_id":"382578fc-a919-4ec1-be3b-e4ec0b615323","tenant":"2fce7b23-d2b0-4168-8b03-d4d92eb484a5.test","entity":"GET /api/v1/links/:id/related","duration_ms":5.49369999999999,"status":200}
+{"event":"http.completed","request_id":"faaac465-4ed3-42f5-8cf9-d02b52b88013","tenant":"5b6a1eca-7353-412a-bf0e-713ed9836acf.test","entity":"GET /api/v1/links/:id/related","duration_ms":5.257399999999961,"status":200}
+{"event":"analytics.recorded","request_id":"3c78b069-6331-48d3-9cc1-2549d7732af4","tenant":"5b6a1eca-7353-412a-bf0e-713ed9836acf","entity":"visit-5b6a1eca-7353-412a-bf0e-713ed9836acf","requestId":"3c78b069-6331-48d3-9cc1-2549d7732af4","tenantId":"5b6a1eca-7353-412a-bf0e-713ed9836acf","linkId":"visit-5b6a1eca-7353-412a-bf0e-713ed9836acf","kind":"IMPRESSION","surface":"RELATED"}
+{"event":"http.completed","request_id":"3c78b069-6331-48d3-9cc1-2549d7732af4","tenant":"5b6a1eca-7353-412a-bf0e-713ed9836acf.test","entity":"POST /api/v1/analytics/impressions","duration_ms":8.238399999999956,"status":201}
+{"event":"analytics.duplicate","request_id":"080cb43f-6009-4e88-95a4-cba18e7bcc65","tenant":"5b6a1eca-7353-412a-bf0e-713ed9836acf","entity":"visit-5b6a1eca-7353-412a-bf0e-713ed9836acf","requestId":"080cb43f-6009-4e88-95a4-cba18e7bcc65","tenantId":"5b6a1eca-7353-412a-bf0e-713ed9836acf","linkId":"visit-5b6a1eca-7353-412a-bf0e-713ed9836acf","kind":"IMPRESSION","surface":"RELATED"}
+{"event":"http.completed","request_id":"080cb43f-6009-4e88-95a4-cba18e7bcc65","tenant":"5b6a1eca-7353-412a-bf0e-713ed9836acf.test","entity":"POST /api/v1/analytics/impressions","duration_ms":3.908100000000104,"status":200}
+{"event":"http.completed","request_id":"f042c3ed-b16a-4c42-8004-a55a7c7766c6","tenant":"5b6a1eca-7353-412a-bf0e-713ed9836acf.test","entity":"POST /api/v1/analytics/impressions","duration_ms":0.944300000000112,"status":400}
+{"event":"http.completed","request_id":"e5c3e59e-3e73-4840-b1f1-d57321fe6a1f","tenant":"5b6a1eca-7353-412a-bf0e-713ed9836acf.test","entity":"POST /api/v1/analytics/impressions","duration_ms":0.9319000000000415,"status":400}
+{"event":"http.completed","request_id":"5dedca70-1efd-4325-951e-74f38272925e","tenant":"5b6a1eca-7353-412a-bf0e-713ed9836acf.test","entity":"POST /api/v1/analytics/impressions","duration_ms":0.9011000000000422,"status":400}
+{"event":"analytics.recorded","request_id":"c8c7b5ec-709e-4418-bc84-e2c6bfdbf2b5","tenant":"5b6a1eca-7353-412a-bf0e-713ed9836acf","entity":"visit-5b6a1eca-7353-412a-bf0e-713ed9836acf","requestId":"c8c7b5ec-709e-4418-bc84-e2c6bfdbf2b5","tenantId":"5b6a1eca-7353-412a-bf0e-713ed9836acf","linkId":"visit-5b6a1eca-7353-412a-bf0e-713ed9836acf","kind":"CLICK","surface":"RELATED"}
+{"event":"http.completed","request_id":"c8c7b5ec-709e-4418-bc84-e2c6bfdbf2b5","tenant":"5b6a1eca-7353-412a-bf0e-713ed9836acf.test","entity":"GET /go/:linkId","duration_ms":4.413199999999961,"status":302}
+{"event":"analytics.recorded","request_id":"a7c10670-25bf-4492-9a18-c48640f318ad","tenant":"5b6a1eca-7353-412a-bf0e-713ed9836acf","entity":"visit-5b6a1eca-7353-412a-bf0e-713ed9836acf","requestId":"a7c10670-25bf-4492-9a18-c48640f318ad","tenantId":"5b6a1eca-7353-412a-bf0e-713ed9836acf","linkId":"visit-5b6a1eca-7353-412a-bf0e-713ed9836acf","kind":"IMPRESSION","surface":"ORGANIC"}
+{"event":"http.completed","request_id":"a7c10670-25bf-4492-9a18-c48640f318ad","tenant":"5b6a1eca-7353-412a-bf0e-713ed9836acf.test","entity":"POST /api/v1/analytics/impressions","duration_ms":4.387899999999945,"status":201}
+{"event":"http.completed","request_id":"41041cc1-2115-40c6-99e5-e65cf1f0be06","tenant":"5b6a1eca-7353-412a-bf0e-713ed9836acf.test","entity":"POST /api/v1/analytics/impressions","duration_ms":2.9248999999999796,"status":404}
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  11:26:43
+   Duration  1.97s (transform 45%, import 36%, tests 19%)
+

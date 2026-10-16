@@ -1,0 +1,35 @@
+npm notice run divulgador-links-web@0.1.0 test
+npm notice run vitest run src/features/catalog/components/related-links.test.tsx
+
+ RUN  v5.0.3 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend
+
+ ❯ src/features/catalog/components/related-links.test.tsx (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/catalog/components/related-links.test.tsx [ src/features/catalog/components/related-links.test.tsx ]
+Error: Failed to resolve import "./related-links" from "src/features/catalog/components/related-links.test.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend/src/features/catalog/components/related-links.test.tsx:3:0
+  2  |  const __vi_import_0__ = await import("react/jsx-dev-runtime");
+  3  |  const __vi_import_1__ = await import("@testing-library/react");
+  4  |  const __vi_import_2__ = await import("./related-links");
+     |                                       ^
+  5  |  const __vi_import_3__ = await import("@/lib/api");
+  6  |  
+ ❯ TransformPluginContext._formatLog node_modules/vite/dist/node/chunks/config.js:29079:43
+ ❯ TransformPluginContext.error node_modules/vite/dist/node/chunks/config.js:29076:14
+ ❯ normalizeUrl node_modules/vite/dist/node/chunks/config.js:27199:18
+ ❯ node_modules/vite/dist/node/chunks/config.js:27257:32
+ ❯ TransformPluginContext.transform node_modules/vite/dist/node/chunks/config.js:27225:4
+ ❯ EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/config.js:28877:14
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/config.js:22746:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  11:21:24
+   Duration  628ms (environment 99%, worker 1%)
+

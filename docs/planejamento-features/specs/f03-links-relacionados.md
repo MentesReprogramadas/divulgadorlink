@@ -2,12 +2,24 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 6.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
+**Estado:** CONCLUÍDA NA BRANCH; S0–S7 e AC01–AC04 verificados.
 **Onda:** 2. **Ordem:** 6.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Links relacionados”.  
 **Plano:** [F03 implementação](../planos/f03-links-relacionados.md).  
 **Dependências obrigatórias:** G00; base atual, sem outra feature nova.  
 **Governança:** [arquitetura](../arquitetura-e-reuso.md), [testes](../qualidade-e-testes.md), [decisões](../decisoes.md), [roadmap](../roadmap-auditavel.md).
+
+## Reconciliação da execução — 16/10/2026
+
+[Execução, decisões, comandos, resultados, limitações e reversão](../execucao-f03.md). Implementação concluída na branch `codex/roadmap-features`; nenhuma publicação na main ou deploy. A próxima feature não foi iniciada.
+
+Os caminhos inicialmente sugeridos não exigiram criar um use case vazio nem copiar o ranking semântico. Domínio em `backend/src/domain/catalog/related-links.ts`, consulta em `backend/src/repositories/related-links-repository.ts`, controller em `backend/src/http/controllers/@Catalog/related-links.ts`; composição em `frontend/src/features/catalog/{components,server}`. I e PG compartilham o mesmo spec PostgreSQL/HTTP real. Nenhum job novo. As tarefas genéricas de mutação/CSRF, worker, provedor, download, QR, TLS e PWA são inaplicáveis a esta leitura pública; não foram marcadas como testes executados.
+
+Contrato final: seis por página, cursor HMAC vinculado ao contexto, `showImpressions` e impressões opcionais conforme configuração existente. Exclusões por ID e URL canônica, tenant, publicação, dono suspenso e idade do nicho ou rede. Leitura em snapshot, sem efeitos. Primeiro lote no servidor; conteúdo restrito não entra no HTML/RSC antes do aceite. Erro recuperável, cursor obsoleto e teclado cobertos.
+
+AC02 reconciliado: RELATED é origem analítica; `sponsored=false` no MVP, pois não existe posição paga RELATED. Promoção em outra superfície não muda essa marcação. O renderer compartilhado identifica patrocinado quando recebe contrato válido; não se criou produto pago. AC04 preserva impressão como abertura do detalhe e clique como saída por Acessar; não significa card visto ou entrada em grupo. AnalyticsEvent.surface é String no banco; somente uniões de assinatura/mapeamento e relatório cresceram, sem mudar PromotionSurface.
+
+Critérios originais e fonte integral permanecem abaixo. Checkboxes concluídos indicam tarefa aplicável comprovada ou condição explicitamente inaplicável conforme este registro. A liberação de produção continua fora do aceite da branch.
 
 ## Objetivo e fronteira
 
@@ -53,7 +65,7 @@ Rotas/operações: GET /api/v1/links/:id/related?cursor; somente projeção púb
 
 **Saída específica:** `items[{id,name,description,network,niche,sponsored,surfaceToken}],nextCursor`.
 
-Todos os caminhos são propostas a reconciliar com rotas atuais em S0; não estão implementados. Quando a rota abreviada omite prefixo, o prefixo é /api/v1. PATCH/POST/DELETE com sessão preservam CSRF do app e enviam host pelo BFF; tenant não vem do corpo. GET público não exige autenticação indevida. Exportações, tokens e respostas privadas usam política de cache que impeça exposição.
+Os caminhos efetivos estão reconciliados no registro de execução F03; a rota pública descrita está implementada. Quando a rota abreviada omite prefixo, o prefixo é /api/v1. PATCH/POST/DELETE com sessão preservam CSRF do app e enviam host pelo BFF; tenant não vem do corpo. GET público não exige autenticação indevida. Exportações, tokens e respostas privadas usam política de cache que impeça exposição.
 
 Erros: aplicar o envelope existente code/message/request_id; 400 para entrada inválida, 401 sem sessão em recurso privado, 403 para contexto de tenant incompatível quando contrato atual exige, 404 para recurso alheio/ausente sem enumerar dados, 409 para conflito de versão/identidade, 429 para limite, 503 para indisponibilidade externa quando apropriado. Rotas existentes podem ter semântica específica; preservar testes de contrato e documentar divergência antes de mudar.
 
@@ -116,16 +128,16 @@ Criar um teste com ID Tnn para cada AC, com o seguinte protocolo específico da 
 
 ## Arquivos de teste propostos
 
-- U: `backend/src/domain/catalog/links-relacionados.spec.ts`.
-- C: `frontend/src/components/domain/links-relacionados.test.tsx`.
-- I: `backend/src/http/links-relacionados.http.spec.ts`.
-- PG: `backend/src/http/links-relacionados.pg.spec.ts`; registrar no comando/CI de PG.
-- E: `frontend/e2e/links-relacionados.spec.ts`; registrar no projeto features e features-mobile antes de executar.
+- U: `backend/src/domain/catalog/related-links.spec.ts`.
+- C: `frontend/src/features/catalog/components/related-links.test.tsx`.
+- I: `backend/src/http/related-links.pg.spec.ts`.
+- PG: `backend/src/http/related-links.pg.spec.ts`; registrar no comando/CI de PG.
+- E: `frontend/e2e/related-links.spec.ts`; registrar no projeto features e features-mobile antes de executar.
 - Consumidores e novos caminhos sugeridos estão no plano; todos devem ser reconciliados com a árvore existente em S0.
 
 ## Decisões e condições de liberação
 
-D04 quantidade e ordenação inicial; iniciar por nicho/rede, sem exigir embeddings.
+D04 resolvida: seis por página; mesmo nicho e rede, mesmo nicho, mesma rede; ID ascendente no empate, sem IA. Ver execução F03.
 
 Risco específico: Enums/uniões de surfaceFor e surface-token precisam crescer em conjunto; custo de IA não justificado no MVP.
 

@@ -1,0 +1,7 @@
+{
+  "existingCatalogReadable": true,
+  "rows": 6,
+  "relatedEventsPreserved": true,
+  "promotionsPreserved": true,
+  "policy": "Remove entry and route while keeping related token/report compatibility; additive indexes may remain"
+}

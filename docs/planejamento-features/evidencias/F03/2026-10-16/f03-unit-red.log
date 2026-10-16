@@ -1,0 +1,26 @@
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run vitest run src/domain/catalog/related-links.spec.ts
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+ ❯ src/domain/catalog/related-links.spec.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/domain/catalog/related-links.spec.ts [ src/domain/catalog/related-links.spec.ts ]
+Error: Cannot find module './related-links' imported from C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend/src/domain/catalog/related-links.spec.ts
+ ❯ src/domain/catalog/related-links.spec.ts:2:1
+      1| import { describe, expect, it } from 'vitest'
+      2| import { selectRelated, encodeRelatedCursor, decodeRelatedCursor } fro…
+       | ^
+      3| const source = { id: 'source', tenantId: 'a', canonicalUrl: 'https://e…
+      4| const candidate = { ...source, id: 'one', canonicalUrl: 'https://examp…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  11:17:59
+   Duration  167ms (worker 94%, environment 6%)
+
