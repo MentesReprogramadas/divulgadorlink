@@ -28,12 +28,21 @@ test('F09-E01/T03/T04/T05 grupos, ordem, redes, foto e botão principal; prévia
   await page.getByRole('button', { name: 'Adicionar grupo', exact: true }).click(); await page.getByLabel('Nome do grupo 2', { exact: true }).fill('Redes sociais')
   const social = await add(page, 2, 1, 'Vídeos'); await social.getByLabel('Tipo de link').selectOption('SOCIAL'); await social.getByLabel('URL', { exact: true }).fill('https://example.com/videos')
   await page.getByLabel('Botão principal').selectOption({ label: 'Site principal' })
-  await page.getByLabel('Foto do perfil', { exact: true }).setInputFiles(path.join(__dirname, '../../backend/src/domain/profiles/avatar.fixture.png'))
-  await expect(page.getByRole('status').filter({ hasText: 'Foto recebida.' })).toBeVisible()
+  for (const mime of ['image/png', 'image/jpeg', 'image/webp']) {
+    const buffer = mime === 'image/png' ? readFileSync(path.join(__dirname, '../../backend/src/domain/profiles/avatar.fixture.png')) : Buffer.from(await page.evaluate(mime => {
+      const canvas = document.createElement('canvas'); canvas.width = 16; canvas.height = 16
+      const context = canvas.getContext('2d')!; context.fillStyle = '#146dca'; context.fillRect(0, 0, 16, 16)
+      return canvas.toDataURL(mime).split(',')[1]
+    }, mime), 'base64')
+    await page.getByLabel('Foto do perfil', { exact: true }).setInputFiles({ name: 'foto.' + mime.split('/')[1], mimeType: mime, buffer })
+    await expect(page.getByRole('status').filter({ hasText: 'Foto recebida.' })).toBeVisible()
+  }
   await page.getByRole('button', { name: 'Subir grupo 2', exact: true }).click()
   await page.getByRole('button', { name: 'Ver prévia', exact: true }).click()
   const preview = page.getByRole('region', { name: 'Prévia do perfil', exact: true })
   await expect(preview.getByRole('link', { name: 'Vídeos' })).toBeVisible(); expect(await preview.innerHTML()).not.toContain('OcultoSentinela')
+  await preview.scrollIntoViewIfNeeded()
+  await expect.poll(() => preview.locator('img').evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true)
   await page.screenshot({ path: info.outputPath('profile-editor.png'), fullPage: true })
   await page.getByRole('button', { name: 'Publicar perfil', exact: true }).click(); await expect(page.getByRole('status').filter({ hasText: 'Perfil publicado.' })).toBeVisible()
   const context = await browser.newContext({ viewport: info.project.use.viewport })
