@@ -68,3 +68,7 @@ O usuário resolveu D10: validação automática, bloqueio de suspeitos e rascun
 ## Retomada contínua em 16/10/2026
 
 O usuário autorizou continuar as features sem a parada anterior por feature. F12 entrou em preparação; contrato de entrada e quatro testes preparatórios RED/GREEN registrados. Liberação de novo destino e retenção de histórico aguardam decisão do usuário. Nenhum AC foi fechado nesta preparação. Ver [execução F12](execucao-f12.md).
+
+## 16/10/2026 — F12 concluída; parada solicitada
+
+A instrução mais recente limita a execução à feature em andamento. F12 concluída em `1809e1d97f0b7e7681409041a2073412352d91d6` na branch codex/roadmap-features; [CI 38971032480](https://github.com/MentesReprogramadas/divulgadorlink/actions/runs/38971032480) aprovado. Destino estável com troca validada, histórico 50/180, métricas separadas, isolamento/idade e painel. Local: 431 testes backend, 201 frontend, 152 PG e 100 Playwright. [Execução F12](execucao-f12.md) registra reutilização, limites, falhas/correções, migração e reversão. S0–S7 e cinco ACs atualizados. Parada após F12; F19 não iniciada. Sem main/deploy.

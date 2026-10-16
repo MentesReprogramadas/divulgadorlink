@@ -1,0 +1,6 @@
+{
+  "legacyTablesUnchangedAfterPopulatingNewTables": true,
+  "tables": 42,
+  "newRows": "10000|10000|10000",
+  "rollback": "Revert new code/entry only; keep additive tables. Old binary not executed."
+}

@@ -1,0 +1,81 @@
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run vitest run --no-file-parallelism src/http/redirects.pg.spec.ts src/http/catalog.pg.spec.ts
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+{"event":"http.completed","request_id":"aa5a9824-dd2d-477a-96ec-76c95c44d00a","tenant":"fed11ceb-21ec-482e-b03f-c0da272c4aa9.test","entity":"POST /api/v1/me/redirects","duration_ms":57.45080000000007,"status":200}
+{"event":"http.completed","request_id":"608fb3db-56f8-4775-97cc-217728c4af78","tenant":"fed11ceb-21ec-482e-b03f-c0da272c4aa9.test","entity":"POST /api/v1/me/redirects","duration_ms":7.957700000000159,"status":200}
+{"event":"http.completed","request_id":"3a32f010-abbb-40aa-9026-737ddaa4facb","tenant":"fed11ceb-21ec-482e-b03f-c0da272c4aa9.test","entity":"GET /api/v1/r/:id","duration_ms":12.401200000000017,"status":302}
+{"event":"http.completed","request_id":"89200b88-55f1-4717-a392-180006e35d55","tenant":"fed11ceb-21ec-482e-b03f-c0da272c4aa9.test","entity":"POST /api/v1/me/redirects/:id/destinations","duration_ms":31.114499999999907,"status":200}
+{"event":"http.completed","request_id":"f983ff2c-7ad4-41df-a286-2340c91ffba0","tenant":"fed11ceb-21ec-482e-b03f-c0da272c4aa9.test","entity":"POST /api/v1/me/redirects/:id/destinations","duration_ms":7.1574999999998,"status":200}
+{"event":"http.completed","request_id":"e368793f-7347-4ce9-aed8-e8f399d5c1e7","tenant":"fed11ceb-21ec-482e-b03f-c0da272c4aa9.test","entity":"GET /api/v1/r/:id","duration_ms":11.32510000000002,"status":302}
+{"event":"http.completed","request_id":"4b203b9d-ba05-4bd3-9469-35eea24f2960","tenant":"fed11ceb-21ec-482e-b03f-c0da272c4aa9.test","entity":"GET /api/v1/me/redirects/:id","duration_ms":10.864400000000387,"status":200}
+{"event":"http.completed","request_id":"a9946f74-e9ad-48d7-93ac-c2fdb7bb77b4","tenant":"15487e16-c541-48e9-b752-af3165c7ca2c.test","entity":"POST /api/v1/me/redirects","duration_ms":25.64359999999988,"status":200}
+{"event":"http.completed","request_id":"18dd7051-af42-4113-b8bc-dffb093f5241","tenant":"15487e16-c541-48e9-b752-af3165c7ca2c.test","entity":"POST /api/v1/me/redirects/:id/destinations","duration_ms":25.12429999999995,"status":422}
+{"event":"http.completed","request_id":"a3da512a-e66d-4966-b517-53be7a3b67a9","tenant":"15487e16-c541-48e9-b752-af3165c7ca2c.test","entity":"POST /api/v1/me/redirects/:id/destinations","duration_ms":22.82430000000022,"status":503}
+{"event":"http.completed","request_id":"46a5e45f-df2a-4f42-aca9-255013a63f9f","tenant":"15487e16-c541-48e9-b752-af3165c7ca2c.test","entity":"POST /api/v1/me/redirects/:id/destinations","duration_ms":22.098099999999704,"status":503}
+{"event":"http.completed","request_id":"01ef7671-b010-4847-bcd0-18c4828f6096","tenant":"15487e16-c541-48e9-b752-af3165c7ca2c.test","entity":"POST /api/v1/me/redirects/:id/destinations","duration_ms":21.99409999999989,"status":422}
+{"event":"http.completed","request_id":"8e018fe3-92f1-409f-befd-e20d57ae6d0c","tenant":"15487e16-c541-48e9-b752-af3165c7ca2c.test","entity":"GET /api/v1/r/:id","duration_ms":8.1570999999999,"status":302}
+{"event":"http.completed","request_id":"dc79a704-6bd4-4fa5-bfbd-0a3c14e8705d","tenant":"15487e16-c541-48e9-b752-af3165c7ca2c.test","entity":"GET /api/v1/me/redirects/:id","duration_ms":10.637099999999919,"status":200}
+{"event":"http.completed","request_id":"be69f04f-8f58-4a7a-a289-fa036e85860e","tenant":"fe1c1cfd-8171-4f35-b7fe-9556ae46d4ef.test","entity":"POST /api/v1/me/redirects","duration_ms":23.34990000000016,"status":200}
+{"event":"http.completed","request_id":"c73a9bdd-5a0c-4ec0-89a3-26fb08f1f0f8","tenant":"fe1c1cfd-8171-4f35-b7fe-9556ae46d4ef.test","entity":"POST /api/v1/me/redirects/:id/destinations","duration_ms":21.047299999999723,"status":422}
+{"event":"http.completed","request_id":"eb3ee927-dbaf-45ac-9c72-d778bbd06056","tenant":"fe1c1cfd-8171-4f35-b7fe-9556ae46d4ef.test","entity":"GET /api/v1/r/:id","duration_ms":2.6260999999999513,"status":200}
+{"event":"http.completed","request_id":"953c0480-83cb-4d37-a770-51335331b35f","tenant":"fe1c1cfd-8171-4f35-b7fe-9556ae46d4ef.test","entity":"POST /api/v1/me/redirects/:id/destinations","duration_ms":21.871200000000044,"status":200}
+{"event":"http.completed","request_id":"cf605f70-363e-4f5f-9f2b-08062d343cad","tenant":"fe1c1cfd-8171-4f35-b7fe-9556ae46d4ef.test","entity":"GET /api/v1/r/:id","duration_ms":7.836800000000039,"status":302}
+{"event":"http.completed","request_id":"ac19e046-b31a-4f19-bc85-1cdd2bf08eb4","tenant":"be82d0b9-6805-43a6-8838-f98d9886a43b.test","entity":"POST /api/v1/me/redirects","duration_ms":23.46080000000029,"status":200}
+{"event":"http.completed","request_id":"cce0a657-70d0-4743-b8cc-306d230de7a1","tenant":"be82d0b9-6805-43a6-8838-f98d9886a43b.test","entity":"GET /api/v1/me/redirects/:id","duration_ms":0.10940000000027794,"status":401}
+{"event":"http.completed","request_id":"c64d5bdb-be13-47b5-94af-e7f45ae908d0","tenant":"be82d0b9-6805-43a6-8838-f98d9886a43b.test","entity":"GET /api/v1/me/redirects/:id","duration_ms":5.159799999999905,"status":404}
+{"event":"http.completed","request_id":"584f914d-a5f9-448b-8694-d400a0a83a7a","tenant":"be82d0b9-6805-43a6-8838-f98d9886a43b.test","entity":"POST /api/v1/me/redirects/:id/destinations","duration_ms":4.729400000000169,"status":404}
+{"event":"http.completed","request_id":"30ed91dc-da79-4618-959b-0bcd26c4cdab","tenant":"be82d0b9-6805-43a6-8838-f98d9886a43b.test","entity":"GET /api/v1/me/redirects/:id","duration_ms":0.8777000000000044,"status":403}
+{"event":"http.completed","request_id":"5f9649e8-6af5-4cef-ad66-630573778e97","tenant":"c799adf3-9e6c-4fb1-a6d3-2412d6b28cbd.test","entity":"GET /api/v1/me/redirects/:id","duration_ms":4.632200000000012,"status":404}
+{"event":"http.completed","request_id":"3512dd77-2c93-4015-b601-f428b8b3fbf8","tenant":"c799adf3-9e6c-4fb1-a6d3-2412d6b28cbd.test","entity":"GET /api/v1/r/:id","duration_ms":2.2363000000000284,"status":200}
+{"event":"http.completed","request_id":"d4e60dc8-cef5-4373-b2b7-9898cd7f4c3a","tenant":"be82d0b9-6805-43a6-8838-f98d9886a43b.test","entity":"POST /api/v1/me/redirects/:id/destinations","duration_ms":3.8067000000000917,"status":403}
+{"event":"http.completed","request_id":"b3621484-8517-4ea7-96c5-b7b904aa02ae","tenant":"be82d0b9-6805-43a6-8838-f98d9886a43b.test","entity":"GET /api/v1/r/:id","duration_ms":1.820799999999963,"status":200}
+{"event":"http.completed","request_id":"2122df90-487e-4c01-a467-7fee69c04b9d","tenant":"39d4d936-e23e-429f-aed7-0bc323cfab6a.test","entity":"POST /api/v1/me/redirects","duration_ms":22.78179999999975,"status":200}
+{"event":"http.completed","request_id":"e5a796b9-8be5-401d-ab7c-5ae2682c05b0","tenant":"39d4d936-e23e-429f-aed7-0bc323cfab6a.test","entity":"GET /api/v1/r/:id","duration_ms":9.805700000000343,"status":302}
+{"event":"http.completed","request_id":"e2e00ad0-9e9d-4c6d-8b7b-85e674474c2d","tenant":"39d4d936-e23e-429f-aed7-0bc323cfab6a.test","entity":"POST /api/v1/me/redirects/:id/destinations","duration_ms":21.122199999999793,"status":200}
+{"event":"http.completed","request_id":"a3f2e1e6-bf27-4718-998e-586bf584e6f8","tenant":"39d4d936-e23e-429f-aed7-0bc323cfab6a.test","entity":"POST /api/v1/me/redirects/:id/destinations","duration_ms":48.419000000000324,"status":409}
+{"event":"http.completed","request_id":"f5631d36-4010-474f-9055-2d0e371db7a5","tenant":"39d4d936-e23e-429f-aed7-0bc323cfab6a.test","entity":"GET /api/v1/r/:id","duration_ms":7.936999999999898,"status":302}
+{"event":"http.completed","request_id":"4371f04f-6896-4562-9335-e0048aecd209","tenant":"51afd2de-63b2-4570-a2a3-8d6a4b8355fd.test","entity":"POST /api/v1/me/redirects","duration_ms":21.814300000000003,"status":200}
+{"event":"http.completed","request_id":"b094aa99-ca86-4acd-98f6-5da08d74a1e7","tenant":"51afd2de-63b2-4570-a2a3-8d6a4b8355fd.test","entity":"GET /api/v1/r/:id","duration_ms":7.8762000000001535,"status":302}
+{"event":"http.completed","request_id":"11de7d53-052d-4e26-b95f-cbbbcbb9c943","tenant":"51afd2de-63b2-4570-a2a3-8d6a4b8355fd.test","entity":"GET /api/v1/r/:id","duration_ms":8.17890000000034,"status":302}
+{"event":"http.completed","request_id":"cab68712-8491-4c99-a367-cafa23986ae6","tenant":"51afd2de-63b2-4570-a2a3-8d6a4b8355fd.test","entity":"GET /api/v1/r/:id","duration_ms":7.819500000000062,"status":302}
+{"event":"http.completed","request_id":"1cd52b05-a50d-4c90-810a-1a88387787f3","tenant":"51afd2de-63b2-4570-a2a3-8d6a4b8355fd.test","entity":"HEAD /api/v1/r/:id","duration_ms":6.903999999999996,"status":302}
+{"event":"http.completed","request_id":"14129917-fb82-4b0a-b773-fd38287167ed","tenant":"51afd2de-63b2-4570-a2a3-8d6a4b8355fd.test","entity":"POST /api/v1/me/redirects/:id/destinations","duration_ms":20.95450000000028,"status":200}
+{"event":"http.completed","request_id":"aa110fea-1030-4dbe-9f73-98939f9d09c9","tenant":"51afd2de-63b2-4570-a2a3-8d6a4b8355fd.test","entity":"GET /api/v1/r/:id","duration_ms":8.01260000000002,"status":302}
+{"event":"http.completed","request_id":"195dc374-4e4a-4251-a646-07b039279bbd","tenant":"51afd2de-63b2-4570-a2a3-8d6a4b8355fd.test","entity":"GET /api/v1/me/redirects/:id","duration_ms":9.261899999999969,"status":200}
+{"event":"http.completed","request_id":"bd9c7b0a-d29a-4e77-af78-73f419f94751","tenant":"51afd2de-63b2-4570-a2a3-8d6a4b8355fd.test","entity":"GET /api/v1/me/redirects/:id","duration_ms":9.790300000000116,"status":200}
+{"event":"http.completed","request_id":"f8537a64-f40f-4b4c-be3f-de8ec81cc167","tenant":"51afd2de-63b2-4570-a2a3-8d6a4b8355fd.test","entity":"GET /api/v1/me/redirects/:id","duration_ms":1.2213999999999032,"status":400}
+{"event":"http.completed","request_id":"9be28869-a724-4ffd-ab75-47bf5d5f1936","tenant":"27642e09-7eba-4a5a-bd8a-1e56997ac821.test","entity":"POST /api/v1/me/redirects","duration_ms":23.24559999999974,"status":200}
+{"event":"http.completed","request_id":"0d52cef9-13e4-4b9b-82d6-39b151d5279b","tenant":"27642e09-7eba-4a5a-bd8a-1e56997ac821.test","entity":"GET /api/v1/r/:id","duration_ms":2.6080000000001746,"status":200}
+{"event":"http.completed","request_id":"7fb5c4db-458a-47da-83cf-2ffc05b43650","tenant":"27642e09-7eba-4a5a-bd8a-1e56997ac821.test","entity":"GET /api/v1/r/:id","duration_ms":8.413499999999658,"status":302}
+{"event":"http.completed","request_id":"212d13dc-402a-40dc-9401-60630da062da","tenant":"560c1aa5-4e7d-42a9-8b4d-60d9fa42fa24.test","entity":"POST /api/v1/me/redirects","duration_ms":22.07639999999992,"status":200}
+{"event":"redirect.failed","request_id":"0030467d-17d7-44d5-89a7-ff95f4aa9a2c","result":"unexpected"}
+{"event":"http.completed","request_id":"0030467d-17d7-44d5-89a7-ff95f4aa9a2c","tenant":"560c1aa5-4e7d-42a9-8b4d-60d9fa42fa24.test","entity":"POST /api/v1/me/redirects/:id/destinations","duration_ms":19.270700000000033,"status":500}
+{"event":"http.completed","request_id":"a2c2ddd9-92c1-482f-9b5a-e3769a0ee460","tenant":"560c1aa5-4e7d-42a9-8b4d-60d9fa42fa24.test","entity":"GET /api/v1/me/redirects/:id","duration_ms":10.662600000000111,"status":200}
+{"event":"http.completed","request_id":"53d9754b-caae-4259-a5b0-99c0e50cb3db","tenant":"9ef4baf9-0119-4e4d-8af3-5cecea6f53a6.test","entity":"POST /api/v1/me/redirects","duration_ms":23.013300000000072,"status":200}
+{"event":"http.completed","request_id":"1fdf0e9b-29dc-4585-99ce-9d0eb812fbf2","tenant":"9ef4baf9-0119-4e4d-8af3-5cecea6f53a6.test","entity":"POST /api/v1/me/redirects","duration_ms":4.6336999999998625,"status":409}
+{"event":"http.completed","request_id":"e61261ee-d601-454f-adf4-e53714e3e2d2","tenant":"9ef4baf9-0119-4e4d-8af3-5cecea6f53a6.test","entity":"POST /api/v1/me/redirects/:id/destinations","duration_ms":16.645500000000084,"status":200}
+{"event":"http.completed","request_id":"ef97af7b-9279-4363-b250-9c377df23788","tenant":"9ef4baf9-0119-4e4d-8af3-5cecea6f53a6.test","entity":"POST /api/v1/me/redirects/:id/destinations","duration_ms":5.358099999999922,"status":409}
+{"event":"http.completed","request_id":"bfce553b-dda6-4a7d-9f99-53846185ec66","tenant":"843f9ded-2520-4d49-a916-576af394ab5e.test","entity":"POST /api/v1/me/redirects","duration_ms":21.61680000000024,"status":200}
+{"event":"http.completed","request_id":"d4ae0cc3-bb8c-412d-9692-e46f43924859","tenant":"843f9ded-2520-4d49-a916-576af394ab5e.test","entity":"POST /api/v1/me/redirects/:id/destinations","duration_ms":20.417199999999866,"status":200}
+{"event":"http.completed","request_id":"26b3f3ba-0d49-474f-8c7f-4cda6ed984c1","tenant":"843f9ded-2520-4d49-a916-576af394ab5e.test","entity":"GET /api/v1/r/:id","duration_ms":26.586599999999635,"status":200}
+{"event":"http.completed","request_id":"0fbabca9-a50b-41c1-8ff6-467b3de0a65d","tenant":"1be90601-8e43-4b5c-9fcb-91dd237e4948.test","entity":"POST /api/v1/me/redirects","duration_ms":5.533699999999953,"status":403}
+{"event":"http.completed","request_id":"35335326-f2a8-4370-888d-54532a005c6e","tenant":"1be90601-8e43-4b5c-9fcb-91dd237e4948.test","entity":"POST /api/v1/me/redirects","duration_ms":24.129700000000412,"status":200}
+{"event":"http.completed","request_id":"de6a1a92-2a52-4ba3-8773-4687513a7866","tenant":"1be90601-8e43-4b5c-9fcb-91dd237e4948.test","entity":"GET /api/v1/r/:id","duration_ms":1.9144999999998618,"status":200}
+{"event":"http.completed","request_id":"b11426aa-c88c-47e4-b329-7aa3f15830e3","tenant":"9600082a-b056-4eb5-a47d-ef7051edf0f2.test","entity":"POST /api/v1/me/redirects","duration_ms":21.799399999999878,"status":200}
+{"event":"http.completed","request_id":"a1876cf1-55f8-42ea-950b-fc2e2c2b4eb3","tenant":"9600082a-b056-4eb5-a47d-ef7051edf0f2.test","entity":"POST /api/v1/me/redirects/:id/disable","duration_ms":6.777599999999893,"status":200}
+{"event":"http.completed","request_id":"613c7f71-e018-4123-9ed4-534e90cb890b","tenant":"9600082a-b056-4eb5-a47d-ef7051edf0f2.test","entity":"POST /api/v1/me/redirects/:id/destinations","duration_ms":24.866199999999935,"status":409}
+{"event":"http.completed","request_id":"1a82fea3-a029-4c48-a39a-76aa415af118","tenant":"9600082a-b056-4eb5-a47d-ef7051edf0f2.test","entity":"POST /api/v1/me/redirects/:id/disable","duration_ms":4.987700000000132,"status":200}
+{"event":"http.completed","request_id":"2e03e917-ab71-4d05-adab-7dce9accc079","tenant":"9600082a-b056-4eb5-a47d-ef7051edf0f2.test","entity":"GET /api/v1/r/:id","duration_ms":1.7953000000002248,"status":200}
+{"event":"http.completed","request_id":"1f4ccc26-ccf7-46cc-bce2-a9f681ba5247","tenant":"9600082a-b056-4eb5-a47d-ef7051edf0f2.test","entity":"POST /api/v1/me/redirects/:id/destinations","duration_ms":4.33409999999958,"status":409}
+{"event":"http.completed","request_id":"ebf26716-9f67-4480-8403-ed36d08d9266","tenant":"9600082a-b056-4eb5-a47d-ef7051edf0f2.test","entity":"POST /api/v1/me/redirects","duration_ms":22.250099999999748,"status":200}
+{"event":"http.completed","request_id":"dfef05cc-89de-43ae-a235-397635fd8ba9","tenant":"4714640f-9161-4148-bb88-b691a136421c.test","entity":"POST /api/v1/me/redirects","duration_ms":0.18389999999999418,"status":403}
+{"event":"http.completed","request_id":"a6a7e3f3-c8ae-4fb0-ad93-313c09be2d7b","tenant":"4714640f-9161-4148-bb88-b691a136421c.test","entity":"POST /api/v1/me/redirects","duration_ms":21.126000000000204,"status":200}
+{"event":"http.completed","request_id":"9ebb9a6d-88ec-4c0c-bdd0-5fe28430ddfc","tenant":"99faf5d1-4921-4cd1-b1dd-d57fe721545b.test","entity":"POST /api/v1/me/redirects","duration_ms":20.791600000000017,"status":200}
+
+ Test Files  2 passed (2)
+      Tests  20 passed (20)
+   Start at  18:17:37
+   Duration  6.27s (tests 61%, import 23%, transform 16%)
+

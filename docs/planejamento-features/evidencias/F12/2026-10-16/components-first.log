@@ -1,0 +1,11 @@
+npm notice run divulgador-links-web@0.1.0 npx
+npm notice run vitest run src/features/redirects/redirect-screen.test.tsx
+
+ RUN  v5.0.3 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend
+
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  18:04:10
+   Duration  940ms (environment 47%, import 21%, tests 19%, transform 13%)
+

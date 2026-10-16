@@ -1,0 +1,37 @@
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run vitest run src/http/redirects.pg.spec.ts -t reenvios simultâneos
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+{"event":"http.completed","request_id":"a535fb26-3081-471b-a362-ced15bb2cc85","tenant":"b1eec460-03d8-4f47-91a6-63356c7e1b9e.test","entity":"POST /api/v1/me/redirects","duration_ms":27.78189999999995,"status":200}
+{"event":"http.completed","request_id":"c00fa903-dc15-4a4c-99f2-9765cd9eed09","tenant":"b1eec460-03d8-4f47-91a6-63356c7e1b9e.test","entity":"POST /api/v1/me/redirects","duration_ms":83.7461000000003,"status":503}
+ ❯ src/http/redirects.pg.spec.ts (15 tests | 1 failed | 14 skipped) 183ms
+   × F12-I03 reenvios simultâneos devolvem a decisão já persistida, mesmo se uma validação tardia falhar 138ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/http/redirects.pg.spec.ts > F12-I03 reenvios simultâneos devolvem a decisão já persistida, mesmo se uma validação tardia falhar
+AssertionError: {"code":"provider_error","message":"Validação automática indisponível. O destino anterior foi mantido.","request_id":"c00fa903-dc15-4a4c-99f2-9765cd9eed09","resource":{"id":"3707ab1b-51b5-4e99-932a-6f1757071fc7","version":1}}: expected 503 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 503
+
+ ❯ src/http/redirects.pg.spec.ts:136:46
+    134|   const repeated = await call('POST', 'me/redirects', body); expect(re…
+    135|   release(); const original = await first
+    136|   expect(original.statusCode, original.body).toBe(200); expect(origina…
+       |                                              ^
+    137|   expect(await db.redirectDestination.count({ where: { handleId: origi…
+    138| })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 14 skipped (15)
+   Start at  18:34:39
+   Duration  2.74s (import 51%, transform 42%, tests 7%)
+

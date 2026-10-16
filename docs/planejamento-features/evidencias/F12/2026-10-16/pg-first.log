@@ -1,0 +1,195 @@
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run vitest run --no-file-parallelism src/http/redirects.pg.spec.ts
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+{"event":"redirect.failed","request_id":"554307e7-0c5c-4c10-ac0a-e8a50ae4ea17","result":"unexpected"}
+{"event":"http.completed","request_id":"554307e7-0c5c-4c10-ac0a-e8a50ae4ea17","tenant":"bb5c1950-3246-4362-bc8c-ea56fad70900.test","entity":"POST /api/v1/me/redirects","duration_ms":15.31269999999995,"status":500}
+{"event":"redirect.failed","request_id":"59c65a1a-42bf-400e-b1ae-4845c36eb334","result":"unexpected"}
+{"event":"http.completed","request_id":"59c65a1a-42bf-400e-b1ae-4845c36eb334","tenant":"1eb24e4f-84e4-4b4e-8d96-fe45c9f6c396.test","entity":"POST /api/v1/me/redirects","duration_ms":5.151600000000144,"status":500}
+{"event":"redirect.failed","request_id":"4d9f5981-38e2-4e72-85cd-d9fbffc9c5ff","result":"unexpected"}
+{"event":"http.completed","request_id":"4d9f5981-38e2-4e72-85cd-d9fbffc9c5ff","tenant":"d3ecffcd-5b4b-4d78-b130-770da74ad83e.test","entity":"POST /api/v1/me/redirects","duration_ms":5.067000000000007,"status":500}
+{"event":"redirect.failed","request_id":"d75f4d5f-119f-444b-80e5-fe6b85ec3787","result":"unexpected"}
+{"event":"http.completed","request_id":"d75f4d5f-119f-444b-80e5-fe6b85ec3787","tenant":"d9cf76ed-22a4-46b9-ace9-7d25ba723f79.test","entity":"POST /api/v1/me/redirects","duration_ms":4.970699999999852,"status":500}
+{"event":"redirect.failed","request_id":"d338c681-738b-459b-b1e3-36b61a6db863","result":"unexpected"}
+{"event":"http.completed","request_id":"d338c681-738b-459b-b1e3-36b61a6db863","tenant":"6fcabd35-fa33-448e-8879-d96ddf2869e5.test","entity":"POST /api/v1/me/redirects","duration_ms":5.1547999999997955,"status":500}
+{"event":"redirect.failed","request_id":"3c992f39-2986-4781-be9f-7823d373a235","result":"unexpected"}
+{"event":"http.completed","request_id":"3c992f39-2986-4781-be9f-7823d373a235","tenant":"03ddf609-077d-4bac-b12b-36b096479aa4.test","entity":"POST /api/v1/me/redirects","duration_ms":4.826900000000023,"status":500}
+{"event":"redirect.failed","request_id":"d96bee67-9796-4254-8eba-668696007805","result":"unexpected"}
+{"event":"http.completed","request_id":"d96bee67-9796-4254-8eba-668696007805","tenant":"8a8b824e-50bd-47c8-bf75-5ac8795e8b73.test","entity":"POST /api/v1/me/redirects","duration_ms":4.493900000000394,"status":500}
+{"event":"redirect.failed","request_id":"5b40c07b-6779-4cf6-8a23-e0df39703d99","result":"unexpected"}
+{"event":"http.completed","request_id":"5b40c07b-6779-4cf6-8a23-e0df39703d99","tenant":"613be89a-1682-4faf-b9d4-4320cc304979.test","entity":"POST /api/v1/me/redirects","duration_ms":4.372199999999793,"status":500}
+{"event":"redirect.failed","request_id":"fb64af63-a337-493c-be94-aca6087683cf","result":"unexpected"}
+{"event":"http.completed","request_id":"fb64af63-a337-493c-be94-aca6087683cf","tenant":"ea489c12-345b-4b38-a912-defe5ee59393.test","entity":"POST /api/v1/me/redirects","duration_ms":4.70470000000023,"status":500}
+{"event":"redirect.failed","request_id":"7ad44652-46b6-4b0b-bb7c-493f823b0928","result":"unexpected"}
+{"event":"http.completed","request_id":"7ad44652-46b6-4b0b-bb7c-493f823b0928","tenant":"ec1e16e0-8b40-419c-bd2f-29e955210fd6.test","entity":"POST /api/v1/me/redirects","duration_ms":4.583099999999831,"status":500}
+ ❯ src/http/redirects.pg.spec.ts (10 tests | 10 failed) 278ms
+   × F12-T01/T03/U03/U04 mantém o endereço, registra versões e reenvio não duplica 61ms
+   × F12-T02 conteúdo suspeito, termo bloqueado e provedor ausente mantêm revisão anterior e proposta para correção 21ms
+   × F12-T01/T04 URL privada bloqueada sem probe, destino indisponível sem Location e recuperação usa nova validação 24ms
+   × F12-I02 sem sessão, outro dono ADMIN, outro tenant e suspensão não ganham acesso privado 20ms
+   × F12-I01 revisão lenta não substitui uma nova aprovada; clique durante pendência só usa versão aprovada 21ms
+   × F12-T05 métricas agregadas por revisão e dia, intervalo real, sem dono/admin/HEAD ou dado pessoal 22ms
+   × F12-I02 restrição não entrega destino/título ou incrementa antes do aceite 20ms
+   × F12-PG01 constraints impedem associação ativa de outro tenant; falha SQL não deixa aprovação parcial 20ms
+   × F12-I03 desativação vence validação em voo e o endereço não é reciclado 20ms
+   × F12-D14 retenção elimina expirados e excedentes, mantém no máximo 50 inclusive publicação antiga 20ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 10 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/http/redirects.pg.spec.ts > F12-T01/T03/U03/U04 mantém o endereço, registra versões e reenvio não duplica
+AssertionError: {"code":"provider_error","message":"Não foi possível processar o convite. Tente novamente.","request_id":"554307e7-0c5c-4c10-ac0a-e8a50ae4ea17"}: expected 500 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 500
+
+ ❯ create src/http/redirects.pg.spec.ts:29:122
+
+ ❯ src/http/redirects.pg.spec.ts:32:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯
+
+ FAIL  src/http/redirects.pg.spec.ts > F12-T02 conteúdo suspeito, termo bloqueado e provedor ausente mantêm revisão anterior e proposta para correção
+AssertionError: {"code":"provider_error","message":"Não foi possível processar o convite. Tente novamente.","request_id":"59c65a1a-42bf-400e-b1ae-4845c36eb334"}: expected 500 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 500
+
+ ❯ create src/http/redirects.pg.spec.ts:29:122
+
+ ❯ src/http/redirects.pg.spec.ts:43:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/10]⎯
+
+ FAIL  src/http/redirects.pg.spec.ts > F12-T01/T04 URL privada bloqueada sem probe, destino indisponível sem Location e recuperação usa nova validação
+AssertionError: {"code":"provider_error","message":"Não foi possível processar o convite. Tente novamente.","request_id":"4d9f5981-38e2-4e72-85cd-d9fbffc9c5ff"}: expected 500 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 500
+
+ ❯ create src/http/redirects.pg.spec.ts:29:122
+
+ ❯ src/http/redirects.pg.spec.ts:58:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/10]⎯
+
+ FAIL  src/http/redirects.pg.spec.ts > F12-I02 sem sessão, outro dono ADMIN, outro tenant e suspensão não ganham acesso privado
+AssertionError: {"code":"provider_error","message":"Não foi possível processar o convite. Tente novamente.","request_id":"d75f4d5f-119f-444b-80e5-fe6b85ec3787"}: expected 500 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 500
+
+ ❯ create src/http/redirects.pg.spec.ts:29:122
+
+ ❯ src/http/redirects.pg.spec.ts:67:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/10]⎯
+
+ FAIL  src/http/redirects.pg.spec.ts > F12-I01 revisão lenta não substitui uma nova aprovada; clique durante pendência só usa versão aprovada
+AssertionError: {"code":"provider_error","message":"Não foi possível processar o convite. Tente novamente.","request_id":"d338c681-738b-459b-b1e3-36b61a6db863"}: expected 500 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 500
+
+ ❯ create src/http/redirects.pg.spec.ts:29:122
+
+ ❯ src/http/redirects.pg.spec.ts:79:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/10]⎯
+
+ FAIL  src/http/redirects.pg.spec.ts > F12-T05 métricas agregadas por revisão e dia, intervalo real, sem dono/admin/HEAD ou dado pessoal
+AssertionError: {"code":"provider_error","message":"Não foi possível processar o convite. Tente novamente.","request_id":"3c992f39-2986-4781-be9f-7823d373a235"}: expected 500 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 500
+
+ ❯ create src/http/redirects.pg.spec.ts:29:122
+
+ ❯ src/http/redirects.pg.spec.ts:91:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/10]⎯
+
+ FAIL  src/http/redirects.pg.spec.ts > F12-I02 restrição não entrega destino/título ou incrementa antes do aceite
+AssertionError: {"code":"provider_error","message":"Não foi possível processar o convite. Tente novamente.","request_id":"d96bee67-9796-4254-8eba-668696007805"}: expected 500 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 500
+
+ ❯ create src/http/redirects.pg.spec.ts:29:122
+
+ ❯ src/http/redirects.pg.spec.ts:100:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/10]⎯
+
+ FAIL  src/http/redirects.pg.spec.ts > F12-PG01 constraints impedem associação ativa de outro tenant; falha SQL não deixa aprovação parcial
+AssertionError: {"code":"provider_error","message":"Não foi possível processar o convite. Tente novamente.","request_id":"5b40c07b-6779-4cf6-8a23-e0df39703d99"}: expected 500 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 500
+
+ ❯ create src/http/redirects.pg.spec.ts:29:122
+
+ ❯ src/http/redirects.pg.spec.ts:106:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/10]⎯
+
+ FAIL  src/http/redirects.pg.spec.ts > F12-I03 desativação vence validação em voo e o endereço não é reciclado
+AssertionError: {"code":"provider_error","message":"Não foi possível processar o convite. Tente novamente.","request_id":"fb64af63-a337-493c-be94-aca6087683cf"}: expected 500 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 500
+
+ ❯ create src/http/redirects.pg.spec.ts:29:122
+
+ ❯ src/http/redirects.pg.spec.ts:118:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/10]⎯
+
+ FAIL  src/http/redirects.pg.spec.ts > F12-D14 retenção elimina expirados e excedentes, mantém no máximo 50 inclusive publicação antiga
+AssertionError: {"code":"provider_error","message":"Não foi possível processar o convite. Tente novamente.","request_id":"7ad44652-46b6-4b0b-bb7c-493f823b0928"}: expected 500 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 500
+
+ ❯ create src/http/redirects.pg.spec.ts:29:122
+
+ ❯ src/http/redirects.pg.spec.ts:125:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/10]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  10 failed (10)
+   Start at  18:01:13
+   Duration  2.49s (import 48%, transform 40%, tests 12%)
+

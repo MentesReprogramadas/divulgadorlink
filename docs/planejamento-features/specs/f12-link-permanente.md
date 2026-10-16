@@ -2,7 +2,7 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 9.
 
-**Estado:** EM PREPARAÇÃO; liberação de destino e retenção aguardam decisão do usuário. Contrato de entrada e validação de transporte preparatórios testados; nenhum AC concluído. Ver [execução F12](../execucao-f12.md).  
+**Estado:** CONCLUÍDA NA BRANCH; CI aprovado. D14 e aprovação automática resolvidas pelo usuário em 16/10/2026; contrato reconciliado em [execução F12](../execucao-f12.md).
 **Onda:** 2. **Ordem:** 9.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Link permanente para convites”.  
 **Plano:** [F12 implementação](../planos/f12-link-permanente.md).  
@@ -10,6 +10,8 @@
 **Governança:** [arquitetura](../arquitetura-e-reuso.md), [testes](../qualidade-e-testes.md), [decisões](../decisoes.md), [roadmap](../roadmap-auditavel.md).
 
 ## Objetivo e fronteira
+
+As propostas iniciais abaixo foram preservadas como histórico de escopo. O contrato implementado, os nomes reais dos testes e a rastreabilidade ao final desta spec prevalecem sobre caminhos e tarefas inicialmente sugeridos.
 
 preservar um endereço compartilhado mesmo quando o convite de destino expirar.
 
@@ -44,7 +46,7 @@ Proposta de migração: avaliar mudanças de schema e adicionar somente campos/t
 
 Regra transversal: IDs de outro tenant não podem ser aceitos em relações. Projeções públicas são allowlists; rascunhos, contatos, tokens e dados privados não entram por serialização automática. Dinheiro em centavos e tempo armazenado em UTC; a agregação de analytics existente mantém America/Sao_Paulo. Índices devem ser baseados em consulta real, sem plataforma de dados nova por padrão.
 
-## Contratos propostos
+## Contratos iniciais e reconciliação
 
 Rotas/operações: POST /api/v1/me/redirects; POST /me/redirects/:id/destinations; GET /api/v1/r/:handle resolve; rota web /r/:handle.
 
@@ -52,7 +54,7 @@ Rotas/operações: POST /api/v1/me/redirects; POST /me/redirects/:id/destination
 
 **Saída específica:** `handle,stableUrl,destinationRevision{id,status}; Location apenas do destino aprovado`.
 
-Todos os caminhos são propostas a reconciliar com rotas atuais em S0; não estão implementados. Quando a rota abreviada omite prefixo, o prefixo é /api/v1. PATCH/POST/DELETE com sessão preservam CSRF do app e enviam host pelo BFF; tenant não vem do corpo. GET público não exige autenticação indevida. Exportações, tokens e respostas privadas usam política de cache que impeça exposição.
+Os caminhos iniciais foram reconciliados com o contrato implementado abaixo. Quando a rota abreviada omite prefixo, o prefixo é /api/v1. PATCH/POST/DELETE com sessão preservam CSRF do app e enviam host pelo BFF; tenant não vem do corpo. GET público não exige autenticação indevida. Exportações, tokens e respostas privadas usam política de cache que impeça exposição.
 
 Erros: aplicar o envelope existente code/message/request_id; 400 para entrada inválida, 401 sem sessão em recurso privado, 403 para contexto de tenant incompatível quando contrato atual exige, 404 para recurso alheio/ausente sem enumerar dados, 409 para conflito de versão/identidade, 429 para limite, 503 para indisponibilidade externa quando apropriado. Rotas existentes podem ter semântica específica; preservar testes de contrato e documentar divergência antes de mudar.
 
@@ -115,7 +117,7 @@ Criar um teste com ID Tnn para cada AC, com o seguinte protocolo específico da 
 
 
 
-## Arquivos de teste propostos
+## Arquivos de teste inicialmente propostos
 
 - U: `backend/src/domain/redirects/link-permanente.spec.ts`.
 - C: `frontend/src/components/domain/link-permanente.test.tsx`.
@@ -126,7 +128,7 @@ Criar um teste com ID Tnn para cada AC, com o seguinte protocolo específico da 
 
 ## Decisões e condições de liberação
 
-D14 política de cache, recuperação e retenção de revisões/handles.
+D14 RESOLVIDA: aprovação automática após validações; no-store/302; recuperação por nova validação; até 50 versões por 180 dias preservando a publicação atual. Respostas do usuário e detalhes no registro de execução.
 
 Risco específico: Redirecionamento deve impedir abuso por troca de URL; validação HTTP não substitui moderação do conteúdo.
 
@@ -142,3 +144,25 @@ Sem resolução das decisões bloqueantes e dependências concluídas, a feature
 
 **Indicadores:** uso dos links permanentes e convites corrigidos sem trocar o endereço compartilhado.
 
+
+## Contrato implementado e rastreabilidade
+
+Modelos reais: RedirectHandle, RedirectDestination e RedirectDaily. O nome DestinationRevision era conceitual, não uma quarta tabela. Rotas reais: GET/POST `/api/v1/me/redirects`; GET `/api/v1/me/redirects/:id` com from/to; POST `/:id/destinations`; POST `/:id/disable`; GET/HEAD `/api/v1/r/:id`; painel `/painel/convites`, resolução `/r/:handle` e estado `/r/:handle/estado`. Identidade UUID gerada no servidor, sem edição/reciclagem; paginação 25, revisão otimista e chave UUID de reenvio. Entrada adicional `requiresAge` aplica a proteção já existente.
+
+Criação/troca retorna `{id,stablePath,version,destinationRevision:{id,status}}`; erro privado de validação pode devolver `resource:{id,version}` para corrigir no mesmo handle. Público entrega apenas Location HTTPS aprovado (302) ou estado seguro, sem título/URL de rascunho. Inexistente/desativado/sem destino válido usa indisponibilidade; idade exige confirmação antes de revelar destino. No-store e noindex; HEAD não conta acesso. Dono/admin ativo não conta; demais GETs bem-sucedidos geram contador anônimo, inclusive repetições.
+
+Até 50 revisões/180 dias, incluindo atual; atual sempre preservada. Recuperação é nova submissão validada; não há restauração direta de URL histórica. Bloqueio/falha conserva o destino anterior. Desativação é definitiva. Exclusão de conta apaga convites e dados privados, mesmo com anonimização do usuário.
+
+| Critério original | Prova executável |
+| --- | --- |
+| F12-AC01 / T01 validar cada destino | PG T01 e validação de rede; E01 troca real A/B e E02 falhas |
+| F12-AC02 / T02 regras de conteúdo | PG T02 bloqueio/provedor; E02 mantém anterior e campos |
+| F12-AC03 / T03 alterações | PG T03 versões/idempotência/concorrência/retomada e retenção |
+| F12-AC04 / T04 estado indisponível | PG T04 sem Location, E01 página clara e capturas desktop/mobile |
+| F12-AC05 / T05 métricas | PG T05 por revisão/dia/período, exclusão dono/admin/HEAD; E01 duas revisões |
+
+Testes reais: `domain/redirects/redirect-input.spec.ts`, `use-cases/@Redirects/validate-destination.spec.ts`, `http/redirects.pg.spec.ts`, `features/redirects/redirect-screen.test.tsx`, `e2e/redirects.spec.ts`. IDs U/I/C são cenários de obrigação, não exigência de nomes de arquivo; invariantes de estado/cache são verificadas em PG/E. Não há fila nova. Componente/porta extraídos somente onde há responsabilidade efetiva, conforme [execução F12](../execucao-f12.md).
+
+A moderação reutiliza título/URL, blocklist e destinos banidos existentes, além da segurança/disponibilidade da rede. HTTP 2xx não comprova ingresso válido em redes externas nem classificação de todo HTML remoto. Limites, evidências, reversão e desvios da sequência RED estão registrados; não declarar produção validada. A F19 segue não iniciada por ordem de parada após F12.
+
+Aceite: cinco ACs aprovados, código `1809e1d97f0b7e7681409041a2073412352d91d6`, CI 38971032480; ver matriz e registro final.

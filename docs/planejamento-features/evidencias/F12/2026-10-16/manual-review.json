@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-16",
+  "environment": "Chromium local synthetic data",
+  "desktop": [
+    1280,
+    720
+  ],
+  "mobile": [
+    390,
+    844
+  ],
+  "horizontalOverflow": false,
+  "confirmationFocus": true,
+  "focusOutline": "rgb(20,109,202) solid 3px",
+  "secondaryTextContrastOnWhite": 5.43,
+  "focusContrastOnWhite": 5.16,
+  "keyboardAndText200Percent": "Playwright F12-E03 desktop/mobile, 320px",
+  "screenshotsVisuallyReviewed": [
+    "manual-desktop.png",
+    "manual-mobile.png",
+    "destination-form-desktop.png",
+    "destination-form-mobile.png",
+    "unavailable-desktop.png",
+    "unavailable-mobile.png",
+    "reflow-desktop.png",
+    "reflow-mobile.png"
+  ],
+  "limits": [
+    "No physical device or screen reader session",
+    "No native browser zoom measurement",
+    "No pixel-baseline visual regression claim",
+    "Contrast samples do not constitute a full accessibility audit"
+  ]
+}

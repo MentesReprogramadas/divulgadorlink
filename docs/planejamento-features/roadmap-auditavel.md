@@ -1,6 +1,6 @@
 # Roadmap auditável por etapa
 
-**Baseline inicial:** 14 de outubro de 2026. **Repriorização:** 15 de outubro de 2026, F42 em primeiro lugar. **Execução:** P0/F42 concluído em produção e validado, por autorização posterior. Continuação F01–F41 autorizada em branch separada; F01 concluída na branch; F06 concluída na branch e F07 concluída na branch, com CI aprovado. F02, F03 e F04 concluídas na branch; ajuste aleatório de F03 validado e parada solicitada após F04. Autorização posterior concluiu somente F09, com D10 resolvida, seis ACs e S0–S7 verificados no CI 38940575906. Parada após F09. Ver [execução F09](execucao-f09.md) e [execução contínua](execucao-roadmap.md). Evidências em [execução F42](execucao-f42.md).
+**Baseline inicial:** 14 de outubro de 2026. **Repriorização:** 15 de outubro de 2026, F42 em primeiro lugar. **Execução:** P0/F42 concluído em produção e validado, por autorização posterior. Continuação F01–F41 autorizada em branch separada; F01 concluída na branch; F06 concluída na branch e F07 concluída na branch, com CI aprovado. F02, F03 e F04 concluídas na branch; ajuste aleatório de F03 validado e parada solicitada após F04. Autorização posterior concluiu somente F09, com D10 resolvida, seis ACs e S0–S7 verificados no CI 38940575906. A parada após F09 foi revogada em 16/10/2026 pela autorização de execução contínua. F12 concluída na branch com CI aprovado. A instrução posterior determina parar após F12; F19 não iniciada. Aprovação automática e retenção foram definidas pelo usuário, conforme [execução F12](execucao-f12.md). Ver [execução F09](execucao-f09.md) e [execução contínua](execucao-roadmap.md). Evidências em [execução F42](execucao-f42.md).
 
 [Índice](README.md) · [Ordem](ordem-de-entrega.md) · [Decisões](decisoes.md) · [Qualidade](qualidade-e-testes.md) · [Ledger em CSV](roadmap-etapas.csv) · [Matriz AC](matriz-aceitacao.csv).
 
@@ -165,14 +165,14 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 
 | Etapa | Estado | Pré-requisito imediato | Entregável a verificar |
 | --- | --- | --- | --- |
-| F12-S0 | NÃO INICIADA | F42 (prioridade), F07 | [Escopo contratos e reuso](planos/f12-link-permanente.md#f12-s0-escopo-contratos-e-revisão-de-reutilização) |
-| F12-S1 | NÃO INICIADA | F12-S0 | [Testes U e C](planos/f12-link-permanente.md#f12-s1-testes-unitários-e-componentes-antes-da-regra) |
-| F12-S2 | NÃO INICIADA | F12-S1 | [Dados e migração](planos/f12-link-permanente.md#f12-s2-dados-invariantes-e-migração) |
-| F12-S3 | NÃO INICIADA | F12-S2 | [Domínio API e jobs](planos/f12-link-permanente.md#f12-s3-regra-de-negócio-api-e-jobs) |
-| F12-S4 | NÃO INICIADA | F12-S3 | [Interface](planos/f12-link-permanente.md#f12-s4-interface-composição-e-estados) |
-| F12-S5 | NÃO INICIADA | F12-S4 | [Integração e ACs](planos/f12-link-permanente.md#f12-s5-integração-contrato-persistência-e-falhas) |
-| F12-S6 | NÃO INICIADA | F12-S5 | [Playwright e QA](planos/f12-link-permanente.md#f12-s6-e2e-playwright-e-revisão-visual) |
-| F12-S7 | NÃO INICIADA | F12-S6 | [Regressão e liberação](planos/f12-link-permanente.md#f12-s7-regressão-rollout-e-fechamento-auditável) |
+| F12-S0 | CONCLUÍDA | F42 (prioridade), F07 | [Escopo contratos e reuso](planos/f12-link-permanente.md#f12-s0-escopo-contratos-e-revisão-de-reutilização) |
+| F12-S1 | CONCLUÍDA | F12-S0 | [Testes U e C](planos/f12-link-permanente.md#f12-s1-testes-unitários-e-componentes-antes-da-regra) |
+| F12-S2 | CONCLUÍDA | F12-S1 | [Dados e migração](planos/f12-link-permanente.md#f12-s2-dados-invariantes-e-migração) |
+| F12-S3 | CONCLUÍDA | F12-S2 | [Domínio API e jobs](planos/f12-link-permanente.md#f12-s3-regra-de-negócio-api-e-jobs) |
+| F12-S4 | CONCLUÍDA | F12-S3 | [Interface](planos/f12-link-permanente.md#f12-s4-interface-composição-e-estados) |
+| F12-S5 | CONCLUÍDA | F12-S4 | [Integração e ACs](planos/f12-link-permanente.md#f12-s5-integração-contrato-persistência-e-falhas) |
+| F12-S6 | CONCLUÍDA | F12-S5 | [Playwright e QA](planos/f12-link-permanente.md#f12-s6-e2e-playwright-e-revisão-visual) |
+| F12-S7 | CONCLUÍDA | F12-S6 | [Regressão e liberação](planos/f12-link-permanente.md#f12-s7-regressão-rollout-e-fechamento-auditável) |
 
 ### 10 F19 Prévia e histórico de versões
 
