@@ -14,7 +14,9 @@ import { activatePaidWithInvestment } from '@/use-cases/@Promotions/activate-pai
 const url = process.env.ANALYTICS_DATABASE_URL
 if (!url || !['127.0.0.1', 'localhost'].includes(new URL(url).hostname)) throw new Error('F02 exige banco local descartável')
 const db = new PrismaClient({ datasources: { db: { url } } })
-const now = new Date('2026-10-16T12:00Z'), expiry = new Date('2026-10-18T12:00Z')
+const now = new Date()
+now.setUTCHours(12, 0, 0, 0)
+const expiry = new Date(now.getTime() + 2 * 86400000)
 let tenant: string, owner: string, other: string, link: string, promotion: string, host: string
 const actor = () => ({ tenantId: tenant, actorId: owner })
 const messages: OutboundEmail[] = []
@@ -33,7 +35,7 @@ beforeEach(async () => {
   await db.network.create({ data: { id: 'net-' + tenant, tenantId: tenant, name: 'Site', slug: 'site', knownHosts: [] } })
   await db.niche.create({ data: { id: 'niche-' + tenant, tenantId: tenant, name: 'Estudos', slug: 'estudos' } })
   await db.link.create({ data: { id: link, tenantId: tenant, ownerId: owner, networkId: 'net-' + tenant, nicheId: 'niche-' + tenant, canonicalUrl: 'https://example.com/' + tenant, name: 'Comunidade de estudos', description: 'Fixture', status: 'PUBLISHED', everPublished: true } })
-  await db.promotion.create({ data: { id: promotion, tenantId: tenant, linkId: link, surface: 'SEARCH', status: 'ACTIVE', activatedAt: new Date('2026-10-11T12:00Z'), expiresAt: expiry } })
+  await db.promotion.create({ data: { id: promotion, tenantId: tenant, linkId: link, surface: 'SEARCH', status: 'ACTIVE', activatedAt: new Date(now.getTime() - 5 * 86400000), expiresAt: expiry } })
 })
 afterAll(async () => { setRenewalReminderDbForTest(null); await db.$disconnect() })
 describe('F02 HTTP, PG e entrega', () => {
@@ -65,7 +67,7 @@ describe('F02 HTTP, PG e entrega', () => {
   it('F02-T02 cancelamento e renovação na fila impedem envio antigo', async () => {
     await enable(); await pendingFailure(); await db.promotion.update({ where: { id: promotion }, data: { status: 'CANCELLED' } }); await cycle()
     expect(messages).toHaveLength(0); expect((await db.renewalReminder.findFirstOrThrow({ where: { tenantId: tenant } })).status).toBe('SKIPPED')
-    await db.promotion.update({ where: { id: promotion }, data: { status: 'ACTIVE', expiresAt: new Date('2026-10-20T12:00Z') } }); await cycle(); expect(messages).toHaveLength(0)
+    await db.promotion.update({ where: { id: promotion }, data: { status: 'ACTIVE', expiresAt: new Date(now.getTime() + 4 * 86400000) } }); await cycle(); expect(messages).toHaveLength(0)
   })
   it('F02-T02 renovação paga real muda o vencimento e invalida a intenção', async () => {
     await enable(); await pendingFailure()
