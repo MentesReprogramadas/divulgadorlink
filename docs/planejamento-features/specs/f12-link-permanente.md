@@ -2,7 +2,7 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 9.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
+**Estado:** EM PREPARAÇÃO; liberação de destino e retenção aguardam decisão do usuário. Contrato de entrada e validação de transporte preparatórios testados; nenhum AC concluído. Ver [execução F12](../execucao-f12.md).  
 **Onda:** 2. **Ordem:** 9.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Link permanente para convites”.  
 **Plano:** [F12 implementação](../planos/f12-link-permanente.md).  

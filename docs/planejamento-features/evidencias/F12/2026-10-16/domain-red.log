@@ -1,0 +1,85 @@
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run vitest run src/domain/redirects/redirect-input.spec.ts
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+ ❯ src/domain/redirects/redirect-input.spec.ts (4 tests | 4 failed) 6ms
+   × F12-U01 uma proposta exige revisão esperada e chave estável de reenvio 4ms
+   × F12-U02 recusa esquemas perigosos e credenciais antes da canonicalização 0ms
+   × F12-U03 a identidade pública não faz parte de uma alteração de destino 0ms
+   × F12-U01 criação não aceita versão de um endereço já existente nem campos extras 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/domain/redirects/redirect-input.spec.ts > F12-U01 uma proposta exige revisão esperada e chave estável de reenvio
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/domain/redirects/redirect-input.spec.ts:7:232
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/domain/redirects/redirect-input.spec.ts > F12-U02 recusa esquemas perigosos e credenciais antes da canonicalização
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/domain/redirects/redirect-input.spec.ts:10:242
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/domain/redirects/redirect-input.spec.ts > F12-U03 a identidade pública não faz parte de uma alteração de destino
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/domain/redirects/redirect-input.spec.ts:13:92
+     11| })
+     12| it('F12-U03 a identidade pública não faz parte de uma alteração de des…
+     13|   expect(destinationInput.safeParse({ ...destination, handle: 'outro-e…
+       |                                                                                            ^
+     14|   expect(redirectHandle.safeParse('b3cf819d-ecef-4e04-913f-60c50b1bfaa…
+     15|   for (const handle of ['../login', 'https://evil.test', 'qualquer-coi…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/domain/redirects/redirect-input.spec.ts > F12-U01 criação não aceita versão de um endereço já existente nem campos extras
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/domain/redirects/redirect-input.spec.ts:19:90
+     17| it('F12-U01 criação não aceita versão de um endereço já existente nem …
+     18|   expect(createRedirectInput.safeParse(destination).success).toBe(true)
+     19|   expect(createRedirectInput.safeParse({ ...destination, expectedRevis…
+       |                                                                                          ^
+     20|   expect(destinationInput.safeParse({ ...destination, label: ' '.repea…
+     21|   expect(destinationInput.safeParse({ ...destination, destinationUrl: …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed (4)
+   Start at  17:30:35
+   Duration  204ms (import 58%, transform 31%, tests 7%, worker 4%)
+

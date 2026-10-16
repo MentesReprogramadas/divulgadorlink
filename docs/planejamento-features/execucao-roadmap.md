@@ -64,3 +64,7 @@ O usuário autorizou somente a próxima feature, F09. [Execução F09](execucao-
 ## 16/10/2026 — F09 concluída e parada
 
 O usuário resolveu D10: validação automática, bloqueio de suspeitos e rascunho para correção. F09 concluída na branch: editor, perfil SSR, mídia validada, prévia/publicação/retirada versionadas e isolamento. [Execução F09](execucao-f09.md) registra contratos, reuso, limites, reversão, 424 testes backend, 196 frontend, 137 PG e 92 E2E. Código aba5b14907ec5d4bb794266b768cd282470a3d20; CI 38940575906 aprovado nos quatro jobs. S0–S7 e seis ACs encerrados com evidências. Parada após F09; F12 não iniciada. Sem main, deploy, mensagens ou cobrança reais.
+
+## Retomada contínua em 16/10/2026
+
+O usuário autorizou continuar as features sem a parada anterior por feature. F12 entrou em preparação; contrato de entrada e quatro testes preparatórios RED/GREEN registrados. Liberação de novo destino e retenção de histórico aguardam decisão do usuário. Nenhum AC foi fechado nesta preparação. Ver [execução F12](execucao-f12.md).

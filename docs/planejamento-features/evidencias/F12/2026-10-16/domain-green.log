@@ -1,0 +1,11 @@
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run vitest run src/domain/redirects/redirect-input.spec.ts
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  17:30:44
+   Duration  169ms (transform 44%, import 42%, tests 8%, worker 6%)
+
