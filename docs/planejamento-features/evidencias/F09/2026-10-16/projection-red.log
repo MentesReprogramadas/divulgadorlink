@@ -1,0 +1,43 @@
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run vitest run src/domain/profiles/projection.spec.ts
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+ ❯ src/domain/profiles/projection.spec.ts (2 tests | 2 failed) 3ms
+   × F09-U03/T05 projeção elimina categorias ocultas, itens ocultos e catálogo inelegível, inclusive botão principal 2ms
+   × F09-U04/U05 referências pessoais não criam facetas nem convertem URLs em Link do catálogo 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/domain/profiles/projection.spec.ts > F09-U03/T05 projeção elimina categorias ocultas, itens ocultos e catálogo inelegível, inclusive botão principal
+Error: F09 projection pending
+ ❯ visibleProfile src/domain/profiles/profile.ts:11:121
+      9|   items: Array<{ id: string; categoryId: string; type: 'URL' | 'CATALO…
+     10| }
+     11| export function visibleProfile(_content: ProfileContent, _eligibleCata…
+       |                                                                                                                         ^
+     12|
+     13| /** Identity within the originating tenant; uniqueness must also be en…
+ ❯ src/domain/profiles/projection.spec.ts:10:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/domain/profiles/projection.spec.ts > F09-U04/U05 referências pessoais não criam facetas nem convertem URLs em Link do catálogo
+Error: F09 projection pending
+ ❯ visibleProfile src/domain/profiles/profile.ts:11:121
+      9|   items: Array<{ id: string; categoryId: string; type: 'URL' | 'CATALO…
+     10| }
+     11| export function visibleProfile(_content: ProfileContent, _eligibleCata…
+       |                                                                                                                         ^
+     12|
+     13| /** Identity within the originating tenant; uniqueness must also be en…
+ ❯ src/domain/profiles/projection.spec.ts:18:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  13:17:13
+   Duration  152ms (transform 60%, import 23%, worker 8%, tests 8%, environment 1%)
+

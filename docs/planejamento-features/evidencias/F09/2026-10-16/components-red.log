@@ -1,0 +1,71 @@
+npm notice run divulgador-links-web@0.1.0 npx
+npm notice run vitest run src/features/profiles/components/profile-view.test.tsx
+
+ RUN  v5.0.3 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend
+
+ ❯ src/features/profiles/components/profile-view.test.tsx (2 tests | 2 failed) 36ms
+   × F09-C02/T05 o mesmo renderer da prévia e página pública filtra filhos e grupos ocultos 33ms
+   × F09-C01 vazio orienta sem inventar destino 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/profiles/components/profile-view.test.tsx > F09-C02/T05 o mesmo renderer da prévia e página pública filtra filhos e grupos ocultos
+TestingLibraryElementError: Unable to find an accessible element with the role "heading" and name "Ana"
+
+Here are the accessible roles:
+
+  paragraph:
+
+  Name "":
+  <p />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <p>
+      Perfil em preparação
+    </p>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/features/profiles/components/profile-view.test.tsx:12:17
+     10|     { id: 'child', categoryId: 'b', type: 'URL', destination: 'https:/…
+     11|   ] }} />)
+     12|   expect(screen.getByRole('heading', { name: 'Ana' })).toBeTruthy()
+       |                 ^
+     13|   expect(screen.getAllByRole('link')).toHaveLength(1)
+     14|   expect(document.body.innerHTML).not.toMatch(/Secreto|Sentinela|secre…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/features/profiles/components/profile-view.test.tsx > F09-C01 vazio orienta sem inventar destino
+TestingLibraryElementError: Unable to find an element with the text: Nenhum link visível.. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <p>
+      Perfil em preparação
+    </p>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/features/profiles/components/profile-view.test.tsx:16:122
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  13:22:14
+   Duration  3.27s (environment 74%, import 23%, transform 1%, tests 1%)
+

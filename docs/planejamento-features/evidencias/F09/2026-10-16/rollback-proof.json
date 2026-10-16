@@ -1,0 +1,21 @@
+{
+  "before": {
+    "profiles": 10000,
+    "groups": 1000,
+    "links": 10002,
+    "promotions": 10002,
+    "favorites": 10002,
+    "collections": 10000
+  },
+  "after": {
+    "profiles": 10000,
+    "groups": 1000,
+    "links": 10002,
+    "promotions": 10002,
+    "favorites": 10002,
+    "collections": 10000
+  },
+  "catalogRows": 6,
+  "scope": "Existing catalog query unchanged by F09; additive schema retained. Full prior application binary not tested.",
+  "rollback": "Remove entry, UI and routes; retain additive tables and assets; no destructive downgrade."
+}

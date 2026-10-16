@@ -1,6 +1,6 @@
 # Roadmap auditável por etapa
 
-**Baseline inicial:** 14 de outubro de 2026. **Repriorização:** 15 de outubro de 2026, F42 em primeiro lugar. **Execução:** P0/F42 concluído em produção e validado, por autorização posterior. Continuação F01–F41 autorizada em branch separada; F01 concluída na branch; F06 concluída na branch e F07 concluída na branch, com CI aprovado. F02, F03 e F04 concluídas na branch; ajuste aleatório de F03 validado e parada solicitada após F04. Autorização posterior iniciou somente F09; S0 aguarda decisão D10 de moderação, sem aceite de feature. Ver [execução F09](execucao-f09.md) e [execução contínua](execucao-roadmap.md). Evidências em [execução F42](execucao-f42.md).
+**Baseline inicial:** 14 de outubro de 2026. **Repriorização:** 15 de outubro de 2026, F42 em primeiro lugar. **Execução:** P0/F42 concluído em produção e validado, por autorização posterior. Continuação F01–F41 autorizada em branch separada; F01 concluída na branch; F06 concluída na branch e F07 concluída na branch, com CI aprovado. F02, F03 e F04 concluídas na branch; ajuste aleatório de F03 validado e parada solicitada após F04. Autorização posterior concluiu somente F09, com D10 resolvida, seis ACs e S0–S7 verificados no CI 38940575906. Parada após F09. Ver [execução F09](execucao-f09.md) e [execução contínua](execucao-roadmap.md). Evidências em [execução F42](execucao-f42.md).
 
 [Índice](README.md) · [Ordem](ordem-de-entrega.md) · [Decisões](decisoes.md) · [Qualidade](qualidade-e-testes.md) · [Ledger em CSV](roadmap-etapas.csv) · [Matriz AC](matriz-aceitacao.csv).
 
@@ -150,14 +150,14 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 
 | Etapa | Estado | Pré-requisito imediato | Entregável a verificar |
 | --- | --- | --- | --- |
-| F09-S0 | BLOQUEADA: D10 moderação; preparo U01/U02 registrado | F42 (prioridade), G00 | [Escopo contratos e reuso](planos/f09-perfil-publico.md#f09-s0-escopo-contratos-e-revisão-de-reutilização) |
-| F09-S1 | NÃO INICIADA | F09-S0 | [Testes U e C](planos/f09-perfil-publico.md#f09-s1-testes-unitários-e-componentes-antes-da-regra) |
-| F09-S2 | NÃO INICIADA | F09-S1 | [Dados e migração](planos/f09-perfil-publico.md#f09-s2-dados-invariantes-e-migração) |
-| F09-S3 | NÃO INICIADA | F09-S2 | [Domínio API e jobs](planos/f09-perfil-publico.md#f09-s3-regra-de-negócio-api-e-jobs) |
-| F09-S4 | NÃO INICIADA | F09-S3 | [Interface](planos/f09-perfil-publico.md#f09-s4-interface-composição-e-estados) |
-| F09-S5 | NÃO INICIADA | F09-S4 | [Integração e ACs](planos/f09-perfil-publico.md#f09-s5-integração-contrato-persistência-e-falhas) |
-| F09-S6 | NÃO INICIADA | F09-S5 | [Playwright e QA](planos/f09-perfil-publico.md#f09-s6-e2e-playwright-e-revisão-visual) |
-| F09-S7 | NÃO INICIADA | F09-S6 | [Regressão e liberação](planos/f09-perfil-publico.md#f09-s7-regressão-rollout-e-fechamento-auditável) |
+| F09-S0 | CONCLUÍDA | F42 (prioridade), G00 | [Escopo contratos e reuso](planos/f09-perfil-publico.md#f09-s0-escopo-contratos-e-revisão-de-reutilização) |
+| F09-S1 | CONCLUÍDA | F09-S0 | CONCLUÍDA |
+| F09-S2 | CONCLUÍDA | F09-S1 | CONCLUÍDA |
+| F09-S3 | CONCLUÍDA | F09-S2 | CONCLUÍDA |
+| F09-S4 | CONCLUÍDA | F09-S3 | CONCLUÍDA |
+| F09-S5 | CONCLUÍDA | F09-S4 | CONCLUÍDA |
+| F09-S6 | CONCLUÍDA | F09-S5 | CONCLUÍDA |
+| F09-S7 | CONCLUÍDA | F09-S6 | CONCLUÍDA |
 
 ### 9 F12 Link permanente para convites
 

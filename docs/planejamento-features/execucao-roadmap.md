@@ -59,3 +59,8 @@ Pedido posterior do usuário: sugestões aleatórias, depois próxima feature e 
 ## 16/10/2026 — início da F09 e decisão pendente
 
 O usuário autorizou somente a próxima feature, F09. [Execução F09](execucao-f09.md) registra inventário, reuso e preparo isolado de normalização de slug/ordenação (21 casos; regressão backend 424 testes, lint/typecheck/build aprovados). S0 aguarda a resposta D10: liberação automática com bloqueio para correção ou revisão humana de URLs que ficam exclusivamente no perfil. Não usar Link/ModerationCase do catálogo como atalho que consuma quota ou publique itens. Nenhuma API, migration ou UI implementada; nenhum AC ou etapa completa aceito; PG/E2E F09 ainda não executados. F12 e seguintes não iniciadas. Sem main, deploy, cobrança ou notificações reais.
+
+
+## 16/10/2026 — F09 concluída e parada
+
+O usuário resolveu D10: validação automática, bloqueio de suspeitos e rascunho para correção. F09 concluída na branch: editor, perfil SSR, mídia validada, prévia/publicação/retirada versionadas e isolamento. [Execução F09](execucao-f09.md) registra contratos, reuso, limites, reversão, 424 testes backend, 196 frontend, 137 PG e 92 E2E. Código aba5b14907ec5d4bb794266b768cd282470a3d20; CI 38940575906 aprovado nos quatro jobs. S0–S7 e seis ACs encerrados com evidências. Parada após F09; F12 não iniciada. Sem main, deploy, mensagens ou cobrança reais.

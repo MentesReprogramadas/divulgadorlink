@@ -1,0 +1,7 @@
+web	Run npm run lint && npm run typecheck && npm test && npm run build	2026-10-16T17:34:25.9116760Z  Test Files  59 passed (59)
+web	Run npm run lint && npm run typecheck && npm test && npm run build	2026-10-16T17:34:25.9117492Z       Tests  196 passed (196)
+verify	Run npm run lint && npm run typecheck && npm test	2026-10-16T17:34:47.7138502Z  Test Files  101 passed (101)
+verify	Run npm run lint && npm run typecheck && npm test	2026-10-16T17:34:47.7140062Z       Tests  424 passed (424)
+verify	Run npm run test:pg	2026-10-16T17:35:23.6208911Z  Test Files  14 passed (14)
+verify	Run npm run test:pg	2026-10-16T17:35:23.6210023Z       Tests  137 passed (137)
+e2e	Run npm run test:e2e	2026-10-16T17:39:00.9677228Z   92 passed (4.7m)

@@ -1,0 +1,134 @@
+npm notice run divulgador-links-web@0.1.0 npx
+npm notice run playwright test profiles.spec.ts
+0820f046f19511c8337e544a8754099fb3f8c4681c216fb00bacf9668314bf48
+2e597a11a66ceceea8b1676bb99c5497ffad2ec055adba8b54336ecdf1c344bb
+(node:55508) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run prisma migrate deploy
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": PostgreSQL database "divulgador", schema "public" at "127.0.0.1:5533"
+
+31 migrations found in prisma/migrations
+
+Applying migration `20260929191730_tenant_user_identifiers`
+Applying migration `20260929200000_verification_code_binds_identifier`
+Applying migration `20260929210000_prices_networks_niches_config`
+Applying migration `20260929220000_links_and_blocklist`
+Applying migration `20260929230000_moderation_cases`
+Applying migration `20260929231000_link_ever_published`
+Applying migration `20260929232000_link_embedding`
+Applying migration `20260929233000_submission_outbox_ban`
+Applying migration `20260929234000_orders_payments`
+Applying migration `20260929235000_analytics_events`
+Applying migration `20260930140000_order_br_code_and_catalog_indexes`
+Applying migration `20260930180000_analytics_link_totals_index`
+Applying migration `20261002140000_promotion_offers`
+Applying migration `20261002153000_adult_networks`
+Applying migration `20261005193000_one_open_moderation_case`
+Applying migration `20261006120000_facet_summary`
+Applying migration `20261009120000_acquisition_funnel`
+Applying migration `20261010120000_site_traffic`
+Applying migration `20261010150000_order_finance`
+Applying migration `20261015140000_evolution_operations`
+Applying migration `20261015153000_evolution_quoted_review`
+Applying migration `20261015180000_admin_promotions`
+Applying migration `20261016090000_promotion_investments`
+Applying migration `20261016090100_performance_query_index`
+Applying migration `20261016100000_link_reports`
+Applying migration `20261016100100_report_key_comparison`
+Applying migration `20261016110000_availability_paid_pause`
+Applying migration `20261016120000_renewal_reminders`
+Applying migration `20261016130000_related_link_indexes`
+Applying migration `20261016140000_favorites_collections`
+Applying migration `20261016160000_public_profiles`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20260929191730_tenant_user_identifiers/
+    └─ migration.sql
+  └─ 20260929200000_verification_code_binds_identifier/
+    └─ migration.sql
+  └─ 20260929210000_prices_networks_niches_config/
+    └─ migration.sql
+  └─ 20260929220000_links_and_blocklist/
+    └─ migration.sql
+  └─ 20260929230000_moderation_cases/
+    └─ migration.sql
+  └─ 20260929231000_link_ever_published/
+    └─ migration.sql
+  └─ 20260929232000_link_embedding/
+    └─ migration.sql
+  └─ 20260929233000_submission_outbox_ban/
+    └─ migration.sql
+  └─ 20260929234000_orders_payments/
+    └─ migration.sql
+  └─ 20260929235000_analytics_events/
+    └─ migration.sql
+  └─ 20260930140000_order_br_code_and_catalog_indexes/
+    └─ migration.sql
+  └─ 20260930180000_analytics_link_totals_index/
+    └─ migration.sql
+  └─ 20261002140000_promotion_offers/
+    └─ migration.sql
+  └─ 20261002153000_adult_networks/
+    └─ migration.sql
+  └─ 20261005193000_one_open_moderation_case/
+    └─ migration.sql
+  └─ 20261006120000_facet_summary/
+    └─ migration.sql
+  └─ 20261009120000_acquisition_funnel/
+    └─ migration.sql
+  └─ 20261010120000_site_traffic/
+    └─ migration.sql
+  └─ 20261010150000_order_finance/
+    └─ migration.sql
+  └─ 20261015140000_evolution_operations/
+    └─ migration.sql
+  └─ 20261015153000_evolution_quoted_review/
+    └─ migration.sql
+  └─ 20261015180000_admin_promotions/
+    └─ migration.sql
+  └─ 20261016090000_promotion_investments/
+    └─ migration.sql
+  └─ 20261016090100_performance_query_index/
+    └─ migration.sql
+  └─ 20261016100000_link_reports/
+    └─ migration.sql
+  └─ 20261016100100_report_key_comparison/
+    └─ migration.sql
+  └─ 20261016110000_availability_paid_pause/
+    └─ migration.sql
+  └─ 20261016120000_renewal_reminders/
+    └─ migration.sql
+  └─ 20261016130000_related_link_indexes/
+    └─ migration.sql
+  └─ 20261016140000_favorites_collections/
+    └─ migration.sql
+  └─ 20261016160000_public_profiles/
+    └─ migration.sql
+      
+All migrations have been successfully applied.
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run tsx scripts/e2e-seed.ts
+
+Running 9 tests using 1 worker
+
+(node:23988) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [setup] › e2e\auth.setup.ts:8:6 › sessão da Bia para os testes do painel (406ms)
+(node:54908) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 2 [features] › e2e\profiles.spec.ts:25:5 › F09-E01/T03/T04/T05 grupos, ordem, redes, foto e botão principal; prévia e público reais sem ocultos (2.2s)
+  ok 3 [features] › e2e\profiles.spec.ts:64:5 › F09-E04 restrição de idade não entrega conteúdo no HTML/API antes do aceite real (1.2s)
+  ok 4 [features] › e2e\profiles.spec.ts:78:5 › F09-E02/T02/T06 sessão real, admin não ganha dono, suspeita/provedor bloqueiam e preservam página anterior (1.8s)
+  ok 5 [features] › e2e\profiles.spec.ts:93:5 › F09-E03 offline mantém dados, teclado salva, 320px e texto 200%, conflito entre abas não sobrescreve (1.3s)
+(node:24620) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 6 [features-mobile] › e2e\profiles.spec.ts:25:5 › F09-E01/T03/T04/T05 grupos, ordem, redes, foto e botão principal; prévia e público reais sem ocultos (2.1s)
+  ok 7 [features-mobile] › e2e\profiles.spec.ts:64:5 › F09-E04 restrição de idade não entrega conteúdo no HTML/API antes do aceite real (1.2s)
+  ok 8 [features-mobile] › e2e\profiles.spec.ts:78:5 › F09-E02/T02/T06 sessão real, admin não ganha dono, suspeita/provedor bloqueiam e preservam página anterior (1.9s)
+  ok 9 [features-mobile] › e2e\profiles.spec.ts:93:5 › F09-E03 offline mantém dados, teclado salva, 320px e texto 200%, conflito entre abas não sobrescreve (1.4s)
+
+  9 passed (54.5s)

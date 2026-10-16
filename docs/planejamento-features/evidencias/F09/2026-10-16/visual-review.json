@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-16",
+  "reviewer": "Codex",
+  "chrome": {
+    "desktop": [
+      1280,
+      720
+    ],
+    "mobile": [
+      390,
+      844
+    ],
+    "mobileEmulated": true,
+    "formWidths": [
+      760,
+      324
+    ],
+    "labelsAssociated": true,
+    "horizontalOverflow": false,
+    "publicH1Count": 1,
+    "publicHiddenSentinel": false,
+    "keyboardFocus": {
+      "color": "rgb(20, 109, 202)",
+      "widthPx": 3,
+      "offsetPx": 3
+    },
+    "secondaryTextContrastOnWhite": 5.43
+  },
+  "playwright": {
+    "reflowWidth": 320,
+    "rootTextPercent": 200,
+    "photoFormats": [
+      "image/png",
+      "image/jpeg",
+      "image/webp"
+    ],
+    "decodedPreviewAndPublicPhoto": true,
+    "evidence": "e2e-final-media.log; final-acceptance"
+  },
+  "limitations": [
+    "No native browser zoom claim",
+    "No physical device or screen reader",
+    "No performance baseline for previously nonexistent route",
+    "No pixel-diff baseline",
+    "Lazy image decode outside viewport did not complete in manual tooling; final decode proven after scroll in Playwright"
+  ],
+  "ciScreenshotsReviewed": {
+    "run": "38940575906",
+    "environment": "Linux GitHub Actions Chromium",
+    "files": [
+      "ci-screens/public-desktop.png",
+      "ci-screens/public-mobile.png"
+    ],
+    "pixelDiffClaim": false
+  }
+}

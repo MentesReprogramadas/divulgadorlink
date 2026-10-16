@@ -7,8 +7,8 @@ CLI Using tsup config: C:\Users\ferna\.codex\worktrees\roadmap-features\divulgad
 CLI Target: es2022
 CLI Cleaning output folder
 CJS Build start
-CJS build\worker.js     208.19 KB
-CJS build\server.js     500.89 KB
-CJS build\worker.js.map 464.12 KB
-CJS build\server.js.map 1.04 MB
-CJS ⚡️ Build success in 83ms
+CJS build\worker.js     208.74 KB
+CJS build\server.js     528.93 KB
+CJS build\worker.js.map 464.94 KB
+CJS build\server.js.map 1.09 MB
+CJS ⚡️ Build success in 78ms

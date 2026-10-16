@@ -1,0 +1,18 @@
+npm notice run divulgador-links-web@0.1.0 npx
+npm notice run playwright test profiles.spec.ts
+1e225d285555a0e670fd208868967b10f011abaf85d4031dd62e62a4d058e20e
+47567fed85101a2ce734ddd245aa0ef01c542b46b43449ca7921a95e177056c6
+(node:10144) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run prisma migrate deploy
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": PostgreSQL database "divulgador", schema "public" at "127.0.0.1:5533"
+
+31 migrations found in prisma/migrations
+
+Applying migration `20260929191730_tenant_user_identifiers`
+Applying migration `20260929200000_verification_code_binds_identifier`
+Applying migration `20260929210000_prices_networks_niches_config`
+Applying migration `20260929220000_links_and_blocklist`
+Applying migration `20260929230000_moderation_cases`

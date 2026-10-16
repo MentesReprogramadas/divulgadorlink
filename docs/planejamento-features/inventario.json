@@ -3,7 +3,7 @@
   "date": "2026-10-16",
   "source": "../features-propostas.md",
   "sourceSHA256": "6CBD63F2210EC98635C3D3643D9826B656EDB091DBED70DAE07783FE12E79B22",
-  "execution": "F09_STARTED_AWAITING_D10_MODERATION",
+  "execution": "STOPPED_AFTER_F09_BY_USER",
   "features": [
     {
       "id": "F42",
@@ -502,8 +502,10 @@
         "F09-S7"
       ],
       "priorityGate": "F42",
-      "execution": "STARTED_AWAITING_D10_MODERATION",
-      "executionRecord": "execucao-f09.md"
+      "execution": "COMPLETE_ON_BRANCH",
+      "executionRecord": "execucao-f09.md",
+      "implementationCommit": "aba5b14907ec5d4bb794266b768cd282470a3d20",
+      "ciRun": "38940575906"
     },
     {
       "id": "F12",

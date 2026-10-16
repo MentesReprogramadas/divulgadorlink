@@ -2,7 +2,7 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 8.
 
-**Estado:** EM VALIDAÇÃO. D10 resolvida pelo usuário; implementação na branch, fechamento e CI pendentes.
+**Estado:** CONCLUÍDA NA BRANCH; S0–S7 e AC01–AC06 verificados. D10 resolvida; CI 38940575906 aprovado.
 
 Registro atual: [execução F09](../execucao-f09.md). Os critérios e cenários abaixo permanecem vinculantes. A seção de reconciliação registra os contratos implementados; o fechamento exige evidências de todos os gates.
 
@@ -71,7 +71,7 @@ Rotas/operações: GET/PATCH /api/v1/me/profile; CRUD /me/profile/categories e i
 
 **Saída específica:** `draft{version,validation},publicProfile{slug,publishedRevisionId,categories,items}; sem campos privados`.
 
-Todos os caminhos são propostas a reconciliar com rotas atuais em S0; não estão implementados. Quando a rota abreviada omite prefixo, o prefixo é /api/v1. PATCH/POST/DELETE com sessão preservam CSRF do app e enviam host pelo BFF; tenant não vem do corpo. GET público não exige autenticação indevida. Exportações, tokens e respostas privadas usam política de cache que impeça exposição.
+Os contratos efetivos estão reconciliados no início desta spec; a proposta original de endpoints independentes foi substituída por atualização atômica do agregado. Quando a rota abreviada omite prefixo, o prefixo é /api/v1. PATCH/POST/DELETE com sessão preservam CSRF do app e enviam host pelo BFF; tenant não vem do corpo. GET público não exige autenticação indevida. Exportações, tokens e respostas privadas usam política de cache que impeça exposição.
 
 Erros: aplicar o envelope existente code/message/request_id; 400 para entrada inválida, 401 sem sessão em recurso privado, 403 para contexto de tenant incompatível quando contrato atual exige, 404 para recurso alheio/ausente sem enumerar dados, 409 para conflito de versão/identidade, 429 para limite, 503 para indisponibilidade externa quando apropriado. Rotas existentes podem ter semântica específica; preservar testes de contrato e documentar divergência antes de mudar.
 
@@ -138,11 +138,11 @@ Criar um teste com ID Tnn para cada AC, com o seguinte protocolo específico da 
 
 ## Arquivos de teste propostos
 
-- U: `backend/src/domain/profiles/perfil-publico.spec.ts`.
-- C: `frontend/src/components/domain/perfil-publico.test.tsx`.
-- I: `backend/src/http/perfil-publico.http.spec.ts`.
-- PG: `backend/src/http/perfil-publico.pg.spec.ts`; registrar no comando/CI de PG.
-- E: `frontend/e2e/perfil-publico.spec.ts`; registrar no projeto features e features-mobile antes de executar.
+- U: `backend/src/domain/profiles/profile.spec.ts`.
+- C: `frontend/src/features/profiles/components/profile-view.test.tsx`.
+- I: `backend/src/http/profiles.pg.spec.ts`.
+- PG: `backend/src/http/profiles.pg.spec.ts`; registrar no comando/CI de PG.
+- E: `frontend/e2e/profiles.spec.ts`; registrar no projeto features e features-mobile antes de executar.
 - Consumidores e novos caminhos sugeridos estão no plano; todos devem ser reconciliados com a árvore existente em S0.
 
 ## Decisões e condições de liberação
