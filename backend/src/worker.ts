@@ -31,6 +31,7 @@ import { settleProposedText } from '@/use-cases/@Links/settle-proposed-text'
 import type { ModelVerdict } from '@/use-cases/@Links/proposed-text-decision'
 import { pixExpiresInSeconds } from '@/domain/payments/pix-expiration'
 import { prismaRetentionView } from '@/repositories/analytics-retention'
+import { purgeRedirectHistory } from '@/repositories/redirects-repository'
 import { getOrderInsightsRepository, META_CONTEXT_TTL_DAYS } from '@/repositories/order-insights-repository'
 import { runAnalyticsPurge } from '@/use-cases/@Analytics/purge-old-events'
 import { runAvailabilityCycle, type AvailabilityCycleInput } from '@/use-cases/@Links/monitor-availability'
@@ -349,6 +350,7 @@ async function startWorker(): Promise<void> {
   drain.unref()
   const day = 24 * 60 * 60 * 1000
   const purge = async () => {
+    await purgeRedirectHistory(prisma)
     const deleted = await runAnalyticsPurge(prismaRetentionView(), new Date())
     if (deleted > 0) logDomainEvent('analytics.purged', { entity: String(deleted) })
     const stale = await getOrderInsightsRepository().purgeMetaContexts(new Date(Date.now() - META_CONTEXT_TTL_DAYS * day))

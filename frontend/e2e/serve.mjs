@@ -1,7 +1,8 @@
 import { runtime as e2eRuntime } from './runtime.cjs'
 import { spawn, spawnSync } from 'node:child_process'
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { createServer } from 'node:http'
+import { createServer as createHttpsServer } from 'node:https'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { setTimeout as delay } from 'node:timers/promises'
@@ -46,17 +47,25 @@ function shutdown() {
     if (child.pid) killTree(child.pid)
   }
   stub.close()
+  external.close()
   process.exit(0)
 }
 
+const redirectValidations = []
 const stub = createServer((req, res) => {
   const chunks = []
   req.on('data', (chunk) => chunks.push(chunk))
   req.on('end', () => {
     const raw = Buffer.concat(chunks).toString()
     res.setHeader('content-type', 'application/json')
+    if (req.method === 'GET' && req.url === '/redirect-validation/pending') { res.end(JSON.stringify({ count: redirectValidations.length })); return }
+    if (req.method === 'POST' && req.url === '/redirect-validation/release') {
+      for (const pending of redirectValidations.splice(0)) pending.end(JSON.stringify({ pass: true, confidence: 0.99, reasons: [] }))
+      res.end('{}'); return
+    }
     if (req.method === 'POST' && req.url === '/profile-validation') {
       const text = JSON.parse(raw)
+      if (String(text.description).includes('LentoFixture')) { redirectValidations.push(res); return }
       if (String(text.description).includes('FalhaProvedorFixture')) { res.statusCode = 503; res.end('{}'); return }
       res.end(JSON.stringify({ pass: !String(text.description).includes('SuspeitoFixture'), confidence: 0.99, reasons: [] })); return
     }
@@ -143,6 +152,14 @@ stub.on('error', (error) => {
 })
 stub.listen(e2eRuntime.stubPort, '127.0.0.1')
 
+// Public test certificate/key, used only by this isolated harness. Never changes Node TLS policy.
+const external = createHttpsServer({ key: readFileSync(path.join(here, 'fixtures/external-test-key.pem')), cert: readFileSync(path.join(here, 'fixtures/external-test-cert.pem')) }, (req, res) => {
+  const name = req.url === '/f12-b' ? 'B' : 'A'
+  res.setHeader('content-type', 'text/html; charset=utf-8'); res.end('<h1>Convite fixture ' + name + '</h1>')
+})
+external.on('error', error => { console.error('External fixture failed:', error.message); process.exit(1) })
+external.listen(e2eRuntime.externalPort, '127.0.0.1')
+
 const stateFile = path.join(here, 'state.json')
 for (let attempt = 0; attempt < 90; attempt += 1) {
   const ready = spawnSync('docker', ['exec', e2eRuntime.pgContainer, 'pg_isready', '-U', 'divulgador'], { stdio: 'ignore', shell: true })
@@ -223,6 +240,7 @@ if (build.status !== 0) {
     if (child.pid) killTree(child.pid)
   }
   stub.close()
+  external.close()
   process.exit(1)
 }
 start([process.execPath, next, 'start', '--hostname', '0.0.0.0', '-p', String(e2eRuntime.webPort)], frontend, webEnv)

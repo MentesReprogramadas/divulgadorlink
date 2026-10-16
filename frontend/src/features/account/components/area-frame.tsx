@@ -24,6 +24,7 @@ export function PanelNav({ role }: { role: string }) {
     { id: "pedidos", href: "/painel/pedidos", label: "Pedidos" },
     { id: "favoritos", href: "/painel/favoritos", label: "Favoritos" },
     { id: "perfil", href: "/painel/perfil", label: "Perfil" },
+    { id: "convites", href: "/painel/convites", label: "Convites" },
     { id: "lembretes", href: "/painel/lembretes", label: "Lembretes" },
     { id: "conta", href: "/painel/conta", label: "Conta" },
     ...(role === "ADMIN" ? [{ id: "admin", href: "/admin/visao", label: "Admin" }] : []),

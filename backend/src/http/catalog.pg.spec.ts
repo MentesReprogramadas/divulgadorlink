@@ -9,6 +9,7 @@ if (!url) throw new Error('CHECKOUT_DATABASE_URL ausente')
 
 const admin = new PrismaClient({ datasources: { db: { url } } })
 let db: PrismaClient
+let databaseIdentifier: string, previousTimezone: string | null = null
 
 async function allPages(input: { tenantId: string; age: 'yes' | 'no'; limit: number; surface?: 'HOME' | 'NICHE' }) {
   const ids: string[] = []
@@ -49,7 +50,11 @@ async function promote(linkId: string, tenantId: string, activatedAt: string, su
 
 describe('vitrine paginada e moderação no PostgreSQL', () => {
   beforeAll(async () => {
-    await admin.$executeRawUnsafe(`ALTER DATABASE divulgador SET timezone TO 'America/Sao_Paulo'`)
+    const [database] = await admin.$queryRaw<Array<{ name: string }>>`SELECT current_database() AS name`
+    databaseIdentifier = '"' + database!.name.replaceAll('"', '""') + '"'
+    const previous = await admin.$queryRaw<Array<{ setting: string }>>`SELECT setting FROM pg_db_role_setting s CROSS JOIN LATERAL unnest(s.setconfig) setting WHERE s.setdatabase=(SELECT oid FROM pg_database WHERE datname=current_database()) AND s.setrole=0 AND lower(setting) LIKE 'timezone=%'`
+    previousTimezone = previous[0]?.setting.split('=').slice(1).join('=') ?? null
+    await admin.$executeRawUnsafe(`ALTER DATABASE ${databaseIdentifier} SET timezone TO 'America/Sao_Paulo'`)
     db = new PrismaClient({ datasources: { db: { url } } })
     const zone = await db.$queryRawUnsafe<Array<{ TimeZone: string }>>('SHOW TIME ZONE')
     expect(zone[0]?.TimeZone).toBe('America/Sao_Paulo')
@@ -57,7 +62,7 @@ describe('vitrine paginada e moderação no PostgreSQL', () => {
 
   afterAll(async () => {
     await db.$disconnect()
-    await admin.$executeRawUnsafe('ALTER DATABASE divulgador RESET timezone')
+    await admin.$executeRawUnsafe(previousTimezone ? `ALTER DATABASE ${databaseIdentifier} SET timezone TO '${previousTimezone.replaceAll("'", "''")}'` : `ALTER DATABASE ${databaseIdentifier} RESET timezone`)
     await admin.$disconnect()
   })
 

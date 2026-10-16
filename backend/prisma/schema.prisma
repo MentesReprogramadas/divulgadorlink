@@ -111,6 +111,7 @@ model User {
   collections Collection[]
   profiles Profile[]
   profileAssets ProfileAsset[]
+  redirectHandles RedirectHandle[]
   @@unique([id, tenantId], map: "users_id_tenantid_key")
   identifiers  UserIdentifier[]
   links        Link[]
@@ -843,4 +844,54 @@ model ProfileAsset {
  createdAt DateTime @default(now())
  @@id([tenantId, ownerId, id])
  @@map("profile_assets")
+}
+
+model RedirectHandle {
+ id String @id @default(uuid())
+ tenantId String
+ ownerId String
+ owner User @relation(fields: [ownerId, tenantId], references: [id, tenantId], onDelete: Cascade, onUpdate: NoAction, map: "redirect_handles_owner_fk")
+ creationKey String
+ creationHash String
+ version Int @default(0)
+ activeRevisionId String?
+ disabled Boolean @default(false)
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ revisions RedirectDestination[]
+ @@unique([id, tenantId], map: "redirect_handles_identity_key")
+ @@unique([tenantId, ownerId, creationKey], map: "redirect_handles_creation_key")
+ @@index([tenantId, ownerId, id], map: "redirect_handles_owner_page_idx")
+ @@map("redirect_handles")
+}
+model RedirectDestination {
+ id String @id @default(uuid())
+ handleId String
+ tenantId String
+ handle RedirectHandle @relation(fields: [handleId, tenantId], references: [id, tenantId], onDelete: Cascade, onUpdate: NoAction, map: "redirect_destinations_handle_fk")
+ number Int
+ requestKey String
+ requestHash String
+ label String
+ destinationUrl String
+ requiresAge Boolean @default(false)
+ status String
+ errorMessage String?
+ createdAt DateTime @default(now())
+ resolvedAt DateTime?
+ accesses RedirectDaily[]
+ @@unique([handleId, number], map: "redirect_destinations_number_key")
+ @@unique([handleId, requestKey], map: "redirect_destinations_request_key")
+ @@unique([handleId, tenantId, id], map: "redirect_destinations_identity_key")
+ @@index([createdAt], map: "redirect_destinations_retention_idx")
+ @@map("redirect_destinations")
+}
+model RedirectDaily {
+ revisionId String
+ day DateTime @db.Date
+ revision RedirectDestination @relation(fields: [revisionId], references: [id], onDelete: Cascade)
+ accesses Int @default(0)
+ @@id([revisionId, day])
+ @@index([day], map: "redirect_daily_retention_idx")
+ @@map("redirect_daily")
 }

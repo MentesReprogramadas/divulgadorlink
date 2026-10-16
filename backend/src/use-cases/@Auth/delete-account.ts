@@ -2,6 +2,7 @@ import { randomBytes } from 'node:crypto'
 import { hash } from 'bcryptjs'
 import { notifyAccountDeleted } from '@/adapters/notifications/outbound-mail'
 import { prisma } from '@/lib/prisma'
+import type { PrismaClient } from '@prisma/client'
 
 export class WrongPasswordError extends Error {
   constructor() {
@@ -41,8 +42,9 @@ export class MemoryAccountDeletionRepository implements AccountDeletionRepositor
 }
 
 export class PrismaAccountDeletionRepository implements AccountDeletionRepository {
+  constructor(private readonly client: PrismaClient = prisma) {}
   async find(tenantId: string, userId: string): Promise<DeletionAccount | null> {
-    const user = await prisma.user.findFirst({
+    const user = await this.client.user.findFirst({
       where: { id: userId, tenantId },
       include: { identifiers: { where: { kind: 'EMAIL', replacedAt: null } } },
     })
@@ -57,7 +59,11 @@ export class PrismaAccountDeletionRepository implements AccountDeletionRepositor
 
   async anonymize(userId: string): Promise<void> {
     const passwordHash = await hash(randomBytes(32).toString('hex'), 12)
-    await prisma.$transaction(async (tx) => {
+    await this.client.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM users WHERE id=${userId} FOR UPDATE`
+      await tx.redirectHandle.deleteMany({ where: { ownerId: userId } })
+      await tx.profile.deleteMany({ where: { ownerId: userId } })
+      await tx.profileAsset.deleteMany({ where: { ownerId: userId } })
       await tx.verificationCode.deleteMany({ where: { userId } })
       await tx.userIdentifier.deleteMany({ where: { userId } })
       await tx.link.updateMany({ where: { ownerId: userId }, data: { ownerId: null } })

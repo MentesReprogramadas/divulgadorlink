@@ -3,7 +3,7 @@ import { canonicalUrl } from '@/domain/links/canonical-url'
 import type { UrlProbe } from '@/use-cases/@Links/link-availability'
 
 export class RedirectError extends Error {
-  constructor(readonly status: number, message: string) { super(message) }
+  constructor(readonly status: number, message: string, readonly resource?: { id: string; version: number }) { super(message) }
 }
 
 /** Validates transport only. Content approval remains a separate mandatory gate. */

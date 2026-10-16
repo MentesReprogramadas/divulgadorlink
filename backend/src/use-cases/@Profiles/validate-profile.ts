@@ -1,27 +1,12 @@
 import type { Prisma } from '@prisma/client'
 import { assertPublicHttps } from '@/adapters/http/safe-fetch'
-import { probeAvailability } from '@/adapters/http/availability-probe'
 import { canonicalUrl } from '@/domain/links/canonical-url'
 import { hitsBlocklist } from '@/domain/links/blocklist'
-import { OpenAiTextModeration } from '@/adapters/moderation/openai-text-moderation'
 import { decideProposedText, type ModelVerdict } from '@/use-cases/@Links/proposed-text-decision'
-import { env } from '@/env'
 import { ProfileError, type ProfileContent } from '@/domain/profiles/profile'
-export type ProfileValidationPorts = { probe: (url: string) => Promise<number | null>; judge: (text: { name: string; description: string; niche: string }) => Promise<ModelVerdict> }
-export function profileValidationPorts(host: string): ProfileValidationPorts {
-  const moderation = env.OPENAI_API_KEY ? new OpenAiTextModeration(env.OPENAI_API_KEY) : null
-  if (env.NODE_ENV === 'dev' && host === 'profiles.localhost' && process.env.E2E_PROFILE_STUB_URL) {
-    const target = new URL(process.env.E2E_PROFILE_STUB_URL)
-    if (target.protocol === 'http:' && ['127.0.0.1', 'localhost'].includes(target.hostname)) return {
-      probe: probeAvailability,
-      judge: async text => { const r = await fetch(new URL('/profile-validation', target), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(text), signal: AbortSignal.timeout(10000) }); if (!r.ok) throw new Error('fixture unavailable'); return r.json() as Promise<ModelVerdict> },
-    }
-  }
-  return { probe: probeAvailability, judge: async text => {
-    if (!moderation) throw new ProfileError(503, 'Validação automática indisponível. Seu rascunho foi mantido; tente novamente.')
-    return moderation.judgeProfile(text)
-  } }
-}
+export { publicContentValidationPorts as profileValidationPorts } from '@/use-cases/public-content-validation-ports'
+import type { PublicContentValidationPorts as ProfileValidationPorts } from '@/use-cases/public-content-validation-ports'
+export type { PublicContentValidationPorts as ProfileValidationPorts } from '@/use-cases/public-content-validation-ports'
 export async function validateProfile(db: Prisma.TransactionClient, tenantId: string, content: ProfileContent, ports: ProfileValidationPorts): Promise<ProfileContent> {
   const [terms, banned, threshold] = await Promise.all([db.blocklistTerm.findMany({ where: { tenantId } }), db.link.findMany({ where: { tenantId, owner: { tenantId, status: 'BANNED' } }, select: { canonicalUrl: true } }), db.config.findUnique({ where: { tenantId_key: { tenantId, key: 'MODERATION_AUTO_APPROVE_THRESHOLD' } } })])
   const text = [content.name, content.bio, ...content.categories.map(c => c.name), ...content.items.map(i => i.label)].join('\n')

@@ -1,0 +1,22 @@
+.page { display: grid; gap: var(--space-6); min-width: 0; }
+.section { display: grid; gap: var(--space-4); min-width: 0; }
+.page h2, .page h3, .page p { margin: 0; }
+.note { color: var(--text-secondary); line-height: 1.6; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+.frame { width: min(100%, 47.5rem); min-width: 0; }
+.form { display: grid; width: 100%; max-width: none; gap: var(--space-4); margin: 0; }
+.controls { display: grid; gap: var(--space-4); min-width: 0; padding: 0; border: 0; margin: 0; }
+.legend { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }
+.checkbox { display: flex; align-items: center; gap: var(--space-3); min-height: 2.75rem; }
+.checkbox input { width: 1.25rem; height: 1.25rem; flex-shrink: 0; }
+.status:empty { display: none; }
+.status:focus { outline: 3px solid var(--focus-ring); outline-offset: 4px; }
+.history { list-style: none; display: grid; gap: var(--space-4); margin: 0; padding: 0; }
+.history li { display: grid; gap: var(--space-3); padding: var(--space-4); border: 1px solid var(--border-default); border-radius: var(--radius); }
+.url { overflow-wrap: anywhere; }
+.metrics { display: flex; flex-wrap: wrap; gap: var(--space-4); margin: 0; }
+.metrics div { display: grid; gap: var(--space-1); }
+.metrics dt { color: var(--text-secondary); }
+.metrics dd { margin: 0; font-weight: 600; }
+.range { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: end; width: 100%; max-width: none; margin: 0; }
+.range > div { min-width: 0; flex: 1 1 10rem; }

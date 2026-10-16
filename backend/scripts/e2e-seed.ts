@@ -160,6 +160,12 @@ async function main() {
   const favoritesOwner = await user({ tenantId: favoritesTenant.tenant.id, name: 'Leitora', email: 'owner@favorites.test', phone: '5511911160001', confirmed: true })
   await user({ tenantId: favoritesTenant.tenant.id, name: 'Outra leitora', email: 'other@favorites.test', phone: '5511911160002', confirmed: true })
   const state = {
+    redirects: await (async () => {
+      const p = await tenantBundle('redirects.localhost', 'Convites fixture')
+      const owner = await user({ tenantId: p.tenant.id, name: 'Responsável pelos convites', email: 'owner@redirects.test', phone: '5511911180001', confirmed: true })
+      await user({ tenantId: p.tenant.id, name: 'Outro responsável', email: 'other@redirects.test', phone: '5511911180002', confirmed: true, role: 'ADMIN' })
+      return { tenantId: p.tenant.id, ownerId: owner.id, owner: 'owner@redirects.test', other: 'other@redirects.test', password: 'Senha-e2e-1' }
+    })(),
     profiles: await (async () => {
       const p = await tenantBundle('profiles.localhost', 'Perfil fixture')
       const owner = await user({ tenantId: p.tenant.id, name: 'Ana Estudos', email: 'owner@profiles.test', phone: '5511911170001', confirmed: true })

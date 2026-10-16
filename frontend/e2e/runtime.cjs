@@ -4,7 +4,7 @@ if (!Number.isInteger(offset) || offset < 0 || offset > 50000 || !/^[a-z0-9-]{0,
 const webPort = 3000 + offset, apiPort = 3333 + offset, stubPort = 4099 + offset
 const pgPort = 5433 + offset, redisPort = 6380 + offset
 exports.runtime = {
-  webPort, apiPort, stubPort, pgPort, redisPort,
+  webPort, apiPort, stubPort, pgPort, redisPort, externalPort: 4443 + offset,
   pgContainer: 'divulgador-e2e-pg' + (runId ? '-' + runId : ''),
   redisContainer: 'divulgador-e2e-redis' + (runId ? '-' + runId : ''),
   databaseUrl: 'postgresql://divulgador:divulgador@127.0.0.1:' + pgPort + '/divulgador?schema=public',

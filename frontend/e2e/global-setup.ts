@@ -33,7 +33,7 @@ function listening(port: number): Promise<boolean> {
 
 async function assertPortsFree(): Promise<void> {
   const busy: number[] = []
-  for (const port of [e2eRuntime.webPort, e2eRuntime.apiPort, e2eRuntime.stubPort]) {
+  for (const port of [e2eRuntime.webPort, e2eRuntime.apiPort, e2eRuntime.stubPort, e2eRuntime.externalPort]) {
     if (await listening(port)) busy.push(port)
   }
   if (busy.length === 0) return
