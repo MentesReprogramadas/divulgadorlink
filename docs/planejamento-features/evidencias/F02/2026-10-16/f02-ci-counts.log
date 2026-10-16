@@ -1,0 +1,4 @@
+web	Run npm run lint && npm run typecheck && npm test && npm run build	2026-10-16T13:42:56.7615480Z ^[[2m      Tests ^[[22m ^[[1m^[[32m173 passed^[[39m^[[22m^[[90m (173)^[[39m
+verify	Run npm run lint && npm run typecheck && npm test	2026-10-16T13:43:08.1689437Z ^[[2m      Tests ^[[22m ^[[1m^[[32m395 passed^[[39m^[[22m^[[90m (395)^[[39m
+verify	Run npm run test:pg	2026-10-16T13:43:39.1991684Z ^[[2m      Tests ^[[22m ^[[1m^[[32m110 passed^[[39m^[[22m^[[90m (110)^[[39m
+e2e	Run npm run test:e2e	2026-10-16T13:46:22.1623243Z   72 passed (3.6m)

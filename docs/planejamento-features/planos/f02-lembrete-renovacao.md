@@ -2,7 +2,7 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 5.
 
-**Estado:** IMPLEMENTADO NA BRANCH; S7 em fechamento de CI.
+**Estado:** CONCLUÍDO NA BRANCH; S0–S7 e CI aprovados.
 **Spec vinculante:** [F02](../specs/f02-lembrete-renovacao.md).
 **Dependências:** G00, [F01](../specs/f01-resultado-destaque.md).
 **Onda:** 2. Etapas rastreadas no [roadmap](../roadmap-auditavel.md) e na [matriz](../matriz-aceitacao.csv).
@@ -140,22 +140,24 @@ Esses nomes não são obrigação de criar arquivos vazios. Preferir ampliação
 **Entrada:** todos os ACs aprovados, decisões resolvidas, evidências S0–S6 e autorização de liberação quando necessária.
 **Saída auditável:** entrega revisada e comprovada, com plano de reversão e acompanhamento.
 
-- [ ] Executar lint/typecheck/unit/build dos pacotes afetados e regressões descritas em qualidade; se compartilhado afeta catálogo/pagamentos/sessão/SEO, executar suas suítes.
-- [ ] Confirmar E2E e testes PG no CI real, não só local; salvar commit/run/contagens e conferir ausência de skip indevido.
-- [ ] Registrar observabilidade e indicador da fonte, sem novos payloads pessoais; risco a monitorar: E-mail tem entrega pelo menos uma vez; diferenciar intenção única de garantia impossível de entrega exatamente uma vez.
-- [ ] Preparar rollout gradual pelo mecanismo de configuração aprovado; se flag nova, implementar parser/default/testes, sem presumir ConfigKey já pronto.
-- [ ] Ensaiar reversão em ambiente descartável: desabilitar entrada nova, manter leituras compatíveis, preservar dados e usar migração compensatória revisada se necessário; nunca resetar banco para desfazer.
-- [ ] Obter liberação concreta de deploy/cobrança/provisionamento somente quando a atividade futura pedir e conforme autorização vigente. Não publicar por este plano.
-- [ ] Preencher roadmap S0–S7 e matriz com responsável, commit, comando, exit code e evidência. Sem evidência, manter etapa pendente.
-- [ ] Atualizar decisões e documentação conforme implementação real sem inventar que hipótese virou regra.
+- [x] Executar lint/typecheck/unit/build dos pacotes afetados e regressões descritas em qualidade; se compartilhado afeta catálogo/pagamentos/sessão/SEO, executar suas suítes.
+- [x] Confirmar E2E e testes PG no CI real, não só local; salvar commit/run/contagens e conferir ausência de skip indevido.
+- [x] Registrar observabilidade e indicador da fonte, sem novos payloads pessoais; risco a monitorar: E-mail tem entrega pelo menos uma vez; diferenciar intenção única de garantia impossível de entrega exatamente uma vez.
+- [x] Preparar rollout gradual pelo mecanismo de configuração aprovado; se flag nova, implementar parser/default/testes, sem presumir ConfigKey já pronto.
+- [x] Ensaiar reversão em ambiente descartável: desabilitar entrada nova, manter leituras compatíveis, preservar dados e usar migração compensatória revisada se necessário; nunca resetar banco para desfazer.
+- [x] Obter liberação concreta de deploy/cobrança/provisionamento somente quando a atividade futura pedir e conforme autorização vigente. Não publicar por este plano.
+- [x] Preencher roadmap S0–S7 e matriz com responsável, commit, comando, exit code e evidência. Sem evidência, manter etapa pendente.
+- [x] Atualizar decisões e documentação conforme implementação real sem inventar que hipótese virou regra.
 
 ## Check de saída da feature
 
-- [ ] F02-AC01, F02-AC02, F02-AC03, F02-AC04, F02-AC05 aprovados, com testes Tnn rastreados.
-- [ ] U/C/I/E e PG/Redis/manual exigidos aprovados.
-- [ ] Reuso e design revistos; nenhuma duplicação sem justificativa.
-- [ ] Contratos, dados, migração, retenção, rollback e segurança revisados.
-- [ ] Roadmap e evidências completos; aceitação final registrada.
+- [x] F02-AC01, F02-AC02, F02-AC03, F02-AC04, F02-AC05 aprovados, com testes Tnn rastreados.
+- [x] U/C/I/E e PG/Redis/manual exigidos aprovados.
+- [x] Reuso e design revistos; nenhuma duplicação sem justificativa.
+- [x] Contratos, dados, migração, retenção, rollback e segurança revisados.
+- [x] Roadmap e evidências completos; aceitação final registrada.
 
 **Registro de execução:** Codex; branch codex/roadmap-features. Resultados, limitações e evidências em [execução F02](../execucao-f02.md). Deploy não realizado.
 
+
+Aceite: commit `c712f827427837d50ea0820fb170ccbd66de954f`, CI 38909863096. A obtenção de autorização de deploy é N/A nesta entrega: nenhuma implantação foi solicitada/executada. Rollout permanece desligado; reversão e limites documentados na execução.

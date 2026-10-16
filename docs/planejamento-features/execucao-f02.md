@@ -56,10 +56,18 @@ Reversão operacional testada: flag desligado impede agendamento/entrega e conse
 
 ## Resultados e aceite
 
-Resultados locais em fechamento: 395 testes backend (96 arquivos), 173 frontend (49 arquivos), 110 PG/Redis (11 arquivos; 18 F02), e 72 Playwright na regressão completa. O ajuste final de auditoria passou nos 18 testes F02 PG, além de lint/typecheck/build; CI do commit e hashes serão registrados no fechamento. Lint/typecheck/build dos pacotes afetados executados; build frontend também integra o harness. Zero skips ou retries na regressão Playwright.
+Resultados locais aprovados: 395 testes backend (96 arquivos), 173 frontend (49 arquivos), 110 PG/Redis (11 arquivos; 18 F02), e 72 Playwright na regressão completa. O ajuste final de auditoria passou nos 18 testes F02 PG, além de lint/typecheck/build; CI do commit aprovado, conforme registro abaixo. Lint/typecheck/build dos pacotes afetados executados; build frontend também integra o harness. Zero skips ou retries na regressão Playwright.
 
 Mapa de ACs: AC01/T01 — unicidade, concorrência, reentrega e payload estável; AC02/T02 — cancelamento e renovação paga real; AC03/T03 — revalidação, opt-out, suspensão, destinatário, remoção do dono e pausa F07; AC04/T04 — preferência persistida, CAS, confirmação, body estrito e auditoria; AC05/T05 — leitura/envio não criam pedido e E01 só cria renewal=true após pagar. I02/E02 cobrem sessão, outro dono, tenant e ausência de dados privados; E03 cobre offline, teclado, reload, mobile e reflow.
 
 Comandos: backend npm run lint, npm run typecheck, npm test, npm run build; npm run test:pg com PG_SPECS=1 e URLs para o PG local descartável/Redis. Frontend npm run lint, npm run typecheck, npm test, npm run test:e2e. E2E_PORT_OFFSET=100 e E2E_RUN_ID=roadmap mantêm portas comuns livres. Logs, JSON e capturas em evidencias/F02/2026-10-16. Traces/cookies e artefatos locais anteriores não entram no commit.
 
 Encerrar após F02 e sua documentação, conforme solicitado. A próxima feature não será iniciada.
+
+## Aceite final na branch
+
+Commit `c712f827427837d50ea0820fb170ccbd66de954f` em `codex/roadmap-features`. [CI 38909863096](https://github.com/MentesReprogramadas/divulgadorlink/actions/runs/38909863096) aprovado nos quatro jobs: verify (395 testes backend e 110 PG), web (173 testes frontend), e2e (72 testes, sem skips) e images (builds das imagens). Evidências do CI e contagens na pasta desta execução. A atualização posterior é documental e não altera o código validado.
+
+S0–S7 e AC01–AC05 concluídos na branch. Deploy, envs de produção, envio real e cobrança real fora deste aceite. A feature fica com RENEWAL_REMINDERS_ENABLED=0 por padrão. Parada após F02 conforme pedido; próxima feature não iniciada.
+
+A implementação está em 9adafe0 (primeiro CI 38909329609 aprovado). O commit c712f82 ajustou somente fixtures PG: agora o vencimento acompanha o meio-dia UTC do dia da execução, evitando que o teste HTTP deixe de encontrar a campanha depois de uma data fixa. Os 18 casos PG passaram localmente e a regressão completa foi repetida pelo CI 38909863096.
