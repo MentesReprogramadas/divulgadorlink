@@ -1,0 +1,15 @@
+npm notice run divulgador-links-web@0.1.0 test
+npm notice run vitest run
+
+ RUN  v5.0.3 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend
+
+
+ Test Files  48 passed (48)
+      Tests  169 passed (169)
+   Start at  23:21:17
+   Duration  7.58s (environment 67%, import 16%, tests 13%, transform 4%, worker 1%)
+
+Environment  jsdom was created 48 times · 30.10s total, 67% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+

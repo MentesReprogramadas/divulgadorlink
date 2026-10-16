@@ -1,0 +1,30 @@
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run vitest run src/http/link-availability.pg.spec.ts -t destino original recuperado
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+ ❯ src/http/link-availability.pg.spec.ts (16 tests | 1 failed | 15 skipped) 112ms
+   ❯ F07 PostgreSQL, probes e HTTP (16)
+     × F07-T05 destino original recuperado também exige revalidação e aprovação, sem forçar rotação do convite 86ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/http/link-availability.pg.spec.ts > F07 PostgreSQL, probes e HTTP > F07-T05 destino original recuperado também exige revalidação e aprovação, sem forçar rotação do convite
+Error: Informe o novo endereço do convite.
+ ❯ proposeUrl src/use-cases/@Links/link-availability.ts:30:43
+     28|     url = canonicalUrl(input.canonicalUrl)
+     29|   } catch { throw new AvailabilityError('INVALID') }
+     30|   if (url === context.canonicalUrl) throw new AvailabilityError('INVAL…
+       |                                           ^
+     31|   const status = await probe(url)
+     32|   if (status === null || status < 200 || status >= 300) throw new Avai…
+ ❯ src/http/link-availability.pg.spec.ts:146:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 15 skipped (16)
+   Start at  22:58:08
+   Duration  1.88s (transform 51%, import 43%, tests 6%)
+

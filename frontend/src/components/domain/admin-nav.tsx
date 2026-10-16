@@ -7,6 +7,7 @@ const ITEMS = [
   { id: 'visao', href: '/admin/visao', label: 'Gestão' },
   { id: 'moderacao', href: '/admin/moderacao', label: 'Moderação' },
   { id: 'denuncias', href: '/admin/denuncias', label: 'Denúncias' },
+  { id: 'disponibilidade', href: '/admin/disponibilidade', label: 'Correções' },
   { id: 'integracoes', href: '/admin/integracoes', label: 'Integrações' },
   { id: 'planos', href: '/admin/planos', label: 'Planos' },
   { id: 'estornos', href: '/admin/estornos', label: 'Estornos' },

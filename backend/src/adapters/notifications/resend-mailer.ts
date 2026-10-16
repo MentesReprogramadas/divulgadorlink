@@ -1,4 +1,4 @@
-export type EmailKind = 'otp' | 'password_reset' | 'moderation' | 'ban' | 'account_deleted'
+export type EmailKind = 'otp' | 'password_reset' | 'moderation' | 'ban' | 'account_deleted' | 'availability'
 
 export type OutboundEmail = {
   to: string
@@ -6,6 +6,7 @@ export type OutboundEmail = {
   html: string
   text: string
   kind: EmailKind
+  idempotencyKey?: string
 }
 
 export interface Mailer {
@@ -26,6 +27,7 @@ export class ResendMailer implements Mailer {
       headers: {
         authorization: `Bearer ${this.apiKey}`,
         'content-type': 'application/json',
+        ...(email.idempotencyKey ? { 'Idempotency-Key': email.idempotencyKey } : {}),
       },
       body: JSON.stringify({
         from: this.from,

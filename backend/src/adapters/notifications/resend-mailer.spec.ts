@@ -10,6 +10,13 @@ const email = {
 }
 
 describe('Resend', () => {
+  it('F07 usa chave idempotente no header sem alterar o corpo do contrato existente', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue({ ok: true, status: 200 })
+    await new ResendMailer('re_fixture', 'fixture@example.com', fetchImpl).send({ ...email, idempotencyKey: 'availability/fixture' })
+    const options = fetchImpl.mock.calls[0]?.[1]
+    expect(options.headers).toMatchObject({ 'Idempotency-Key': 'availability/fixture' })
+    expect(JSON.parse(options.body)).not.toHaveProperty('idempotencyKey')
+  })
   it('envia html e texto sem devolver o destinatário no erro', async () => {
     const fetchImpl = vi.fn().mockResolvedValue({ ok: true, status: 200 })
     const mailer = new ResendMailer('re_test', 'Tem Link Aqui <oi@tem.test>', fetchImpl)

@@ -31,6 +31,8 @@ import { pixExpiresInSeconds } from '@/domain/payments/pix-expiration'
 import { prismaRetentionView } from '@/repositories/analytics-retention'
 import { getOrderInsightsRepository, META_CONTEXT_TTL_DAYS } from '@/repositories/order-insights-repository'
 import { runAnalyticsPurge } from '@/use-cases/@Analytics/purge-old-events'
+import { runAvailabilityCycle, type AvailabilityCycleInput } from '@/use-cases/@Links/monitor-availability'
+import { AVAILABILITY_QUEUE_NAME, enqueueAvailabilityCycle } from '@/adapters/queues/enqueue-availability'
 
 export type ModerateLinkJobData = {
   configRows: Partial<Record<ConfigKey, string>>
@@ -159,6 +161,7 @@ export type TextJudge = (text: { name: string; description: string; niche: strin
 export type WorkerDeps = {
   textJudge: TextJudge | null
   db?: PrismaClient
+  availability?: AvailabilityCycleInput
 }
 
 export function createWorker(connection: Redis, deps: WorkerDeps, queueName = QUEUE_NAME): Worker {
@@ -169,6 +172,7 @@ export function createWorker(connection: Redis, deps: WorkerDeps, queueName = QU
       try {
       const result = await (async () => {
       if (job.name === 'evolution-cycle') return runEvolutionCycle(deps.db ?? prisma)
+      if (job.name === 'availability-cycle') return runAvailabilityCycle(deps.db ?? prisma, deps.availability)
       if (job.name === 'moderate-link') {
         const data = job.data as ModerateLinkJobData & { linkId?: string }
         if (typeof data.linkId === 'string') {
@@ -321,10 +325,13 @@ async function startWorker(): Promise<void> {
   createWorker(connection, { textJudge: moderation ? (text) => moderation.judge(text) : null })
   // Separate BullMQ consumer in this process: a slow provider cannot occupy the payment/moderation worker.
   createWorker(connection, { textJudge: null }, EVOLUTION_QUEUE_NAME)
+  createWorker(connection, { textJudge: null }, AVAILABILITY_QUEUE_NAME)
   await enqueuePendingEmbeddingJobs()
   await enqueueEvolutionCycle()
+  await enqueueAvailabilityCycle()
   const drain = setInterval(() => {
     void enqueueEvolutionCycle().catch(() => logDomainEvent('evolution.drain.failed', { result: 'queue_unavailable' }))
+    void enqueueAvailabilityCycle().catch(() => logDomainEvent('availability.drain.failed', { result: 'queue_unavailable' }))
     void enqueuePendingEmbeddingJobs().catch((error) => {
       logDomainEvent('embedding.drain.failed', { result: error instanceof Error ? error.message : 'fila' })
     })

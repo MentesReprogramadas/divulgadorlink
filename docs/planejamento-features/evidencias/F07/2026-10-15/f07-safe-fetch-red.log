@@ -1,0 +1,29 @@
+npm notice run divulgador-links-api@0.1.0 test
+npm notice run vitest run --run src/adapters/http/safe-fetch.spec.ts
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+ ❯ src/adapters/http/safe-fetch.spec.ts (10 tests | 1 failed) 21ms
+   ❯ ssrf (10)
+     × F07-U03 bloqueia endereços não públicos e credenciais antes de abrir conexão 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/adapters/http/safe-fetch.spec.ts > ssrf > F07-U03 bloqueia endereços não públicos e credenciais antes de abrir conexão
+AssertionError: expected [Function] to throw an error
+ ❯ src/adapters/http/safe-fetch.spec.ts:20:152
+     18| describe('ssrf', () => {
+     19|   it('F07-U03 bloqueia endereços não públicos e credenciais antes de a…
+     20|     for (const address of ['0.0.0.0', '100.64.0.1', '224.0.0.1', '255.…
+       |                                                                                                                                                        ^
+     21|     expect(() => assertPublicHttps('https://usuario:senha@example.com'…
+     22|     expect(() => assertResolvedAddresses(['not-an-ip'])).toThrow()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  22:35:00
+   Duration  252ms (transform 46%, tests 29%, import 20%, worker 5%)
+

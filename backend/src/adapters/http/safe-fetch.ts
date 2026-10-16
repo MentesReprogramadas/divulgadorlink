@@ -5,7 +5,11 @@ function isPrivateIPv4(host: string): boolean {
   const [a, b] = host.split('.').map(Number)
   return (
     a === 10
+    || a === 0
     || a === 127
+    || a >= 224
+    || (a === 100 && b >= 64 && b <= 127)
+    || (a === 198 && (b === 18 || b === 19))
     || (a === 169 && b === 254)
     || (a === 172 && b >= 16 && b <= 31)
     || (a === 192 && b === 168)
@@ -26,7 +30,7 @@ function mappedIPv4(host: string): string | null {
 
 function isPrivate(host: string): boolean {
   const bare = host.replace(/^\[|\]$/g, '').toLowerCase()
-  if (bare === 'localhost' || bare.endsWith('.local')) return true
+  if (bare === 'localhost' || bare.endsWith('.localhost') || bare.endsWith('.local')) return true
 
   const mapped = mappedIPv4(bare)
   if (mapped) return isPrivateIPv4(mapped)
@@ -34,7 +38,7 @@ function isPrivate(host: string): boolean {
   if (isIP(bare) === 4) return isPrivateIPv4(bare)
 
   if (isIP(bare) === 6) {
-    return bare === '::1' || bare.startsWith('fc') || bare.startsWith('fd') || bare.startsWith('fe80')
+    return bare === '::' || bare === '::1' || bare.startsWith('fc') || bare.startsWith('fd') || bare.startsWith('fe80') || bare.startsWith('ff')
   }
 
   return false
@@ -43,6 +47,7 @@ function isPrivate(host: string): boolean {
 export function assertPublicHttps(raw: string): true {
   const url = new URL(raw)
   if (url.protocol !== 'https:') throw new Error('somente https')
+  if (url.username || url.password) throw new Error('credenciais na URL')
   if (url.port && url.port !== '443') throw new Error('porta')
   if (isPrivate(url.hostname)) throw new Error('destino privado')
   return true
@@ -50,6 +55,7 @@ export function assertPublicHttps(raw: string): true {
 
 export function assertResolvedAddresses(addresses: string[]): true {
   if (addresses.length === 0) throw new Error('dns vazio')
+  if (addresses.some(address => isIP(address.replace(/^\[|\]$/g, '')) === 0)) throw new Error('dns inválido')
   if (addresses.some(isPrivate)) throw new Error('destino privado')
   return true
 }
@@ -88,7 +94,7 @@ async function resolvePinned(raw: string, resolve: DnsResolver): Promise<PinnedT
   return {
     url: url.href,
     hostname: url.hostname,
-    address: addresses[0]!,
+    address: [...addresses].sort((a, b) => isIP(a) - isIP(b))[0]!,
     servername: url.hostname,
   }
 }
@@ -101,21 +107,33 @@ export function defaultPinnedConnect(target: PinnedTarget): Promise<PinnedRespon
     const req = https.request(
       {
         protocol: 'https:',
-        hostname: target.hostname,
+        hostname: target.address,
+        family,
         servername: target.servername,
         path: `${url.pathname}${url.search}`,
         method: 'GET',
         headers: { host: target.hostname },
         timeout: SAFE_FETCH_TIMEOUT_MS,
-        lookup: (_hostname, options, callback) => {
-          const done = typeof options === 'function' ? options : callback
-          done(null, target.address, family)
-        },
       },
       (response) => {
         const chunks: Buffer[] = []
-        response.on('data', (chunk: Buffer) => chunks.push(chunk))
+        let bytes = 0
+        response.on('error', error => { clearTimeout(deadline); reject(error) })
+        response.on('aborted', () => { clearTimeout(deadline); reject(new Error('resposta interrompida')) })
+        response.on('data', (chunk: Buffer) => {
+          bytes += chunk.byteLength
+          if (bytes > SAFE_FETCH_MAX_BODY_BYTES) {
+            const error = new Error('corpo excede limite')
+            clearTimeout(deadline)
+            reject(error)
+            response.destroy()
+            req.destroy(error)
+            return
+          }
+          chunks.push(chunk)
+        })
         response.on('end', () => {
+          clearTimeout(deadline)
           const headers = new Headers()
           for (const [key, value] of Object.entries(response.headers)) {
             if (typeof value === 'string') headers.set(key, value)
@@ -132,7 +150,9 @@ export function defaultPinnedConnect(target: PinnedTarget): Promise<PinnedRespon
     req.on('timeout', () => {
       req.destroy(new Error('timeout'))
     })
-    req.on('error', reject)
+    req.on('error', error => { clearTimeout(deadline); reject(error) })
+    const deadline = setTimeout(() => req.destroy(new Error('timeout')), SAFE_FETCH_TIMEOUT_MS)
+    deadline.unref()
     req.end()
   })
 }
@@ -162,7 +182,7 @@ export async function safeFetch(raw: string, deps: SafeFetchDeps): Promise<Respo
       throw new Error('corpo excede limite')
     }
 
-    return new Response(Buffer.from(response.body), {
+    return new Response([204, 205].includes(response.status) ? null : Buffer.from(response.body), {
       status: response.status,
       headers: response.headers,
     })

@@ -1,0 +1,70 @@
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run vitest run src/http/link-availability.pg.spec.ts -t elegibilidade de idade|mudança da rede
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+ ❯ src/http/link-availability.pg.spec.ts (20 tests | 2 failed | 18 skipped) 289ms
+   ❯ F07 PostgreSQL, probes e HTTP (20)
+     × F07-T05 elegibilidade de idade é revalidada antes de retomar HOME, sem consumir saldo 172ms
+     × F07-T05 mudança da rede durante o probe não publica um destino incompatível 88ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/http/link-availability.pg.spec.ts > F07 PostgreSQL, probes e HTTP > F07-T05 elegibilidade de idade é revalidada antes de retomar HOME, sem consumir saldo
+AssertionError: promise resolved "{ proposal: { …(2) }, …(1) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "auditId": "cmvabzbmi000hu4g07pi383v8",
++   "proposal": {
++     "id": "cmvabzblf000fu4g037fmxdmp",
++     "status": "APPROVED",
++   },
+  }
+
+ ❯ src/http/link-availability.pg.spec.ts:155:75
+    153|     const at = new Date(base.getTime() + 4 * day); await proposal(at)
+    154|     await db.niche.update({ where: { id: 'niche-' + tenant }, data: { …
+    155|     await expect(decideUrl(await decisionInput(at), repo, async () => …
+       |                                                                           ^
+    156|     expect((await db.promotion.findFirstOrThrow({ where: { linkId: lin…
+    157|     expect((await db.promotionPause.findFirstOrThrow({ where: { tenant…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/http/link-availability.pg.spec.ts > F07 PostgreSQL, probes e HTTP > F07-T05 mudança da rede durante o probe não publica um destino incompatível
+AssertionError: promise resolved "{ proposal: { …(2) }, …(1) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "auditId": "cmvabzbp2000qu4g0praqw2z4",
++   "proposal": {
++     "id": "cmvabzbo9000ou4g0sz0wa8sx",
++     "status": "APPROVED",
++   },
+  }
+
+ ❯ src/http/link-availability.pg.spec.ts:166:7
+    164|       await db.network.update({ where: { id: 'net-' + tenant }, data: …
+    165|       return 200
+    166|     })).rejects.toThrow('validar')
+       |       ^
+    167|     expect((await db.link.findUniqueOrThrow({ where: { id: link } })).…
+    168|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 18 skipped (20)
+   Start at  23:10:45
+   Duration  2.42s (transform 49%, import 38%, tests 13%)
+

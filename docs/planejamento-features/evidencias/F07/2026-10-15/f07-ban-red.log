@@ -1,0 +1,33 @@
+npm notice run divulgador-links-api@0.1.0 test
+npm notice run vitest run --run src/use-cases/@Admin/ban-account.spec.ts
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+ ❯ src/use-cases/@Admin/ban-account.spec.ts (3 tests | 1 failed) 7ms
+   ❯ banimento (3)
+     × F07 não deixa saldo pausado reativável após banimento 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/use-cases/@Admin/ban-account.spec.ts > banimento > F07 não deixa saldo pausado reativável após banimento
+AssertionError: expected 'PAUSED' to be 'CANCELLED' // Object.is equality
+
+Expected: "CANCELLED"
+Received: "PAUSED"
+
+ ❯ src/use-cases/@Admin/ban-account.spec.ts:6:139
+      4| describe('banimento', () => {
+      5|   it('F07 não deixa saldo pausado reativável após banimento', () => {
+      6|     expect(banAccount({ links: [{ id: 'l', status: 'UNAVAILABLE' }], p…
+       |                                                                                                                                           ^
+      7|   })
+      8|   it('tira os links e cancela o destaque sem estornar', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  22:28:32
+   Duration  207ms (transform 58%, import 23%, tests 12%, worker 6%)
+

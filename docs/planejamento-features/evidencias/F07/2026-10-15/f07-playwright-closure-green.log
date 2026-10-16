@@ -1,0 +1,270 @@
+npm notice run divulgador-links-web@0.1.0 test:e2e
+npm notice run playwright test
+179f676d13361c67ed42bd2fcec44fd23e7686c57e35563a1bae975ec87844d9
+b472e702c4d4a2cb6bd17e82146c256bdecd0441c70534f721dc9094b4aa83a8
+(node:88788) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run prisma migrate deploy
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": PostgreSQL database "divulgador", schema "public" at "127.0.0.1:5533"
+
+27 migrations found in prisma/migrations
+
+Applying migration `20260929191730_tenant_user_identifiers`
+Applying migration `20260929200000_verification_code_binds_identifier`
+Applying migration `20260929210000_prices_networks_niches_config`
+Applying migration `20260929220000_links_and_blocklist`
+Applying migration `20260929230000_moderation_cases`
+Applying migration `20260929231000_link_ever_published`
+Applying migration `20260929232000_link_embedding`
+Applying migration `20260929233000_submission_outbox_ban`
+Applying migration `20260929234000_orders_payments`
+Applying migration `20260929235000_analytics_events`
+Applying migration `20260930140000_order_br_code_and_catalog_indexes`
+Applying migration `20260930180000_analytics_link_totals_index`
+Applying migration `20261002140000_promotion_offers`
+Applying migration `20261002153000_adult_networks`
+Applying migration `20261005193000_one_open_moderation_case`
+Applying migration `20261006120000_facet_summary`
+Applying migration `20261009120000_acquisition_funnel`
+Applying migration `20261010120000_site_traffic`
+Applying migration `20261010150000_order_finance`
+Applying migration `20261015140000_evolution_operations`
+Applying migration `20261015153000_evolution_quoted_review`
+Applying migration `20261015180000_admin_promotions`
+Applying migration `20261016090000_promotion_investments`
+Applying migration `20261016090100_performance_query_index`
+Applying migration `20261016100000_link_reports`
+Applying migration `20261016100100_report_key_comparison`
+Applying migration `20261016110000_availability_paid_pause`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20260929191730_tenant_user_identifiers/
+    └─ migration.sql
+  └─ 20260929200000_verification_code_binds_identifier/
+    └─ migration.sql
+  └─ 20260929210000_prices_networks_niches_config/
+    └─ migration.sql
+  └─ 20260929220000_links_and_blocklist/
+    └─ migration.sql
+  └─ 20260929230000_moderation_cases/
+    └─ migration.sql
+  └─ 20260929231000_link_ever_published/
+    └─ migration.sql
+  └─ 20260929232000_link_embedding/
+    └─ migration.sql
+  └─ 20260929233000_submission_outbox_ban/
+    └─ migration.sql
+  └─ 20260929234000_orders_payments/
+    └─ migration.sql
+  └─ 20260929235000_analytics_events/
+    └─ migration.sql
+  └─ 20260930140000_order_br_code_and_catalog_indexes/
+    └─ migration.sql
+  └─ 20260930180000_analytics_link_totals_index/
+    └─ migration.sql
+  └─ 20261002140000_promotion_offers/
+    └─ migration.sql
+  └─ 20261002153000_adult_networks/
+    └─ migration.sql
+  └─ 20261005193000_one_open_moderation_case/
+    └─ migration.sql
+  └─ 20261006120000_facet_summary/
+    └─ migration.sql
+  └─ 20261009120000_acquisition_funnel/
+    └─ migration.sql
+  └─ 20261010120000_site_traffic/
+    └─ migration.sql
+  └─ 20261010150000_order_finance/
+    └─ migration.sql
+  └─ 20261015140000_evolution_operations/
+    └─ migration.sql
+  └─ 20261015153000_evolution_quoted_review/
+    └─ migration.sql
+  └─ 20261015180000_admin_promotions/
+    └─ migration.sql
+  └─ 20261016090000_promotion_investments/
+    └─ migration.sql
+  └─ 20261016090100_performance_query_index/
+    └─ migration.sql
+  └─ 20261016100000_link_reports/
+    └─ migration.sql
+  └─ 20261016100100_report_key_comparison/
+    └─ migration.sql
+  └─ 20261016110000_availability_paid_pause/
+    └─ migration.sql
+      
+All migrations have been successfully applied.
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run tsx scripts/e2e-seed.ts
+
+Running 66 tests using 1 worker
+
+(node:62428) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [setup] › e2e\auth.setup.ts:8:6 › sessão da Bia para os testes do painel (355ms)
+(node:63732) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  2 [features] › e2e\evolution-moderation.spec.ts:71:5 › F42-E10 respostas normalizadas pela Evolution escolhem a citação exata entre várias pendências (4.1s)
+  ok  3 [features] › e2e\evolution-moderation.spec.ts:106:5 › F42-E08 envio, contestação e edição percorrem a interface e o worker reais (3.1s)
+  ok  4 [features] › e2e\evolution-moderation.spec.ts:154:5 › F42-E01 aprovação pelo grupo publica e audita sem duplicação (1.9s)
+  ok  5 [features] › e2e\evolution-moderation.spec.ts:171:5 › F42-E02 recusa precisa de motivo e não publica o link (2.1s)
+  ok  6 [features] › e2e\evolution-moderation.spec.ts:185:5 › F42-E03 painel vence mensagem tardia e preserva decisão (2.0s)
+  ok  7 [features] › e2e\evolution-moderation.spec.ts:198:5 › F42-E05/E06 painel de integração limita acesso e funciona no mobile (1.6s)
+  ok  8 [features] › e2e\evolution-moderation.spec.ts:231:5 › F42-E07 webhook forjado, grupo errado e operador não autorizado não decidem (1.2s)
+  ok  9 [features] › e2e\evolution-moderation.spec.ts:241:5 › F42-E04 Evolution indisponível não impede a decisão no painel (1.7s)
+  ok 10 [features] › e2e\evolution-moderation.spec.ts:260:5 › F42-E09 envio bloqueado no provedor não ocupa a fila de pagamentos (1.9s)
+  ok 11 [features] › e2e\link-availability.spec.ts:52:5 › F07-E01/T01/T05 worker retira no limiar, aprovação recupera URL e saldo pago (6.4s)
+  ok 12 [features] › e2e\link-availability.spec.ts:90:5 › F07-E02 proposta privada não aparece no público nem para outro dono (528ms)
+ERROR:  insert or update on table "promotion_pauses" violates foreign key constraint "promotion_pauses_promotionId_tenantId_fkey"
+DETAIL:  Key (promotionId, tenantId)=(promo-f07-offline-features, cmvacajzt004mu4noj42f9rvu) is not present in table "promotions".
+  x  13 [features] › e2e\link-availability.spec.ts:104:5 › F07-E03 offline preserva convite e justificativa; recuperação por teclado e histórico (305ms)
+(node:73320) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 14 [features] › e2e\link-reports.spec.ts:35:5 › F06-E01/T02/T03/T05 detalhe público, login com retorno, triagem e histórico persistido (2.8s)
+  ok 15 [features] › e2e\link-reports.spec.ts:87:5 › F06-E02 fila e comentários privados não vazam no detalhe, DTO público ou acesso direto (515ms)
+  ok 16 [features] › e2e\link-reports.spec.ts:107:5 › F06-E03 envio e decisão recuperam rede real, preservam texto e funcionam por teclado (2.1s)
+  ok 17 [features] › e2e\promotion-performance.spec.ts:21:5 › F01-E01/T03/T05 campanha sem cliques, CPC real e filtros persistentes (1.0s)
+  ok 18 [features] › e2e\promotion-performance.spec.ts:44:5 › F01-E02/T01 nega outro dono e exige sessão sem revelar dados (443ms)
+  ok 19 [features] › e2e\promotion-performance.spec.ts:60:5 › F01-E03 recuperação de rede, teclado, zoom e 320px (691ms)
+(node:66164) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 20 [features-mobile] › e2e\evolution-moderation.spec.ts:71:5 › F42-E10 respostas normalizadas pela Evolution escolhem a citação exata entre várias pendências (4.2s)
+  ok 21 [features-mobile] › e2e\evolution-moderation.spec.ts:106:5 › F42-E08 envio, contestação e edição percorrem a interface e o worker reais (3.1s)
+  ok 22 [features-mobile] › e2e\evolution-moderation.spec.ts:154:5 › F42-E01 aprovação pelo grupo publica e audita sem duplicação (2.0s)
+  ok 23 [features-mobile] › e2e\evolution-moderation.spec.ts:171:5 › F42-E02 recusa precisa de motivo e não publica o link (2.1s)
+  ok 24 [features-mobile] › e2e\evolution-moderation.spec.ts:185:5 › F42-E03 painel vence mensagem tardia e preserva decisão (2.0s)
+  ok 25 [features-mobile] › e2e\evolution-moderation.spec.ts:198:5 › F42-E05/E06 painel de integração limita acesso e funciona no mobile (1.6s)
+  ok 26 [features-mobile] › e2e\evolution-moderation.spec.ts:231:5 › F42-E07 webhook forjado, grupo errado e operador não autorizado não decidem (1.2s)
+  ok 27 [features-mobile] › e2e\evolution-moderation.spec.ts:241:5 › F42-E04 Evolution indisponível não impede a decisão no painel (1.7s)
+  ok 28 [features-mobile] › e2e\evolution-moderation.spec.ts:260:5 › F42-E09 envio bloqueado no provedor não ocupa a fila de pagamentos (2.0s)
+  ok 29 [features-mobile] › e2e\link-availability.spec.ts:52:5 › F07-E01/T01/T05 worker retira no limiar, aprovação recupera URL e saldo pago (6.4s)
+  ok 30 [features-mobile] › e2e\link-availability.spec.ts:90:5 › F07-E02 proposta privada não aparece no público nem para outro dono (549ms)
+ERROR:  insert or update on table "promotion_pauses" violates foreign key constraint "promotion_pauses_promotionId_tenantId_fkey"
+DETAIL:  Key (promotionId, tenantId)=(promo-f07-offline-features-mobile, cmvacajzt004mu4noj42f9rvu) is not present in table "promotions".
+  x  31 [features-mobile] › e2e\link-availability.spec.ts:104:5 › F07-E03 offline preserva convite e justificativa; recuperação por teclado e histórico (299ms)
+(node:21908) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 32 [features-mobile] › e2e\link-reports.spec.ts:35:5 › F06-E01/T02/T03/T05 detalhe público, login com retorno, triagem e histórico persistido (2.7s)
+  ok 33 [features-mobile] › e2e\link-reports.spec.ts:87:5 › F06-E02 fila e comentários privados não vazam no detalhe, DTO público ou acesso direto (507ms)
+  ok 34 [features-mobile] › e2e\link-reports.spec.ts:107:5 › F06-E03 envio e decisão recuperam rede real, preservam texto e funcionam por teclado (2.1s)
+  ok 35 [features-mobile] › e2e\promotion-performance.spec.ts:21:5 › F01-E01/T03/T05 campanha sem cliques, CPC real e filtros persistentes (956ms)
+  ok 36 [features-mobile] › e2e\promotion-performance.spec.ts:44:5 › F01-E02/T01 nega outro dono e exige sessão sem revelar dados (426ms)
+  ok 37 [features-mobile] › e2e\promotion-performance.spec.ts:60:5 › F01-E03 recuperação de rede, teclado, zoom e 320px (648ms)
+(node:62332) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 38 [catalog] › e2e\advertise.spec.ts:6:5 › a landing do anúncio usa o mesmo cabeçalho e não lista faceta restrita (283ms)
+  ok 39 [catalog] › e2e\advertise.spec.ts:26:5 › a home em 390px mostra o nicho inteiro e não rola para o lado (209ms)
+  ok 40 [catalog] › e2e\catalog.spec.ts:90:5 › home, SEO, cards e isolamento visual (593ms)
+  ok 41 [catalog] › e2e\catalog.spec.ts:130:5 › indisponível, inexistente e outro tenant (306ms)
+  ok 42 [catalog] › e2e\catalog.spec.ts:145:5 › busca mostra erro controlado e autocomplete real (288ms)
+  ok 43 [catalog] › e2e\catalog.spec.ts:157:5 › cadastro sem confirmação não envia link (1.6s)
+  ok 44 [catalog] › e2e\catalog.spec.ts:200:5 › login, refresh e sessão mínima (685ms)
+  ok 45 [catalog] › e2e\catalog.spec.ts:251:5 › vitrine pagina por cursor com limite no servidor (205ms)
+  ok 46 [catalog] › e2e\catalog.spec.ts:272:5 › criação, SSRF, payload e edição publicada (2.0s)
+  ok 47 [catalog] › e2e\catalog.spec.ts:343:5 › analytics, clique e open redirect (16.4s)
+  ok 48 [catalog] › e2e\catalog.spec.ts:399:5 › checkout, webhook RSA, replay e assinatura inválida (4.3s)
+  ok 49 [catalog] › e2e\catalog.spec.ts:494:5 › logout idempotente (443ms)
+  ok 50 [catalog] › e2e\catalog.spec.ts:511:5 › IDOR e tenant (789ms)
+  ok 51 [catalog] › e2e\catalog.spec.ts:547:5 › admin não confia no cookie e a decisão persiste (2.0s)
+  ok 52 [catalog] › e2e\catalog.spec.ts:587:5 › mobile: home, busca, login, painel e checkout (727ms)
+(node:76244) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run tsx scripts/promote-job.ts expire-40ef7d97-3470-4147-9078-39bad8399aa4
+(node:83176) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:46380) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:62332) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+  ok 53 [catalog] › e2e\catalog.spec.ts:606:5 › Pix expirado no browser: worker real expira, a tela esconde o código e nova tentativa gera outro pedido (7.3s)
+  ok 54 [catalog] › e2e\catalog.spec.ts:647:5 › troca de e-mail guarda o anterior e tira o envio sem derrubar o publicado (966ms)
+  ok 55 [catalog] › e2e\funnel.spec.ts:7:5 › sem aceite não guarda campanha nem chama a Meta (1.2s)
+  ok 56 [catalog] › e2e\funnel.spec.ts:32:5 › com consentimento o primeiro anúncio permanece na conta (1.2s)
+  ok 57 [catalog] › e2e\legal.spec.ts:6:5 › cadastro aponta para privacidade e termos (342ms)
+  ok 58 [catalog] › e2e\mail.spec.ts:70:5 › cadastro manda o código no e-mail e a tela não mostra o código (676ms)
+  ok 59 [catalog] › e2e\mail.spec.ts:87:5 › esqueci a senha troca a senha e entra com a nova (1.8s)
+  ok 60 [catalog] › e2e\mail.spec.ts:114:5 › moderação avisa o dono quando o link é publicado (2.4s)
+  ok 61 [catalog] › e2e\mail.spec.ts:140:5 › banimento avisa e o painel mostra a conta suspensa (1.2s)
+  ok 62 [catalog] › e2e\mail.spec.ts:160:5 › excluir a conta avisa e a senha deixa de entrar (2.1s)
+  ok 63 [catalog] › e2e\security-headers.spec.ts:4:5 › a home manda os headers e não anuncia o Next (227ms)
+  ok 64 [catalog] › e2e\signup.spec.ts:9:5 › cadastro sem telefone cai na verificação e avisa o spam (698ms)
+  ok 65 [catalog] › e2e\submit-link.spec.ts:17:5 › o envio guarda rascunho, mostra a vaga e não chama de publicado (3.6s)
+  ok 66 [catalog] › e2e\submit-link.spec.ts:45:5 › o botão de envio não dispara duas vezes (472ms)
+
+
+  1) [features] › e2e\link-availability.spec.ts:104:5 › F07-E03 offline preserva convite e justificativa; recuperação por teclado e histórico 
+
+    Error: Command failed: docker exec -i divulgador-e2e-pg-roadmap psql -U divulgador -d divulgador -t -A -c INSERT INTO promotion_pauses (id,"tenantId","promotionId",revision,"startsAt","remainingMs") VALUES ('pause-f07-offline-features','cmvacajzt004mu4noj42f9rvu','promo-f07-offline-features',1,NOW(),604800000)
+    ERROR:  insert or update on table "promotion_pauses" violates foreign key constraint "promotion_pauses_promotionId_tenantId_fkey"
+    DETAIL:  Key (promotionId, tenantId)=(promo-f07-offline-features, cmvacajzt004mu4noj42f9rvu) is not present in table "promotions".
+
+
+       at db.ts:7
+
+       5 |
+       6 | export function sql(statement: string): string {
+    >  7 |   return execFileSync('docker', [
+         |                      ^
+       8 |     'exec', '-i', e2eRuntime.pgContainer,
+       9 |     'psql', '-U', 'divulgador', '-d', 'divulgador', '-t', '-A', '-c', statement,
+      10 |   ], { encoding: 'utf8' }).trim()
+        at sql (C:\Users\ferna\.codex\worktrees\roadmap-features\divulgadorlinks\frontend\e2e\db.ts:7:22)
+        at fixture (C:\Users\ferna\.codex\worktrees\roadmap-features\divulgadorlinks\frontend\e2e\link-availability.spec.ts:19:23)
+        at C:\Users\ferna\.codex\worktrees\roadmap-features\divulgadorlinks\frontend\e2e\link-availability.spec.ts:105:19
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\link-availability-F07-E03--2d730-ção-por-teclado-e-histórico-features\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\link-availability-F07-E03--2d730-ção-por-teclado-e-histórico-features\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\link-availability-F07-E03--2d730-ção-por-teclado-e-histórico-features\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\link-availability-F07-E03--2d730-ção-por-teclado-e-histórico-features\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [features-mobile] › e2e\link-availability.spec.ts:104:5 › F07-E03 offline preserva convite e justificativa; recuperação por teclado e histórico 
+
+    Error: Command failed: docker exec -i divulgador-e2e-pg-roadmap psql -U divulgador -d divulgador -t -A -c INSERT INTO promotion_pauses (id,"tenantId","promotionId",revision,"startsAt","remainingMs") VALUES ('pause-f07-offline-features-mobile','cmvacajzt004mu4noj42f9rvu','promo-f07-offline-features-mobile',1,NOW(),604800000)
+    ERROR:  insert or update on table "promotion_pauses" violates foreign key constraint "promotion_pauses_promotionId_tenantId_fkey"
+    DETAIL:  Key (promotionId, tenantId)=(promo-f07-offline-features-mobile, cmvacajzt004mu4noj42f9rvu) is not present in table "promotions".
+
+
+       at db.ts:7
+
+       5 |
+       6 | export function sql(statement: string): string {
+    >  7 |   return execFileSync('docker', [
+         |                      ^
+       8 |     'exec', '-i', e2eRuntime.pgContainer,
+       9 |     'psql', '-U', 'divulgador', '-d', 'divulgador', '-t', '-A', '-c', statement,
+      10 |   ], { encoding: 'utf8' }).trim()
+        at sql (C:\Users\ferna\.codex\worktrees\roadmap-features\divulgadorlinks\frontend\e2e\db.ts:7:22)
+        at fixture (C:\Users\ferna\.codex\worktrees\roadmap-features\divulgadorlinks\frontend\e2e\link-availability.spec.ts:19:23)
+        at C:\Users\ferna\.codex\worktrees\roadmap-features\divulgadorlinks\frontend\e2e\link-availability.spec.ts:105:19
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\link-availability-F07-E03--2d730-ção-por-teclado-e-histórico-features-mobile\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\link-availability-F07-E03--2d730-ção-por-teclado-e-histórico-features-mobile\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\link-availability-F07-E03--2d730-ção-por-teclado-e-histórico-features-mobile\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\link-availability-F07-E03--2d730-ção-por-teclado-e-histórico-features-mobile\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [features] › e2e\link-availability.spec.ts:104:5 › F07-E03 offline preserva convite e justificativa; recuperação por teclado e histórico 
+    [features-mobile] › e2e\link-availability.spec.ts:104:5 › F07-E03 offline preserva convite e justificativa; recuperação por teclado e histórico 
+  64 passed (2.7m)

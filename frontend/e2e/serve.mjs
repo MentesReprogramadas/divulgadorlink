@@ -24,6 +24,7 @@ const children = []
 function start(args, cwd, env) {
   const child = spawn(args[0], args.slice(1), { cwd, env, stdio: 'inherit', shell: false })
   child.once('error', error => console.error('E2E child failed to start:', args[1], error.message))
+  child.once('exit', (code, signal) => console.error('E2E child exited:', args[1], 'code=', code, 'signal=', signal))
   children.push(child)
   return child
 }
@@ -54,6 +55,15 @@ const stub = createServer((req, res) => {
   req.on('end', () => {
     const raw = Buffer.concat(chunks).toString()
     res.setHeader('content-type', 'application/json')
+    if (req.method === 'GET' && req.url.startsWith('/availability-probe?')) {
+      const candidate = new URL(req.url, 'http://fixture').searchParams.get('url')
+      res.end(JSON.stringify({ status: availabilityStatuses.has(candidate) ? availabilityStatuses.get(candidate) : 200 })); return
+    }
+    if (req.method === 'POST' && req.url === '/availability/status') {
+      const body = JSON.parse(raw)
+      availabilityStatuses.set(body.url, body.status)
+      res.end('{}'); return
+    }
     if (req.method === 'GET' && req.url === '/instance/connectionState/E2E%20Bot') {
       res.end(JSON.stringify({ instance: { state: evolutionFailure ? 'close' : 'open' } })); return
     }
@@ -107,6 +117,7 @@ const stub = createServer((req, res) => {
 })
 
 const evolutionMessages = []
+const availabilityStatuses = new Map()
 let evolutionFailure = false
 let evolutionGate = false
 const evolutionHeld = []
@@ -148,7 +159,9 @@ const apiEnv = {
   EVOLUTION_GROUP_JID: 'fixture@g.us',
   EVOLUTION_WEBHOOK_AUTH_SECRET: 'fixture-webhook-secret',
   EVOLUTION_OPERATOR_PHONES: '5511999999999',
-  E2E_LINK_PROBE: 'example.com',
+  E2E_LINK_PROBE: 'example.com,t.me',
+  E2E_AVAILABILITY_STUB_URL: e2eRuntime.stubOrigin,
+  AVAILABILITY_ENABLED: '1',
 }
 
 const tsx = path.join(backend, 'node_modules/tsx/dist/cli.mjs')
@@ -158,6 +171,8 @@ start([process.execPath, tsx, 'src/worker.ts'], backend, apiEnv)
 
 async function waitOk(url) {
   for (let attempt = 0; attempt < 60; attempt += 1) {
+    const exited = children.find(child => child.exitCode !== null || child.signalCode !== null)
+    if (exited) throw new Error('E2E API/worker exited before readiness; see child exit above')
     try {
       const response = await fetch(url)
       if (response.ok) return
@@ -169,7 +184,12 @@ async function waitOk(url) {
   throw new Error(`${url} não ficou pronto`)
 }
 
-await waitOk((e2eRuntime.apiOrigin + '/api/v1/actuator/live'))
+try { await waitOk((e2eRuntime.apiOrigin + '/api/v1/actuator/live')) }
+catch (error) {
+  for (const child of children) if (child.pid) killTree(child.pid)
+  stub.close()
+  throw error
+}
 
 const webEnv = {
   ...process.env,

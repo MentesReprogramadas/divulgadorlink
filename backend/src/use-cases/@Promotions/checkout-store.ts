@@ -50,7 +50,7 @@ export type ActivePromotion = {
   id: string
   linkId: string
   surface: Surface
-  status: 'ACTIVE' | 'EXPIRED' | 'CANCELLED'
+  status: 'ACTIVE' | 'PAUSED' | 'EXPIRED' | 'CANCELLED'
   activatedAt: Date
   expiresAt: Date | null
   administrative?: boolean

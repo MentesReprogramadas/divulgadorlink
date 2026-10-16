@@ -105,7 +105,7 @@ test('F42-E10 respostas normalizadas pela Evolution escolhem a citação exata e
 
 test('F42-E08 envio, contestação e edição percorrem a interface e o worker reais', async ({ page, request }) => {
   await login(page, state.eva)
-  const name = `Jornada F42 ${randomUUID()}`
+  const name = 'Jornada de estudos ' + test.info().project.name
   await page.goto(`${A}/painel/links/novo`)
   await page.getByLabel('Titulo', { exact: true }).fill(name)
   await page.getByLabel('Descrição', { exact: true }).fill('Comunidade de estudo')

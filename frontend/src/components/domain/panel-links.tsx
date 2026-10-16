@@ -149,6 +149,7 @@ export function LinkList({
               <LinkMetrics numbers={numbers} />
               <div className="link-card-actions">
                 {!banned ? <ButtonLink variant="ghost" href={`/painel/links/${link.id}/resultado`}>Ver resultado</ButtonLink> : null}
+                {!banned ? <ButtonLink variant="ghost" href={`/painel/links/${link.id}/disponibilidade`}>Disponibilidade</ButtonLink> : null}
                 <ButtonLink className="action-open" variant="secondary" href={`/link/${link.id}`}><Glyph name="external" />Acessar</ButtonLink>
                 {editable ? (
                   <Button className="action-edit" type="button" variant="secondary" onClick={() => setEditing(link.id)}><Glyph name="pencil" />Editar</Button>

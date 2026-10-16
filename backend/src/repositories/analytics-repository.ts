@@ -36,12 +36,14 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
       "COUNT(*) FILTER (WHERE a.kind = 'CLICK' AND EXISTS (",
       'SELECT 1 FROM promotions p WHERE p."tenantId" = a."tenantId" AND p."linkId" = a."linkId"',
       'AND p.surface::text = a.surface AND p."activatedAt" <= a."createdAt" AND (p."expiresAt" IS NULL OR p."expiresAt" > a."createdAt")',
+        'AND NOT EXISTS (SELECT 1 FROM promotion_pauses gap WHERE gap."promotionId"=p.id AND gap."tenantId"=p."tenantId" AND gap."startsAt"<=a."createdAt" AND (gap."endsAt" IS NULL OR gap."endsAt">a."createdAt"))',
       'AND ($7::text IS NULL OR p.id = $7)))::int AS "paidClicks"',
       'FROM analytics_events a WHERE a."tenantId" = $1 AND a."linkId" = $2 AND a.day >= $8::date',
       'AND ((a."createdAt" >= $3 AND a."createdAt" < $4) OR (a."createdAt" >= $5 AND a."createdAt" < $6))',
       'AND ($7::text IS NULL OR EXISTS (SELECT 1 FROM promotions selected WHERE selected.id = $7',
       'AND selected."tenantId" = a."tenantId" AND selected."linkId" = a."linkId" AND selected.surface::text = a.surface',
-      'AND (a."createdAt" < $5 OR (a."createdAt" >= selected."activatedAt" AND (selected."expiresAt" IS NULL OR a."createdAt" < selected."expiresAt")))))',
+        'AND (a."createdAt" < $5 OR (a."createdAt" >= selected."activatedAt" AND (selected."expiresAt" IS NULL OR a."createdAt" < selected."expiresAt")',
+        'AND NOT EXISTS (SELECT 1 FROM promotion_pauses gap WHERE gap."promotionId"=selected.id AND gap."tenantId"=selected."tenantId" AND gap."startsAt"<=a."createdAt" AND (gap."endsAt" IS NULL OR gap."endsAt">a."createdAt"))))))',
       'GROUP BY a.day, a.surface ORDER BY a.day, a.surface',
     ].join(' ')
     return this.client.$queryRawUnsafe<PerformanceSeriesRow[]>(sql, query.tenantId, query.linkId, comparisonStart, comparisonEnd, query.start, currentEnd, query.promotionId ?? null, purgeBefore(query.now).toISOString().slice(0, 10))

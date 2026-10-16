@@ -7,6 +7,10 @@ const EMAIL_LOGO_ON_NAVY = 'https://pub-852b31d202de4f9bb4000007a99abaf1.r2.dev/
 
 export type RenderedEmail = { subject: string; html: string; text: string }
 
+export function availabilityEmail(input: { brand: EmailBrand; linkName: string; url: string }): RenderedEmail {
+  return { subject: 'Seu link precisa de correção', ...document({ brand: input.brand, preheader: 'Revise o convite para voltar ao catálogo.', title: 'Link indisponível', blocks: [detail('Link', input.linkName), paragraph('O destino falhou em checagens repetidas e saiu do catálogo. O saldo de tempo dos destaques pagos foi pausado. Envie um novo convite para análise; o saldo será retomado após aprovarmos a correção.'), action(input.url, 'Corrigir convite')], footnote: 'Uma resposta acessível não confirma vagas no grupo.' }) }
+}
+
 export function siteOrigin(host?: string): string {
   const trimmed = host?.trim()
   if (trimmed) return `${env.NODE_ENV === 'production' ? 'https' : 'http'}://${trimmed}`

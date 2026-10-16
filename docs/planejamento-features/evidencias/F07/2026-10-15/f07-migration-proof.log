@@ -1,0 +1,29 @@
+PASS old public link, campaign dates, paid order and investment preserved by additive F07 migration.
+PASS due-work index selected naturally with 10001 synthetic rows:
+Limit  (cost=0.29..8.31 rows=1 width=18)
+  ->  Index Scan using "link_availability_nextCheckAt_linkId_idx" on link_availability  (cost=0.29..8.31 rows=1 width=18)
+        Index Cond: ("nextCheckAt" <= now())
+        Filter: (("leaseUntil" IS NULL) OR ("leaseUntil" <= now()))
+PASS database rejects a second open pause; journal and immutable ledger retained.
+ROLLBACK: disable monitor while keeping F07-compatible application; do not downgrade old Prisma client after PAUSED rows exist. No data deleted.
+
+Actual eligibility predicate including active owner, link state and pending revision:
+INSERT 0 1
+UPDATE 10001
+ANALYZE
+ANALYZE
+Limit  (cost=0.82..16.95 rows=1 width=18)
+  ->  Nested Loop Semi Join  (cost=0.82..16.95 rows=1 width=18)
+        ->  Index Scan using "link_availability_nextCheckAt_linkId_idx" on link_availability a  (cost=0.29..8.31 rows=1 width=26)
+              Index Cond: ("nextCheckAt" <= now())
+              Filter: (("leaseUntil" IS NULL) OR ("leaseUntil" <= now()))
+        ->  Nested Loop Anti Join  (cost=0.54..8.63 rows=1 width=14)
+              ->  Nested Loop  (cost=0.41..8.46 rows=1 width=14)
+                    ->  Index Scan using "links_id_tenantId_key" on links l  (cost=0.29..8.31 rows=1 width=30)
+                          Index Cond: (id = a."linkId")
+                          Filter: ((status = 'PUBLISHED'::"LinkStatus") OR ((status = 'UNAVAILABLE'::"LinkStatus") AND (a."disabledAt" IS NOT NULL)))
+                    ->  Index Scan using users_pkey on users u  (cost=0.12..0.15 rows=1 width=16)
+                          Index Cond: (id = l."ownerId")
+                          Filter: (status = 'ACTIVE'::"UserStatus")
+              ->  Index Only Scan using url_revisions_one_pending on url_revisions r  (cost=0.12..0.15 rows=1 width=32)
+                    Index Cond: ("linkId" = l.id)

@@ -16,6 +16,25 @@ function response(status: number, headers: Record<string, string> = {}, body = '
 }
 
 describe('ssrf', () => {
+  it('F07 preserva preferência IPv4 da submissão sem ignorar destinos privados no DNS', async () => {
+    const connect = vi.fn(async (_target: PinnedTarget) => response(200))
+    await safeFetch('https://example.com', { resolve: async () => ['2606:4700:4700::1111', '1.1.1.1'], connect })
+    expect(connect.mock.calls[0]?.[0]).toMatchObject({ address: '1.1.1.1', servername: 'example.com' })
+    connect.mockClear()
+    await expect(safeFetch('https://example.com', { resolve: async () => ['1.1.1.1', '::1'], connect })).rejects.toThrow(/privado/)
+    expect(connect).not.toHaveBeenCalled()
+  })
+  it('F07 destino acessível sem corpo conserva HTTP 204/205', async () => {
+    for (const status of [204, 205]) {
+      const result = await safeFetch('https://example.com', { resolve: async () => ['8.8.8.8'], connect: async () => response(status) })
+      expect(result.status).toBe(status)
+    }
+  })
+  it('F07-U03 bloqueia endereços não públicos e credenciais antes de abrir conexão', () => {
+    for (const address of ['0.0.0.0', '100.64.0.1', '224.0.0.1', '255.255.255.255', '::', 'ff02::1']) expect(() => assertResolvedAddresses([address])).toThrow()
+    expect(() => assertPublicHttps('https://usuario:senha@example.com')).toThrow()
+    expect(() => assertResolvedAddresses(['not-an-ip'])).toThrow()
+  })
   it('recusa esquema errado, loopback e metadata', () => {
     expect(() => assertPublicHttps('http://example.com')).toThrow(/https/)
     expect(() => assertPublicHttps('https://127.0.0.1')).toThrow(/privado/)

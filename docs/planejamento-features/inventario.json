@@ -255,7 +255,7 @@
         "F06-S7"
       ],
       "priorityGate": "F42",
-      "execution": "IN_REVIEW",
+      "execution": "COMPLETE_ON_BRANCH",
       "executionEvidence": "execucao-f06.md"
     },
     {

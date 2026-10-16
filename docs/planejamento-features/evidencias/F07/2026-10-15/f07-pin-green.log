@@ -1,0 +1,11 @@
+npm notice run divulgador-links-api@0.1.0 test
+npm notice run vitest run --run src/adapters/http/pinned-connect.spec.ts src/adapters/http/safe-fetch.spec.ts
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+
+ Test Files  2 passed (2)
+      Tests  14 passed (14)
+   Start at  22:55:31
+   Duration  222ms (transform 44%, tests 26%, import 24%, worker 5%)
+

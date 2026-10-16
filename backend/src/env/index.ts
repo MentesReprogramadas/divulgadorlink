@@ -1,6 +1,7 @@
 import 'dotenv/config'
 import { z } from 'zod'
 import { parsePixExpiration } from '@/domain/payments/pix-expiration'
+import { monitorPolicy } from '@/domain/links/availability-monitor'
 
 const blankAsUnset = (value: unknown) => (value === '' ? undefined : value)
 const optionalText = z.preprocess(blankAsUnset, z.string().min(1).optional())
@@ -53,5 +54,6 @@ if (!parsed.success) {
   throw new Error('Variáveis de ambiente inválidas.')
 }
 parsePixExpiration(parsed.data.PIX_EXPIRATION_SECONDS, parsed.data.NODE_ENV)
+monitorPolicy(process.env)
 
 export const env = parsed.data

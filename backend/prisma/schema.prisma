@@ -90,6 +90,9 @@ model Tenant {
   @@map("tenants")
   promotionInvestments PromotionInvestment[]
   linkReports LinkReport[]
+  linkAvailability LinkAvailability[]
+  urlRevisions UrlRevision[]
+  promotionPauses PromotionPause[]
 
 }
 
@@ -288,6 +291,8 @@ model Link {
   embeddingJobs   EmbeddingJob[]
   orders          Order[]
   reports         LinkReport[]
+    availability    LinkAvailability?
+    urlRevisions    UrlRevision[]
   @@unique([id, tenantId])
   @@index([tenantId, ownerId, status])
   @@index([tenantId, status, id])
@@ -331,6 +336,7 @@ model EmbeddingJob {
 
 enum PromotionStatus {
   ACTIVE
+  PAUSED
   EXPIRED
   CANCELLED
 }
@@ -352,12 +358,14 @@ model Promotion {
   activatedAt DateTime
   expiresAt   DateTime?
   administrative Boolean      @default(false)
+  pauseRevision Int           @default(0)
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
   @@index([tenantId, linkId, status])
   @@index([surface, status, activatedAt])
   @@map("promotions")
   investments PromotionInvestment[]
+  pauses PromotionPause[]
   @@unique([id, tenantId])
 
 }
@@ -587,12 +595,77 @@ model PromotionInvestment {
   promotion Promotion @relation(fields: [promotionId, tenantId], references: [id, tenantId])
   surface PromotionSurface
   amountCents Int
+  pauseRevision Int @default(0)
   startsAt DateTime
   endsAt DateTime
   createdAt DateTime @default(now())
   @@unique([orderId, surface])
   @@index([tenantId, promotionId, startsAt, endsAt])
   @@map("promotion_investments")
+}
+
+model PromotionPause {
+  id String @id @default(cuid())
+  tenantId String
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  promotionId String
+  promotion Promotion @relation(fields: [promotionId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  revision Int
+  startsAt DateTime
+  endsAt DateTime?
+  remainingMs BigInt?
+  @@unique([promotionId, revision])
+  @@index([tenantId, promotionId, startsAt])
+  @@map("promotion_pauses")
+}
+
+model LinkAvailability {
+  linkId String @id
+  tenantId String
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  link Link @relation(fields: [linkId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  version Int @default(1)
+  state String @default("UNKNOWN") @db.VarChar(20)
+  failures Int @default(0)
+  checkedAt DateTime?
+  lastStatus Int?
+  nextCheckAt DateTime @default(now())
+  disabledAt DateTime?
+  leaseUntil DateTime?
+  leaseToken String?
+  notificationPendingAt DateTime?
+  notificationSentAt DateTime?
+  notificationNextAt DateTime?
+  notificationAttempts Int @default(0)
+  @@unique([linkId, tenantId])
+  @@index([nextCheckAt, linkId])
+  @@index([tenantId, disabledAt])
+  @@map("link_availability")
+}
+
+model AvailabilityHost {
+  host String @id @db.VarChar(253)
+  nextCheckAt DateTime
+  @@map("availability_hosts")
+}
+
+model UrlRevision {
+  id String @id @default(cuid())
+  tenantId String
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  linkId String
+  link Link @relation(fields: [linkId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  canonicalUrl String
+  sourceUrl String
+  expectedVersion Int
+  status String @default("PENDING") @db.VarChar(12)
+  checkedAt DateTime
+  decisionReason String? @db.VarChar(500)
+  createdAt DateTime @default(now())
+  decidedAt DateTime?
+  @@index([tenantId, status, createdAt, id])
+  @@index([linkId, createdAt])
+  @@map("url_revisions")
 }
 
 enum ReportReason {

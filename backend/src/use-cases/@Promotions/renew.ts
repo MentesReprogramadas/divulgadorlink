@@ -1,7 +1,7 @@
 const DAY_MS = 24 * 60 * 60 * 1000
 
 export function renew(input: {
-  status: 'ACTIVE' | 'EXPIRED' | 'CANCELLED'
+  status: 'ACTIVE' | 'PAUSED' | 'EXPIRED' | 'CANCELLED'
   activatedAt: Date
   expiresAt: Date | null
   durationDays: number

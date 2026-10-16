@@ -1,0 +1,38 @@
+npm notice run divulgador-links-api@0.1.0 test
+npm notice run vitest run --run src/domain/links/availability-monitor.spec.ts src/domain/promotions/paid-time.spec.ts
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+ ❯ src/domain/links/availability-monitor.spec.ts (0 test)
+ ❯ src/domain/promotions/paid-time.spec.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/domain/links/availability-monitor.spec.ts [ src/domain/links/availability-monitor.spec.ts ]
+Error: Cannot find module './availability-monitor' imported from C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend/src/domain/links/availability-monitor.spec.ts
+ ❯ src/domain/links/availability-monitor.spec.ts:2:1
+      1| import { describe, expect, it } from 'vitest'
+      2| import { monitorPolicy, observeAvailability } from './availability-mon…
+       | ^
+      3|
+      4| const now = new Date('2026-10-15T12:00:00Z')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/domain/promotions/paid-time.spec.ts [ src/domain/promotions/paid-time.spec.ts ]
+Error: Cannot find module './paid-time' imported from C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend/src/domain/promotions/paid-time.spec.ts
+ ❯ src/domain/promotions/paid-time.spec.ts:2:1
+      1| import { describe, expect, it } from 'vitest'
+      2| import { investmentServiceWindows, investmentConsumedCents, remainingP…
+       | ^
+      3|
+      4| const at = (day: number) => new Date(Date.UTC(2026, 9, day))
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  no tests
+   Start at  22:22:46
+   Duration  215ms (worker 95%, environment 5%)
+

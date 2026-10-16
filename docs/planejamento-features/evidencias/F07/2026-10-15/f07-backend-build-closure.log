@@ -1,0 +1,14 @@
+npm notice run divulgador-links-api@0.1.0 build
+npm notice run tsup
+CLI Building entry: src/server.ts, src/worker.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: C:\Users\ferna\.codex\worktrees\roadmap-features\divulgadorlinks\backend\tsup.config.ts
+CLI Target: es2022
+CLI Cleaning output folder
+CJS Build start
+CJS build\server.js     473.91 KB
+CJS build\worker.js     181.31 KB
+CJS build\server.js.map 1001.48 KB
+CJS build\worker.js.map 412.48 KB
+CJS ⚡️ Build success in 130ms

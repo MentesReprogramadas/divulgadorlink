@@ -14,7 +14,8 @@ export const orderMachine = {
 } as const
 
 export const promotionMachine = {
-  ACTIVE: ['EXPIRED', 'CANCELLED'],
+  ACTIVE: ['EXPIRED', 'CANCELLED', 'PAUSED'],
+  PAUSED: ['ACTIVE', 'CANCELLED'],
   EXPIRED: [],
   CANCELLED: [],
 } as const

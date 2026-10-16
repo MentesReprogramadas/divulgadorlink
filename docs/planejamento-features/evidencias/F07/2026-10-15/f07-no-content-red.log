@@ -1,0 +1,30 @@
+npm notice run divulgador-links-api@0.1.0 test
+npm notice run vitest run --run src/adapters/http/safe-fetch.spec.ts
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+ ❯ src/adapters/http/safe-fetch.spec.ts (11 tests | 1 failed) 22ms
+   ❯ ssrf (11)
+     × F07 destino acessível sem corpo conserva HTTP 204/205 14ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/adapters/http/safe-fetch.spec.ts > ssrf > F07 destino acessível sem corpo conserva HTTP 204/205
+TypeError: Response constructor: Invalid response status code 204
+ ❯ safeFetch src/adapters/http/safe-fetch.ts:188:12
+    186|     }
+    187|
+    188|     return new Response(Buffer.from(response.body), {
+       |            ^
+    189|       status: response.status,
+    190|       headers: response.headers,
+ ❯ src/adapters/http/safe-fetch.spec.ts:21:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  22:45:05
+   Duration  209ms (transform 47%, tests 29%, import 19%, worker 4%)
+

@@ -1,4 +1,5 @@
 import { seedReports } from './e2e-reports-seed'
+import { seedAvailability } from './e2e-availability-seed'
 import { seedPerformance } from './e2e-performance-seed'
 import { writeFileSync } from 'node:fs'
 import path from 'node:path'
@@ -144,7 +145,14 @@ async function main() {
   await user({ tenantId: reportsTenant.tenant.id, name: 'Visitante', email: 'reader@reports.test', phone: '5511911130002', confirmed: true })
   const reportAdmin = await user({ tenantId: reportsTenant.tenant.id, name: 'Admin', email: 'admin@reports.test', phone: '5511911130003', role: 'ADMIN', confirmed: true })
   const reports = await seedReports(prisma, { tenantId: reportsTenant.tenant.id, ownerId: reportOwner.id, networkId: reportsTenant.network.id, nicheId: reportsTenant.niche.id, adminId: reportAdmin.id })
+  const availabilityTenant = await tenantBundle('availability.localhost', 'Disponibilidade fixture')
+  const availabilityNetwork = await prisma.network.findFirstOrThrow({ where: { tenantId: availabilityTenant.tenant.id, slug: 'site' } })
+  const availabilityOwner = await user({ tenantId: availabilityTenant.tenant.id, name: 'Responsável pelos estudos', email: 'owner@availability.test', phone: '5511911140001', confirmed: true })
+  await user({ tenantId: availabilityTenant.tenant.id, name: 'Outro responsável', email: 'other@availability.test', phone: '5511911140002', confirmed: true })
+  await user({ tenantId: availabilityTenant.tenant.id, name: 'Admin', email: 'admin@availability.test', phone: '5511911140003', confirmed: true, role: 'ADMIN' })
+  const availability = await seedAvailability(prisma, { tenantId: availabilityTenant.tenant.id, ownerId: availabilityOwner.id, networkId: availabilityNetwork.id, nicheId: availabilityTenant.niche.id })
   const state = {
+    availability: { ...availability, tenantId: availabilityTenant.tenant.id, ownerId: availabilityOwner.id, networkId: availabilityNetwork.id, nicheId: availabilityTenant.niche.id, owner: 'owner@availability.test', other: 'other@availability.test', admin: 'admin@availability.test', password: 'Senha-e2e-1' },
     reports: { ...reports, tenantId: reportsTenant.tenant.id, reader: 'reader@reports.test', admin: 'admin@reports.test', password: 'Senha-e2e-1' },
     performance,
     evolution: { tenantA: evolution.tenant.id, receitas: evolutionLink.id, password: 'Senha-e2e-1', bia: 'owner@evolution.test', eva: 'submitter@evolution.test', admin: 'admin@evolution.test' },

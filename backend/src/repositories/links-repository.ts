@@ -198,7 +198,7 @@ export class InMemoryLinksRepository implements LinksRepository {
   niches: NicheRecord[] = []
   terms: Array<{ tenantId: string; term: string }> = []
   links: LinkRecord[] = []
-  promotions: Array<{ id: string; tenantId: string; linkId: string; status: 'ACTIVE' | 'EXPIRED' | 'CANCELLED' }> = []
+  promotions: Array<{ id: string; tenantId: string; linkId: string; status: 'ACTIVE' | 'PAUSED' | 'EXPIRED' | 'CANCELLED' }> = []
   bans: Array<{ userId: string; actorId: string; requestId: string; reason: string | null; refunds: [] }> = []
 
   static seeded(): InMemoryLinksRepository {
@@ -328,7 +328,7 @@ export class InMemoryLinksRepository implements LinksRepository {
       }
     }
     for (const row of this.promotions) {
-      if (row.tenantId !== tenantId || row.linkId !== linkId || row.status !== 'ACTIVE') continue
+      if (row.tenantId !== tenantId || row.linkId !== linkId || !['ACTIVE', 'PAUSED'].includes(row.status)) continue
       row.status = 'CANCELLED'
       cancelled += 1
     }
@@ -856,7 +856,7 @@ export class PrismaLinksRepository implements LinksRepository {
 
   async cancelActivePromotions(tenantId: string, linkId: string): Promise<number> {
     const result = await this.client.promotion.updateMany({
-      where: { tenantId, linkId, status: 'ACTIVE' },
+      where: { tenantId, linkId, status: { in: ['ACTIVE', 'PAUSED'] } },
       data: { status: 'CANCELLED' },
     })
     return result.count

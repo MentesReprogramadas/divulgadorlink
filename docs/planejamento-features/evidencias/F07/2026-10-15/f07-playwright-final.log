@@ -1,0 +1,187 @@
+npm notice run divulgador-links-web@0.1.0 test:e2e
+npm notice run playwright test
+6a1a22bc1f59bb1bf65d762af0907a88c15cb04676dd9112d2ae7e7ccc93f844
+94fdb6813ea5accd972ef956288f6b0ebef1b2aba635c2751c94f61fb765f4eb
+npm warn Unknown env config "global-ignore-file". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": PostgreSQL database "divulgador", schema "public" at "127.0.0.1:5533"
+
+27 migrations found in prisma/migrations
+
+Applying migration `20260929191730_tenant_user_identifiers`
+Applying migration `20260929200000_verification_code_binds_identifier`
+Applying migration `20260929210000_prices_networks_niches_config`
+Applying migration `20260929220000_links_and_blocklist`
+Applying migration `20260929230000_moderation_cases`
+Applying migration `20260929231000_link_ever_published`
+Applying migration `20260929232000_link_embedding`
+Applying migration `20260929233000_submission_outbox_ban`
+Applying migration `20260929234000_orders_payments`
+Applying migration `20260929235000_analytics_events`
+Applying migration `20260930140000_order_br_code_and_catalog_indexes`
+Applying migration `20260930180000_analytics_link_totals_index`
+Applying migration `20261002140000_promotion_offers`
+Applying migration `20261002153000_adult_networks`
+Applying migration `20261005193000_one_open_moderation_case`
+Applying migration `20261006120000_facet_summary`
+Applying migration `20261009120000_acquisition_funnel`
+Applying migration `20261010120000_site_traffic`
+Applying migration `20261010150000_order_finance`
+Applying migration `20261015140000_evolution_operations`
+Applying migration `20261015153000_evolution_quoted_review`
+Applying migration `20261015180000_admin_promotions`
+Applying migration `20261016090000_promotion_investments`
+Applying migration `20261016090100_performance_query_index`
+Applying migration `20261016100000_link_reports`
+Applying migration `20261016100100_report_key_comparison`
+Applying migration `20261016110000_availability_paid_pause`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20260929191730_tenant_user_identifiers/
+    └─ migration.sql
+  └─ 20260929200000_verification_code_binds_identifier/
+    └─ migration.sql
+  └─ 20260929210000_prices_networks_niches_config/
+    └─ migration.sql
+  └─ 20260929220000_links_and_blocklist/
+    └─ migration.sql
+  └─ 20260929230000_moderation_cases/
+    └─ migration.sql
+  └─ 20260929231000_link_ever_published/
+    └─ migration.sql
+  └─ 20260929232000_link_embedding/
+    └─ migration.sql
+  └─ 20260929233000_submission_outbox_ban/
+    └─ migration.sql
+  └─ 20260929234000_orders_payments/
+    └─ migration.sql
+  └─ 20260929235000_analytics_events/
+    └─ migration.sql
+  └─ 20260930140000_order_br_code_and_catalog_indexes/
+    └─ migration.sql
+  └─ 20260930180000_analytics_link_totals_index/
+    └─ migration.sql
+  └─ 20261002140000_promotion_offers/
+    └─ migration.sql
+  └─ 20261002153000_adult_networks/
+    └─ migration.sql
+  └─ 20261005193000_one_open_moderation_case/
+    └─ migration.sql
+  └─ 20261006120000_facet_summary/
+    └─ migration.sql
+  └─ 20261009120000_acquisition_funnel/
+    └─ migration.sql
+  └─ 20261010120000_site_traffic/
+    └─ migration.sql
+  └─ 20261010150000_order_finance/
+    └─ migration.sql
+  └─ 20261015140000_evolution_operations/
+    └─ migration.sql
+  └─ 20261015153000_evolution_quoted_review/
+    └─ migration.sql
+  └─ 20261015180000_admin_promotions/
+    └─ migration.sql
+  └─ 20261016090000_promotion_investments/
+    └─ migration.sql
+  └─ 20261016090100_performance_query_index/
+    └─ migration.sql
+  └─ 20261016100000_link_reports/
+    └─ migration.sql
+  └─ 20261016100100_report_key_comparison/
+    └─ migration.sql
+  └─ 20261016110000_availability_paid_pause/
+    └─ migration.sql
+      
+All migrations have been successfully applied.
+npm warn Unknown env config "global-ignore-file". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+(node:80800) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+Running 66 tests using 1 worker
+
+(node:53884) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [setup] › e2e\auth.setup.ts:8:6 › sessão da Bia para os testes do painel (338ms)
+(node:93388) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  2 [features] › e2e\evolution-moderation.spec.ts:71:5 › F42-E10 respostas normalizadas pela Evolution escolhem a citação exata entre várias pendências (4.1s)
+  ok  3 [features] › e2e\evolution-moderation.spec.ts:106:5 › F42-E08 envio, contestação e edição percorrem a interface e o worker reais (3.1s)
+  ok  4 [features] › e2e\evolution-moderation.spec.ts:154:5 › F42-E01 aprovação pelo grupo publica e audita sem duplicação (2.0s)
+  ok  5 [features] › e2e\evolution-moderation.spec.ts:171:5 › F42-E02 recusa precisa de motivo e não publica o link (2.1s)
+  ok  6 [features] › e2e\evolution-moderation.spec.ts:185:5 › F42-E03 painel vence mensagem tardia e preserva decisão (1.9s)
+  ok  7 [features] › e2e\evolution-moderation.spec.ts:198:5 › F42-E05/E06 painel de integração limita acesso e funciona no mobile (1.6s)
+  ok  8 [features] › e2e\evolution-moderation.spec.ts:231:5 › F42-E07 webhook forjado, grupo errado e operador não autorizado não decidem (1.2s)
+  ok  9 [features] › e2e\evolution-moderation.spec.ts:241:5 › F42-E04 Evolution indisponível não impede a decisão no painel (1.7s)
+  ok 10 [features] › e2e\evolution-moderation.spec.ts:260:5 › F42-E09 envio bloqueado no provedor não ocupa a fila de pagamentos (2.0s)
+  ok 11 [features] › e2e\link-availability.spec.ts:52:5 › F07-E01/T01/T05 worker retira no limiar, aprovação recupera URL e saldo pago (6.4s)
+  ok 12 [features] › e2e\link-availability.spec.ts:90:5 › F07-E02 proposta privada não aparece no público nem para outro dono (546ms)
+  ok 13 [features] › e2e\link-availability.spec.ts:104:5 › F07-E03 offline preserva convite e justificativa; recuperação por teclado e histórico (2.4s)
+  ok 14 [features] › e2e\link-reports.spec.ts:35:5 › F06-E01/T02/T03/T05 detalhe público, login com retorno, triagem e histórico persistido (2.6s)
+  ok 15 [features] › e2e\link-reports.spec.ts:87:5 › F06-E02 fila e comentários privados não vazam no detalhe, DTO público ou acesso direto (517ms)
+  ok 16 [features] › e2e\link-reports.spec.ts:107:5 › F06-E03 envio e decisão recuperam rede real, preservam texto e funcionam por teclado (2.4s)
+  ok 17 [features] › e2e\promotion-performance.spec.ts:21:5 › F01-E01/T03/T05 campanha sem cliques, CPC real e filtros persistentes (1.1s)
+  ok 18 [features] › e2e\promotion-performance.spec.ts:44:5 › F01-E02/T01 nega outro dono e exige sessão sem revelar dados (461ms)
+  ok 19 [features] › e2e\promotion-performance.spec.ts:60:5 › F01-E03 recuperação de rede, teclado, zoom e 320px (711ms)
+(node:79976) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 20 [features-mobile] › e2e\evolution-moderation.spec.ts:71:5 › F42-E10 respostas normalizadas pela Evolution escolhem a citação exata entre várias pendências (4.5s)
+  ok 21 [features-mobile] › e2e\evolution-moderation.spec.ts:106:5 › F42-E08 envio, contestação e edição percorrem a interface e o worker reais (3.3s)
+  ok 22 [features-mobile] › e2e\evolution-moderation.spec.ts:154:5 › F42-E01 aprovação pelo grupo publica e audita sem duplicação (2.0s)
+  ok 23 [features-mobile] › e2e\evolution-moderation.spec.ts:171:5 › F42-E02 recusa precisa de motivo e não publica o link (2.2s)
+  ok 24 [features-mobile] › e2e\evolution-moderation.spec.ts:185:5 › F42-E03 painel vence mensagem tardia e preserva decisão (2.0s)
+  ok 25 [features-mobile] › e2e\evolution-moderation.spec.ts:198:5 › F42-E05/E06 painel de integração limita acesso e funciona no mobile (1.5s)
+  ok 26 [features-mobile] › e2e\evolution-moderation.spec.ts:231:5 › F42-E07 webhook forjado, grupo errado e operador não autorizado não decidem (1.2s)
+  ok 27 [features-mobile] › e2e\evolution-moderation.spec.ts:241:5 › F42-E04 Evolution indisponível não impede a decisão no painel (1.7s)
+  ok 28 [features-mobile] › e2e\evolution-moderation.spec.ts:260:5 › F42-E09 envio bloqueado no provedor não ocupa a fila de pagamentos (2.0s)
+  ok 29 [features-mobile] › e2e\link-availability.spec.ts:52:5 › F07-E01/T01/T05 worker retira no limiar, aprovação recupera URL e saldo pago (6.3s)
+  ok 30 [features-mobile] › e2e\link-availability.spec.ts:90:5 › F07-E02 proposta privada não aparece no público nem para outro dono (497ms)
+  ok 31 [features-mobile] › e2e\link-availability.spec.ts:104:5 › F07-E03 offline preserva convite e justificativa; recuperação por teclado e histórico (2.3s)
+  ok 32 [features-mobile] › e2e\link-reports.spec.ts:35:5 › F06-E01/T02/T03/T05 detalhe público, login com retorno, triagem e histórico persistido (2.7s)
+  ok 33 [features-mobile] › e2e\link-reports.spec.ts:87:5 › F06-E02 fila e comentários privados não vazam no detalhe, DTO público ou acesso direto (510ms)
+  ok 34 [features-mobile] › e2e\link-reports.spec.ts:107:5 › F06-E03 envio e decisão recuperam rede real, preservam texto e funcionam por teclado (2.1s)
+  ok 35 [features-mobile] › e2e\promotion-performance.spec.ts:21:5 › F01-E01/T03/T05 campanha sem cliques, CPC real e filtros persistentes (960ms)
+  ok 36 [features-mobile] › e2e\promotion-performance.spec.ts:44:5 › F01-E02/T01 nega outro dono e exige sessão sem revelar dados (426ms)
+  ok 37 [features-mobile] › e2e\promotion-performance.spec.ts:60:5 › F01-E03 recuperação de rede, teclado, zoom e 320px (630ms)
+(node:61796) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 38 [catalog] › e2e\advertise.spec.ts:6:5 › a landing do anúncio usa o mesmo cabeçalho e não lista faceta restrita (286ms)
+  ok 39 [catalog] › e2e\advertise.spec.ts:26:5 › a home em 390px mostra o nicho inteiro e não rola para o lado (211ms)
+  ok 40 [catalog] › e2e\catalog.spec.ts:90:5 › home, SEO, cards e isolamento visual (608ms)
+  ok 41 [catalog] › e2e\catalog.spec.ts:130:5 › indisponível, inexistente e outro tenant (266ms)
+  ok 42 [catalog] › e2e\catalog.spec.ts:145:5 › busca mostra erro controlado e autocomplete real (270ms)
+  ok 43 [catalog] › e2e\catalog.spec.ts:157:5 › cadastro sem confirmação não envia link (1.5s)
+  ok 44 [catalog] › e2e\catalog.spec.ts:200:5 › login, refresh e sessão mínima (628ms)
+  ok 45 [catalog] › e2e\catalog.spec.ts:251:5 › vitrine pagina por cursor com limite no servidor (203ms)
+  ok 46 [catalog] › e2e\catalog.spec.ts:272:5 › criação, SSRF, payload e edição publicada (2.0s)
+  ok 47 [catalog] › e2e\catalog.spec.ts:343:5 › analytics, clique e open redirect (16.3s)
+  ok 48 [catalog] › e2e\catalog.spec.ts:399:5 › checkout, webhook RSA, replay e assinatura inválida (3.6s)
+  ok 49 [catalog] › e2e\catalog.spec.ts:494:5 › logout idempotente (444ms)
+  ok 50 [catalog] › e2e\catalog.spec.ts:511:5 › IDOR e tenant (790ms)
+  ok 51 [catalog] › e2e\catalog.spec.ts:547:5 › admin não confia no cookie e a decisão persiste (1.9s)
+  ok 52 [catalog] › e2e\catalog.spec.ts:587:5 › mobile: home, busca, login, painel e checkout (718ms)
+npm warn Unknown env config "global-ignore-file". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+(node:77908) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:72244) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:62308) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:61796) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+  ok 53 [catalog] › e2e\catalog.spec.ts:606:5 › Pix expirado no browser: worker real expira, a tela esconde o código e nova tentativa gera outro pedido (7.5s)
+  ok 54 [catalog] › e2e\catalog.spec.ts:647:5 › troca de e-mail guarda o anterior e tira o envio sem derrubar o publicado (953ms)
+  ok 55 [catalog] › e2e\funnel.spec.ts:7:5 › sem aceite não guarda campanha nem chama a Meta (1.2s)
+  ok 56 [catalog] › e2e\funnel.spec.ts:32:5 › com consentimento o primeiro anúncio permanece na conta (1.2s)
+  ok 57 [catalog] › e2e\legal.spec.ts:6:5 › cadastro aponta para privacidade e termos (330ms)
+  ok 58 [catalog] › e2e\mail.spec.ts:70:5 › cadastro manda o código no e-mail e a tela não mostra o código (674ms)
+  ok 59 [catalog] › e2e\mail.spec.ts:87:5 › esqueci a senha troca a senha e entra com a nova (1.9s)
+  ok 60 [catalog] › e2e\mail.spec.ts:114:5 › moderação avisa o dono quando o link é publicado (2.4s)
+  ok 61 [catalog] › e2e\mail.spec.ts:140:5 › banimento avisa e o painel mostra a conta suspensa (1.2s)
+  ok 62 [catalog] › e2e\mail.spec.ts:160:5 › excluir a conta avisa e a senha deixa de entrar (2.1s)
+  ok 63 [catalog] › e2e\security-headers.spec.ts:4:5 › a home manda os headers e não anuncia o Next (249ms)
+  ok 64 [catalog] › e2e\signup.spec.ts:9:5 › cadastro sem telefone cai na verificação e avisa o spam (646ms)
+  ok 65 [catalog] › e2e\submit-link.spec.ts:17:5 › o envio guarda rascunho, mostra a vaga e não chama de publicado (3.6s)
+  ok 66 [catalog] › e2e\submit-link.spec.ts:45:5 › o botão de envio não dispara duas vezes (456ms)
+
+  66 passed (2.7m)

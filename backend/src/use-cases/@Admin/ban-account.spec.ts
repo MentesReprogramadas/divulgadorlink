@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest'
 import { banAccount } from '@/use-cases/@Admin/ban-account'
 
 describe('banimento', () => {
+  it('F07 não deixa saldo pausado reativável após banimento', () => {
+    expect(banAccount({ links: [{ id: 'l', status: 'UNAVAILABLE' }], promotions: [{ id: 'p', status: 'PAUSED' }] }).promotions[0].status).toBe('CANCELLED')
+  })
   it('tira os links e cancela o destaque sem estornar', () => {
     const result = banAccount({
       links: [{ id: 'l1', status: 'PUBLISHED' }],

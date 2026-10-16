@@ -2,7 +2,7 @@ import { linkMachine, promotionMachine, transition } from '@/domain/state/transi
 
 export function banAccount(input: {
   links: { id: string; status: 'PUBLISHED' | 'PENDING_MODERATION' | 'PRE_REJECTED' | 'DRAFT' | 'UNAVAILABLE' }[]
-  promotions: { id: string; status: 'ACTIVE' | 'EXPIRED' | 'CANCELLED' }[]
+  promotions: { id: string; status: 'ACTIVE' | 'PAUSED' | 'EXPIRED' | 'CANCELLED' }[]
 }) {
   return {
     userStatus: 'BANNED' as const,
@@ -12,7 +12,7 @@ export function banAccount(input: {
     })),
     promotions: input.promotions.map((promotion) => ({
       id: promotion.id,
-      status: promotion.status === 'ACTIVE' ? transition(promotionMachine, 'ACTIVE', 'CANCELLED') : promotion.status,
+      status: promotion.status === 'ACTIVE' || promotion.status === 'PAUSED' ? transition(promotionMachine, promotion.status, 'CANCELLED') : promotion.status,
     })),
     refunds: [] as [],
   }

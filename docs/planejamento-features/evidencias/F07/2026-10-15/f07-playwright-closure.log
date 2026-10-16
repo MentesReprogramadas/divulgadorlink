@@ -1,0 +1,19 @@
+npm notice run divulgador-links-web@0.1.0 test:e2e
+npm notice run playwright test
+failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the daemon is running: open //./pipe/dockerDesktopLinuxEngine: O sistema não pode encontrar o arquivo especificado.
+Error: docker run -d --name divulgador-e2e-pg-roadmap -e POSTGRES_PASSWORD=divulgador -e POSTGRES_USER=divulgador -e POSTGRES_DB=divulgador -p 5533:5432 pgvector/pgvector:pg16 falhou
+
+   at global-setup.ts:20
+
+  18 |     shell: true,
+  19 |   })
+> 20 |   if (result.status !== 0) throw new Error(`${command} ${args.join(' ')} falhou`)
+     |                                  ^
+  21 | }
+  22 |
+  23 | function listening(port: number): Promise<boolean> {
+    at run (C:\Users\ferna\.codex\worktrees\roadmap-features\divulgadorlinks\frontend\e2e\global-setup.ts:20:34)
+    at globalSetup (C:\Users\ferna\.codex\worktrees\roadmap-features\divulgadorlinks\frontend\e2e\global-setup.ts:52:3)
+
+(node:77940) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)

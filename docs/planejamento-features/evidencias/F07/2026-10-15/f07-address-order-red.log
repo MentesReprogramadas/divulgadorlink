@@ -1,0 +1,40 @@
+npm notice run divulgador-links-api@0.1.0 test
+npm notice run vitest run --run src/adapters/http/safe-fetch.spec.ts
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+ ❯ src/adapters/http/safe-fetch.spec.ts (12 tests | 1 failed) 21ms
+   ❯ ssrf (12)
+     × F07 preserva preferência IPv4 da submissão sem ignorar destinos privados no DNS 16ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/adapters/http/safe-fetch.spec.ts > ssrf > F07 preserva preferência IPv4 da submissão sem ignorar destinos privados no DNS
+AssertionError: expected { url: 'https://example.com/', …(3) } to match object { address: '1.1.1.1', …(1) }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "address": "1.1.1.1",
++   "address": "2606:4700:4700::1111",
+    "servername": "example.com",
+  }
+
+ ❯ src/adapters/http/safe-fetch.spec.ts:22:40
+     20|     const connect = vi.fn(async () => response(200))
+     21|     await safeFetch('https://example.com', { resolve: async () => ['26…
+     22|     expect(connect.mock.calls[0]?.[0]).toMatchObject({ address: '1.1.1…
+       |                                        ^
+     23|     connect.mockClear()
+     24|     await expect(safeFetch('https://example.com', { resolve: async () …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 11 passed (12)
+   Start at  23:00:39
+   Duration  196ms (transform 42%, tests 32%, import 20%, worker 5%)
+

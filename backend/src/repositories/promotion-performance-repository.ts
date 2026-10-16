@@ -15,7 +15,8 @@ export class PrismaPromotionPerformanceRepository implements PromotionPerformanc
       new PrismaAnalyticsRepository(this.db).performanceSeries(query),
       this.db.promotion.findMany({ where: { tenantId: query.tenantId, linkId: query.linkId }, orderBy: [{ activatedAt: 'desc' }, { id: 'asc' }], select: {
         id: true, surface: true, status: true, activatedAt: true, expiresAt: true, administrative: true,
-        investments: { where: { order: { status: 'PAID' } }, select: { amountCents: true, startsAt: true, endsAt: true } },
+        investments: { where: { order: { status: 'PAID' } }, select: { amountCents: true, startsAt: true, endsAt: true, pauseRevision: true } },
+        pauses: { select: { revision: true, startsAt: true, endsAt: true }, orderBy: { revision: 'asc' } },
       } }),
     ])
     return { rows, campaigns }

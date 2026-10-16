@@ -60,3 +60,5 @@ A inspeção identificou a regra global `.panel-page form` removendo o limite de
 AC01/T01: PG duplicatas concorrentes, 12 envios com limite de dez, expiração da janela; domínio valida motivo e terminalidade. AC02/T02: 100 contas reais denunciam via HTTP e Link permanece PUBLISHED, sem ModerationCase. AC03/T03: decisão com versão e justificativa, audit atômico, concorrência e falha injetada; E01 confirma persistência e histórico. AC04/T04: classificação e filtros distintos com constraints PG. AC05/T05: histórico terminal preservado, leitura após recarga, recibo repetido sem sobrescrever comentário original.
 
 S0–S6 aprovados localmente. S7 em revisão até CI do commit desta entrega passar; não presumir sucesso do CI de F01 como evidência da F06.
+
+Fechamento S7: `accca5b` aprovado em todos os jobs do [CI 38834620829](https://github.com/MentesReprogramadas/divulgadorlink/actions/runs/38834620829), com **60 E2E**. Log de sucesso preservado. F06 concluída na branch `codex/roadmap-features`, sem deploy; F07 segue em execução com D08 respondida pelo usuário.

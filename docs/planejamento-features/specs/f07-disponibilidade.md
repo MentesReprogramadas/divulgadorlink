@@ -1,12 +1,14 @@
 # F07 Acompanhamento de disponibilidade
 
+**D08 comercial resolvida pelo usuário em 15/10/2026:** pausar o tempo pago na indisponibilidade automática e retomar o saldo após aprovar a correção. Contratos técnicos, reuso e evidências em [execução F07](../execucao-f07.md). Não aplicar essa regra incidentalmente à retirada manual, não reativar destaque cancelado/expirado e não publicar proposta sem decisão.
+
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 4.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
-**Onda:** 1. **Ordem:** 4.  
-**Fonte:** [features-propostas.md](../../features-propostas.md), seção “Acompanhamento de disponibilidade”.  
-**Plano:** [F07 implementação](../planos/f07-disponibilidade.md).  
-**Dependências obrigatórias:** G00; base atual, sem outra feature nova.  
+**Estado:** IMPLEMENTADA NA BRANCH; fechamento de CI em registro de execução.
+**Onda:** 1. **Ordem:** 4.
+**Fonte:** [features-propostas.md](../../features-propostas.md), seção “Acompanhamento de disponibilidade”.
+**Plano:** [F07 implementação](../planos/f07-disponibilidade.md).
+**Dependências obrigatórias:** G00; base atual, sem outra feature nova.
 **Governança:** [arquitetura](../arquitetura-e-reuso.md), [testes](../qualidade-e-testes.md), [decisões](../decisoes.md), [roadmap](../roadmap-auditavel.md).
 
 ## Objetivo e fronteira
@@ -39,13 +41,13 @@ Antes de criar arquivo novo, localizar equivalente por responsabilidade e confer
 
 ## Dados e invariantes
 
-AvailabilityCheck e estado de falhas consecutivas; URLRevision pendente para substituição; recuperação exige rever UNAVAILABLE terminal no linkMachine atual.
+LinkAvailability mantém estado, falhas e concessão durável; AvailabilityHost limita frequência global por host; UrlRevision mantém proposta privada e decisão; PromotionPause preserva saldo com revisão no investimento. A recuperação é uma operação autorizada e transacional específica, sem reabrir UNAVAILABLE genericamente no linkMachine.
 
 Proposta de migração: avaliar mudanças de schema e adicionar somente campos/tabelas/índices necessários ao contrato acima; validar tenantId, relações, unicidade e transações no PostgreSQL real; dado antigo permanece legível durante rollout. A spec de migração em S2 deve registrar backfill e validação antes de qualquer alteração destrutiva.
 
 Regra transversal: IDs de outro tenant não podem ser aceitos em relações. Projeções públicas são allowlists; rascunhos, contatos, tokens e dados privados não entram por serialização automática. Dinheiro em centavos e tempo armazenado em UTC; a agregação de analytics existente mantém America/Sao_Paulo. Índices devem ser baseados em consulta real, sem plataforma de dados nova por padrão.
 
-## Contratos propostos
+## Contratos implementados
 
 Rotas/operações: GET /api/v1/links/:id/availability; POST /api/v1/links/:id/url-proposals; job periódico particionado por host.
 
@@ -53,7 +55,7 @@ Rotas/operações: GET /api/v1/links/:id/availability; POST /api/v1/links/:id/ur
 
 **Saída específica:** `availability{checkedAt,state,consecutiveFailures},proposal{id,status}; nunca publicar proposta prematuramente`.
 
-Todos os caminhos são propostas a reconciliar com rotas atuais em S0; não estão implementados. Quando a rota abreviada omite prefixo, o prefixo é /api/v1. PATCH/POST/DELETE com sessão preservam CSRF do app e enviam host pelo BFF; tenant não vem do corpo. GET público não exige autenticação indevida. Exportações, tokens e respostas privadas usam política de cache que impeça exposição.
+Rotas implementadas: GET /api/v1/links/:id/availability; POST /api/v1/links/:id/url-proposals; GET /api/v1/admin/url-proposals; PATCH /api/v1/admin/url-proposals/:id/decision. As páginas são /painel/links/[id]/disponibilidade e /admin/disponibilidade. Quando a rota abreviada omite prefixo, o prefixo é /api/v1. PATCH/POST/DELETE com sessão preservam CSRF do app e enviam host pelo BFF; tenant não vem do corpo. GET público não exige autenticação indevida. Exportações, tokens e respostas privadas usam política de cache que impeça exposição.
 
 Erros: aplicar o envelope existente code/message/request_id; 400 para entrada inválida, 401 sem sessão em recurso privado, 403 para contexto de tenant incompatível quando contrato atual exige, 404 para recurso alheio/ausente sem enumerar dados, 409 para conflito de versão/identidade, 429 para limite, 503 para indisponibilidade externa quando apropriado. Rotas existentes podem ter semântica específica; preservar testes de contrato e documentar divergência antes de mudar.
 
@@ -118,11 +120,11 @@ Criar um teste com ID Tnn para cada AC, com o seguinte protocolo específico da 
 
 ## Arquivos de teste propostos
 
-- U: `backend/src/domain/links/disponibilidade.spec.ts`.
-- C: `frontend/src/components/domain/disponibilidade.test.tsx`.
-- I: `backend/src/http/disponibilidade.http.spec.ts`.
-- PG: `backend/src/http/disponibilidade.pg.spec.ts`; registrar no comando/CI de PG.
-- E: `frontend/e2e/disponibilidade.spec.ts`; registrar no projeto features e features-mobile antes de executar.
+- U: `backend/src/domain/links/availability-monitor.spec.ts; backend/src/domain/promotions/paid-time.spec.ts`.
+- C: `frontend/src/features/availability/components/url-correction-form.test.tsx`.
+- I: `backend/src/http/link-availability.pg.spec.ts`.
+- PG: `backend/src/http/link-availability.pg.spec.ts`; registrar no comando/CI de PG.
+- E: `frontend/e2e/link-availability.spec.ts`; registrar no projeto features e features-mobile antes de executar.
 - Consumidores e novos caminhos sugeridos estão no plano; todos devem ser reconciliados com a árvore existente em S0.
 
 ## Decisões e condições de liberação
@@ -147,3 +149,9 @@ Sem resolução das decisões bloqueantes e dependências concluídas, a feature
 
 **Indicadores:** proporção de links indisponíveis e tempo até correção.
 
+
+## Reconciliação da entrega
+
+D08 técnica: 360 minutos entre checagens, três falhas, retry 30/60 minutos e 60 segundos por host; limites configuráveis e monitor desligado por padrão. Respostas 401/403/405/429 são inconclusivas. Mesmo convite original pode ser reenviado se recuperado, sempre com aprovação humana. A aprovação readquire quota e revalida conta, verificação, rede e elegibilidade por superfície pelo guard existente do checkout.
+
+Não existe comprovação de propriedade de URL na base atual: invalidá-la depende da futura F28. Nesta entrega a proposta vincula URL/versão e exige nova validação protegida; não se presume comprovação inexistente. A fila de correções é separada da moderação F42. Valores, preços, retirada manual e terminalidade de cancelados/expirados são preservados. Contratos, migração, testes e limitações detalhados em [execução F07](../execucao-f07.md).

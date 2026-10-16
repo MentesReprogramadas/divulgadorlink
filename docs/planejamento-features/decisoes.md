@@ -12,7 +12,7 @@ Uma proposta dentro de spec não altera regra de produto aprovada. Sem decisão,
 | F04 | D05 permitir múltiplas coleções por favorito, limites e ordenação. | F04-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
 | F05 | D06 frequência, consentimento, retenção do histórico de resumo e regras de conteúdo restrito. | F05-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
 | F06 | D07 denúncia anônima ou autenticada, janela de deduplicação e retenção. | F06-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
-| F07 | D08 limiar/intervalo/backoff, transição de recuperação e compensação de promoção paga durante indisponibilidade. | F07-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
+| F07 | D08 RESOLVIDA: pausa do tempo pago e retomada após aprovação; 360 min, limiar 3, backoff 30/60 min e host 60 s. | Decisão do usuário em 15/10/2026; implementação e limites em [execução F07](execucao-f07.md) |
 | F08 | D09 amostra mínima, normalização, retenção e escolha de consentimento para observações. | F08-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
 | F09 | D10 unicidade de slug por tenant, regras de URL privada no perfil, mídia/limites e conteúdo restrito. | F09-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
 | F10 | D11 DNS/TLS wildcard e origens confiáveis; D12 inadimplência, cancelamento, reserva e redirecionamento de host. | F10-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |

@@ -1,11 +1,10 @@
-import { promises as dns } from 'node:dns'
-import https from 'node:https'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
 import { signSurface } from '@/domain/analytics/surface-token'
 import { documentTitle, facetIndexable, linkRobots } from '@/domain/catalog/index-policy'
 import { hitsBlocklist } from '@/domain/links/blocklist'
-import { assertPublicHttps, safeFetch, type SafeFetchDeps } from '@/adapters/http/safe-fetch'
+import { assertPublicHttps } from '@/adapters/http/safe-fetch'
+import { probeAvailability } from '@/adapters/http/availability-probe'
 import { canonicalUrl } from '@/domain/links/canonical-url'
 import { hostMatchesNetwork } from '@/domain/links/network-host'
 import { urlAvailability } from '@/domain/links/url-availability'
@@ -58,43 +57,12 @@ export function setLinkProbeForTest(probe: ((url: string) => Promise<number | nu
 
 async function probeStatus(raw: string): Promise<number | null> {
   if (process.env.NODE_ENV === 'test') return linkProbeForTest ? linkProbeForTest(raw) : 200
-  if (process.env.E2E_LINK_PROBE === 'example.com') {
+  if (env.NODE_ENV !== 'production' && process.env.E2E_LINK_PROBE) {
     const host = new URL(raw).hostname
-    if (host === 'example.com' || host.endsWith('.example.com')) return 200
+    const fixtures = process.env.E2E_LINK_PROBE.split(',').filter(value => ['example.com', 't.me'].includes(value))
+    if (fixtures.some(value => host === value || host.endsWith('.' + value))) return 200
   }
-  try {
-    const deps: SafeFetchDeps = {
-      resolve: (hostname) => dns.resolve(hostname),
-      connect: (target) => new Promise((resolve, reject) => {
-        const parsed = new URL(target.url)
-        const req = https.request({
-          host: target.address,
-          servername: target.servername,
-          method: 'GET',
-          path: `${parsed.pathname}${parsed.search}`,
-          headers: { host: target.hostname },
-          timeout: 5000,
-        }, (res) => {
-          const chunks: Buffer[] = []
-          res.on('data', (chunk: Buffer) => chunks.push(chunk))
-          res.on('end', () => {
-            const headers = new Headers()
-            for (const [key, value] of Object.entries(res.headers)) {
-              if (typeof value === 'string') headers.set(key, value)
-              else if (Array.isArray(value)) headers.set(key, value.join(', '))
-            }
-            resolve({ status: res.statusCode ?? 0, headers, body: Buffer.concat(chunks) })
-          })
-        })
-        req.on('error', reject)
-        req.on('timeout', () => req.destroy(new Error('timeout')))
-        req.end()
-      }),
-    }
-    return (await safeFetch(raw, deps)).status
-  } catch {
-    return null
-  }
+  return probeAvailability(raw)
 }
 
 const identifierChange = new ConfirmIdentifierUseCase(new PrismaConfirmCodesRepository(prisma), {

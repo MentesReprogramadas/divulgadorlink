@@ -1,11 +1,13 @@
 import { analyticsDay, analyticsDayStart, shiftAnalyticsDay } from '@/domain/analytics/day'
-import { performanceRange, performanceTotals, proratedCents } from '@/domain/analytics/performance'
+import { performanceRange, performanceTotals } from '@/domain/analytics/performance'
+import { activeServiceWindows, investmentConsumedCents, investmentServiceWindows, type PaidTimePause } from '@/domain/promotions/paid-time'
 import { purgeBefore } from './purge-old-events'
 
 export type PerformanceSeriesRow = { day: string; surface: string; impressions: number; clicks: number; paidClicks: number }
 export type PerformanceCampaign = {
   id: string; surface: string; status: string; activatedAt: Date; expiresAt: Date | null; administrative: boolean;
-  investments: Array<{ amountCents: number; startsAt: Date; endsAt: Date }>;
+  investments: Array<{ amountCents: number; startsAt: Date; endsAt: Date; pauseRevision?: number }>;
+  pauses?: PaidTimePause[];
 }
 export type PerformanceQuery = ReturnType<typeof performanceRange> & { tenantId: string; linkId: string; promotionId?: string; now: Date }
 export interface PromotionPerformanceRepository {
@@ -40,15 +42,16 @@ export async function promotionPerformance(input: {
   const cutoff = purgeBefore(now).toISOString().slice(0, 10)
   const coverage = range.to < cutoff ? 'UNAVAILABLE' : range.from < cutoff ? 'PARTIAL' : 'COMPLETE'
   const paid = campaigns.filter(row => !row.administrative && row.activatedAt < end && (!row.expiresAt || row.expiresAt > range.start))
-  const moneyKnown = paid.every(row => covered(Math.max(range.start.getTime(), row.activatedAt.getTime()), Math.min(end.getTime(), row.expiresAt?.getTime() ?? end.getTime()), row.investments))
-  const investmentCents = moneyKnown ? campaigns.reduce((sum, row) => sum + row.investments.reduce((amount, item) => amount + proratedCents(item.amountCents, item.startsAt, item.endsAt, range.start, end), 0), 0) : null
+  const windows = (row: PerformanceCampaign) => activeServiceWindows(row.activatedAt, new Date(Math.min(end.getTime(), row.expiresAt?.getTime() ?? end.getTime())), row.pauses ?? [])
+  const moneyKnown = paid.every(row => windows(row).every(window => covered(Math.max(range.start.getTime(), window.startsAt.getTime()), window.endsAt.getTime(), row.investments.flatMap(item => investmentServiceWindows({ ...item, pauseRevision: item.pauseRevision ?? 0 }, row.pauses ?? [])))))
+  const investmentCents = moneyKnown ? campaigns.reduce((sum, row) => sum + row.investments.reduce((amount, item) => amount + investmentConsumedCents({ ...item, pauseRevision: item.pauseRevision ?? 0 }, row.pauses ?? [], range.start, end), 0), 0) : null
   const totals = performanceTotals(current, investmentCents)
   const paidClicks = current.reduce((sum, row) => sum + row.paidClicks, 0)
   totals.cpcCents = coverage === 'COMPLETE' && investmentCents !== null && paidClicks > 0 ? Math.round(investmentCents / paidClicks) : null
   const daily = []
   for (let day = range.from; day <= range.to; day = shiftAnalyticsDay(day, 1)) {
     const rows = current.filter(row => row.day === day)
-    daily.push({ day, available: day >= cutoff, ...performanceTotals(rows, null), paidClicks: rows.reduce((sum, row) => sum + row.paidClicks, 0), highlighted: campaigns.some(row => row.activatedAt < analyticsDayStart(shiftAnalyticsDay(day, 1)) && (!row.expiresAt || row.expiresAt > analyticsDayStart(day))) })
+    daily.push({ day, available: day >= cutoff, ...performanceTotals(rows, null), paidClicks: rows.reduce((sum, row) => sum + row.paidClicks, 0), highlighted: campaigns.some(row => windows(row).some(window => window.startsAt < analyticsDayStart(shiftAnalyticsDay(day, 1)) && window.endsAt > analyticsDayStart(day))) })
   }
   return {
     link, from: range.from, to: range.to, days: range.days, promotionId: input.promotionId ?? null,
