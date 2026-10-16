@@ -9,8 +9,9 @@ import { RelatedCursorError } from '@/domain/catalog/related-links'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
 import { readRelatedLinks } from '@/repositories/related-links-repository'
 
+let testSeed: string | undefined
 let testDb: PrismaClient | null = null
-export function setRelatedLinksDbForTest(db: PrismaClient | null): void { if (process.env.NODE_ENV === 'test') testDb = db }
+export function setRelatedLinksDbForTest(db: PrismaClient | null, seed?: string): void { if (process.env.NODE_ENV === 'test') { testDb = db; testSeed = seed } }
 export async function relatedLinksRoutes(app: FastifyInstance) {
   app.get('/links/:id/related', async (request, reply) => {
     reply.header('cache-control', 'private, no-store')
@@ -19,7 +20,7 @@ export async function relatedLinksRoutes(app: FastifyInstance) {
       const { cursor } = z.object({ cursor: z.string().min(1).max(2048).optional() }).strict().parse(request.query)
       const tenant = await resolveTenant(normalizeTenantHost(request.headers.host ?? ''))
       const age = request.cookies.age === 'yes' ? 'yes' : request.cookies.age === 'no' ? 'no' : 'unknown'
-      const page = await readRelatedLinks(testDb ?? prisma, { tenantId: tenant.id, linkId: id, cursor, age, secret: env.JWT_SECRET })
+      const page = await readRelatedLinks(testDb ?? prisma, { tenantId: tenant.id, linkId: id, cursor, age, seed: testSeed, secret: env.JWT_SECRET })
       if (!page) throw new ResourceNotFoundError()
       return page
     } catch (error) {

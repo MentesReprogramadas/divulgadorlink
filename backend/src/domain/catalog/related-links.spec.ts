@@ -4,6 +4,13 @@ const source = { id: 'source', tenantId: 'a', canonicalUrl: 'https://example.com
 const candidate = { ...source, id: 'one', canonicalUrl: 'https://example.com/one', status: 'PUBLISHED', ownerStatus: 'ACTIVE', requiresAge: false }
 const context = { ...source, age: 'unknown' as const }
 describe('F03 relações públicas e cursor', () => {
+  it('F03-U05 embaralha empates por abertura e mantém a mesma ordem dentro do cursor', () => {
+    const rows = Array.from({ length: 30 }, (_, i) => ({ ...candidate, id: 'item-' + i, canonicalUrl: 'https://example.com/' + i }))
+    const a = selectRelated(rows, source, 'no', '0'.repeat(32)).map(r => r.id)
+    expect(selectRelated([...rows].reverse(), source, 'no', '0'.repeat(32)).map(r => r.id)).toEqual(a)
+    expect(selectRelated(rows, source, 'no', '1'.repeat(32)).map(r => r.id)).not.toEqual(a)
+    expect(new Set(a).size).toBe(30)
+  })
   it('F03-U01 exclui próprio, duplicado, indisponível e tenant alheio', () => {
     const rows = [candidate, { ...candidate, id: 'two' }, { ...candidate, id: 'other-url', canonicalUrl: source.canonicalUrl }, { ...candidate, id: source.id }, { ...candidate, id: 'foreign', tenantId: 'b' }, { ...candidate, id: 'off', status: 'UNAVAILABLE' }, { ...candidate, id: 'banned', ownerStatus: 'BANNED' }]
     expect(selectRelated(rows, source, 'unknown').map(r => r.id)).toEqual(['one'])
@@ -23,8 +30,8 @@ describe('F03 relações públicas e cursor', () => {
     expect(selectRelated([{ ...candidate, requiresAge: true }], source, 'yes')).toHaveLength(1)
   })
   it('F03 cursor vincula fonte, tenant e idade; adulteração é recusada', () => {
-    const token = encodeRelatedCursor({ rank: 1, id: 'one' }, context, 'secret')
-    expect(decodeRelatedCursor(token, context, 'secret')).toEqual({ rank: 1, id: 'one' })
+    const token = encodeRelatedCursor({ rank: 1, id: 'one', seed: '0'.repeat(32) }, context, 'secret')
+    expect(decodeRelatedCursor(token, context, 'secret')).toEqual({ rank: 1, id: 'one', seed: '0'.repeat(32) })
     for (const changed of [{ ...context, tenantId: 'b' }, { ...context, id: 'other' }, { ...context, age: 'yes' as const }, { ...context, nicheId: 'n2' }]) expect(() => decodeRelatedCursor(token, changed, 'secret')).toThrow()
     expect(() => decodeRelatedCursor(token + 'x', context, 'secret')).toThrow()
     expect(() => decodeRelatedCursor('x'.repeat(2049), context, 'secret')).toThrow()

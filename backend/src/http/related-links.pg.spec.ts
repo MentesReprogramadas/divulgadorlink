@@ -1,3 +1,4 @@
+import { relatedShuffleKey } from '@/domain/catalog/related-links'
 import { randomUUID } from 'node:crypto'
 import { PrismaClient, type LinkStatus } from '@prisma/client'
 import { beforeAll, beforeEach, afterAll, expect, it } from 'vitest'
@@ -17,7 +18,7 @@ const db = new PrismaClient({ datasources: { db: { url } } })
 let tenant: string, foreign: string, host: string, source: string
 const secret = 'test-jwt-secret-min-16'
 beforeAll(async () => {
-  setRelatedLinksDbForTest(db)
+  setRelatedLinksDbForTest(db, '0'.repeat(32))
   setLinksRepositoryForTest(new PrismaLinksRepository(db)); setAnalyticsRepositoryForTest(new PrismaAnalyticsRepository(db))
   setTenantsRepositoryForTest({ async findByHost(host) { return db.tenant.findUnique({ where: { host } }) } })
   await app.ready()
@@ -54,6 +55,7 @@ it('F03-I01/PG01/T01 eligibility, stable keysets and canonical URL deduplication
   await seed('corrupt-network' + tenant, { networkId: 'r' + foreign })
   await seed('corrupt-owner' + tenant, { ownerId: 'u-' + foreign })
   await seed('unrelated' + tenant, { nicheId: 'n-other' + tenant, networkId: 'r-other' + tenant })
+  ids.sort((a,b) => relatedShuffleKey(a, '0'.repeat(32)).localeCompare(relatedShuffleKey(b, '0'.repeat(32))))
   const first = await get(); expect(first.statusCode).toBe(200); expect(first.headers['cache-control']).toBe('private, no-store')
   const a = first.json(); expect(a.items.map((r: { id: string }) => r.id)).toEqual(ids.slice(0, 6)); expect(a.nextCursor).toBeTruthy()
   expect((await get()).json()).toEqual(a)
@@ -107,6 +109,18 @@ it('F03-PG06/T01 adult network also gates both source and suggestions independen
   expect((await get(source, undefined, 'yes')).json().items.map((r: { id: string }) => r.id)).toEqual([id])
   expect((await get(id)).json().items).toEqual([])
   expect((await get(id, undefined, 'yes')).json().items.map((r: { id: string }) => r.id)).toEqual([source])
+})
+it('F03-PG07 fresh openings use different seeds and the signed cursor retains one shuffle', async () => {
+  for (let i = 0; i < 12; i++) await seed('shuffle-' + i + tenant)
+  setRelatedLinksDbForTest(db)
+  try {
+    const a = (await get()).json(), b = (await get()).json()
+    const seedOf = (cursor: string) => JSON.parse(Buffer.from(cursor.split('.')[0]!, 'base64url').toString()).seed
+    expect(seedOf(a.nextCursor)).not.toBe(seedOf(b.nextCursor))
+    const next = (await get(source, a.nextCursor)).json()
+    expect((await get(source, a.nextCursor)).json()).toEqual(next)
+    expect(new Set([...a.items, ...next.items].map((row: { id: string }) => row.id)).size).toBe(12)
+  } finally { setRelatedLinksDbForTest(db, '0'.repeat(32)) }
 })
 it('F03-I01/PG05/T04 related impression and exit are separate, deduplicated, signed and revalidated', async () => {
   const id = 'visit-' + tenant; await seed(id)

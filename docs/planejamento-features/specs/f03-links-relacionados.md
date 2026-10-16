@@ -9,6 +9,10 @@
 **Dependências obrigatórias:** G00; base atual, sem outra feature nova.  
 **Governança:** [arquitetura](../arquitetura-e-reuso.md), [testes](../qualidade-e-testes.md), [decisões](../decisoes.md), [roadmap](../roadmap-auditavel.md).
 
+## Aleatoriedade solicitada posteriormente
+
+Nova abertura embaralha empates de afinidade; o cursor assinado v2 preserva a ordem nessa navegação. A regra inicial de ID fixo permanece abaixo como histórico e foi superada por solicitação do usuário. Ver o adendo em [execução F03](../execucao-f03.md) e o fechamento em [execução F04](../execucao-f04.md).
+
 ## Reconciliação da execução — 16/10/2026
 
 [Execução, decisões, comandos, resultados, limitações e reversão](../execucao-f03.md). Implementação concluída na branch `codex/roadmap-features`; nenhuma publicação na main ou deploy. A próxima feature não foi iniciada.

@@ -8,7 +8,7 @@ Uma proposta dentro de spec não altera regra de produto aprovada. Sem decisão,
 | --- | --- | --- |
 | F01 | D01 atribuição entre promoções sobrepostas e rateio do investimento por superfície; D02 cobertura e retenção. | F01-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
 | F02 | D03 RESOLVIDA: 3 dias, uma vez por promoção/vencimento, e-mail opt-in desligado por padrão; painel independente. | 16/10/2026; [execução F02](execucao-f02.md) |
-| F03 | D04 RESOLVIDA: seis por página, nicho+rede → nicho → rede, empate por ID; RELATED analítica e sem posição paga nova. | 16/10/2026; [execução F03](execucao-f03.md) |
+| F03 | D04 RESOLVIDA: seis por página, nicho+rede → nicho → rede, empates embaralhados por abertura com seed preservado no cursor (pedido posterior); RELATED analítica e sem posição paga nova. | 16/10/2026; [execução F03](execucao-f03.md) |
 | F04 | D05 permitir múltiplas coleções por favorito, limites e ordenação. | F04-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
 | F05 | D06 frequência, consentimento, retenção do histórico de resumo e regras de conteúdo restrito. | F05-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
 | F06 | D07 denúncia anônima ou autenticada, janela de deduplicação e retenção. | F06-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
