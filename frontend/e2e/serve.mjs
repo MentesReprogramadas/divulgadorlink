@@ -55,6 +55,13 @@ const stub = createServer((req, res) => {
   req.on('end', () => {
     const raw = Buffer.concat(chunks).toString()
     res.setHeader('content-type', 'application/json')
+    if (req.method === 'POST' && req.url === '/renewal-mail') {
+      const mail = JSON.parse(raw)
+      const key = req.headers['idempotency-key']
+      if (!renewalMessages.some(row => row.idempotencyKey === key)) renewalMessages.push(mail)
+      res.end('{}'); return
+    }
+    if (req.method === 'GET' && req.url === '/renewal-mails') { res.end(JSON.stringify(renewalMessages)); return }
     if (req.method === 'GET' && req.url.startsWith('/availability-probe?')) {
       const candidate = new URL(req.url, 'http://fixture').searchParams.get('url')
       res.end(JSON.stringify({ status: availabilityStatuses.has(candidate) ? availabilityStatuses.get(candidate) : 200 })); return
@@ -116,6 +123,7 @@ const stub = createServer((req, res) => {
   })
 })
 
+const renewalMessages = []
 const evolutionMessages = []
 const availabilityStatuses = new Map()
 let evolutionFailure = false
@@ -162,6 +170,8 @@ const apiEnv = {
   E2E_LINK_PROBE: 'example.com,t.me',
   E2E_AVAILABILITY_STUB_URL: e2eRuntime.stubOrigin,
   AVAILABILITY_ENABLED: '1',
+  RENEWAL_REMINDERS_ENABLED: '1',
+  E2E_RENEWAL_MAIL_URL: e2eRuntime.stubOrigin + '/renewal-mail',
 }
 
 const tsx = path.join(backend, 'node_modules/tsx/dist/cli.mjs')

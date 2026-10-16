@@ -1,0 +1,32 @@
+INSERT 0 10000
+ANALYZE
+                                                                            QUERY PLAN                                                                            
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=0.12..8.14 rows=1 width=21) (actual time=0.002..0.002 rows=0 loops=1)
+   Buffers: shared hit=2
+   ->  Index Only Scan using promotions_renewal_due_idx on promotions  (cost=0.12..8.14 rows=1 width=21) (actual time=0.001..0.001 rows=0 loops=1)
+         Index Cond: (("expiresAt" > '2026-10-16 12:00:00'::timestamp without time zone) AND ("expiresAt" <= '2026-10-19 12:00:00'::timestamp without time zone))
+         Heap Fetches: 0
+         Buffers: shared hit=2
+ Planning:
+   Buffers: shared hit=80
+ Planning Time: 0.193 ms
+ Execution Time: 0.010 ms
+(10 rows)
+
+INSERT 0 1
+ANALYZE
+                                                                            QUERY PLAN                                                                            
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=0.12..8.14 rows=1 width=21) (actual time=0.007..0.008 rows=1 loops=1)
+   Buffers: shared hit=3
+   ->  Index Only Scan using promotions_renewal_due_idx on promotions  (cost=0.12..8.14 rows=1 width=21) (actual time=0.006..0.007 rows=1 loops=1)
+         Index Cond: (("expiresAt" > '2026-10-16 12:00:00'::timestamp without time zone) AND ("expiresAt" <= '2026-10-19 12:00:00'::timestamp without time zone))
+         Heap Fetches: 1
+         Buffers: shared hit=3
+ Planning:
+   Buffers: shared hit=86
+ Planning Time: 0.156 ms
+ Execution Time: 0.015 ms
+(10 rows)
+

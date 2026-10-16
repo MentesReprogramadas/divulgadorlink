@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
 import { Button } from '@/components/ui/button'
@@ -70,7 +70,12 @@ function priceOf(offer: Offer | undefined, days: Duration): number | null {
   return offer?.prices.find((row) => row.durationDays === days)?.amountCents ?? null
 }
 
-export default function Page() {
+export default function Page() { return <Suspense fallback={<p role="status">Carregando planos...</p>}><CheckoutPage /></Suspense> }
+
+function CheckoutPage() {
+  const search = useSearchParams()
+  const renewal = search.get('renew')
+  const renewalSurface = renewal && ['SEARCH', 'NICHE', 'HOME'].includes(renewal) ? renewal : null
   const params = useParams<{ id: string }>()
   const router = useRouter()
   const [offers, setOffers] = useState<Offer[]>([])
@@ -105,14 +110,14 @@ export default function Page() {
         setMessage(result.status === 401 ? 'Entre para destacar este link.' : 'Não foi possível carregar os planos.')
         return
       }
-      const rows = result.body.offers ?? []
+      const rows = (result.body.offers ?? []).filter(offer => !renewalSurface || (offer.surfaces.length === 1 && offer.surfaces[0] === renewalSurface))
       setOffers(rows)
       trackMeta('ViewContent', undefined, { content_type: 'product', content_ids: rows.map((offer) => offer.code) })
-      setSelected((current) => current || rows.find((offer) => offer.featured)?.code || '')
+      setSelected((current) => current || (renewalSurface ? rows[0]?.code : rows.find((offer) => offer.featured)?.code) || '')
       setCardEnabled(Boolean(result.body.cardEnabled && result.body.publishableKey))
       setPublishableKey(result.body.publishableKey ?? '')
     })()
-  }, [])
+  }, [renewalSurface])
 
   useEffect(() => {
     void (async () => {
@@ -232,7 +237,7 @@ export default function Page() {
       setStep('pix')
       return
     }
-    const result = await api<Charge>('/v1/promotions/checkout', {
+    const result = await api<Charge>(renewalSurface ? '/v1/promotions/renew' : '/v1/promotions/checkout', {
       method: 'POST',
       headers: { 'idempotency-key': idempotencyKey },
       body: JSON.stringify({
@@ -259,7 +264,7 @@ export default function Page() {
 
   return (
     <div className="checkout">
-      <h2 className="panel-section-title">Destaque</h2>
+      <h2 className="panel-section-title">{renewalSurface ? 'Renovar destaque' : 'Destaque'}</h2>
       {step === 'plan' ? (
         <>
           <div className="duration-tabs" role="radiogroup" aria-label="Duração">

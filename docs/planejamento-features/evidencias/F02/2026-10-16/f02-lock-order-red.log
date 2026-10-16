@@ -1,0 +1,41 @@
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run vitest run src/http/renewal-reminders.pg.spec.ts -t suspensão concorrente
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+{"event":"renewal.reminder.failed","entity":"cmvb0b5jg0002u41stnpdgsrr","result":"provider_error"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+ ❯ src/http/renewal-reminders.pg.spec.ts (18 tests | 1 failed | 17 skipped) 1155ms
+   ❯ F02 HTTP, PG e entrega (18)
+     × F02-T03 suspensão concorrente mantém ordem usuário/link sem deadlock 1126ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/http/renewal-reminders.pg.spec.ts > F02 HTTP, PG e entrega > F02-T03 suspensão concorrente mantém ordem usuário/link sem deadlock
+PrismaClientKnownRequestError: 
+Invalid `prisma.$queryRaw()` invocation:
+
+
+Raw query failed. Code: `40P01`. Message: `ERROR: deadlock detected
+DETAIL: Process 182 waits for ShareLock on transaction 14480; blocked by process 180.
+Process 180 waits for ShareLock on transaction 14481; blocked by process 182.
+HINT: See server log for query details.`
+ ❯ Mn.handleRequestError node_modules/@prisma/client/runtime/library.js:121:7338
+ ❯ Mn.handleAndLogRequestError node_modules/@prisma/client/runtime/library.js:121:6663
+ ❯ Mn.request node_modules/@prisma/client/runtime/library.js:121:6370
+ ❯ l node_modules/@prisma/client/runtime/library.js:130:9633
+ ❯ lockedContext src/use-cases/@Notifications/renewal-reminders.ts:61:3
+
+ ❯ db.$transaction.timeout src/use-cases/@Notifications/renewal-reminders.ts:94:23
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/runtime/library.js:130:8000
+ ❯ runRenewalReminderCycle src/use-cases/@Notifications/renewal-reminders.ts:93:5
+ ❯ src/http/renewal-reminders.pg.spec.ts:102:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 17 skipped (18)
+   Start at  10:31:49
+   Duration  2.83s (tests 43%, transform 32%, import 25%)
+

@@ -105,14 +105,14 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 
 | Etapa | Estado | Pré-requisito imediato | Entregável a verificar |
 | --- | --- | --- | --- |
-| F02-S0 | NÃO INICIADA | F42 (prioridade), F01 | [Escopo contratos e reuso](planos/f02-lembrete-renovacao.md#f02-s0-escopo-contratos-e-revisão-de-reutilização) |
-| F02-S1 | NÃO INICIADA | F02-S0 | [Testes U e C](planos/f02-lembrete-renovacao.md#f02-s1-testes-unitários-e-componentes-antes-da-regra) |
-| F02-S2 | NÃO INICIADA | F02-S1 | [Dados e migração](planos/f02-lembrete-renovacao.md#f02-s2-dados-invariantes-e-migração) |
-| F02-S3 | NÃO INICIADA | F02-S2 | [Domínio API e jobs](planos/f02-lembrete-renovacao.md#f02-s3-regra-de-negócio-api-e-jobs) |
-| F02-S4 | NÃO INICIADA | F02-S3 | [Interface](planos/f02-lembrete-renovacao.md#f02-s4-interface-composição-e-estados) |
-| F02-S5 | NÃO INICIADA | F02-S4 | [Integração e ACs](planos/f02-lembrete-renovacao.md#f02-s5-integração-contrato-persistência-e-falhas) |
-| F02-S6 | NÃO INICIADA | F02-S5 | [Playwright e QA](planos/f02-lembrete-renovacao.md#f02-s6-e2e-playwright-e-revisão-visual) |
-| F02-S7 | NÃO INICIADA | F02-S6 | [Regressão e liberação](planos/f02-lembrete-renovacao.md#f02-s7-regressão-rollout-e-fechamento-auditável) |
+| F02-S0 | CONCLUÍDA | F42 (prioridade), F01 | [Escopo contratos e reuso](planos/f02-lembrete-renovacao.md#f02-s0-escopo-contratos-e-revisão-de-reutilização) |
+| F02-S1 | CONCLUÍDA | F02-S0 | [Testes U e C](planos/f02-lembrete-renovacao.md#f02-s1-testes-unitários-e-componentes-antes-da-regra) |
+| F02-S2 | CONCLUÍDA | F02-S1 | [Dados e migração](planos/f02-lembrete-renovacao.md#f02-s2-dados-invariantes-e-migração) |
+| F02-S3 | CONCLUÍDA | F02-S2 | [Domínio API e jobs](planos/f02-lembrete-renovacao.md#f02-s3-regra-de-negócio-api-e-jobs) |
+| F02-S4 | CONCLUÍDA | F02-S3 | [Interface](planos/f02-lembrete-renovacao.md#f02-s4-interface-composição-e-estados) |
+| F02-S5 | CONCLUÍDA | F02-S4 | [Integração e ACs](planos/f02-lembrete-renovacao.md#f02-s5-integração-contrato-persistência-e-falhas) |
+| F02-S6 | CONCLUÍDA | F02-S5 | [Playwright e QA](planos/f02-lembrete-renovacao.md#f02-s6-e2e-playwright-e-revisão-visual) |
+| F02-S7 | EM REVISÃO | F02-S6 | [Regressão e liberação](planos/f02-lembrete-renovacao.md#f02-s7-regressão-rollout-e-fechamento-auditável) |
 
 ### 6 F03 Links relacionados
 
@@ -678,3 +678,5 @@ Antes de encerrar S7: conferir ACs sem resultado, testes ignorados, decisões pe
 
 
 F07: contratos e evidências em [execução F07](execucao-f07.md). Encerrar após o fechamento desta feature, conforme instrução posterior do usuário; não iniciar F02.
+
+16/10/2026: F02 executada após nova autorização; encerrar ao concluí-la. Ver [execução F02](execucao-f02.md).

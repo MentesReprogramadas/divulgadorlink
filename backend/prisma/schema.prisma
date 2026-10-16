@@ -109,6 +109,8 @@ model User {
   identifiers  UserIdentifier[]
   links        Link[]
   orders       Order[]
+  emailRenewal Boolean @default(false)
+  notificationVersion Int @default(0)
   acquisitionTouch AcquisitionTouch?
   evolutionOperators EvolutionOperator[]
   @@index([tenantId])
@@ -366,6 +368,7 @@ model Promotion {
   @@map("promotions")
   investments PromotionInvestment[]
   pauses PromotionPause[]
+  renewalReminders RenewalReminder[]
   @@unique([id, tenantId])
 
 }
@@ -704,4 +707,24 @@ model LinkReport {
   @@index([tenantId, status, kind, createdAt, id])
   @@index([tenantId, createdAt, id])
   @@map("link_reports")
+}
+
+model RenewalReminder {
+  id String @id @default(cuid())
+  tenantId String
+  promotionId String
+  promotion Promotion @relation(fields: [promotionId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  expiresAt DateTime
+  channel String @default("EMAIL") @db.VarChar(12)
+  deliveryKey String @unique
+  status String @default("PENDING") @db.VarChar(12)
+  attempts Int @default(0)
+  nextAttemptAt DateTime @default(now())
+  firstAttemptAt DateTime?
+  sentAt DateTime?
+  payload Json?
+  createdAt DateTime @default(now())
+  @@unique([tenantId, promotionId, expiresAt, channel])
+  @@index([status, nextAttemptAt, id], map: "renewal_reminders_due_idx")
+  @@map("renewal_reminders")
 }

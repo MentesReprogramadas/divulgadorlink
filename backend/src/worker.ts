@@ -1,4 +1,6 @@
 import './observability/register-hyperdx'
+import { runRenewalReminderCycle, type RenewalCycleInput } from '@/use-cases/@Notifications/renewal-reminders'
+import { enqueueRenewalReminderCycle, RENEWAL_QUEUE_NAME } from '@/adapters/queues/enqueue-renewal-reminders'
 import type { PrismaClient } from '@prisma/client'
 import { Worker } from 'bullmq'
 import type Redis from 'ioredis'
@@ -162,6 +164,7 @@ export type WorkerDeps = {
   textJudge: TextJudge | null
   db?: PrismaClient
   availability?: AvailabilityCycleInput
+  renewalReminders?: RenewalCycleInput
 }
 
 export function createWorker(connection: Redis, deps: WorkerDeps, queueName = QUEUE_NAME): Worker {
@@ -172,6 +175,7 @@ export function createWorker(connection: Redis, deps: WorkerDeps, queueName = QU
       try {
       const result = await (async () => {
       if (job.name === 'evolution-cycle') return runEvolutionCycle(deps.db ?? prisma)
+      if (job.name === 'renewal-reminder-cycle') return runRenewalReminderCycle(deps.db ?? prisma, deps.renewalReminders)
       if (job.name === 'availability-cycle') return runAvailabilityCycle(deps.db ?? prisma, deps.availability)
       if (job.name === 'moderate-link') {
         const data = job.data as ModerateLinkJobData & { linkId?: string }
@@ -326,11 +330,14 @@ async function startWorker(): Promise<void> {
   // Separate BullMQ consumer in this process: a slow provider cannot occupy the payment/moderation worker.
   createWorker(connection, { textJudge: null }, EVOLUTION_QUEUE_NAME)
   createWorker(connection, { textJudge: null }, AVAILABILITY_QUEUE_NAME)
+  createWorker(connection, { textJudge: null }, RENEWAL_QUEUE_NAME)
   await enqueuePendingEmbeddingJobs()
   await enqueueEvolutionCycle()
   await enqueueAvailabilityCycle()
+  await enqueueRenewalReminderCycle()
   const drain = setInterval(() => {
     void enqueueEvolutionCycle().catch(() => logDomainEvent('evolution.drain.failed', { result: 'queue_unavailable' }))
+    void enqueueRenewalReminderCycle().catch(() => logDomainEvent('renewal.reminder.drain.failed', { result: 'queue_unavailable' }))
     void enqueueAvailabilityCycle().catch(() => logDomainEvent('availability.drain.failed', { result: 'queue_unavailable' }))
     void enqueuePendingEmbeddingJobs().catch((error) => {
       logDomainEvent('embedding.drain.failed', { result: error instanceof Error ? error.message : 'fila' })

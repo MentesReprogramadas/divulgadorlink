@@ -7,6 +7,15 @@ const EMAIL_LOGO_ON_NAVY = 'https://pub-852b31d202de4f9bb4000007a99abaf1.r2.dev/
 
 export type RenderedEmail = { subject: string; html: string; text: string }
 
+export function renewalReminderEmail(input: { brand: EmailBrand; linkName: string; surface: string; expiresAt: Date; summary: { from: string; to: string; impressions: number; clicks: number; dataState: string; coverage: string } | null; url: string; preferencesUrl: string }): RenderedEmail {
+  const date = new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo', dateStyle: 'short', timeStyle: 'short' }).format(input.expiresAt)
+  const surface = { SEARCH: 'Busca', NICHE: 'Categoria', HOME: 'Página inicial' }[input.surface] ?? input.surface
+  const result = input.summary?.coverage === 'COMPLETE'
+    ? `${input.summary.impressions} impressões e ${input.summary.clicks} cliques observados de ${input.summary.from} a ${input.summary.to}.`
+    : 'O período tem cobertura incompleta. Consulte o relatório no painel.'
+  return { subject: 'Seu destaque está perto de terminar', ...document({ brand: input.brand, preheader: 'Você decide se quer renovar.', title: 'Destaque perto do fim', blocks: [detail('Link', input.linkName), detail('Local', surface), detail('Encerra em', date + ' (São Paulo)'), paragraph(result), action(input.url, 'Ver renovação'), paragraph('Nenhuma cobrança automática. Confira o plano e confirme apenas se quiser renovar.'), action(input.preferencesUrl, 'Configurar lembretes')], footnote: 'Resultados observados não garantem resultados futuros.' }) }
+}
+
 export function availabilityEmail(input: { brand: EmailBrand; linkName: string; url: string }): RenderedEmail {
   return { subject: 'Seu link precisa de correção', ...document({ brand: input.brand, preheader: 'Revise o convite para voltar ao catálogo.', title: 'Link indisponível', blocks: [detail('Link', input.linkName), paragraph('O destino falhou em checagens repetidas e saiu do catálogo. O saldo de tempo dos destaques pagos foi pausado. Envie um novo convite para análise; o saldo será retomado após aprovarmos a correção.'), action(input.url, 'Corrigir convite')], footnote: 'Uma resposta acessível não confirma vagas no grupo.' }) }
 }

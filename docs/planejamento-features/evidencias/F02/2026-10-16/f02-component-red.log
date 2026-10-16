@@ -1,0 +1,35 @@
+npm notice run divulgador-links-web@0.1.0 npx
+npm notice run vitest run src/features/renewal-reminders/components/reminder-preference-form.test.tsx
+
+ RUN  v5.0.3 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend
+
+ ❯ src/features/renewal-reminders/components/reminder-preference-form.test.tsx (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/renewal-reminders/components/reminder-preference-form.test.tsx [ src/features/renewal-reminders/components/reminder-preference-form.test.tsx ]
+Error: Failed to resolve import "./reminder-preference-form" from "src/features/renewal-reminders/components/reminder-preference-form.test.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend/src/features/renewal-reminders/components/reminder-preference-form.test.tsx:3:0
+  2  |  const __vi_import_0__ = await import("react/jsx-dev-runtime");
+  3  |  const __vi_import_1__ = await import("@testing-library/react");
+  4  |  const __vi_import_2__ = await import("./reminder-preference-form");
+     |                                       ^
+  5  |  const __vi_import_3__ = await import("../renewal-reminders-screen");
+  6  |  const __vi_import_4__ = await import("@/lib/api");
+ ❯ TransformPluginContext._formatLog node_modules/vite/dist/node/chunks/config.js:29079:43
+ ❯ TransformPluginContext.error node_modules/vite/dist/node/chunks/config.js:29076:14
+ ❯ normalizeUrl node_modules/vite/dist/node/chunks/config.js:27199:18
+ ❯ node_modules/vite/dist/node/chunks/config.js:27257:32
+ ❯ TransformPluginContext.transform node_modules/vite/dist/node/chunks/config.js:27225:4
+ ❯ EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/config.js:28877:14
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/config.js:22746:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  10:15:09
+   Duration  6.31s (environment 100%)
+

@@ -2,11 +2,11 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 5.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
-**Onda:** 2. **Ordem:** 5.  
-**Fonte:** [features-propostas.md](../../features-propostas.md), seção “Lembrete de renovação”.  
-**Plano:** [F02 implementação](../planos/f02-lembrete-renovacao.md).  
-**Dependências obrigatórias:** G00, [F01](../specs/f01-resultado-destaque.md).  
+**Estado:** IMPLEMENTADA NA BRANCH; S7 aguarda CI do commit.
+**Onda:** 2. **Ordem:** 5.
+**Fonte:** [features-propostas.md](../../features-propostas.md), seção “Lembrete de renovação”.
+**Plano:** [F02 implementação](../planos/f02-lembrete-renovacao.md).
+**Dependências obrigatórias:** G00, [F01](../specs/f01-resultado-destaque.md).
 **Governança:** [arquitetura](../arquitetura-e-reuso.md), [testes](../qualidade-e-testes.md), [decisões](../decisoes.md), [roadmap](../roadmap-auditavel.md).
 
 ## Objetivo e fronteira
@@ -48,11 +48,11 @@ Regra transversal: IDs de outro tenant não podem ser aceitos em relações. Pro
 
 Rotas/operações: GET/PATCH /api/v1/me/notification-preferences e GET /api/v1/promotions/mine/reminders; processamento de vencimentos fora do request.
 
-**Entrada específica:** `emailRenewal:boolean, reminderFrequency conforme D03`.
+**Entrada específica:** `emailRenewal:boolean, expectedVersion:int`; frequência fixa ONCE_PER_EXPIRY conforme D03.
 
 **Saída específica:** `preferences,reminders[{promotionId,expiresAt,status,renewPath}]`.
 
-Todos os caminhos são propostas a reconciliar com rotas atuais em S0; não estão implementados. Quando a rota abreviada omite prefixo, o prefixo é /api/v1. PATCH/POST/DELETE com sessão preservam CSRF do app e enviam host pelo BFF; tenant não vem do corpo. GET público não exige autenticação indevida. Exportações, tokens e respostas privadas usam política de cache que impeça exposição.
+Rotas implementadas; contratos concretizados em D03 e no registro de execução. Quando a rota abreviada omite prefixo, o prefixo é /api/v1. PATCH/POST/DELETE com sessão preservam CSRF do app e enviam host pelo BFF; tenant não vem do corpo. GET público não exige autenticação indevida. Exportações, tokens e respostas privadas usam política de cache que impeça exposição.
 
 Erros: aplicar o envelope existente code/message/request_id; 400 para entrada inválida, 401 sem sessão em recurso privado, 403 para contexto de tenant incompatível quando contrato atual exige, 404 para recurso alheio/ausente sem enumerar dados, 409 para conflito de versão/identidade, 429 para limite, 503 para indisponibilidade externa quando apropriado. Rotas existentes podem ter semântica específica; preservar testes de contrato e documentar divergência antes de mudar.
 
@@ -116,11 +116,11 @@ Criar um teste com ID Tnn para cada AC, com o seguinte protocolo específico da 
 
 ## Arquivos de teste propostos
 
-- U: `backend/src/domain/notifications/lembrete-renovacao.spec.ts`.
-- C: `frontend/src/components/domain/lembrete-renovacao.test.tsx`.
-- I: `backend/src/http/lembrete-renovacao.http.spec.ts`.
-- PG: `backend/src/http/lembrete-renovacao.pg.spec.ts`; registrar no comando/CI de PG.
-- E: `frontend/e2e/lembrete-renovacao.spec.ts`; registrar no projeto features e features-mobile antes de executar.
+- U: `backend/src/domain/notifications/renewal-reminder.spec.ts`.
+- C: `frontend/src/features/renewal-reminders/components/reminder-preference-form.test.tsx`.
+- I: `backend/src/http/renewal-reminders.pg.spec.ts`.
+- PG: `backend/src/http/renewal-reminders.pg.spec.ts`; registrar no comando/CI de PG.
+- E: `frontend/e2e/renewal-reminders.spec.ts`; registrar no projeto features e features-mobile antes de executar.
 - Consumidores e novos caminhos sugeridos estão no plano; todos devem ser reconciliados com a árvore existente em S0.
 
 ## Decisões e condições de liberação
@@ -143,3 +143,11 @@ Sem resolução das decisões bloqueantes e dependências concluídas, a feature
 
 **Indicadores:** renovações após o aviso e frequência de desativação dos lembretes.
 
+
+## Contrato concretizado em 16/10/2026
+
+D03: três dias de antecedência, janela (agora, agora+72h], um aviso por promoção/vencimento/canal. E-mail desligado por padrão e opt-in explícito por usuário; frequência fixa, sem campo de cadência arbitrária. A preferência pertence ao usuário no tenant da sessão. PATCH exige expectedVersion e rejeita campos desconhecidos; conflito retorna 409. GET privado não agenda nada. Aviso do painel independe do e-mail. Promoções pausadas da F07 não recebem lembrete; a retomada gera novo vencimento elegível.
+
+Página /painel/lembretes, aviso na visão geral e modo ?renew=SURFACE na página de destaque existente. Os links de renovação são gerados pelo backend; os preços e a elegibilidade continuam no checkout existente. Abrir a página não cria compra; confirmar o pagamento chama POST /promotions/renew. O resumo reutiliza F01, com período, cobertura e resultados observados.
+
+Persistência: users.emailRenewal e notificationVersion; RenewalReminder com FK composta para promoção/tenant e unicidade tenant/promoção/vencimento/EMAIL. O corpo e chave da primeira tentativa são duráveis; após entrega, descarte ou falha terminal o corpo com endereço é apagado. Registros terminais são removidos após 30 dias do vencimento pelo ciclo habilitado. O flag desligado conserva dados e impede envio; a retenção depende da execução do worker. Detalhes de concorrência, idempotência, rollout e evidências em [execução](../execucao-f02.md).

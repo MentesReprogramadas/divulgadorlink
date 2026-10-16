@@ -1,0 +1,11 @@
+npm notice run divulgador-links-api@0.1.0 db:deploy
+npm notice run prisma migrate deploy
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": PostgreSQL database "f02_migration_proof", schema "public" at "127.0.0.1:5433"
+
+28 migrations found in prisma/migrations
+
+Error: P3005
+
+The database schema is not empty. Read more about how to baseline an existing production database: https://pris.ly/d/migrate-baseline
+

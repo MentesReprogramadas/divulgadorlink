@@ -1,4 +1,4 @@
-export type EmailKind = 'otp' | 'password_reset' | 'moderation' | 'ban' | 'account_deleted' | 'availability'
+export type EmailKind = 'otp' | 'password_reset' | 'moderation' | 'ban' | 'account_deleted' | 'availability' | 'renewal_reminder'
 
 export type OutboundEmail = {
   to: string

@@ -1,0 +1,36 @@
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run vitest run src/http/renewal-reminders.pg.spec.ts -t remoção do proprietário
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+{"event":"renewal.reminder.failed","entity":"cmvb00t2o0002u4a4zpkbfd4w","result":"provider_error"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+ ❯ src/http/renewal-reminders.pg.spec.ts (17 tests | 1 failed | 16 skipped) 164ms
+   ❯ F02 HTTP, PG e entrega (17)
+     × F02-T03 remoção do proprietário encerra intenção sem bloquear o lote 128ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/http/renewal-reminders.pg.spec.ts > F02 HTTP, PG e entrega > F02-T03 remoção do proprietário encerra intenção sem bloquear o lote
+AssertionError: expected 'PENDING' to be 'SKIPPED' // Object.is equality
+
+Expected: "SKIPPED"
+Received: "PENDING"
+
+ ❯ src/http/renewal-reminders.pg.spec.ts:86:131
+     84|   it('F02-T03 remoção do proprietário encerra intenção sem bloquear o …
+     85|     await enable(); await pendingFailure(); await db.link.update({ whe…
+     86|     expect(messages).toHaveLength(0); expect((await db.renewalReminder…
+       |                                                                                                                                   ^
+     87|   })
+     88|   it('F02-T03 pausa F07 e indisponibilidade cancelam lembrete', async …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 16 skipped (17)
+   Start at  10:23:46
+   Duration  1.92s (transform 52%, import 39%, tests 9%)
+

@@ -1,6 +1,7 @@
 import 'dotenv/config'
 import { z } from 'zod'
 import { parsePixExpiration } from '@/domain/payments/pix-expiration'
+import { renewalReminderPolicy } from '@/domain/notifications/renewal-reminder'
 import { monitorPolicy } from '@/domain/links/availability-monitor'
 
 const blankAsUnset = (value: unknown) => (value === '' ? undefined : value)
@@ -57,3 +58,5 @@ parsePixExpiration(parsed.data.PIX_EXPIRATION_SECONDS, parsed.data.NODE_ENV)
 monitorPolicy(process.env)
 
 export const env = parsed.data
+
+renewalReminderPolicy(process.env)

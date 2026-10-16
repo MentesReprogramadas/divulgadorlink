@@ -1,0 +1,26 @@
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run vitest run src/domain/notifications/renewal-reminder.spec.ts
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+ ❯ src/domain/notifications/renewal-reminder.spec.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/domain/notifications/renewal-reminder.spec.ts [ src/domain/notifications/renewal-reminder.spec.ts ]
+Error: Cannot find module './renewal-reminder' imported from C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend/src/domain/notifications/renewal-reminder.spec.ts
+ ❯ src/domain/notifications/renewal-reminder.spec.ts:2:1
+      1| import { describe, expect, it } from 'vitest'
+      2| import { dueForRenewal, renewalWindowKey, renewalReminderPolicy } from…
+       | ^
+      3|
+      4| const now = new Date('2026-10-16T12:00Z')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  10:10:30
+   Duration  410ms (worker 99%, environment 1%)
+

@@ -1,3 +1,4 @@
+import { renewalReminderRoutes } from '@/http/controllers/@Notifications/renewal-reminders'
 import { randomUUID, timingSafeEqual } from 'node:crypto'
 import { SpanStatusCode, trace } from '@opentelemetry/api'
 import fastify from 'fastify'
@@ -117,6 +118,7 @@ app.register(
     await instance.register(registerEvolutionRoutes)
     await instance.register(linkReportRoutes)
     await instance.register(availabilityRoutes)
+    await instance.register(renewalReminderRoutes)
   },
   { prefix },
 )

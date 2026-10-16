@@ -42,3 +42,7 @@ Logs da baseline preservados no checkout de execução: baseline-backend.log, ba
 ## Encerramento solicitado após F07 — 15/10/2026
 
 F01 e F06 concluídas na branch; F07 implementada com pausa do tempo pago e recuperação moderada, conforme D08. Ver [execução F06](execucao-f06.md) e [execução F07](execucao-f07.md) para resultados e CI. A instrução posterior do usuário substitui a continuidade automática: encerrar após validar e documentar F07. F02 e demais features não foram iniciadas. Nenhum deploy ou push na main realizado nesta etapa.
+
+## Continuação limitada à F02 — 16/10/2026
+
+Nova solicitação: fazer a próxima e parar ao acabar. F02 implementada na mesma branch; validação e fechamento em [execução F02](execucao-f02.md). Esta autorização supera a parada anterior somente para F02; não iniciar a seguinte.

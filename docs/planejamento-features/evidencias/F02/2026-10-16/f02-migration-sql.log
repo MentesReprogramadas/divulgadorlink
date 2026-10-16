@@ -1,0 +1,10 @@
+ALTER TABLE
+ALTER TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE INDEX
+ users | default_opt_out 
+-------+-----------------
+     1 |               1
+(1 row)
+

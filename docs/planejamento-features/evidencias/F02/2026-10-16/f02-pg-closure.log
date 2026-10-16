@@ -1,0 +1,73 @@
+npm notice run divulgador-links-api@0.1.0 test
+npm notice run vitest run src/http/renewal-reminders.pg.spec.ts
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.cycle","sent":1,"result":"completed"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.failed","entity":"cmvb0g1i3000eu488m8c2r77c","result":"provider_error"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.cycle","sent":1,"result":"completed"}
+{"event":"renewal.reminder.failed","entity":"cmvb0g1kh000ju488i8nqaat2","result":"provider_error"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.failed","entity":"cmvb0g1mt000ou488him0eyfb","result":"provider_error"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.failed","entity":"cmvb0g1pj000yu488d7knkljy","result":"provider_error"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.failed","entity":"cmvb0g1re0013u48891iso6z7","result":"provider_error"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.failed","entity":"cmvb0g1th0018u488ed1pzma1","result":"provider_error"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.failed","entity":"cmvb0g1vq001fu4882xtej92s","result":"provider_error"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.failed","entity":"cmvb0g1xj001ku4881t1u6mfh","result":"provider_error"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.failed","entity":"cmvb0g21r001pu488rr4p9two","result":"provider_error"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.failed","entity":"cmvb0g247001uu488oooqimaf","result":"provider_error"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.failed","entity":"cmvb0g247001uu488oooqimaf","result":"provider_error"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.failed","entity":"cmvb0g247001uu488oooqimaf","result":"provider_error"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.failed","entity":"cmvb0g247001uu488oooqimaf","result":"provider_error"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.failed","entity":"cmvb0g247001uu488oooqimaf","result":"provider_error"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"http.completed","request_id":"e68950be-220d-44dc-a3a4-6cb18cfc4912","tenant":"f02-146f88ea-6f91-4aee-acbf-c1e8faeeedd6.test","entity":"GET /api/v1/promotions/mine/reminders","duration_ms":1.8879000000001724,"status":401}
+{"event":"http.completed","request_id":"eca84186-c5d0-40ee-b7e5-4d0c301bdde2","tenant":"f02-146f88ea-6f91-4aee-acbf-c1e8faeeedd6.test","entity":"GET /api/v1/promotions/mine/reminders","duration_ms":11.470800000000054,"status":200}
+{"event":"http.completed","request_id":"37efef09-32d6-4e65-b246-a5a175067bad","tenant":"f02-146f88ea-6f91-4aee-acbf-c1e8faeeedd6.test","entity":"GET /api/v1/promotions/mine/reminders","duration_ms":3.745300000000043,"status":200}
+{"event":"http.completed","request_id":"c039402e-4cc5-40db-9cb0-2728eeb59a36","tenant":"f02-146f88ea-6f91-4aee-acbf-c1e8faeeedd6.test","entity":"GET /api/v1/promotions/mine/reminders","duration_ms":0.8730000000000473,"status":403}
+{"event":"http.completed","request_id":"17136d99-7b9c-48af-a52d-dd273201a268","tenant":"f02-146f88ea-6f91-4aee-acbf-c1e8faeeedd6.test","entity":"GET /api/v1/promotions/mine/reminders","duration_ms":1.850500000000011,"status":404}
+{"event":"http.completed","request_id":"30d2a809-c873-4f85-a782-67412d2bebd7","tenant":"f02-b3831f6b-983e-42fc-b91c-1c90ad8b5566.test","entity":"PATCH /api/v1/me/notification-preferences","duration_ms":2.495300000000043,"status":400}
+{"event":"http.completed","request_id":"92445f08-00bb-4c8b-b381-d5880040df51","tenant":"f02-b3831f6b-983e-42fc-b91c-1c90ad8b5566.test","entity":"PATCH /api/v1/me/notification-preferences","duration_ms":5.996099999999842,"status":200}
+{"event":"http.completed","request_id":"df6d150b-8bdf-43e9-9dbf-f093d45eced2","tenant":"f02-b3831f6b-983e-42fc-b91c-1c90ad8b5566.test","entity":"PATCH /api/v1/me/notification-preferences","duration_ms":3.6330000000002656,"status":409}
+{"event":"http.completed","request_id":"d5b05a90-503c-413c-b5e3-e76e59dfef2a","tenant":"f02-b3831f6b-983e-42fc-b91c-1c90ad8b5566.test","entity":"PATCH /api/v1/me/notification-preferences","duration_ms":3.7140999999996893,"status":409}
+{"event":"renewal.reminder.cycle","sent":1,"result":"completed"}
+{"event":"renewal.reminder.cycle","sent":1,"result":"completed"}
+{"event":"renewal.reminder.cycle","sent":1,"result":"completed"}
+{"event":"job.completed","duration_ms":32,"queue":"f02-worker-3a02b3b7-4701-4c3e-96d5-41875c364ae0","job_id":"1","name":"renewal-reminder-cycle","attempt":1,"status":"success"}
+{"event":"renewal.reminder.cycle","sent":0,"result":"completed"}
+{"event":"job.completed","duration_ms":2,"queue":"f02-worker-3a02b3b7-4701-4c3e-96d5-41875c364ae0","job_id":"2","name":"renewal-reminder-cycle","attempt":1,"status":"success"}
+
+ Test Files  1 passed (1)
+      Tests  18 passed (18)
+   Start at  10:35:37
+   Duration  3.20s (tests 54%, transform 26%, import 20%)
+
