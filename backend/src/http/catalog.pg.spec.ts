@@ -1,5 +1,6 @@
+import * as randomOrdering from '@/domain/catalog/random-order'
 import { PrismaClient } from '@prisma/client'
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { decodeCursor } from '@/http/catalog-page'
 import { queryCatalogPage } from '@/http/catalog-query'
 import { settleProposedText } from '@/use-cases/@Links/settle-proposed-text'
@@ -85,9 +86,39 @@ describe('vitrine paginada e moderação no PostgreSQL', () => {
     await seedLink('b1', 'tb', 'niche-tb', 'net-tb')
 
     const { ids } = await allPages({ tenantId: 'ta', age: 'no', limit: 4 })
-    expect(ids).toEqual(['s1', 's3', 's5', 's2', 's4', ...organic])
+    expect(ids.slice(0, 5).sort()).toEqual(sponsored)
+    expect(ids.slice(5).sort()).toEqual(organic)
     expect(new Set(ids).size).toBe(12)
     expect(ids).not.toContain('b1')
+  })
+
+  it('SQL preserva o sorteio na paginação e muda em novas aberturas com filtros', async () => {
+    const ids = Array.from({ length: 20 }, (_, i) => `r${i}`)
+    for (const id of ids) await seedLink(id, 'ta', 'niche-ta', 'net-ta')
+    await seedLink('outside-niche', 'ta', 'niche-adulto', 'net-ta')
+    const seed = vi.spyOn(randomOrdering, 'newOrderSeed')
+    try {
+      const orders: string[][] = []
+      for (const value of ['a'.repeat(32), 'b'.repeat(32)]) {
+        seed.mockReturnValue(value)
+        let cursor: string | null = null
+        const seen: string[] = []
+        do {
+          const page = await queryCatalogPage(db, {
+            tenantId: 'ta', age: 'yes', surface: 'NICHE', nicheSlug: 'culinaria', networkSlug: 'telegram',
+            limit: 3, cursor: decodeCursor(cursor),
+          })
+          seen.push(...page.rows.map((row) => row.id))
+          cursor = page.nextCursor
+          if (cursor) expect(decodeCursor(cursor)?.seed).toBe(value)
+        } while (cursor && seen.length < 30)
+        expect(seen).toEqual(randomOrdering.randomOrder(ids.map((id) => ({ id })), value).map((row) => row.id))
+        orders.push(seen)
+      }
+      expect(orders[0]).not.toEqual(orders[1])
+    } finally {
+      seed.mockRestore()
+    }
   })
 
   it('página cheia só de patrocinados ainda aponta para os orgânicos', async () => {
@@ -95,7 +126,8 @@ describe('vitrine paginada e moderação no PostgreSQL', () => {
     await promote('s1', 'ta', '2026-09-01T00:00:00Z')
     await promote('s2', 'ta', '2026-09-02T00:00:00Z')
     const { ids, pages } = await allPages({ tenantId: 'ta', age: 'no', limit: 2 })
-    expect(ids).toEqual(['s1', 's2', 'o1'])
+    expect(ids.slice(0, 2).sort()).toEqual(['s1', 's2'])
+    expect(ids[2]).toBe('o1')
     expect(pages).toBe(2)
   })
 
@@ -104,7 +136,7 @@ describe('vitrine paginada e moderação no PostgreSQL', () => {
     await seedLink('comum', 'ta', 'niche-ta', 'net-ta')
     await promote('comum', 'ta', '2026-09-01T00:00:00Z', 'NICHE')
     expect((await allPages({ tenantId: 'ta', age: 'no', limit: 10 })).ids).toEqual(['comum'])
-    expect((await allPages({ tenantId: 'ta', age: 'yes', limit: 10 })).ids).toEqual(['adulto', 'comum'])
+    expect((await allPages({ tenantId: 'ta', age: 'yes', limit: 10 })).ids.sort()).toEqual(['adulto', 'comum'])
     const niche = await queryCatalogPage(db, {
       tenantId: 'ta', age: 'no', surface: 'NICHE', nicheSlug: 'culinaria', networkSlug: null, limit: 10, cursor: null,
     })

@@ -173,6 +173,7 @@ function linksFor(): CatalogLink[] {
 }
 
 async function getHome(request: FastifyRequest, reply: FastifyReply) {
+  reply.header('cache-control', 'no-store')
   try {
     const host = hostFromRequest(request)
     const tenant = await resolveTenant(host)
@@ -320,6 +321,7 @@ async function getFacet(
   reply: FastifyReply,
   kind: 'niche' | 'network',
 ) {
+  reply.header('cache-control', 'no-store')
   const slug = (request.params as { slug: string }).slug
   try {
     const host = hostFromRequest(request)

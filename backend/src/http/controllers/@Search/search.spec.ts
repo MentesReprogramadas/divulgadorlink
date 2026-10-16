@@ -1,3 +1,4 @@
+import * as randomOrdering from '@/domain/catalog/random-order'
 import { readdirSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -79,7 +80,7 @@ describe('GET /api/v1/search', () => {
     expect(JSON.stringify(body)).not.toContain('adulto')
   })
 
-  it('desempata relevância e activatedAt iguais pelo id, independente da ordem do banco', async () => {
+  it('preserva os elegíveis e a separação dos patrocinados ao embaralhar', async () => {
     const tie = (id: string, searchActivatedAt: Date | null) => ({
       id,
       name: `Receitas ${id}`,
@@ -98,20 +99,36 @@ describe('GET /api/v1/search', () => {
 
     expect(response.statusCode).toBe(200)
     const body = response.json()
-    expect(body.sponsored.map((row: { id: string }) => row.id)).toEqual(['y', 'z'])
-    expect(body.organic.map((row: { id: string }) => row.id)).toEqual(['a', 'b', 'c'])
+    expect(body.sponsored.map((row: { id: string }) => row.id).sort()).toEqual(['y', 'z'])
+    expect(body.organic.map((row: { id: string }) => row.id).sort()).toEqual(['a', 'b', 'c'])
   })
 
-  it('empate sai em id crescente para qualquer ordem de entrada', async () => {
-    const tie = (id: string) => ({
-      id, name: `Receitas ${id}`, description: 'empate', relevance: 0, textScore: 1, semanticScore: 1,
-      embeddingState: 'READY' as const, searchActivatedAt: null, requiresAge: false,
-    })
-    const permutations = [['b', 'a', 'c'], ['c', 'b', 'a'], ['a', 'c', 'b'], ['b', 'c', 'a']]
-    for (const order of permutations) {
-      setSearchCandidatesForTest(order.map(tie))
-      const response = await app.inject({ method: 'GET', url: '/api/v1/search?q=receitas', headers: { host: 'temlinkaqui.com' } })
-      expect(response.json().organic.map((row: { id: string }) => row.id), order.join()).toEqual(['a', 'b', 'c'])
+  it('sorteia outra ordem em cada nova busca, preservando relevância e patrocínio', async () => {
+    const rows = Array.from({ length: 20 }, (_, i) => ({
+      id: `r${i}`, name: 'Receitas', description: 'doces', relevance: 0,
+      textScore: i === 19 ? 0 : 1, semanticScore: 0, embeddingState: 'ABSENT' as const,
+      searchActivatedAt: i < 5 ? new Date('2026-09-01') : null, requiresAge: false,
+    }))
+    setSearchCandidatesForTest(rows)
+    const seed = vi.spyOn(randomOrdering, 'newOrderSeed')
+    try {
+      const bodies = []
+      for (const value of ['a'.repeat(32), 'b'.repeat(32)]) {
+        seed.mockReturnValue(value)
+        const response = await app.inject({ method: 'GET', url: '/api/v1/search?q=receitas', headers: { host: 'temlinkaqui.com' } })
+        expect(response.statusCode).toBe(200)
+        expect(response.headers['cache-control']).toBe('no-store')
+        bodies.push(response.json())
+      }
+      for (const group of ['sponsored', 'organic']) {
+        const first = bodies[0][group].map((row: { id: string }) => row.id)
+        const second = bodies[1][group].map((row: { id: string }) => row.id)
+        expect(first).not.toEqual(second)
+        expect([...first].sort()).toEqual([...second].sort())
+        expect(first).not.toContain('r19')
+      }
+    } finally {
+      seed.mockRestore()
     }
   })
 

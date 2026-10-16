@@ -144,7 +144,7 @@ describe('busca HTTP de ponta a ponta: rota → embedding injetado → SQL real 
     await db.$disconnect()
   })
 
-  it('atravessa embedding, SQL e ranking e devolve o JSON final ordenado', async () => {
+  it('atravessa embedding, SQL e ranking e devolve os elegíveis em ordem aleatória', async () => {
     const response = await search(HOST_A)
 
     expect(response.statusCode).toBe(200)
@@ -152,8 +152,8 @@ describe('busca HTTP de ponta a ponta: rota → embedding injetado → SQL real 
     const body = response.json() as { target: unknown; threshold: number; sponsored: Item[]; organic: Item[] }
     expect(body.target).toEqual({ kind: 'results', slug: null, name: null })
     expect(body.threshold).toBe(0.35)
-    expect(body.sponsored.map((row) => row.id)).toEqual(['pago-1', 'pago-2'])
-    expect(body.organic.map((row) => row.id)).toEqual(['org-alta', 'org-media', 'tie-a', 'tie-b'])
+    expect(body.sponsored.map((row) => row.id).sort()).toEqual(['pago-1', 'pago-2'])
+    expect(body.organic.map((row) => row.id).sort()).toEqual(['org-alta', 'org-media', 'tie-a', 'tie-b'])
 
     for (const row of [...body.sponsored, ...body.organic]) {
       expect(row.embeddingState).toBe('READY')
@@ -174,13 +174,13 @@ describe('busca HTTP de ponta a ponta: rota → embedding injetado → SQL real 
     }
   })
 
-  it('adulto entra só com idade confirmada e empata com org-alta, saindo por id', async () => {
+  it('adulto entra só com idade confirmada sem mudar os demais elegíveis', async () => {
     const confirmed = await search(HOST_A, 'age=yes')
     const refused = await search(HOST_A, 'age=no')
 
     expect(embedding.calls).toEqual([QUERY, QUERY])
-    expect(confirmed.json().organic.map((row: Item) => row.id)).toEqual(['adulto', 'org-alta', 'org-media', 'tie-a', 'tie-b'])
-    expect(refused.json().organic.map((row: Item) => row.id)).toEqual(['org-alta', 'org-media', 'tie-a', 'tie-b'])
+    expect(confirmed.json().organic.map((row: Item) => row.id).sort()).toEqual(['adulto', 'org-alta', 'org-media', 'tie-a', 'tie-b'])
+    expect(refused.json().organic.map((row: Item) => row.id).sort()).toEqual(['org-alta', 'org-media', 'tie-a', 'tie-b'])
   })
 
   it('outro host só vê o próprio tenant', async () => {
