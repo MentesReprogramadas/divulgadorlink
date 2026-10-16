@@ -34,3 +34,9 @@ Até este registro, nenhum endpoint foi registrado, nenhuma migration foi criada
 ## Checks do lote preparatório
 
 Backend: lint, typecheck, suíte completa com **431 testes aprovados** e build, todos com exit code 0. Logs `backend-lint.log`, `backend-typecheck.log`, `backend-unit.log` e `backend-build.log` na pasta de evidências desta execução. Sem alteração de frontend; PG, E2E e CI da F12 ainda não executados.
+
+## Regressão de foco encontrada durante a preparação
+
+O commit preparatório `f9a611f` disparou o [CI 38963209066](https://github.com/MentesReprogramadas/divulgadorlink/actions/runs/38963209066). Verify, web e images passaram. O E2E teve 91 sucessos e uma falha em F04-E03 mobile: a confirmação de criação de coleção estava visível, mas não recebeu foco. A F12 ainda não registra endpoints ou páginas e não é exercitada por essa jornada.
+
+A investigação verificou o código de favoritos e a captura do CI. `requestAnimationFrame` não assegura que o commit do React já inseriu o texto de confirmação; o CSS oculta `.status:empty`. Um novo teste reproduziu a tentativa de foco com texto vazio. A correção em `FavoritesScreen` usa `useLayoutEffect` dependente da confirmação, focando depois da atualização do DOM. O teste de regressão passou sem remover a asserção de foco do Playwright ou aumentar timeouts. Frontend lint, typecheck, suíte completa com 197 testes e build passaram. A regressão completa Playwright está em execução local; o fechamento do CI permanece pendente. Evidências na mesma pasta da F12, com identificação explícita de que a correção pertence à F04.

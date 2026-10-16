@@ -1,0 +1,37 @@
+npm notice run divulgador-links-web@0.1.0 npx
+npm notice run vitest run src/features/favorites/favorites-screen.test.tsx
+
+ RUN  v5.0.3 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend
+
+ ❯ src/features/favorites/favorites-screen.test.tsx (1 test | 1 failed) 84ms
+   × F04-C01 foco de sucesso aguarda o texto ser renderizado, mesmo com frame antes do commit 83ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/favorites/favorites-screen.test.tsx > F04-C01 foco de sucesso aguarda o texto ser renderizado, mesmo com frame antes do commit
+AssertionError: expected [ '' ] to deeply equal [ 'Alteração salva.' ]
+
+- Expected
++ Received
+
+  [
+-   "Alteração salva.",
++   "",
+  ]
+
+ ❯ src/features/favorites/favorites-screen.test.tsx:28:29
+     26|   const status = await screen.findByText('Alteração salva.')
+     27|   await waitFor(() => expect(document.activeElement).toBe(status))
+     28|   expect(focusedStatusText).toEqual(['Alteração salva.'])
+       |                             ^
+     29|   expect(api.mock.calls.filter(([, init]) => init?.method === 'POST'))…
+     30| })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  17:41:35
+   Duration  892ms (environment 48%, import 24%, transform 16%, tests 11%)
+

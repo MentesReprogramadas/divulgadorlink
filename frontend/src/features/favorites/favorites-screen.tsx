@@ -1,5 +1,5 @@
 'use client'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { api } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Select } from '@/components/ui/input'
@@ -14,6 +14,7 @@ export function FavoritesScreen() {
   const [selected, setSelected] = useState(''), [target, setTarget] = useState(''), [detail, setDetail] = useState<CollectionDetail | null>(null)
   const [phase, setPhase] = useState<'loading' | 'ready' | 'denied' | 'error'>('loading'), [pending, setPending] = useState(false), [error, setError] = useState(''), [notice, setNotice] = useState(''), [confirmDelete, setConfirmDelete] = useState(false)
   const busy = useRef(false), status = useRef<HTMLParagraphElement>(null), revision = useRef(0)
+  useLayoutEffect(() => { if (notice) status.current?.focus() }, [notice])
   const request = useCallback(async <T,>(path: string, init?: RequestInit): Promise<T> => {
     const result = await api<T & { message?: string }>('/v1/me/' + path, init).catch(() => { throw new Error('Sem conexão. Seus dados foram mantidos; tente novamente.') })
     if ([401, 403].includes(result.status)) { setPhase('denied'); setFavorites({ items: [], nextCursor: null }); setCollections({ items: [], nextCursor: null }); setDetail(null) }
@@ -34,7 +35,7 @@ export function FavoritesScreen() {
       await request(path, { method, ...(body ? { body: JSON.stringify(body) } : {}) })
       if (method === 'DELETE' && path === 'collections/' + selected + '?expectedVersion=' + detail?.collection.version) { setSelected(''); setConfirmDelete(false) }
       else await refresh()
-      setNotice('Alteração salva.'); requestAnimationFrame(() => status.current?.focus())
+      setNotice('Alteração salva.')
     } catch (e) { const message = e instanceof Error ? e.message : 'Não foi possível salvar.'; setError(message); throw new Error(message) }
     finally { busy.current = false; setPending(false) }
   }
