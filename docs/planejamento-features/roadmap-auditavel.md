@@ -1,6 +1,6 @@
 # Roadmap auditável por etapa
 
-**Baseline inicial:** 14 de outubro de 2026. **Repriorização:** 15 de outubro de 2026, F42 em primeiro lugar. **Execução:** P0/F42 concluído em produção e validado, por autorização posterior. Continuação F01–F41 autorizada em branch separada; F01 concluída na branch; F06 concluída na branch e F07 em andamento. Ver [execução contínua](execucao-roadmap.md). Evidências em [execução F42](execucao-f42.md).
+**Baseline inicial:** 14 de outubro de 2026. **Repriorização:** 15 de outubro de 2026, F42 em primeiro lugar. **Execução:** P0/F42 concluído em produção e validado, por autorização posterior. Continuação F01–F41 autorizada em branch separada; F01 concluída na branch; F06 concluída na branch e F07 concluída na branch, com CI aprovado. Ver [execução contínua](execucao-roadmap.md). Evidências em [execução F42](execucao-f42.md).
 
 [Índice](README.md) · [Ordem](ordem-de-entrega.md) · [Decisões](decisoes.md) · [Qualidade](qualidade-e-testes.md) · [Ledger em CSV](roadmap-etapas.csv) · [Matriz AC](matriz-aceitacao.csv).
 
@@ -97,7 +97,7 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 | F07-S4 | CONCLUÍDA | F07-S3 | [Interface](planos/f07-disponibilidade.md#f07-s4-interface-composição-e-estados) |
 | F07-S5 | CONCLUÍDA | F07-S4 | [Integração e ACs](planos/f07-disponibilidade.md#f07-s5-integração-contrato-persistência-e-falhas) |
 | F07-S6 | CONCLUÍDA | F07-S5 | [Playwright e QA](planos/f07-disponibilidade.md#f07-s6-e2e-playwright-e-revisão-visual) |
-| F07-S7 | EM REVISÃO | F07-S6 | [Regressão e liberação](planos/f07-disponibilidade.md#f07-s7-regressão-rollout-e-fechamento-auditável) |
+| F07-S7 | CONCLUÍDA | F07-S6 | [Regressão e liberação](planos/f07-disponibilidade.md#f07-s7-regressão-rollout-e-fechamento-auditável) |
 
 ### 5 F02 Lembrete de renovação
 

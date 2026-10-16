@@ -12,7 +12,7 @@ Reaproveitar o cliente HTTP protegido, worker/fila existentes, autorização por
 
 Antes de alterar persistência, verificar contratos de capacidade, quotas, expiração, elegibilidade e o ledger financeiro de F01. A pausa precisa ter registro durável e não pode contabilizar tempo suspenso como consumo nem reativar promoções canceladas ou expiradas. Uma correção não pode publicar uma proposta antes da decisão nem reutilizar comprovação da URL anterior.
 
-Estado: implementação concluída; fechamento S7 depende dos resultados finais e do CI registrados abaixo. O usuário determinou encerrar o trabalho após F07; nenhuma feature seguinte será iniciada.
+Estado: F07 concluída na branch, S0–S7 verificados no commit e CI registrados abaixo. O usuário determinou encerrar o trabalho após F07; nenhuma feature seguinte será iniciada.
 
 ## Contratos técnicos concretizados
 
@@ -82,7 +82,7 @@ Rejeição de proposta preserva URL e saldo; repetição de decisão terminal re
 
 ## Validação final local e rastreabilidade
 
-Backend: lint e typecheck aprovados; **388 testes em 94 arquivos** e build aprovados. PostgreSQL/Redis reais: **92 testes em dez arquivos**, incluindo **20 casos F07**. Frontend: lint e typecheck aprovados; **169 testes em 48 arquivos** e build aprovado no setup E2E. A regressão Playwright completa passou **66 testes**, zero skips e zero retries, nos projetos desktop/mobile e setup real. O CI do commit permanece em fechamento. Não há retries automáticos ou skips novos.
+Backend: lint e typecheck aprovados; **388 testes em 94 arquivos** e build aprovados. PostgreSQL/Redis reais: **92 testes em dez arquivos**, incluindo **20 casos F07**. Frontend: lint e typecheck aprovados; **169 testes em 48 arquivos** e build aprovado no setup E2E. A regressão Playwright completa passou **66 testes**, zero skips e zero retries, nos projetos desktop/mobile e setup real. CI do commit aprovado, conforme registro abaixo. Não há retries automáticos ou skips novos.
 
 Mapeamento: AC01/T01 e AC02/T02 — classificador e PG de falhas transitórias/403; AC03/T03 — host compartilhado entre dois tenants e concessões; AC04/T04 — HTTP real contra IPv4/IPv6 privados, credenciais, DNS/redirect/pinning e transporte limitado; AC05/T05 — PG de aprovação/rejeição, quota, elegibilidade atual, cancelamento/expiração, pagamento durante pausa, auditoria, corrida de URL e E01/E03. Componentes C01/C02 cobrem persistência, duplicação, erro e privacidade; E02 confirma API/DOM privados. Testes estão em availability-monitor.spec.ts, paid-time.spec.ts, safe-fetch.spec.ts, pinned-connect.spec.ts, link-availability.pg.spec.ts, url-correction-form.test.tsx e link-availability.spec.ts.
 
@@ -93,3 +93,9 @@ Evidências em evidencias/F07/2026-10-15: logs vermelhos selecionados, resultado
 Monitor desligado por padrão. Nenhuma mudança de produção, main, Coolify ou envio real de WhatsApp/e-mail. Browser mobile emulado e reflow com texto a 200%; aparelho físico e zoom nativo não ensaiados. A disponibilidade HTTP não comprova vaga. Rollback após PAUSED exige build compatível, conforme seção anterior.
 
 Por solicitação posterior do usuário, encerrar após F07 e sua documentação. F02 e demais features não iniciadas.
+
+## Aceite final na branch
+
+Commit `9b64caffc540e310297ff38df1ff9ce4eda8fc40`, branch `codex/roadmap-features`. [CI 38840376754](https://github.com/MentesReprogramadas/divulgadorlink/actions/runs/38840376754) aprovado nos quatro jobs: verify (backend e PG), web, e2e e images. Execução local: 388 testes backend, 169 frontend, 92 PG e 66 Playwright; zero skips E2E. Evidência do CI em `evidencias/F07/2026-10-15/f07-ci-success.json`; resultados locais e imagens na mesma pasta. A atualização posterior é documental e não altera o código validado.
+
+S0–S7 e AC01–AC05 concluídos na branch; produção permanece fora do aceite. Monitor desabilitado por padrão. Trabalho encerrado nesta feature por solicitação do usuário.

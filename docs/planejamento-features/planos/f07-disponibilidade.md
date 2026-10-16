@@ -2,7 +2,7 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 4.
 
-**Estado:** IMPLEMENTADO NA BRANCH; S7 em fechamento de CI.
+**Estado:** CONCLUÍDO NA BRANCH; S0–S7 e CI aprovados.
 **Spec vinculante:** [F07](../specs/f07-disponibilidade.md).
 **Dependências:** G00, base existente.
 **Onda:** 1. Etapas rastreadas no [roadmap](../roadmap-auditavel.md) e na [matriz](../matriz-aceitacao.csv).
@@ -142,21 +142,21 @@ Esses nomes não são obrigação de criar arquivos vazios. Preferir ampliação
 **Saída auditável:** entrega revisada e comprovada, com plano de reversão e acompanhamento.
 
 - [x] Executar lint/typecheck/unit/build dos pacotes afetados e regressões descritas em qualidade; se compartilhado afeta catálogo/pagamentos/sessão/SEO, executar suas suítes.
-- [ ] Confirmar E2E e testes PG no CI real, não só local; salvar commit/run/contagens e conferir ausência de skip indevido.
+- [x] Confirmar E2E e testes PG no CI real, não só local; salvar commit/run/contagens e conferir ausência de skip indevido.
 - [x] Registrar observabilidade e indicador da fonte, sem novos payloads pessoais; risco a monitorar: Não reabrir estado UNAVAILABLE sem definir invariantes e testar regressão de pagamentos/moderação.
 - [x] Preparar rollout gradual pelo mecanismo de configuração aprovado; se flag nova, implementar parser/default/testes, sem presumir ConfigKey já pronto.
 - [x] Ensaiar reversão em ambiente descartável: desabilitar entrada nova, manter leituras compatíveis, preservar dados e usar migração compensatória revisada se necessário; nunca resetar banco para desfazer.
 - [x] Obter liberação concreta de deploy/cobrança/provisionamento somente quando a atividade futura pedir e conforme autorização vigente. Não publicar por este plano.
-- [ ] Preencher roadmap S0–S7 e matriz com responsável, commit, comando, exit code e evidência. Sem evidência, manter etapa pendente.
+- [x] Preencher roadmap S0–S7 e matriz com responsável, commit, comando, exit code e evidência. Sem evidência, manter etapa pendente.
 - [x] Atualizar decisões e documentação conforme implementação real sem inventar que hipótese virou regra.
 
 ## Check de saída da feature
 
-- [ ] F07-AC01, F07-AC02, F07-AC03, F07-AC04, F07-AC05 aprovados, com testes Tnn rastreados.
-- [ ] U/C/I/E e PG/Redis/manual exigidos aprovados.
-- [ ] Reuso e design revistos; nenhuma duplicação sem justificativa.
-- [ ] Contratos, dados, migração, retenção, rollback e segurança revisados.
-- [ ] Roadmap e evidências completos; aceitação final registrada.
+- [x] F07-AC01, F07-AC02, F07-AC03, F07-AC04, F07-AC05 aprovados, com testes Tnn rastreados.
+- [x] U/C/I/E e PG/Redis/manual exigidos aprovados.
+- [x] Reuso e design revistos; nenhuma duplicação sem justificativa.
+- [x] Contratos, dados, migração, retenção, rollback e segurança revisados.
+- [x] Roadmap e evidências completos; aceitação final registrada.
 
 **Registro de execução:** Codex; branch codex/roadmap-features. [Execução e evidências](../execucao-f07.md). Deploy não realizado. O usuário pediu encerrar após esta feature; F02 não iniciada.
 
@@ -164,3 +164,5 @@ Esses nomes não são obrigação de criar arquivos vazios. Preferir ampliação
 ## Ajustes de implementação e reuso
 
 A fila administrativa e seus endpoints são concretos, separados de F42. O monitor usa fila BullMQ dedicada no worker existente; a persistência nova concentra concessão, versão, throttle e journal, responsabilidades ausentes na base. Reutilizados safe-fetch, mailer/templates, autorização, auditoria, quota e controles locais. O guard puro assertCheckout foi extraído para domain/promotions/eligibility.ts e reexportado pelo módulo anterior, preservando seus consumidores. Revalidação da configuração de rede/categoria é protegida por locks no momento da aprovação. Comprovação de URL F28 permanece fora do escopo, conforme reconciliação da spec.
+
+Aceite final: commit `9b64caffc540e310297ff38df1ff9ce4eda8fc40`, CI 38840376754. Obter liberação de deploy é N/A nesta entrega: nenhuma implantação foi solicitada/executada. Detalhes e limites no registro de execução. A obrigação de comprovação de propriedade de URL depende de F28, como reconciliado na spec; não há prova existente na base a invalidar.

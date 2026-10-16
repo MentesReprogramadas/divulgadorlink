@@ -4,7 +4,7 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 4.
 
-**Estado:** IMPLEMENTADA NA BRANCH; fechamento de CI em registro de execução.
+**Estado:** CONCLUÍDA NA BRANCH; AC01–AC05 e CI aprovados, conforme registro de execução.
 **Onda:** 1. **Ordem:** 4.
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Acompanhamento de disponibilidade”.
 **Plano:** [F07 implementação](../planos/f07-disponibilidade.md).
