@@ -8,6 +8,7 @@ import { queueNewUser, queueCaseReview, queueTextReview, deliverOperationalMessa
 import { publishSubmission } from '@/use-cases/@Moderation/settle-submission'
 import { settleProposedText } from '@/use-cases/@Links/settle-proposed-text'
 import { PrismaCheckoutStore } from '@/use-cases/@Promotions/checkout-prisma'
+import { ConfirmGatewayPaymentUseCase } from '@/use-cases/@Payments/confirm-gateway-payment'
 
 const url = process.env.EVOLUTION_DATABASE_URL
 if (!url || !['localhost', '127.0.0.1'].includes(new URL(url).hostname)) throw new Error('EVOLUTION_DATABASE_URL deve apontar para PostgreSQL local descartável')
@@ -37,6 +38,37 @@ function decision(decision: 'APPROVE' | 'REJECT', messageId?: string) {
 }
 
 describe('F42 PostgreSQL decisão e outbox', () => {
+  it.each(['PIX', 'CARD'] as const)('confirma %s pelo gateway, persiste e entrega um único aviso com os dados do pedido', async method => {
+    const payer = await db.user.create({ data: { tenantId, name: 'Pagador fixture', passwordHash: 'not-a-real-password' } })
+    const row = await db.order.create({ data: { tenantId, linkId, userId: payer.id, status: 'PENDING_PAYMENT', method, productCode: 'SEARCH', durationDays: 7, amountCents: 1990, savingsCents: 0, gatewayChargeId: `charge-${tenantId}`, pixExpiresAt: new Date(Date.now() + 60000), surfaces: { create: { linkId, surface: 'SEARCH' } } } })
+    const store = new PrismaCheckoutStore(db)
+    let activated = 0
+    const useCase = new ConfirmGatewayPaymentUseCase({ findById: async id => (await store.findCommercial(id))?.order ?? null, save: order => store.saveOrder(order) }, { method, getCharge: async () => ({ status: 'PAID', paidAt: new Date() }), refund: async () => { throw new Error('Não deve estornar') } }, { activateFromPaidOrder: async () => { activated++ } }, { scheduleRetry: async () => { throw new Error('Não deve agendar estorno') } })
+    await useCase.execute({ orderId: row.id, eventId: 'paid-1' })
+    await useCase.execute({ orderId: row.id, eventId: 'paid-1' })
+    await useCase.execute({ orderId: row.id, eventId: 'paid-2' })
+    expect(activated).toBe(1)
+    const notices = await db.operationalMessage.findMany({ where: { tenantId, kind: 'PAYMENT_RECEIVED' } })
+    expect(notices).toHaveLength(1)
+    expect(notices[0]!.payload).toMatchObject({ ownerName: 'Pagador fixture', userId: payer.id, linkOwnerName: 'Admin fixture', name: 'Grupo teste', amountCents: 1990, method, gatewayChargeId: `charge-${tenantId}`, surfaces: ['SEARCH'], late: false })
+    const sent: string[] = []
+    const transport: typeof fetch = async (_url, init) => { sent.push(JSON.parse(String(init?.body)).text); return new Response(JSON.stringify({ key: { id: randomUUID() } })) }
+    await runEvolutionCycle(db, transport)
+    await runEvolutionCycle(db, transport)
+    expect(sent.filter(text => text.includes('PAGAMENTO RECEBIDO'))).toHaveLength(1)
+  })
+  it('não avisa pedido pendente e distingue Pix tardio sem prometer ativação', async () => {
+    const row = await db.order.create({ data: { tenantId, linkId, userId: adminId, status: 'PENDING_PAYMENT', method: 'PIX', productCode: 'SEARCH', durationDays: 7, amountCents: 100, savingsCents: 0 } })
+    const store = new PrismaCheckoutStore(db)
+    const commercial = await store.findCommercial(row.id)
+    await store.saveOrder(commercial!.order)
+    expect(await db.operationalMessage.count({ where: { tenantId, kind: 'PAYMENT_RECEIVED' } })).toBe(0)
+    await store.saveOrder({ ...commercial!.order, status: 'PAID_LATE' })
+    await store.saveOrder({ ...commercial!.order, status: 'PAID_LATE' })
+    const notices = await db.operationalMessage.findMany({ where: { tenantId, kind: 'PAYMENT_RECEIVED' } })
+    expect(notices).toHaveLength(1)
+    expect(notices[0]!.payload).toMatchObject({ late: true, amountCents: 100, method: 'PIX' })
+  })
   it('avisa cadastro e publicação automática uma única vez, com motivos auditados', async () => {
     await queueNewUser(db, 'other-tenant', adminId)
     await queueNewUser(db, tenantId, adminId)

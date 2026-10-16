@@ -347,6 +347,10 @@ describe('checkout no PostgreSQL', () => {
     expect(promotions).toHaveLength(1)
     expect(order?.status).toBe('PAID')
     expect(order?.tenantId).toBe(ids.tenantA)
+    const notices = await db.operationalMessage.findMany({ where: { resourceId: orderId, kind: 'PAYMENT_RECEIVED' } })
+    expect(notices).toHaveLength(1)
+    expect(notices[0]!.tenantId).toBe(ids.tenantA)
+    expect(notices[0]!.payload).toMatchObject({ amountCents: order!.amountCents, method: 'PIX', late: false, userId: ids.owner })
     expect(await db.promotion.count({ where: { linkId: 'pedido-nenhum' } })).toBe(0)
   })
 
@@ -364,6 +368,8 @@ describe('checkout no PostgreSQL', () => {
     expect(webhook.statusCode).toBe(200)
     const late = await db.order.findUnique({ where: { id: orderId } })
     expect(late?.status).toBe('PAID_LATE')
+    const notice = await db.operationalMessage.findFirstOrThrow({ where: { resourceId: orderId, kind: 'PAYMENT_RECEIVED' } })
+    expect(notice.payload).toMatchObject({ late: true, method: 'PIX' })
     expect(await db.promotion.count({ where: { linkId: 'link-tarde' } })).toBe(0)
     expect(getPaymentJobsForTest().filter((job) => job.name === 'refund-pix' && job.orderId === orderId)).toHaveLength(1)
     const orders: OrdersRepository = {

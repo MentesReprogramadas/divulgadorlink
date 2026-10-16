@@ -4,6 +4,14 @@ import { EvolutionDeliveryError, evolutionConnection, renderOperationalMessage, 
 
 const config = { baseUrl: 'https://evolution.example.com', instance: 'Test bot', group: 'fixture@g.us', apiKey: 'synthetic-secret' }
 describe('F42 contrato de entrega', () => {
+  it('mostra pagamento recebido com usuário, link e pedido sem dados bancários ou segredos', () => {
+    const render = (late = false) => renderOperationalMessage({ id: 'notice', resourceId: 'order-1', kind: 'PAYMENT_RECEIVED', payload: { ownerName: 'Ana', userId: 'user-1', linkOwnerName: 'Maria', name: 'Grupo', canonicalUrl: 'https://example.test/grupo', amountCents: 1990, method: 'PIX', gatewayChargeId: 'charge-1', productCode: 'SEARCH', durationDays: 7, surfaces: ['SEARCH'], renewal: true, confirmedAt: '2026-10-16T18:30:00.000Z', late, brCode: 'private-pix', email: 'private@example.test', clientSecret: 'private-secret' } }, 'secret', 'https://tenant.test')
+    const text = render()
+    for (const value of ['PAGAMENTO RECEBIDO', '*Usuário*\nAna', 'https://example.test/grupo', '19,90', 'Forma: Pix', 'Transação: charge-1', 'order-1', 'Produto: Busca', 'Duração: 7 dias', 'Superfícies: Busca', 'Renovação', 'Usuário: user-1', 'Responsável pelo link: Maria', '16/10/2026', '15:30:00', '/admin/visao']) expect(text).toContain(value)
+    for (const value of ['private-pix', 'private@example.test', 'private-secret', 'Responda:', 'destaque ativado']) expect(text).not.toContain(value)
+    expect(render(true)).toContain('O destaque não foi ativado')
+    expect(render(true)).toContain('fluxo de estorno')
+  })
   it('avisa cadastro sem contatos e aprovação automática com justificativa e limites', () => {
     const render = (kind: string, payload: Prisma.JsonObject) => renderOperationalMessage({ id: 'notice', kind, payload }, 'secret', 'https://tenant.test')
     const user = render('NEW_USER', { ownerName: 'Ana', email: 'private@example.test', phone: '5511999999999', passwordHash: 'private-hash' })

@@ -108,6 +108,17 @@ export function renderOperationalMessage(event: Pick<OperationalMessage, 'id' | 
     p.niche || p.network ? `*Classificação*\nCategoria: ${safeText(String(p.niche ?? '—'), 100)}\nRede: ${safeText(String(p.network ?? '—'), 100)}` : '',
     p.note ? `*Observação*\n${safeText(String(p.note), 200)}` : '',
   ].filter(Boolean)
+  if (event.kind === 'PAYMENT_RECEIVED') {
+    const surfaces: Record<string, string> = { HOME: 'Página inicial', SEARCH: 'Busca', NICHE: 'Categoria' }
+    const products: Record<string, string> = { HOME: 'Página inicial', SEARCH: 'Busca', NICHE: 'Categoria', SEARCH_NICHE: 'Busca + Categoria', SEARCH_NICHE_HOME: 'Busca + Categoria + Página inicial' }
+    const confirmed = typeof p.confirmedAt === 'string' ? new Date(p.confirmedAt) : null
+    return ['💰 *PAGAMENTO RECEBIDO*', ...details,
+      ['*Pagamento*', typeof p.amountCents === 'number' && Number.isSafeInteger(p.amountCents) && p.amountCents >= 0 ? `Valor: ${(p.amountCents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}` : '', `Forma: ${p.method === 'PIX' ? 'Pix' : p.method === 'CARD' ? 'Cartão' : 'Não informada'}`, confirmed && Number.isFinite(confirmed.getTime()) ? `Confirmação registrada: ${confirmed.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })} (Brasília)` : '', p.gatewayChargeId ? `Transação: ${safeText(String(p.gatewayChargeId), 200)}` : ''].filter(Boolean).join('\n'),
+      ['*Pedido*', safeText(event.resourceId ?? event.id, 100), p.productCode ? `Produto: ${products[String(p.productCode)] ?? safeText(String(p.productCode), 60)}` : '', typeof p.durationDays === 'number' ? `Duração: ${p.durationDays} dias` : '', Array.isArray(p.surfaces) && p.surfaces.length ? `Superfícies: ${p.surfaces.map(surface => surfaces[String(surface)] ?? safeText(String(surface), 60)).join(', ')}` : '', p.renewal === true ? 'Renovação' : 'Nova compra', p.userId ? `Usuário: ${safeText(String(p.userId), 100)}` : '', p.linkOwnerName ? `Responsável pelo link: ${safeText(String(p.linkOwnerName), 100)}` : ''].filter(Boolean).join('\n'),
+      `*Situação*\n${p.late === true ? 'Pagamento recebido após o prazo. O destaque não foi ativado; o pedido segue o fluxo de estorno.' : 'Recebimento confirmado. A ativação do destaque segue as regras do pedido.'}`,
+      `*Painel*\n${origin.replace(/\/$/, '')}/admin/visao`,
+    ].join('\n\n')
+  }
   if (event.kind === 'NEW_USER') return ['👤 *NOVO USUÁRIO*', ...details, '*Cadastro*\nConta criada; a confirmação dos contatos é uma etapa separada.', `*Painel*\n${origin.replace(/\/$/, '')}/admin/usuarios`].join('\n\n')
   if (event.kind === 'AI_APPROVED') {
     const reasons = Array.isArray(p.reasons) ? p.reasons.filter((reason): reason is string => typeof reason === 'string').map(reason => safeText(reason, 240)).filter(Boolean).slice(0, 5) : []
