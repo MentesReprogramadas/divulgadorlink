@@ -19,6 +19,7 @@ import { health, live, ready } from '@/http/controllers/@Health/health'
 import { isActuatorProbe } from '@/observability/hyperdx-config'
 import { logDomainEvent } from '@/observability/logger'
 import { registerEvolutionRoutes } from '@/http/controllers/@Integrations/evolution'
+import { linkReportRoutes } from '@/http/controllers/@Moderation/reports'
 
 function observeServerError(error: unknown, requestId: string, status: number): void {
   const asError = error instanceof Error ? error : new Error('Internal server error')
@@ -113,6 +114,7 @@ app.register(
     await instance.register(paymentWebhookRoutes)
     await instance.register(adminRoutes)
     await instance.register(registerEvolutionRoutes)
+    await instance.register(linkReportRoutes)
   },
   { prefix },
 )

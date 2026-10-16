@@ -1,0 +1,22 @@
+.page, .queue { display: grid; gap: var(--space-6); min-width: 0; }
+.page header h2, .page header p, .queue h2, .card h3 { margin: 0; }
+.page header p { margin-top: var(--space-2); overflow-wrap: anywhere; }
+.form { max-width: 680px; display: grid; gap: var(--space-4); }
+.fields { display: grid; gap: var(--space-4); }
+.form button { justify-self: start; }
+.note, .meta { color: var(--text-secondary); line-height: 1.6; font-size: .875rem; }
+.receipt { border: 1px solid var(--border-default); border-left: 4px solid var(--status-success-text); padding: var(--space-6); overflow-wrap: anywhere; }
+.filters { display: grid; grid-template-columns: 1fr 1fr auto; gap: var(--space-4); align-items: end; }
+.filters select { width: 100%; min-width: 0; margin-bottom: 0; }
+.filters > * { min-width: 0; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); }
+.card { display: grid; gap: var(--space-4); border: 1px solid var(--border-default); border-radius: var(--radius); padding: var(--space-6); background: var(--surface-raised); min-width: 0; overflow-wrap: anywhere; }
+.card p { margin: 0; }
+.card h3 { font-size: 1.125rem; }
+.context { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); }
+.comment { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; border-left: 2px solid var(--border-default); padding-left: var(--space-4); line-height: 1.6; }
+.decision { display: grid; gap: var(--space-3); max-width: 760px; border-top: 1px solid var(--border-default); padding-top: var(--space-4); }
+.decision button { justify-self: start; }
+.history summary { cursor: pointer; font-weight: 600; padding-block: var(--space-2); }
+.history li { margin-block: var(--space-3); line-height: 1.6; }
+@media (max-width: 700px) { .filters { grid-template-columns: 1fr; } .card { padding: var(--space-4); } }

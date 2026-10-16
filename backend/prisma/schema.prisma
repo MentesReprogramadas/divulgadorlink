@@ -89,6 +89,7 @@ model Tenant {
   evolutionOperators EvolutionOperator[]
   @@map("tenants")
   promotionInvestments PromotionInvestment[]
+  linkReports LinkReport[]
 
 }
 
@@ -286,6 +287,8 @@ model Link {
   promotions      Promotion[]
   embeddingJobs   EmbeddingJob[]
   orders          Order[]
+  reports         LinkReport[]
+  @@unique([id, tenantId])
   @@index([tenantId, ownerId, status])
   @@index([tenantId, status, id])
   @@map("links")
@@ -590,4 +593,42 @@ model PromotionInvestment {
   @@unique([orderId, surface])
   @@index([tenantId, promotionId, startsAt, endsAt])
   @@map("promotion_investments")
+}
+
+enum ReportReason {
+  EXPIRED_INVITE
+  UNAVAILABLE_DESTINATION
+  SPAM
+  INAPPROPRIATE_CONTENT
+}
+enum ReportKind {
+  AVAILABILITY
+  CONTENT
+}
+enum ReportStatus {
+  RECEIVED
+  IN_REVIEW
+  RESOLVED
+}
+model LinkReport {
+  id String @id @default(cuid())
+  tenantId String
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  linkId String
+  link Link @relation(fields: [linkId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  reporterKey String @db.VarChar(64)
+  reason ReportReason
+  kind ReportKind
+  comment String @default("") @db.VarChar(500)
+  status ReportStatus @default(RECEIVED)
+  version Int @default(1)
+  decisionReason String? @db.VarChar(500)
+  resolvedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([tenantId, reporterKey, createdAt])
+  @@index([tenantId, linkId, reporterKey, reason, createdAt], map: "link_reports_dedup_idx")
+  @@index([tenantId, status, kind, createdAt, id])
+  @@index([tenantId, createdAt, id])
+  @@map("link_reports")
 }

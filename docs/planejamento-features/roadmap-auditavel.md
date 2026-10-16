@@ -1,6 +1,6 @@
 # Roadmap auditável por etapa
 
-**Baseline inicial:** 14 de outubro de 2026. **Repriorização:** 15 de outubro de 2026, F42 em primeiro lugar. **Execução:** P0/F42 concluído em produção e validado, por autorização posterior. Continuação F01–F41 autorizada em branch separada; F01 em andamento. Ver [execução contínua](execucao-roadmap.md). Evidências em [execução F42](execucao-f42.md).
+**Baseline inicial:** 14 de outubro de 2026. **Repriorização:** 15 de outubro de 2026, F42 em primeiro lugar. **Execução:** P0/F42 concluído em produção e validado, por autorização posterior. Continuação F01–F41 autorizada em branch separada; F01 concluída na branch; F06 em revisão e F07 em andamento. Ver [execução contínua](execucao-roadmap.md). Evidências em [execução F42](execucao-f42.md).
 
 [Índice](README.md) · [Ordem](ordem-de-entrega.md) · [Decisões](decisoes.md) · [Qualidade](qualidade-e-testes.md) · [Ledger em CSV](roadmap-etapas.csv) · [Matriz AC](matriz-aceitacao.csv).
 
@@ -67,7 +67,7 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 | F01-S4 | CONCLUÍDA | F01-S3 | CONCLUÍDA |
 | F01-S5 | CONCLUÍDA | F01-S4 | CONCLUÍDA |
 | F01-S6 | CONCLUÍDA | F01-S5 | CONCLUÍDA |
-| F01-S7 | EM REVISÃO | F01-S6 | CONCLUÍDA |
+| F01-S7 | CONCLUÍDA | F01-S6 | CONCLUÍDA |
 
 ### 3 F06 Denunciar um link
 
@@ -75,14 +75,14 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 
 | Etapa | Estado | Pré-requisito imediato | Entregável a verificar |
 | --- | --- | --- | --- |
-| F06-S0 | NÃO INICIADA | F42 (prioridade), G00 | [Escopo contratos e reuso](planos/f06-denuncias.md#f06-s0-escopo-contratos-e-revisão-de-reutilização) |
-| F06-S1 | NÃO INICIADA | F06-S0 | [Testes U e C](planos/f06-denuncias.md#f06-s1-testes-unitários-e-componentes-antes-da-regra) |
-| F06-S2 | NÃO INICIADA | F06-S1 | [Dados e migração](planos/f06-denuncias.md#f06-s2-dados-invariantes-e-migração) |
-| F06-S3 | NÃO INICIADA | F06-S2 | [Domínio API e jobs](planos/f06-denuncias.md#f06-s3-regra-de-negócio-api-e-jobs) |
-| F06-S4 | NÃO INICIADA | F06-S3 | [Interface](planos/f06-denuncias.md#f06-s4-interface-composição-e-estados) |
-| F06-S5 | NÃO INICIADA | F06-S4 | [Integração e ACs](planos/f06-denuncias.md#f06-s5-integração-contrato-persistência-e-falhas) |
-| F06-S6 | NÃO INICIADA | F06-S5 | [Playwright e QA](planos/f06-denuncias.md#f06-s6-e2e-playwright-e-revisão-visual) |
-| F06-S7 | NÃO INICIADA | F06-S6 | [Regressão e liberação](planos/f06-denuncias.md#f06-s7-regressão-rollout-e-fechamento-auditável) |
+| F06-S0 | CONCLUÍDA | F42 (prioridade), G00 | [Escopo contratos e reuso](planos/f06-denuncias.md#f06-s0-escopo-contratos-e-revisão-de-reutilização) |
+| F06-S1 | CONCLUÍDA | F06-S0 | [Testes U e C](planos/f06-denuncias.md#f06-s1-testes-unitários-e-componentes-antes-da-regra) |
+| F06-S2 | CONCLUÍDA | F06-S1 | [Dados e migração](planos/f06-denuncias.md#f06-s2-dados-invariantes-e-migração) |
+| F06-S3 | CONCLUÍDA | F06-S2 | [Domínio API e jobs](planos/f06-denuncias.md#f06-s3-regra-de-negócio-api-e-jobs) |
+| F06-S4 | CONCLUÍDA | F06-S3 | [Interface](planos/f06-denuncias.md#f06-s4-interface-composição-e-estados) |
+| F06-S5 | CONCLUÍDA | F06-S4 | [Integração e ACs](planos/f06-denuncias.md#f06-s5-integração-contrato-persistência-e-falhas) |
+| F06-S6 | CONCLUÍDA | F06-S5 | [Playwright e QA](planos/f06-denuncias.md#f06-s6-e2e-playwright-e-revisão-visual) |
+| F06-S7 | EM REVISÃO | F06-S6 | [Regressão e liberação](planos/f06-denuncias.md#f06-s7-regressão-rollout-e-fechamento-auditável) |
 
 ### 4 F07 Acompanhamento de disponibilidade
 

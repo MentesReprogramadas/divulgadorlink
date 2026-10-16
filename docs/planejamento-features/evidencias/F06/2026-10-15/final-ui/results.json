@@ -1,0 +1,400 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\ferna\\.codex\\worktrees\\roadmap-features\\divulgadorlinks\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "link-reports",
+      "--project=features",
+      "--project=features-mobile"
+    ],
+    "configFile": "C:\\Users\\ferna\\.codex\\worktrees\\roadmap-features\\divulgadorlinks\\frontend\\playwright.config.ts",
+    "rootDir": "C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\Users\\ferna\\.codex\\worktrees\\roadmap-features\\divulgadorlinks\\frontend\\e2e\\global-setup.ts",
+    "globalTeardown": "C:\\Users\\ferna\\.codex\\worktrees\\roadmap-features\\divulgadorlinks\\frontend\\e2e\\global-teardown.ts",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "setup",
+        "name": "setup",
+        "testDir": "C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs"
+        ],
+        "testMatch": [
+          "/auth\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features",
+        "name": "features",
+        "testDir": "C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs"
+        ],
+        "testMatch": [
+          "/evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features-mobile",
+        "name": "features-mobile",
+        "testDir": "C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs"
+        ],
+        "testMatch": [
+          "/evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "catalog",
+        "name": "catalog",
+        "testDir": "C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs"
+        ],
+        "testMatch": [
+          "/catalog\\.spec\\.ts|mail\\.spec\\.ts|advertise\\.spec\\.ts|legal\\.spec\\.ts|funnel\\.spec\\.ts|signup\\.spec\\.ts|submit-link\\.spec\\.ts|security-headers\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "auth.setup.ts",
+      "file": "auth.setup.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "sessão da Bia para os testes do painel",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "setup",
+              "projectName": "setup",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 393,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-16T01:17:08.610Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "17e3fe6f4d9d8bd79c6b-40367c7f5b2a9e9ad033",
+          "file": "auth.setup.ts",
+          "line": 8,
+          "column": 6
+        }
+      ]
+    },
+    {
+      "title": "link-reports.spec.ts",
+      "file": "link-reports.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F06-E01/T02/T03/T05 detalhe público, login com retorno, triagem e histórico persistido",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3003,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-16T01:17:09.463Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c68aa6aa0af42fdd7a76-5d89feb9292cc4ad36e0",
+          "file": "link-reports.spec.ts",
+          "line": 35,
+          "column": 5
+        },
+        {
+          "title": "F06-E02 fila e comentários privados não vazam no detalhe, DTO público ou acesso direto",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 650,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-16T01:17:12.573Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c68aa6aa0af42fdd7a76-796a72b6d270194f2d66",
+          "file": "link-reports.spec.ts",
+          "line": 87,
+          "column": 5
+        },
+        {
+          "title": "F06-E03 envio e decisão recuperam rede real, preservam texto e funcionam por teclado",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3145,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-16T01:17:13.230Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c68aa6aa0af42fdd7a76-edfc6cfb1e9342002e34",
+          "file": "link-reports.spec.ts",
+          "line": 107,
+          "column": 5
+        },
+        {
+          "title": "F06-E01/T02/T03/T05 detalhe público, login com retorno, triagem e histórico persistido",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4903,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-16T01:17:16.951Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c68aa6aa0af42fdd7a76-5bb119fca02ca6d269bd",
+          "file": "link-reports.spec.ts",
+          "line": 35,
+          "column": 5
+        },
+        {
+          "title": "F06-E02 fila e comentários privados não vazam no detalhe, DTO público ou acesso direto",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 729,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-16T01:17:22.229Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c68aa6aa0af42fdd7a76-8e6641a5a060bc91725d",
+          "file": "link-reports.spec.ts",
+          "line": 87,
+          "column": 5
+        },
+        {
+          "title": "F06-E03 envio e decisão recuperam rede real, preservam texto e funcionam por teclado",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5330,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-16T01:17:22.964Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c68aa6aa0af42fdd7a76-6d3a91ee7dfa5f172607",
+          "file": "link-reports.spec.ts",
+          "line": 107,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-16T01:16:30.759Z",
+    "duration": 65381.804000000004,
+    "expected": 7,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

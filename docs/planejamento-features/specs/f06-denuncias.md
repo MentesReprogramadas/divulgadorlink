@@ -2,10 +2,10 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 3.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
+**Estado:** IMPLEMENTADA NA BRANCH; CI em revisão. Contratos e D07 concretizados em [execução](../execucao-f06.md).
 **Onda:** 1. **Ordem:** 3.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Denunciar um link”.  
-**Plano:** [F06 implementação](../planos/f06-denuncias.md).  
+**Plano:** [F06 implementação](../planos/f06-denuncias.md).
 **Dependências obrigatórias:** G00; base atual, sem outra feature nova.  
 **Governança:** [arquitetura](../arquitetura-e-reuso.md), [testes](../qualidade-e-testes.md), [decisões](../decisoes.md), [roadmap](../roadmap-auditavel.md).
 
@@ -144,3 +144,5 @@ Sem resolução das decisões bloqueantes e dependências concluídas, a feature
 
 **Indicadores:** tempo de resolução e proporção de denúncias confirmadas.
 
+
+D07 resolvida: conta ativa autenticada; dez novas denúncias por conta/tenant/24h; deduplicação de motivo/link na janela; retenção conforme auditoria/moderação existente. Sem denúncia anônima anunciada.

@@ -102,6 +102,7 @@ export default async function Page({
         <LinkMeta niche={link.niche} network={link.network} />
         <Impression linkId={id} surfaceToken={token} />
         <a className="detail-access" href={href}>Acessar</a>
+        <p><a href={'/painel/denunciar/' + encodeURIComponent(id)}>Denunciar um link</a></p>
       </AgeWall>
     </main>
   )

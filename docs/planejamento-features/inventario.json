@@ -206,7 +206,8 @@
         "F01-S7"
       ],
       "priorityGate": "F42",
-      "execution": "IN_PROGRESS"
+      "execution": "COMPLETE_ON_BRANCH",
+      "executionEvidence": "execucao-f01.md"
     },
     {
       "id": "F06",
@@ -254,7 +255,8 @@
         "F06-S7"
       ],
       "priorityGate": "F42",
-      "execution": "NOT_STARTED"
+      "execution": "IN_REVIEW",
+      "executionEvidence": "execucao-f06.md"
     },
     {
       "id": "F07",
@@ -302,7 +304,8 @@
         "F07-S7"
       ],
       "priorityGate": "F42",
-      "execution": "NOT_STARTED"
+      "execution": "IN_PROGRESS",
+      "executionEvidence": "execucao-f07.md"
     },
     {
       "id": "F02",

@@ -49,6 +49,8 @@ Correção delimitada: inicializar o mesmo cookie operacional `analyticsSession`
 
 ## Migração, rollout e reversão
 
+S7 fechado **na branch**, sem implantação: o commit `d9dbffd` passou em todos os jobs do [CI 38832840220](https://github.com/MentesReprogramadas/divulgadorlink/actions/runs/38832840220), incluindo 54 E2E. O CI anterior com a corrida de sessão permanece registrado acima como falha; esse resultado não foi reclassificado. Log de sucesso preservado nas evidências. A autorização de continuidade permite avançar para F06 e F07 sem publicar na main.
+
 Migrations aditivas `20261016090000_promotion_investments` e `20261016090100_performance_query_index`; ambas instaladas em bancos descartáveis. Ordens/promoções antigas continuam legíveis, sem ledger artificial. A tabela não acrescenta contatos ou identificadores de visitantes; mantém referências financeiras existentes. Retenção de analytics inalterada; ledger acompanha a conservação dos pedidos, sem novo prazo inventado.
 
 Antes de produção: medir volume/tempo e locks do índice em ambiente representativo, aplicar schema antes do código e verificar readiness, ativação/renovação e leitura. Não há autorização de deploy nesta execução. Em reversão, restaurar a aplicação anterior e conservar tabela/índice e todos os vínculos já gravados; não executar DROP ou apagar investimento. Novas ativações pela versão anterior ficarão sem vínculo e serão mostradas como cobertura financeira indisponível ao retornar à versão nova.

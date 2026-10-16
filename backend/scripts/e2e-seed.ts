@@ -1,3 +1,4 @@
+import { seedReports } from './e2e-reports-seed'
 import { seedPerformance } from './e2e-performance-seed'
 import { writeFileSync } from 'node:fs'
 import path from 'node:path'
@@ -138,7 +139,13 @@ async function main() {
   await user({ tenantId: evolution.tenant.id, name: 'Admin fixture', email: 'admin@evolution.test', phone: '5511911120002', role: 'ADMIN', confirmed: true })
   const evolutionLink = await link({ tenantId: evolution.tenant.id, ownerId: evolutionOwner.id, networkId: evolution.network.id, nicheId: evolution.niche.id, name: 'Referência fixture', description: 'Comunidade de estudo', url: 'https://example.com/evolution-fixture', status: 'PUBLISHED' })
   const performance = await seedPerformance(prisma, { tenantId: evolution.tenant.id, ownerId: evolutionOwner.id, networkId: evolution.network.id, nicheId: evolution.niche.id })
+  const reportsTenant = await tenantBundle('reports.localhost', 'Reports fixture')
+  const reportOwner = await user({ tenantId: reportsTenant.tenant.id, name: 'Responsavel', email: 'owner@reports.test', phone: '5511911130001', confirmed: true })
+  await user({ tenantId: reportsTenant.tenant.id, name: 'Visitante', email: 'reader@reports.test', phone: '5511911130002', confirmed: true })
+  const reportAdmin = await user({ tenantId: reportsTenant.tenant.id, name: 'Admin', email: 'admin@reports.test', phone: '5511911130003', role: 'ADMIN', confirmed: true })
+  const reports = await seedReports(prisma, { tenantId: reportsTenant.tenant.id, ownerId: reportOwner.id, networkId: reportsTenant.network.id, nicheId: reportsTenant.niche.id, adminId: reportAdmin.id })
   const state = {
+    reports: { ...reports, tenantId: reportsTenant.tenant.id, reader: 'reader@reports.test', admin: 'admin@reports.test', password: 'Senha-e2e-1' },
     performance,
     evolution: { tenantA: evolution.tenant.id, receitas: evolutionLink.id, password: 'Senha-e2e-1', bia: 'owner@evolution.test', eva: 'submitter@evolution.test', admin: 'admin@evolution.test' },
     tenantA: a.tenant.id,

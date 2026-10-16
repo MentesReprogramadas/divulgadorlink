@@ -1,0 +1,6 @@
+PASS legacy link unchanged after additive F06 migrations.
+PASS database rejects mismatched reason/kind.
+PASS history retained for application rollback.
+Synthetic query plan on 10001 rows after ANALYZE, without forcing index selection:
+Index Scan using "link_reports_tenantId_reporterKey_createdAt_idx" on link_reports  (cost=0.41..8.44 rows=1 width=15)
+  Index Cond: (("tenantId" = 'legacy-proof'::text) AND (("reporterKey")::text = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'::text) AND ("createdAt" > (now() - '24:00:00'::interval)))

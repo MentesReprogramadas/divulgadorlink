@@ -1,0 +1,33 @@
+npm notice run divulgador-links-web@0.1.0 npx
+npm notice run vitest run src/domain/panel-gate.test.ts
+
+ RUN  v5.0.3 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend
+
+ ❯ src/domain/panel-gate.test.ts (3 tests | 1 failed) 5ms
+   ❯ porta do painel (3)
+     × F06 retoma a denúncia após entrar, preservando verificação e suspensão 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/domain/panel-gate.test.ts > porta do painel > F06 retoma a denúncia após entrar, preservando verificação e suspensão
+AssertionError: expected '/painel' to be '/painel/denunciar/link-1' // Object.is equality
+
+Expected: "/painel/denunciar/link-1"
+Received: "/painel"
+
+ ❯ src/domain/panel-gate.test.ts:10:67
+      8| describe('porta do painel', () => {
+      9|   it('F06 retoma a denúncia após entrar, preservando verificação e sus…
+     10|     expect(afterAuth(true, 'ACTIVE', '/painel/denunciar/link-1')).toBe…
+       |                                                                   ^
+     11|     expect(afterAuth(false, 'ACTIVE', '/painel/denunciar/link-1')).toB…
+     12|     expect(afterAuth(true, 'BANNED', '/painel/denunciar/link-1')).toBe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  21:50:49
+   Duration  651ms (environment 92%, transform 5%, import 2%, tests 1%, worker 1%)
+

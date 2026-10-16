@@ -1,0 +1,48 @@
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run vitest run src/domain/moderation/report.spec.ts
+
+ RUN  v5.0.2 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/backend
+
+ ❯ src/domain/moderation/report.spec.ts (3 tests | 3 failed) 3ms
+   ❯ F06 denúncias (3)
+     × F06-U01/T04 enumera motivos e separa disponibilidade de conteúdo 2ms
+     × F06-U02/T01 neutraliza repetição antes de consumir limite e expira a janela 0ms
+     × F06-U04/T03 preserva terminalidade, versão e justificativa 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/domain/moderation/report.spec.ts > F06 denúncias > F06-U01/T04 enumera motivos e separa disponibilidade de conteúdo
+Error: pending
+ ❯ reportReason src/domain/moderation/report.ts:5:68
+      3| export const REPORT_WINDOW_MS = 24 * 60 * 60 * 1000
+      4| export const REPORT_DAILY_LIMIT = 10
+      5| export function reportReason(_value: string): ReportReason { throw new…
+       |                                                                    ^
+      6| export function reportKind(_reason: ReportReason): 'AVAILABILITY' | 'C…
+      7| export function intakeReport(_existingAt: Date | null, _recentCount: n…
+ ❯ src/domain/moderation/report.spec.ts:7:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/domain/moderation/report.spec.ts > F06 denúncias > F06-U02/T01 neutraliza repetição antes de consumir limite e expira a janela
+Error: pending
+ ❯ intakeReport src/domain/moderation/report.ts:7:134
+
+ ❯ src/domain/moderation/report.spec.ts:15:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/domain/moderation/report.spec.ts > F06 denúncias > F06-U04/T03 preserva terminalidade, versão e justificativa
+Error: pending
+ ❯ decideReport src/domain/moderation/report.ts:8:209
+
+ ❯ src/domain/moderation/report.spec.ts:22:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  21:36:42
+   Duration  177ms (transform 58%, import 23%, worker 9%, tests 9%, environment 1%)
+

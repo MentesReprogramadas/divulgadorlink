@@ -6,6 +6,12 @@ const pending = { status: 'ACTIVE', canSubmit: false }
 const banned = { status: 'BANNED', canSubmit: false }
 
 describe('porta do painel', () => {
+  it('F06 retoma a denúncia após entrar, preservando verificação e suspensão', () => {
+    expect(afterAuth(true, 'ACTIVE', '/painel/denunciar/link-1')).toBe('/painel/denunciar/link-1')
+    expect(afterAuth(false, 'ACTIVE', '/painel/denunciar/link-1')).toBe('/painel/verificar')
+    expect(afterAuth(true, 'BANNED', '/painel/denunciar/link-1')).toBe('/painel')
+    for (const target of ['https://evil.test', '//evil.test', '/painel/denunciar/../admin', '/admin', '/painel/denunciar/%2f%2fevil.test']) expect(afterAuth(true, 'ACTIVE', target)).toBe('/painel')
+  })
   it('manda quem não confirmou o e-mail para a tela de verificar', () => {
     expect(panelGate(pending, '/painel')).toBe('redirect-verify')
     expect(panelGate(pending, '/painel/links/novo')).toBe('redirect-verify')

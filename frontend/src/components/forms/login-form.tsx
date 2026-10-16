@@ -7,7 +7,7 @@ import { afterAuth } from '@/domain/panel-gate'
 import { writeSession } from '@/domain/session'
 import { api } from '@/lib/api'
 
-export function LoginForm() {
+export function LoginForm({ returnTo }: { returnTo?: string } = {}) {
   const [error, setError] = useState('')
   const [pending, setPending] = useState(false)
 
@@ -34,7 +34,7 @@ export function LoginForm() {
         canSubmit: Boolean(result.body.canSubmit),
         ...(reason ? { banReason: reason } : {}),
       })
-      window.location.assign(afterAuth(Boolean(result.body.canSubmit), status))
+      window.location.assign(afterAuth(Boolean(result.body.canSubmit), status, returnTo))
     } catch {
       setError('Não foi possível conectar. Verifique sua conexão e tente novamente.')
     } finally {

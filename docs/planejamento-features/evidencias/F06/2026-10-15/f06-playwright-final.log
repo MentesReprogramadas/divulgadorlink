@@ -1,0 +1,115 @@
+npm notice run divulgador-links-web@0.1.0 test:e2e
+npm notice run playwright test link-reports --project=features --project=features-mobile
+dc49584f5e567a34f2cad82736b187601b4a8500deb0dcd9bd761d18baaf5ed6
+a35848c4b63d6d84ea5db5fd55cc0fc13b76072ca6302d174f1aa66ceaf10ba3
+npm warn Unknown env config "global-ignore-file". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": PostgreSQL database "divulgador", schema "public" at "127.0.0.1:5533"
+
+26 migrations found in prisma/migrations
+
+Applying migration `20260929191730_tenant_user_identifiers`
+Applying migration `20260929200000_verification_code_binds_identifier`
+Applying migration `20260929210000_prices_networks_niches_config`
+Applying migration `20260929220000_links_and_blocklist`
+Applying migration `20260929230000_moderation_cases`
+Applying migration `20260929231000_link_ever_published`
+Applying migration `20260929232000_link_embedding`
+Applying migration `20260929233000_submission_outbox_ban`
+Applying migration `20260929234000_orders_payments`
+Applying migration `20260929235000_analytics_events`
+Applying migration `20260930140000_order_br_code_and_catalog_indexes`
+Applying migration `20260930180000_analytics_link_totals_index`
+Applying migration `20261002140000_promotion_offers`
+Applying migration `20261002153000_adult_networks`
+Applying migration `20261005193000_one_open_moderation_case`
+Applying migration `20261006120000_facet_summary`
+Applying migration `20261009120000_acquisition_funnel`
+Applying migration `20261010120000_site_traffic`
+Applying migration `20261010150000_order_finance`
+Applying migration `20261015140000_evolution_operations`
+Applying migration `20261015153000_evolution_quoted_review`
+Applying migration `20261015180000_admin_promotions`
+Applying migration `20261016090000_promotion_investments`
+Applying migration `20261016090100_performance_query_index`
+Applying migration `20261016100000_link_reports`
+Applying migration `20261016100100_report_key_comparison`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20260929191730_tenant_user_identifiers/
+    └─ migration.sql
+  └─ 20260929200000_verification_code_binds_identifier/
+    └─ migration.sql
+  └─ 20260929210000_prices_networks_niches_config/
+    └─ migration.sql
+  └─ 20260929220000_links_and_blocklist/
+    └─ migration.sql
+  └─ 20260929230000_moderation_cases/
+    └─ migration.sql
+  └─ 20260929231000_link_ever_published/
+    └─ migration.sql
+  └─ 20260929232000_link_embedding/
+    └─ migration.sql
+  └─ 20260929233000_submission_outbox_ban/
+    └─ migration.sql
+  └─ 20260929234000_orders_payments/
+    └─ migration.sql
+  └─ 20260929235000_analytics_events/
+    └─ migration.sql
+  └─ 20260930140000_order_br_code_and_catalog_indexes/
+    └─ migration.sql
+  └─ 20260930180000_analytics_link_totals_index/
+    └─ migration.sql
+  └─ 20261002140000_promotion_offers/
+    └─ migration.sql
+  └─ 20261002153000_adult_networks/
+    └─ migration.sql
+  └─ 20261005193000_one_open_moderation_case/
+    └─ migration.sql
+  └─ 20261006120000_facet_summary/
+    └─ migration.sql
+  └─ 20261009120000_acquisition_funnel/
+    └─ migration.sql
+  └─ 20261010120000_site_traffic/
+    └─ migration.sql
+  └─ 20261010150000_order_finance/
+    └─ migration.sql
+  └─ 20261015140000_evolution_operations/
+    └─ migration.sql
+  └─ 20261015153000_evolution_quoted_review/
+    └─ migration.sql
+  └─ 20261015180000_admin_promotions/
+    └─ migration.sql
+  └─ 20261016090000_promotion_investments/
+    └─ migration.sql
+  └─ 20261016090100_performance_query_index/
+    └─ migration.sql
+  └─ 20261016100000_link_reports/
+    └─ migration.sql
+  └─ 20261016100100_report_key_comparison/
+    └─ migration.sql
+      
+All migrations have been successfully applied.
+npm warn Unknown env config "global-ignore-file". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+(node:94488) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+Running 7 tests using 1 worker
+
+(node:87296) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [setup] › e2e\auth.setup.ts:8:6 › sessão da Bia para os testes do painel (393ms)
+(node:52244) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 2 [features] › e2e\link-reports.spec.ts:35:5 › F06-E01/T02/T03/T05 detalhe público, login com retorno, triagem e histórico persistido (3.0s)
+  ok 3 [features] › e2e\link-reports.spec.ts:87:5 › F06-E02 fila e comentários privados não vazam no detalhe, DTO público ou acesso direto (650ms)
+  ok 4 [features] › e2e\link-reports.spec.ts:107:5 › F06-E03 envio e decisão recuperam rede real, preservam texto e funcionam por teclado (3.1s)
+(node:41620) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 5 [features-mobile] › e2e\link-reports.spec.ts:35:5 › F06-E01/T02/T03/T05 detalhe público, login com retorno, triagem e histórico persistido (4.9s)
+  ok 6 [features-mobile] › e2e\link-reports.spec.ts:87:5 › F06-E02 fila e comentários privados não vazam no detalhe, DTO público ou acesso direto (729ms)
+  ok 7 [features-mobile] › e2e\link-reports.spec.ts:107:5 › F06-E03 envio e decisão recuperam rede real, preservam texto e funcionam por teclado (5.3s)
+
+  7 passed (1.1m)

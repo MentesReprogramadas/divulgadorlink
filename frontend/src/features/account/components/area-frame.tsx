@@ -158,7 +158,7 @@ export function AreaFrame({
       <main className="auth-page">
         <h1 className="entry-title">Entrar</h1>
         <p className="auth-lead">Use o e-mail e a senha da sua conta.</p>
-        <LoginForm />
+        <LoginForm returnTo={path} />
         <p className="auth-switch">Ainda não tem conta? <a href="/cadastro">Criar conta</a></p>
       </main>
     );

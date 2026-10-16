@@ -1,0 +1,134 @@
+npm notice run divulgador-links-web@0.1.0 npx
+npm notice run vitest run src/features/moderation/components/report-form.test.tsx
+
+ RUN  v5.0.3 C:/Users/ferna/.codex/worktrees/roadmap-features/divulgadorlinks/frontend
+
+ ❯ src/features/moderation/components/report-form.test.tsx (4 tests | 4 failed) 2027ms
+   ❯ F06 formulário e fila (4)
+     × F06-C01 envia uma vez, espera persistência e não mostra campos privados da resposta 15ms
+     × F06-C01 conserva comentário e motivo após falha recuperável 2ms
+     × F06-C02 fila vazia e negação não expõem conteúdo nem ações administrativas 1002ms
+     × F06-C01 fila apresenta falha recuperável e nova leitura real do adapter 1007ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/moderation/components/report-form.test.tsx > F06 formulário e fila > F06-C01 envia uma vez, espera persistência e não mostra campos privados da resposta
+TestingLibraryElementError: Unable to find a label with the text of: Motivo
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <h2>
+      Denunciar um link
+    </h2>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:111:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/features/moderation/components/report-form.test.tsx:15:29
+     13|     const submit = vi.fn().mockReturnValue(promise)
+     14|     const { container } = render(<ReportForm name="Grupo de estudo" on…
+     15|     fireEvent.change(screen.getByLabelText('Motivo'), { target: { valu…
+       |                             ^
+     16|     fireEvent.change(screen.getByLabelText('Comentário (opcional)'), {…
+     17|     const form = screen.getByRole('form', { name: 'Denunciar um link' …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/features/moderation/components/report-form.test.tsx > F06 formulário e fila > F06-C01 conserva comentário e motivo após falha recuperável
+TestingLibraryElementError: Unable to find a label with the text of: Motivo
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <h2>
+      Denunciar um link
+    </h2>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:111:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/features/moderation/components/report-form.test.tsx:32:29
+     30|     const submit = vi.fn().mockRejectedValueOnce(new Error('Sem conexã…
+     31|     render(<ReportForm name="Grupo" onSubmit={submit} />)
+     32|     fireEvent.change(screen.getByLabelText('Motivo'), { target: { valu…
+       |                             ^
+     33|     fireEvent.change(screen.getByLabelText('Comentário (opcional)'), {…
+     34|     fireEvent.submit(screen.getByRole('form', { name: 'Denunciar um li…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/features/moderation/components/report-form.test.tsx > F06 formulário e fila > F06-C02 fila vazia e negação não expõem conteúdo nem ações administrativas
+TestingLibraryElementError: Unable to find an element with the text: Fila indisponível para esta conta.. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <h2>
+      Denúncias
+    </h2>
+  </div>
+</body>
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <h2>
+      Denúncias
+    </h2>
+  </div>
+</body>
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/features/moderation/components/report-form.test.tsx:44:18
+     42|     vi.mocked(api).mockResolvedValueOnce({ status: 404, body: { privat…
+     43|     const { container, unmount } = render(<ReportQueue filters={{}} />)
+     44|     await screen.findByText('Fila indisponível para esta conta.')
+       |                  ^
+     45|     expect(container.innerHTML).not.toContain('PRIVATE_SENTINEL')
+     46|     expect(screen.queryByRole('button', { name: 'Salvar decisão' })).t…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/features/moderation/components/report-form.test.tsx > F06 formulário e fila > F06-C01 fila apresenta falha recuperável e nova leitura real do adapter
+TestingLibraryElementError: Unable to find role="button" and name "Tentar de novo"
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <h2>
+      Denúncias
+    </h2>
+  </div>
+</body>
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <h2>
+      Denúncias
+    </h2>
+  </div>
+</body>
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/features/moderation/components/report-form.test.tsx:55:34
+     53|     vi.mocked(api).mockRejectedValueOnce(new Error('offline')).mockRes…
+     54|     render(<ReportQueue filters={{}} />)
+     55|     fireEvent.click(await screen.findByRole('button', { name: 'Tentar …
+       |                                  ^
+     56|     await screen.findByText('Nenhuma denúncia neste filtro.')
+     57|     expect(api).toHaveBeenCalledTimes(2)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed (4)
+   Start at  21:48:28
+   Duration  2.88s (tests 74%, environment 18%, import 6%, transform 2%)
+
