@@ -1,3 +1,4 @@
+import { FavoriteButton } from '@/features/favorites/components/favorite-button'
 import { cache, Suspense } from 'react'
 import { RelatedLinksSection } from '@/features/catalog/server/related-links'
 import { headers } from 'next/headers'
@@ -103,6 +104,7 @@ export default async function Page({
         <LinkMeta niche={link.niche} network={link.network} />
         <Impression linkId={id} surfaceToken={token} />
         <a className="detail-access" href={href}>Acessar</a>
+        <FavoriteButton linkId={id} />
         <p><a href={'/painel/denunciar/' + encodeURIComponent(id)}>Denunciar um link</a></p>
         <Suspense fallback={null}><RelatedLinksSection linkId={id} requiresAge={link.niche?.requiresAge === true} /></Suspense>
       </AgeWall>

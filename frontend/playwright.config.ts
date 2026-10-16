@@ -19,8 +19,8 @@ export default defineConfig({
   },
   projects: [
     { name: 'setup', testMatch: /auth\.setup\.ts/ },
-    { name: 'features', testMatch: /evolution-moderation\.spec\.ts|promotion-performance\.spec\.ts|link-reports\.spec\.ts|link-availability\.spec\.ts|renewal-reminders\.spec\.ts|related-links\.spec\.ts/, dependencies: ['setup'], timeout: 120_000 },
-    { name: 'features-mobile', testMatch: /evolution-moderation\.spec\.ts|promotion-performance\.spec\.ts|link-reports\.spec\.ts|link-availability\.spec\.ts|renewal-reminders\.spec\.ts|related-links\.spec\.ts/, dependencies: ['setup'], timeout: 120_000, use: { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
+    { name: 'features', testMatch: /evolution-moderation\.spec\.ts|promotion-performance\.spec\.ts|link-reports\.spec\.ts|link-availability\.spec\.ts|renewal-reminders\.spec\.ts|related-links\.spec\.ts|favorites\.spec\.ts/, dependencies: ['setup'], timeout: 120_000 },
+    { name: 'features-mobile', testMatch: /evolution-moderation\.spec\.ts|promotion-performance\.spec\.ts|link-reports\.spec\.ts|link-availability\.spec\.ts|renewal-reminders\.spec\.ts|related-links\.spec\.ts|favorites\.spec\.ts/, dependencies: ['setup'], timeout: 120_000, use: { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
     { name: 'catalog', testMatch: /catalog\.spec\.ts|mail\.spec\.ts|advertise\.spec\.ts|legal\.spec\.ts|funnel\.spec\.ts|signup\.spec\.ts|submit-link\.spec\.ts|security-headers\.spec\.ts/, dependencies: ['setup'] },
   ],
 })

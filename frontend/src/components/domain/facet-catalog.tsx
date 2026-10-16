@@ -1,4 +1,5 @@
 'use client'
+import { FavoriteButton } from '@/features/favorites/components/favorite-button'
 
 import { useRouter } from 'next/navigation'
 import { AgePrompt, confirmAge } from '@/components/domain/age-gate'
@@ -75,6 +76,7 @@ function ResultList({
       <CatalogGrid>
         {rows.map((row) => (
           <LinkRow
+            actions={<FavoriteButton linkId={row.id} />}
             key={row.id}
             id={row.id}
             name={row.name}

@@ -9,6 +9,8 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
+    // Real Pix proofs share a Redis queue and provider stubs; avoid cross-file job consumption.
+    fileParallelism: false,
     exclude: ['build/**', 'node_modules/**', ...(process.env.PG_SPECS ? [] : ['**/*.pg.spec.ts'])],
     env: {
       NODE_ENV: 'test',

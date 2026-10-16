@@ -156,7 +156,11 @@ async function main() {
   const renewalOwner = await user({ tenantId: renewalTenant.tenant.id, name: 'Responsavel pela comunidade', email: 'owner@renewal.test', phone: '5511911150001', confirmed: true })
   await user({ tenantId: renewalTenant.tenant.id, name: 'Outro responsavel', email: 'other@renewal.test', phone: '5511911150002', confirmed: true })
   const relatedTenant = await tenantBundle('related.localhost', 'Relacionados fixture')
+  const favoritesTenant = await tenantBundle('favorites.localhost', 'Favoritos fixture')
+  const favoritesOwner = await user({ tenantId: favoritesTenant.tenant.id, name: 'Leitora', email: 'owner@favorites.test', phone: '5511911160001', confirmed: true })
+  await user({ tenantId: favoritesTenant.tenant.id, name: 'Outra leitora', email: 'other@favorites.test', phone: '5511911160002', confirmed: true })
   const state = {
+    favorites: { tenantId: favoritesTenant.tenant.id, ownerId: favoritesOwner.id, networkId: favoritesTenant.network.id, nicheId: favoritesTenant.niche.id, owner: 'owner@favorites.test', other: 'other@favorites.test', password: 'Senha-e2e-1' },
     related: { tenantId: relatedTenant.tenant.id, networkId: relatedTenant.network.id, nicheId: relatedTenant.niche.id },
     renewal: { tenantId: renewalTenant.tenant.id, ownerId: renewalOwner.id, networkId: renewalNetwork.id, nicheId: renewalTenant.niche.id, owner: 'owner@renewal.test', other: 'other@renewal.test', password: 'Senha-e2e-1' },
     availability: { ...availability, tenantId: availabilityTenant.tenant.id, ownerId: availabilityOwner.id, networkId: availabilityNetwork.id, nicheId: availabilityTenant.niche.id, owner: 'owner@availability.test', other: 'other@availability.test', admin: 'admin@availability.test', password: 'Senha-e2e-1' },

@@ -1,4 +1,5 @@
 'use client'
+import { FavoriteButton } from '@/features/favorites/components/favorite-button'
 
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
@@ -105,7 +106,7 @@ function SearchResults() {
           <h2 id="search-patrocinados">Patrocinados</h2>
           <CatalogGrid>
             {sponsored.map((row) => (
-              <LinkRow key={row.id} id={row.id} name={row.name} description={row.description} href={rowHref(row)} placement="sponsored" niche={row.niche} network={row.network} impressions={row.impressions} showImpressions={showImpressions} />
+              <LinkRow actions={<FavoriteButton linkId={row.id} />} key={row.id} id={row.id} name={row.name} description={row.description} href={rowHref(row)} placement="sponsored" niche={row.niche} network={row.network} impressions={row.impressions} showImpressions={showImpressions} />
             ))}
           </CatalogGrid>
         </section>
@@ -115,7 +116,7 @@ function SearchResults() {
           <h2 id="search-organicos">Links encontrados</h2>
           <CatalogGrid>
             {organic.map((row) => (
-              <LinkRow key={row.id} id={row.id} name={row.name} description={row.description} href={rowHref(row)} placement="organic" niche={row.niche} network={row.network} impressions={row.impressions} showImpressions={showImpressions} />
+              <LinkRow actions={<FavoriteButton linkId={row.id} />} key={row.id} id={row.id} name={row.name} description={row.description} href={rowHref(row)} placement="organic" niche={row.niche} network={row.network} impressions={row.impressions} showImpressions={showImpressions} />
             ))}
           </CatalogGrid>
         </section>

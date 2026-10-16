@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { LinkMeta, type LinkContext } from './link-meta'
 import { AdMark } from '@/components/ui/facet-badge'
 import { CardDescription } from './card-description'
@@ -5,6 +6,7 @@ import { CardTitle } from './card-title'
 import styles from './link-row.module.css'
 
 export type CatalogRow = {
+  actions?: ReactNode
   id: string
   name: string
   description: string
@@ -46,6 +48,7 @@ export function LinkRow({
   network,
   impressions = 0,
   showImpressions = true,
+  actions,
 }: CatalogRow & { showImpressions?: boolean }) {
   const show = showImpressions !== false
   return (
@@ -54,6 +57,7 @@ export function LinkRow({
       <a className={`link-name ${styles.name}`} href={href}><CardTitle text={name} /></a>
       <CardDescription text={description} className={`link-row-description ${styles.description}`} />
       <LinkMeta niche={niche} network={network} />
+      {actions}
       <div className={styles.footer}>
         {placement === 'organic' && show ? <ImpressionMark value={impressions} /> : null}
         <span className={styles.action} aria-hidden="true">

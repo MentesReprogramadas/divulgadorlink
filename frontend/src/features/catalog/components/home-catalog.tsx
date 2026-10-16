@@ -1,4 +1,5 @@
 'use client'
+import { FavoriteButton } from '@/features/favorites/components/favorite-button'
 
 import { useRef, useState } from 'react'
 import { CatalogGrid } from '@/components/domain/catalog-grid'
@@ -78,7 +79,7 @@ export function HomeCatalog({ initial }: { initial: HomePage }) {
           </header>
           <CatalogGrid>
             {catalog.sponsored.map((row) => (
-              <LinkRow key={row.id} {...row} href={rowHref(row)} placement="sponsored" showImpressions={row.showImpressions ?? (initial.showImpressions !== false)} />
+              <LinkRow actions={<FavoriteButton linkId={row.id} />} key={row.id} {...row} href={rowHref(row)} placement="sponsored" showImpressions={row.showImpressions ?? (initial.showImpressions !== false)} />
             ))}
           </CatalogGrid>
         </section>
@@ -90,7 +91,7 @@ export function HomeCatalog({ initial }: { initial: HomePage }) {
               <h2 id="organicos" className={styles.sectionTitle}>Orgânicos</h2>
               <CatalogGrid>
                 {catalog.organic.map((row) => (
-                  <LinkRow key={row.id} {...row} href={rowHref(row)} placement="organic" showImpressions={row.showImpressions ?? (initial.showImpressions !== false)} />
+                  <LinkRow actions={<FavoriteButton linkId={row.id} />} key={row.id} {...row} href={rowHref(row)} placement="organic" showImpressions={row.showImpressions ?? (initial.showImpressions !== false)} />
                 ))}
               </CatalogGrid>
             </section>

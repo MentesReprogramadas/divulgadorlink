@@ -1,0 +1,18 @@
+.page { display: grid; gap: var(--space-6); max-width: 1040px; min-width: 0; }
+.page h2, .page h3, .page p { margin: 0; }
+.page header { display: grid; gap: var(--space-2); }
+.note { color: var(--text-secondary); line-height: 1.6; }
+.toolbar, .actions { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+.formFrame { width: 100%; max-width: 600px; min-width: 0; }
+.form { display: grid; gap: var(--space-3); }
+.form button { justify-self: start; }
+.collection { display: grid; gap: var(--space-4); border: 1px solid var(--border-default); padding: var(--space-6); border-radius: var(--radius); background: var(--surface-raised); min-width: 0; }
+.collection h3 { overflow-wrap: anywhere; }
+.list { display: grid; gap: var(--space-6); list-style: none; padding: 0; margin: 0; }
+.item { display: grid; gap: var(--space-3); min-width: 0; }
+.unavailable { padding: var(--space-6); border: 1px dashed var(--border-default); border-radius: var(--radius); }
+.select { display: grid; gap: var(--space-2); max-width: 380px; }
+.save { position: relative; z-index: 1; display: grid; gap: var(--space-2); margin-top: var(--space-3); }
+.status:empty { display: none; }
+.status:focus { outline: 2px solid var(--color-brand-navy); outline-offset: 4px; }
+@media (max-width: 480px) { .actions > button { flex: 1 1 auto; } .collection { padding: var(--space-4); } }
