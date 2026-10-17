@@ -16,6 +16,16 @@ export function relevanceScore(textScore: number, semanticScore: number, textWei
   return textWeight * textScore + semanticWeight * semanticScore
 }
 
+export function nameMatchSql(queryParameter: '$1' | '$2' = '$1'): string {
+  return `BTRIM(${queryParameter}) <> '' AND strpos(lower(l."name"), lower(BTRIM(${queryParameter}))) > 0`
+}
+
+export function searchRelevanceScore(name: string, query: string, score: number, textWeight: number): number {
+  const needle = query.trim().toLowerCase()
+  // A literal name match carries the same textual evidence as an autocomplete suggestion.
+  return needle && name.toLowerCase().includes(needle) ? Math.max(textWeight, score) : score
+}
+
 export function rankSearch<T extends SearchRow>(rows: T[], threshold: number) {
   const eligible = rows.filter((row) => row.relevance >= threshold)
   const sponsored = eligible
@@ -160,7 +170,8 @@ export function hybridSearchSql(): string {
     WHERE l."tenantId" = $3
       AND ${PUBLIC_LINK_FILTER}
       AND ($4::text <> 'no' OR NOT (n."requiresAge" OR net."requiresAge"))
-      AND (
+      AND GREATEST(
+        CASE WHEN ${nameMatchSql()} THEN $5 ELSE 0 END,
         $5 * ts_rank(to_tsvector('simple', l."name" || ' ' || l."description"), plainto_tsquery('simple', $1))
         + $6 * COALESCE(1 - (l."embedding" <=> (SELECT v FROM query_embedding)), 0)
       ) >= $7

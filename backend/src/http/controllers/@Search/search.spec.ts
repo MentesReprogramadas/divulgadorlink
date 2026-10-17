@@ -105,7 +105,7 @@ describe('GET /api/v1/search', () => {
 
   it('sorteia outra ordem em cada nova busca, preservando relevância e patrocínio', async () => {
     const rows = Array.from({ length: 20 }, (_, i) => ({
-      id: `r${i}`, name: 'Receitas', description: 'doces', relevance: 0,
+      id: `r${i}`, name: i === 19 ? 'Irrelevante' : 'Receitas', description: 'doces', relevance: 0,
       textScore: i === 19 ? 0 : 1, semanticScore: 0, embeddingState: 'ABSENT' as const,
       searchActivatedAt: i < 5 ? new Date('2026-09-01') : null, requiresAge: false,
     }))

@@ -174,6 +174,35 @@ describe('busca HTTP de ponta a ponta: rota → embedding injetado → SQL real 
     }
   })
 
+  it('busca trechos do nome sem depender de palavras inteiras ou vetor semelhante', async () => {
+    const ids = ['partial-sem-vetor', 'partial-oposto', 'partial-adulto', 'partial-rascunho', 'partial-outro']
+    try {
+      for (const id of ids) {
+        const foreign = id === 'partial-outro'
+        await db.link.create({ data: {
+          id, tenantId: foreign ? TENANT_B : TENANT_A, name: 'Sala de estudos', description: 'Comunidade',
+          canonicalUrl: `https://t.me/${id}`, networkId: foreign ? 's-net-b' : 's-net-a',
+          nicheId: foreign ? 's-livre-b' : id === 'partial-adulto' ? 's-adulto' : 's-livre',
+          status: id === 'partial-rascunho' ? 'DRAFT' : 'PUBLISHED',
+        } })
+      }
+      await db.$executeRawUnsafe('UPDATE links SET embedding = $1::vector WHERE id = $2',
+        literal(deterministicVector(' Sa ').map(value => -value)), 'partial-oposto')
+      for (const age of ['unknown', 'no', 'yes']) {
+        const response = await app.inject({ method: 'GET', url: '/api/v1/search?q=%20Sa%20', headers: { host: HOST_A, cookie: `age=${age}` } })
+        expect(response.statusCode).toBe(200)
+        const found = response.json().organic.filter((row: Item) => row.id.startsWith('partial-'))
+        expect(found.map((row: Item) => row.id).sort()).toEqual(
+          (age === 'yes' ? ['partial-adulto', 'partial-oposto', 'partial-sem-vetor'] : ['partial-oposto', 'partial-sem-vetor']).sort())
+        expect(found.every((row: Item) => row.relevanceScore >= 0.35)).toBe(true)
+      }
+      const wildcard = await app.inject({ method: 'GET', url: '/api/v1/search?q=%25', headers: { host: HOST_A } })
+      expect(wildcard.json().organic.map((row: Item) => row.id)).not.toContain('partial-sem-vetor')
+    } finally {
+      await db.link.deleteMany({ where: { id: { in: ids } } })
+    }
+  })
+
   it('adulto entra só com idade confirmada sem mudar os demais elegíveis', async () => {
     const confirmed = await search(HOST_A, 'age=yes')
     const refused = await search(HOST_A, 'age=no')

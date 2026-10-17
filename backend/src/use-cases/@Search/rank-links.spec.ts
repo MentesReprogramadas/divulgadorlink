@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { rankHome, rankNiche, rankSearch, resolveSearchTarget, visibleForAge, hybridSearchSql, relevanceScore, autocompleteIds } from '@/use-cases/@Search/rank-links'
+import { rankHome, rankNiche, rankSearch, resolveSearchTarget, visibleForAge, hybridSearchSql, relevanceScore, searchRelevanceScore, autocompleteIds } from '@/use-cases/@Search/rank-links'
 
 const rows = [
   { id: 'novo', relevance: 0.95, searchActivatedAt: new Date('2026-09-02'), homeActivatedAt: null, nicheActivatedAt: null, requiresAge: false },
@@ -12,6 +12,15 @@ const rows = [
 ]
 
 describe('busca', () => {
+  it('mantém a evidência textual das sugestões ao buscar trechos literais do nome', () => {
+    expect(searchRelevanceScore('Sala de estudos', ' Sa ', 0, 0.4)).toBe(0.4)
+    expect(searchRelevanceScore('Sala de estudos', 'sa', -0.6, 0.4)).toBe(0.4)
+    expect(searchRelevanceScore('Sala de estudos', 'sa', 0.9, 0.4)).toBe(0.9)
+    expect(searchRelevanceScore('Sala de estudos', '', 0, 0.4)).toBe(0)
+    expect(searchRelevanceScore('Sala de estudos', '%', 0, 0.4)).toBe(0)
+    expect(rankSearch([{ id: 'sala', relevance: searchRelevanceScore('Sala', 'Sa', 0, 0.2), searchActivatedAt: null, requiresAge: false }], 0.35).organic).toEqual([])
+  })
+
   it('tira o patrocinado do orgânico e ordena o bloco pela ativação', () => {
     const result = rankSearch(visibleForAge(rows, 'yes'), 0.2)
     expect(result.sponsored.map((link) => link.id)).toEqual(['antigo', 'novo'])
