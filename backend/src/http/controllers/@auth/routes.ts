@@ -20,6 +20,8 @@ import {
   PrismaConfirmCodesRepository,
 } from '@/use-cases/@Auth/confirm-identifier'
 import { RegisterUseCase, registerBodySchema } from '@/use-cases/@Auth/register'
+import { queueNewUser } from '@/use-cases/@Notifications/evolution-operations'
+import { enqueueEvolutionCycle } from '@/adapters/queues/enqueue-evolution'
 import { InvalidVerificationCodeError } from '@/use-cases/errors/invalid-verification-code-error'
 import { RateLimitError } from '@/use-cases/errors/rate-limit-error'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
@@ -187,6 +189,10 @@ async function register(request: FastifyRequest, reply: FastifyReply) {
         return reply.status(503).send({ message: 'Não foi possível enviar o código. Tente de novo.' })
       }
       throw error
+    }
+    if (process.env.NODE_ENV !== 'test') {
+      await queueNewUser(prisma, tenant.id, user.id)
+      void enqueueEvolutionCycle().catch(() => undefined)
     }
     await getAcquisitionStore().rememberRegistration({
       tenantId: tenant.id,

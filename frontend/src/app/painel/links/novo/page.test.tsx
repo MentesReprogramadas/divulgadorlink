@@ -5,18 +5,23 @@ import Page from './page'
 
 const push = vi.fn()
 const api = vi.fn()
+const trackGoogleAdsLinkSubmission = vi.fn()
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push }) }))
 vi.mock('@/lib/api', () => ({ api: (...args: unknown[]) => api(...args) }))
 vi.mock('@/components/domain/panel', () => ({
   useAreaSession: () => ({ role: 'USER', status: 'ACTIVE', canSubmit: true }),
 }))
 vi.mock('@/domain/meta-pixel', () => ({ trackMeta: () => undefined }))
+vi.mock('@/domain/google-ads', () => ({
+  trackGoogleAdsLinkSubmission: (...args: unknown[]) => trackGoogleAdsLinkSubmission(...args),
+}))
 
 beforeEach(() => {
   HTMLDialogElement.prototype.showModal = function showModal() { this.open = true }
   localStorage.clear()
   push.mockReset()
   api.mockReset()
+  trackGoogleAdsLinkSubmission.mockReset()
   api.mockImplementation((path: string) => {
     if (path === '/v1/home') {
       return Promise.resolve({
@@ -64,6 +69,7 @@ describe('envio de link', () => {
     await fillAndSend()
     expect(await screen.findByRole('heading', { name: 'Enviado para análise.' })).toBeTruthy()
     expect(screen.queryByText('Publicado')).toBeNull()
+    expect(trackGoogleAdsLinkSubmission).toHaveBeenCalledExactlyOnceWith('link-1')
     await waitFor(() => expect(push).toHaveBeenCalledWith('/painel/links'), { timeout: 4000 })
   })
 
@@ -87,6 +93,7 @@ describe('envio de link', () => {
     await fillAndSend()
     expect(await screen.findByRole('heading', { name: 'Envio não aceito' })).toBeTruthy()
     expect(screen.queryByText('Enviado para análise.')).toBeNull()
+    expect(trackGoogleAdsLinkSubmission).not.toHaveBeenCalled()
     fireEvent.click(screen.getByRole('button', { name: 'Ver meus links' }))
     expect(push).toHaveBeenCalledWith('/painel/links')
   })
@@ -112,5 +119,35 @@ describe('envio de link', () => {
     expect((await screen.findByRole('alert')).textContent).toContain('Esse link já está no catálogo.')
     expect(screen.queryByRole('heading', { name: 'Enviado para análise.' })).toBeNull()
     expect(push).not.toHaveBeenCalled()
+    expect(trackGoogleAdsLinkSubmission).not.toHaveBeenCalled()
+  })
+
+  it('conta link publicado automaticamente, mas não conta abrir o formulário', async () => {
+    const defaultApi = api.getMockImplementation()!
+    api.mockImplementation((path: string, init?: RequestInit) => {
+      if (path === '/v1/links' && init?.method === 'POST') {
+        return Promise.resolve({ status: 201, body: { id: 'link-published', status: 'PUBLISHED' } })
+      }
+      return defaultApi(path, init)
+    })
+    render(<Page />)
+    await screen.findByLabelText('Titulo')
+    expect(trackGoogleAdsLinkSubmission).not.toHaveBeenCalled()
+    await fillAndSend()
+    await waitFor(() => expect(trackGoogleAdsLinkSubmission).toHaveBeenCalledExactlyOnceWith('link-published'))
+    fireEvent.click(screen.getByRole('button', { name: 'Ver meus links' }))
+  })
+
+  it('não conta falha de conexão e preserva o rascunho', async () => {
+    const defaultApi = api.getMockImplementation()!
+    api.mockImplementation((path: string, init?: RequestInit) => {
+      if (path === '/v1/links' && init?.method === 'POST') return Promise.reject(new Error('offline'))
+      return defaultApi(path, init)
+    })
+    render(<Page />)
+    await fillAndSend()
+    expect((await screen.findByRole('alert')).textContent).toContain('Seu rascunho foi mantido')
+    expect(trackGoogleAdsLinkSubmission).not.toHaveBeenCalled()
+    expect(localStorage.getItem('tla-link-draft')).toContain('https://example.com/grupo')
   })
 })

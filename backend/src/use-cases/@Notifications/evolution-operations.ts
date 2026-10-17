@@ -18,6 +18,12 @@ export const EVOLUTION_SETTINGS_KEY = 'EVOLUTION_INTEGRATION'
 export const MAX_DELIVERY_ATTEMPTS = 5
 export const REFERENCE_TTL_MS = 24 * 60 * 60 * 1000
 
+export async function queueNewUser(db: PrismaClient, tenantId: string, userId: string) {
+  const user = await db.user.findFirst({ where: { id: userId, tenantId }, select: { id: true, name: true, createdAt: true } })
+  if (!user) return
+  await operationalEvent(db, { tenantId, kind: 'NEW_USER', resourceId: user.id, occurrenceKey: `new-user:${tenantId}:${user.id}`, payload: { ownerName: user.name, registeredAt: user.createdAt.toISOString() } })
+}
+
 export async function evolutionConfiguration(db: PrismaClient, tenantId: string) {
   const tenant = await db.tenant.findUnique({ where: { id: tenantId } })
   if (!tenant || tenant.host !== env.TENANT_HOST) return null
@@ -127,6 +133,23 @@ export function renderOperationalMessage(event: Pick<OperationalMessage, 'id' | 
     p.resourceType ? `*Envio*\nVersão ${Number(p.version) || 1} • Adulto: ${p.requiresAge === true ? 'Sim' : 'Não'}` : '',
     p.note ? `*Observação*\n${safeText(String(p.note), 200)}` : '',
   ].filter(Boolean)
+  if (event.kind === 'PAYMENT_RECEIVED') {
+    const surfaces: Record<string, string> = { HOME: 'Página inicial', SEARCH: 'Busca', NICHE: 'Categoria' }
+    const products: Record<string, string> = { HOME: 'Página inicial', SEARCH: 'Busca', NICHE: 'Categoria', SEARCH_NICHE: 'Busca + Categoria', SEARCH_NICHE_HOME: 'Busca + Categoria + Página inicial' }
+    const confirmed = typeof p.confirmedAt === 'string' ? new Date(p.confirmedAt) : null
+    return ['💰 *PAGAMENTO RECEBIDO*', ...details,
+      ['*Pagamento*', typeof p.amountCents === 'number' && Number.isSafeInteger(p.amountCents) && p.amountCents >= 0 ? `Valor: ${(p.amountCents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}` : '', `Forma: ${p.method === 'PIX' ? 'Pix' : p.method === 'CARD' ? 'Cartão' : 'Não informada'}`, confirmed && Number.isFinite(confirmed.getTime()) ? `Confirmação registrada: ${confirmed.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })} (Brasília)` : '', p.gatewayChargeId ? `Transação: ${safeText(String(p.gatewayChargeId), 200)}` : ''].filter(Boolean).join('\n'),
+      ['*Pedido*', safeText(event.resourceId ?? event.id, 100), p.productCode ? `Produto: ${products[String(p.productCode)] ?? safeText(String(p.productCode), 60)}` : '', typeof p.durationDays === 'number' ? `Duração: ${p.durationDays} dias` : '', Array.isArray(p.surfaces) && p.surfaces.length ? `Superfícies: ${p.surfaces.map(surface => surfaces[String(surface)] ?? safeText(String(surface), 60)).join(', ')}` : '', p.renewal === true ? 'Renovação' : 'Nova compra', p.userId ? `Usuário: ${safeText(String(p.userId), 100)}` : '', p.linkOwnerName ? `Responsável pelo link: ${safeText(String(p.linkOwnerName), 100)}` : ''].filter(Boolean).join('\n'),
+      `*Situação*\n${p.late === true ? 'Pagamento recebido após o prazo. O destaque não foi ativado; o pedido segue o fluxo de estorno.' : 'Recebimento confirmado. A ativação do destaque segue as regras do pedido.'}`,
+      `*Painel*\n${origin.replace(/\/$/, '')}/admin/visao`,
+    ].join('\n\n')
+  }
+  if (event.kind === 'NEW_USER') return ['👤 *NOVO USUÁRIO*', ...details, '*Cadastro*\nConta criada; a confirmação dos contatos é uma etapa separada.', `*Painel*\n${origin.replace(/\/$/, '')}/admin/usuarios`].join('\n\n')
+  if (event.kind === 'AI_APPROVED') {
+    const reasons = Array.isArray(p.reasons) ? p.reasons.filter((reason): reason is string => typeof reason === 'string').map(reason => safeText(reason, 240)).filter(Boolean).slice(0, 5) : []
+    const percent = (value: unknown) => typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 1 ? `${(value * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%` : 'Não informado'
+    return ['🤖 *APROVADO PELA IA*', ...details, `*Resultado*\n${p.type === 'Alteração de texto' ? 'Alteração de texto publicada.' : 'Link publicado.'}`, `*Justificativa da IA*\n${reasons.length ? reasons.map(reason => `• ${reason}`).join('\n') : 'A IA não forneceu uma justificativa textual.'}`, `*Critério de aprovação*\nConfiança informada pela IA: ${percent(p.confidence)}\nLimiar configurado: ${percent(p.threshold)}`, '*Escopo da análise*\nNome e descrição em relação à categoria e às regras de conteúdo. Não verifica o conteúdo interno do grupo nem garante a segurança do destino.', `*Painel*\n${panel}`].join('\n\n')
+  }
   if (event.kind.startsWith('REVIEW_')) {
     return [p.appeal ? `📣 *CONTESTAÇÃO • ${type}*` : event.kind === 'REVIEW_TEXT' ? '✏️ *ALTERAÇÃO DE TEXTO*' : `${symbol} *${p.resourceType ? type + ' EM REVISÃO' : safeText(String(p.type ?? 'Novo link')).toUpperCase()}*`, ...details, p.appeal ? `*Contestação*\n${safeText(String(p.appeal), 240)}` : '', '*Ação*\nResponda: *APROVAR* ou *RECUSAR motivo*.', `Revisão: ${event.id}\nValidade: 24h\nPainel: ${panel}`].filter(Boolean).join('\n\n')
   }

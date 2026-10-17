@@ -1,3 +1,4 @@
+import { newOrderSeed, randomOrder } from '@/domain/catalog/random-order'
 import { PUBLIC_LINK_FILTER } from '@/domain/catalog/public-link'
 
 export class InvalidCursorError extends Error {
@@ -13,6 +14,7 @@ export type CatalogCursor = {
   kind: 'sponsored' | 'organic'
   activatedAt: string | null
   id: string
+  seed?: string
 }
 
 export function capLimit(raw: unknown): number {
@@ -36,12 +38,13 @@ export function decodeCursor(raw: unknown): CatalogCursor | null {
     throw new InvalidCursorError()
   }
   if (!parsed || typeof parsed !== 'object') throw new InvalidCursorError()
-  const row = parsed as { kind?: unknown; activatedAt?: unknown; id?: unknown }
+  const row = parsed as { kind?: unknown; activatedAt?: unknown; id?: unknown; seed?: unknown }
   if ((row.kind !== 'sponsored' && row.kind !== 'organic') || typeof row.id !== 'string' || row.id.length === 0) {
     throw new InvalidCursorError()
   }
   if (row.activatedAt !== null && typeof row.activatedAt !== 'string') throw new InvalidCursorError()
-  return { kind: row.kind, activatedAt: row.activatedAt ?? null, id: row.id }
+  if (row.seed !== undefined && (typeof row.seed !== 'string' || !/^[a-f0-9]{32}$/.test(row.seed))) throw new InvalidCursorError()
+  return { kind: row.kind, activatedAt: row.activatedAt ?? null, id: row.id, seed: row.seed as string | undefined }
 }
 
 type Ranked = { id: string; relevance: number; homeActivatedAt: Date | null }
@@ -51,7 +54,8 @@ export function pageRanked<T extends Ranked>(
   cursor: CatalogCursor | null,
   limit: number,
 ): { sponsored: T[]; organic: T[]; nextCursor: string | null } {
-  const sequence = [...ranked.sponsored, ...ranked.organic]
+  const seed = cursor?.seed ?? newOrderSeed()
+  const sequence = [...randomOrder(ranked.sponsored, seed), ...randomOrder(ranked.organic, seed)]
   let start = 0
   if (cursor) {
     const index = sequence.findIndex((row) => row.id === cursor.id)
@@ -68,6 +72,7 @@ export function pageRanked<T extends Ranked>(
       kind: last.homeActivatedAt ? 'sponsored' : 'organic',
       activatedAt: last.homeActivatedAt ? last.homeActivatedAt.toISOString() : null,
       id: last.id,
+      seed,
     })
     : null
   return { sponsored, organic, nextCursor }
@@ -92,8 +97,8 @@ export function homePageSql(surface: 'HOME' | 'NICHE'): { sponsored: string; org
       AND ($2::text = 'yes' OR n."requiresAge" = false)
       AND ($3::text IS NULL OR n."slug" = $3)
       AND ($4::text IS NULL OR net."slug" = $4)
-      AND ($5::text IS NULL OR (pmin.activated, l."id") > ($5::text::timestamp, $6::text))
-    ORDER BY pmin.activated ASC, l."id" ASC
+      AND ($5::text IS NULL OR (md5($6::text || l."id") COLLATE "C", l."id") > (md5($6::text || $5::text), $5::text))
+    ORDER BY md5($6::text || l."id") COLLATE "C" ASC, l."id" ASC
     LIMIT $7
   `
   const organic = `
@@ -112,8 +117,8 @@ export function homePageSql(surface: 'HOME' | 'NICHE'): { sponsored: string; org
         SELECT 1 FROM "promotions" p
         WHERE p."linkId" = l."id" AND p."status" = 'ACTIVE' AND (NOT p.administrative OR p."expiresAt" IS NULL OR p."expiresAt" > NOW()) AND p."surface" = '${surface}'::"PromotionSurface"
       )
-      AND ($5::text IS NULL OR l."id" > $5)
-    ORDER BY l."id" ASC
+      AND ($5::text IS NULL OR (md5($7::text || l."id") COLLATE "C", l."id") > (md5($7::text || $5::text), $5::text))
+    ORDER BY md5($7::text || l."id") COLLATE "C" ASC, l."id" ASC
     LIMIT $6
   `
   return { sponsored, organic }

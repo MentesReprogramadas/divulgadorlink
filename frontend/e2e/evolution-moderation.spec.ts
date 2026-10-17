@@ -69,6 +69,31 @@ async function reviewReference(request: APIRequestContext, name: string) {
   return legacyReference(message!.text)
 }
 
+test('F42-E11 cadastro concluído avisa novo usuário sem expor contatos no WhatsApp', async ({ request, playwright }) => {
+  const name = `Cadastro-${randomUUID()}`
+  const email = `novo-${randomUUID()}@example.test`
+  const response = await request.post('http://127.0.0.1:3333/api/v1/auth/register', {
+    headers: { host: 'evolution.localhost' }, data: { name, email, password: state.password },
+  })
+  expect(response.status()).toBe(201)
+  const userId = (await response.json()).user.id as string
+  expect(sql(`SELECT COUNT(*) FROM operational_messages WHERE "tenantId"='${state.tenantA}' AND kind='NEW_USER' AND "resourceId"='${userId}'`)).toBe('1')
+  const anonymous = await playwright.request.newContext()
+  try {
+    const duplicate = await anonymous.post('http://127.0.0.1:3333/api/v1/auth/register', {
+      headers: { host: 'evolution.localhost' }, data: { name, email, password: state.password },
+    })
+    expect(duplicate.status()).toBe(409)
+  } finally { await anonymous.dispose() }
+  await cycle()
+  const messages = await (await request.get('http://127.0.0.1:4099/evolution/messages')).json() as { text: string }[]
+  const notices = messages.filter(message => message.text.includes(name) && message.text.includes('NOVO USUÁRIO'))
+  expect(notices).toHaveLength(1)
+  expect(notices[0]!.text).not.toContain(email)
+  expect(notices[0]!.text).not.toContain(state.password)
+  expect(notices[0]!.text).toContain('confirmação dos contatos é uma etapa separada')
+})
+
 test('F42-E10 respostas normalizadas pela Evolution escolhem a citação exata entre várias pendências', async ({ request }) => {
   const first = await fixture(request, 'Primeiro')
   const second = await fixture(request, 'Segundo')

@@ -149,3 +149,20 @@ Publicação do formato final: commit `fafb6bc05d479aad2ef42e55b79aab327dfef01d`
 Por novo pedido expresso, revisões humanas de F09/F12 e suas contestações também usam o grupo Evolution configurado, a mesma autorização por operador ADMIN e a mesma operação de decisão do painel. O aviso citado identifica a versão exata; expiração, substituição e contestação invalidam mensagens anteriores. Decisão e registro do aviso de confirmação são atômicos, sem alterar aprovação automática, regras de segurança ou cobrança. Avisos ganham símbolos distintos por evento e mantêm seções curtas.
 
 Contrato, critérios, limites, evidências e resultados no [complemento da implementação](../frontend-profissional/revisao-paginas-convites.md#complemento-autorizado--aprovação-pelo-whatsapp).
+## Avisos adicionais — 2026-10-16
+
+Pedido: avisar novos cadastros e aprovações automáticas pelo WhatsApp, com justificativa da IA, e enviar a alteração para main.
+
+- `NEW_USER`: gerado após emissão bem-sucedida dos códigos iniciais, sem e-mail, telefone, senha ou códigos na mensagem. Cadastro não implica contato confirmado. Deduplicação por tenant/usuário.
+- `AI_APPROVED`: novas publicações e alterações de texto aprovadas geram aviso na mesma transação da publicação e auditoria. Inclui resumo dos motivos retornados pelo modelo, confiança informada e limiar efetivamente usado. Os motivos são limitados e saneados; ausência de justificativa é informada, sem inventar explicação. Não há exposição de raciocínio interno nem promessa de inspeção do conteúdo interno do grupo. Decisão e limiar existentes foram preservados.
+- O webhook registra resultado de aceite/ignoração, operador não autorizado e citação desconhecida/conflitante, sem registrar corpo, telefone ou referência assinada. Os logs de produção consultados não permitem atribuir com certeza a falha do comando anterior `RECUSAR Link suspeito`. HTTP 200 também pode significar comando ignorado.
+
+Validação: backend lint/typecheck/build, 366 testes unitários/HTTP e 17 testes PostgreSQL; frontend lint/typecheck/build e 159 testes; Playwright com API, PostgreSQL, Redis e worker reais passou cadastro/aviso sem contatos e respostas normalizadas com aprovação/recusa (F42-E11 e F42-E10). Evolution foi simulado; não houve envio de testes ao WhatsApp real nem chamada paga ao modelo. Como 5433/6380 pertenciam a containers existentes, a execução Playwright usou cópia temporária do harness com PostgreSQL 5546, Redis 5547, API 4334 e stub 4100; os containers existentes foram preservados. Nenhuma mudança de layout foi feita.
+
+Os avisos são prospectivos, respeitam a configuração existente da integração e usam sua outbox/retry. Reversão: reverter o commit desta entrega; não há migração de banco nem alteração de dependências.
+
+## Pagamentos recebidos — 2026-10-16
+
+`PAYMENT_RECEIVED` registra um alerta por tenant/pedido na mesma transação que persiste PAID ou PAID_LATE, usando os dados do pedido no servidor. O aviso contém valor, Pix/cartão, ID da cobrança, horário de registro da confirmação em Brasília, pedido, comprador, responsável e URL do link, categoria/rede, produto, duração, superfícies e renovação. Não inclui código Pix, segredos, contatos ou dados de cartão. Pagamento tardio informa ausência de ativação e fluxo de estorno; a confirmação normal não promete que a ativação já ocorreu. Não há aviso de pedido pendente. Replays não criam novo alerta. A entrega usa o ciclo existente da Evolution (inclusive o dreno periódico) e sua configuração, sem mudar cobrança ou autorização.
+
+Validação em checkout isolado da main: lint, typecheck, build e 368 testes backend passaram; 32 testes PostgreSQL de checkout/Evolution passaram, incluindo webhook autenticado/replay, Pix tardio e confirmação Pix/cartão até a outbox e entrega simulada. Banco descartável na porta 5546; outros containers e alterações da atividade de frontend foram preservados. Sem cobrança real ou envio ao WhatsApp real. Frontend não alterado. Reversão por revert do commit; sem migração ou mudança de dependências.

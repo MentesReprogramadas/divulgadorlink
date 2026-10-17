@@ -304,6 +304,16 @@ export class PrismaCheckoutStore implements CheckoutStore {
         const persisted = await tx.order.findUnique({ where: { id: order.id }, include: { user: { select: { name: true } }, link: { include: { owner: { select: { name: true } }, network: true, niche: true } } } })
         if (persisted) await tx.operationalMessage.upsert({ where: { occurrenceKey: `refund-failed:${order.id}` }, create: { tenantId: persisted.tenantId, resourceId: order.id, kind: 'REFUND_FAILED', occurrenceKey: `refund-failed:${order.id}`, payload: { ...linkNotificationSnapshot(persisted.link), ownerName: persisted.user?.name ?? persisted.link.owner?.name ?? 'Não informado', amountCents: persisted.amountCents, method: persisted.method, attempts: order.refundAttempts } }, update: {} })
       }
+      if (order.status === 'PAID' || order.status === 'PAID_LATE') {
+        const persisted = await tx.order.findUnique({ where: { id: order.id }, include: { user: { select: { name: true } }, surfaces: { select: { surface: true } }, link: { include: { owner: { select: { name: true } }, network: true, niche: true } } } })
+        if (persisted) await tx.operationalMessage.upsert({
+          where: { occurrenceKey: `payment-received:${persisted.tenantId}:${order.id}` },
+          create: {
+            tenantId: persisted.tenantId, resourceId: order.id, kind: 'PAYMENT_RECEIVED', occurrenceKey: `payment-received:${persisted.tenantId}:${order.id}`,
+            payload: { ...linkNotificationSnapshot(persisted.link), ownerName: persisted.user?.name ?? 'Não informado', userId: persisted.userId, linkOwnerName: persisted.link.owner?.name ?? 'Não informado', amountCents: persisted.amountCents, method: persisted.method, gatewayChargeId: persisted.gatewayChargeId, productCode: persisted.productCode, durationDays: persisted.durationDays, surfaces: persisted.surfaces.map(row => row.surface), renewal: persisted.renewal, late: order.status === 'PAID_LATE', confirmedAt: new Date().toISOString() },
+          }, update: {},
+        })
+      }
     })
     if (order.status === 'PAID' || order.status === 'PAID_LATE' || order.status === 'REFUNDED' || order.status === 'REFUND_FAILED') {
       await this.client.$executeRawUnsafe(

@@ -1,5 +1,6 @@
+import * as randomOrdering from '@/domain/catalog/random-order'
 import { randomUUID } from 'node:crypto'
-import { beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { app } from '@/app'
 import { readSurface } from '@/domain/analytics/surface-token'
 import { resetImpressionLimitForTest } from '@/http/controllers/@Analytics/routes'
@@ -495,6 +496,45 @@ describe('contratos HTTP da vitrine', () => {
     expect(byName.get('csrf')?.value).not.toBe(csrf)
   })
 
+  it.each(['/api/v1/home', '/api/v1/niches/jogos?network=telegram', '/api/v1/networks/telegram?niche=jogos'])(
+    '%s sorteia a abertura e mantém o cursor ao carregar mais', async (endpoint) => {
+      setCatalogLinksForTest(Array.from({ length: 20 }, (_, i) => ({
+        id: `r${i}`, name: `Link ${i}`, description: 'd', relevance: i, requiresAge: false,
+        nicheSlug: 'jogos', networkSlug: 'telegram',
+        homeActivatedAt: i < 5 ? new Date('2026-09-01') : null,
+        nicheActivatedAt: i < 5 ? new Date('2026-09-01') : null,
+      })))
+      const seed = vi.spyOn(randomOrdering, 'newOrderSeed')
+      try {
+        const orders: string[][] = []
+        for (const value of ['a'.repeat(32), 'b'.repeat(32)]) {
+          seed.mockReturnValue(value)
+          const ids: string[] = []
+          let cursor: string | null = null
+          const separator = endpoint.includes('?') ? '&' : '?'
+          do {
+            const url: string = `${endpoint}${separator}limit=3${cursor ? `&cursor=${cursor}` : ''}`
+            const response = await app.inject({ method: 'GET', url, headers: { host: HOST } })
+            expect(response.statusCode).toBe(200)
+            expect(response.headers['cache-control']).toBe('no-store')
+            const body = response.json()
+            ids.push(...[...body.sponsored, ...body.organic].map((row: { id: string }) => row.id))
+            cursor = body.nextCursor
+            if (cursor) expect(JSON.parse(Buffer.from(cursor, 'base64url').toString()).seed).toBe(value)
+          } while (cursor && ids.length < 30)
+          expect(ids).toHaveLength(20)
+          expect(new Set(ids).size).toBe(20)
+          expect(ids.slice(0, 5).sort()).toEqual(['r0', 'r1', 'r2', 'r3', 'r4'])
+          orders.push(ids)
+        }
+        expect(orders[0]).not.toEqual(orders[1])
+        expect([...orders[0]].sort()).toEqual([...orders[1]].sort())
+      } finally {
+        seed.mockRestore()
+      }
+    },
+  )
+
   it('home pagina por cursor sem duplicar, limita tamanho e rejeita cursor inválido', async () => {
     setCatalogLinksForTest(Array.from({ length: 60 }, (_, index) => ({
       id: `l${String(index).padStart(2, '0')}`,
@@ -523,7 +563,7 @@ describe('contratos HTTP da vitrine', () => {
     } while (cursor && pages < 10)
     expect(pages).toBe(3)
     expect(new Set(seen).size).toBe(60)
-    expect(seen.slice(0, 3)).toEqual(['l00', 'l01', 'l02'])
+    expect(seen.slice(0, 3).sort()).toEqual(['l00', 'l01', 'l02'])
 
     const huge = await app.inject({ method: 'GET', url: '/api/v1/home?limit=999999', headers: { host: HOST } })
     const hugeBody = huge.json()

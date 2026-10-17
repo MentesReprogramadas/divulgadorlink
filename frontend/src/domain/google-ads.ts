@@ -1,4 +1,5 @@
 export const GOOGLE_ADS_ID = 'AW-18513720323'
+export const GOOGLE_ADS_LINK_CONVERSION = `${GOOGLE_ADS_ID}/uMyECICKtp4dEIPog_xE`
 const SCRIPT_ID = 'google-ads-tag'
 
 type GoogleTag = (...args: unknown[]) => void
@@ -49,4 +50,16 @@ export function trackGoogleAdsPageView(): void {
     page_location: window.location.href,
     page_title: document.title,
   })
+}
+
+export function trackGoogleAdsLinkSubmission(linkId: string): boolean {
+  if (!linkId || !installGoogleAds()) return false
+  const host = window as TagWindow
+  host.gtag?.('event', 'conversion', {
+    send_to: GOOGLE_ADS_LINK_CONVERSION,
+    value: 1.0,
+    currency: 'BRL',
+    transaction_id: linkId,
+  })
+  return true
 }

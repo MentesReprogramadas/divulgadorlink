@@ -7,6 +7,7 @@ import { resolveTenant } from '@/http/tenant'
 import { parseEvolutionMessage, secretEquals } from '@/domain/notifications/evolution-command'
 import { authorizedOperator, evolutionConfiguration, evolutionConnection, EVOLUTION_SETTINGS_KEY, quotedReviewReference } from '@/use-cases/@Notifications/evolution-operations'
 import { enqueueEvolutionCycle } from '@/adapters/queues/enqueue-evolution'
+import { logDomainEvent } from '@/observability/logger'
 
 async function requireAdmin(request: FastifyRequest, reply: FastifyReply) {
   const tenant = await resolveTenant((request.headers.host ?? '').split(':')[0]!)
@@ -18,24 +19,26 @@ async function requireAdmin(request: FastifyRequest, reply: FastifyReply) {
 
 export async function registerEvolutionRoutes(app: FastifyInstance) {
   app.post('/integrations/evolution/webhook', { bodyLimit: 64 * 1024 }, async (request, reply) => {
+    const report = (result: string) => logDomainEvent('evolution.webhook', { requestId: request.id, result })
     const supplied = request.headers['x-evolution-secret']
     if (!env.EVOLUTION_WEBHOOK_AUTH_SECRET || typeof supplied !== 'string' || !secretEquals(supplied, env.EVOLUTION_WEBHOOK_AUTH_SECRET)) return reply.code(401).send({ accepted: false })
     const tenant = await prisma.tenant.findUnique({ where: { host: env.TENANT_HOST } })
     const config = tenant ? await evolutionConfiguration(prisma, tenant.id) : null
-    if (!tenant || !config?.actionsEnabled) return reply.code(200).send({ accepted: false })
+    if (!tenant || !config?.actionsEnabled) { report('actions_disabled'); return reply.code(200).send({ accepted: false }) }
     const message = parseEvolutionMessage(request.body, { instance: config.instance, group: config.group })
-    if (!message) return reply.code(200).send({ accepted: false })
-    if (!await authorizedOperator(prisma, tenant.id, message.sender)) return reply.code(403).send({ accepted: false })
+    if (!message) { report('invalid_or_unrelated_message'); return reply.code(200).send({ accepted: false }) }
+    if (!await authorizedOperator(prisma, tenant.id, message.sender)) { report('operator_forbidden'); return reply.code(403).send({ accepted: false }) }
     let reference = message.command.reference
     if (message.quotedMessageId) {
       const quoted = await quotedReviewReference(prisma, tenant.id, message.quotedMessageId, config.secret)
-      if (!quoted || (reference && reference !== quoted)) return reply.code(200).send({ accepted: false })
+      if (!quoted || (reference && reference !== quoted)) { report('quoted_review_not_found_or_conflicting'); return reply.code(200).send({ accepted: false }) }
       reference = quoted
     }
     await prisma.evolutionReceipt.upsert({ where: { instance_providerMessageId: { instance: config.instance, providerMessageId: message.messageId } },
       create: { tenantId: tenant.id, instance: config.instance, providerMessageId: message.messageId, sender: message.sender, reference, decision: message.command.decision, reason: message.command.reason }, update: {},
     })
     void enqueueEvolutionCycle().catch(() => undefined) // durable receipt is drained after Redis recovers
+    report('accepted')
     return reply.code(200).send({ accepted: true })
   })
 

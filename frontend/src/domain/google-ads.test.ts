@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { GOOGLE_ADS_ID, installGoogleAds, setGoogleAdsConsent, trackGoogleAdsPageView } from './google-ads'
+import { GOOGLE_ADS_ID, GOOGLE_ADS_LINK_CONVERSION, installGoogleAds, setGoogleAdsConsent, trackGoogleAdsPageView, trackGoogleAdsLinkSubmission } from './google-ads'
 
 type TagWindow = Window & { dataLayer?: unknown[]; gtag?: (...args: unknown[]) => void }
 
@@ -61,6 +61,51 @@ describe('tag base do Google Ads', () => {
     }])
     const count = commands().length
     trackGoogleAdsPageView()
+    expect(commands()).toHaveLength(count)
+  })
+})
+
+describe('conversão de envio de link', () => {
+  it.each([null, 'denied'])('não envia nem carrega marketing com consentimento %s', choice => {
+    if (choice) document.cookie = `tla_consent=${choice}; Path=/`
+    expect(trackGoogleAdsLinkSubmission('link-1')).toBe(false)
+    expect(commands()).toEqual([])
+    expect(document.getElementById('google-ads-tag')).toBeNull()
+  })
+
+  it('enfileira a conversão mesmo antes de o script externo terminar de carregar', () => {
+    document.cookie = 'tla_consent=marketing; Path=/'
+    expect(trackGoogleAdsLinkSubmission('link-1')).toBe(true)
+    expect(commands().at(-1)).toEqual(['event', 'conversion', {
+      send_to: GOOGLE_ADS_LINK_CONVERSION,
+      value: 1.0,
+      currency: 'BRL',
+      transaction_id: 'link-1',
+    }])
+    expect(commands().filter(command => command[0] === 'config')).toHaveLength(1)
+    expect(GOOGLE_ADS_LINK_CONVERSION).toBe('AW-18513720323/uMyECICKtp4dEIPog_xE')
+  })
+
+  it('mantém o identificador para deduplicação e diferencia novos links', () => {
+    document.cookie = 'tla_consent=marketing; Path=/'
+    trackGoogleAdsLinkSubmission('link-1')
+    trackGoogleAdsLinkSubmission('link-1')
+    trackGoogleAdsLinkSubmission('link-2')
+    const conversions = commands().filter(command => command[1] === 'conversion')
+    expect(conversions.map(command => command[2])).toEqual([
+      expect.objectContaining({ transaction_id: 'link-1' }),
+      expect.objectContaining({ transaction_id: 'link-1' }),
+      expect.objectContaining({ transaction_id: 'link-2' }),
+    ])
+  })
+
+  it('não envia sem identificador nem após revogar o aceite', () => {
+    document.cookie = 'tla_consent=marketing; Path=/'
+    expect(trackGoogleAdsLinkSubmission('')).toBe(false)
+    installGoogleAds()
+    const count = commands().length
+    document.cookie = 'tla_consent=denied; Path=/'
+    expect(trackGoogleAdsLinkSubmission('link-1')).toBe(false)
     expect(commands()).toHaveLength(count)
   })
 })

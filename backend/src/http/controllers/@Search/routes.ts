@@ -1,3 +1,4 @@
+import { newOrderSeed, randomOrder } from '@/domain/catalog/random-order'
 import type { PrismaClient } from '@prisma/client'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { PUBLIC_LINK_FILTER } from '@/domain/catalog/public-link'
@@ -186,6 +187,7 @@ async function loadCandidates(
 }
 
 export async function getSearch(request: FastifyRequest, reply: FastifyReply) {
+  reply.header('cache-control', 'no-store')
   const query = typeof (request.query as { q?: string }).q === 'string' ? (request.query as { q: string }).q : ''
   try {
     const tenant = await resolveTenant((request.headers.host ?? '').split(':')[0] || '')
@@ -233,9 +235,10 @@ export async function getSearch(request: FastifyRequest, reply: FastifyReply) {
       return reply.status(503).send(buildError({ code: provider_error, message: 'Busca indisponível.', request_id: request.id }))
     }
 
-    candidates.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
     const visible = visibleForAge(candidates, age)
-    const ranked = rankSearch(visible, threshold)
+    const eligible = rankSearch(visible, threshold)
+    const seed = newOrderSeed()
+    const ranked = { sponsored: randomOrder(eligible.sponsored, seed), organic: randomOrder(eligible.organic, seed) }
     const withheld = rankSearch(candidates, threshold)
     const hidden = withheld.sponsored.length + withheld.organic.length - ranked.sponsored.length - ranked.organic.length
     return reply.status(200).send({

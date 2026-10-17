@@ -5,6 +5,9 @@ import { PrismaAuditLogsRepository } from '@/repositories/audit-logs-repository'
 import { PrismaConfigsRepository } from '@/repositories/configs-repository'
 import { decideProposedText, type ModelVerdict } from '@/use-cases/@Links/proposed-text-decision'
 import { queueTextReview } from '@/use-cases/@Notifications/evolution-operations'
+import { operationalEvent } from '@/use-cases/@Moderation/resolve-human-review'
+import { aiApprovalSnapshot } from '@/domain/notifications/ai-approval'
+import { linkNotificationSnapshot } from '@/domain/notifications/link-notification'
 
 export async function settleProposedText(input: {
   linkId: string
@@ -72,7 +75,8 @@ export async function settleProposedText(input: {
         },
       })
     }
-    await tx.auditLog.create({ data: {
+    const explanation = verdict ? aiApprovalSnapshot({ verdict, threshold }) : null
+    const audit = await tx.auditLog.create({ data: {
       tenantId: link.tenantId,
       actorId: null,
       action: 'link.text.verdict',
@@ -84,9 +88,14 @@ export async function settleProposedText(input: {
         provider: providerFailed ? 'error' : decided.provider,
         confidence: verdict?.confidence ?? null,
         threshold,
+        reasons: explanation?.reasons ?? [],
       },
       requestId: null,
     } })
+    if (decided.decision === 'PUBLISH' && explanation) {
+      const updated = await tx.link.findUniqueOrThrow({ where: { id: link.id }, include: { owner: { select: { name: true } }, network: true, niche: true } })
+      await operationalEvent(tx, { tenantId: link.tenantId, kind: 'AI_APPROVED', resourceId: link.id, occurrenceKey: `ai-approved:${audit.id}`, payload: { ...linkNotificationSnapshot(updated), ...explanation, type: 'Alteração de texto' } })
+    }
     if (decided.decision === 'ADMIN') await queueTextReview(tx, link.tenantId, link.id)
     return decided.decision
   })

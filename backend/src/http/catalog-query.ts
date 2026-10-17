@@ -1,3 +1,4 @@
+import { newOrderSeed } from '@/domain/catalog/random-order'
 import type { PrismaClient } from '@prisma/client'
 import { encodeCursor, homePageSql, type CatalogCursor } from '@/http/catalog-page'
 
@@ -25,6 +26,7 @@ export async function queryCatalogPage(
     cursor: CatalogCursor | null
   },
 ): Promise<{ rows: Row[]; nextCursor: string | null }> {
+  const seed = input.cursor?.seed ?? newOrderSeed()
   const sql = homePageSql(input.surface)
   const sponsored: Row[] = !input.cursor || input.cursor.kind === 'sponsored'
     ? await db.$queryRawUnsafe<Row[]>(
@@ -33,8 +35,8 @@ export async function queryCatalogPage(
       input.age,
       input.nicheSlug,
       input.networkSlug,
-      input.cursor?.kind === 'sponsored' ? input.cursor.activatedAt : null,
       input.cursor?.kind === 'sponsored' ? input.cursor.id : null,
+      seed,
       input.limit + 1,
     )
     : []
@@ -49,6 +51,7 @@ export async function queryCatalogPage(
       input.networkSlug,
       input.cursor?.kind === 'organic' ? input.cursor.id : null,
       remain + 1,
+      seed,
     )
     : []
   const pageSponsored = sponsored.slice(0, takeSponsored)
@@ -63,6 +66,7 @@ export async function queryCatalogPage(
       input.networkSlug,
       null,
       1,
+      seed,
     )).length > 0
     : false
   const more = sponsored.length > takeSponsored || organic.length > remain || organicPending
@@ -74,6 +78,7 @@ export async function queryCatalogPage(
         kind: last.homeActivatedAt ? 'sponsored' : 'organic',
         activatedAt: last.homeActivatedAt ? new Date(last.homeActivatedAt).toISOString() : null,
         id: last.id,
+        seed,
       })
       : null,
   }
