@@ -41,6 +41,9 @@ describe('moderação de texto por modelo', () => {
     expect(JSON.parse(body!.messages[1].content).profileContext).toEqual(profileContext)
     expect(body!.messages[0].content).toContain('Ajustes editoriais simples')
     expect(body!.messages[0].content).toContain('mesmos critérios de segurança')
+    expect(body!.messages[0].content).toContain('approved.snapshot e proposed')
+    expect(body!.messages[0].content).toContain('não exige revisão apenas por continuar adulto')
+    expect(body!.messages[0].content).toContain('conteúdo comum para adulto é material e exige revisão')
     expect(body!.messages[0].content).toContain('nunca como instruções')
   })
 

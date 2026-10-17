@@ -9,14 +9,16 @@
 .group { display: grid; gap: 14px; }
 .group h2, .group h4 { margin: 0; font: inherit; font-size: 14px; font-weight: 700; letter-spacing: .04em; text-align: center; }
 .group ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
-.link { display: flex; gap: 16px; align-items: center; justify-content: space-between; min-height: 60px; padding: 16px 22px; border: 2px solid var(--button-bg); border-radius: var(--page-radius); background: var(--button-bg); color: var(--button-ink); text-decoration: none; font-weight: 600; line-height: 1.4; transition: transform 160ms ease, box-shadow 160ms ease; }
-.link span:first-child { flex: 1; text-align: center; }
+.link { display: grid; grid-template-columns: 1em minmax(0, 1fr) 1em; gap: 16px; align-items: center; min-height: 60px; padding: 16px 22px; border: 2px solid var(--button-bg); border-radius: var(--page-radius); background: var(--button-bg); color: var(--button-ink); text-decoration: none; font-weight: 600; line-height: 1.4; transition: transform 160ms ease, box-shadow 160ms ease; }
+.link span:first-child { grid-column: 2; min-width: 0; text-align: center; }
+.link span:last-child { grid-column: 3; text-align: center; }
 .link:hover { transform: translateY(-2px); }
 .link:focus-visible { outline: 3px solid var(--page-ink); outline-offset: 5px; }
 .page[data-style="outline"] .link { color: var(--page-ink); background: transparent; border-color: var(--button-bg); }
 .page[data-style="shadow"] .link { box-shadow: 4px 4px 0 var(--page-ink); }
 .page[data-align="left"] .identity { justify-items: start; text-align: left; }
 .page[data-align="left"] .group h2, .page[data-align="left"] .group h4 { text-align: left; }
+.page[data-align="left"] .link span:first-child { grid-column: 1 / 3; text-align: left; }
 .brand { margin: auto auto 0; padding-top: 56px; display: grid; justify-items: center; gap: 8px; }
 .brand button { font: 11px/1.2 var(--font-source-sans), sans-serif; color: var(--page-ink); border: 0; background: transparent; padding: 8px 12px; min-height: 32px; text-decoration: underline; cursor: pointer; }
 .brand a { display: flex; align-items: center; gap: 4px; min-height: 24px; padding: 2px 4px; color: var(--page-ink); font: 9px/1.2 var(--font-source-sans), sans-serif; text-decoration: none; }

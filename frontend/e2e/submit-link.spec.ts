@@ -15,6 +15,29 @@ test.beforeEach(async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Painel' })).toBeVisible()
 })
 
+test('redes e nichos mostram ícones nas opções e no valor selecionado', async ({ page }, info) => {
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto(`${A}/painel/links/novo`)
+    await page.getByLabel('Título do link').fill('Meu grupo de estudos')
+    await page.getByLabel('Link de acesso').fill('https://example.com/estudos')
+    await page.getByRole('button', { name: 'Continuar', exact: true }).click()
+    for (const [field, label, asset] of [['Rede do link', 'Telegram', '/networks/telegram.svg'], ['Assunto do link', 'Jogos', '/niches/jogos.svg']]) {
+      const control = page.getByRole('combobox', { name: field, exact: true })
+      await control.focus(); await page.keyboard.press('ArrowDown')
+      const option = page.getByRole('option', { name: label, exact: true })
+      await expect(option.locator('img')).toHaveAttribute('src', asset)
+      await option.scrollIntoViewIfNeeded()
+      await page.screenshot({ path: info.outputPath(`${width}-${asset.includes('networks') ? 'networks' : 'niches'}.png`), fullPage: true, animations: 'disabled' })
+      await option.click()
+      await expect(control.locator('img')).toHaveAttribute('src', asset)
+      await expect(control).toBeFocused()
+      expect(await control.locator('img').evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true)
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  }
+})
+
 test('o envio guarda rascunho, mostra a vaga e não chama de publicado', async ({ page }) => {
   await page.goto(`${A}/painel/links/novo`)
   await expect(page.getByText(/Vagas em uso: \d+ de 4\./)).toBeVisible()

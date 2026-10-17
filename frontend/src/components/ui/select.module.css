@@ -1,6 +1,9 @@
 .control { width: 100%; min-width: 0; margin: var(--space-2) 0 var(--space-4); }
 .trigger { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); width: 100%; min-height: 48px; padding: var(--space-3); border: 1px solid #a4b2c4; border-radius: var(--radius-md); background: var(--surface-raised); color: var(--text-primary); font: inherit; text-align: left; cursor: pointer; }
 .value { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.valueContent { display: flex; align-items: center; gap: var(--space-3); min-width: 0; }
+.valueLabel { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.optionLabel { flex: 1; min-width: 0; }
 .leadingIcon { display: inline-flex; flex: none; color: var(--text-secondary); }
 .trigger:hover { border-color: var(--text-secondary); }
 .trigger[aria-invalid='true'] { border-color: var(--status-error-text); }

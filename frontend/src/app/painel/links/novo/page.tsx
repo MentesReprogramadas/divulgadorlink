@@ -6,6 +6,7 @@ import { useAreaSession } from '@/components/domain/panel'
 import { Button } from '@/components/ui/button'
 import { FormSteps } from '@/components/ui/form-steps'
 import { ActionIcon } from '@/components/ui/action-icon'
+import { FacetIcon } from '@/components/ui/facet-badge'
 import { Field, Input, Select, TextArea } from '@/components/ui/input'
 import { spreadFacets } from '@/domain/facets'
 import { trackMeta } from '@/domain/meta-pixel'
@@ -123,6 +124,8 @@ export default function Page() {
   const canonical = preview(draft.url)
   const networkOptions = spreadFacets(networks)
   const nicheOptions = spreadFacets(niches)
+  const networkIcons = Object.fromEntries(networks.map(row => [row.id, <FacetIcon key={row.id} kind="network" slug={row.slug} size={20} />]))
+  const nicheIcons = Object.fromEntries(niches.map(row => [row.id, <FacetIcon key={row.id} kind="niche" slug={row.slug} size={20} />]))
 
   function update(patch: Partial<Draft>) {
     setDraft((current) => ({ ...current, ...patch }))
@@ -185,13 +188,13 @@ export default function Page() {
         <fieldset className={styles.facets}>
           <legend>Organização no catálogo</legend>
           <Field label="Rede do link" icon={<ActionIcon name="network" />} hint="Onde o link abre, como WhatsApp ou Telegram.">
-            <Select icon={<ActionIcon name="network" />} name="networkId" value={draft.networkId} onChange={(event) => update({ networkId: event.target.value })} required>
+            <Select icon={<ActionIcon name="network" />} optionIcons={networkIcons} name="networkId" value={draft.networkId} onChange={(event) => update({ networkId: event.target.value })} required>
               <option value="">Escolha</option>
               {networkOptions.map((row) => <option key={row.id} value={row.id}>{row.name}</option>)}
             </Select>
           </Field>
           <Field label="Assunto do link" icon={<ActionIcon name="tag" />} hint="Escolha o tema que melhor descreve o conteúdo.">
-            <Select icon={<ActionIcon name="tag" />} name="nicheId" value={draft.nicheId} onChange={(event) => update({ nicheId: event.target.value })} required>
+            <Select icon={<ActionIcon name="tag" />} optionIcons={nicheIcons} name="nicheId" value={draft.nicheId} onChange={(event) => update({ nicheId: event.target.value })} required>
               <option value="">Escolha</option>
               {nicheOptions.map((row) => <option key={row.id} value={row.id}>{row.name}</option>)}
             </Select>

@@ -16,7 +16,7 @@ export function Glyph({ d, color, size = 14 }: { d: string; color?: string; size
   )
 }
 
-function ContextIcon({ kind, slug, size }: { kind: 'niche' | 'network'; slug: string; size?: number }) {
+export function FacetIcon({ kind, slug, size }: { kind: 'niche' | 'network'; slug: string; size?: number }) {
   const logo = kind === 'network' ? networkLogo(slug) : nicheIcon(slug)
   if (logo) return <img className="facet-icon" src={logo} alt="" width={size ?? 18} height={size ?? 18} decoding="async" style={{ objectFit: 'contain' }} />
   const mark = markFor(kind, slug)
@@ -38,7 +38,7 @@ export function FacetBadge({
 }) {
   const content = (
     <>
-      <ContextIcon kind={kind} slug={slug} />
+      <FacetIcon kind={kind} slug={slug} />
       <span>{name}</span>
     </>
   )
@@ -53,7 +53,7 @@ export function FacetBadge({
 }
 
 export function TitleMark({ kind, slug }: { kind: 'niche' | 'network'; slug: string }) {
-  return <ContextIcon kind={kind} slug={slug} size={28} />
+  return <FacetIcon kind={kind} slug={slug} size={28} />
 }
 
 export function AdMark({ icon = 'diamond' }: { icon?: 'dot' | 'diamond' }) {

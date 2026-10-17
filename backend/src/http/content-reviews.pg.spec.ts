@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { PrismaClient } from '@prisma/client'
-import { beforeAll, beforeEach, afterAll, expect, it } from 'vitest'
+import { beforeAll, beforeEach, afterAll, expect, it, vi } from 'vitest'
 import { env } from '@/env'
 import { actionReference } from '@/domain/notifications/evolution-command'
 import { deliverOperationalMessage, processEvolutionReceipt, quotedReviewReference } from '@/use-cases/@Notifications/evolution-operations'
@@ -68,6 +68,35 @@ it('conteúdo aprovado por humano não retorna à fila por cor; texto novo não 
   await call('PATCH', 'me/profile', { expectedVersion: 3, content: { ...content, appearance, name: 'Novo tema suspeito' } })
   expect((await call('POST', 'me/profile/publish', { expectedVersion: 4 })).json().review.status).toBe('PENDING')
   expect((await call('GET', 'profiles/pagina-pessoal')).json().name).toBe('Meu projeto pessoal')
+})
+it('aprovação humana adulta é contexto confiável: pontuação dispensa IA e edição recebe antes/depois completo', async () => {
+  const content = { ...profile(), requiresAge: true, bio: 'Comunidade adulta +18. Contato https://example.com/contato' }
+  await db.blocklistTerm.createMany({ data: ['adulta', '+18'].map(term => ({ tenantId: tenant, term })) })
+  await call('PATCH', 'me/profile', { expectedVersion: 0, content })
+  const queued = await call('POST', 'me/profile/publish', { expectedVersion: 1 })
+  expect((await decide(queued.json().review.id, 'APPROVE')).statusCode).toBe(200)
+  ports.judge = vi.fn(async () => { throw new Error('provider unavailable') })
+  const organized = { ...content, categories: [{ ...content.categories[0], name: '...' }] }
+  await call('PATCH', 'me/profile', { expectedVersion: 1, content: organized })
+  expect((await call('POST', 'me/profile/publish', { expectedVersion: 2 })).json()).toEqual({ publishedRevisionId: 2 })
+  expect(ports.judge).not.toHaveBeenCalled()
+  ports.judge = vi.fn(async input => {
+    expect(input.profileContext).toMatchObject({
+      approved: { snapshot: { requiresAge: true, description: content.bio, groups: [{ name: '...' }], links: [{ destination: content.items[0].destination }] } },
+      proposed: { requiresAge: true, description: 'Meu espaço: comunidade adulta +18. Contato https://example.com/contato', links: [{ destination: content.items[0].destination }] },
+      changedFields: ['descrição'],
+    })
+    return { pass: true, confidence: .98, reasons: ['Finalidade e destinos preservados.'] }
+  })
+  const edited = { ...organized, bio: 'Meu espaço: comunidade adulta +18. Contato https://example.com/contato' }
+  await call('PATCH', 'me/profile', { expectedVersion: 2, content: edited })
+  expect((await call('POST', 'me/profile/publish', { expectedVersion: 3 })).json()).toEqual({ publishedRevisionId: 3 })
+  expect(ports.judge).toHaveBeenCalledTimes(1)
+  expect(await db.contentReview.count({ where: { tenantId: tenant, status: 'PENDING' } })).toBe(0)
+  ports.judge = vi.fn(async () => ({ pass: false, confidence: .99, reasons: ['Proteção etária removida.'] }))
+  await call('PATCH', 'me/profile', { expectedVersion: 3, content: { ...edited, requiresAge: false } })
+  expect((await call('POST', 'me/profile/publish', { expectedVersion: 4 })).json().review.status).toBe('PENDING')
+  expect(ports.judge).toHaveBeenCalledWith(expect.objectContaining({ profileContext: expect.objectContaining({ approved: expect.objectContaining({ snapshot: expect.objectContaining({ requiresAge: true }) }), proposed: expect.objectContaining({ requiresAge: false }) }) }))
 })
 it('recusa exige motivo, contestação apenas uma vez e novo conteúdo substitui o caso antigo', async () => {
   const { id, content } = await queuedProfile()

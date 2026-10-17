@@ -2,10 +2,9 @@ import { ContentReviewRequired } from '@/domain/moderation/content-review'
 import type { Prisma } from '@prisma/client'
 import { assertPublicHttps } from '@/adapters/http/safe-fetch'
 import { canonicalUrl } from '@/domain/links/canonical-url'
-import { hitsBlocklist } from '@/domain/links/blocklist'
 import { decideProposedText, type ModelVerdict } from '@/use-cases/@Links/proposed-text-decision'
 import { ProfileError, type ProfileContent } from '@/domain/profiles/profile'
-import { profileModerationChanges, profileModerationText } from '@/domain/profiles/profile-moderation'
+import { profileHasNewBlockedSignals, profileModerationChanges, profileModerationSnapshot, profileModerationText } from '@/domain/profiles/profile-moderation'
 export { publicContentValidationPorts as profileValidationPorts } from '@/use-cases/public-content-validation-ports'
 import type { PublicContentValidationPorts as ProfileValidationPorts } from '@/use-cases/public-content-validation-ports'
 export type { PublicContentValidationPorts as ProfileValidationPorts } from '@/use-cases/public-content-validation-ports'
@@ -33,12 +32,20 @@ export async function validateProfile(db: Prisma.TransactionClient, tenantId: st
   if (humanApproved) return result
   const changes = profileModerationChanges(result, approved)
   if (!changes.changedFields.length) return result
-  const blocklisted = hitsBlocklist({ text: changes.text, selectedNiche: '', nicheNames: [], terms: terms.map(t => t.term) })
+  const blocklisted = profileHasNewBlockedSignals(changes.text, terms.map(t => t.term), approved)
   if (blocklisted) throw new ContentReviewRequired()
   const limit = Number(threshold?.value)
   if (!Number.isFinite(limit) || limit < 0 || limit > 1 || !threshold) throw new ContentReviewRequired()
   let verdict: ModelVerdict
-  try { verdict = await ports.judge({ name: content.name, description: profileModerationText(content), niche: 'Perfil público: conteúdo permitido e grupos pessoais, sem exigir correspondência com nicho do catálogo', profileContext: { ...(approved ? { approved: { name: approved.name, description: profileModerationText(approved) } } : {}), changedFields: changes.changedFields, destinations: [...destinations] } }) } catch { throw new ContentReviewRequired() }
+  try {
+    verdict = await ports.judge({
+      name: result.name, description: profileModerationText(result), niche: 'Perfil público: conteúdo permitido e grupos pessoais, sem exigir correspondência com nicho do catálogo',
+      profileContext: {
+        ...(approved ? { approved: { name: approved.name, description: profileModerationText(approved), snapshot: profileModerationSnapshot(approved) } } : {}),
+        proposed: profileModerationSnapshot(result), changedFields: changes.changedFields, destinations: [...destinations],
+      },
+    })
+  } catch { throw new ContentReviewRequired() }
   if (!verdict) throw new ContentReviewRequired()
   if (decideProposedText({ publishedName: '', proposedName: content.name, blocklisted: false, threshold: limit, verdict }).decision !== 'PUBLISH') throw new ContentReviewRequired()
   return result

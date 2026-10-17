@@ -73,3 +73,7 @@ Fontes adicionais: [Simple Icons](https://github.com/simple-icons/simple-icons),
 - Regressão de Mostrar mais em desktop e mobile: 15 → 39 → 63 orgânicos, 9 patrocinados preservados, sem recarga e sem alteração da rolagem; inclui erro HTTP e nova tentativa.
 - Compilação de produção e verificação de tipos passaram em cópia isolada, com `--no-lint`, sem interromper o servidor aberto pelo usuário. O lint global continua bloqueado por `notice` não utilizado no catálogo, após o aviso correspondente ter sido comentado em alteração local preservada.
 - Suíte completa: 130 aprovados e 4 falhas fora desta fatia — 1 teste espera o aviso de status comentado no catálogo; 3 testes do formulário de envio procuram Nome, mas o rótulo local foi alterado para Titulo. Essas alterações locais não foram revertidas nem seus testes mascarados.
+
+## Formulário de criação de link — 17/10/2026
+
+Rede e assunto reutilizam `FacetIcon`, os mesmos logos e pictogramas das facetas do catálogo. O Select recebe ícones por valor, mantendo texto acessível, busca por digitação e contrato de envio. Os ícones aparecem tanto nas opções quanto no valor selecionado e são decorativos; nenhuma nova associação de significado foi criada.

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { ProfileContent } from './profile'
-import { profileModerationChanges } from './profile-moderation'
+import { profileHasNewBlockedSignals, profileModerationChanges, profileModerationSnapshot } from './profile-moderation'
 
 const original: ProfileContent = { slug: 'ana-estudos', name: 'Ana Estudos', bio: 'Projetos e leitura', avatarAssetId: null, requiresAge: false, primaryItemId: 'site', categories: [{ id: 'a', name: 'Projetos', visible: true }, { id: 'b', name: 'Contato', visible: false }], items: [{ id: 'site', categoryId: 'a', type: 'URL', label: 'Meu site', destination: 'https://example.com/site', visible: true }, { id: 'social', categoryId: 'b', type: 'SOCIAL', label: 'Converse comigo', destination: 'https://example.com/contato', visible: false }] }
 describe('reaproveitamento da aprovação do conteúdo do perfil', () => {
@@ -22,5 +22,17 @@ describe('reaproveitamento da aprovação do conteúdo do perfil', () => {
   it('primeira publicação, foto, idade e endereço não são tratados como aparência', () => {
     expect(profileModerationChanges(original).changedFields).toEqual(['primeira publicação'])
     expect(profileModerationChanges({ ...original, avatarAssetId: 'new', requiresAge: true, slug: 'novo-endereco' }, original).changedFields).toEqual(['endereço da página', 'foto', 'restrição de idade'])
+  })
+  it('pontuação no nome de grupo não introduz tema; palavras, símbolos e destinos novos continuam analisados', () => {
+    expect(profileModerationChanges({ ...original, categories: [{ ...original.categories[0], name: '...' }] }, original).changedFields).toEqual([])
+    for (const name of ['Conteúdo adulto', '⛔', 'www.novo.test']) expect(profileModerationChanges({ ...original, categories: [{ ...original.categories[0], name }] }, original).changedFields).toEqual(['nome de grupo'])
+    expect(profileModerationChanges({ ...original, categories: [{ ...original.categories[0], name: '...' }], items: [{ ...original.items[0], destination: 'https://novo.test/' }] }, original).changedFields).toContain('destino ou tipo de link')
+  })
+  it('sinais já aprovados seguem para IA contextual; novos sinais mantêm a revisão obrigatória', () => {
+    const approved = { ...original, requiresAge: true, bio: 'Adulto +18. Contato https://example.com/contato ou 11999998888' }
+    expect(profileHasNewBlockedSignals('Meu espaço adulto +18. Contato https://example.com/contato ou 11999998888', ['adulto', '+18'], approved)).toBe(false)
+    for (const text of ['Novo proibido', 'https://example.com/contato-novo', '11999997777', 'www.novo.test']) expect(profileHasNewBlockedSignals(text, ['proibido'], approved)).toBe(true)
+    expect(profileHasNewBlockedSignals('Adulto', ['adulto'])).toBe(true)
+    expect(profileModerationSnapshot(approved)).toMatchObject({ requiresAge: true, description: approved.bio, links: [{ id: 'site', destination: original.items[0].destination }, { id: 'social', type: 'SOCIAL' }] })
   })
 })

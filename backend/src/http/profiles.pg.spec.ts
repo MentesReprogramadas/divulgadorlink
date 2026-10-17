@@ -97,7 +97,7 @@ it('mudança textual recebe contexto aprovado; destino novo e texto suspeito vol
   const c = content(); await save(c); await publish()
   ports.judge = vi.fn(async () => ({ pass: true, confidence: .98, reasons: [] }))
   const edited = { ...c, name: 'Ana — meus projetos' }; await save(edited, 1); await publish(2)
-  expect(ports.judge).toHaveBeenCalledWith(expect.objectContaining({ profileContext: expect.objectContaining({ approved: { name: c.name, description: expect.stringContaining(c.bio) }, changedFields: ['nome'] }) }))
+  expect(ports.judge).toHaveBeenCalledWith(expect.objectContaining({ profileContext: expect.objectContaining({ approved: expect.objectContaining({ name: c.name, description: expect.stringContaining(c.bio) }), changedFields: ['nome'] }) }))
   ports.judge = vi.fn(async () => ({ pass: false, confidence: .99, reasons: [] }))
   const changed = { ...edited, items: [{ ...c.items[0], destination: 'https://example.com/novo-destino' }] }
   await save(changed, 2); expect((await publish(3)).json().review.status).toBe('PENDING')

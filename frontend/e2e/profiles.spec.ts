@@ -36,6 +36,62 @@ async function add(page: Page, group: number, index: number, label: string, visi
 }
 async function privateCall(page: Page, path = '') { return page.evaluate(async path => { const r = await fetch('/bff/v1/me/profile' + path); return { status: r.status, text: await r.text() } }, path) }
 
+test('F09-E09 textos dos botões compartilham o centro da apresentação na prévia e página pública', async ({ page }, info) => {
+  fixture(); await login(page); await base(page)
+  await add(page, 1, 1, 'Materiais e leituras para aprender todos os dias com a comunidade')
+  await add(page, 1, 2, 'Meu site')
+  await autosaved(page)
+  await page.getByRole('button', { name: 'Ver prévia', exact: true }).click()
+  async function centered(shot: string) {
+    await page.evaluate(() => document.fonts.ready)
+    const profile = page.getByRole('article', { name: 'Perfil público' })
+    const box = (await profile.boundingBox())!
+    const elements = profile.locator('header > *, h2, a > span:first-child')
+    for (const element of await elements.all()) {
+      const rect = (await element.boundingBox())!
+      expect(Math.abs(rect.x + rect.width / 2 - box.x - box.width / 2)).toBeLessThan(1)
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+    await profile.getByRole('link', { name: 'Meu site', exact: true }).focus()
+    await expect(profile.getByRole('link', { name: 'Meu site', exact: true })).toBeFocused()
+    await page.screenshot({ path: info.outputPath(shot + '.png'), fullPage: true, animations: 'disabled' })
+  }
+  await centered('centered-preview')
+  await page.getByRole('link', { name: 'Voltar à edição' }).click()
+  await page.getByRole('button', { name: 'Publicar', exact: true }).click()
+  await expect(page.getByText('Perfil publicado.', { exact: true })).toBeVisible()
+  await page.goto(A + '/p/ana-estudos')
+  await centered('centered-public')
+})
+
+test('F09-E10 renomear grupo sem conteúdo novo não repete revisão; edição recebe contexto completo', async ({ page }) => {
+  fixture(); await login(page); await base(page); await add(page, 1, 1, 'Meu site')
+  await page.getByRole('button', { name: 'Publicar', exact: true }).click()
+  await expect(page.getByText('Perfil publicado.', { exact: true })).toBeVisible()
+  const baseline = await (await page.request.get(runtime.stubOrigin + '/profile-validation/state')).json()
+  await page.request.post(runtime.stubOrigin + '/profile-validation/control', { data: { unavailable: true } })
+  try {
+    await page.getByRole('button', { name: 'Editar grupo', exact: true }).click()
+    await page.getByLabel('Nome do grupo', { exact: true }).fill('...')
+    await page.getByRole('button', { name: 'Concluir grupo', exact: true }).click()
+    await page.getByRole('button', { name: 'Publicar', exact: true }).click()
+    await expect(page.getByText('Perfil publicado.', { exact: true })).toBeVisible()
+    await expect(page.getByRole('region', { name: 'Situação da revisão' })).toHaveCount(0)
+    expect((await (await page.request.get(runtime.stubOrigin + '/profile-validation/state')).json()).count).toBe(baseline.count)
+  } finally { await page.request.post(runtime.stubOrigin + '/profile-validation/control', { data: { unavailable: false } }) }
+  await page.getByRole('button', { name: 'Editar grupo', exact: true }).click()
+  await page.getByLabel('Nome do grupo', { exact: true }).fill('Meus materiais de leitura')
+  await page.getByRole('button', { name: 'Concluir grupo', exact: true }).click()
+  await page.getByRole('button', { name: 'Publicar', exact: true }).click()
+  await expect(page.getByText('Perfil publicado.', { exact: true })).toBeVisible()
+  const validation = await (await page.request.get(runtime.stubOrigin + '/profile-validation/state')).json()
+  expect(validation.count).toBe(baseline.count + 1)
+  expect(validation.last.profileContext).toMatchObject({
+    approved: { snapshot: { requiresAge: false, groups: [{ name: '...' }], links: [{ label: 'Meu site', destination: 'https://example.com/f09-1-1' }] } },
+    proposed: { requiresAge: false, groups: [{ name: 'Meus materiais de leitura' }], links: [{ label: 'Meu site', destination: 'https://example.com/f09-1-1' }] }, changedFields: ['nome de grupo'],
+  })
+})
+
 test('F09-E08 cabeçalho, endereço copiável e aprovação reutilizada em alterações básicas', async ({ page }, info) => {
   fixture(); await page.emulateMedia({ reducedMotion: 'reduce' })
   if (!info.project.use.isMobile) await page.setViewportSize({ width: 1440, height: 900 })
