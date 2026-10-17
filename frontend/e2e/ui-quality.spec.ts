@@ -1,3 +1,4 @@
+import { selectOption } from './select-control'
 import { runtime as e2eRuntime } from './runtime.cjs'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
@@ -42,17 +43,17 @@ for (const role of ['public', 'user', 'admin'] as const) {
           await expect(page.getByRole('dialog')).toHaveCount(0)
           await expect(edit).toBeFocused()
         }
-        if (route === '/painel' || route === '/admin/visao') {
-          const navigation = page.getByRole('navigation', { name: route === '/painel' ? 'Operação' : 'Seções', exact: true })
-          const sections = navigation.getByRole('button')
-          for (let index = 0; index < await sections.count(); index += 1) {
-            const sectionLabel = (await sections.nth(index).innerText()).split('\n')[0]
-            await sections.nth(index).click()
+        if (route === '/admin/visao') {
+          const selector = page.getByLabel('Área de gestão', { exact: true })
+          const sections = [{value:'metricas',label:'Métricas'}, {value:'contas',label:'Contas'}, {value:'links',label:'Links'}, {value:'cliques',label:'Cliques'}, {value:'pagadores',label:'Pagadores'}, {value:'trafego',label:'Tráfego'}, {value:'financeiro',label:'Financeiro'}, {value:'retencao',label:'Retenção'}]
+          for (let index = 0; index < sections.length; index += 1) {
+            const sectionLabel = sections[index]!.label
+            await selectOption(selector, sections[index]!.value)
             await page.waitForLoadState('networkidle')
             if (role === 'admin' && (sectionLabel === 'Tráfego' || sectionLabel === 'Financeiro')) {
-              await expect(page.getByRole('tablist')).toBeVisible()
+              await expect(page.locator('[role="tablist"]:not([aria-label="Área de gestão em abas"])')).toBeVisible()
             }
-            const tabs = page.getByRole('tab')
+            const tabs = page.locator('[role="tab"]:not([id^="office-area-"])')
             for (let tabIndex = 0; tabIndex < await tabs.count(); tabIndex += 1) {
               await tabs.nth(tabIndex).click()
               await expect(tabs.nth(tabIndex)).toHaveAttribute('aria-selected', 'true')
@@ -69,11 +70,15 @@ for (const role of ['public', 'user', 'admin'] as const) {
         await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBe(true)
         const unnamed = await page.locator('input:not([type="hidden"]), select, textarea').evaluateAll(controls => controls.filter(control => {
           const input = control as HTMLInputElement
+          if (input.getAttribute('aria-hidden') === 'true') return false
           return !input.labels?.length && !input.getAttribute('aria-label') && !input.getAttribute('aria-labelledby')
         }).map(control => control.outerHTML.slice(0, 160)))
         expect(unnamed).toEqual([])
         const accessibility = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze()
         expect.soft(accessibility.violations.map(violation => ({ id: violation.id, impact: violation.impact, nodes: violation.nodes.map(node => ({ target: node.target, summary: node.failureSummary })) })), route).toEqual([])
+        if (['/painel', '/painel/links', '/admin/moderacao', '/painel/links/novo', '/admin/configuracoes'].includes(route)) {
+          await page.screenshot({ path: testInfo.outputPath(route.replaceAll('/', '-').slice(1) + '.png'), fullPage: true, animations: 'disabled', caret: 'hide' })
+        }
         if (stableScreens.has(route)) {
           await expect(page).toHaveScreenshot(`${route.replaceAll('/', '-').slice(1)}.png`, { fullPage: true, animations: 'disabled', caret: 'hide' })
         }
@@ -108,7 +113,7 @@ test('busca: carregamento, falha e recuperação preservam a tarefa', async ({ p
     }
   })
   await page.goto(`${origin}/busca?q=recuperacao`, { waitUntil: 'domcontentloaded' })
-  await expect(page.getByRole('status', { name: 'Carregando' })).toBeVisible()
+  await expect(page.getByRole('status', { name: 'Carregando links', exact: true })).toBeVisible()
   release()
   await expect(page.getByRole('main').getByRole('alert')).toBeVisible()
   await page.getByRole('button', { name: 'Tentar de novo' }).click()

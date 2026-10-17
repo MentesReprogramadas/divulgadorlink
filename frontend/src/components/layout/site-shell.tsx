@@ -1,9 +1,13 @@
+'use client'
+import { usePathname } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { SiteNavigation } from './site-navigation'
 import { CookieSettings } from '@/components/domain/consent'
 import styles from './site-shell.module.css'
 
 export function SiteShell({ role, children }: { role?: string; children: ReactNode }) {
+  const pathname = usePathname()
+  if (/^\/p\/[^/]+\/?$/.test(pathname) || pathname === '/painel/perfil/previa') return <>{children}</>
   return (
     <>
       <a className={styles.skip} href="#main-content">Ir para o conteúdo</a>

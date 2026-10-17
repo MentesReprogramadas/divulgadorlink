@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { api } from '@/lib/api'
+import { Skeleton } from '@/components/feedback/skeleton'
 
 export function SettingsEditor() {
   const [on, setOn] = useState(true)
@@ -47,7 +48,7 @@ export function SettingsEditor() {
           <p className="setting-title">Impressões no catálogo</p>
           <p className="setting-copy">Mostra o olho e o total de impressões nos links públicos. O painel do dono continua com as métricas.</p>
         </div>
-        <button
+        {!ready ? <span role="status" aria-label="Carregando configuração"><Skeleton width={44} height={24} round /></span> : <button
           type="button"
           role="switch"
           className={on ? 'switch is-on' : 'switch'}
@@ -58,7 +59,7 @@ export function SettingsEditor() {
           onClick={() => void toggle()}
         >
           <span className="switch-knob" />
-        </button>
+        </button>}
       </div>
       {error ? <p role="alert">{error}</p> : null}
     </>

@@ -1,3 +1,4 @@
+import { chooseSelect } from '@/test-select'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { LinkPromotionEditor } from './link-promotion-editor'
@@ -20,19 +21,19 @@ async function open() {
 describe('editor de destaque administrativo', () => {
   it('envia prazo indeterminado como null, sem um vencimento artificial', async () => {
     await open()
-    fireEvent.change(screen.getByLabelText('Período'), { target: { value: 'indefinite' } })
+    await chooseSelect(screen.getByLabelText('Período'), 'indefinite')
     fireEvent.click(screen.getByRole('button', { name: 'Salvar destaque' }))
     await waitFor(() => expect(mockApi).toHaveBeenCalledWith('/v1/admin/links/link-1/promotions', { method: 'PUT', body: JSON.stringify({ surfaces: ['SEARCH', 'NICHE'], expiresAt: null }) }))
     await screen.findByText('Destaque salvo sem prazo de término.')
   })
   it('mantém dados e erro no formulário após falha de transporte', async () => {
     await open()
-    fireEvent.change(screen.getByLabelText('Período'), { target: { value: 'custom' } })
-    fireEvent.change(screen.getByLabelText('Data e hora de término'), { target: { value: '2030-11-10T12:00' } })
+    await chooseSelect(screen.getByLabelText('Período'), 'custom')
+    fireEvent.change(screen.getByLabelText('Data e hora de término'), { target: { value: '10/11/2030 12:00' } })
     mockApi.mockRejectedValueOnce(new Error('offline'))
     fireEvent.click(screen.getByRole('button', { name: 'Salvar destaque' }))
     await screen.findByRole('alert')
-    expect((screen.getByLabelText('Data e hora de término') as HTMLInputElement).value).toBe('2030-11-10T12:00')
+    expect((screen.getByLabelText('Data e hora de término') as HTMLInputElement).value).toBe('10/11/2030 12:00')
     expect(screen.getByRole('dialog').hasAttribute('open')).toBe(true)
   })
   it('não oferece home restrita nem permite salvar quando todos os locais estão pagos', async () => {
@@ -46,7 +47,7 @@ describe('editor de destaque administrativo', () => {
   it('recupera prazo indeterminado e remove somente o destaque administrativo', async () => {
     mockApi.mockResolvedValueOnce({ status: 200, body: { ...context, promotions: [{ id: 'p', surface: 'HOME', administrative: true, expiresAt: null }] } })
     await open()
-    expect((screen.getByLabelText('Período') as HTMLSelectElement).value).toBe('indefinite')
+    expect(screen.getByLabelText('Período').querySelector('[data-select-value]')?.getAttribute('data-select-value')).toBe('indefinite')
     fireEvent.click(screen.getByRole('button', { name: 'Remover destaque' }))
     await waitFor(() => expect(mockApi).toHaveBeenLastCalledWith('/v1/admin/links/link-1/promotions', { method: 'DELETE' }))
   })

@@ -1,5 +1,7 @@
 'use client'
 
+import { ActionIcon } from '@/components/ui/action-icon'
+
 import { useState } from 'react'
 import { useAreaSession } from '@/components/domain/panel'
 import { Button } from '@/components/ui/button'
@@ -54,8 +56,8 @@ function Account({ session }: { session: { status: string; role: string; canSubm
 
   return (
     <>
-        <h2 className="panel-section-title">Conta</h2>
-        <p className="panel-section-description">Gerencie seus dados de acesso. Mudanças de identificador exigem uma nova confirmação.</p>
+
+
         {banned ? <p className="panel-empty">E-mail, telefone e o texto dos links não podem ser alterados.</p> : null}
         {note ? <p className="panel-note" role="status">{note}</p> : null}
         {!banned ? (
@@ -64,13 +66,13 @@ function Account({ session }: { session: { status: string; role: string; canSubm
               <Field label="Novo e-mail">
                 <Input name="email" type="email" autoComplete="email" aria-label="Novo e-mail" />
               </Field>
-              <Button type="submit" variant="secondary" disabled={saving === 'email'}>Trocar e-mail</Button>
+              <Button type="submit" variant="secondary" disabled={saving === 'email'}><ActionIcon name="edit" />Trocar e-mail</Button>
             </form>
             <form onSubmit={(event) => void changeIdentifier(event, 'phone')}>
               <Field label="Novo telefone">
                 <Input name="phone" type="tel" autoComplete="tel" aria-label="Novo telefone" />
               </Field>
-              <Button type="submit" variant="secondary" disabled={saving === 'phone'}>Trocar telefone</Button>
+              <Button type="submit" variant="secondary" disabled={saving === 'phone'}><ActionIcon name="edit" />Trocar telefone</Button>
             </form>
           </div>
         ) : null}
@@ -81,7 +83,7 @@ function Account({ session }: { session: { status: string; role: string; canSubm
             <Input name="password" type="password" autoComplete="current-password" minLength={8} required />
           </Field>
           {deleteError ? <p role="alert">{deleteError}</p> : null}
-          <Button type="submit" variant="danger" disabled={deleting}>Excluir conta</Button>
+          <Button type="submit" variant="danger" disabled={deleting}><ActionIcon name="trash" />Excluir conta</Button>
         </form>
     </>
   )

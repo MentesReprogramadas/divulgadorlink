@@ -1,0 +1,25 @@
+{
+  "commit": "43ffc05311dde0bc25f619a6b3ccd0b6dde48518",
+  "previousCommit": "06b9b0fa7422ecc1f5a10bb959843ad6e2b98249",
+  "query": "Sa",
+  "before": {
+    "suggestions": 6,
+    "sponsored": 0,
+    "organic": 0
+  },
+  "after": {
+    "suggestions": 6,
+    "sponsored": 1,
+    "organic": 5,
+    "missingSuggestionIds": []
+  },
+  "deployments": {
+    "api": "wipoutsqamjcqgh9dswm7yzv",
+    "web": "1h4rad92a6cf5dcselicoqy2",
+    "worker": "2wfknsbghuwchudrumsr7gpj",
+    "status": "finished"
+  },
+  "browserSmoke": "Desktop and mobile: suggestions to all results, six links rendered",
+  "ci": "https://github.com/MentesReprogramadas/divulgadorlink/actions/runs/39050433696",
+  "ciStatus": "success"
+}

@@ -1,14 +1,20 @@
 "use client";
 
 import { createContext, useContext, useEffect, useLayoutEffect, useState } from "react";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LoginForm } from "@/components/forms/login-form";
-import { Button, ButtonLink } from "@/components/ui/button";
-import { AdminNav } from "@/components/domain/admin-nav";
+import { ButtonLink } from "@/components/ui/button";
+import { ActionIcon } from "@/components/ui/action-icon";
+import { WorkspaceActions } from "@/components/layout/workspace-controls";
+import { WorkspaceNavigation } from "./workspace-navigation";
+import styles from "./workspace.module.css";
+import { workspaceHeading } from "./workspace-heading";
+import { WorkspacePending } from "./workspace-pending";
+import { ProfilePreviewSkeleton } from '@/features/profiles/components/profile-preview-skeleton';
+import { VerificationPageSkeleton } from "./verification-skeleton";
 import { panelGate } from "@/domain/panel-gate";
-import { clearSession, readSession, SESSION_EVENT, type Session } from "@/domain/session";
-import { api, currentSession } from "@/lib/api";
+import { readSession, SESSION_EVENT, type Session } from "@/domain/session";
+import { currentSession } from "@/lib/api";
 
 const AreaSession = createContext<Session | null>(null);
 
@@ -17,31 +23,7 @@ export function useAreaSession(): Session | null {
 }
 
 export function PanelNav({ role }: { role: string }) {
-  const path = usePathname();
-  const items = [
-    { id: "geral", href: "/painel", label: "Visão geral" },
-    { id: "links", href: "/painel/links", label: "Links" },
-    { id: "pedidos", href: "/painel/pedidos", label: "Pedidos" },
-    { id: "favoritos", href: "/painel/favoritos", label: "Favoritos" },
-    { id: "perfil", href: "/painel/perfil", label: "Perfil" },
-    { id: "convites", href: "/painel/convites", label: "Convites" },
-    { id: "lembretes", href: "/painel/lembretes", label: "Lembretes" },
-    { id: "conta", href: "/painel/conta", label: "Conta" },
-    ...(role === "ADMIN" ? [{ id: "admin", href: "/admin/visao", label: "Admin" }] : []),
-  ];
-  function current(href: string): boolean {
-    if (href === "/painel") return path === "/painel";
-    return path === href || path.startsWith(`${href}/`);
-  }
-  return (
-    <nav className="panel-nav" aria-label="Áreas do painel">
-      {items.map((item) => (
-        <Link key={item.id} href={item.href} aria-current={current(item.href) ? "page" : undefined}>
-          {item.label}
-        </Link>
-      ))}
-    </nav>
-  );
+  return <WorkspaceNavigation area="panel" role={role} />;
 }
 
 export function usePanelSession() {
@@ -76,11 +58,6 @@ export function usePanelSession() {
 }
 
 export function SuspendedAccount({ reason }: { reason?: string }) {
-  async function logout() {
-    await api("/v1/auth/logout", { method: "POST" });
-    clearSession();
-    window.location.href = "/painel";
-  }
   return (
     <main className="auth-page">
       <h1 className="entry-title">Conta suspensa</h1>
@@ -91,9 +68,6 @@ export function SuspendedAccount({ reason }: { reason?: string }) {
           <p>{reason}</p>
         </>
       ) : null}
-      <p className="auth-switch">
-        <button type="button" className="quiet-button" onClick={() => void logout()}>Sair</button>
-      </p>
     </main>
   );
 }
@@ -102,11 +76,7 @@ function VerifyRedirect() {
   useLayoutEffect(() => {
     window.location.replace("/painel/verificar");
   }, []);
-  return (
-    <main className="auth-page">
-      <p role="status">Carregando</p>
-    </main>
-  );
+  return <VerificationPageSkeleton />;
 }
 
 export function AreaFrame({
@@ -123,26 +93,8 @@ export function AreaFrame({
   const path = usePathname();
   const { ready, session } = usePanelSession();
   const gate = panelGate(session, path);
-  if (!ready) {
-    if (path === "/painel/verificar") {
-      return (
-        <main className="auth-page">
-          <p role="status">Carregando</p>
-        </main>
-      );
-    }
-    return (
-      <main className="panel-page">
-        <div className="panel-bar">
-          <h1 className="entry-title">{title}</h1>
-        </div>
-        <div className="panel-nav" />
-        <div className="panel-stage">
-          <p role="status" aria-label="Carregando">Carregando</p>
-        </div>
-      </main>
-    );
-  }
+  if (!ready && path === "/painel/perfil/previa") return <ProfilePreviewSkeleton />;
+  if (!ready) return path === "/painel/verificar" ? <VerificationPageSkeleton /> : <WorkspacePending path={path} title={title} admin={admin} create={create} />;
   if (gate === "redirect-verify") {
     return <VerifyRedirect />;
   }
@@ -167,12 +119,18 @@ export function AreaFrame({
       </main>
     );
   }
+  if (path === "/painel/perfil/previa") return <AreaSession.Provider value={session}>{children}</AreaSession.Provider>;
   return (
     <AreaSession.Provider value={session}>
-      <main className="panel-page">
-        <PanelTop session={session} title={title} create={create} />
-        {admin ? <AdminNav /> : <PanelNav role={session.role} />}
-        <div className="panel-stage">{children}</div>
+      <main className={styles.shell}>
+        <aside className={styles.sidebar}>
+          <p className={styles.sidebarTitle}>{admin ? "Administração" : "Meu espaço"}<small>Tem Link Aqui</small></p>
+          <div className={styles.desktopMenu}><WorkspaceNavigation area={admin ? "admin" : "panel"} role={session.role} /></div>
+        </aside>
+        <div className={styles.content}>
+          <PanelTop session={session} title={title} create={create} />
+          <div className={styles.stage}>{children}</div>
+        </div>
       </main>
     </AreaSession.Provider>
   );
@@ -185,13 +143,7 @@ export function PanelGate({
 }) {
   const { ready, session } = usePanelSession();
   if (!ready)
-    return (
-      <main className="panel-page">
-        <p role="status" aria-label="Carregando">
-          Carregando
-        </p>
-      </main>
-    );
+    return <WorkspacePending path="/painel" />;
   if (!session)
     return (
       <main className="auth-page">
@@ -207,38 +159,24 @@ export function PanelGate({
 }
 
 export function PanelTop({
-  title = "Painel",
   create = true,
 }: {
   session: Session;
   title?: string;
   create?: boolean;
 }) {
-  async function logout() {
-    await api("/v1/auth/logout", { method: "POST" });
-    clearSession();
-    window.location.href = "/painel";
-  }
+  const path = usePathname();
+  const current = workspaceHeading(path);
   return (
     <>
-      <div className="panel-bar">
-        <h1 className="entry-title">{title}</h1>
-        <div className="page-header-actions">
-          {create ? (
-            <ButtonLink href="/painel/links/novo">Novo link</ButtonLink>
-          ) : null}
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => void logout()}
-          >
-            Sair
-          </Button>
-        </div>
-      </div>
+      <header className={styles.top}>
+        <div><h1>{current.title}</h1></div>
+      </header>
+      {create && (path === "/painel" || path === "/painel/visao") ? <WorkspaceActions><ButtonLink href="/painel/links/novo"><ActionIcon name="createLink" />Novo link</ButtonLink><ButtonLink variant="secondary" href="/painel/links"><ActionIcon name="link" />Gerenciar links</ButtonLink></WorkspaceActions> : null}
     </>
   );
 }
+
 
 export function AdminHeading({ title }: { title: string }) {
   const { session } = usePanelSession();

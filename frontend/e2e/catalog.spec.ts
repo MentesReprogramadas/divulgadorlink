@@ -1,3 +1,4 @@
+import { selectOption } from './select-control'
 import { runtime as e2eRuntime } from './runtime.cjs'
 import { createSign, generateKeyPairSync } from 'node:crypto'
 import { readFileSync } from 'node:fs'
@@ -22,8 +23,6 @@ const state = JSON.parse(readFileSync(path.join(__dirname, 'state.json'), 'utf8'
   dora: string
   tenantA: string
 }
-
-const BIA_STATE = path.join(__dirname, 'bia.storage.json')
 
 type Call = { status: number; text: string }
 
@@ -59,24 +58,10 @@ async function accessCookie(page: Page): Promise<string> {
   return (await page.context().cookies()).find((cookie) => cookie.name === 'accessToken')?.value ?? ''
 }
 
-function assertBiaStateUsable(): void {
-  const saved = JSON.parse(readFileSync(BIA_STATE, 'utf8')) as { cookies: Array<{ name: string; value: string }> }
-  const token = saved.cookies.find((cookie) => cookie.name === 'accessToken')?.value ?? ''
-  const claims = JSON.parse(Buffer.from(token.split('.')[1] ?? '', 'base64url').toString() || '{}') as { tenantId?: string; exp?: number }
-  if (claims.tenantId !== state.tenantA) {
-    throw new Error(`bia.storage.json é de outro seed (tenant ${claims.tenantId ?? 'ausente'}); o projeto setup não rodou nesta execução`)
-  }
-  if (!claims.exp || claims.exp * 1000 - Date.now() < 15_000) {
-    throw new Error('o access token de bia.storage.json venceu; a suíte passou do TTL de 5 min desde o setup')
-  }
-}
-
 async function asBia(browser: Browser, viewport?: { width: number; height: number }) {
-  assertBiaStateUsable()
-  const context = await browser.newContext({ storageState: BIA_STATE, ...(viewport ? { viewport } : {}) })
+  const context = await browser.newContext(viewport ? { viewport } : {})
   const page = await context.newPage()
-  await page.goto(`${A}/painel`)
-  await expect(page.getByRole('heading', { name: 'Painel' })).toBeVisible()
+  await login(page, A, state.bia)
   return { context, page }
 }
 
@@ -163,10 +148,14 @@ test('cadastro sem confirmação não envia link', async ({ browser }) => {
   await page.getByLabel('Senha').fill(state.password)
   await page.getByRole('button', { name: 'Criar conta' }).click()
   await expect(page).toHaveURL(/\/painel\/verificar/)
+  await expect(page.getByRole('navigation', { name: 'Navegação principal' }).getByRole('button', { name: 'Sair', exact: true })).toBeVisible()
   const row = sql(`SELECT u.status FROM users u JOIN user_identifiers i ON i."userId" = u.id WHERE i."normalizedValue" = '${email}'`)
   expect(row).toBe('ACTIVE')
   await page.goto(`${A}/painel/links/novo`)
-  await expect(page.getByRole('button', { name: 'Enviar' })).toBeDisabled()
+  await expect(page).toHaveURL(`${A}/painel/verificar`)
+  const blocked = await call(page, '/bff/v1/links', { method: 'POST', body: { url: 'https://example.com/unconfirmed', name: 'Sem confirmação', description: 'Não publicar', networkId: 'n', nicheId: 'n' } })
+  expect(blocked.status, blocked.text).toBe(403)
+  expect(blocked.text).not.toContain('CSRF')
 
   const mail = await call(page, '/bff/v1/auth/confirmation-inbox?kind=EMAIL')
   expect(mail.status, mail.text).toBe(200)
@@ -183,7 +172,7 @@ test('cadastro sem confirmação não envia link', async ({ browser }) => {
   await page.getByRole('button', { name: 'Confirmar e-mail' }).click()
   await expect(page.getByText('Código inválido ou expirado.')).toBeVisible()
   await page.goto(`${A}/painel/links/novo`)
-  await expect(page.getByRole('button', { name: 'Enviar' })).toBeDisabled()
+  await expect(page).toHaveURL(`${A}/painel/verificar`)
 
   await page.goto(`${A}/painel/verificar`)
   const fresh = await call(page, '/bff/v1/auth/confirmation-inbox?kind=EMAIL')
@@ -194,7 +183,7 @@ test('cadastro sem confirmação não envia link', async ({ browser }) => {
   await expect(page).toHaveURL(`${A}/painel/links/novo`)
   await expect(page.getByText('Confirme o e-mail para enviar um link')).toHaveCount(0)
   await page.goto(`${A}/painel/links/novo`)
-  await expect(page.getByRole('button', { name: 'Enviar' })).toBeEnabled()
+  await expect(page.getByRole('button', { name: 'Continuar', exact: true })).toBeEnabled()
 })
 
 test('login, refresh e sessão mínima', async ({ browser }) => {
@@ -234,7 +223,7 @@ test('login, refresh e sessão mínima', async ({ browser }) => {
 
   const second = await page.context().newPage()
   await second.goto(`${A}/painel/links`)
-  await expect(second.getByRole('heading', { name: 'Painel' })).toBeVisible()
+  await expect(second.getByRole('heading', { name: 'Meus links', exact: true })).toBeVisible()
   await expect(second.getByRole('heading', { name: 'Receitas' })).toBeVisible()
   await second.close()
 
@@ -272,12 +261,14 @@ test('vitrine pagina por cursor com limite no servidor', async ({ browser }) => 
 test('criação, SSRF, payload e edição publicada', async ({ browser }) => {
   const { page } = await asBia(browser)
   await page.goto(`${A}/painel/links/novo`)
-  await page.getByLabel('Titulo').fill('Bolo de cenoura')
-  await page.getByLabel('Descrição').fill('Receita simples')
-  await page.getByLabel('URL').fill('https://t.me/bolo')
-  await page.getByLabel('Rede').selectOption({ label: 'Telegram' })
-  await page.getByLabel('Nicho').selectOption({ label: 'Jogos' })
-  await page.getByRole('button', { name: 'Enviar' }).click()
+  await page.getByLabel('Título do link').fill('Bolo de cenoura')
+  await page.getByLabel('Link de acesso').fill('https://t.me/bolo')
+  await page.getByRole('button', { name: 'Continuar', exact: true }).click()
+  await page.getByLabel('Descrição', { exact: true }).fill('Receita simples')
+  await selectOption(page.getByLabel('Rede do link'), { label: 'Telegram' })
+  await selectOption(page.getByLabel('Assunto do link'), { label: 'Jogos' })
+  await page.getByRole('button', { name: 'Continuar', exact: true }).click()
+  await page.getByRole('button', { name: 'Enviar', exact: true }).click()
   await expect(page.getByText('Enviado para análise.')).toBeVisible()
   const created = sql(`SELECT status || '|' || "tenantId" FROM links WHERE name = 'Bolo de cenoura'`)
   expect(created).toBe(`PENDING_MODERATION|${state.tenantA}`)
@@ -285,12 +276,14 @@ test('criação, SSRF, payload e edição publicada', async ({ browser }) => {
   await expect(page.getByText('Bolo de cenoura')).toHaveCount(0)
 
   await page.goto(`${A}/painel/links/novo`)
-  await page.getByLabel('Titulo').fill('Loopback')
-  await page.getByLabel('Descrição').fill('nao')
-  await page.getByLabel('URL').fill('https://127.0.0.1/privado')
-  await page.getByLabel('Rede').selectOption({ label: 'Telegram' })
-  await page.getByLabel('Nicho').selectOption({ label: 'Jogos' })
-  await page.getByRole('button', { name: 'Enviar' }).click()
+  await page.getByLabel('Título do link').fill('Loopback')
+  await page.getByLabel('Link de acesso').fill('https://127.0.0.1/privado')
+  await page.getByRole('button', { name: 'Continuar', exact: true }).click()
+  await page.getByLabel('Descrição', { exact: true }).fill('nao')
+  await selectOption(page.getByLabel('Rede do link'), { label: 'Telegram' })
+  await selectOption(page.getByLabel('Assunto do link'), { label: 'Jogos' })
+  await page.getByRole('button', { name: 'Continuar', exact: true }).click()
+  await page.getByRole('button', { name: 'Enviar', exact: true }).click()
   await expect(page.locator('main').getByRole('alert')).toContainText('URL não permitida.')
   const forbidden = ['https://localhost/x', 'https://10.0.0.1/x', 'https://169.254.169.254/', 'https://[::1]/x', 'https://[::ffff:127.0.0.1]/x']
   const facets = JSON.parse((await call(page, '/bff/v1/home')).text) as { networks: Array<{ id: string }>; niches: Array<{ id: string }> }
@@ -328,7 +321,7 @@ test('criação, SSRF, payload e edição publicada', async ({ browser }) => {
   const card = page.locator('article', { has: page.getByRole('heading', { name: 'Receitas' }) })
   await card.getByRole('button', { name: 'Editar' }).click()
   const dialog = page.getByRole('dialog', { name: 'Editar link' })
-  await dialog.getByLabel('Novo nome').fill('Receitas novas')
+  await dialog.getByLabel('Título do link', { exact: true }).fill('Receitas novas')
   await dialog.getByLabel('Nova descrição').fill('proposta')
   await dialog.getByRole('button', { name: 'Salvar texto' }).click()
   await expect(dialog.getByText('Proposta registrada')).toBeVisible()
@@ -426,7 +419,7 @@ test('checkout, webhook RSA, replay e assinatura inválida', async ({ browser })
   expect(sql(`SELECT count(*) FROM payments WHERE "orderId" = '${orderId}'`)).toBe('1')
   expect(redisScan(`*${orderId}*`)).toContain(orderId)
 
-  const body = JSON.stringify({ eventId: 'evt-1', charge: { correlationID: orderId } })
+  const body = JSON.stringify({ event: 'OPENPIX:CHARGE_COMPLETED', charge: { correlationID: orderId } })
   const paid = await postRaw({
     path: '/api/v1/payments/woovi/webhook',
     host: 'tenant-a.localhost',
@@ -488,7 +481,7 @@ test('checkout, webhook RSA, replay e assinatura inválida', async ({ browser })
   expect(missing.status).toBe(400)
   expect(sql(`SELECT count(*) FROM promotions WHERE "linkId" = '${state.receitas}'`)).toBe('1')
   await page.goto(`${A}/painel/pedidos`)
-  await expect(page.getByText('Pago')).toBeVisible()
+  await expect(page.getByRole('article').getByText('Pago', { exact: true })).toBeVisible()
 })
 
 test('logout idempotente', async ({ browser }) => {
@@ -526,8 +519,8 @@ test('IDOR e tenant', async ({ browser }) => {
   expect(foreignOrder.status).toBe(404)
   expect(foreignOrder.text).not.toContain('BR.GOV.BCB.PIX')
 
-  const biaState = JSON.parse(readFileSync(BIA_STATE, 'utf8')) as { cookies: Array<{ name: string; value: string }> }
-  const token = biaState.cookies.find((cookie) => cookie.name === 'accessToken')?.value ?? ''
+  const bia = await asBia(browser)
+  const token = await accessCookie(bia.page)
   expect(token.length).toBeGreaterThan(20)
   const hostB = await browser.newPage()
   await hostB.goto(B)
@@ -571,7 +564,7 @@ test('admin não confia no cookie e a decisão persiste', async ({ browser }) =>
   await expect(guest.getByRole('link', { name: 'FilaAprovar' })).toBeVisible()
   await expect(guest.getByText('FilaRejeitar')).toHaveCount(0)
   await admin.page.goto(`${A}/admin/estornos`)
-  await expect(admin.page.getByText('Nenhum estorno')).toBeVisible()
+  await expect(admin.page.getByText('Nada por aqui ainda.', { exact: true })).toBeVisible()
 
   const foreign = await browser.newPage()
   await foreign.goto(B)
@@ -595,7 +588,10 @@ test('mobile: home, busca, login, painel e checkout', async ({ browser }) => {
   await expect(anonymous.getByRole('button', { name: 'Entrar' })).toBeVisible()
   const { page } = await asBia(browser, { width: 390, height: 844 })
   await expect(page.getByRole('link', { name: 'Novo link' })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Sair' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Sair' })).toBeHidden()
+  await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await expect(page.getByRole('dialog').getByRole('button', { name: 'Sair', exact: true })).toBeVisible()
+  await page.keyboard.press('Escape')
   await page.goto(`${A}/painel/links/${state.receitas}/destaque`)
   await expect(page.getByRole('button', { name: 'Continuar' })).toBeVisible()
   await page.setViewportSize({ width: 390, height: 500 })

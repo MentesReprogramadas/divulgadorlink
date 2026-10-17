@@ -1,5 +1,7 @@
 'use client'
 
+import { ActionIcon } from '@/components/ui/action-icon'
+
 import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -40,7 +42,7 @@ export default function Page() {
         <form className="auth-form" onSubmit={onSubmit}>
           <Field label="Explique o que aconteceu"><TextArea name="text" required /></Field>
           {error ? <p role="alert">{error}</p> : null}
-          <Button type="submit" loading={pending}>Enviar contestação</Button>
+          <Button type="submit" loading={pending}><ActionIcon name="check" />Enviar contestação</Button>
         </form>
       )}
     </>

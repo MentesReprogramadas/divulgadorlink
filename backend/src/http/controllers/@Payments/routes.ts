@@ -143,12 +143,14 @@ function readWooviEvent(payload: Buffer, signature: string | undefined): { order
   const publicKey = env.WOOVI_WEBHOOK_PUBLIC_KEY ?? WOOVI_PUBLISHED_PUBLIC_KEY
   if (!verifyWooviSignature(payload, signature, publicKey)) throw new Error('assinatura')
   const body = JSON.parse(payload.toString()) as {
+    event?: string
     eventId?: string
     correlationID?: string
     charge?: { correlationID?: string }
   }
   const orderId = body.charge?.correlationID ?? body.correlationID
   const eventId = body.eventId ?? body.correlationID
+    ?? (body.event && orderId ? `${body.event}:${orderId}` : undefined)
   if (!orderId || !eventId) throw new Error('pedido')
   return { eventId, orderId }
 }

@@ -170,3 +170,9 @@ Mobile: o mesmo arquivo em features-mobile quando esse projeto existir.
 
 **Registro inicial histórico:** implementação ainda não autorizada no planejamento. **Registro atual:** responsável técnico Codex; implementação e testes locais executados, fechamento/rollout acompanhados no [registro de execução](../execucao-f42.md).
 
+
+## Extensão de 17/10/2026 — páginas e convites no WhatsApp
+
+Por novo pedido expresso, revisões humanas de F09/F12 e suas contestações também usam o grupo Evolution configurado, a mesma autorização por operador ADMIN e a mesma operação de decisão do painel. O aviso citado identifica a versão exata; expiração, substituição e contestação invalidam mensagens anteriores. Decisão e registro do aviso de confirmação são atômicos, sem alterar aprovação automática, regras de segurança ou cobrança. Avisos ganham símbolos distintos por evento e mantêm seções curtas.
+
+Contrato, critérios, limites, evidências e resultados no [complemento da implementação](../../frontend-profissional/revisao-paginas-convites.md#complemento-autorizado--aprovação-pelo-whatsapp).

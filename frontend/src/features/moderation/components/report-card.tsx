@@ -1,5 +1,7 @@
 'use client'
 
+import { ActionIcon } from '@/components/ui/action-icon'
+
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Field, Select, TextArea } from '@/components/ui/input'
@@ -33,7 +35,7 @@ export function ReportCard({ report, onDecision }: { report: ReportQueueRow; onD
       <Field label="Próximo estado"><Select name="status" defaultValue={report.status === 'RECEIVED' ? 'IN_REVIEW' : 'RESOLVED'} disabled={pending}>{report.status === 'RECEIVED' ? <option value="IN_REVIEW">Em análise</option> : null}<option value="RESOLVED">Resolvida</option></Select></Field>
       <Field label="Justificativa"><TextArea name="reason" required minLength={3} maxLength={500} rows={2} disabled={pending} /></Field>
       {error ? <p ref={errorMessage} tabIndex={-1} role="alert">{error}</p> : null}
-      <Button type="submit" loading={pending}>Salvar decisão</Button>
+      <Button type="submit" loading={pending}><ActionIcon name="save" />Salvar decisão</Button>
     </form></div> : null}
   </article>
 }

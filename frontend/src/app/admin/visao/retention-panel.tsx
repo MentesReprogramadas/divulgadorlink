@@ -1,5 +1,9 @@
 'use client'
 
+import { InsightSkeleton } from '@/features/administration/components/insight-skeleton'
+
+import { ActionIcon } from '@/components/ui/action-icon'
+
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
@@ -49,7 +53,7 @@ export function RetentionPanel() {
   }
 
   if (failed) return <p>Não foi possível ler a retenção.</p>
-  if (!view) return <p>Carregando…</p>
+  if (!view) return <InsightSkeleton kind="retention" />
 
   return (
     <section aria-label="Retenção de analytics">
@@ -63,7 +67,7 @@ export function RetentionPanel() {
         <span className="metric-label">{view.pending === 0 ? 'nada além do prazo' : 'além do prazo'}</span>
       </p>
       {notice ? <p role="status">{notice}</p> : null}
-      <Button type="button" variant="danger" disabled={busy || view.pending === 0} onClick={() => void purge()}>
+      <Button type="button" variant="danger" disabled={busy || view.pending === 0} onClick={() => void purge()}><ActionIcon name="trash" />
         Pedir expurgo
       </Button>
     </section>

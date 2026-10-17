@@ -1,8 +1,13 @@
 'use client'
 
+import { DatePicker } from '@/components/ui/date-picker'
+import { SkeletonField, SkeletonRegion } from '@/components/feedback/skeleton'
+
+import { ActionIcon } from '@/components/ui/action-icon'
+
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Field, Input, Select } from '@/components/ui/input'
+import { Field, Select } from '@/components/ui/input'
 import { api } from '@/lib/api'
 import styles from './link-promotion-editor.module.css'
 
@@ -99,7 +104,7 @@ export function LinkPromotionEditor({ linkId, linkName }: LinkPromotionEditorPro
 
   return (
     <div className={styles.root}>
-      <Button type="button" variant="secondary" onClick={start}>Gerenciar destaque</Button>
+      <Button type="button" variant="secondary" onClick={start}><ActionIcon name="promotion" />Gerenciar destaque</Button>
       <p role="status" className={styles.notice}>{notice}</p>
       <dialog ref={dialogRef} className={styles.dialog} aria-labelledby={`promotion-title-${linkId}`} onCancel={event => { event.preventDefault(); if (!pendingRef.current) setOpen(false) }}>
         <form className={styles.form} onSubmit={event => { event.preventDefault(); void save() }}>
@@ -108,7 +113,7 @@ export function LinkPromotionEditor({ linkId, linkName }: LinkPromotionEditorPro
             <h2 id={`promotion-title-${linkId}`}>{linkName}</h2>
             <p>Começa ao salvar, sem cobrança. O link mantém a identificação de patrocinado no catálogo.</p>
           </header>
-          {failed ? <div role="alert"><p>Não foi possível carregar o destaque.</p><Button type="button" variant="secondary" onClick={() => void load()}>Tentar novamente</Button></div> : !context ? <p role="status">Carregando destaque…</p> : <>
+          {failed ? <div role="alert"><p>Não foi possível carregar o destaque.</p><Button type="button" variant="secondary" onClick={() => void load()}><ActionIcon name="refresh" />Tentar novamente</Button></div> : !context ? <SkeletonRegion><div className={styles.form}><SkeletonField label="Onde destacar" hint="Escolha os locais de exibição no catálogo." /><SkeletonField label="Período" /></div></SkeletonRegion> : <>
             {paid.length ? <p className={styles.info}>Destaque pago em: {paid.map(row => LABELS[row.surface]).join(', ')}. Estes locais não podem ser substituídos.</p> : null}
             {admin.length ? <p className={styles.info}>Atual: {admin.map(row => LABELS[row.surface]).join(', ')} · {admin[0].expiresAt ? `até ${new Date(admin[0].expiresAt).toLocaleString('pt-BR')}` : 'Sem prazo de término'}</p> : null}
             {!context.eligible ? <p role="alert">Somente links publicados de contas ativas podem receber destaque.</p> : <>
@@ -124,15 +129,15 @@ export function LinkPromotionEditor({ linkId, linkName }: LinkPromotionEditorPro
                   <option value="custom">Escolher data de término</option><option value="indefinite">Sem prazo (indeterminado)</option>
                 </Select>
               </Field>
-              {period === 'custom' ? <Field label="Data e hora de término" hint="Use o horário local do seu dispositivo."><Input type="datetime-local" required value={end} onChange={event => setEnd(event.target.value)} disabled={busy} /></Field> : null}
+              {period === 'custom' ? <Field label="Data e hora de término" hint="Use o horário local do seu dispositivo."><DatePicker withTime required value={end} onChange={event => setEnd(event.target.value)} disabled={busy} /></Field> : null}
               {period === 'indefinite' ? <p className={styles.info}>O destaque ficará ativo até ser removido pelo admin ou o link sair do ar.</p> : null}
             </>}
           </>}
           {error ? <p role="alert" className={styles.error}>{error}</p> : null}
           <div className={styles.actions}>
-            {context?.eligible ? <Button type="submit" disabled={busy || !hasPlacement}>{busy ? 'Salvando…' : 'Salvar destaque'}</Button> : null}
-            <Button type="button" variant="secondary" disabled={busy} onClick={() => setOpen(false)}>Cancelar</Button>
-            {admin.length ? <Button type="button" variant="danger" disabled={busy} onClick={() => void save(true)}>Remover destaque</Button> : null}
+            {context?.eligible ? <Button type="submit" disabled={busy || !hasPlacement}><ActionIcon name="save" />{busy ? 'Salvando…' : 'Salvar destaque'}</Button> : null}
+            <Button type="button" variant="secondary" disabled={busy} onClick={() => setOpen(false)}><ActionIcon name="close" />Cancelar</Button>
+            {admin.length ? <Button type="button" variant="danger" disabled={busy} onClick={() => void save(true)}><ActionIcon name="trash" />Remover destaque</Button> : null}
           </div>
         </form>
       </dialog>

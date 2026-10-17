@@ -2,7 +2,8 @@ import { probeAvailability } from '@/adapters/http/availability-probe'
 import { OpenAiTextModeration } from '@/adapters/moderation/openai-text-moderation'
 import type { ModelVerdict } from '@/use-cases/@Links/proposed-text-decision'
 import { env } from '@/env'
-export type PublicContentValidationPorts = { probe: (url: string) => Promise<number | null>; judge: (text: { name: string; description: string; niche: string }) => Promise<ModelVerdict> }
+import type { ProfileModerationContext } from '@/domain/profiles/profile-moderation'
+export type PublicContentValidationPorts = { probe: (url: string) => Promise<number | null>; judge: (text: { name: string; description: string; niche: string; profileContext?: ProfileModerationContext }) => Promise<ModelVerdict> }
 export function publicContentValidationPorts(host: string): PublicContentValidationPorts {
   const moderation = env.OPENAI_API_KEY ? new OpenAiTextModeration(env.OPENAI_API_KEY) : null
   if (env.NODE_ENV === 'dev' && ['profiles.localhost', 'redirects.localhost'].includes(host) && process.env.E2E_PROFILE_STUB_URL) {

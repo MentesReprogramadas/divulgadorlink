@@ -1,5 +1,49 @@
 # Ícones e navegação
 
+## Minha página — simplificação de 17/10/2026
+
+O editor usa `preview` (janela com olho) para Ver prévia e o `RefreshButton` compartilhado (`refresh`) para Atualizar dados, fora do menu de três pontos. Ambos preservam seus significados existentes; o botão de atualização mantém nome acessível e tooltip mesmo sem texto visível. O seletor do botão principal fica em modal e usa rótulo textual, sem atribuir a ele um símbolo já reservado a outro contexto. Evidências em [Minha página: rascunho automático](evidencias/minha-pagina-autosave-2026-10-17/README.md).
+
+## Calendário — 17/10/2026
+
+`ActionIcon name="calendar"` representa exclusivamente abrir o seletor de data. O desenho foi comparado ao catálogo de `action-icon.tsx`: não reutiliza relógio (horário), sino (lembretes) ou destinos de navegação. Repetição nos filtros e no editor de destaque mantém o mesmo significado. Ícone decorativo com `aria-hidden`; botão recebe nome “Abrir calendário” e descrição com a data atual. Testes de navegação/ícones incluídos na suíte completa.
+
+## Exclusividade por contexto — 17/10/2026
+
+Regra solicitada pelo usuário: contextos diferentes nunca usam o mesmo símbolo. A repetição é permitida para o mesmo significado, como o mesmo destino no cabeçalho e na sidebar, editar registros ou salvar formulários. Mudanças de cor, tamanho, nome ou espessura não distinguem conceitos.
+
+Correção solicitada posteriormente pelo usuário: favoritos conserva a estrela nos cards, abas, skeleton e sidebar, preenchida em amarelo quando salvo. A ação de destaque e o badge patrocinado genérico usam megafone, preservando a exclusividade do contexto. A skill e o teste dos pares semânticos refletem essa escolha. A jornada de salvar/coleções passou em desktop/mobile (mais setup); capturas em `output/icon-semantics/favorite-stars/`.
+
+Procedimento mantido em [.agents/skills/temlink-icons/SKILL.md](../../.agents/skills/temlink-icons/SKILL.md), também referenciado pelo AGENTS da raiz.
+
+Os desenhos compartilhados ficam em `frontend/src/components/ui/action-icon.tsx`; os destinos em `frontend/src/components/layout/navigation-icons.ts`. Cabeçalho e menus de painel/admin usam o mesmo mapa. Os subitens conservam sua apresentação textual existente; seus símbolos também têm mapeamento exclusivo, sem depender de CSS para esconder colisões.
+
+| Contextos antes confundidos | Decisão |
+| --- | --- |
+| Catálogo, painel e gestão | Janela de catálogo, grade de painel e edifício administrativo. |
+| Publicação, Links, Criar link, Minha página e Convites | Publicar, corrente, corrente com adição, página e envelope. |
+| Pedidos, favoritos, destaque, planos e estornos | Recibo, estrela (favoritos), megafone (destaque), documento de plano e devolução. |
+| Lembretes, disponibilidade e retenção | Sino, sinal de disponibilidade e ciclo de retorno. |
+| Revisões, moderação, denúncias, correções e integrações | Prancheta, escudo, bandeira, ferramenta e plugue. |
+| Conta, configurações, suspensão e acesso de operadores | Pessoa, ajustes, proibição e chave. |
+| Copiar, abrir externamente, Pix e cartão | Folhas sobrepostas, saída, losango e cartão. |
+| Métricas, tráfego, mais clicados, pagadores e contas | Gráfico, tendência, cursor, pessoa com moeda e pessoas. |
+| Cancelar, limpar filtros, rejeitar e desativar | X, filtro com X, documento rejeitado e botão de energia. |
+| Expandir, reordenar e carregar mais | Chevron, seta com limite e lista com seta. |
+| Impressões, prévia, resultado e contestação | Olho, janela com olho, gráfico e balão de dúvida. |
+
+As abas internas de tráfego e financeiro mantêm seus rótulos e perdem o gráfico decorativo idêntico em todas as opções. Os SVGs locais de redes e nichos foram comparados pelos caminhos e não apresentaram duplicatas exatas. Os novos pictogramas são desenhos locais, sem bibliotecas adicionais.
+
+`navigation-icons.test.tsx` verifica exclusividade dos desenhos entre destinos, grupos renderizados e pares semânticos corrigidos. O E2E W05 verifica painel/admin em desktop/mobile; W01 e W02 cobrem navegação, filtros, teclado, foco, zoom e axe nas jornadas existentes. Essa cobertura não garante automaticamente a semântica de novos ícones fora do mapa: a skill exige revisão dos consumidores e inspeção visual.
+
+Validação: lint, typecheck e 217 testes (68 arquivos) aprovados; 6 E2E finais aprovados (W01, W02 e W05 em 1440×900 e 390×844, incluindo a verificação existente em 320 px/200%). Axe não apontou violações nos estados cobertos. Build de produção executado pelo setup E2E com `TEMLINK_E2E_BUILD=1`, preservando o `.next` do servidor de desenvolvimento. Galeria e capturas finais inspecionadas em `output/icon-semantics/icon-gallery.png` e `output/icon-semantics/final/`. Containers e serviços desta execução foram removidos pelo teardown; os servidores locais existentes permaneceram ativos. Não foi feita validação em aparelho físico ou produção.
+
+O validador Python da skill não executou por ausência de PyYAML nos runtimes disponíveis. Frontmatter, nome, descrição, propriedades permitidas e ausência de placeholders foram validados com o `js-yaml` já instalado no frontend; não foram adicionadas dependências.
+
+Arquivos da fatia: skill e referência no AGENTS; mapa/testes de navegação; `action-icon.tsx`, `site-navigation.tsx`, `workspace-navigation.tsx`; consumidores de conta, favoritos, perfil, convites, links, novo envio, destaque, moderação, denúncias, estornos, gestão e integração Evolution; W05 em `workspace-layout.spec.ts`.
+
+Reversão: retirar somente esta skill/referência e os mapas/testes novos, restaurar o mapa anterior dos dois menus e reverter os nomes de ícones nos consumidores alterados nesta fatia. Há alterações locais anteriores nesses mesmos arquivos; não usar restauração integral ou reset do Git. Nenhum commit ou deploy foi feito.
+
 Atualização de 15/10/2026. Escopo: substituir desenhos aproximados de redes por símbolos de marca, uniformizar o peso visual dos nichos e tornar a navegação do cabeçalho perceptível.
 
 ## Assets locais

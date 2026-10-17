@@ -1,0 +1,5 @@
+.root { position: relative; min-width: 0; max-width: 100%; }
+.content { display: inline-flex; align-items: center; justify-content: center; gap: inherit; min-width: 0; overflow-wrap: anywhere; }
+.content > svg { flex: none; }
+.content[data-loading] { opacity: 0; }
+.root .spinner { position: absolute; inset: 0; margin: auto; }

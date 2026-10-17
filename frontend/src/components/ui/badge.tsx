@@ -9,7 +9,7 @@ function Mark({ kind, tone }: { kind?: Kind; tone: Tone }) {
     : kind === 'network'
       ? 'M5 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm8-1a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM9 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM6.6 6.4l2.2 2.4M11.4 6.2 9.6 8.4'
       : kind === 'sponsored'
-        ? 'M8 2.2 9.4 6H13.4L10.2 8.2 11.4 12 8 9.8 4.6 12 5.8 8.2 2.6 6H6.6z'
+        ? 'M2 6h4l7-3v10l-7-3H2ZM4 10l1 4h3l-1-4M13 6l2 2-2 2'
         : tone === 'ok'
           ? 'M3.2 8.2 6.4 11.4 12.8 4.6'
           : tone === 'warn'

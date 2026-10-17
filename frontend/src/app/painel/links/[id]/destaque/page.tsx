@@ -1,6 +1,10 @@
 'use client'
 
+import { ActionIcon } from '@/components/ui/action-icon'
+
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { PlanCardsSkeleton, CheckoutSkeleton } from '@/features/promotions/components/plans-skeleton'
+import { Skeleton, SkeletonRegion } from '@/components/feedback/skeleton'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
@@ -70,7 +74,7 @@ function priceOf(offer: Offer | undefined, days: Duration): number | null {
   return offer?.prices.find((row) => row.durationDays === days)?.amountCents ?? null
 }
 
-export default function Page() { return <Suspense fallback={<p role="status">Carregando planos...</p>}><CheckoutPage /></Suspense> }
+export default function Page() { return <Suspense fallback={<CheckoutSkeleton />}><CheckoutPage /></Suspense> }
 
 function CheckoutPage() {
   const search = useSearchParams()
@@ -79,6 +83,7 @@ function CheckoutPage() {
   const params = useParams<{ id: string }>()
   const router = useRouter()
   const [offers, setOffers] = useState<Offer[]>([])
+  const [offersReady, setOffersReady] = useState(false)
   const [cardEnabled, setCardEnabled] = useState(false)
   const [publishableKey, setPublishableKey] = useState('')
   const [days, setDays] = useState<Duration>(28)
@@ -116,7 +121,7 @@ function CheckoutPage() {
       setSelected((current) => current || (renewalSurface ? rows[0]?.code : rows.find((offer) => offer.featured)?.code) || '')
       setCardEnabled(Boolean(result.body.cardEnabled && result.body.publishableKey))
       setPublishableKey(result.body.publishableKey ?? '')
-    })()
+    })().catch(() => setMessage('Não foi possível carregar os planos. Tente novamente.')).finally(() => setOffersReady(true))
   }, [renewalSurface])
 
   useEffect(() => {
@@ -281,7 +286,8 @@ function CheckoutPage() {
               </label>
             ))}
           </div>
-          <div className="plan-grid" role="radiogroup" aria-label="Plano">
+          {!offersReady ? <PlanCardsSkeleton /> : null}
+          <div className="plan-grid" role="radiogroup" aria-label="Plano" aria-busy={!offersReady}>
             {offers.map((offer) => {
               const price = priceOf(offer, days)
               return (
@@ -300,7 +306,7 @@ function CheckoutPage() {
               )
             })}
           </div>
-          <Button type="button" disabled={!current} onClick={startCheckout}>Continuar</Button>
+          <Button type="button" disabled={!current} onClick={startCheckout}><ActionIcon name="next" />Continuar</Button>
         </>
       ) : null}
 
@@ -330,11 +336,11 @@ function CheckoutPage() {
             </label>
           </div>
           <div className="step-actions">
-            <Button type="button" variant="secondary" onClick={() => setStep('plan')}>Voltar</Button>
+            <Button type="button" variant="secondary" onClick={() => setStep('plan')}><ActionIcon name="back" />Voltar</Button>
             {method === 'PIX' ? (
-              <Button type="button" onClick={() => void pay('PIX')}>Pagar com Pix</Button>
+              <Button type="button" onClick={() => void pay('PIX')}><ActionIcon name="pix" />Pagar com Pix</Button>
             ) : (
-              <Button type="button" disabled={!cardEnabled} onClick={() => void pay('CARD')}>Pagar com cartão</Button>
+              <Button type="button" disabled={!cardEnabled} onClick={() => void pay('CARD')}><ActionIcon name="payment" />Pagar com cartão</Button>
             )}
           </div>
         </section>
@@ -343,16 +349,16 @@ function CheckoutPage() {
       {step === 'pix' ? (
         <section className="pay-step pix-panel">
           {shownAmount !== null ? <p className="panel-amount">{formatCents(shownAmount)}</p> : null}
-          {qr ? <img className="pix-qr" src={qr} alt="QR Code Pix" /> : null}
+          {qr ? <img className="pix-qr" src={qr} alt="QR Code Pix" /> : <SkeletonRegion label="Carregando QR Code"><div className="pix-qr"><Skeleton width="100%" height="100%" /></div></SkeletonRegion>}
           {brCode ? (
             <>
               <code aria-label="Pix copia e cola">{brCode}</code>
-              <Button type="button" variant="secondary" onClick={() => void navigator.clipboard.writeText(brCode)}>Copiar código</Button>
+              <Button type="button" variant="secondary" onClick={() => void navigator.clipboard.writeText(brCode)}><ActionIcon name="copy" />Copiar código</Button>
             </>
           ) : status === 'PENDING_PAYMENT' ? <p role="status">Gerando cobrança Pix</p> : null}
           {orderId ? <p className="pay-quiet">Pedido <span aria-label="Pedido">{orderId}</span></p> : null}
           {status ? <p role="status" aria-label="Situação">{STATUS_LABEL[status] ?? status}</p> : null}
-          <Button type="button" variant="secondary" onClick={() => setStep('method')}>Voltar</Button>
+          <Button type="button" variant="secondary" onClick={() => setStep('method')}><ActionIcon name="back" />Voltar</Button>
         </section>
       ) : null}
 
@@ -408,8 +414,8 @@ function CardConfirm({ onBack, onPaid }: { onBack: () => void; onPaid: () => voi
       <PaymentElement />
       {error ? <p role="alert">{error}</p> : null}
       <div className="step-actions">
-        <Button type="button" variant="secondary" onClick={onBack}>Voltar</Button>
-        <Button type="submit" disabled={!stripe || busy}>Confirmar cartão</Button>
+        <Button type="button" variant="secondary" onClick={onBack}><ActionIcon name="back" />Voltar</Button>
+        <Button type="submit" disabled={!stripe || busy}><ActionIcon name="check" />Confirmar cartão</Button>
       </div>
     </form>
   )

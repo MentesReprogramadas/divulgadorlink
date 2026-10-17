@@ -1,5 +1,8 @@
+import { DatePicker } from '@/components/ui/date-picker'
+import { ActionIcon } from '@/components/ui/action-icon'
+import { WorkspaceActions, WorkspaceFilters } from '@/components/layout/workspace-controls'
 import { Button } from '@/components/ui/button'
-import { Field, Input, Select } from '@/components/ui/input'
+import { Field, Select } from '@/components/ui/input'
 import { formatRate } from '@/domain/format'
 import { formatCents } from '@/domain/money'
 import type { PerformanceFilters, PerformanceReport as Report } from '../performance-contract'
@@ -11,15 +14,14 @@ function number(value: number) { return value.toLocaleString('pt-BR') }
 function money(value: number | null) { return value === null ? 'Indisponível' : formatCents(value) }
 
 export function PerformanceFiltersForm({ report, filters }: { report?: Report; filters: PerformanceFilters }) {
-  return <form method="get" className={styles.filters} aria-label="Filtrar relatório">
-    <Field label="De"><Input type="date" name="from" defaultValue={filters.from ?? report?.from} /></Field>
-    <Field label="Até"><Input type="date" name="to" defaultValue={filters.to ?? report?.to} /></Field>
+  return <><WorkspaceActions><Button type="submit" form="performance-filters"><ActionIcon name="filter" />Aplicar período</Button></WorkspaceActions><WorkspaceFilters id="performance-filters" method="get" label="Filtrar relatório">
+    <Field label="De"><DatePicker name="from" defaultValue={filters.from ?? report?.from} /></Field>
+    <Field label="Até"><DatePicker name="to" defaultValue={filters.to ?? report?.to} /></Field>
     <Field label="Campanha"><Select name="promotionId" defaultValue={filters.promotionId ?? ''}>
       <option value="">Todas as campanhas</option>
       {report?.campaigns.map((item) => <option key={item.id} value={item.id}>{surfaces[item.surface] ?? item.surface} · {day(item.activatedAt.slice(0, 10))}{item.administrative ? ' · administrativo' : ''}</option>)}
     </Select></Field>
-    <Button type="submit">Aplicar período</Button>
-  </form>
+  </WorkspaceFilters></>
 }
 
 export function PerformanceReport({ report, filters }: { report: Report; filters: PerformanceFilters }) {

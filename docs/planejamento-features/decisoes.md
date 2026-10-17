@@ -14,10 +14,10 @@ Uma proposta dentro de spec não altera regra de produto aprovada. Sem decisão,
 | F06 | D07 denúncia anônima ou autenticada, janela de deduplicação e retenção. | F06-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
 | F07 | D08 RESOLVIDA: pausa do tempo pago e retomada após aprovação; 360 min, limiar 3, backoff 30/60 min e host 60 s. | Decisão do usuário em 15/10/2026; implementação e limites em [execução F07](execucao-f07.md) |
 | F08 | D09 amostra mínima, normalização, retenção e escolha de consentimento para observações. | F08-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
-| F09 | D10 RESOLVIDA: usuário escolheu validação automática, bloqueio de suspeitos e rascunho para correção. Slug por tenant; publicação separada; mídia normalizada e validada via porta PostgreSQL sem provedor novo. Limites e contratos na spec reconciliada. | Decisão do usuário em 16/10/2026; [spec F09](specs/f09-perfil-publico.md#reconciliação-de-execução-e-d10--16102026) e [execução F09](execucao-f09.md); concluída na branch; CI 38940575906 aprovado |
+| F09 | D10 ATUALIZADA em 17/10: IA aprova ou encaminha para humano; recusa com motivo e uma contestação por versão. Substitui o bloqueio editorial sem revisão escolhido em 16/10. Slug por tenant; publicação separada; mídia normalizada e validada via porta PostgreSQL sem provedor novo. Limites e contratos na spec reconciliada. | Decisão do usuário em 16/10/2026; [spec F09](specs/f09-perfil-publico.md#reconciliação-de-execução-e-d10--16102026) e [execução F09](execucao-f09.md); concluída na branch; CI 38940575906 aprovado |
 | F10 | D11 DNS/TLS wildcard e origens confiáveis; D12 inadimplência, cancelamento, reserva e redirecionamento de host. | F10-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
 | F11 | D13 preços, limites, periodicidade, prorrata, provedor e tratamento tributário; D12 grace/cancelamento. | F11-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
-| F12 | D14 RESOLVIDA: liberação automática após validações; suspeitos bloqueados para correção. No-store/302, recuperação mediante nova validação e até 50 versões por 180 dias, preservando a publicação atual. | Respostas do usuário em 16/10/2026; [execução F12](execucao-f12.md) |
+| F12 | D14 ATUALIZADA em 17/10: liberação automática após validações ou revisão humana com recusa/contestação; erros de segurança/URL continuam exigindo correção. No-store/302, recuperação mediante nova validação e até 50 versões por 180 dias, preservando a publicação atual. | Respostas do usuário em 16/10/2026; [execução F12](execucao-f12.md) |
 | F13 | D15 formatos, tamanho e método de decodificação para teste; adicionar dependência só se inexistente e justificada. | F13-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
 | F14 | D16 convenção de intervalo e comportamento de datas ambíguas em fuso. | F14-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
 | F15 | D17 cópia versus referência dos destinos, URL e comportamento após arquivar. | F15-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
@@ -82,3 +82,6 @@ Atualização de 15 de outubro de 2026. Resolver estes assuntos antes de impleme
 
 As credenciais foram classificadas e configuradas somente no mecanismo de segredos da instalação, sem reprodução em arquivos. D44–D47 e o ensaio real estão documentados em [execução F42](execucao-f42.md). O usuário autorizou somente P0/F42; as decisões das demais features permanecem pendentes.
 
+
+
+Atualização expressa de D10/D14: [Revisão de páginas e convites](../frontend-profissional/revisao-paginas-convites.md). Retenção, cobrança e isolamento não mudaram.

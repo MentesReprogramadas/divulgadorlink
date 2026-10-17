@@ -1,5 +1,7 @@
 'use client'
 
+import { FormSkeleton } from '@/components/layout/workspace-skeleton'
+
 import { LinkEditor, useMyLinks } from '@/components/domain/panel-links'
 import { useAreaSession } from '@/components/domain/panel'
 import { useParams } from 'next/navigation'
@@ -11,7 +13,7 @@ export default function Page() {
   const link = links.find((row) => row.id === params.id)
   return (
     <>
-      {!ready ? <p role="status" aria-label="Carregando">Carregando</p> : null}
+      {!ready ? <FormSkeleton fields={2} multiline /> : null}
       {error ? <p className="panel-note" role="alert">{error}</p> : null}
       {ready && !link ? <p className="panel-empty">Link não encontrado.</p> : null}
       {link ? (

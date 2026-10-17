@@ -1,4 +1,6 @@
 'use client'
+
+import { ActionIcon } from '@/components/ui/action-icon'
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Field, Select, TextArea } from '@/components/ui/input'
@@ -25,7 +27,7 @@ export function UrlProposalCard({ proposal, onDecision }: { proposal: UrlProposa
       <Field label="Decisão"><Select name="decision" defaultValue="" required disabled={pending}><option value="" disabled>Escolha a decisão</option><option value="APPROVE">Aprovar correção</option><option value="REJECT">Recusar correção</option></Select></Field>
       <Field label="Justificativa"><TextArea name="reason" minLength={3} maxLength={500} required disabled={pending} rows={3} /></Field>
       {error ? <p role="alert" ref={alert} tabIndex={-1}>{error}</p> : null}
-      <Button type="submit" loading={pending}>Salvar decisão</Button>
+      <Button type="submit" loading={pending}><ActionIcon name="save" />Salvar decisão</Button>
     </form></div>}
   </article>
 }

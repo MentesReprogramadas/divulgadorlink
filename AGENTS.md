@@ -35,6 +35,8 @@ CSS Modules para componentes novos/migrados; tokens e fundamentos globais perman
 
 ## Design e ferramentas
 
+Ao escolher, alterar ou revisar ícones, aplicar [.agents/skills/temlink-icons/SKILL.md](.agents/skills/temlink-icons/SKILL.md): contextos diferentes nunca compartilham o mesmo desenho; repetição só é permitida para o mesmo significado.
+
 Consultar [design-system.md](docs/frontend-profissional/design-system.md) e [ferramentas.md](docs/frontend-profissional/ferramentas.md). Tokens propostos só viram contrato após validação do piloto.
 Usar pesquisa de referências reais e Refero Design quando disponível; esta é a metodologia principal. Fontes de sistemas profissionais complementam a pesquisa. Registrar o que cada referência fundamenta, sem copiar layouts ou importar outra identidade.
 Context7 serve para documentação técnica, respeitando Next 15/React 19; se faltar a versão exata, consultar documentação oficial versionada e explicitar a diferença.

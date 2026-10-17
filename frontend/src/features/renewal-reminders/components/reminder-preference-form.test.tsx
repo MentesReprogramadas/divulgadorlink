@@ -33,6 +33,6 @@ describe('F02 preferências e avisos', () => {
   it('F02-C01 mostra vazio e recupera falha de carregamento', async () => {
     vi.mocked(api).mockRejectedValueOnce(new Error('offline')).mockResolvedValue({ status: 200, body: { preferences: { emailRenewal: false, expectedVersion: 0 }, reminders: [] } })
     render(<RenewalRemindersScreen />); fireEvent.click(await screen.findByRole('button', { name: 'Tentar de novo' }))
-    await screen.findByText('Nenhum destaque perto do vencimento.')
+    await screen.findByText('Nada por aqui ainda.')
   })
 })

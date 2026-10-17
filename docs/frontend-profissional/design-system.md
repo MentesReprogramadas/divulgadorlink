@@ -1,5 +1,19 @@
 # Design System — proposta fundamentada
 
+## Select em modal — 17/10/2026
+
+O Select compartilhado mantém o portal no dialog ancestral e usa posicionamento fixo nesse contexto, para o popup não aumentar a área rolável do modal. O positioner acompanha a largura do campo, limitado ao espaço disponível; a lista ocupa 100% do positioner e concentra sua própria rolagem vertical. Fora de modais, o posicionamento permanece absoluto. Não limitar somente o positioner e deixar o popup com uma largura maior independente. [Diagnóstico, capturas e regressão](evidencias/minha-pagina-grids-selects-2026-10-17/README.md).
+
+## DatePicker personalizado — 17/10/2026
+
+`components/ui/date-picker.tsx` substitui todos os campos nativos de data/data e hora do financeiro, resultados de destaque, acessos de convites e editor administrativo de destaque. Calendário pt-BR, digitação `dd/mm/aaaa` (com `hh:mm` quando aplicável), Hoje/Limpar, seleção destacada e contorno para hoje. Valores do transporte continuam ISO e o horário permanece local, sem conversão dentro da primitiva. A feature mantém a conversão e as regras existentes.
+
+O popover reutiliza Base UI já instalado, com portal dentro do dialog ancestral quando necessário. Não foram adicionadas dependências. Calendário usa grid com um dia no percurso de Tab, setas, Home/End, PageUp/PageDown e Shift para anos. Escape fecha e devolve foco; datas inexistentes bloqueiam a validação do formulário. Selecionar pelo calendário também comunica a alteração ao Field para remover erros corrigidos.
+
+Referências: [Carbon Date Picker](https://www.carbondesignsystem.com/building-blocks/core/components/date-picker/guidelines) fundamenta campo com calendário contextual e distinção entre digitar e selecionar; [W3C APG](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/examples/datepicker-dialog/) fundamenta grade, teclado, anúncio de mês e retorno de foco. Mantidos navy, tokens e tipografia locais. Refero não está disponível entre as ferramentas desta sessão. Stories em `Design System/Campos/DatePicker`.
+
+Evidências e limites em [validação do DatePicker](evidencias/date-picker-2026-10-17.md).
+
 Estado: fundações aplicadas após autorização do usuário e verificação do piloto. A matriz abaixo registra a direção e sua evolução; os valores executáveis estão em frontend/src/styles/primitives.css e tokens.css. A identidade anterior foi avaliada criticamente, não preservada por obrigação.
 
 ## Diagnóstico crítico inicial
@@ -89,3 +103,51 @@ Documentação de cada componente: propósito, quando usar/não usar, API, varia
 | Erro ligado ao campo | GOV.UK | Recuperação mais rápida e acessível | Teste de teclado e vínculo acessível. |
 
 Aumento de conversão é hipótese. Medir chegada → cadastro → verificação → envio com os eventos reais existentes; registrar gaps antes de propor eventos novos. Comparar coortes/canais e período equivalentes, com denominador explícito e consentimento preservado. Screenshot aprovado não comprova ganho comercial.
+
+## Componentes das áreas privadas — 16/10/2026
+
+O refinamento vigente estabelece título único da página, ações sem card alinhadas à direita, card de filtros e resultados em seguida. O pedido mais recente substitui a composição anterior de ações em card. Não adicionar descrição genérica nem contagem repetindo o estado vazio. Ações por item ficam no próprio card. Condições comerciais, erros e contexto necessário continuam disponíveis.
+
+| Componente | Contrato e uso |
+| --- | --- |
+| WorkspaceActions | Ações da tarefa sem fundo, borda ou padding de card, alinhadas à direita e com ícones. Uma ação isolada recebe tratamento primário; destrutivas preservam sua cor. Sair aparece em vermelho no cabeçalho global desktop e como última ação no rodapé da sidebar mobile, sem duplicação no conteúdo das telas. |
+| WorkspaceFilters | Grid responsivo de controles; dois primeiros ficam visíveis no mobile e os demais abrem com Ver mais, acima de Ver menos. Valores e formulário permanecem montados ao recolher. Não carrega dados nem decide autorização. |
+| Select | Base UI 1.9.0 sem tema externo; superfície/trigger/opções locais. Preserva label, name, required, disabled, valor inicial/controlado e grupos. Teclado, Escape e retorno de foco precisam funcionar também dentro de diálogo. |
+| Tabs / TabNavigation | Tabs relacionadas à mesma tarefa, indicador de seleção animado, teclado e movimento reduzido. Links de mudança de área continuam sendo links, não tabs. |
+| ResponsiveTabs | Na gestão, mede a largura real das tabs, incluindo ícones e fontes. Se não couberem em uma linha, usa o mesmo Select personalizado, preservando a área escolhida. |
+| Field | Asterisco vermelho ao lado do label para required, sem mudar seu nome acessível; feedback local de validade nativa ao sair/enviar. Mensagens do servidor continuam sendo autoridade para regras comerciais e permissões. |
+| EmptyState | Um único bloco com ícone decorativo e mensagem curta; ação opcional dentro do bloco. Não repetir contador zero nem um segundo aviso de vazio. Falha de carregamento usa ErrorState. |
+| FormSteps | Só a etapa atual expõe seu texto visual; as demais usam círculo e número. Rótulos completos continuam acessíveis. Faixa única no mobile, com quebra do texto atual em zoom quando necessário. |
+| ImageUpload | Seleção/arraste, prévia e remoção; preserva a normalização e validações existentes. O upload não publica a imagem sozinho. |
+| OverlayDialog | Native dialog com foco contido, Escape, fundo inerte, devolução de foco e bloqueio de rolagem. Variante sidebar desliza da direita; não cria navegação duplicada na página. |
+| FavoriteButton | Estrela amarela sem fundo; contorno antes de salvar, preenchimento somente após sucesso. Ícone 24 px com alvo 44 px. Erro e pendência preservam o estado confirmado no servidor. |
+
+As variantes podem ser exploradas em `components/ui/primitives.stories.tsx`. Evidências de integração e critérios de fechamento ficam em `implementacao.md`; stories isoladas não comprovam o servidor.
+
+
+## Carregamento, navegação mobile e prévia — 17/10/2026
+
+- A sidebar mobile abre pela direita. Logo e botão Menu ocupam as extremidades do cabeçalho, com margem de 16 px. Os destinos Catálogo, Busca, Painel e Admin aparecem antes do contexto: uma coluna no catálogo/busca, duas no painel/admin. Compartilham SidebarLink com os itens internos; saída vermelha permanece no rodapé.
+- SkeletonRegion anuncia o carregamento uma vez e mantém as formas internas inertes e ocultas da árvore acessível. Skeleton respeita movimento reduzido. As composições reutilizam grids, cards, campos, hints e dimensões dos componentes reais; não emitem impressões, cliques ou IDs falsos de catálogo.
+- Cada loading do painel recebe o caminho literal do destino. Não deduzir a tela pendente pelo pathname anterior: isso pode mostrar o resumo ao mudar de aba. Atualizações do mesmo recurso mantêm os dados; troca de recurso, erro e perda de autorização têm estados próprios.
+- Button mantém conteúdo e dimensões durante envio, com spinner sobreposto. O Select aceita ícone decorativo sem alterar o label ou o valor. Rede e Assunto do link usam ícones também dentro do controle.
+- O nome de navegação é Minha página. Ver prévia salva o rascunho e só navega após confirmação. `/painel/perfil/previa` usa a sessão e projeção privada existentes, o mesmo ProfileView da publicação e banner sticky Modo de prévia com Voltar à edição. Não publica o rascunho nem recebe outro proprietário na URL.
+- Não aplicar Suspense de página antes da verificação de existência de recursos públicos: isso inicia HTTP 200 e pode mascarar o 404. Páginas SSR estáticas chegam completas; skeletons cobrem espera assíncrona real. Quantidades e comprimentos desconhecidos dos dados não têm equivalência pixel a pixel garantida.
+
+## Página pessoal e personalização — 17/10/2026
+
+Por pedido expresso, `/p/:slug` e a prévia privada usam página inteira sem chrome do catálogo. O SiteShell acompanha o pathname também nas transições; o conteúdo público continua sendo renderizado no servidor. Essa exceção não muda as demais rotas.
+
+- ProfileView compartilha publicação, prévia privada e simulação inerte no editor. Fundo cobre a viewport; coluna de links até 600 px, com foto, nome, bio e grupos. Assinatura pequena Criado por com logo original, sempre no rodapé, com contraste próprio. Não há configuração para ocultá-la.
+- Aparência separada de Conteúdo; personalização dividida em Temas, Cores e Botões e texto. Simulação lateral no desktop e abaixo dos controles no mobile. Conteúdo mantém as etapas anteriores. Só a publicação explícita atualiza a página pública.
+- Seis temas curados, cores hex, sólido/degradê suave, botões preenchidos/contorno/sombra, retangular/arredondado/cápsula, tipografia moderna/clássica/simples e alinhamento. Cor do texto deriva do contraste; degradê varia na direção que mantém a leitura. Valores são allowlisted no cliente e validados no servidor, sem CSS livre.
+- ColorPicker é controlado por `label`, `value` e `onChange`. Disclosure próprio, paleta, código hex e canais RGB. Não usa input color nativo. Enter/Espaço abrem; Tab percorre e setas/Home/End ajustam os sliders. Hex incompleto permanece local, com erro associado, e não altera a cor aplicada. Mudança de tema reconcilia o campo. Story em Design System/Personalização/ColorPicker.
+- ImageUpload mantém seleção/arraste e prévia. prepareAvatar reduz a até 512 px e converte para WebP antes do transporte; backend decodifica e reencoda sem metadados, preservando mídia PNG legada e autorização existente.
+
+Escopo, referências, limites e evidências em [Minha página](minha-pagina-personalizacao.md).
+
+## Complemento — marca e revisão de conteúdo, 17/10/2026
+
+A assinatura passou a texto de 9 px e logo de 66 px, sem cápsula ou fundo, no rodapé da página e da prévia. Os quatro snapshots Windows foram comparados e aprovados após inspeção: as diferenças estão restritas à marca. A publicação de Minha página e Convites agora usa decisão automática ou fila humana por categoria, motivo de recusa e uma contestação por envio, por novo pedido expresso. As regras anteriores de bloqueio editorial definitivo foram superadas; bloqueios técnicos de segurança continuam obrigatórios. Histórico desta personalização permanece acima.
+
+Contrato, migração, critérios, resultados (229 unitários frontend, 436 backend, 46 PostgreSQL, 44 E2E e duas jornadas visuais), limites e reversão em [Revisão de páginas e convites](revisao-paginas-convites.md). Na primeira entrega a revisão destes tipos ocorria no admin. O pedido seguinte ampliou a decisão para WhatsApp, registrado no complemento do mesmo documento.

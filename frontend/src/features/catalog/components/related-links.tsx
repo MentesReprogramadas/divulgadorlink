@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
 import type { RelatedPage } from '../related-contract'
 import styles from './related-links.module.css'
+import { CatalogCardsSkeleton } from './catalog-skeleton'
 
 type RelatedLinksProps = { linkId: string; initial: RelatedPage | null; deferLoad?: boolean }
 export function RelatedLinks({ linkId, initial, deferLoad = false }: RelatedLinksProps) {
@@ -42,8 +43,9 @@ export function RelatedLinks({ linkId, initial, deferLoad = false }: RelatedLink
   return <section className={styles.section} aria-labelledby="related-links-title">
     <header className={styles.header}><h2 id="related-links-title">Links relacionados</h2><p>Explore outros links do mesmo tema ou rede.</p></header>
     <CatalogGrid>{page.items.map(item => <LinkRow key={item.id} id={item.id} name={item.name} description={item.description} niche={item.niche} network={item.network} impressions={item.impressions} placement={item.sponsored ? 'sponsored' : 'organic'} href={'/link/' + encodeURIComponent(item.id) + '?surfaceToken=' + encodeURIComponent(item.surfaceToken)} showImpressions={page.showImpressions} />)}</CatalogGrid>
+    {loading && !page.items.length ? <CatalogCardsSkeleton count={3} withFavorite={false} /> : null}
     {error ? <p role="alert">{resetRequired ? 'As sugestões mudaram. Atualize para continuar.' : 'Não foi possível carregar as sugestões.'} {page.items.length ? 'Os links anteriores foram mantidos.' : 'Tente novamente.'}</p> : null}
-    {loading || resetRequired || page.nextCursor || (error && !page.items.length) ? <Button variant="secondary" disabled={loading} onClick={() => void load(resetRequired ? null : page.nextCursor, true)}>{loading ? 'Carregando…' : resetRequired ? 'Atualizar sugestões' : page.items.length ? 'Ver mais relacionados' : 'Tentar de novo'}</Button> : null}
+    {loading || resetRequired || page.nextCursor || (error && !page.items.length) ? <Button variant="secondary" loading={loading} aria-label={loading ? 'Carregando…' : undefined} onClick={() => void load(resetRequired ? null : page.nextCursor, true)}>{resetRequired ? 'Atualizar sugestões' : page.items.length ? 'Ver mais relacionados' : 'Tentar de novo'}</Button> : null}
     <p ref={statusRef} role="status" tabIndex={-1} className={styles.status}>{notice}</p>
   </section>
 }

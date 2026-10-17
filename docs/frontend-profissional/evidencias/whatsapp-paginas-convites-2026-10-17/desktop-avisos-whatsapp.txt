@@ -1,0 +1,160 @@
+🪪 *PÁGINA EM REVISÃO*
+
+*Usuário*
+Autora fixture
+
+*Página*
+*Página WA e1c39e51*
+Comunidade educativa.
+http://localhost:3000/p/pagina-wa-e1c39e51
+
+*Grupos e links*
+Materiais
+Aulas • https://example.com/aulas
+
+*Envio*
+Versão 1 • Adulto: Não
+
+*Ação*
+Responda: *APROVAR* ou *RECUSAR motivo*.
+
+Revisão: cmvckn0jd006mu4ygdsoqm2x0
+Validade: 24h
+Painel: http://localhost:3000/admin/moderacao
+
+---
+
+🎟️ *CONVITE EM REVISÃO*
+
+*Usuário*
+Autora fixture
+
+*Convite*
+*Convite WA e1c39e51*
+https://example.com/comunidade
+
+*Envio*
+Versão 1 • Adulto: Não
+
+*Ação*
+Responda: *APROVAR* ou *RECUSAR motivo*.
+
+Revisão: cmvckn0l9006qu4ygg0l8nm5l
+Validade: 24h
+Painel: http://localhost:3000/admin/moderacao
+
+---
+
+📣 *CONTESTAÇÃO • PÁGINA*
+
+*Usuário*
+Autora fixture
+
+*Página*
+*Página WA e1c39e51*
+Comunidade educativa.
+http://localhost:3000/p/pagina-wa-e1c39e51
+
+*Grupos e links*
+Materiais
+Aulas • https://example.com/aulas
+
+*Envio*
+Versão 1 • Adulto: Não
+
+*Contestação*
+Compartilhamos aulas e materiais para estudantes.
+
+*Ação*
+Responda: *APROVAR* ou *RECUSAR motivo*.
+
+Revisão: cmvckn4tq006yu4ygky0tuaj3
+Validade: 24h
+Painel: http://localhost:3000/admin/moderacao
+
+---
+
+❌ *PÁGINA • RECUSADO*
+
+*Usuário*
+Autora fixture
+
+*Página*
+*Página WA e1c39e51*
+Comunidade educativa.
+http://localhost:3000/p/pagina-wa-e1c39e51
+
+*Grupos e links*
+Materiais
+Aulas • https://example.com/aulas
+
+*Envio*
+Versão 1 • Adulto: Não
+
+*Resultado*
+Envio não publicado. Contestação disponível.
+
+*Motivo*
+Explique a finalidade educativa.
+
+*Decidido por*
+Admin fixture • WhatsApp
+
+Revisão: cmvckn0jd006mu4ygdsoqm2x0
+Painel: http://localhost:3000/admin/moderacao
+
+---
+
+⚠️ *COMANDO NÃO APLICADO*
+
+*Usuário*
+Autora fixture
+
+*Página*
+*Página WA e1c39e51*
+Comunidade educativa.
+http://localhost:3000/p/pagina-wa-e1c39e51
+
+*Grupos e links*
+Materiais
+Aulas • https://example.com/aulas
+
+*Envio*
+Versão 1 • Adulto: Não
+
+*Resultado*
+Esse aviso expirou ou o conteúdo mudou. Abra a revisão atual no painel.
+
+*Ação*
+Acessar o painel
+http://localhost:3000/admin/moderacao
+
+Revisão: cmvckn0jd006mu4ygdsoqm2x0
+
+---
+
+✅ *PÁGINA • APROVADO*
+
+*Usuário*
+Autora fixture
+
+*Página*
+*Página WA e1c39e51*
+Comunidade educativa.
+http://localhost:3000/p/pagina-wa-e1c39e51
+
+*Grupos e links*
+Materiais
+Aulas • https://example.com/aulas
+
+*Envio*
+Versão 1 • Adulto: Não
+
+*Resultado*
+Página publicada.
+
+*Decidido por*
+Admin fixture • WhatsApp
+
+Revisão: cmvckn4tq006yu4ygky0tuaj3
+Painel: http://localhost:3000/admin/moderacao

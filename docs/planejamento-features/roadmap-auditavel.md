@@ -682,3 +682,19 @@ F07: contratos e evidências em [execução F07](execucao-f07.md). Encerrar apó
 16/10/2026: F02 executada após nova autorização; encerrar ao concluí-la. Ver [execução F02](execucao-f02.md).
 
 F02 concluída na branch: S0–S7 e AC01–AC05 aprovados; CI 38909863096. Parada após esta feature, sem implantação.
+
+
+## 17/10/2026 — extensão visual/funcional de F09, sem avanço do roadmap
+
+Pedido posterior autorizou página pessoal inteira e personalização. O lote usa a F09 existente, mantém regras de publicação/moderação e não inicia F19. Contratos e checklist em [Minha página](../frontend-profissional/minha-pagina-personalizacao.md); resultados no registro F09 e implementação do frontend. Etapas S0–S7 históricas e seus commits não são reatribuídos: esta extensão permanece local, com validação própria e sem commit/CI/deploy novo.
+
+
+## 17/10/2026 — marca discreta e revisão de páginas/convites
+
+Autorização específica posterior: assinatura pequena e ciclo IA → aprovação automática ou humano → recusa/contestação para F09/F12. Implementação local versionada por envio, sem consumir quotas de Link. [Registro e critérios](../frontend-profissional/revisao-paginas-convites.md) descrevem reuso, testes, migração e reversão. Sem avanço de ordem, nova feature, commit, push ou deploy; fases históricas e seus CI permanecem históricos.
+
+## Extensão de 17/10/2026 — páginas e convites no WhatsApp
+
+Por novo pedido expresso, revisões humanas de F09/F12 e suas contestações também usam o grupo Evolution configurado, a mesma autorização por operador ADMIN e a mesma operação de decisão do painel. O aviso citado identifica a versão exata; expiração, substituição e contestação invalidam mensagens anteriores. Decisão e registro do aviso de confirmação são atômicos, sem alterar aprovação automática, regras de segurança ou cobrança. Avisos ganham símbolos distintos por evento e mantêm seções curtas.
+
+Contrato, critérios, limites, evidências e resultados no [complemento da implementação](../frontend-profissional/revisao-paginas-convites.md#complemento-autorizado--aprovação-pelo-whatsapp).

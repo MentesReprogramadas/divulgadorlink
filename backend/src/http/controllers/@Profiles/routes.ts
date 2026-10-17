@@ -1,3 +1,4 @@
+import { avatarContentType } from '@/domain/profiles/avatar-webp'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { Prisma, type PrismaClient } from '@prisma/client'
 import { z, ZodError } from 'zod'
@@ -43,8 +44,9 @@ export async function profilesRoutes(app: FastifyInstance) {
   app.get('/me/profile/preview', (q, r) => run(q, r, true, (db, actor) => profiles.previewProfile(db, actor)))
   app.post('/me/profile/publish', (q, r) => run(q, r, true, (db, actor) => profiles.publishProfile(db, actor, expected.parse(q.body).expectedVersion, testPorts ?? profileValidationPorts(normalizeTenantHost(q.headers.host ?? '')))))
   app.post('/me/profile/unpublish', (q, r) => run(q, r, true, (db, actor) => profiles.unpublishProfile(db, actor, expected.parse(q.body).expectedVersion)))
+  app.post('/me/profile/discard', (q, r) => run(q, r, true, (db, actor) => profiles.discardProfile(db, actor, expected.parse(q.body).expectedVersion)))
   app.post('/me/profile/avatar', (q, r) => run(q, r, true, (db, actor) => profiles.uploadProfileAvatar(db, actor, z.object({ base64: z.string().max(349528) }).strict().parse(q.body).base64)))
-  app.get('/me/profile/avatar/:id', (q, r) => run(q, r, true, async (db, actor) => { const bytes = await profiles.profileAvatar(db, actor, z.object({ id: asset }).parse(q.params).id); return r.type('image/png').send(bytes) }))
+  app.get('/me/profile/avatar/:id', (q, r) => run(q, r, true, async (db, actor) => { const bytes = await profiles.profileAvatar(db, actor, z.object({ id: asset }).parse(q.params).id); return r.type(avatarContentType(bytes)).send(bytes) }))
   app.get('/profiles/:slug', (q, r) => run(q, r, false, (db, actor) => profiles.publicProfile(db, actor.tenantId, slugParams.parse(q.params).slug, actor.age)))
-  app.get('/profiles/:slug/avatar/:id', (q, r) => run(q, r, false, async (db, actor) => { const p = slugParams.extend({ id: asset }).parse(q.params); const bytes = await profiles.profileAvatar(db, actor, p.id, p.slug); return r.type('image/png').send(bytes) }))
+  app.get('/profiles/:slug/avatar/:id', (q, r) => run(q, r, false, async (db, actor) => { const p = slugParams.extend({ id: asset }).parse(q.params); const bytes = await profiles.profileAvatar(db, actor, p.id, p.slug); return r.type(avatarContentType(bytes)).send(bytes) }))
 }

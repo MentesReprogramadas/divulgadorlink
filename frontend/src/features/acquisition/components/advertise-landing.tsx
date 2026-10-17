@@ -1,8 +1,9 @@
 import { ButtonLink } from '@/components/ui/button'
+import { Skeleton } from '@/components/feedback/skeleton'
 import styles from './advertise-landing.module.css'
 
 type AdvertiseLandingProps = {
-  cta: { href: string; label: string }
+  cta: { href: string; label: string } | null
 }
 
 export function AdvertiseLanding({ cta }: AdvertiseLandingProps) {
@@ -14,7 +15,7 @@ export function AdvertiseLanding({ cta }: AdvertiseLandingProps) {
           <h1 id="advertise-title">Publique o seu link.</h1>
           <p className={styles.lead}>Seu site, grupo ou perfil em um catálogo organizado por tema e rede.</p>
           <p className={styles.description}>Deixe claro o que você compartilha e ajude as pessoas a encontrar o seu conteúdo.</p>
-          <ButtonLink href={cta.href} className={styles.cta}>{cta.label}</ButtonLink>
+          {cta ? <ButtonLink href={cta.href} className={styles.cta}>{cta.label}</ButtonLink> : <span className={`button button-primary ${styles.cta}`} aria-label="Carregando"><Skeleton width={150} height={24} /></span>}
           <p className={styles.note}>Sem promessa de audiência. O destaque é opcional e pago, depois da publicação.</p>
         </div>
         <aside className={styles.preview} aria-label="Exemplo ilustrativo de um link no catálogo">

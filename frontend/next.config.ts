@@ -1,6 +1,8 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
+  // Keep browser tests from overwriting a developer's running .next build.
+  distDir: process.env.TEMLINK_E2E_BUILD === '1' ? '.next-e2e' : '.next',
   output: 'standalone',
   reactStrictMode: true,
   poweredByHeader: false,

@@ -1,6 +1,9 @@
 'use client'
 
+import { InsightSkeleton } from '@/features/administration/components/insight-skeleton'
+
 import { useEffect, useState } from 'react'
+import { EmptyState } from '@/components/feedback/empty-state'
 import { ErrorState } from '@/components/feedback/error-state'
 import { api } from '@/lib/api'
 import { InsightTabs, panelProps } from './insight-tabs'
@@ -68,7 +71,7 @@ export function TrafficPanel() {
   }, [])
 
   if (failed) return <ErrorState onRetry={() => load()} />
-  if (!view) return <p>Carregando…</p>
+  if (!view) return <InsightSkeleton kind="traffic" />
 
   const decided = view.consent.marketing + view.consent.denied
   const peak = Math.max(1, ...view.daily.map((row) => row.entries))
@@ -91,7 +94,7 @@ export function TrafficPanel() {
             <div><dt>Recusaram cookies</dt><dd>{count(view.consent.denied)}</dd></div>
           </dl>
           <h2>Entradas por dia</h2>
-          {view.daily.length === 0 ? <p>Nenhuma visita no período.</p> : (
+          {view.daily.length === 0 ? <EmptyState /> : (
             <ul className="traffic-bars insight-bars">
               {view.daily.map((row) => (
                 <li key={row.day}>
@@ -122,7 +125,7 @@ export function TrafficPanel() {
 
       {tab === 'paginas' ? (
         <div {...panelProps('trafego', 'paginas')}>
-          {view.paths.length === 0 ? <p>Nenhuma página vista.</p> : (
+          {view.paths.length === 0 ? <EmptyState /> : (
             <ul className="insight-rows">
               {view.paths.map((row) => (
                 <li key={row.path}>
@@ -138,7 +141,7 @@ export function TrafficPanel() {
       {tab === 'campanhas' ? (
         <div {...panelProps('trafego', 'campanhas')}>
           <p className="office-note">Entradas contam todo mundo que chegou com UTM. Cadastro por campanha só existe para quem aceitou cookies.</p>
-          {view.campaigns.length === 0 ? <p>Nenhuma entrada com UTM.</p> : (
+          {view.campaigns.length === 0 ? <EmptyState /> : (
             <ul className="insight-rows">
               {view.campaigns.map((row) => {
                 const registered = view.consentedRegistrations.find((item) => item.source === row.source

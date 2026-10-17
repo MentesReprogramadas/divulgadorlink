@@ -1,5 +1,5 @@
-import styles from './feedback.module.css'
+import { Skeleton, SkeletonRegion } from './skeleton'
 
 export function Loading() {
-  return <p className={styles.loading} role="status" aria-label="Carregando"><span className={styles.indicator} aria-hidden="true" />Carregando</p>
+  return <SkeletonRegion><Skeleton height={24} /></SkeletonRegion>
 }

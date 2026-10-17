@@ -1,0 +1,9 @@
+.queue { display: grid; gap: var(--space-6); min-width: 0; }
+.card { background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-6); display: grid; gap: var(--space-4); overflow-wrap: anywhere; }
+.card h2, .card h3, .card p { margin: 0; }
+.card h2 { font-size: var(--text-lg); }
+.card h3 { font-size: var(--text-body); }
+.card ul { margin: 8px 0 0; padding-left: 20px; display: grid; gap: var(--space-3); }
+.header, .actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+.header > span:last-child { font-size: var(--text-sm); color: var(--text-secondary); }
+.actions { justify-content: flex-end; }

@@ -1,3 +1,4 @@
+import { chooseSelect } from '@/test-select'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { duration, FinancePanel, financeQuery } from './finance-panel'
@@ -48,7 +49,7 @@ describe('financeiro na gestão', () => {
     expect(csv).toContain('kind=buyers')
 
     fireEvent.click(screen.getByRole('tab', { name: 'Resumo' }))
-    fireEvent.change(screen.getByLabelText('Método'), { target: { value: 'PIX' } })
+    await chooseSelect(screen.getByLabelText('Método'), 'PIX')
     fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }))
     await waitFor(() => expect(String(api.mock.calls.at(-1)?.[0])).toContain('method=PIX'))
   })

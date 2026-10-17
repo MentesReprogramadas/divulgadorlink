@@ -1,0 +1,158 @@
+[
+  {
+    "slug": "ganhar-dinheiro",
+    "source": "https://raw.githubusercontent.com/tailwindlabs/heroicons/616b7a4dbbf3d011760af8066262cd5c6b3868f3/optimized/24/solid/banknotes.svg",
+    "provider": "Heroicons 24 solid",
+    "license": "MIT"
+  },
+  {
+    "slug": "apostas",
+    "source": "https://raw.githubusercontent.com/tailwindlabs/heroicons/616b7a4dbbf3d011760af8066262cd5c6b3868f3/optimized/24/solid/cube.svg",
+    "provider": "Heroicons 24 solid",
+    "license": "MIT"
+  },
+  {
+    "slug": "compras-ofertas-cupons",
+    "source": "https://raw.githubusercontent.com/tailwindlabs/heroicons/616b7a4dbbf3d011760af8066262cd5c6b3868f3/optimized/24/solid/tag.svg",
+    "provider": "Heroicons 24 solid",
+    "license": "MIT"
+  },
+  {
+    "slug": "divulgacao-marketing",
+    "source": "https://raw.githubusercontent.com/tailwindlabs/heroicons/616b7a4dbbf3d011760af8066262cd5c6b3868f3/optimized/24/solid/megaphone.svg",
+    "provider": "Heroicons 24 solid",
+    "license": "MIT"
+  },
+  {
+    "slug": "filmes-series",
+    "source": "https://raw.githubusercontent.com/tailwindlabs/heroicons/616b7a4dbbf3d011760af8066262cd5c6b3868f3/optimized/24/solid/film.svg",
+    "provider": "Heroicons 24 solid",
+    "license": "MIT"
+  },
+  {
+    "slug": "streaming",
+    "source": "https://raw.githubusercontent.com/tailwindlabs/heroicons/616b7a4dbbf3d011760af8066262cd5c6b3868f3/optimized/24/solid/tv.svg",
+    "provider": "Heroicons 24 solid",
+    "license": "MIT"
+  },
+  {
+    "slug": "jogos",
+    "source": "https://raw.githubusercontent.com/tailwindlabs/heroicons/616b7a4dbbf3d011760af8066262cd5c6b3868f3/optimized/24/solid/puzzle-piece.svg",
+    "provider": "Heroicons 24 solid",
+    "license": "MIT"
+  },
+  {
+    "slug": "servicos-ferramentas",
+    "source": "https://raw.githubusercontent.com/tailwindlabs/heroicons/616b7a4dbbf3d011760af8066262cd5c6b3868f3/optimized/24/solid/wrench-screwdriver.svg",
+    "provider": "Heroicons 24 solid",
+    "license": "MIT"
+  },
+  {
+    "slug": "tecnologia-internet",
+    "source": "https://raw.githubusercontent.com/tailwindlabs/heroicons/616b7a4dbbf3d011760af8066262cd5c6b3868f3/optimized/24/solid/cpu-chip.svg",
+    "provider": "Heroicons 24 solid",
+    "license": "MIT"
+  },
+  {
+    "slug": "educacao-cursos",
+    "source": "https://raw.githubusercontent.com/tailwindlabs/heroicons/616b7a4dbbf3d011760af8066262cd5c6b3868f3/optimized/24/solid/academic-cap.svg",
+    "provider": "Heroicons 24 solid",
+    "license": "MIT"
+  },
+  {
+    "slug": "saude-bem-estar",
+    "source": "https://raw.githubusercontent.com/tailwindlabs/heroicons/616b7a4dbbf3d011760af8066262cd5c6b3868f3/optimized/24/solid/heart.svg",
+    "provider": "Heroicons 24 solid",
+    "license": "MIT"
+  },
+  {
+    "slug": "moda-beleza",
+    "source": "https://raw.githubusercontent.com/tailwindlabs/heroicons/616b7a4dbbf3d011760af8066262cd5c6b3868f3/optimized/24/solid/sparkles.svg",
+    "provider": "Heroicons 24 solid",
+    "license": "MIT"
+  },
+  {
+    "slug": "afiliados-monetizacao",
+    "source": "https://raw.githubusercontent.com/tailwindlabs/heroicons/616b7a4dbbf3d011760af8066262cd5c6b3868f3/optimized/24/solid/link.svg",
+    "provider": "Heroicons 24 solid",
+    "license": "MIT"
+  },
+  {
+    "slug": "marketplace-vendas-diretas",
+    "source": "https://raw.githubusercontent.com/tailwindlabs/heroicons/616b7a4dbbf3d011760af8066262cd5c6b3868f3/optimized/24/solid/shopping-bag.svg",
+    "provider": "Heroicons 24 solid",
+    "license": "MIT"
+  },
+  {
+    "slug": "futebol",
+    "source": "https://raw.githubusercontent.com/google/material-design-icons/49d4db35df873165d6bd6ba09b063c7dafbac2f4/src/social/sports_soccer/materialicons/24px.svg",
+    "provider": "Material Icons",
+    "license": "Apache-2.0"
+  },
+  {
+    "slug": "musicas",
+    "source": "https://raw.githubusercontent.com/tailwindlabs/heroicons/616b7a4dbbf3d011760af8066262cd5c6b3868f3/optimized/24/solid/musical-note.svg",
+    "provider": "Heroicons 24 solid",
+    "license": "MIT"
+  },
+  {
+    "slug": "entretenimento-geral",
+    "source": "https://raw.githubusercontent.com/tailwindlabs/heroicons/616b7a4dbbf3d011760af8066262cd5c6b3868f3/optimized/24/solid/face-smile.svg",
+    "provider": "Heroicons 24 solid",
+    "license": "MIT"
+  },
+  {
+    "slug": "esportes",
+    "source": "https://raw.githubusercontent.com/tailwindlabs/heroicons/616b7a4dbbf3d011760af8066262cd5c6b3868f3/optimized/24/solid/trophy.svg",
+    "provider": "Heroicons 24 solid",
+    "license": "MIT"
+  },
+  {
+    "slug": "financas-investimentos",
+    "source": "https://raw.githubusercontent.com/tailwindlabs/heroicons/616b7a4dbbf3d011760af8066262cd5c6b3868f3/optimized/24/solid/chart-bar.svg",
+    "provider": "Heroicons 24 solid",
+    "license": "MIT"
+  },
+  {
+    "slug": "politica-sociedade",
+    "source": "https://raw.githubusercontent.com/tailwindlabs/heroicons/616b7a4dbbf3d011760af8066262cd5c6b3868f3/optimized/24/solid/building-library.svg",
+    "provider": "Heroicons 24 solid",
+    "license": "MIT"
+  },
+  {
+    "slug": "apps-redes-plataformas",
+    "source": "https://raw.githubusercontent.com/tailwindlabs/heroicons/616b7a4dbbf3d011760af8066262cd5c6b3868f3/optimized/24/solid/squares-2x2.svg",
+    "provider": "Heroicons 24 solid",
+    "license": "MIT"
+  },
+  {
+    "slug": "animes-nerd-geek",
+    "source": "https://raw.githubusercontent.com/tailwindlabs/heroicons/616b7a4dbbf3d011760af8066262cd5c6b3868f3/optimized/24/solid/rocket-launch.svg",
+    "provider": "Heroicons 24 solid",
+    "license": "MIT"
+  },
+  {
+    "slug": "amizade-relacionamentos",
+    "source": "https://raw.githubusercontent.com/tailwindlabs/heroicons/616b7a4dbbf3d011760af8066262cd5c6b3868f3/optimized/24/solid/user-group.svg",
+    "provider": "Heroicons 24 solid",
+    "license": "MIT"
+  },
+  {
+    "slug": "servicos-profissionais",
+    "source": "https://raw.githubusercontent.com/tailwindlabs/heroicons/616b7a4dbbf3d011760af8066262cd5c6b3868f3/optimized/24/solid/briefcase.svg",
+    "provider": "Heroicons 24 solid",
+    "license": "MIT"
+  },
+  {
+    "slug": "adulto",
+    "source": "https://raw.githubusercontent.com/tailwindlabs/heroicons/616b7a4dbbf3d011760af8066262cd5c6b3868f3/optimized/24/solid/shield-exclamation.svg",
+    "provider": "Heroicons 24 solid",
+    "license": "MIT"
+  },
+  {
+    "slug": "outro",
+    "source": "https://raw.githubusercontent.com/tailwindlabs/heroicons/616b7a4dbbf3d011760af8066262cd5c6b3868f3/optimized/24/solid/ellipsis-horizontal-circle.svg",
+    "provider": "Heroicons 24 solid",
+    "license": "MIT"
+  }
+]

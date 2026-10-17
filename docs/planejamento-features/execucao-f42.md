@@ -143,3 +143,9 @@ Publicação do formato final: commit `fafb6bc05d479aad2ef42e55b79aab327dfef01d`
 - [x] Ledger F42-S0–S7 concluído e matriz F42-AC01–AC26 aprovada.
 - [x] Fonte preservada, inventário e links conferidos. Capturas desktop/mobile em `output/p0-evolution/`.
 - [x] Trabalho encerrado no P0. Nenhuma implementação de F01–F41 foi iniciada.
+
+## Extensão de 17/10/2026 — páginas e convites no WhatsApp
+
+Por novo pedido expresso, revisões humanas de F09/F12 e suas contestações também usam o grupo Evolution configurado, a mesma autorização por operador ADMIN e a mesma operação de decisão do painel. O aviso citado identifica a versão exata; expiração, substituição e contestação invalidam mensagens anteriores. Decisão e registro do aviso de confirmação são atômicos, sem alterar aprovação automática, regras de segurança ou cobrança. Avisos ganham símbolos distintos por evento e mantêm seções curtas.
+
+Contrato, critérios, limites, evidências e resultados no [complemento da implementação](../frontend-profissional/revisao-paginas-convites.md#complemento-autorizado--aprovação-pelo-whatsapp).

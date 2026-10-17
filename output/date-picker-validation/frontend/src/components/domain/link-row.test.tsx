@@ -1,0 +1,64 @@
+import { cleanup, render, screen } from '@testing-library/react'
+import { afterEach, describe, expect, it } from 'vitest'
+import { LinkRow } from './link-row'
+
+afterEach(() => cleanup())
+
+const row = {
+  id: 'receitas',
+  name: 'Receitas',
+  description: 'Bolo de cenoura',
+  href: '/link/receitas?surfaceToken=abc',
+  niche: { name: 'Culinária', slug: 'culinaria' },
+  network: { name: 'Telegram', slug: 'telegram' },
+}
+
+describe('LinkRow', () => {
+  it.each(['organic', 'sponsored'] as const)('indica a navegação sem criar outro controle: %s', (placement) => {
+    render(<LinkRow {...row} placement={placement} />)
+    const action = screen.getByText('Ver link')
+    expect(action.getAttribute('aria-hidden')).toBe('true')
+    expect(action.closest('a, button')).toBeNull()
+    expect(action.querySelector('svg')).not.toBeNull()
+    expect(screen.getAllByRole('link')).toHaveLength(1)
+    expect(screen.getByRole('link', { name: 'Receitas' }).getAttribute('href')).toBe(row.href)
+    expect(screen.queryByRole('button', { name: /Ver link/ })).toBeNull()
+  })
+
+  it('expõe só o nome no link e mostra nicho e rede fora dele', () => {
+    render(<LinkRow {...row} placement="organic" />)
+    const link = screen.getByRole('link', { name: 'Receitas' })
+    expect(link.getAttribute('href')).toBe(row.href)
+    expect(link.textContent).toBe('Receitas')
+    expect(screen.getByTitle('Receitas').textContent).toBe('Receitas')
+    expect(screen.getByText('Bolo de cenoura').closest('a')).toBeNull()
+    expect(screen.getByText('Culinária').closest('a')).toBeNull()
+    expect(screen.getByText('Telegram').closest('a')).toBeNull()
+    expect(screen.getAllByRole('link')).toHaveLength(1)
+    expect(screen.queryByText('Patrocinado')).toBeNull()
+    expect(screen.getByLabelText('0 impressões')).toBeTruthy()
+  })
+
+  it('marca patrocinado pelo placement e pelo indicador', () => {
+    const { container } = render(<LinkRow {...row} placement="sponsored" impressions={1240} />)
+    expect(screen.getByRole('link', { name: 'Receitas' }).textContent).toBe('Receitas')
+    expect(screen.getByText('Patrocinado').closest('a')).toBeNull()
+    expect(container.querySelector('[data-placement="sponsored"]')).not.toBeNull()
+    expect(container.querySelector('[data-link-id="receitas"]')).not.toBeNull()
+    expect(screen.getByLabelText('1.240 impressões')).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'Receitas' }).textContent).not.toContain('1.240')
+    const kicker = container.querySelector('.sponsored-kicker')
+    expect(kicker?.textContent).toContain('Patrocinado')
+    expect(kicker?.querySelector('.impression-mark')).not.toBeNull()
+    expect(kicker?.querySelector('.ad-mark svg')?.getAttribute('viewBox')).toBe('0 0 16 16')
+  })
+
+  it('esconde o olho quando a flag está desligada', () => {
+    render(<LinkRow {...row} placement="sponsored" impressions={3} showImpressions={false} />)
+    expect(screen.getByText('Patrocinado')).toBeTruthy()
+    expect(screen.queryByLabelText(/impress/)).toBeNull()
+    cleanup()
+    render(<LinkRow {...row} placement="organic" showImpressions={false} />)
+    expect(screen.queryByLabelText(/impress/)).toBeNull()
+  })
+})

@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, render, screen, within } from '@testing-library/react'
 import { afterEach, expect, it } from 'vitest'
 import { ProfileView } from './profile-view'
 import { emptyProfile } from '../profile-contract'
@@ -10,7 +10,9 @@ it('F09-C02/T05 o mesmo renderer da prévia e página pública filtra filhos e g
     { id: 'child', categoryId: 'b', type: 'URL', destination: 'https://private.test/', label: 'FilhoSecreto', visible: true },
   ] }} />)
   expect(screen.getByRole('heading', { name: 'Ana' })).toBeTruthy()
-  expect(screen.getAllByRole('link')).toHaveLength(1)
+  expect(within(screen.getByRole('article')).getAllByRole('link')).toHaveLength(1)
   expect(document.body.innerHTML).not.toMatch(/Secreto|Sentinela|secret.test|private.test/)
 })
-it('F09-C01 vazio orienta sem inventar destino', () => { render(<ProfileView content={emptyProfile()} />); expect(screen.getByText('Nenhum link visível.')).toBeTruthy(); expect(screen.queryAllByRole('link')).toHaveLength(0) })
+it('F09-C01 vazio orienta sem inventar destino', () => { render(<ProfileView content={emptyProfile()} />); expect(screen.getByText('Nenhum link visível.')).toBeTruthy(); expect(within(screen.getByRole('article')).queryAllByRole('link')).toHaveLength(0) })
+
+it('marca permanece visível e não integra os links pessoais', () => { render(<ProfileView content={emptyProfile()} />); expect(screen.getByRole('link', { name: 'Criado por Tem Link Aqui' }).getAttribute('href')).toBe('/divulgar') })

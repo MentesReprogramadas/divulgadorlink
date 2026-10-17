@@ -1,0 +1,98 @@
+diff --git a/backend/src/http/checkout.pg.spec.ts b/backend/src/http/checkout.pg.spec.ts
+index e270adf..f265d31 100644
+--- a/backend/src/http/checkout.pg.spec.ts
++++ b/backend/src/http/checkout.pg.spec.ts
+@@ -320,8 +320,8 @@ describe('checkout no PostgreSQL', () => {
+   it('webhook confirma uma vez e o replay não cria outra promoção', async () => {
+     const created = await checkout({ linkId: 'link-webhook' })
+     const orderId = created.json().orderId as string
+-    const send = (eventId: string) => {
+-      const body = JSON.stringify({ eventId, charge: { correlationID: orderId } })
++    const send = (eventId?: string) => {
++      const body = JSON.stringify({ event: 'OPENPIX:CHARGE_COMPLETED', eventId, charge: { correlationID: orderId } })
+       return app.inject({
+         method: 'POST',
+         url: '/api/v1/payments/woovi/webhook',
+@@ -329,6 +329,8 @@ describe('checkout no PostgreSQL', () => {
+         payload: body,
+       })
+     }
++    expect((await send()).statusCode).toBe(200)
++    expect((await send()).statusCode).toBe(200)
+     expect((await send('evt-1')).statusCode).toBe(200)
+     expect((await send('evt-1')).statusCode).toBe(200)
+     expect((await send('evt-2')).statusCode).toBe(200)
+diff --git a/backend/src/http/controllers/@Payments/checkout.spec.ts b/backend/src/http/controllers/@Payments/checkout.spec.ts
+index 1ad0563..3165fe2 100644
+--- a/backend/src/http/controllers/@Payments/checkout.spec.ts
++++ b/backend/src/http/controllers/@Payments/checkout.spec.ts
+@@ -132,6 +132,37 @@ describe('checkout e webhook', () => {
+     expect(await getCheckoutStore().listPromotions('link-1')).toHaveLength(1)
+   })
+ 
++  it('confirma o payload real da Woovi sem eventId e não duplica no replay', async () => {
++    const created = await app.inject({
++      method: 'POST',
++      url: '/api/v1/promotions/checkout',
++      headers: { host: HOST, authorization: `Bearer ${token('ana')}` },
++      payload: { linkId: 'link-1', surfaces: ['SEARCH'], durationDays: 7, method: 'PIX' },
++    })
++    const orderId = created.json().orderId as string
++    setPaymentGatewayForTest({
++      method: 'PIX',
++      async getCharge() { return { status: 'PAID', paidAt: new Date() } },
++      async refund() { return { refundId: 'none', status: 'PROCESSING' } },
++    })
++    const body = JSON.stringify({
++      event: 'OPENPIX:CHARGE_COMPLETED',
++      charge: { correlationID: orderId, status: 'COMPLETED', value: 790 },
++      pix: { endToEndId: 'E-fixture' },
++    })
++    const headers = { 'content-type': 'application/json', 'x-webhook-signature': signWooviTestBody(body) }
++    const unsigned = await app.inject({ method: 'POST', url: '/api/v1/payments/woovi/webhook', payload: body, headers: { 'content-type': 'application/json' } })
++    expect(unsigned.statusCode).toBe(400)
++    for (let attempt = 0; attempt < 2; attempt += 1) {
++      const response = await app.inject({ method: 'POST', url: '/api/v1/payments/woovi/webhook', headers, payload: body })
++      expect(response.statusCode).toBe(200)
++    }
++    const row = await getCheckoutStore().findCommercial(orderId)
++    expect(row?.order.status).toBe('PAID')
++    expect(row?.order.processedEventIds).toEqual([`OPENPIX:CHARGE_COMPLETED:${orderId}`])
++    expect(await getCheckoutStore().listPromotions('link-1')).toHaveLength(1)
++  })
++
+   it('responde 200 ao ping de cadastro da Woovi e não confirma pagamento', async () => {
+     const ping = await app.inject({
+       method: 'POST',
+diff --git a/backend/src/http/controllers/@Payments/routes.ts b/backend/src/http/controllers/@Payments/routes.ts
+index accea6e..7855518 100644
+--- a/backend/src/http/controllers/@Payments/routes.ts
++++ b/backend/src/http/controllers/@Payments/routes.ts
+@@ -143,12 +143,14 @@ function readWooviEvent(payload: Buffer, signature: string | undefined): { order
+   const publicKey = env.WOOVI_WEBHOOK_PUBLIC_KEY ?? WOOVI_PUBLISHED_PUBLIC_KEY
+   if (!verifyWooviSignature(payload, signature, publicKey)) throw new Error('assinatura')
+   const body = JSON.parse(payload.toString()) as {
++    event?: string
+     eventId?: string
+     correlationID?: string
+     charge?: { correlationID?: string }
+   }
+   const orderId = body.charge?.correlationID ?? body.correlationID
+   const eventId = body.eventId ?? body.correlationID
++    ?? (body.event && orderId ? `${body.event}:${orderId}` : undefined)
+   if (!orderId || !eventId) throw new Error('pedido')
+   return { eventId, orderId }
+ }
+diff --git a/frontend/e2e/catalog.spec.ts b/frontend/e2e/catalog.spec.ts
+index 0bd9870..310eaea 100644
+--- a/frontend/e2e/catalog.spec.ts
++++ b/frontend/e2e/catalog.spec.ts
+@@ -417,7 +417,7 @@ test('checkout, webhook RSA, replay e assinatura inválida', async ({ browser })
+   expect(sql(`SELECT count(*) FROM payments WHERE "orderId" = '${orderId}'`)).toBe('1')
+   expect(redisScan(`*${orderId}*`)).toContain(orderId)
+ 
+-  const body = JSON.stringify({ eventId: 'evt-1', charge: { correlationID: orderId } })
++  const body = JSON.stringify({ event: 'OPENPIX:CHARGE_COMPLETED', charge: { correlationID: orderId } })
+   const paid = await postRaw({
+     path: '/api/v1/payments/woovi/webhook',
+     host: 'tenant-a.localhost',

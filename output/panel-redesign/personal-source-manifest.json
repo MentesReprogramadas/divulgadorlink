@@ -1,0 +1,254 @@
+[
+  {
+    "file": "frontend\\src\\features\\profiles\\profile-age-gate.tsx",
+    "sha256": "239def355138ac137e9cefb8e91ed400cb2064059fbddec060c676e63fbf99f3",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "frontend\\src\\features\\profiles\\profile-editor.test.tsx",
+    "sha256": "713ced41c45580df0c81dc79eb2605b3436be473cdfbefbfeb53835f35639090",
+    "isolatedEqual": true,
+    "runtime": false
+  },
+  {
+    "file": "frontend\\src\\features\\profiles\\profile-editor.tsx",
+    "sha256": "acb30b8880409e73ed3e16b5469913abc7c97cc047d8a4cc31ca622abadff940",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "frontend\\src\\features\\profiles\\profile-error.test.tsx",
+    "sha256": "86b0609b5daeea42c87b261eb255598580a199467c5dc4acffc9e013263ca969",
+    "isolatedEqual": true,
+    "runtime": false
+  },
+  {
+    "file": "frontend\\src\\features\\profiles\\profile-preview-screen.test.tsx",
+    "sha256": "610f6aad9a2ebb106566e0d70aa4e788520ae967c5ae5742f91e94ee27b054a2",
+    "isolatedEqual": true,
+    "runtime": false
+  },
+  {
+    "file": "frontend\\src\\features\\profiles\\profile-preview-screen.tsx",
+    "sha256": "5b7408b900ecce27854fb08ae1569bd7c90cecfac9fd722a5cf6c26c9434bbbd",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "frontend\\src\\features\\profiles\\components\\profile-appearance-editor.tsx",
+    "sha256": "e1652e93b2942b364930dea8920ab6549ba50e08dd5b919b6c7e864a035a9350",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "frontend\\src\\features\\profiles\\components\\profile-editor-skeleton.tsx",
+    "sha256": "53020ef050f2aa81fd9e22034833a49817628b80b6ca195f7e790aaa3f0bc865",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "frontend\\src\\features\\profiles\\components\\profile-fields.tsx",
+    "sha256": "464531d563327aa2f87e028fc9894222e8b2db2f7fd6b54c3e6256a95ae34a77",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "frontend\\src\\features\\profiles\\components\\profile-preview-shell.tsx",
+    "sha256": "463aa67fd1d51e4c1b8bf4c303ac2c62690b92c72078a40dea99f6b776fabb30",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "frontend\\src\\features\\profiles\\components\\profile-preview-skeleton.tsx",
+    "sha256": "3fc4604e8ab6b6274fdadf099aa597f2ffad113e2a0c6b71cdf24f0903efcfff",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "frontend\\src\\features\\profiles\\components\\profile-view.test.tsx",
+    "sha256": "12d5704a16d8c46206552892026677e351e3da0f813f0c023cf5258c0208cd26",
+    "isolatedEqual": false,
+    "runtime": false
+  },
+  {
+    "file": "frontend\\src\\features\\profiles\\components\\profile-view.tsx",
+    "sha256": "9865379c62c134a12d5572c533a486deb7a8c7d0e130e982a856f4210ff0ebb8",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "frontend\\src\\features\\profiles\\prepare-avatar.test.ts",
+    "sha256": "4c0e891e52dc499859b7fd11c2bf4411c626fd8cb7364fe809595577d09da426",
+    "isolatedEqual": false,
+    "runtime": false
+  },
+  {
+    "file": "frontend\\src\\features\\profiles\\prepare-avatar.ts",
+    "sha256": "8d5c3e9a89ca92e30d7fa2bdac4b6f5100cc6a2643bbdec64a3bc4332a259d2e",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "frontend\\src\\features\\profiles\\profile-api.ts",
+    "sha256": "7ffb50f993f0d7c927f271caacd9fccb71b31996687c6cf0b108435623abc187",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "frontend\\src\\features\\profiles\\profile-appearance.test.ts",
+    "sha256": "35af76476b0713321fa506b90c5194a03c03f06ded90c4673d6337095cd8fcbb",
+    "isolatedEqual": false,
+    "runtime": false
+  },
+  {
+    "file": "frontend\\src\\features\\profiles\\profile-appearance.ts",
+    "sha256": "dfe820ee7b7a3f4ff1cf004f5f54892d166981b13d426c82ff9471e7336e7e16",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "frontend\\src\\features\\profiles\\profile-contract.ts",
+    "sha256": "6801ad543495b1dd0e93fb0723aca1362265de69a113e363c98b444dcf1695fa",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "frontend\\src\\features\\profiles\\profile-status.ts",
+    "sha256": "d84b9f516b198b817417d876302f72176dc9a1b2658d28dcc273e44287c2c10f",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "frontend\\src\\features\\profiles\\server\\load-profile.ts",
+    "sha256": "eaba99ea259db53d10940e665245897b4cfefa054efac1890dae2e5e97f9a340",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "frontend\\src\\features\\profiles\\components\\personal-page.module.css",
+    "sha256": "e84be120b89ad1150af0687cf0d98ec10d559da32b60ab28a767810c12f4a426",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "frontend\\src\\features\\profiles\\components\\profile-appearance-editor.module.css",
+    "sha256": "e917022421f017191438187f255e7a209b36c9a9a9da40c767044e9a6afb4707",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "frontend\\src\\features\\profiles\\components\\profile-preview.module.css",
+    "sha256": "bb3b73544ac2da63f81f55cd1be33b6b9947398abf413acb8ddff251982638e0",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "frontend\\src\\features\\profiles\\components\\profiles.module.css",
+    "sha256": "bc97a7ac9e1fd8165e4d2ceb36e57b7bcd0718c02eea1f8fd5c22efd90320613",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "frontend\\src\\components\\ui\\color-picker.module.css",
+    "sha256": "46a03add8054c3d90f864d880f3fc003555b8873e18710336081b3d8c9855e9d",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "frontend\\src\\components\\ui\\color-picker.stories.tsx",
+    "sha256": "b65fc11c0f9b8baca1f44706335dd430e6625ab4025bad81677c2d280029b729",
+    "isolatedEqual": true,
+    "runtime": false
+  },
+  {
+    "file": "frontend\\src\\components\\ui\\color-picker.test.tsx",
+    "sha256": "8acf24dbd04ef1dddcb2f87ec847de0928d708f1800c9b5e3d907d1ef4687ef4",
+    "isolatedEqual": false,
+    "runtime": false
+  },
+  {
+    "file": "frontend\\src\\components\\ui\\color-picker.tsx",
+    "sha256": "4ebf5548deafd42c71657ddbb4379e6fc6d5ad01bff0b5f8c85efce0d0dd331d",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "frontend\\src\\components\\ui\\tabs.tsx",
+    "sha256": "18bb4a9f7e848e7d63d7aa062e5a041565ec3dfae99f621f54d1629e0f623b9d",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\site-shell.tsx",
+    "sha256": "eaa0857fc75a6efc086534cfbf797ac6ff2f8ac3b5acf80ab4d66a12eedc5cb5",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "frontend\\src\\app\\p\\[slug]\\page.tsx",
+    "sha256": "7c4541923ba25c3f23eee5b1c21c47c358e7eee0ad01ab7d49e4ac9ad719e938",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "backend\\src\\repositories\\profiles-repository.ts",
+    "sha256": "a825deb4755ab01737e83fbc948f819c7a33702ce76bf3e825140fb8713bf08a",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "backend\\src\\repositories\\profile-media.ts",
+    "sha256": "f24ad945de1160eaa3bfd564a7b7c1e949b4067894d584f22d26340daaac4ac8",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "backend\\src\\http\\controllers\\@Profiles\\routes.ts",
+    "sha256": "4800d694cf615f5218de13a17397149e9df0a00c6b534dba8014b203415c9fd1",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "backend\\src\\domain\\profiles\\profile.ts",
+    "sha256": "d39321bc4085f189e98abbe40505cdb3c6a5b092e01ccc1016a1267fbaff8ab7",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "backend\\src\\domain\\profiles\\profile-input.ts",
+    "sha256": "d64f367d4a7ae4d8faafebd425b5e377151fd4de06728c5930187ca8db1d3bae",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "backend\\src\\domain\\profiles\\appearance.ts",
+    "sha256": "a36d8a23df975e552990d9e5a4b4d63211ad8dfeeda5b18bcb2fdaf3e6ddd7d8",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "backend\\src\\domain\\profiles\\avatar-webp.ts",
+    "sha256": "fbb0bd3ab2f16b1a03a5725839b10ce7aad8b94f327808907773dbdce6e08e07",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "backend\\prisma\\schema.prisma",
+    "sha256": "795f6ac510b59b9e414a02827e6403cef57105688a6ad36cc0453e4a5500e33c",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "backend\\package.json",
+    "sha256": "a9e92829c608363c6be89b692fd1a751096512fa6b90bb4a094e3bfcadd128c6",
+    "isolatedEqual": true,
+    "runtime": true
+  },
+  {
+    "file": "backend\\package-lock.json",
+    "sha256": "588bd228600bfa5c856576685e0abb816b6f049620de4e61483e6375cc05c4bf",
+    "isolatedEqual": true,
+    "runtime": true
+  }
+]

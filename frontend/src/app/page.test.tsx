@@ -1,6 +1,6 @@
 import { cleanup, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import Page from './page'
+import { HomeContent as Page } from '@/features/catalog/server/home-page'
 
 const { forward } = vi.hoisted(() => ({ forward: vi.fn() }))
 vi.mock('next/headers', () => ({ headers: async () => new Headers({ host: 'localhost:3000' }) }))

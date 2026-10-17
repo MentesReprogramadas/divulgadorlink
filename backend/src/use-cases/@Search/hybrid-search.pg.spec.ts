@@ -138,14 +138,14 @@ describe('busca híbrida no PostgreSQL', () => {
     const topic5 = await queryVector('sin(i * 8 * 0.7)')
     const opposite = await queryVector('-sin(i * 3 * 0.7)')
     cases.push(
-      { name: 'muitos resultados com patrocinados', text: 'tema0', vector: topic0, tenant: 's-t1', age: 'no', threshold: 0.35 },
-      { name: 'adulto liberado', text: 'tema0', vector: topic0, tenant: 's-t1', age: 'yes', threshold: 0.35 },
-      { name: 'limiar mais alto', text: 'tema0', vector: topic0, tenant: 's-t1', age: 'yes', threshold: 0.6 },
-      { name: 'poucos resultados', text: 'tema5', vector: topic5, tenant: 's-t1', age: 'no', threshold: 0.35 },
+      { name: 'muitos resultados com patrocinados', text: 'assunto0', vector: topic0, tenant: 's-t1', age: 'no', threshold: 0.35 },
+      { name: 'adulto liberado', text: 'assunto0', vector: topic0, tenant: 's-t1', age: 'yes', threshold: 0.35 },
+      { name: 'limiar mais alto', text: 'assunto0', vector: topic0, tenant: 's-t1', age: 'yes', threshold: 0.6 },
+      { name: 'poucos resultados', text: 'assunto5', vector: topic5, tenant: 's-t1', age: 'no', threshold: 0.35 },
       { name: 'sem palavras em comum', text: 'palavra inexistente', vector: topic1, tenant: 's-t1', age: 'no', threshold: 0.35 },
       { name: 'somente textual', text: 'vagas emprego remoto', vector: opposite, tenant: 's-t1', age: 'yes', threshold: 0.35 },
       { name: 'sem resultado', text: 'palavra inexistente', vector: opposite, tenant: 's-t1', age: 'yes', threshold: 0.35 },
-      { name: 'outro tenant', text: 'tema0', vector: topic0, tenant: 's-t2', age: 'no', threshold: 0.35 },
+      { name: 'outro tenant', text: 'assunto0', vector: topic0, tenant: 's-t2', age: 'no', threshold: 0.35 },
     )
   })
 
@@ -153,7 +153,7 @@ describe('busca híbrida no PostgreSQL', () => {
     await db.$disconnect()
   })
 
-  it('devolve as mesmas linhas, scores e ranking da query anterior em todos os casos', async () => {
+  it('preserva linhas, scores e ranking híbridos quando não há trecho literal do nome', async () => {
     const counts: Record<string, number> = {}
     for (const input of cases) {
       const before = await run(legacySql, input)

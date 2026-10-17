@@ -1,4 +1,6 @@
 'use client'
+
+import { ActionIcon } from '@/components/ui/action-icon'
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Field, Input } from '@/components/ui/input'
@@ -21,7 +23,7 @@ export function UrlCorrectionForm({ onSubmit }: { onSubmit: (canonicalUrl: strin
       <Field label="Convite para análise" hint="Use HTTPS e a mesma rede. Se o convite atual voltou a funcionar, pode reenviá-lo."><Input type="url" name="canonicalUrl" required maxLength={2048} disabled={pending} autoComplete="off" /></Field>
       <p className={styles.note}>A equipe precisa aprovar a correção antes de republicar e retomar o saldo dos destaques.</p>
       {error ? <p role="alert" ref={alert} tabIndex={-1}>{error}</p> : null}
-      <Button type="submit" loading={pending}>Enviar correção</Button>
+      <Button type="submit" loading={pending}><ActionIcon name="check" />Enviar correção</Button>
     </form>}
   </div>
 }

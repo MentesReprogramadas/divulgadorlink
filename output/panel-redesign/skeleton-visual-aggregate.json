@@ -1,0 +1,245 @@
+{
+  "note": "36 cenários aprovados na rodada normal e 4 no recorte após correções dos testes; não é uma única execução verde de 40 testes.",
+  "cases": [
+    {
+      "project": "ui-desktop",
+      "title": "e2e\\admin-promotions.spec.ts:27:5 › admin define período, prazo indeterminado e remove o destaque sem cobrança",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-desktop",
+      "title": "e2e\\admin-promotions.spec.ts:99:5 › gestão filtra todos os status, conta além de 40 cards e oferece ações por estado",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-desktop",
+      "title": "e2e\\loading-layout.spec.ts:20:7 › L01 painel: skeletons durante rede lenta preservam cabeçalho, largura e controles",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-desktop",
+      "title": "e2e\\loading-layout.spec.ts:20:7 › L01 admin: skeletons durante rede lenta preservam cabeçalho, largura e controles",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-desktop",
+      "title": "e2e\\loading-layout.spec.ts:72:5 › L02 atualização da disponibilidade mantém o conteúdo e bloqueia atualização duplicada",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-desktop",
+      "title": "e2e\\loading-layout.spec.ts:91:5 › L03 envio mantém a dimensão do botão e os campos enquanto aguarda a resposta",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-desktop",
+      "title": "e2e\\loading-layout.spec.ts:111:5 › L04 sessão lenta preserva a geometria do formulário de publicar e respeita movimento reduzido",
+      "status": "ok",
+      "source": "skeleton-visual-targeted.log"
+    },
+    {
+      "project": "ui-desktop",
+      "title": "e2e\\loading-layout.spec.ts:139:5 › L05 navegação entre abas mostra somente o skeleton de destino, sem a visão geral",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-desktop",
+      "title": "e2e\\loading-layout.spec.ts:167:5 › L06 menu do site usa uma coluna no catálogo e busca e duas no painel e admin",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-desktop",
+      "title": "e2e\\ui-quality.spec.ts:14:7 › public: telas sem overflow, campos nomeados e estados navegáveis",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-desktop",
+      "title": "e2e\\ui-quality.spec.ts:14:7 › user: telas sem overflow, campos nomeados e estados navegáveis",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-desktop",
+      "title": "e2e\\ui-quality.spec.ts:14:7 › admin: telas sem overflow, campos nomeados e estados navegáveis",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-desktop",
+      "title": "e2e\\ui-quality.spec.ts:92:5 › landing: foco por teclado e CTA levam ao cadastro",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-desktop",
+      "title": "e2e\\ui-quality.spec.ts:102:5 › busca: carregamento, falha e recuperação preservam a tarefa",
+      "status": "ok",
+      "source": "skeleton-visual-targeted.log"
+    },
+    {
+      "project": "ui-desktop",
+      "title": "e2e\\ui-quality.spec.ts:124:5 › login: falha de rede libera uma nova tentativa",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-desktop",
+      "title": "e2e\\workspace-layout.spec.ts:26:5 › W05 ícones distinguem destinos e grupos no painel e admin",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-desktop",
+      "title": "e2e\\workspace-layout.spec.ts:47:5 › W04 saída fica no cabeçalho ou no final da sidebar e encerra a sessão",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-desktop",
+      "title": "e2e\\workspace-layout.spec.ts:76:5 › W01 painel: resumo sem abas, menu acessível e filtros combinados recuperáveis",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-desktop",
+      "title": "e2e\\workspace-layout.spec.ts:146:5 › W03 formulário em etapas valida antes de avançar e mantém os campos ao voltar",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-desktop",
+      "title": "e2e\\workspace-layout.spec.ts:185:5 › W02 admin: áreas separadas, filtros de fila e navegação em todas as jornadas",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-mobile",
+      "title": "e2e\\admin-promotions.spec.ts:27:5 › admin define período, prazo indeterminado e remove o destaque sem cobrança",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-mobile",
+      "title": "e2e\\admin-promotions.spec.ts:99:5 › gestão filtra todos os status, conta além de 40 cards e oferece ações por estado",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-mobile",
+      "title": "e2e\\loading-layout.spec.ts:20:7 › L01 painel: skeletons durante rede lenta preservam cabeçalho, largura e controles",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-mobile",
+      "title": "e2e\\loading-layout.spec.ts:20:7 › L01 admin: skeletons durante rede lenta preservam cabeçalho, largura e controles",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-mobile",
+      "title": "e2e\\loading-layout.spec.ts:72:5 › L02 atualização da disponibilidade mantém o conteúdo e bloqueia atualização duplicada",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-mobile",
+      "title": "e2e\\loading-layout.spec.ts:91:5 › L03 envio mantém a dimensão do botão e os campos enquanto aguarda a resposta",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-mobile",
+      "title": "e2e\\loading-layout.spec.ts:111:5 › L04 sessão lenta preserva a geometria do formulário de publicar e respeita movimento reduzido",
+      "status": "ok",
+      "source": "skeleton-visual-targeted.log"
+    },
+    {
+      "project": "ui-mobile",
+      "title": "e2e\\loading-layout.spec.ts:139:5 › L05 navegação entre abas mostra somente o skeleton de destino, sem a visão geral",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-mobile",
+      "title": "e2e\\loading-layout.spec.ts:167:5 › L06 menu do site usa uma coluna no catálogo e busca e duas no painel e admin",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-mobile",
+      "title": "e2e\\ui-quality.spec.ts:14:7 › public: telas sem overflow, campos nomeados e estados navegáveis",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-mobile",
+      "title": "e2e\\ui-quality.spec.ts:14:7 › user: telas sem overflow, campos nomeados e estados navegáveis",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-mobile",
+      "title": "e2e\\ui-quality.spec.ts:14:7 › admin: telas sem overflow, campos nomeados e estados navegáveis",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-mobile",
+      "title": "e2e\\ui-quality.spec.ts:92:5 › landing: foco por teclado e CTA levam ao cadastro",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-mobile",
+      "title": "e2e\\ui-quality.spec.ts:102:5 › busca: carregamento, falha e recuperação preservam a tarefa",
+      "status": "ok",
+      "source": "skeleton-visual-targeted.log"
+    },
+    {
+      "project": "ui-mobile",
+      "title": "e2e\\ui-quality.spec.ts:124:5 › login: falha de rede libera uma nova tentativa",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-mobile",
+      "title": "e2e\\workspace-layout.spec.ts:26:5 › W05 ícones distinguem destinos e grupos no painel e admin",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-mobile",
+      "title": "e2e\\workspace-layout.spec.ts:47:5 › W04 saída fica no cabeçalho ou no final da sidebar e encerra a sessão",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-mobile",
+      "title": "e2e\\workspace-layout.spec.ts:76:5 › W01 painel: resumo sem abas, menu acessível e filtros combinados recuperáveis",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-mobile",
+      "title": "e2e\\workspace-layout.spec.ts:146:5 › W03 formulário em etapas valida antes de avançar e mantém os campos ao voltar",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    },
+    {
+      "project": "ui-mobile",
+      "title": "e2e\\workspace-layout.spec.ts:185:5 › W02 admin: áreas separadas, filtros de fila e navegação em todas as jornadas",
+      "status": "ok",
+      "source": "skeleton-visual-final.log"
+    }
+  ]
+}

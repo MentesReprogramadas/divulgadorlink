@@ -1,11 +1,22 @@
 'use client'
 
+import { OfficeSkeleton } from '@/features/administration/components/insight-skeleton'
+
+import { ActionIcon } from '@/components/ui/action-icon'
+
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ErrorState } from '@/components/feedback/error-state'
 import { Button } from '@/components/ui/button'
+import { Field, Input, Select } from '@/components/ui/input'
+import { ResponsiveTabs } from '@/components/ui/responsive-tabs'
+import { WorkspaceSection, ComparisonBars } from '@/components/layout/workspace-section'
+import { WorkspaceActions, WorkspaceFilters } from '@/components/layout/workspace-controls'
+import { RefreshButton } from '@/components/layout/workspace-actions'
+import { EmptyState } from '@/components/feedback/empty-state'
+import styles from '@/components/layout/workspace-dashboard.module.css'
 import { formatCents } from '@/domain/money'
 import { api } from '@/lib/api'
-import { AdminLinksBoard, type AdminLinkFilter, type AdminLinkRow, type AdminLinkStatus } from '@/features/administration/components/admin-links-board'
+import { LINK_STATUSES, AdminLinksBoard, type AdminLinkFilter, type AdminLinkRow, type AdminLinkStatus } from '@/features/administration/components/admin-links-board'
 import { FinancePanel } from './finance-panel'
 import { RetentionPanel } from './retention-panel'
 import { TrafficPanel } from './traffic-panel'
@@ -61,6 +72,8 @@ const SECTIONS = [
 ] as const
 
 type SectionId = (typeof SECTIONS)[number]['id']
+const SECTION_ICONS = { metricas: 'chart', trafego: 'traffic', financeiro: 'payment', cliques: 'pointer', pagadores: 'payers', contas: 'accounts', links: 'link', retencao: 'retention' } as const
+const SECTION_ITEMS = SECTIONS.map(item => ({ ...item, icon: SECTION_ICONS[item.id] }))
 
 function count(value: number): string {
   return value.toLocaleString('pt-BR')
@@ -155,50 +168,49 @@ export function OfficeBoard() {
     await load(q)
   }
 
-  const gloss = SECTIONS.map((item) => item.id === 'cliques'
-    ? { ...item, gloss: `Últimos ${office?.windowDays ?? 30} dias` }
-    : item)
-
   return (
-    <div className="desk">
-      <nav className="office-glossary" aria-label="Seções">
-        {gloss.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            aria-current={section === item.id ? 'true' : undefined}
-            onClick={() => setSection(item.id)}
-          >
-            {item.label}
-            <small>{item.gloss}</small>
-          </button>
-        ))}
-      </nav>
-      <div className="office-body">
+    <div className={styles.dashboard}>
+      <WorkspaceActions>
+        <RefreshButton onClick={() => void load(q)} />
+        {section === 'contas' || section === 'links' ? <><Button type="submit" form="office-filters"><ActionIcon name="search" />Buscar</Button><Button variant="secondary" onClick={() => { setDraft(''); setQ(''); setLinkStatus('ALL') }}><ActionIcon name="resetFilters" />Limpar busca</Button></> : null}
+      </WorkspaceActions>
+      <WorkspaceFilters id="office-filters" label="Filtrar gestão" onSubmit={event => { event.preventDefault(); setQ(draft.trim()) }}>
+        <ResponsiveTabs value={section} onChange={setSection} label="Área de gestão" idPrefix="office-area" items={SECTION_ITEMS} />
+        {section === 'contas' || section === 'links' ? <Field label="Buscar contas e links"><Input value={draft} onChange={event => setDraft(event.target.value)} placeholder="Nome, e-mail ou link" /></Field> : null}
+        {section === 'links' ? <Field label="Situação dos links"><Select value={linkStatus} onChange={event => setLinkStatus(event.target.value as AdminLinkFilter)}><option value="ALL">Todos</option>{LINK_STATUSES.map(status => <option key={status.value} value={status.value}>{status.filter}</option>)}</Select></Field> : null}
+      </WorkspaceFilters>
+      <div className={styles.dashboard} role="tabpanel" id={`office-area-panel-${section}`} aria-labelledby={`office-area-${section}`} tabIndex={0}>
       {section === 'retencao' ? <RetentionPanel /> : null}
       {section === 'trafego' ? <TrafficPanel /> : null}
       {section === 'financeiro' ? <FinancePanel /> : null}
       {section === 'retencao' || section === 'trafego' || section === 'financeiro' ? null : <>
-      <p className="office-note">
-        Uma seção por vez. Impressões e cliques são dos últimos {office?.windowDays ?? 30} dias. Receita é o total já pago. Contas e links mostram no máximo {office?.listCap ?? 40}; a busca acha o restante.
-      </p>
       {failed || !office ? (
-        failed ? <ErrorState onRetry={() => load(q)} /> : <p>Carregando…</p>
+        failed ? <ErrorState onRetry={() => load(q)} /> : <OfficeSkeleton section={section} />
       ) : (
         <>
           {section === 'metricas' ? (
-            <section className="office-metrics" aria-label="Métricas">
-              <p className="metric"><span className="metric-value">{count(office.metrics.users)}</span><span className="metric-label">contas · {count(office.metrics.bannedUsers)} {office.metrics.bannedUsers === 1 ? 'suspensa' : 'suspensas'}</span></p>
-              <p className="metric"><span className="metric-value">{count(office.metrics.publishedLinks)}</span><span className="metric-label">publicados · {count(office.metrics.pendingLinks)} na fila</span></p>
-              <p className="metric"><span className="metric-value">{count(office.metrics.clicks)}</span><span className="metric-label">cliques · {count(office.metrics.impressions)} impressões · {percent(office.metrics.ctr)}</span></p>
-              <p className="metric"><span className="metric-value">{formatCents(office.metrics.paidCents)}</span><span className="metric-label">receita · {count(office.metrics.paidOrders)} pedidos</span></p>
-            </section>
+            <div className={styles.dashboard}>
+              <dl className={styles.metrics} aria-label="Métricas">
+                <div><dt>Contas</dt><dd>{count(office.metrics.users)}<small>{count(office.metrics.bannedUsers)} suspensas</small></dd></div>
+                <div><dt>Links publicados</dt><dd>{count(office.metrics.publishedLinks)}<small>{count(office.metrics.pendingLinks)} na fila</small></dd></div>
+                <div><dt>Cliques no catálogo</dt><dd>{count(office.metrics.clicks)}<small>{count(office.metrics.impressions)} impressões · {percent(office.metrics.ctr)}</small></dd></div>
+                <div><dt>Receita confirmada</dt><dd>{formatCents(office.metrics.paidCents)}<small>{count(office.metrics.paidOrders)} pedidos pagos</small></dd></div>
+              </dl>
+              <div className={styles.columns}>
+                <WorkspaceSection title="Publicação no catálogo" description="Quantidade de links por situação.">
+                  <ComparisonBars rows={Object.entries(office.linkStatusCounts).map(([id,value]) => ({id,label:LINK_STATUS[id] ?? id,value}))} unit="links" />
+                </WorkspaceSection>
+                <WorkspaceSection title="Próximas ações">
+                  <ul className={styles.tasks}><li><a href="/admin/moderacao">Revisar envios →</a><span>{count(office.metrics.pendingLinks)} links aguardando revisão</span></li><li><a href="/admin/denuncias">Conferir denúncias →</a><span>Analise os relatos recebidos.</span></li><li><a href="/admin/disponibilidade">Ver correções →</a><span>Convites atualizados pelos responsáveis.</span></li><li><a href="/admin/estornos">Acompanhar estornos →</a><span>Devoluções e tentativas de pagamento.</span></li></ul>
+                </WorkspaceSection>
+              </div>
+            </div>
           ) : null}
 
           {section === 'cliques' ? (
             <section aria-label="Links mais clicados">
               <h2>Links mais clicados</h2>
-              {office.topLinks.length === 0 ? <p>Nenhum clique no período.</p> : (
+              {office.topLinks.length === 0 ? <EmptyState /> : (
                 <div className="moderation-grid">
                   {office.topLinks.map((row) => (
                     <article key={row.id} className="summary-card moderation-card">
@@ -215,7 +227,7 @@ export function OfficeBoard() {
           {section === 'pagadores' ? (
             <section aria-label="Quem mais pagou">
               <h2>Quem mais pagou</h2>
-              {office.topPayers.length === 0 ? <p>Nenhum pagamento confirmado.</p> : (
+              {office.topPayers.length === 0 ? <EmptyState /> : (
                 <div className="refund-grid">
                   {office.topPayers.map((row) => (
                     <article key={row.userId} className="summary-card">
@@ -229,18 +241,12 @@ export function OfficeBoard() {
             </section>
           ) : null}
 
-          {section === 'contas' || section === 'links' ? (
-            <form className="office-search" onSubmit={(event) => { event.preventDefault(); setQ(draft.trim()) }}>
-              <input className="field" value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="Nome, e-mail ou link" aria-label="Buscar contas e links" />
-              <Button type="submit" variant="secondary">Buscar</Button>
-            </form>
-          ) : null}
           {notice && (section === 'contas' || section === 'links') ? <p role="status">{notice}</p> : null}
 
           {section === 'contas' ? (
             <section aria-label="Contas">
               <h2>Contas</h2>
-              {office.users.length === 0 ? <p>Nenhuma conta.</p> : (
+              {office.users.length === 0 ? <EmptyState /> : (
                 <div className="refund-grid">
                   {office.users.map((row) => (
                     <article key={row.id} className="summary-card">
@@ -249,7 +255,7 @@ export function OfficeBoard() {
                       <p className="moderation-kicker">{USER_STATUS[row.status] ?? row.status} · {row.role === 'ADMIN' ? 'Admin' : 'Usuário'} · {count(row.links)} links</p>
                       {row.status === 'ACTIVE' && row.role !== 'ADMIN' ? (
                         <div className="moderation-actions">
-                          <Button variant="danger" onClick={() => { setReason(''); setPrompt({ kind: 'ban', id: row.id, name: row.name || row.email || row.id }) }}>Suspender</Button>
+                          <Button variant="danger" onClick={() => { setReason(''); setPrompt({ kind: 'ban', id: row.id, name: row.name || row.email || row.id }) }}><ActionIcon name="ban" />Suspender</Button>
                         </div>
                       ) : null}
                     </article>
@@ -260,7 +266,7 @@ export function OfficeBoard() {
           ) : null}
 
           {section === 'links' ? (
-            <AdminLinksBoard links={office.links} counts={office.linkStatusCounts} filter={linkStatus} onFilterChange={setLinkStatus} loading={loading} query={q} onWithdraw={row => setPrompt({ kind: 'withdraw', id: row.id, name: row.name, status: row.status })} />
+            <AdminLinksBoard links={office.links} loading={loading} onWithdraw={row => setPrompt({ kind: 'withdraw', id: row.id, name: row.name, status: row.status })} />
           ) : null}
         </>
       )}
@@ -283,8 +289,8 @@ export function OfficeBoard() {
               </label>
             ) : null}
             <div className="moderation-actions">
-              <Button type="submit" variant="danger" disabled={busy}>{prompt.kind === 'ban' ? 'Suspender' : prompt.status === 'PUBLISHED' ? 'Tirar do ar' : 'Retirar envio'}</Button>
-              <Button type="button" variant="secondary" disabled={busy} onClick={() => setPrompt(null)}>Cancelar</Button>
+              <Button type="submit" variant="danger" disabled={busy}><ActionIcon name="trash" />{prompt.kind === 'ban' ? 'Suspender' : prompt.status === 'PUBLISHED' ? 'Tirar do ar' : 'Retirar envio'}</Button>
+              <Button type="button" variant="secondary" disabled={busy} onClick={() => setPrompt(null)}><ActionIcon name="close" />Cancelar</Button>
             </div>
           </form>
         ) : null}

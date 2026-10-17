@@ -56,7 +56,7 @@ Esses nomes não são obrigação de criar arquivos vazios. Preferir ampliação
 - [x] Fechar: D10 unicidade de slug por tenant, regras de URL privada no perfil, mídia/limites e conteúdo restrito.
 - [x] Ler os pontos existentes acima; registrar o que será estendido e por que qualquer componente/porta/modelo novo é necessário.
 - [x] Definir campos/tipos/validações reais de entrada `slug,name,bio,avatarAssetId,categories[{id,name,position}],items[{id,type,label,destination,visible,position}],expectedVersion` e saída `draft{version,validation},publicProfile{slug,publishedRevisionId,categories,items}; sem campos privados`; alinhar status/erros à aplicação.
-- [x] Desenhar a jornada Aba Perfil edita foto, nome, bio, grupos, ordem e botão principal; prévia usa o mesmo renderer público em /p/:slug.
+- [x] Desenhar a jornada Minha página edita foto, nome, bio, grupos, ordem e botão principal; Ver prévia confirma o salvamento do rascunho e abre /painel/perfil/previa, restrita à sessão proprietária. A prévia usa o mesmo renderer da publicação /p/:slug, com banner fixo Modo de prévia e retorno à edição, sem publicar.
 - [x] Definir fixture F09, permissões, relógio e adapters externos necessários. Não depender de serviços de produção.
 - [x] Registrar rollout e como a versão anterior continuará funcionando durante alteração de dados.
 
@@ -104,7 +104,7 @@ Esses nomes não são obrigação de criar arquivos vazios. Preferir ampliação
 **Entrada:** API S3 disponível em ambiente local de desenvolvimento.  
 **Saída auditável:** jornada completa com componentes locais e testes C passando.
 
-- [x] Implementar Aba Perfil edita foto, nome, bio, grupos, ordem e botão principal; prévia usa o mesmo renderer público em /p/:slug.
+- [x] Implementar Minha página edita foto, nome, bio, grupos, ordem e botão principal; Ver prévia confirma o salvamento do rascunho e abre /painel/perfil/previa, restrita à sessão proprietária. A prévia usa o mesmo renderer da publicação /p/:slug, com banner fixo Modo de prévia e retorno à edição, sem publicar.
 - [x] Compor Button/Field/Input/Select e estrutura de painel existentes; novo componente somente pela responsabilidade descrita em S0.
 - [x] Conectar BFF/API reais, preservar host/cookies/CSRF; bloquear envio duplicado e mostrar resultado apenas depois de persistir.
 - [x] Implementar loading, vazio, inválido, sem permissão, conflito e erro recuperável; preservar entrada válida na recuperação.
@@ -168,3 +168,13 @@ Esses nomes não são obrigação de criar arquivos vazios. Preferir ampliação
 
 **Registro final:** Codex; código aba5b14907ec5d4bb794266b768cd282470a3d20; CI 38940575906 aprovado; evidências em execução F09. Parada após F09; sem main/deploy.
 
+
+
+## Lote de personalização — 17/10/2026
+
+Ordem executada: contrato e migração aditiva de appearance → mídia WebP com validação servidor → renderer de página inteira e assinatura obrigatória → seletor de cores próprio/temas/estilos → editor com prévia → unitários, PostgreSQL, E2E e inspeção visual. O pedido atual autoriza esta evolução; não inicia F10 nem altera cobrança. Plano e critérios detalhados em [Minha página](../../frontend-profissional/minha-pagina-personalizacao.md). Resultados finais constam no registro de execução e na implementação do frontend.
+
+
+## Extensão autorizada de revisão — 17/10/2026
+
+A regra anterior de bloquear suspeitos sem revisão foi substituída pelo pedido de seguir o ciclo do catálogo: aprovação automática ou fila humana separada, recusa com motivo, uma contestação por envio e nova versão após correção. Segurança/URLs, permissões, publicação anterior e limites permanecem. Ver [contrato, critérios, implementação e evidências](../../frontend-profissional/revisao-paginas-convites.md). Esta extensão local não reatribui os commits/CI da entrega histórica nem inicia a próxima feature.

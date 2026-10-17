@@ -77,3 +77,8 @@ Sem renderer de prévia novo; QR e histórico de publicação do perfil pertence
 - [x] CI aceito e fechamento do roadmap. Deploy futuro exige sua própria autorização; não faz parte desta execução.
 
 Fechamento: código `1809e1d97f0b7e7681409041a2073412352d91d6`; [CI 38971032480](https://github.com/MentesReprogramadas/divulgadorlink/actions/runs/38971032480) aprovado nos quatro jobs. Local: 431 backend, 201 frontend, 152 PG e 100 E2E; lint/typecheck/build dos dois pacotes aprovados. Sem deploy/main. Parada após F12.
+
+
+## Extensão autorizada de revisão — 17/10/2026
+
+A regra anterior de bloquear suspeitos sem revisão foi substituída pelo pedido de seguir o ciclo do catálogo: aprovação automática ou fila humana separada, recusa com motivo, uma contestação por envio e nova versão após correção. Segurança/URLs, permissões, publicação anterior e limites permanecem. Ver [contrato, critérios, implementação e evidências](../../frontend-profissional/revisao-paginas-convites.md). Esta extensão local não reatribui os commits/CI da entrega histórica nem inicia a próxima feature.

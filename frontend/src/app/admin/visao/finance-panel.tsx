@@ -1,6 +1,14 @@
 'use client'
 
+import { DatePicker } from '@/components/ui/date-picker'
+import { InsightSkeleton } from '@/features/administration/components/insight-skeleton'
+
+import { ActionIcon } from '@/components/ui/action-icon'
+import { WorkspaceActions, WorkspaceFilters } from '@/components/layout/workspace-controls'
+import { Field, Select } from '@/components/ui/input'
+
 import { useEffect, useState } from 'react'
+import { EmptyState } from '@/components/feedback/empty-state'
 import { ErrorState } from '@/components/feedback/error-state'
 import { Button } from '@/components/ui/button'
 import { formatCents } from '@/domain/money'
@@ -175,39 +183,38 @@ export function FinancePanel() {
 
   return (
     <section aria-label="Financeiro" className="finance">
-      <form className="finance-filters" onSubmit={(event) => { event.preventDefault(); setApplied(filters) }}>
-        <label className="field-block"><span className="field-label">De</span><input className="field" type="date" value={filters.from} onChange={(event) => update({ from: event.target.value })} /></label>
-        <label className="field-block"><span className="field-label">Até</span><input className="field" type="date" value={filters.to} onChange={(event) => update({ to: event.target.value })} /></label>
+      <WorkspaceActions><Button form="finance-filters" type="submit"><ActionIcon name="filter" />Aplicar</Button></WorkspaceActions><WorkspaceFilters id="finance-filters" label="Filtrar financeiro" onSubmit={(event) => { event.preventDefault(); setApplied(filters) }}>
+        <Field label="De"><DatePicker value={filters.from} onChange={(event) => update({ from: event.target.value })} /></Field>
+        <Field label="Até"><DatePicker value={filters.to} onChange={(event) => update({ to: event.target.value })} /></Field>
         <label className="field-block">
           <span className="field-label">Método</span>
-          <select className="field" value={filters.method} onChange={(event) => update({ method: event.target.value })}>
+          <Select value={filters.method} onChange={(event) => update({ method: event.target.value })}>
             <option value="">Todos</option><option value="PIX">Pix</option><option value="CARD">Cartão</option>
-          </select>
+          </Select>
         </label>
         <label className="field-block">
           <span className="field-label">Produto</span>
-          <select className="field" value={filters.product} onChange={(event) => update({ product: event.target.value })}>
+          <Select value={filters.product} onChange={(event) => update({ product: event.target.value })}>
             <option value="">Todos</option>
             {Object.entries(PRODUCTS).map(([code, label]) => <option key={code} value={code}>{label}</option>)}
-          </select>
+          </Select>
         </label>
         <label className="field-block">
           <span className="field-label">Duração</span>
-          <select className="field" value={filters.durationDays} onChange={(event) => update({ durationDays: event.target.value })}>
+          <Select value={filters.durationDays} onChange={(event) => update({ durationDays: event.target.value })}>
             <option value="">Todas</option><option value="7">7 dias</option><option value="14">14 dias</option><option value="28">28 dias</option>
-          </select>
+          </Select>
         </label>
         <label className="field-block">
           <span className="field-label">Compra</span>
-          <select className="field" value={filters.renewal} onChange={(event) => update({ renewal: event.target.value })}>
+          <Select value={filters.renewal} onChange={(event) => update({ renewal: event.target.value })}>
             <option value="">Todas</option><option value="new">Primeira</option><option value="renewal">Renovação</option>
-          </select>
+          </Select>
         </label>
-        <Button type="submit">Aplicar</Button>
-      </form>
+      </WorkspaceFilters>
 
       {failed ? <ErrorState onRetry={() => load(applied)} /> : null}
-      {!view && !failed ? <p>Carregando…</p> : null}
+      {!view && !failed ? <InsightSkeleton kind="finance" /> : null}
       {view ? (
         <>
           <p className="office-note">
@@ -238,7 +245,7 @@ export function FinancePanel() {
                 ))}
               </ul>
               <h2>Receita por dia</h2>
-              {view.daily.length === 0 ? <p>Nenhum pagamento no período.</p> : (
+              {view.daily.length === 0 ? <EmptyState /> : (
                 <ul className="traffic-bars insight-bars">
                   {view.daily.map((row) => (
                     <li key={row.day}>
@@ -265,7 +272,7 @@ export function FinancePanel() {
                 ))}
               </ul>
               <h2>Horários com pagamento</h2>
-              {slots.length === 0 ? <p>Nenhum pagamento no período.</p> : (
+              {slots.length === 0 ? <EmptyState /> : (
                 <ul className="insight-rows">
                   {slots.map((cell) => (
                     <li key={`${cell.weekday}-${cell.hour}`}>
@@ -291,7 +298,7 @@ export function FinancePanel() {
           {tab === 'vendas' ? (
             <div {...panelProps('financeiro', 'vendas')}>
               <h2>Produtos</h2>
-              {view.products.length === 0 ? <p>Nenhum produto vendido.</p> : (
+              {view.products.length === 0 ? <EmptyState /> : (
                 <ul className="insight-rows">
                   {view.products.map((row) => (
                     <li key={`${row.productCode}-${row.durationDays}`}>
@@ -303,7 +310,7 @@ export function FinancePanel() {
               )}
               <h2>Estornos</h2>
               <p className="office-note">Recebido no período: {formatCents(view.summary.receivedCents)}. Já devolvido: {formatCents(view.summary.refundedCents)}. Ainda a devolver: {formatCents(view.summary.refundOwedCents)}.</p>
-              {view.refunds.length === 0 ? <p>Nenhum estorno.</p> : (
+              {view.refunds.length === 0 ? <EmptyState /> : (
                 <ul className="insight-rows">
                   {view.refunds.map((row) => (
                     <li key={row.status}>
@@ -315,7 +322,7 @@ export function FinancePanel() {
               )}
               <h2>Campanhas</h2>
               <p className="office-note">Só links de quem aceitou cookies carregam a campanha. O restante não aparece aqui.</p>
-              {view.campaigns.length === 0 ? <p>Nenhuma venda atribuída.</p> : (
+              {view.campaigns.length === 0 ? <EmptyState /> : (
                 <ul className="insight-rows">
                   {view.campaigns.map((row) => (
                     <li key={`${row.source}|${row.medium}|${row.campaign}`}>
@@ -359,7 +366,7 @@ export function FinancePanel() {
                 <label className="field-block"><span className="field-label">Pix por pagamento (R$)</span><input className="field" inputMode="decimal" value={fees.pixFixed} onChange={(event) => setFees({ ...fees, pixFixed: event.target.value })} /></label>
                 <label className="field-block"><span className="field-label">Cartão (%)</span><input className="field" inputMode="decimal" value={fees.card} onChange={(event) => setFees({ ...fees, card: event.target.value })} /></label>
                 <label className="field-block"><span className="field-label">Cartão fixo (R$)</span><input className="field" inputMode="decimal" value={fees.fixed} onChange={(event) => setFees({ ...fees, fixed: event.target.value })} /></label>
-                <Button type="submit" variant="secondary">Salvar taxas</Button>
+                <Button type="submit" variant="secondary"><ActionIcon name="save" />Salvar taxas</Button>
               </form>
               {notice ? <p role="status">{notice}</p> : null}
             </div>

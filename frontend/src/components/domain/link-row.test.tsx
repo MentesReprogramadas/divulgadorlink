@@ -49,7 +49,8 @@ describe('LinkRow', () => {
     expect(screen.getByRole('link', { name: 'Receitas' }).textContent).not.toContain('1.240')
     const kicker = container.querySelector('.sponsored-kicker')
     expect(kicker?.textContent).toContain('Patrocinado')
-    expect(kicker?.querySelector('.impression-mark')).not.toBeNull()
+    expect(kicker?.querySelector('.impression-mark')).toBeNull()
+    expect(screen.getByLabelText('1.240 impressões').parentElement).toBe(screen.getByText('Ver link').parentElement)
     expect(kicker?.querySelector('.ad-mark svg')?.getAttribute('viewBox')).toBe('0 0 16 16')
   })
 

@@ -1,0 +1,18 @@
+.dialog { padding: 0; border: 0; border-radius: var(--radius-lg); width: min(40rem, calc(100% - 2rem)); max-width: 100%; max-height: calc(100dvh - 2rem); color: var(--text-primary); background: var(--surface-raised); opacity: 0; transform: translateY(1rem); transition: opacity .2s ease, transform .2s ease, display .2s allow-discrete, overlay .2s allow-discrete; overflow: auto; overscroll-behavior: contain; box-shadow: 0 24px 80px #0c1f3b33; }
+.dialog[open] { opacity: 1; transform: none; }
+.dialog::backdrop { background: #0c1f3b80; opacity: 0; transition: opacity .2s ease, display .2s allow-discrete, overlay .2s allow-discrete; }
+.dialog[open]::backdrop { opacity: 1; }
+.dialog[data-variant='sidebar'] { opacity: 1; margin: 0 0 0 auto; width: min(21rem, calc(100% - 2.5rem)); height: 100dvh; max-height: 100dvh; border-radius: var(--radius-lg) 0 0 var(--radius-lg); transform: translateX(100%); }
+.dialog[data-variant='sidebar'][open] { transform: none; }
+.panel { min-width: 0; min-height: 100%; }
+.header { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: var(--space-4) var(--space-6); background: var(--surface-raised); border-bottom: 1px solid var(--border-default); }
+.header h2 { margin: 0; font-size: var(--text-lg); }
+.header button { display: grid; place-items: center; flex: none; width: 44px; height: 44px; padding: 0; border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--surface-page); color: var(--text-primary); cursor: pointer; }
+.body { padding: var(--space-6); overflow-wrap: anywhere; }
+.hiddenTitle { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }
+.dialog[data-variant='sidebar'] .body { padding: var(--space-4); }
+.dialog[data-variant='sidebar'] .panel { display: flex; flex-direction: column; }
+.dialog[data-variant='sidebar'] .body { flex: 1; display: flex; }
+.dialog[data-variant='sidebar'] .header { padding: var(--space-4); }
+@starting-style { .dialog[open] { opacity: 0; transform: translateY(1rem); } .dialog[data-variant='sidebar'][open] { opacity: 1; transform: translateX(100%); } .dialog[open]::backdrop { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .dialog, .dialog::backdrop { transition: none; } }

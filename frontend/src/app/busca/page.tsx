@@ -11,7 +11,7 @@ import { BackButton } from '@/components/ui/back-button'
 import { SearchBox } from '@/components/domain/search-box'
 import { EmptyState } from '@/components/feedback/empty-state'
 import { ErrorState } from '@/components/feedback/error-state'
-import { Loading } from '@/components/feedback/loading'
+import { CatalogCardsSkeleton, SearchSkeleton } from '@/features/catalog/components/catalog-skeleton'
 import { api } from '@/lib/api'
 import styles from './search-results.module.css'
 
@@ -96,7 +96,7 @@ function SearchResults() {
       <form className="search-form" action="/busca">
         <SearchBox id="search-query" label="Busca" initial={q} />
       </form>
-      {state === 'loading' ? <Loading /> : null}
+      {state === 'loading' ? <CatalogCardsSkeleton count={Math.max(organic.length + sponsored.length, 3)} /> : null}
       {state === 'error' ? <ErrorState onRetry={() => void load()} /> : null}
       {showEmpty ? <EmptyState>Nenhum link encontrado</EmptyState> : null}
       {state === 'ready' && ageRequired ? <AgePrompt onYes={() => void answer('yes')} onNo={() => void answer('no')} /> : null}
@@ -106,7 +106,7 @@ function SearchResults() {
           <h2 id="search-patrocinados">Patrocinados</h2>
           <CatalogGrid>
             {sponsored.map((row) => (
-              <LinkRow actions={<FavoriteButton linkId={row.id} />} key={row.id} id={row.id} name={row.name} description={row.description} href={rowHref(row)} placement="sponsored" niche={row.niche} network={row.network} impressions={row.impressions} showImpressions={showImpressions} />
+              <LinkRow cornerAction={<FavoriteButton linkId={row.id} />} key={row.id} id={row.id} name={row.name} description={row.description} href={rowHref(row)} placement="sponsored" niche={row.niche} network={row.network} impressions={row.impressions} showImpressions={showImpressions} />
             ))}
           </CatalogGrid>
         </section>
@@ -116,7 +116,7 @@ function SearchResults() {
           <h2 id="search-organicos">Links encontrados</h2>
           <CatalogGrid>
             {organic.map((row) => (
-              <LinkRow actions={<FavoriteButton linkId={row.id} />} key={row.id} id={row.id} name={row.name} description={row.description} href={rowHref(row)} placement="organic" niche={row.niche} network={row.network} impressions={row.impressions} showImpressions={showImpressions} />
+              <LinkRow cornerAction={<FavoriteButton linkId={row.id} />} key={row.id} id={row.id} name={row.name} description={row.description} href={rowHref(row)} placement="organic" niche={row.niche} network={row.network} impressions={row.impressions} showImpressions={showImpressions} />
             ))}
           </CatalogGrid>
         </section>
@@ -126,5 +126,5 @@ function SearchResults() {
 }
 
 export default function Page() {
-  return <Suspense fallback={<main><Loading /></main>}><SearchResults /></Suspense>
+  return <Suspense fallback={<SearchSkeleton />}><SearchResults /></Suspense>
 }

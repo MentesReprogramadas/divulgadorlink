@@ -8,7 +8,7 @@ afterEach(() => { cleanup(); vi.restoreAllMocks(); request.mockReset() })
 const id = '0258c08c-aec0-4435-8c20-7b73d58e4d7b'
 const detail = { id, stablePath: '/r/' + id, version: 1, activeRevisionId: null, disabled: false, revisions: [] }
 async function fields() {
-  await screen.findByLabelText('Título do convite')
+  fireEvent.click(await screen.findByRole('button', { name: 'Novo link permanente' })); await screen.findByLabelText('Título do convite')
   fireEvent.change(screen.getByLabelText('Título do convite'), { target: { value: 'Estudos' } })
   fireEvent.change(screen.getByLabelText('Destino do convite'), { target: { value: 'https://example.com/convite' } })
   return screen.getByRole('form', { name: 'Editar convite permanente' })
@@ -16,7 +16,7 @@ async function fields() {
 it('F12-C01 vazio, offline, reenvio com mesma identidade e bloqueio de duplicação até persistir', async () => {
   request.mockResolvedValue({ items: [], nextCursor: null })
   render(<RedirectScreen />); const form = await fields()
-  expect(screen.getByText('Crie seu primeiro endereço permanente no formulário abaixo.')).toBeTruthy()
+  expect(screen.getByText('Crie seu primeiro link permanente para compartilhar um endereço fixo.')).toBeTruthy()
   request.mockRejectedValueOnce(new RedirectRequestError('Sem conexão.'))
   fireEvent.submit(form); await screen.findByRole('alert')
   expect((screen.getByLabelText('Título do convite') as HTMLInputElement).value).toBe('Estudos')
@@ -40,13 +40,13 @@ it('F12-C01 erro de conteúdo conserva os campos e carrega o endereço reservado
   fireEvent.submit(form)
   expect((await screen.findByRole('alert')).textContent).toContain('Conteúdo suspeito')
   expect((screen.getByLabelText('Destino do convite') as HTMLInputElement).value).toBe('https://example.com/convite')
-  expect(screen.getByLabelText('Link permanente')).toBeTruthy()
+  expect(request.mock.calls.some(([path]) => path === '/' + id)).toBe(true)
 })
 it('F12-C02 falha inicial não cria formulário funcional nem anuncia sucesso; recuperar é explícito', async () => {
   request.mockRejectedValueOnce(new RedirectRequestError('Acesso indisponível.'))
   render(<RedirectScreen />); await screen.findByRole('alert')
   expect(screen.queryByLabelText('Título do convite')).toBeNull()
   request.mockResolvedValue({ items: [], nextCursor: null }); fireEvent.click(screen.getByRole('button', { name: 'Atualizar dados' }))
-  await screen.findByLabelText('Título do convite')
+  fireEvent.click(await screen.findByRole('button', { name: 'Novo link permanente' })); await screen.findByLabelText('Título do convite')
   expect(screen.queryByText(/Destino validado\./)).toBeNull()
 })

@@ -7,6 +7,7 @@ import styles from './link-row.module.css'
 
 export type CatalogRow = {
   actions?: ReactNode
+  cornerAction?: ReactNode
   id: string
   name: string
   description: string
@@ -29,11 +30,10 @@ export function ImpressionMark({ value }: { value: number }) {
   )
 }
 
-export function SponsoredKicker({ impressions, show, icon }: { impressions: number; show: boolean; icon?: 'dot' | 'diamond' }) {
+export function SponsoredKicker({ icon }: { icon?: 'dot' | 'diamond' }) {
   return (
     <div className="sponsored-kicker">
       <AdMark icon={icon} />
-      {show ? <ImpressionMark value={impressions} /> : null}
     </div>
   )
 }
@@ -49,17 +49,19 @@ export function LinkRow({
   impressions = 0,
   showImpressions = true,
   actions,
+  cornerAction,
 }: CatalogRow & { showImpressions?: boolean }) {
   const show = showImpressions !== false
   return (
     <article className={`link-row ${styles.card}`} data-placement={placement} data-link-id={id}>
-      {placement === 'sponsored' ? <SponsoredKicker impressions={impressions} show={show} icon="diamond" /> : null}
-      <a className={`link-name ${styles.name}`} href={href}><CardTitle text={name} /></a>
+      {cornerAction ? <div className={styles.cornerAction}>{cornerAction}</div> : null}
+      {placement === 'sponsored' ? <SponsoredKicker icon="diamond" /> : null}
+      <a className={`link-name ${styles.name} ${cornerAction ? styles.withCorner : ''}`} href={href}><CardTitle text={name} /></a>
       <CardDescription text={description} className={`link-row-description ${styles.description}`} />
       <LinkMeta niche={niche} network={network} />
-      {actions}
+      {actions ? <div className={styles.cardActions}>{actions}</div> : null}
       <div className={styles.footer}>
-        {placement === 'organic' && show ? <ImpressionMark value={impressions} /> : null}
+        {show ? <ImpressionMark value={impressions} /> : null}
         <span className={styles.action} aria-hidden="true">
           Ver link
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

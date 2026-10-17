@@ -1,0 +1,9 @@
+{
+  "outside_validated_snapshot": [
+    "features\\favorites\\favorites-screen.test.tsx",
+    "features\\favorites\\favorites-screen.tsx",
+    "features\\favorites\\components\\collection-picker.tsx",
+    "features\\favorites\\components\\favorite-list.tsx",
+    "features\\favorites\\components\\favorites.module.css"
+  ]
+}

@@ -52,6 +52,7 @@ function shutdown() {
 }
 
 const redirectValidations = []
+let profileValidationCount = 0, lastProfileValidation = null, profileValidationUnavailable = false
 const stub = createServer((req, res) => {
   const chunks = []
   req.on('data', (chunk) => chunks.push(chunk))
@@ -63,8 +64,12 @@ const stub = createServer((req, res) => {
       for (const pending of redirectValidations.splice(0)) pending.end(JSON.stringify({ pass: true, confidence: 0.99, reasons: [] }))
       res.end('{}'); return
     }
+    if (req.method === 'GET' && req.url === '/profile-validation/state') { res.end(JSON.stringify({ count: profileValidationCount, last: lastProfileValidation })); return }
+    if (req.method === 'POST' && req.url === '/profile-validation/control') { profileValidationUnavailable = JSON.parse(raw).unavailable === true; res.end('{}'); return }
     if (req.method === 'POST' && req.url === '/profile-validation') {
       const text = JSON.parse(raw)
+      profileValidationCount++; lastProfileValidation = text
+      if (profileValidationUnavailable) { res.statusCode = 503; res.end('{}'); return }
       if (String(text.description).includes('LentoFixture')) { redirectValidations.push(res); return }
       if (String(text.description).includes('FalhaProvedorFixture')) { res.statusCode = 503; res.end('{}'); return }
       res.end(JSON.stringify({ pass: !String(text.description).includes('SuspeitoFixture'), confidence: 0.99, reasons: [] })); return
@@ -203,7 +208,7 @@ const apiEnv = {
 
 const tsx = path.join(backend, 'node_modules/tsx/dist/cli.mjs')
 const next = path.join(frontend, 'node_modules/next/dist/bin/next')
-start([process.execPath, tsx, 'src/server.ts'], backend, apiEnv)
+start([process.execPath, tsx, process.env.E2E_SEARCH_EMBEDDING === '1' ? 'scripts/e2e-search-server.ts' : 'src/server.ts'], backend, apiEnv)
 start([process.execPath, tsx, 'src/worker.ts'], backend, apiEnv)
 
 async function waitOk(url) {
@@ -230,6 +235,7 @@ catch (error) {
 
 const webEnv = {
   ...process.env,
+  TEMLINK_E2E_BUILD: '1',
   NODE_ENV: 'production',
   API_ORIGIN: (e2eRuntime.apiOrigin),
   TENANT_HOST: '',

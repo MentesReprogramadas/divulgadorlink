@@ -68,3 +68,24 @@ AC01: U01 e I01/T01 no PG; AC02: I02/T02/CSRF e E02; AC03: C/E01/E03/mobile e re
 ## Correção de foco em 16/10/2026 durante retomada contínua
 
 O CI 38964298636 encontrou uma corrida de foco em F09-E03 mobile: o editor tentava focar a confirmação de rascunho antes de o React inserir o texto, enquanto `.status:empty` ocultava o elemento. Novo teste reproduziu o texto vazio no momento da tentativa de foco. A correção sincroniza com o commit do DOM por `useLayoutEffect`, preservando o Playwright original e os contratos de perfil. Estado final e evidências em [execução F12](execucao-f12.md#regressão-de-foco-encontrada-durante-a-preparação).
+
+
+## Refinamento da prévia — 17/10/2026
+
+Por solicitação do usuário, Minha página substitui Perfil na navegação. A prévia deixa de ser uma região inline e abre em `/painel/perfil/previa` após salvar o rascunho. Usa GET `/me/profile/preview` já existente, sessão proprietária, projeção e renderer compartilhados, banner sticky e retorno à edição. Nenhuma publicação automática foi introduzida. Spec e plano foram reconciliados; evidências e resultados atuais em [implementação do frontend](../frontend-profissional/implementacao.md#navegação-skeletons-e-prévia-privada--17102026). Esta entrega não avança o roadmap.
+
+
+## Evolução autorizada em 17/10/2026: página pessoal
+
+O registro acima documenta a entrega original. A normalização PNG e a identidade visual de card foram superadas por WebP e página inteira personalizável, sem chrome do catálogo. sharp 0.34.5 foi acrescentado ao backend para decodificação/recodificação real do codec; não foi instalada biblioteca de UI. O agregado mantém appearance JSON opcional, incluindo a projeção/publicação. Migração aditiva 20261017180000_profile_appearance, sem reescrever snapshots antigos. Marca obrigatória não faz parte da configuração recebida do usuário. Ver [escopo, critérios e resultados](../frontend-profissional/minha-pagina-personalizacao.md).
+
+
+## 17/10/2026 — marca discreta e revisão de páginas/convites
+
+Autorização específica posterior: assinatura pequena e ciclo IA → aprovação automática ou humano → recusa/contestação para F09/F12. Implementação local versionada por envio, sem consumir quotas de Link. [Registro e critérios](../frontend-profissional/revisao-paginas-convites.md) descrevem reuso, testes, migração e reversão. Sem avanço de ordem, nova feature, commit, push ou deploy; fases históricas e seus CI permanecem históricos.
+
+## Extensão de 17/10/2026 — páginas e convites no WhatsApp
+
+Por novo pedido expresso, revisões humanas de F09/F12 e suas contestações também usam o grupo Evolution configurado, a mesma autorização por operador ADMIN e a mesma operação de decisão do painel. O aviso citado identifica a versão exata; expiração, substituição e contestação invalidam mensagens anteriores. Decisão e registro do aviso de confirmação são atômicos, sem alterar aprovação automática, regras de segurança ou cobrança. Avisos ganham símbolos distintos por evento e mantêm seções curtas.
+
+Contrato, critérios, limites, evidências e resultados no [complemento da implementação](../frontend-profissional/revisao-paginas-convites.md#complemento-autorizado--aprovação-pelo-whatsapp).

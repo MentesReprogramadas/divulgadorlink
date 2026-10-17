@@ -1,8 +1,10 @@
+import { appearanceInput } from './appearance'
 import { z } from 'zod'
 import { profileSlug, type ProfileContent } from './profile'
 const id = z.string().uuid()
 export const profileVersion = z.number().int().min(0).max(2147483646)
 export const profileInput = z.object({
+  appearance: appearanceInput.optional(),
   slug: z.string().max(80).transform((value, ctx) => { try { return profileSlug(value) } catch { ctx.addIssue({ code: 'custom', message: 'Endereço inválido ou reservado. Use 3 a 40 letras, números e hífens.' }); return z.NEVER } }),
   name: z.string().trim().min(1).max(80), bio: z.string().trim().max(500), avatarAssetId: z.string().regex(/^[a-f0-9]{64}$/).nullable(),
   requiresAge: z.boolean(), primaryItemId: id.nullable(),

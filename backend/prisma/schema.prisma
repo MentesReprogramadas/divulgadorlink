@@ -98,6 +98,7 @@ model Tenant {
 }
 
 model User {
+ contentReviews ContentReview[]
   id           String    @id @default(cuid())
   tenantId     String
   tenant       Tenant    @relation(fields: [tenantId], references: [id])
@@ -483,6 +484,11 @@ model OrderEvent {
   @@map("order_events")
 }
 
+enum AnalyticsEventType {
+  REAL
+  SYNTHETIC
+}
+
 model AnalyticsEvent {
   id        String   @id @default(cuid())
   tenantId  String
@@ -492,6 +498,8 @@ model AnalyticsEvent {
   surface   String
   day       DateTime @db.Date
   kind      String
+  type      AnalyticsEventType @default(REAL)
+  simulationId String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@unique([sessionId, linkId, surface, day, kind])
@@ -499,6 +507,7 @@ model AnalyticsEvent {
   @@index([tenantId, linkId, day])
   @@map("analytics_events")
   @@index([tenantId, linkId, createdAt])
+  @@index([tenantId, type, simulationId, id])
 }
 
 model ModerationCase {
@@ -779,6 +788,8 @@ model CollectionItem {
   @@map("collection_items")
 }
 model Profile {
+ reviews ContentReview[]
+ appearance Json?
  id String @id @default(uuid())
  tenantId String
  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
@@ -793,6 +804,7 @@ model Profile {
  version Int @default(0)
  publishedVersion Int?
  publication Json?
+ publishedDraft Json?
  createdAt DateTime @default(now())
  updatedAt DateTime @updatedAt
  categories ProfileCategory[]
@@ -865,6 +877,7 @@ model RedirectHandle {
  @@map("redirect_handles")
 }
 model RedirectDestination {
+ review ContentReview?
  id String @id @default(uuid())
  handleId String
  tenantId String
@@ -883,6 +896,7 @@ model RedirectDestination {
  @@unique([handleId, number], map: "redirect_destinations_number_key")
  @@unique([handleId, requestKey], map: "redirect_destinations_request_key")
  @@unique([handleId, tenantId, id], map: "redirect_destinations_identity_key")
+ @@unique([id, tenantId], map: "redirect_destinations_review_identity_key")
  @@index([createdAt], map: "redirect_destinations_retention_idx")
  @@map("redirect_destinations")
 }
@@ -894,4 +908,29 @@ model RedirectDaily {
  @@id([revisionId, day])
  @@index([day], map: "redirect_daily_retention_idx")
  @@map("redirect_daily")
+}
+
+model ContentReview {
+ id String @id @default(uuid())
+ tenantId String
+ ownerId String
+ owner User @relation(fields: [ownerId, tenantId], references: [id, tenantId], onDelete: Cascade, onUpdate: NoAction, map: "content_reviews_owner_fk")
+ kind String
+ profileId String?
+ profile Profile? @relation(fields: [profileId, tenantId, ownerId], references: [id, tenantId, ownerId], onDelete: Cascade, onUpdate: NoAction, map: "content_reviews_profile_fk")
+ redirectRevisionId String? @unique(map: "content_reviews_redirect_key")
+ redirectRevision RedirectDestination? @relation(fields: [redirectRevisionId, tenantId], references: [id, tenantId], onDelete: Cascade, onUpdate: NoAction, map: "content_reviews_redirect_fk")
+ version Int
+ snapshot Json
+ status String @default("PENDING")
+ reason String?
+ appealText String?
+ appealedAt DateTime?
+ resolvedAt DateTime?
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ @@unique([profileId, version], map: "content_reviews_profile_version_key")
+ @@unique([redirectRevisionId, tenantId], map: "content_reviews_redirect_identity_key")
+ @@index([tenantId, kind, status, createdAt], map: "content_reviews_queue_idx")
+ @@map("content_reviews")
 }

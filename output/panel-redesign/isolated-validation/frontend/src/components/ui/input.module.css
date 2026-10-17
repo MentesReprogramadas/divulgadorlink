@@ -1,0 +1,4 @@
+.labelIcon { display: inline-flex; vertical-align: middle; margin-right: var(--space-2); color: var(--text-secondary); }
+.control { border-radius: var(--radius-md); }
+.labelRow { display: flex; align-items: baseline; gap: 4px; }
+.required { color: var(--status-error-text); font-weight: 700; }

@@ -1,3 +1,5 @@
+import { queueContentReview } from '@/use-cases/@Notifications/content-review-events'
+import { ContentReviewRequired, reviewSummary } from '@/domain/moderation/content-review'
 import { createHash, randomUUID } from 'node:crypto'
 import { Prisma, type PrismaClient } from '@prisma/client'
 import { canSubmitLinkFromIdentifiers } from '@/use-cases/@Auth/confirm-identifier'
@@ -10,7 +12,7 @@ import { validateRedirectContent } from '@/use-cases/@Redirects/validate-content
 import type { PublicContentValidationPorts } from '@/use-cases/public-content-validation-ports'
 
 export type RedirectActor = { tenantId: string; ownerId: string }
-const revisionSelect = { id: true, number: true, label: true, destinationUrl: true, requiresAge: true, status: true, errorMessage: true, createdAt: true, resolvedAt: true }
+const revisionSelect = { review: { select: { id: true, status: true, reason: true, appealedAt: true, version: true } }, id: true, number: true, label: true, destinationUrl: true, requiresAge: true, status: true, errorMessage: true, createdAt: true, resolvedAt: true }
 const fingerprint = (input: DestinationInput) => createHash('sha256').update(JSON.stringify([input.destinationUrl, input.label, input.requiresAge])).digest('hex')
 async function owner(db: Prisma.TransactionClient, actor: RedirectActor, publish = false) {
   const user = await db.user.findFirst({ where: { id: actor.ownerId, tenantId: actor.tenantId }, include: { identifiers: true } })
@@ -52,7 +54,7 @@ export async function listRedirects(db: PrismaClient, actor: RedirectActor, curs
   await owner(db, actor)
   const rows = await db.redirectHandle.findMany({ where: { tenantId: actor.tenantId, ownerId: actor.ownerId, ...(cursor ? { id: { gt: cursor } } : {}) }, orderBy: { id: 'asc' }, take: 26, select: { id: true, version: true, activeRevisionId: true, disabled: true, revisions: { where: { createdAt: { gte: new Date(Date.now() - 180 * 86400000) } }, orderBy: { number: 'desc' }, take: 1, select: revisionSelect } } })
   const published = await db.redirectDestination.findMany({ where: { id: { in: rows.flatMap(row => row.activeRevisionId ? [row.activeRevisionId] : []) }, tenantId: actor.tenantId, handle: { ownerId: actor.ownerId }, status: 'APPROVED' }, select: revisionSelect })
-  return { items: rows.slice(0, 25).map(({ revisions, ...r }) => ({ ...r, latest: revisions[0] ?? published.find(p => p.id === r.activeRevisionId) ?? null, stablePath: '/r/' + r.id })), nextCursor: rows.length > 25 ? rows[24]!.id : null }
+  return { items: rows.slice(0, 25).map(({ revisions, ...r }) => ({ ...r, latest: (() => { const latest = revisions[0] ?? published.find(p => p.id === r.activeRevisionId); return latest ? { ...latest, review: reviewSummary(latest.review) } : null })(), stablePath: '/r/' + r.id })), nextCursor: rows.length > 25 ? rows[24]!.id : null }
 }
 export async function readRedirect(db: PrismaClient, actor: RedirectActor, id: string, range?: { from?: string; to?: string }, now = new Date()) {
   return db.$transaction(async tx => {
@@ -60,7 +62,7 @@ export async function readRedirect(db: PrismaClient, actor: RedirectActor, id: s
     await tx.$queryRaw`SELECT id FROM redirect_handles WHERE id=${id} AND "tenantId"=${actor.tenantId} FOR UPDATE`
     const row = await owned(tx, actor, id); await prune(tx, id, now)
     const revisions = await tx.redirectDestination.findMany({ where: { handleId: id }, orderBy: { number: 'desc' }, select: { ...revisionSelect, accesses: { where: { day: { ...(range?.from ? { gte: new Date(range.from + 'T00:00:00Z') } : {}), ...(range?.to ? { lte: new Date(range.to + 'T00:00:00Z') } : {}) } }, orderBy: { day: 'asc' }, select: { day: true, accesses: true } } } })
-    return { id: row.id, stablePath: '/r/' + row.id, version: row.version, activeRevisionId: row.activeRevisionId, disabled: row.disabled, revisions }
+    return { id: row.id, stablePath: '/r/' + row.id, version: row.version, activeRevisionId: row.activeRevisionId, disabled: row.disabled, revisions: revisions.map(revision => ({ ...revision, review: reviewSummary(revision.review) })) }
   })
 }
 export async function changeRedirect(db: PrismaClient, actor: RedirectActor, id: string | null, input: DestinationInput, ports: PublicContentValidationPorts, now = new Date()) {
@@ -77,6 +79,8 @@ export async function changeRedirect(db: PrismaClient, actor: RedirectActor, id:
       return { handle, revision: previous }
     }
     if (handle.version !== input.expectedRevision) throw new RedirectError(409, 'O convite mudou em outra aba. Atualize os dados antes de enviar.')
+    await tx.contentReview.updateMany({ where: { redirectRevision: { handleId: handle.id }, status: { in: ['PENDING', 'REJECTED'] } }, data: { status: 'SUPERSEDED', resolvedAt: now } })
+    await tx.redirectDestination.updateMany({ where: { handleId: handle.id, status: 'PENDING_REVIEW' }, data: { status: 'SUPERSEDED', resolvedAt: now } })
     const revision = await tx.redirectDestination.create({ data: { handleId: handle.id, tenantId: actor.tenantId, number: handle.version + 1, requestKey: input.requestKey, requestHash: hash, label: input.label, destinationUrl: input.destinationUrl, requiresAge: input.requiresAge, status: 'PENDING', createdAt: now } })
     handle = await tx.redirectHandle.update({ where: { id: handle.id }, data: { version: revision.number } })
     await prune(tx, handle.id, now)
@@ -87,9 +91,9 @@ export async function changeRedirect(db: PrismaClient, actor: RedirectActor, id:
     if (['BLOCKED', 'FAILED'].includes(pending.revision.status)) throw new RedirectError(pending.revision.status === 'FAILED' ? 503 : 422, pending.revision.errorMessage ?? 'Corrija o destino e envie novamente.', { id: pending.handle.id, version: pending.handle.version })
     return result(pending.revision.status)
   }
-  let destination = '', failure: RedirectError | null = null
+  let destination = '', failure: RedirectError | null = null, needsReview = false
   try { destination = await validateRedirectContent(db, actor.tenantId, input, ports) }
-  catch (e) { failure = e instanceof RedirectError ? e : new RedirectError(503, 'Validação indisponível. O destino anterior foi mantido.') }
+  catch (e) { if (e instanceof ContentReviewRequired) needsReview = true; else failure = e instanceof RedirectError ? e : new RedirectError(503, 'Validação indisponível. O destino anterior foi mantido.') }
   const final = await db.$transaction(async tx => {
     await lockOwner(tx, actor)
     const handle = await owned(tx, actor, pending.handle.id)
@@ -99,6 +103,13 @@ export async function changeRedirect(db: PrismaClient, actor: RedirectActor, id:
     if (handle.version !== revision.number || handle.disabled) {
       await tx.redirectDestination.update({ where: { id: revision.id }, data: { status: 'SUPERSEDED', resolvedAt: now } })
       return { status: 'SUPERSEDED', errorMessage: null }
+    }
+    if (needsReview) {
+      await tx.redirectDestination.update({ where: { id: revision.id }, data: { status: 'PENDING_REVIEW' } })
+      const review = await tx.contentReview.create({ data: { tenantId: actor.tenantId, ownerId: actor.ownerId, kind: 'REDIRECT', redirectRevisionId: revision.id, version: revision.number, snapshot: input } })
+      await queueContentReview(tx, review.id)
+      await tx.auditLog.create({ data: { tenantId: actor.tenantId, actorId: actor.ownerId, action: 'content.review.submitted', entityType: 'ContentReview', entityId: review.id, after: { kind: 'REDIRECT', version: revision.number } } })
+      return { status: 'PENDING_REVIEW', errorMessage: null }
     }
     const status = failure ? failure.status === 422 ? 'BLOCKED' : 'FAILED' : 'APPROVED'
     await tx.redirectDestination.update({ where: { id: revision.id }, data: { status, ...(failure ? { errorMessage: failure.message } : { destinationUrl: destination }), resolvedAt: now } })
@@ -116,6 +127,8 @@ export async function disableRedirect(db: PrismaClient, actor: RedirectActor, id
     if (row.disabled) return { disabled: true }
     if (row.version !== expectedRevision) throw new RedirectError(409, 'O convite mudou. Atualize os dados.')
     await tx.redirectHandle.update({ where: { id }, data: { disabled: true, version: { increment: 1 } } })
+    await tx.contentReview.updateMany({ where: { redirectRevision: { handleId: id }, status: { in: ['PENDING', 'REJECTED'] } }, data: { status: 'SUPERSEDED', resolvedAt: new Date() } })
+    await tx.redirectDestination.updateMany({ where: { handleId: id, status: 'PENDING_REVIEW' }, data: { status: 'SUPERSEDED', resolvedAt: new Date() } })
     return { disabled: true }
   })
 }

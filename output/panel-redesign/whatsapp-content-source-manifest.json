@@ -1,0 +1,38 @@
+[
+  {
+    "path": "backend/src/use-cases/@Notifications/content-review-events.ts",
+    "source": "2a3aa82ae0fb2c35dd96dec31d8da5b53b38997a12ce03973e9eac83085deeaf",
+    "validated": "2a3aa82ae0fb2c35dd96dec31d8da5b53b38997a12ce03973e9eac83085deeaf",
+    "match": true
+  },
+  {
+    "path": "backend/src/use-cases/@Notifications/evolution-operations.ts",
+    "source": "d027b0dc5a86003f3bc83d75c5a1a54ffac2eadc97eadf020ac9d9437f0b79f2",
+    "validated": "d027b0dc5a86003f3bc83d75c5a1a54ffac2eadc97eadf020ac9d9437f0b79f2",
+    "match": true
+  },
+  {
+    "path": "backend/src/use-cases/@Moderation/review-public-content.ts",
+    "source": "4dc2364d1e137fba88c57ddf3aedd286d00fa452cc4a24e9507f4d8edd050e5d",
+    "validated": "4dc2364d1e137fba88c57ddf3aedd286d00fa452cc4a24e9507f4d8edd050e5d",
+    "match": true
+  },
+  {
+    "path": "backend/src/repositories/profiles-repository.ts",
+    "source": "06b552688e2e674d97a36bda95a9db5bd23bf451ea8ea85c850e70cb176f8550",
+    "validated": "06b552688e2e674d97a36bda95a9db5bd23bf451ea8ea85c850e70cb176f8550",
+    "match": true
+  },
+  {
+    "path": "backend/src/repositories/redirects-repository.ts",
+    "source": "a8f1b92ea4d663a0f7f6c159ab13448a2ddacdc5372d6adec44e1e98e1eba1fb",
+    "validated": "a8f1b92ea4d663a0f7f6c159ab13448a2ddacdc5372d6adec44e1e98e1eba1fb",
+    "match": true
+  },
+  {
+    "path": "frontend/e2e/evolution-moderation.spec.ts",
+    "source": "1345febc5fb8587ff7ecdc52aed71be41ca1e1d8211029233f68e84eac330bae",
+    "validated": "1345febc5fb8587ff7ecdc52aed71be41ca1e1d8211029233f68e84eac330bae",
+    "match": true
+  }
+]

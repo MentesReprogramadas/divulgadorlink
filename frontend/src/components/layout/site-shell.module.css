@@ -18,13 +18,17 @@
 .skip { position: fixed; z-index: 100; top: var(--space-2); left: var(--space-2); padding: var(--space-3) var(--space-4); transform: translateY(-200%); border-radius: var(--radius); background: var(--color-brand-navy); color: white; }
 .skip:focus { transform: translateY(0); }
 
-@media (width < 48rem) {
+.drawerContent { display: flex; flex-direction: column; gap: var(--space-6); width: 100%; min-width: 0; }
+.drawerFooter { margin-top: auto; display: grid; gap: var(--space-3); }
+.drawerLinks { display: grid; gap: var(--space-1); }
+.drawerLinks[data-columns='2'] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (width < 64rem) {
   .headerInner { min-height: 4.5rem; padding: var(--space-3) var(--space-4); }
   .brand img { height: 1.5rem; }
   .navigation { display: contents; }
-  .menuToggle { display: inline-flex; }
+  .menuToggle { display: inline-flex; margin-left: auto; width: 44px; padding: 8px; }
+  .headerInner { justify-content: space-between; gap: var(--space-4); }
   .nav { display: none; width: 100%; flex-direction: column; align-items: stretch; gap: var(--space-2); padding-top: var(--space-3); border-top: 1px solid var(--border-default); }
-  .navOpen { display: flex; }
   .nav a { justify-content: flex-start; width: 100%; }
   .footer { padding: var(--space-6) var(--space-4); }
 }

@@ -166,3 +166,8 @@ Testes reais: `domain/redirects/redirect-input.spec.ts`, `use-cases/@Redirects/v
 A moderação reutiliza título/URL, blocklist e destinos banidos existentes, além da segurança/disponibilidade da rede. HTTP 2xx não comprova ingresso válido em redes externas nem classificação de todo HTML remoto. Limites, evidências, reversão e desvios da sequência RED estão registrados; não declarar produção validada. A F19 segue não iniciada por ordem de parada após F12.
 
 Aceite: cinco ACs aprovados, código `1809e1d97f0b7e7681409041a2073412352d91d6`, CI 38971032480; ver matriz e registro final.
+
+
+## Extensão autorizada de revisão — 17/10/2026
+
+A regra anterior de bloquear suspeitos sem revisão foi substituída pelo pedido de seguir o ciclo do catálogo: aprovação automática ou fila humana separada, recusa com motivo, uma contestação por envio e nova versão após correção. Segurança/URLs, permissões, publicação anterior e limites permanecem. Ver [contrato, critérios, implementação e evidências](../../frontend-profissional/revisao-paginas-convites.md). Esta extensão local não reatribui os commits/CI da entrega histórica nem inicia a próxima feature.

@@ -1,5 +1,7 @@
 'use client'
 
+import { ActionIcon } from '@/components/ui/action-icon'
+
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Field, Select, TextArea } from '@/components/ui/input'
@@ -33,7 +35,7 @@ export function ReportForm({ name, onSubmit }: ReportFormProps) {
       </Select></Field>
       <Field label="Comentário (opcional)" hint="Até 500 caracteres. Não inclua dados pessoais."><TextArea name="comment" maxLength={500} rows={4} disabled={pending} /></Field>
       {error ? <p ref={errorMessage} tabIndex={-1} role="alert">{error}</p> : null}
-      <Button type="submit" loading={pending}>Enviar denúncia</Button>
+      <Button type="submit" loading={pending}><ActionIcon name="check" />Enviar denúncia</Button>
     </form></div>}
     <p className={styles.note}>A equipe analisará o relato. Denunciar não retira o link automaticamente. Relatos repetidos do mesmo motivo em 24 horas usam o mesmo protocolo.</p>
   </section>

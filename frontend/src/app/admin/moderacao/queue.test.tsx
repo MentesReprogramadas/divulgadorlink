@@ -15,6 +15,6 @@ it('abre somente a revisão do link selecionado e mantém o caminho para toda a 
 })
 it('não oferece decisão quando o link não tem caso aberto', async () => {
   render(<ModerationQueue linkId="missing" />)
-  await screen.findByText('Este link não tem uma revisão aberta.')
+  await screen.findByText('Nada por aqui ainda.')
   expect(screen.queryByRole('button', { name: 'Aprovar' })).toBeNull()
 })

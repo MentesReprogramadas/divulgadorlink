@@ -55,3 +55,24 @@ describe('F42 contrato de entrega', () => {
     expect(await evolutionConnection(config, async () => { throw new Error('network') })).toBe('unknown')
   })
 })
+
+ it('diferencia visualmente tipos, contestação e resultados sem expor payload livre', () => {
+   const render = (kind: string, payload = {}) => renderOperationalMessage({ id: 'review', kind, payload }, 'secret', 'https://tenant.test')
+   expect(render('REVIEW_CASE', { type: 'Novo link' })).toMatch(/^🔗 /)
+   expect(render('REVIEW_PROFILE', { resourceType: 'PROFILE', name: 'Minha página', version: 2 })).toMatch(/^🪪 /)
+   expect(render('REVIEW_REDIRECT', { resourceType: 'REDIRECT' })).toMatch(/^🎟️ /)
+   expect(render('REVIEW_TEXT')).toMatch(/^✏️ /)
+   expect(render('REVIEW_PROFILE', { resourceType: 'PROFILE', appeal: 'Reavalie' })).toMatch(/^📣 /)
+   expect(render('DECISION', { resourceType: 'PROFILE', decision: 'APPROVE' })).toContain('Página publicada.')
+   expect(render('DECISION', { resourceType: 'REDIRECT', decision: 'REJECT', canAppeal: true, previousPublished: true })).toContain('Publicação anterior mantida. Contestação disponível.')
+   expect(render('REFUND_FAILED')).toMatch(/^💸 /)
+   expect(render('RECOVERY')).toMatch(/^📬 /)
+   expect(render('COMMAND_RESULT')).toMatch(/^⚠️ /)
+ })
+ it('resume página com grupos e destinos seguros, mantendo ação e limite de tamanho', () => {
+   const group = { name: 'Projetos', items: [{ label: 'Site', destination: 'https://example.com/a' }, { label: 'Privado', destination: 'javascript:alert(1)' }] }
+   const text = renderOperationalMessage({ id: 'review', kind: 'REVIEW_PROFILE', payload: { resourceType: 'PROFILE', publicPath: '/p/projeto', groups: Array.from({ length: 100 }, () => group), token: 'never-print', version: 2 } }, 'secret', 'https://tenant.test')
+   expect(text).toContain('https://tenant.test/p/projeto'); expect(text).toContain('https://example.com/a')
+   expect(text).toContain('Mais grupos no painel.'); expect(text).toContain('Responda: *APROVAR* ou *RECUSAR motivo*.')
+   expect(text).not.toContain('javascript:'); expect(text).not.toContain('never-print'); expect(text.length).toBeLessThan(3000)
+ })

@@ -21,7 +21,7 @@ describe('F42 painel Evolution', () => {
     const button = await screen.findByRole('button', { name: 'Ativar avisos' })
     expect((button as HTMLButtonElement).disabled).toBe(true)
     expect(screen.queryByLabelText('Chave de API')).toBeNull()
-    expect(screen.getByText('Nenhuma entrega registrada.')).toBeTruthy()
+    expect(screen.getByRole('region', { name: 'Histórico de entregas' }).textContent).toContain('Nada por aqui ainda.')
   })
   it('mostra falha e permite tentar carregar novamente', async () => {
     vi.mocked(api).mockResolvedValueOnce({ status: 503, body: {} }).mockResolvedValue({ status: 200, body: status })

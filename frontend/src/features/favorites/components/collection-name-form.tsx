@@ -1,4 +1,6 @@
 'use client'
+
+import { ActionIcon } from '@/components/ui/action-icon'
 import { useRef, useState, type FormEvent } from 'react'
 import { Button } from '@/components/ui/button'
 import { Field, Input } from '@/components/ui/input'
@@ -16,6 +18,6 @@ export function CollectionNameForm({ initialName = '', onSave }: { initialName?:
   }
   return <div className={styles.formFrame}><form aria-label={initialName ? 'Renomear coleção' : 'Nova coleção'} className={styles.form} onSubmit={submit}>
     <Field label="Nome da coleção" hint="Só você pode ver esta coleção." error={error}><Input required maxLength={80} value={name} disabled={pending} onChange={e => setName(e.target.value)} /></Field>
-    <Button type="submit" disabled={pending}>{pending ? 'Salvando…' : initialName ? 'Salvar nome' : 'Criar coleção'}</Button>
+    <Button type="submit" disabled={pending}><ActionIcon name="save" />{pending ? 'Salvando…' : initialName ? 'Salvar nome' : 'Criar coleção'}</Button>
   </form></div>
 }

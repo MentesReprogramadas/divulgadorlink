@@ -1,0 +1,12 @@
+node_modules
+.next
+.next-e2e
+test-results
+playwright-report
+storybook-static
+e2e/state.json
+e2e/serve.pid
+e2e/bia.token
+e2e/bia.storage.json
+e2e/.runtime
+.env

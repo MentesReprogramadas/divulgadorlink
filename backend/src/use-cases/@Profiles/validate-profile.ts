@@ -1,16 +1,16 @@
+import { ContentReviewRequired } from '@/domain/moderation/content-review'
 import type { Prisma } from '@prisma/client'
 import { assertPublicHttps } from '@/adapters/http/safe-fetch'
 import { canonicalUrl } from '@/domain/links/canonical-url'
 import { hitsBlocklist } from '@/domain/links/blocklist'
 import { decideProposedText, type ModelVerdict } from '@/use-cases/@Links/proposed-text-decision'
 import { ProfileError, type ProfileContent } from '@/domain/profiles/profile'
+import { profileModerationChanges, profileModerationText } from '@/domain/profiles/profile-moderation'
 export { publicContentValidationPorts as profileValidationPorts } from '@/use-cases/public-content-validation-ports'
 import type { PublicContentValidationPorts as ProfileValidationPorts } from '@/use-cases/public-content-validation-ports'
 export type { PublicContentValidationPorts as ProfileValidationPorts } from '@/use-cases/public-content-validation-ports'
-export async function validateProfile(db: Prisma.TransactionClient, tenantId: string, content: ProfileContent, ports: ProfileValidationPorts): Promise<ProfileContent> {
+export async function validateProfile(db: Prisma.TransactionClient, tenantId: string, content: ProfileContent, ports: ProfileValidationPorts, humanApproved = false, approved?: ProfileContent): Promise<ProfileContent> {
   const [terms, banned, threshold] = await Promise.all([db.blocklistTerm.findMany({ where: { tenantId } }), db.link.findMany({ where: { tenantId, owner: { tenantId, status: 'BANNED' } }, select: { canonicalUrl: true } }), db.config.findUnique({ where: { tenantId_key: { tenantId, key: 'MODERATION_AUTO_APPROVE_THRESHOLD' } } })])
-  const text = [content.name, content.bio, ...content.categories.map(c => c.name), ...content.items.map(i => i.label)].join('\n')
-  if (hitsBlocklist({ text, selectedNiche: '', nicheNames: [], terms: terms.map(t => t.term) })) throw new ProfileError(422, 'Revise o nome, a descrição e os rótulos: há conteúdo não permitido. O rascunho foi mantido.')
   const result: ProfileContent = { ...content, items: content.items.map(i => ({ ...i })) }
   const destinations = new Set<string>()
   for (const item of result.items) {
@@ -30,11 +30,16 @@ export async function validateProfile(db: Prisma.TransactionClient, tenantId: st
       if (status < 200 || status >= 400) { failed = true; throw new ProfileError(422, 'Um destino está indisponível ou não é permitido. Corrija o rascunho antes de publicar.') }
     }
   }))
+  if (humanApproved) return result
+  const changes = profileModerationChanges(result, approved)
+  if (!changes.changedFields.length) return result
+  const blocklisted = hitsBlocklist({ text: changes.text, selectedNiche: '', nicheNames: [], terms: terms.map(t => t.term) })
+  if (blocklisted) throw new ContentReviewRequired()
   const limit = Number(threshold?.value)
-  if (!Number.isFinite(limit) || limit < 0 || limit > 1 || !threshold) throw new ProfileError(503, 'Configuração de validação indisponível. Seu rascunho foi mantido.')
+  if (!Number.isFinite(limit) || limit < 0 || limit > 1 || !threshold) throw new ContentReviewRequired()
   let verdict: ModelVerdict
-  try { verdict = await ports.judge({ name: content.name, description: text, niche: 'Perfil público: conteúdo permitido e grupos pessoais, sem exigir correspondência com nicho do catálogo' }) } catch { throw new ProfileError(503, 'Validação automática indisponível. Seu rascunho foi mantido; tente novamente.') }
-  if (!verdict) throw new ProfileError(503, 'Validação automática inconclusiva. Seu rascunho foi mantido; tente novamente.')
-  if (decideProposedText({ publishedName: '', proposedName: content.name, blocklisted: false, threshold: limit, verdict }).decision !== 'PUBLISH') throw new ProfileError(422, 'Conteúdo suspeito. Revise antes de publicar. Seu rascunho foi mantido.')
+  try { verdict = await ports.judge({ name: content.name, description: profileModerationText(content), niche: 'Perfil público: conteúdo permitido e grupos pessoais, sem exigir correspondência com nicho do catálogo', profileContext: { ...(approved ? { approved: { name: approved.name, description: profileModerationText(approved) } } : {}), changedFields: changes.changedFields, destinations: [...destinations] } }) } catch { throw new ContentReviewRequired() }
+  if (!verdict) throw new ContentReviewRequired()
+  if (decideProposedText({ publishedName: '', proposedName: content.name, blocklisted: false, threshold: limit, verdict }).decision !== 'PUBLISH') throw new ContentReviewRequired()
   return result
 }

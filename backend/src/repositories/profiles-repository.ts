@@ -1,3 +1,5 @@
+import { ContentReviewRequired, reviewSummary } from '@/domain/moderation/content-review'
+import { queueContentReview } from '@/use-cases/@Notifications/content-review-events'
 import { Prisma, type PrismaClient } from '@prisma/client'
 import { ProfileError, visibleProfile, type ProfileContent } from '@/domain/profiles/profile'
 import { profileInput } from '@/domain/profiles/profile-input'
@@ -8,10 +10,10 @@ import { validateProfile, type ProfileValidationPorts } from '@/use-cases/@Profi
 import { PrismaProfileMedia } from './profile-media'
 
 type Actor = { tenantId: string; ownerId: string; age: boolean }
-const include = { categories: { orderBy: { position: 'asc' as const } }, items: { orderBy: { position: 'asc' as const } } }
+const include = { reviews: { orderBy: { version: 'desc' as const }, take: 1 }, categories: { orderBy: { position: 'asc' as const } }, items: { orderBy: { position: 'asc' as const } } }
 type Stored = Prisma.ProfileGetPayload<{ include: typeof include }>
 function draft(row: Stored): ProfileContent {
-  return profileInput.parse({ slug: row.slug, name: row.name, bio: row.bio, avatarAssetId: row.avatarAssetId, requiresAge: row.requiresAge, primaryItemId: row.items.some(i => i.id === row.primaryItemId) ? row.primaryItemId : null, categories: row.categories.map(c => ({ id: c.id, name: c.name, visible: c.visible })), items: row.items.map(i => ({ id: i.id, categoryId: i.categoryId, type: i.type, label: i.label, destination: i.destination, visible: i.visible })) })
+  return profileInput.parse({ ...(row.appearance ? { appearance: row.appearance } : {}), slug: row.slug, name: row.name, bio: row.bio, avatarAssetId: row.avatarAssetId, requiresAge: row.requiresAge, primaryItemId: row.items.some(i => i.id === row.primaryItemId) ? row.primaryItemId : null, categories: row.categories.map(c => ({ id: c.id, name: c.name, visible: c.visible })), items: row.items.map(i => ({ id: i.id, categoryId: i.categoryId, type: i.type, label: i.label, destination: i.destination, visible: i.visible })) })
 }
 async function owner(db: Prisma.TransactionClient, actor: Actor, publishing = false) {
   const user = await db.user.findFirst({ where: { id: actor.ownerId, tenantId: actor.tenantId }, include: { identifiers: true } })
@@ -26,7 +28,7 @@ async function locked<T>(db: PrismaClient, actor: Actor, work: (tx: Prisma.Trans
 }
 async function read(db: Prisma.TransactionClient, actor: Actor) { return db.profile.findUnique({ where: { tenantId_ownerId: { tenantId: actor.tenantId, ownerId: actor.ownerId } }, include }) }
 function version(row: Stored | null, expected: number) { if ((row?.version ?? 0) !== expected) throw new ProfileError(409, 'O perfil mudou em outra aba. Recarregue os dados antes de salvar.') }
-function response(row: Stored | null) { return { draft: row ? { ...draft(row), version: row.version } : null, publishedVersion: row?.publishedVersion ?? null } }
+function response(row: Stored | null) { return { draft: row ? { ...draft(row), version: row.version } : null, publishedVersion: row?.publishedVersion ?? null, publishedContent: row?.publication ? profileInput.parse(row.publishedDraft ?? row.publication) : null, review: reviewSummary(row?.reviews[0]) } }
 async function checkAvatar(db: Prisma.TransactionClient, actor: Actor, content: ProfileContent) {
   if (content.avatarAssetId && !await new PrismaProfileMedia(db).get({ tenantId: actor.tenantId, ownerId: actor.ownerId, id: content.avatarAssetId })) throw new ProfileError(422, 'A foto não está disponível para esta conta. Envie a imagem novamente.')
 }
@@ -59,11 +61,13 @@ export async function saveProfile(db: PrismaClient, actor: Actor, content: Profi
     await checkAvatar(tx, actor, content)
     const refs = [...new Set(content.items.filter(i => i.type === 'CATALOG').map(i => i.destination))]
     if (await tx.link.count({ where: { id: { in: refs }, tenantId: actor.tenantId, ownerId: actor.ownerId } }) !== refs.length) throw new ProfileError(404, 'Link do catálogo não encontrado para esta conta.')
-    const { categories, items, ...fields } = content
+    const { categories, items, appearance, ...rest } = content
+    const fields = { ...rest, appearance: appearance ?? Prisma.DbNull }
     const row = current ? await tx.profile.update({ where: { id: current.id }, data: { ...fields, version: { increment: 1 } } }) : await tx.profile.create({ data: { ...fields, tenantId: actor.tenantId, ownerId: actor.ownerId, version: 1 } })
     await tx.profileItem.deleteMany({ where: { profileId: row.id } }); await tx.profileCategory.deleteMany({ where: { profileId: row.id } })
     await tx.profileCategory.createMany({ data: categories.map((c, position) => ({ ...c, position, profileId: row.id, tenantId: actor.tenantId, ownerId: actor.ownerId })) })
     await tx.profileItem.createMany({ data: items.map((i, position) => ({ ...i, linkId: i.type === 'CATALOG' ? i.destination : null, position, profileId: row.id, tenantId: actor.tenantId, ownerId: actor.ownerId })) })
+    await tx.contentReview.updateMany({ where: { profileId: row.id, status: { in: ['PENDING', 'REJECTED'] } }, data: { status: 'SUPERSEDED', resolvedAt: new Date() } })
     await pruneMedia(tx, actor)
     return response(await read(tx, actor))
   })
@@ -78,24 +82,57 @@ export async function publishProfile(db: PrismaClient, actor: Actor, expectedVer
   if (row.publishedVersion === row.version) return { publishedRevisionId: row.version }
   const content = draft(row)
   if (!content.items.some(i => i.visible && content.categories.some(c => c.id === i.categoryId && c.visible))) throw new ProfileError(422, 'Inclua pelo menos um link visível antes de publicar.')
-  const validated = await validateProfile(db, actor.tenantId, content, ports)
+  const existing = row.reviews.find(review => review.version === row.version && review.status !== 'SUPERSEDED')
+  if (existing) return { publishedRevisionId: row.publishedVersion, review: reviewSummary(existing) }
+  let validated: ProfileContent
+  let needsReview = false
+  const approved = row.publication ? profileInput.parse(row.publishedDraft ?? row.publication) : undefined
+  try { validated = await validateProfile(db, actor.tenantId, content, ports, false, approved) } catch (error) { if (!(error instanceof ContentReviewRequired)) throw error; needsReview = true; validated = content }
   return locked(db, actor, async tx => {
     await owner(tx, actor, true)
     const current = await read(tx, actor); version(current, expectedVersion)
     if (!current) throw new ProfileError(404, 'Perfil não encontrado.')
+    if (current.publishedVersion === current.version) return { publishedRevisionId: current.version }
+    const concurrent = await tx.contentReview.findUnique({ where: { profileId_version: { profileId: current.id, version: current.version } } })
+    if (concurrent) return { publishedRevisionId: current.publishedVersion, review: reviewSummary(concurrent) }
     await checkAvatar(tx, actor, validated)
+    if (needsReview) {
+      const review = await tx.contentReview.create({ data: { tenantId: actor.tenantId, ownerId: actor.ownerId, kind: 'PROFILE', profileId: current.id, version: current.version, snapshot: validated } })
+      await queueContentReview(tx, review.id)
+      await tx.auditLog.create({ data: { tenantId: actor.tenantId, actorId: actor.ownerId, action: 'content.review.submitted', entityType: 'ContentReview', entityId: review.id, after: { kind: 'PROFILE', version: current.version } } })
+      return { publishedRevisionId: current.publishedVersion, review: reviewSummary(review) }
+    }
     const refs = validated.items.filter(i => i.type === 'CATALOG')
     // Owner may only reference their own, already published catalog entries.
     const count = await tx.link.count({ where: { tenantId: actor.tenantId, ownerId: actor.ownerId, status: 'PUBLISHED', id: { in: [...new Set(refs.map(i => i.destination))] }, niche: { tenantId: actor.tenantId }, network: { tenantId: actor.tenantId } } })
     if (count !== new Set(refs.map(i => i.destination)).size) throw new ProfileError(422, 'Escolha links publicados do seu catálogo ou use uma URL própria.')
     const live = visibleProfile(validated, new Set(refs.map(i => i.destination)))
-    await tx.profile.update({ where: { id: current.id }, data: { publication: live, publishedVersion: current.version } })
+    await tx.profile.update({ where: { id: current.id }, data: { publication: live, publishedDraft: draft(current), publishedVersion: current.version } })
     await pruneMedia(tx, actor)
     return { publishedRevisionId: current.version }
   })
 }
 export async function unpublishProfile(db: PrismaClient, actor: Actor, expectedVersion: number) {
-  return locked(db, actor, async tx => { const row = await read(tx, actor); if (!row) throw new ProfileError(404, 'Perfil não encontrado.'); if (!row.publication) return response(row); version(row, expectedVersion); await tx.profile.update({ where: { id: row.id }, data: { publication: Prisma.DbNull, publishedVersion: null, version: { increment: 1 } } }); await pruneMedia(tx, actor); return response(await read(tx, actor)) })
+  return locked(db, actor, async tx => { const row = await read(tx, actor); if (!row) throw new ProfileError(404, 'Perfil não encontrado.'); if (!row.publication) return response(row); version(row, expectedVersion); await tx.profile.update({ where: { id: row.id }, data: { publication: Prisma.DbNull, publishedDraft: Prisma.DbNull, publishedVersion: null, version: { increment: 1 } } }); await tx.contentReview.updateMany({ where: { profileId: row.id, status: { in: ['PENDING', 'REJECTED'] } }, data: { status: 'SUPERSEDED', resolvedAt: new Date() } }); await pruneMedia(tx, actor); return response(await read(tx, actor)) })
+}
+/** Restore authoring state atomically; this never changes the public snapshot. */
+export async function discardProfile(db: PrismaClient, actor: Actor, expectedVersion: number) {
+  return locked(db, actor, async tx => {
+    const row = await read(tx, actor); version(row, expectedVersion)
+    if (!row?.publication) throw new ProfileError(409, 'Ainda não há uma versão publicada para restaurar.')
+    const content = profileInput.parse(row.publishedDraft ?? row.publication)
+    await checkAvatar(tx, actor, content)
+    const { categories, items, appearance, ...fields } = content
+    await tx.profile.update({ where: { id: row.id }, data: { ...fields, appearance: appearance ?? Prisma.DbNull, version: { increment: 1 } } })
+    await tx.profileItem.deleteMany({ where: { profileId: row.id } }); await tx.profileCategory.deleteMany({ where: { profileId: row.id } })
+    await tx.profileCategory.createMany({ data: categories.map((category, position) => ({ ...category, position, profileId: row.id, tenantId: actor.tenantId, ownerId: actor.ownerId })) })
+    const catalog = await tx.link.findMany({ where: { tenantId: actor.tenantId, ownerId: actor.ownerId, id: { in: items.filter(item => item.type === 'CATALOG').map(item => item.destination) } }, select: { id: true } })
+    const refs = new Set(catalog.map(link => link.id))
+    await tx.profileItem.createMany({ data: items.map((item, position) => ({ ...item, linkId: item.type === 'CATALOG' && refs.has(item.destination) ? item.destination : null, position, profileId: row.id, tenantId: actor.tenantId, ownerId: actor.ownerId })) })
+    await tx.contentReview.updateMany({ where: { profileId: row.id, status: { in: ['PENDING', 'REJECTED'] } }, data: { status: 'SUPERSEDED', resolvedAt: new Date() } })
+    await pruneMedia(tx, actor)
+    return response(await read(tx, actor))
+  })
 }
 export async function publicProfile(db: PrismaClient, tenantId: string, slug: string, age: boolean) {
   return db.$transaction(async tx => {

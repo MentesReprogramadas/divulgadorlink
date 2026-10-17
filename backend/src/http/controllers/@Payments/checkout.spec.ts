@@ -132,6 +132,37 @@ describe('checkout e webhook', () => {
     expect(await getCheckoutStore().listPromotions('link-1')).toHaveLength(1)
   })
 
+  it('confirma o payload real da Woovi sem eventId e não duplica no replay', async () => {
+    const created = await app.inject({
+      method: 'POST',
+      url: '/api/v1/promotions/checkout',
+      headers: { host: HOST, authorization: `Bearer ${token('ana')}` },
+      payload: { linkId: 'link-1', surfaces: ['SEARCH'], durationDays: 7, method: 'PIX' },
+    })
+    const orderId = created.json().orderId as string
+    setPaymentGatewayForTest({
+      method: 'PIX',
+      async getCharge() { return { status: 'PAID', paidAt: new Date() } },
+      async refund() { return { refundId: 'none', status: 'PROCESSING' } },
+    })
+    const body = JSON.stringify({
+      event: 'OPENPIX:CHARGE_COMPLETED',
+      charge: { correlationID: orderId, status: 'COMPLETED', value: 790 },
+      pix: { endToEndId: 'E-fixture' },
+    })
+    const headers = { 'content-type': 'application/json', 'x-webhook-signature': signWooviTestBody(body) }
+    const unsigned = await app.inject({ method: 'POST', url: '/api/v1/payments/woovi/webhook', payload: body, headers: { 'content-type': 'application/json' } })
+    expect(unsigned.statusCode).toBe(400)
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const response = await app.inject({ method: 'POST', url: '/api/v1/payments/woovi/webhook', headers, payload: body })
+      expect(response.statusCode).toBe(200)
+    }
+    const row = await getCheckoutStore().findCommercial(orderId)
+    expect(row?.order.status).toBe('PAID')
+    expect(row?.order.processedEventIds).toEqual([`OPENPIX:CHARGE_COMPLETED:${orderId}`])
+    expect(await getCheckoutStore().listPromotions('link-1')).toHaveLength(1)
+  })
+
   it('responde 200 ao ping de cadastro da Woovi e não confirma pagamento', async () => {
     const ping = await app.inject({
       method: 'POST',

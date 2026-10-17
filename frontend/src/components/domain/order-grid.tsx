@@ -3,6 +3,7 @@ import { formatCents } from '@/domain/money'
 import { formatWhen } from '@/domain/format'
 import { orderStatusLabel, orderStatusTone, surfaceLabel } from '@/domain/labels'
 import type { PanelLink } from './panel-links'
+import { EmptyState } from '@/components/feedback/empty-state'
 
 export type PanelOrder = {
   id: string
@@ -15,7 +16,7 @@ export type PanelOrder = {
 }
 
 export function OrderGrid({ orders, links }: { orders: PanelOrder[]; links: PanelLink[] }) {
-  if (orders.length === 0) return <p className="panel-empty">Nenhum pedido</p>
+  if (orders.length === 0) return <EmptyState />
   return (
     <div className="order-grid">
       {orders.map((order) => {

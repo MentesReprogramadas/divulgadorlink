@@ -1,3 +1,4 @@
+import { selectOption } from './select-control'
 import { runtime as e2eRuntime } from './runtime.cjs'
 import { createHmac, randomUUID } from 'node:crypto'
 import { readFileSync } from 'node:fs'
@@ -107,11 +108,13 @@ test('F42-E08 envio, contestação e edição percorrem a interface e o worker r
   await login(page, state.eva)
   const name = 'Jornada de estudos ' + test.info().project.name
   await page.goto(`${A}/painel/links/novo`)
-  await page.getByLabel('Titulo', { exact: true }).fill(name)
+  await page.getByLabel('Título do link', { exact: true }).fill(name)
+  await page.getByLabel('Link de acesso', { exact: true }).fill(`https://example.com/${randomUUID()}`)
+  await page.getByRole('button', { name: 'Continuar', exact: true }).click()
   await page.getByLabel('Descrição', { exact: true }).fill('Comunidade de estudo')
-  await page.getByLabel('URL', { exact: true }).fill(`https://example.com/${randomUUID()}`)
-  await page.getByLabel('Rede').selectOption({ label: 'Site' })
-  await page.getByLabel('Nicho').selectOption({ label: 'Jogos' })
+  await selectOption(page.getByLabel('Rede do link'), { label: 'Site' })
+  await selectOption(page.getByLabel('Assunto do link'), { label: 'Jogos' })
+  await page.getByRole('button', { name: 'Continuar', exact: true }).click()
   await page.getByRole('button', { name: 'Enviar', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Enviado para análise.' })).toBeVisible()
   const id = sql(`SELECT id FROM links WHERE name='${name}'`)
@@ -134,7 +137,7 @@ test('F42-E08 envio, contestação e edição percorrem a interface e o worker r
     await page.locator('article', { has: page.getByRole('heading', { name, exact: true }) }).getByRole('button', { name: 'Editar' }).click()
     const dialog = page.getByRole('dialog', { name: 'Editar link' })
     const proposed = `${name} editado`
-    await dialog.getByLabel('Novo nome').fill(proposed)
+    await dialog.getByLabel('Título do link', { exact: true }).fill(proposed)
     await dialog.getByLabel('Nova descrição').fill('Proposta ainda não publicada')
     await dialog.getByRole('button', { name: 'Salvar texto' }).click()
     await expect(dialog.getByText('Proposta registrada')).toBeVisible()
@@ -217,14 +220,15 @@ test('F42-E05/E06 painel de integração limita acesso e funciona no mobile', as
   expect(await page.locator('body').innerText()).not.toContain('fixture-api-key')
   const viewport = page.viewportSize()!
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(viewport.width)
-  await expect(page.getByText('Conexão da instância: conectada.', { exact: false })).toBeVisible()
+  await expect(page.getByText('Conexão: conectada.', { exact: true })).toBeVisible()
   await page.screenshot({ path: testInfo.outputPath('evolution-integration.png'), fullPage: true })
   const context = await browser.newContext()
   try {
     const other = await context.newPage()
     await login(other, state.bia)
-    await other.goto(`${A}/admin/integracoes`)
-    await expect(other.getByRole('heading', { name: 'Avisos e moderação pelo WhatsApp' })).toHaveCount(0)
+    const denied = await other.goto(`${A}/admin/integracoes`)
+    expect(denied?.status()).toBe(404)
+    await expect(other.getByText('Conexão: conectada.', { exact: true })).toHaveCount(0)
   } finally { await context.close() }
 })
 
@@ -275,5 +279,60 @@ test('F42-E09 envio bloqueado no provedor não ocupa a fila de pagamentos', asyn
     await request.post((e2eRuntime.stubOrigin + '/evolution/gate'), { data: { enabled: false } })
     await blocked
     await events.close(); await queue.close()
+  }
+})
+
+
+test('F42 páginas e convites: citação exata, recusa, contestação e aprovação pelo grupo', async ({ page, request }, info) => {
+  await login(page, state.eva)
+  const suffix = randomUUID().slice(0, 8), name = 'Página WA ' + suffix, slug = 'pagina-wa-' + suffix
+  const mutate = async (route: string, body: unknown, method = 'POST') => page.evaluate(async ({ route, body, method }) => {
+    const csrf = document.cookie.split('; ').find(value => value.startsWith('csrf='))?.slice(5) ?? ''
+    const result = await fetch('/bff/v1/' + route, { method, headers: { 'content-type': 'application/json', 'x-csrf-token': decodeURIComponent(csrf) }, body: JSON.stringify(body) })
+    return { status: result.status, body: await result.json() }
+  }, { route, body, method })
+  const category = randomUUID()
+  let handle: string | undefined
+  try {
+    const content = { slug, name, bio: 'Comunidade educativa.', avatarAssetId: null, requiresAge: false, primaryItemId: null, categories: [{ id: category, name: 'Materiais', visible: true }], items: [{ id: randomUUID(), categoryId: category, type: 'URL', label: 'Aulas', destination: 'https://example.com/aulas', visible: true }] }
+    const saved = await mutate('me/profile', { expectedVersion: 0, content }, 'PATCH'); expect(saved.status, JSON.stringify(saved.body)).toBe(200)
+    const published = await mutate('me/profile/publish', { expectedVersion: 1 }); expect(published.status, JSON.stringify(published.body)).toBe(200)
+    const profileReview = published.body.review.id as string
+    const redirect = await mutate('me/redirects', { label: 'Convite WA ' + suffix, destinationUrl: 'https://example.com/comunidade', requiresAge: false, expectedRevision: 0, requestKey: randomUUID() }); expect(redirect.status, JSON.stringify(redirect.body)).toBe(200)
+    handle = redirect.body.id as string
+    const redirectReview = sql(`SELECT id FROM content_reviews WHERE "redirectRevisionId"='${redirect.body.destinationRevision.id}'`)
+    await cycle()
+    const sent = await (await request.get(e2eRuntime.stubOrigin + '/evolution/messages')).json() as { text: string; number: string }[]
+    const pageNotice = sent.findLast(m => m.text.includes(name) && m.text.startsWith('🪪'))
+    const inviteNotice = sent.findLast(m => m.text.includes('Convite WA ' + suffix) && m.text.startsWith('🎟️'))
+    expect(pageNotice?.number).toBe('fixture@g.us'); expect(inviteNotice?.number).toBe('fixture@g.us')
+    expect(pageNotice!.text).toContain('Materiais'); expect(pageNotice!.text).toContain('https://example.com/aulas')
+    const pageReference = legacyReference(pageNotice!.text), inviteReference = legacyReference(inviteNotice!.text)
+    const provider = (reference: string) => sql(`SELECT "providerMessageId" FROM operational_messages WHERE id='${reference.split('.')[0]}'`)
+    const reply = async (text: string, reference: string, sender = '5511999999999@s.whatsapp.net') => {
+      const inbound = payload(text, sender)
+      return request.post(hook, { headers: { 'x-evolution-secret': 'fixture-webhook-secret' }, data: { ...inbound, data: { ...inbound.data, messageType: 'conversation', contextInfo: { stanzaId: provider(reference) } } } })
+    }
+    expect((await reply('APROVAR', pageReference, '5511888888888@s.whatsapp.net')).status()).toBe(403)
+    await reply('RECUSAR Explique a finalidade educativa.', pageReference); await reply('APROVAR', inviteReference); await cycle()
+    expect(sql(`SELECT status FROM content_reviews WHERE id='${profileReview}'`)).toBe('REJECTED')
+    expect(sql(`SELECT status FROM content_reviews WHERE id='${redirectReview}'`)).toBe('APPROVED')
+    await page.goto(A + '/painel/perfil'); await expect(page.getByRole('region', { name: 'Situação da revisão' })).toContainText('Explique a finalidade educativa.')
+    await page.getByRole('button', { name: 'Contestar recusa', exact: true }).click(); await page.getByLabel('Por que devemos reavaliar?').fill('Compartilhamos aulas e materiais para estudantes.'); await page.getByRole('button', { name: 'Enviar contestação', exact: true }).click()
+    await expect(page.getByRole('dialog')).toHaveCount(0); await expect(page.getByRole('region', { name: 'Situação da revisão' })).toContainText('Em revisão humana')
+    await cycle()
+    const messages = await (await request.get(e2eRuntime.stubOrigin + '/evolution/messages')).json() as { text: string }[]
+    const appeal = messages.findLast(m => m.text.includes(name) && m.text.startsWith('📣')); expect(appeal).toBeTruthy()
+    await reply('APROVAR', pageReference); await cycle(); expect(sql(`SELECT status FROM content_reviews WHERE id='${profileReview}'`)).toBe('PENDING')
+    await reply('APROVAR', legacyReference(appeal!.text)); await cycle()
+    await page.goto(A + '/p/' + slug); await expect(page.getByRole('heading', { name, exact: true })).toBeVisible()
+    const confirmations = await (await request.get(e2eRuntime.stubOrigin + '/evolution/messages')).json() as { text: string }[]
+    expect(confirmations.some(m => m.text.startsWith('✅ *PÁGINA') && m.text.includes(name))).toBe(true)
+    expect(confirmations.some(m => m.text.startsWith('✅ *CONVITE') && m.text.includes('Convite WA ' + suffix))).toBe(true)
+    await info.attach('avisos-whatsapp', { body: [pageNotice!.text, inviteNotice!.text, appeal!.text, ...confirmations.filter(m => m.text.includes(name) && !m.text.includes('Responda:')).map(m => m.text)].join('\n\n---\n\n'), contentType: 'text/plain' })
+    expect(sql(`SELECT count(*) FROM audit_logs WHERE action='content.review.decide' AND "entityId" IN ('${profileReview}','${redirectReview}')`)).toBe('3')
+  } finally {
+    sql(`DELETE FROM profiles WHERE "tenantId"='${state.tenantA}' AND slug='${slug}'`)
+    if (handle) sql(`DELETE FROM redirect_handles WHERE id='${handle}' AND "tenantId"='${state.tenantA}'`)
   }
 })

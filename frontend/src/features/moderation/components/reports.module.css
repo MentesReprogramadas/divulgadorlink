@@ -9,7 +9,7 @@
 .filters { display: grid; grid-template-columns: 1fr 1fr auto; gap: var(--space-4); align-items: end; }
 .filters select { width: 100%; min-width: 0; margin-bottom: 0; }
 .filters > * { min-width: 0; }
-.actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); }
+.actions { display: flex; justify-content: flex-end; flex-wrap: wrap; align-items: center; gap: var(--space-4); }
 .card { display: grid; gap: var(--space-4); border: 1px solid var(--border-default); border-radius: var(--radius); padding: var(--space-6); background: var(--surface-raised); min-width: 0; overflow-wrap: anywhere; }
 .card p { margin: 0; }
 .card h3 { font-size: 1.125rem; }

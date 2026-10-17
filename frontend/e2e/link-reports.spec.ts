@@ -1,3 +1,5 @@
+import { logoutIfSignedIn } from './session-controls'
+import { selectOption } from './select-control'
 import { randomUUID } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
@@ -17,11 +19,7 @@ async function refuseCookies(page: Page) {
   if (await refusal.count()) await refusal.click()
 }
 async function login(page: Page, email: string) {
-  const logout = page.getByRole('button', { name: 'Sair', exact: true })
-  if (await logout.count()) {
-    await logout.click()
-    await expect(page.getByRole('heading', { name: 'Entrar', exact: true })).toBeVisible()
-  }
+  await logoutIfSignedIn(page)
   await page.goto(A + '/login')
   await page.getByLabel('E-mail').fill(email)
   await page.getByLabel('Senha').fill(state().password)
@@ -43,7 +41,7 @@ test('F06-E01/T02/T03/T05 detalhe público, login com retorno, triagem e histór
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
   await expect(page).toHaveURL(A + '/painel/denunciar/' + link.id)
   await expect(page.getByRole('heading', { name: 'Denunciar um link', exact: true })).toBeVisible()
-  await page.getByLabel('Motivo', { exact: true }).selectOption('SPAM')
+  await selectOption(page.getByLabel('Motivo', { exact: true }), 'SPAM')
   await page.getByLabel('Comentário (opcional)').fill('Publicidade repetida. <script>window.f06Injected=true</script>')
   const posted = received(page)
   await page.getByRole('button', { name: 'Enviar denúncia' }).dblclick()
@@ -64,7 +62,7 @@ test('F06-E01/T02/T03/T05 detalhe público, login com retorno, triagem e histór
   await card.getByRole('button', { name: 'Salvar decisão' }).click()
   await expect(card.getByText('Em análise', { exact: true })).toBeVisible()
   expect(sql('SELECT version FROM link_reports WHERE id=\'' + receipt.id + '\'')).toBe('2')
-  await card.getByLabel('Próximo estado').selectOption('RESOLVED')
+  await selectOption(card.getByLabel('Próximo estado'), 'RESOLVED')
   await card.getByLabel('Justificativa').fill('Análise registrada para acompanhamento.')
   await card.getByRole('button', { name: 'Salvar decisão' }).focus()
   await page.keyboard.press('Enter')
@@ -108,7 +106,7 @@ test('F06-E03 envio e decisão recuperam rede real, preservam texto e funcionam 
   const link = fixture('Grupo de estudo', info.project.name.endsWith('mobile'))
   await login(page, state().reader)
   await page.goto(A + '/painel/denunciar/' + link.id)
-  await page.getByLabel('Motivo', { exact: true }).selectOption('EXPIRED_INVITE')
+  await selectOption(page.getByLabel('Motivo', { exact: true }), 'EXPIRED_INVITE')
   await page.getByLabel('Comentário (opcional)').fill('O convite informa que expirou.')
   await page.screenshot({ path: info.outputPath('reports-form.png'), fullPage: true })
   await page.context().setOffline(true)
@@ -125,7 +123,7 @@ test('F06-E03 envio e decisão recuperam rede real, preservam texto e funcionam 
   await login(page, state().admin)
   await page.goto(A + '/admin/denuncias')
   const card = reportCard(page, id)
-  await card.getByLabel('Próximo estado').selectOption('RESOLVED')
+  await selectOption(card.getByLabel('Próximo estado'), 'RESOLVED')
   await card.getByLabel('Justificativa').fill('Relato recebido para acompanhamento do convite.')
   await page.context().setOffline(true)
   await card.getByRole('button', { name: 'Salvar decisão' }).click()

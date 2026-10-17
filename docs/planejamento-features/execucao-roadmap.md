@@ -72,3 +72,19 @@ O usuário autorizou continuar as features sem a parada anterior por feature. F1
 ## 16/10/2026 — F12 concluída; parada solicitada
 
 A instrução mais recente limita a execução à feature em andamento. F12 concluída em `1809e1d97f0b7e7681409041a2073412352d91d6` na branch codex/roadmap-features; [CI 38971032480](https://github.com/MentesReprogramadas/divulgadorlink/actions/runs/38971032480) aprovado. Destino estável com troca validada, histórico 50/180, métricas separadas, isolamento/idade e painel. Local: 431 testes backend, 201 frontend, 152 PG e 100 Playwright. [Execução F12](execucao-f12.md) registra reutilização, limites, falhas/correções, migração e reversão. S0–S7 e cinco ACs atualizados. Parada após F12; F19 não iniciada. Sem main/deploy.
+
+
+## 17/10/2026 — personalização da Minha página
+
+Autorização específica para evoluir F09 após os ajustes do painel. Página pessoal sem chrome do catálogo, temas/cores/botões/fontes, prévia compartilhada, marca obrigatória e fotos WebP com validação servidor. Não retoma F19 ou próxima feature. Ver [registro do lote](../frontend-profissional/minha-pagina-personalizacao.md) para testes, arquivos, limites e reversão. Migração aplicada ao desenvolvimento local e ao banco descartável dos testes; sem main/commit/push/deploy.
+
+
+## 17/10/2026 — marca discreta e revisão de páginas/convites
+
+Autorização específica posterior: assinatura pequena e ciclo IA → aprovação automática ou humano → recusa/contestação para F09/F12. Implementação local versionada por envio, sem consumir quotas de Link. [Registro e critérios](../frontend-profissional/revisao-paginas-convites.md) descrevem reuso, testes, migração e reversão. Sem avanço de ordem, nova feature, commit, push ou deploy; fases históricas e seus CI permanecem históricos.
+
+## Extensão de 17/10/2026 — páginas e convites no WhatsApp
+
+Por novo pedido expresso, revisões humanas de F09/F12 e suas contestações também usam o grupo Evolution configurado, a mesma autorização por operador ADMIN e a mesma operação de decisão do painel. O aviso citado identifica a versão exata; expiração, substituição e contestação invalidam mensagens anteriores. Decisão e registro do aviso de confirmação são atômicos, sem alterar aprovação automática, regras de segurança ou cobrança. Avisos ganham símbolos distintos por evento e mantêm seções curtas.
+
+Contrato, critérios, limites, evidências e resultados no [complemento da implementação](../frontend-profissional/revisao-paginas-convites.md#complemento-autorizado--aprovação-pelo-whatsapp).

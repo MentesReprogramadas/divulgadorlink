@@ -1,5 +1,7 @@
 'use client'
 
+import { ReportSubmissionSkeleton } from './components/report-skeleton'
+
 import { useEffect, useState } from 'react'
 import { ErrorState } from '@/components/feedback/error-state'
 import { AgeWall } from '@/components/domain/age-gate'
@@ -28,7 +30,7 @@ export function ReportSubmissionScreen({ linkId }: { linkId: string }) {
   }
   return <>
     <p><a href={'/link/' + encodeURIComponent(linkId)}>Voltar ao link</a></p>
-    {state.kind === 'loading' ? <p role="status">Carregando link…</p> : null}
+    {state.kind === 'loading' ? <ReportSubmissionSkeleton /> : null}
     {state.kind === 'error' ? <ErrorState onRetry={() => setAttempt(value => value + 1)} /> : null}
     {state.kind === 'denied' ? <p role="alert">Link indisponível para denúncia.</p> : null}
     {state.kind === 'ready' ? <AgeWall required={state.link.niche?.requiresAge === true}><ReportForm name={state.link.name!} onSubmit={submit} /></AgeWall> : null}

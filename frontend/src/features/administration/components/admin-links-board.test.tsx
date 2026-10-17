@@ -4,20 +4,12 @@ import { AdminLinksBoard, type AdminLinkRow } from './admin-links-board'
 
 vi.mock('./link-promotion-editor', () => ({ LinkPromotionEditor: () => <button>Gerenciar destaque</button> }))
 afterEach(cleanup)
-const counts = { PUBLISHED: 45, PENDING_MODERATION: 2, PRE_REJECTED: 1, DRAFT: 3, UNAVAILABLE: 4 }
+
 const links: AdminLinkRow[] = (['PUBLISHED', 'PENDING_MODERATION', 'PRE_REJECTED', 'DRAFT', 'UNAVAILABLE'] as const).map(status => ({ id: status, status, name: status, url: 'https://example.com', ownerName: 'Dona', ownerEmail: 'dona@example.com' }))
 describe('links na gestão', () => {
-  it('exibe totais reais e seleciona o status, sem contar só os cards carregados', () => {
-    const onFilterChange = vi.fn()
-    render(<AdminLinksBoard links={links} counts={counts} filter="ALL" onFilterChange={onFilterChange} onWithdraw={vi.fn()} loading={false} query="" />)
-    expect(screen.getByRole('button', { name: 'Todos 55' })).toBeTruthy()
-    fireEvent.click(screen.getByRole('button', { name: 'Publicados 45' }))
-    expect(onFilterChange).toHaveBeenCalledWith('PUBLISHED')
-    expect(screen.getByRole('status').textContent).toContain('Mostrando 5 de 55')
-  })
   it('destaca o status por texto e oferece ações coerentes em cada card', () => {
     const withdraw = vi.fn()
-    render(<AdminLinksBoard links={links} counts={counts} filter="ALL" onFilterChange={vi.fn()} onWithdraw={withdraw} loading={false} query="" />)
+    render(<AdminLinksBoard links={links} onWithdraw={withdraw} loading={false} />)
     const card = (name: string) => within(screen.getByRole('article', { name }))
     expect(card('PUBLISHED').getByLabelText('Status: Publicado')).toBeTruthy()
     expect(card('PUBLISHED').getByRole('button', { name: 'Gerenciar destaque' })).toBeTruthy()
@@ -29,13 +21,14 @@ describe('links na gestão', () => {
     expect(card('UNAVAILABLE').queryByRole('button')).toBeNull()
     expect(card('PENDING_MODERATION').queryByRole('button', { name: 'Gerenciar destaque' })).toBeNull()
   })
-  it('mostra vazio e mantém contagens dos demais status; esconde ações durante a busca', () => {
-    const props = { links: [], counts, filter: 'UNAVAILABLE' as const, onFilterChange: vi.fn(), onWithdraw: vi.fn(), loading: false, query: 'grupo' }
+  it('mostra vazio e mantém os cards carregados durante atualização, bloqueando retirada', () => {
+    const props = { links: [], onWithdraw: vi.fn(), loading: false }
     const view = render(<AdminLinksBoard {...props} />)
-    expect(screen.getByText('Nenhum link encontrado neste status para esta busca.')).toBeTruthy()
-    expect(screen.getByRole('button', { name: 'Fora do ar 4' }).getAttribute('aria-pressed')).toBe('true')
+    expect(screen.getByText('Nada por aqui ainda.')).toBeTruthy()
+
     view.rerender(<AdminLinksBoard {...props} links={links} loading />)
-    expect(screen.queryByRole('article')).toBeNull()
-    expect(screen.getByRole('status').textContent).toBe('Carregando links…')
+    expect(screen.getAllByRole('article')).toHaveLength(links.length)
+    expect(screen.queryByRole('status')).toBeNull()
+    for (const button of screen.getAllByRole('button', { name: /Tirar do ar|Retirar envio/ })) expect((button as HTMLButtonElement).disabled).toBe(true)
   })
 })

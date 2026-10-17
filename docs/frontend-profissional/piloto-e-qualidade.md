@@ -50,7 +50,7 @@ Usar Playwright Test e expect(...).toHaveScreenshot nas páginas/estados estáve
 
 Baselines de Windows e Linux podem divergir: escolher o ambiente de CI como referência e produzir nele as imagens aprovadas. Não usar a imagem atual como baseline automaticamente, não aumentar tolerância para esconder regressão, não executar --update-snapshots sem revisão das diferenças. Anexar expected/actual/diff e registrar quem aprovou o alvo.
 
-O projeto atual só tem features-mobile para evolution-moderation, não cobertura móvel geral de /divulgar. Acrescentar cobertura da landing no piloto sem fazer o novo teste sumir dos testMatch atuais. Não alterar todo o runner para uma tela.
+Em 17/10/2026, features-mobile inclui as jornadas implementadas de moderação, denúncias, disponibilidade, favoritos, página de links, convites, lembretes e resultados, além dos testes workspace-layout e loading-layout. A landing e as telas públicas também integram ui-mobile no runner visual. Manter os testMatch das jornadas existentes ao acrescentar cobertura; a lista de arquivos e o resultado efetivo da execução definem o alcance comprovado.
 
 ## Comandos e ambientes
 

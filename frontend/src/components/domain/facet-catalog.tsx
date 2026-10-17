@@ -76,7 +76,7 @@ function ResultList({
       <CatalogGrid>
         {rows.map((row) => (
           <LinkRow
-            actions={<FavoriteButton linkId={row.id} />}
+            cornerAction={<FavoriteButton linkId={row.id} />}
             key={row.id}
             id={row.id}
             name={row.name}

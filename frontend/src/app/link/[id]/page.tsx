@@ -1,5 +1,6 @@
 import { FavoriteButton } from '@/features/favorites/components/favorite-button'
 import { cache, Suspense } from 'react'
+import { RelatedSkeleton } from '@/features/catalog/components/catalog-skeleton'
 import { RelatedLinksSection } from '@/features/catalog/server/related-links'
 import { headers } from 'next/headers'
 import type { Metadata } from 'next'
@@ -106,7 +107,7 @@ export default async function Page({
         <a className="detail-access" href={href}>Acessar</a>
         <FavoriteButton linkId={id} />
         <p><a href={'/painel/denunciar/' + encodeURIComponent(id)}>Denunciar um link</a></p>
-        <Suspense fallback={null}><RelatedLinksSection linkId={id} requiresAge={link.niche?.requiresAge === true} /></Suspense>
+        <Suspense fallback={<RelatedSkeleton />}><RelatedLinksSection linkId={id} requiresAge={link.niche?.requiresAge === true} /></Suspense>
       </AgeWall>
     </main>
   )

@@ -1,0 +1,18 @@
+.steps { display: grid; gap: var(--space-4); grid-column: 1 / -1; }
+.steps ol { display: flex; flex-wrap: wrap; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+.steps li { flex: 1 1 8rem; min-width: 0; border-bottom: 3px solid var(--border-default); }
+.steps button { display: flex; align-items: center; gap: var(--space-2); width: 100%; min-height: 44px; padding: var(--space-2) 0; border: 0; color: var(--text-secondary); background: transparent; font: inherit; font-size: var(--text-sm); text-align: left; cursor: pointer; }
+.steps button:disabled { cursor: default; opacity: 1; }
+.steps button span { display: grid; place-items: center; flex: none; width: 1.75rem; height: 1.75rem; border: 1px solid var(--border-default); border-radius: 50%; }
+.steps li[aria-current] { border-color: var(--action-primary-bg); }
+.steps li[aria-current] button { color: var(--text-primary); font-weight: 700; }
+.steps li[aria-current] span { background: var(--action-primary-bg); color: white; }
+.current { margin: 0; font-weight: 600; outline-offset: 4px; }
+.steps ol { flex-wrap: nowrap; align-items: center; gap: var(--space-2); }
+.steps li { flex: 0 0 36px; border: 0; }
+.steps li[aria-current] { flex: 1 1 auto; min-width: 0; }
+.steps button { gap: var(--space-2); min-width: 0; }
+.steps button > span:first-child { width: 32px; height: 32px; }
+.steps button .stepLabel { display: none; flex: 1; min-width: 0; width: auto; height: auto; border: 0; border-radius: 0; overflow-wrap: anywhere; }
+.steps li[aria-current] .stepLabel { display: block; font-size: var(--text-sm); background: transparent; color: var(--text-primary); }
+.current { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }

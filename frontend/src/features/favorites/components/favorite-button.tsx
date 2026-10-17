@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { api } from '@/lib/api'
 import { readSession, SESSION_EVENT } from '@/domain/session'
-import { Button } from '@/components/ui/button'
+import { ActionIcon } from '@/components/ui/action-icon'
 import styles from './favorites.module.css'
 
 export function FavoriteButton({ linkId }: { linkId: string }) {
@@ -25,5 +25,6 @@ export function FavoriteButton({ linkId }: { linkId: string }) {
     } catch (e) { setError(e instanceof Error ? e.message : 'Sem conexão. Tente novamente.') }
     finally { busy.current = false; setPending(false) }
   }
-  return <div className={styles.save}><Button variant="secondary" aria-pressed={saved} disabled={pending} onClick={() => void toggle()}>{pending ? 'Salvando…' : saved ? 'Remover favorito' : 'Salvar favorito'}</Button>{error ? <p role="alert">{error}</p> : null}</div>
+  const label = saved ? 'Remover favorito' : 'Salvar favorito'
+  return <div className={styles.save}><button type="button" className={styles.favorite} aria-label={label} title={label} aria-pressed={saved} disabled={pending} onClick={() => void toggle()}><ActionIcon name="star" width={24} height={24} fill={saved ? '#f6c343' : 'none'} /></button>{error ? <p className={styles.saveError} role="alert">{error}</p> : null}</div>
 }

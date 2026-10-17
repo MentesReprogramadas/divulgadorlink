@@ -1,0 +1,239 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\VSCODE\\divulgadorlinks\\output\\panel-redesign\\isolated-validation\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "e2e/.runtime/content-review.config.ts"
+    ],
+    "configFile": "C:\\VSCODE\\divulgadorlinks\\output\\panel-redesign\\isolated-validation\\frontend\\e2e\\.runtime\\content-review.config.ts",
+    "rootDir": "C:/VSCODE/divulgadorlinks/output/panel-redesign/isolated-validation/frontend/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/output/panel-redesign/isolated-validation/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "C:/VSCODE/divulgadorlinks/output/panel-redesign/isolated-validation/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/content-reviews\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/output/panel-redesign/isolated-validation/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "C:/VSCODE/divulgadorlinks/output/panel-redesign/isolated-validation/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/content-reviews\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:/VSCODE/divulgadorlinks/output/panel-redesign/content-review-e2e-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "content-reviews.spec.ts",
+      "file": "content-reviews.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Revisão e contestação: profiles",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5582,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T13:50:53.150Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b08dc3e969340bb32102-d8b982d4cf9dd3ef090f",
+          "file": "content-reviews.spec.ts",
+          "line": 15,
+          "column": 60
+        },
+        {
+          "title": "Revisão e contestação: redirects",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4484,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T13:50:58.843Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b08dc3e969340bb32102-472a415d3949480e8de0",
+          "file": "content-reviews.spec.ts",
+          "line": 15,
+          "column": 60
+        },
+        {
+          "title": "Revisão e contestação: profiles",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5355,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T13:51:03.760Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b08dc3e969340bb32102-e3c836a19800fcaa42d5",
+          "file": "content-reviews.spec.ts",
+          "line": 15,
+          "column": 60
+        },
+        {
+          "title": "Revisão e contestação: redirects",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4339,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T13:51:09.224Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b08dc3e969340bb32102-a9b5f1f871beae45e133",
+          "file": "content-reviews.spec.ts",
+          "line": 15,
+          "column": 60
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-17T13:50:52.748Z",
+    "duration": 20960.712,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

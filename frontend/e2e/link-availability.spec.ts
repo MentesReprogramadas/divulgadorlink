@@ -1,3 +1,5 @@
+import { logoutIfSignedIn } from './session-controls'
+import { selectOption } from './select-control'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { randomUUID } from 'node:crypto'
@@ -21,8 +23,8 @@ function fixture(id: string, unavailable = false) {
   return { id, url, corrected: url + '-corrigido' }
 }
 async function login(page: Page, email: string) {
-  const logout = page.getByRole('button', { name: 'Sair', exact: true })
-  if (await logout.count()) { await logout.click(); await expect(page.getByRole('heading', { name: 'Entrar', exact: true })).toBeVisible() }
+  await page.keyboard.press('Escape')
+  await logoutIfSignedIn(page)
   await page.goto(A + '/login')
   await page.getByLabel('E-mail').fill(email); await page.getByLabel('Senha').fill(state().password)
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
@@ -40,11 +42,17 @@ async function cycle() {
 }
 async function probe(request: APIRequestContext, fixture: { id: string; url: string }, status: number | null) {
   await request.post(runtime.stubOrigin + '/availability/status', { data: { url: fixture.url, status } })
+  const version = sql(`SELECT version FROM link_availability WHERE "linkId"='${fixture.id}'`)
   // Advance the disposable schedule, without changing the link, failure count or monetary state.
-  await expect.poll(() => sql(`SELECT CASE WHEN "leaseToken" IS NULL THEN 'free' ELSE 'busy' END FROM link_availability WHERE "linkId"='${fixture.id}'`)).toBe('free')
-  sql(`UPDATE link_availability SET "nextCheckAt"='2000-01-01' WHERE "linkId"='${fixture.id}'`)
-  sql(`UPDATE availability_hosts SET "nextCheckAt"='2000-01-01' WHERE host='example.com'`)
-  await cycle()
+  for (let attempt = 0; attempt < 5; attempt++) {
+    await expect.poll(() => sql(`SELECT CASE WHEN "leaseToken" IS NULL THEN 'free' ELSE 'busy' END FROM link_availability WHERE "linkId"='${fixture.id}'`)).toBe('free')
+    if (sql(`SELECT version FROM link_availability WHERE "linkId"='${fixture.id}'`) !== version) return
+    sql(`UPDATE link_availability SET "nextCheckAt"='1900-01-01' WHERE "linkId"='${fixture.id}' AND version=${Number(version)}`)
+    sql(`UPDATE availability_hosts SET "nextCheckAt"='2000-01-01' WHERE host='example.com'`)
+    await cycle()
+    if (sql(`SELECT version FROM link_availability WHERE "linkId"='${fixture.id}'`) !== version) return
+  }
+  throw new Error('O monitor não conseguiu checar a fixture após liberar o agendamento do host.')
 }
 const route = (id: string) => A + '/painel/links/' + id + '/disponibilidade'
 const card = (page: Page, id: string) => page.getByRole('article', { name: 'Correção ' + id, exact: true })
@@ -65,6 +73,7 @@ test('F07-E01/T01/T05 worker retira no limiar, aprovação recupera URL e saldo 
   await expect(page.getByRole('heading', { name: 'Link indisponível' })).toBeVisible()
   await login(page, state().owner); await page.goto(route(current.id))
   await expect(page.getByRole('heading', { name: 'Tempo pago pausado' })).toBeVisible()
+  await page.getByRole('button', { name: 'Corrigir link', exact: true }).click()
   await page.getByLabel('Convite para análise').fill(current.corrected)
   await page.getByRole('button', { name: 'Enviar correção' }).dblclick()
   await expect(page.getByRole('heading', { name: 'Correção enviada para análise' })).toBeVisible()
@@ -72,7 +81,7 @@ test('F07-E01/T01/T05 worker retira no limiar, aprovação recupera URL e saldo 
   expect(sql(`SELECT COUNT(*) FROM url_revisions WHERE "linkId"='${current.id}' AND status='PENDING'`)).toBe('1')
   const revision = sql(`SELECT id FROM url_revisions WHERE "linkId"='${current.id}' AND status='PENDING'`)
   await login(page, state().admin); await page.goto(A + '/admin/disponibilidade')
-  await card(page, revision).getByLabel('Decisão', { exact: true }).selectOption('APPROVE')
+  await selectOption(card(page, revision).getByLabel('Decisão', { exact: true }), 'APPROVE')
   await card(page, revision).getByLabel('Justificativa').fill('Convite corrigido e conteúdo conferido.')
   await card(page, revision).getByRole('button', { name: 'Salvar decisão' }).focus(); await page.keyboard.press('Enter')
   await expect(page.getByRole('status').filter({ hasText: 'Decisão salva.' })).toBeVisible()
@@ -104,6 +113,7 @@ test('F07-E02 proposta privada não aparece no público nem para outro dono', as
 test('F07-E03 offline preserva convite e justificativa; recuperação por teclado e histórico', async ({ page }, info) => {
   const current = fixture('f07-offline-' + info.project.name, true)
   await login(page, state().owner); await page.goto(route(current.id))
+  await page.getByRole('button', { name: 'Corrigir link', exact: true }).click()
   await page.getByLabel('Convite para análise').fill(current.corrected)
   await page.screenshot({ path: info.outputPath('availability-owner.png'), fullPage: true })
   await page.context().setOffline(true)
@@ -116,7 +126,7 @@ test('F07-E03 offline preserva convite e justificativa; recuperação por teclad
   const revision = sql(`SELECT id FROM url_revisions WHERE "linkId"='${current.id}' AND status='PENDING'`)
   await login(page, state().admin); await page.goto(A + '/admin/disponibilidade')
   const proposal = card(page, revision)
-  await proposal.getByLabel('Decisão', { exact: true }).selectOption('APPROVE')
+  await selectOption(proposal.getByLabel('Decisão', { exact: true }), 'APPROVE')
   await proposal.getByLabel('Justificativa').fill('Destino conferido após corrigir o convite.')
   await page.context().setOffline(true); await proposal.getByRole('button', { name: 'Salvar decisão' }).click()
   await expect(proposal.getByRole('alert')).toContainText('Sem conexão.')

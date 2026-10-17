@@ -1,5 +1,8 @@
 'use client'
 
+import { ActionIcon } from '@/components/ui/action-icon'
+import { PlanCardsSkeleton } from '@/features/promotions/components/plans-skeleton'
+
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Field, Input } from '@/components/ui/input'
@@ -131,8 +134,8 @@ function PlanDialog({
         </label>
         {error ? <p role="alert">{error}</p> : null}
         <div className="age-dialog-actions">
-          <Button type="submit" disabled={pending}>Salvar</Button>
-          <Button type="button" variant="secondary" disabled={pending} onClick={onClose}>Cancelar</Button>
+          <Button type="submit" disabled={pending}><ActionIcon name="save" />Salvar</Button>
+          <Button type="button" variant="secondary" disabled={pending} onClick={onClose}><ActionIcon name="close" />Cancelar</Button>
         </div>
       </form>
     </dialog>
@@ -148,6 +151,7 @@ function remember(rows: Offer[]): Offer[] {
 
 export function PlanEditor() {
   const [offers, setOffers] = useState<Offer[]>([])
+  const [ready, setReady] = useState(false)
   const [days, setDays] = useState<Duration>(7)
   const [editing, setEditing] = useState<Offer | null>(null)
   const [message, setMessage] = useState('')
@@ -157,13 +161,14 @@ export function PlanEditor() {
   offersRef.current = offers
 
   useLayoutEffect(() => {
-    if (offerCache) setOffers(offerCache)
+    if (offerCache) { setOffers(offerCache); setReady(true) }
   }, [])
 
   useEffect(() => {
     void api<{ offers?: Offer[] }>('/v1/promotions/offers').then((result) => {
+      if (result.status !== 200) { setMessage('Não foi possível carregar os planos. Atualize a página.'); return }
       setOffers(remember(result.body.offers ?? []))
-    })
+    }).catch(() => setMessage('Não foi possível conectar. Atualize a página.')).finally(() => setReady(true))
   }, [])
 
   function reorder(from: string, to: string) {
@@ -213,7 +218,8 @@ export function PlanEditor() {
           </label>
         ))}
       </div>
-      <div className="plan-grid">
+      {!ready ? <PlanCardsSkeleton /> : null}
+      <div className="plan-grid" aria-busy={!ready}>
         {offers.map((offer) => {
           const price = priceOf(offer, days)
           return (
@@ -252,13 +258,13 @@ export function PlanEditor() {
                   dragCode.current = null
                   if (before !== after) void persist(offersRef.current)
                 }}
-              >
+              ><ActionIcon name="grip" />
                 Arrastar
               </button>
               {offer.featured ? <span className="plan-mark">Em destaque</span> : <span className="plan-mark">Plano</span>}
               <span className="plan-name">{offer.name}</span>
               <span className="plan-price">{price !== null ? formatCents(price) : '—'}</span>
-              <Button type="button" variant="secondary" onClick={() => setEditing(offer)}>Editar</Button>
+              <Button type="button" variant="secondary" onClick={() => setEditing(offer)}><ActionIcon name="edit" />Editar</Button>
             </article>
           )
         })}

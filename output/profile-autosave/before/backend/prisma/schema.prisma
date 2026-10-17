@@ -1,0 +1,927 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+model OperationalMessage {
+  id                String   @id @default(cuid())
+  tenantId          String
+  tenant            Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  occurrenceKey     String   @unique
+  kind              String
+  resourceId        String
+  snapshotHash      String?
+  payload           Json
+  state             String   @default("PENDING")
+  attempts          Int      @default(0)
+  nextAttemptAt     DateTime @default(now())
+  lockedAt          DateTime?
+  providerMessageId String?
+  lastErrorCode     String?
+  expiresAt         DateTime?
+  consumedAt        DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  @@index([tenantId, state, nextAttemptAt])
+  @@index([tenantId, providerMessageId])
+  @@index([kind, resourceId])
+  @@map("operational_messages")
+}
+
+model EvolutionReceipt {
+  id                String   @id @default(cuid())
+  tenantId          String
+  tenant            Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  instance          String
+  providerMessageId String
+  sender            String
+  reference         String
+  decision          String
+  reason            String?
+  state             String   @default("PENDING")
+  resultCode        String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  @@unique([instance, providerMessageId])
+  @@index([state, createdAt])
+  @@map("evolution_receipts")
+}
+
+model EvolutionOperator {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  phone     String
+  userId    String
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  @@unique([tenantId, phone])
+  @@map("evolution_operators")
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id              String           @id @default(cuid())
+  host            String           @unique
+  name            String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  users           User[]
+  networks        Network[]
+  niches          Niche[]
+  promotionPrices PromotionPrice[]
+  promotionOffers PromotionOffer[]
+  configs         Config[]
+  auditLogs       AuditLog[]
+  links           Link[]
+  blocklistTerms  BlocklistTerm[]
+  moderationCases ModerationCase[]
+  promotions      Promotion[]
+  embeddingJobs   EmbeddingJob[]
+  orders          Order[]
+  analyticsEvents AnalyticsEvent[]
+  operationalMessages OperationalMessage[]
+  evolutionReceipts EvolutionReceipt[]
+  evolutionOperators EvolutionOperator[]
+  @@map("tenants")
+  promotionInvestments PromotionInvestment[]
+  linkReports LinkReport[]
+  linkAvailability LinkAvailability[]
+  urlRevisions UrlRevision[]
+  promotionPauses PromotionPause[]
+  profiles Profile[]
+
+}
+
+model User {
+ contentReviews ContentReview[]
+  id           String    @id @default(cuid())
+  tenantId     String
+  tenant       Tenant    @relation(fields: [tenantId], references: [id])
+  name         String
+  passwordHash String
+  role         UserRole  @default(USER)
+  status       UserStatus @default(ACTIVE)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  favorites Favorite[]
+  collections Collection[]
+  profiles Profile[]
+  profileAssets ProfileAsset[]
+  redirectHandles RedirectHandle[]
+  @@unique([id, tenantId], map: "users_id_tenantid_key")
+  identifiers  UserIdentifier[]
+  links        Link[]
+  orders       Order[]
+  emailRenewal Boolean @default(false)
+  notificationVersion Int @default(0)
+  acquisitionTouch AcquisitionTouch?
+  evolutionOperators EvolutionOperator[]
+  @@index([tenantId])
+  @@map("users")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  BANNED
+}
+
+model UserIdentifier {
+  id                String             @id @default(cuid())
+  userId            String
+  user              User               @relation(fields: [userId], references: [id])
+  tenantId          String
+  kind              IdentifierKind
+  normalizedValue   String
+  confirmedAt       DateTime?
+  replacedAt        DateTime?
+  createdAt         DateTime           @default(now())
+  verificationCodes VerificationCode[]
+  @@unique([tenantId, kind, normalizedValue])
+  @@index([userId])
+  @@map("user_identifiers")
+}
+
+enum IdentifierKind {
+  EMAIL
+  PHONE
+}
+
+model VerificationCode {
+  id               String         @id @default(cuid())
+  userId           String
+  userIdentifierId String
+  userIdentifier   UserIdentifier @relation(fields: [userIdentifierId], references: [id])
+  kind             IdentifierKind
+  codeHash         String
+  expiresAt        DateTime
+  attempts         Int            @default(0)
+  isResend         Boolean        @default(false)
+  createdAt        DateTime       @default(now())
+  @@index([userId, kind, createdAt])
+  @@index([userIdentifierId, createdAt])
+  @@map("verification_codes")
+}
+
+enum PromotionProductCode {
+  SEARCH
+  NICHE
+  HOME
+  SEARCH_NICHE
+  SEARCH_NICHE_HOME
+}
+
+model PromotionPrice {
+  id            String               @id @default(cuid())
+  tenantId      String
+  tenant        Tenant               @relation(fields: [tenantId], references: [id])
+  productCode   PromotionProductCode
+  durationDays  Int
+  amountCents   Int
+  currency      String               @default("BRL")
+  effectiveFrom DateTime             @default(now())
+  effectiveTo   DateTime?
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  @@unique([tenantId, productCode, durationDays])
+  @@index([tenantId])
+  @@map("promotion_prices")
+}
+
+model PromotionOffer {
+  id          String               @id @default(cuid())
+  tenantId    String
+  tenant      Tenant               @relation(fields: [tenantId], references: [id])
+  productCode PromotionProductCode
+  name        String
+  sortOrder   Int
+  featured    Boolean              @default(false)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  @@unique([tenantId, productCode])
+  @@index([tenantId, sortOrder])
+  @@map("promotion_offers")
+}
+
+model Config {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  key       String
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([tenantId, key])
+  @@index([tenantId])
+  @@map("configs")
+}
+
+model Network {
+  id            String   @id @default(cuid())
+  tenantId      String
+  tenant        Tenant   @relation(fields: [tenantId], references: [id])
+  name          String
+  slug          String
+  knownHosts    String[]
+  isPublicFacet Boolean  @default(true)
+  summary       String?
+  requiresAge   Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  links         Link[]
+  @@unique([tenantId, slug])
+  @@index([tenantId])
+  @@map("networks")
+}
+
+model Niche {
+  id            String   @id @default(cuid())
+  tenantId      String
+  tenant        Tenant   @relation(fields: [tenantId], references: [id])
+  name          String
+  slug          String
+  requiresAge   Boolean  @default(false)
+  isPublicFacet Boolean  @default(true)
+  summary       String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  links         Link[]
+  @@unique([tenantId, slug])
+  @@index([tenantId])
+  @@map("niches")
+}
+
+enum LinkStatus {
+  DRAFT
+  PENDING_MODERATION
+  PRE_REJECTED
+  PUBLISHED
+  UNAVAILABLE
+}
+
+model Link {
+  id           String     @id @default(cuid())
+  tenantId     String
+  tenant       Tenant     @relation(fields: [tenantId], references: [id])
+  ownerId      String?
+  owner        User?      @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  canonicalUrl String
+  name         String
+  description  String
+  networkId    String
+  network      Network    @relation(fields: [networkId], references: [id])
+  nicheId      String
+  niche        Niche      @relation(fields: [nicheId], references: [id])
+  otherNote    String?
+  status              LinkStatus
+  occupiesSlot        Boolean    @default(true)
+  everPublished       Boolean    @default(false)
+  approvedName        String?
+  approvedDescription String?
+  acquisitionSource   String?
+  acquisitionMedium   String?
+  acquisitionCampaign String?
+  acquisitionContent  String?
+  acquisitionTerm     String?
+  embedding           Unsupported("vector(1536)")?
+  embeddingState      EmbeddingState @default(ABSENT)
+  createdAt           DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  moderationCases ModerationCase[]
+  promotions      Promotion[]
+  embeddingJobs   EmbeddingJob[]
+  orders          Order[]
+  favorites Favorite[]
+  reports         LinkReport[]
+  profileItems ProfileItem[]
+    availability    LinkAvailability?
+    urlRevisions    UrlRevision[]
+  @@unique([id, tenantId])
+  @@index([tenantId, ownerId, status])
+  @@index([tenantId, status, id])
+  @@map("links")
+}
+
+enum EmbeddingState {
+  ABSENT
+  PENDING
+  READY
+  FAILED
+}
+
+enum EmbeddingJobStatus {
+  PENDING
+  PROCESSING
+  DONE
+  FAILED
+}
+
+model EmbeddingJob {
+  id                String             @id @default(cuid())
+  tenantId          String
+  tenant            Tenant             @relation(fields: [tenantId], references: [id])
+  linkId            String
+  link              Link               @relation(fields: [linkId], references: [id])
+  status            EmbeddingJobStatus @default(PENDING)
+  attempts          Int                @default(0)
+  nextAttemptAt     DateTime           @default(now())
+  lastError         String?
+  snapshotName      String
+  snapshotDescription String
+  snapshotNetworkId String
+  snapshotNicheId   String
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  @@index([status, nextAttemptAt])
+  @@index([linkId])
+  @@map("embedding_jobs")
+}
+
+enum PromotionStatus {
+  ACTIVE
+  PAUSED
+  EXPIRED
+  CANCELLED
+}
+
+enum PromotionSurface {
+  SEARCH
+  NICHE
+  HOME
+}
+
+model Promotion {
+  id          String          @id @default(cuid())
+  tenantId    String
+  tenant      Tenant          @relation(fields: [tenantId], references: [id])
+  linkId      String
+  link        Link            @relation(fields: [linkId], references: [id])
+  status      PromotionStatus
+  surface     PromotionSurface
+  activatedAt DateTime
+  expiresAt   DateTime?
+  administrative Boolean      @default(false)
+  pauseRevision Int           @default(0)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  @@index([tenantId, linkId, status])
+  @@index([surface, status, activatedAt])
+  @@map("promotions")
+  investments PromotionInvestment[]
+  pauses PromotionPause[]
+  renewalReminders RenewalReminder[]
+  @@unique([id, tenantId])
+
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  PAID
+  EXPIRED
+  PAID_LATE
+  REFUND_PENDING
+  REFUNDED
+  REFUND_FAILED
+}
+
+enum PaymentMethod {
+  PIX
+  CARD
+}
+
+enum SurfaceHold {
+  PENDING_PAYMENT
+  RELEASED
+}
+
+model Order {
+  id                   String               @id @default(cuid())
+  tenantId             String
+  tenant               Tenant               @relation(fields: [tenantId], references: [id])
+  userId               String?
+  user                 User?                @relation(fields: [userId], references: [id])
+  linkId               String
+  link                 Link                 @relation(fields: [linkId], references: [id])
+  status               OrderStatus
+  method               PaymentMethod
+  productCode          PromotionProductCode
+  durationDays         Int
+  amountCents          Int
+  savingsCents         Int
+  pixExpiresAt         DateTime?
+  gatewayChargeId      String?
+  brCode               String?
+  refundCorrelationId  String?
+  refundAttempts       Int                  @default(0)
+  refundErrors         Json                 @default("[]")
+  refundIds            Json                 @default("[]")
+  idempotencyKey       String?
+  renewal              Boolean              @default(false)
+  paidAt               DateTime?
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  surfaces             OrderSurface[]
+  payments             Payment[]
+  events               OrderEvent[]
+  @@unique([tenantId, userId, idempotencyKey])
+  @@index([tenantId, linkId, status])
+  @@index([tenantId, paidAt])
+  @@index([tenantId, createdAt])
+  @@map("orders")
+  promotionInvestments PromotionInvestment[]
+  @@unique([id, tenantId])
+
+}
+
+model OrderMetaContext {
+  orderId   String   @id
+  context   Json
+  createdAt DateTime @default(now())
+  @@index([createdAt])
+  @@map("order_meta_contexts")
+}
+
+model OrderSurface {
+  id        String           @id @default(cuid())
+  orderId   String
+  order     Order            @relation(fields: [orderId], references: [id])
+  linkId    String
+  surface   PromotionSurface
+  hold      SurfaceHold      @default(PENDING_PAYMENT)
+  @@index([orderId])
+  @@map("order_surfaces")
+}
+
+model Payment {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id])
+  provider    String
+  externalId  String?
+  amountCents Int
+  status      String
+  createdAt   DateTime @default(now())
+  @@index([orderId])
+  @@map("payments")
+}
+
+model OrderEvent {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id])
+  eventId   String
+  createdAt DateTime @default(now())
+  @@unique([orderId, eventId])
+  @@map("order_events")
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  sessionId String
+  linkId    String
+  surface   String
+  day       DateTime @db.Date
+  kind      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([sessionId, linkId, surface, day, kind])
+  @@index([tenantId, day])
+  @@index([tenantId, linkId, day])
+  @@map("analytics_events")
+  @@index([tenantId, linkId, createdAt])
+}
+
+model ModerationCase {
+  id         String    @id @default(cuid())
+  tenantId   String
+  tenant     Tenant    @relation(fields: [tenantId], references: [id])
+  linkId     String
+  link       Link      @relation(fields: [linkId], references: [id])
+  appealText String?
+  appealedAt DateTime?
+  closedAt   DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  @@index([tenantId])
+  @@index([linkId, closedAt])
+  @@map("moderation_cases")
+}
+
+model BlocklistTerm {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  term      String
+  createdAt DateTime @default(now())
+  @@index([tenantId])
+  @@map("blocklist_terms")
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  tenantId   String
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+  actorId    String?
+  action     String
+  entityType String
+  entityId   String
+  before     Json?
+  after      Json?
+  requestId  String?
+  createdAt  DateTime @default(now())
+  @@index([tenantId, createdAt])
+  @@map("audit_logs")
+}
+
+model AcquisitionTouch {
+  id          String   @id @default(cuid())
+  tenantId    String
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  source      String
+  medium      String
+  campaign    String
+  content     String
+  term        String
+  landingPath String
+  createdAt   DateTime @default(now())
+  @@index([tenantId, campaign])
+  @@map("acquisition_touches")
+}
+
+model FunnelEvent {
+  id        String   @id @default(cuid())
+  tenantId  String
+  eventId   String
+  name      String
+  userId    String?
+  linkId    String?
+  createdAt DateTime @default(now())
+  @@unique([tenantId, eventId])
+  @@index([tenantId, name, createdAt])
+  @@map("funnel_events")
+}
+
+model SiteTrafficDaily {
+  id       String   @id @default(cuid())
+  tenantId String
+  day      DateTime @db.Date
+  path     String
+  source   String   @default("")
+  medium   String   @default("")
+  campaign String   @default("")
+  views    Int      @default(0)
+  entries  Int      @default(0)
+  @@unique([tenantId, day, path, source, medium, campaign])
+  @@index([tenantId, day])
+  @@map("site_traffic_daily")
+}
+
+model ConsentDaily {
+  id       String   @id @default(cuid())
+  tenantId String
+  day      DateTime @db.Date
+  choice   String
+  count    Int      @default(0)
+  @@unique([tenantId, day, choice])
+  @@map("consent_daily")
+}
+
+model PromotionInvestment {
+  id String @id @default(cuid())
+  tenantId String
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  orderId String
+  order Order @relation(fields: [orderId, tenantId], references: [id, tenantId])
+  promotionId String
+  promotion Promotion @relation(fields: [promotionId, tenantId], references: [id, tenantId])
+  surface PromotionSurface
+  amountCents Int
+  pauseRevision Int @default(0)
+  startsAt DateTime
+  endsAt DateTime
+  createdAt DateTime @default(now())
+  @@unique([orderId, surface])
+  @@index([tenantId, promotionId, startsAt, endsAt])
+  @@map("promotion_investments")
+}
+
+model PromotionPause {
+  id String @id @default(cuid())
+  tenantId String
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  promotionId String
+  promotion Promotion @relation(fields: [promotionId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  revision Int
+  startsAt DateTime
+  endsAt DateTime?
+  remainingMs BigInt?
+  @@unique([promotionId, revision])
+  @@index([tenantId, promotionId, startsAt])
+  @@map("promotion_pauses")
+}
+
+model LinkAvailability {
+  linkId String @id
+  tenantId String
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  link Link @relation(fields: [linkId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  version Int @default(1)
+  state String @default("UNKNOWN") @db.VarChar(20)
+  failures Int @default(0)
+  checkedAt DateTime?
+  lastStatus Int?
+  nextCheckAt DateTime @default(now())
+  disabledAt DateTime?
+  leaseUntil DateTime?
+  leaseToken String?
+  notificationPendingAt DateTime?
+  notificationSentAt DateTime?
+  notificationNextAt DateTime?
+  notificationAttempts Int @default(0)
+  @@unique([linkId, tenantId])
+  @@index([nextCheckAt, linkId])
+  @@index([tenantId, disabledAt])
+  @@map("link_availability")
+}
+
+model AvailabilityHost {
+  host String @id @db.VarChar(253)
+  nextCheckAt DateTime
+  @@map("availability_hosts")
+}
+
+model UrlRevision {
+  id String @id @default(cuid())
+  tenantId String
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  linkId String
+  link Link @relation(fields: [linkId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  canonicalUrl String
+  sourceUrl String
+  expectedVersion Int
+  status String @default("PENDING") @db.VarChar(12)
+  checkedAt DateTime
+  decisionReason String? @db.VarChar(500)
+  createdAt DateTime @default(now())
+  decidedAt DateTime?
+  @@index([tenantId, status, createdAt, id])
+  @@index([linkId, createdAt])
+  @@map("url_revisions")
+}
+
+enum ReportReason {
+  EXPIRED_INVITE
+  UNAVAILABLE_DESTINATION
+  SPAM
+  INAPPROPRIATE_CONTENT
+}
+enum ReportKind {
+  AVAILABILITY
+  CONTENT
+}
+enum ReportStatus {
+  RECEIVED
+  IN_REVIEW
+  RESOLVED
+}
+model LinkReport {
+  id String @id @default(cuid())
+  tenantId String
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  linkId String
+  link Link @relation(fields: [linkId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  reporterKey String @db.VarChar(64)
+  reason ReportReason
+  kind ReportKind
+  comment String @default("") @db.VarChar(500)
+  status ReportStatus @default(RECEIVED)
+  version Int @default(1)
+  decisionReason String? @db.VarChar(500)
+  resolvedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([tenantId, reporterKey, createdAt])
+  @@index([tenantId, linkId, reporterKey, reason, createdAt], map: "link_reports_dedup_idx")
+  @@index([tenantId, status, kind, createdAt, id])
+  @@index([tenantId, createdAt, id])
+  @@map("link_reports")
+}
+
+model RenewalReminder {
+  id String @id @default(cuid())
+  tenantId String
+  promotionId String
+  promotion Promotion @relation(fields: [promotionId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  expiresAt DateTime
+  channel String @default("EMAIL") @db.VarChar(12)
+  deliveryKey String @unique
+  status String @default("PENDING") @db.VarChar(12)
+  attempts Int @default(0)
+  nextAttemptAt DateTime @default(now())
+  firstAttemptAt DateTime?
+  sentAt DateTime?
+  payload Json?
+  createdAt DateTime @default(now())
+  @@unique([tenantId, promotionId, expiresAt, channel])
+  @@index([status, nextAttemptAt, id], map: "renewal_reminders_due_idx")
+  @@map("renewal_reminders")
+}
+
+model Favorite {
+  id String @id @default(uuid())
+  tenantId String
+  userId String
+  linkId String
+  createdAt DateTime @default(now())
+  user User @relation(fields: [userId, tenantId], references: [id, tenantId], onDelete: Cascade, onUpdate: NoAction, map: "favorites_owner_fk")
+  link Link @relation(fields: [linkId, tenantId], references: [id, tenantId], onDelete: Cascade, onUpdate: NoAction, map: "favorites_link_fk")
+  items CollectionItem[]
+  @@unique([tenantId, userId, linkId], map: "favorites_owner_link_key")
+  @@unique([id, tenantId, userId], map: "favorites_identity_key")
+  @@index([tenantId, userId, id], map: "favorites_owner_page_idx")
+  @@map("favorites")
+}
+model Collection {
+  id String @id
+  tenantId String
+  userId String
+  name String
+  version Int @default(0)
+  createdAt DateTime @default(now())
+  user User @relation(fields: [userId, tenantId], references: [id, tenantId], onDelete: Cascade, onUpdate: NoAction, map: "collections_owner_fk")
+  items CollectionItem[]
+  @@unique([id, tenantId, userId], map: "collections_identity_key")
+  @@index([tenantId, userId, id], map: "collections_owner_page_idx")
+  @@map("collections")
+}
+model CollectionItem {
+  collectionId String
+  favoriteId String
+  tenantId String
+  userId String
+  position Int
+  collection Collection @relation(fields: [collectionId, tenantId, userId], references: [id, tenantId, userId], onDelete: Cascade, onUpdate: NoAction, map: "collection_items_collection_fk")
+  favorite Favorite @relation(fields: [favoriteId, tenantId, userId], references: [id, tenantId, userId], onDelete: Cascade, onUpdate: NoAction, map: "collection_items_favorite_fk")
+  @@id([collectionId, favoriteId])
+  @@unique([collectionId, position], map: "collection_items_position_key")
+  @@index([favoriteId], map: "collection_items_favorite_idx")
+  @@map("collection_items")
+}
+model Profile {
+ reviews ContentReview[]
+ appearance Json?
+ id String @id @default(uuid())
+ tenantId String
+ tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+ ownerId String
+ owner User @relation(fields: [ownerId, tenantId], references: [id, tenantId], onDelete: Cascade, onUpdate: NoAction, map: "profiles_owner_fk")
+ slug String
+ name String
+ bio String @default("")
+ avatarAssetId String?
+ requiresAge Boolean @default(false)
+ primaryItemId String?
+ version Int @default(0)
+ publishedVersion Int?
+ publication Json?
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ categories ProfileCategory[]
+ items ProfileItem[]
+ @@unique([tenantId, slug], map: "profiles_tenant_slug_key")
+ @@unique([tenantId, ownerId], map: "profiles_tenant_owner_key")
+ @@unique([id, tenantId, ownerId], map: "profiles_identity_key")
+ @@map("profiles")
+}
+model ProfileCategory {
+ id String
+ profileId String
+ tenantId String
+ ownerId String
+ profile Profile @relation(fields: [profileId, tenantId, ownerId], references: [id, tenantId, ownerId], onDelete: Cascade, onUpdate: NoAction, map: "profile_categories_profile_fk")
+ name String
+ visible Boolean
+ position Int
+ items ProfileItem[]
+ @@id([profileId, id])
+ @@unique([profileId, position], map: "profile_categories_position_key")
+ @@map("profile_categories")
+}
+model ProfileItem {
+ id String
+ profileId String
+ categoryId String
+ tenantId String
+ ownerId String
+ profile Profile @relation(fields: [profileId, tenantId, ownerId], references: [id, tenantId, ownerId], onDelete: Cascade, onUpdate: NoAction, map: "profile_items_profile_fk")
+ category ProfileCategory @relation(fields: [profileId, categoryId], references: [profileId, id], onDelete: Cascade, onUpdate: NoAction, map: "profile_items_category_fk")
+ type String
+ label String
+ destination String
+ linkId String?
+ link Link? @relation(fields: [linkId, tenantId], references: [id, tenantId], onDelete: Cascade, onUpdate: NoAction, map: "profile_items_link_fk")
+ visible Boolean
+ position Int
+ @@id([profileId, id])
+ @@unique([profileId, position], map: "profile_items_position_key")
+ @@map("profile_items")
+}
+model ProfileAsset {
+ id String
+ tenantId String
+ ownerId String
+ owner User @relation(fields: [ownerId, tenantId], references: [id, tenantId], onDelete: Cascade, onUpdate: NoAction, map: "profile_assets_owner_fk")
+ bytes Bytes
+ createdAt DateTime @default(now())
+ @@id([tenantId, ownerId, id])
+ @@map("profile_assets")
+}
+
+model RedirectHandle {
+ id String @id @default(uuid())
+ tenantId String
+ ownerId String
+ owner User @relation(fields: [ownerId, tenantId], references: [id, tenantId], onDelete: Cascade, onUpdate: NoAction, map: "redirect_handles_owner_fk")
+ creationKey String
+ creationHash String
+ version Int @default(0)
+ activeRevisionId String?
+ disabled Boolean @default(false)
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ revisions RedirectDestination[]
+ @@unique([id, tenantId], map: "redirect_handles_identity_key")
+ @@unique([tenantId, ownerId, creationKey], map: "redirect_handles_creation_key")
+ @@index([tenantId, ownerId, id], map: "redirect_handles_owner_page_idx")
+ @@map("redirect_handles")
+}
+model RedirectDestination {
+ review ContentReview?
+ id String @id @default(uuid())
+ handleId String
+ tenantId String
+ handle RedirectHandle @relation(fields: [handleId, tenantId], references: [id, tenantId], onDelete: Cascade, onUpdate: NoAction, map: "redirect_destinations_handle_fk")
+ number Int
+ requestKey String
+ requestHash String
+ label String
+ destinationUrl String
+ requiresAge Boolean @default(false)
+ status String
+ errorMessage String?
+ createdAt DateTime @default(now())
+ resolvedAt DateTime?
+ accesses RedirectDaily[]
+ @@unique([handleId, number], map: "redirect_destinations_number_key")
+ @@unique([handleId, requestKey], map: "redirect_destinations_request_key")
+ @@unique([handleId, tenantId, id], map: "redirect_destinations_identity_key")
+ @@unique([id, tenantId], map: "redirect_destinations_review_identity_key")
+ @@index([createdAt], map: "redirect_destinations_retention_idx")
+ @@map("redirect_destinations")
+}
+model RedirectDaily {
+ revisionId String
+ day DateTime @db.Date
+ revision RedirectDestination @relation(fields: [revisionId], references: [id], onDelete: Cascade)
+ accesses Int @default(0)
+ @@id([revisionId, day])
+ @@index([day], map: "redirect_daily_retention_idx")
+ @@map("redirect_daily")
+}
+
+model ContentReview {
+ id String @id @default(uuid())
+ tenantId String
+ ownerId String
+ owner User @relation(fields: [ownerId, tenantId], references: [id, tenantId], onDelete: Cascade, onUpdate: NoAction, map: "content_reviews_owner_fk")
+ kind String
+ profileId String?
+ profile Profile? @relation(fields: [profileId, tenantId, ownerId], references: [id, tenantId, ownerId], onDelete: Cascade, onUpdate: NoAction, map: "content_reviews_profile_fk")
+ redirectRevisionId String? @unique(map: "content_reviews_redirect_key")
+ redirectRevision RedirectDestination? @relation(fields: [redirectRevisionId, tenantId], references: [id, tenantId], onDelete: Cascade, onUpdate: NoAction, map: "content_reviews_redirect_fk")
+ version Int
+ snapshot Json
+ status String @default("PENDING")
+ reason String?
+ appealText String?
+ appealedAt DateTime?
+ resolvedAt DateTime?
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ @@unique([profileId, version], map: "content_reviews_profile_version_key")
+ @@unique([redirectRevisionId, tenantId], map: "content_reviews_redirect_identity_key")
+ @@index([tenantId, kind, status, createdAt], map: "content_reviews_queue_idx")
+ @@map("content_reviews")
+}

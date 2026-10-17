@@ -1,0 +1,35 @@
+  const current = detail?.collection
+  const shown = selected ? detail : favorites
+  const visibleItems = shown?.items.filter(item => `${item.name} ${item.description}`.toLocaleLowerCase('pt-BR').includes(query.trim().toLocaleLowerCase('pt-BR'))) ?? []
+  const savedList = <>
+    <WorkspaceFilters label="Filtrar favoritos">
+      <Field label="Buscar favoritos"><Input type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Título ou descrição" /></Field>
+      {!selected && collections.items.length ? <Field label="Organizar na coleção"><Select value={target} onChange={e => setTarget(e.target.value)}><option value="">Escolha uma coleção</option>{collections.items.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</Select></Field> : null}
+    </WorkspaceFilters>
+    {selected && !detail ? <p role="status">Carregando coleção…</p> : shown ? <section aria-label={current ? 'Itens da coleção' : 'Links salvos'}><FavoriteList items={visibleItems} actions={(item) => {
+      const index = shown.items.findIndex(row => row.id === item.id)
+      return <>
+        {current ? <><Button variant="secondary" disabled={pending} onClick={() => click('collections/' + current.id + '/items/' + item.id, 'DELETE', { expectedVersion: current.version })}>Retirar da coleção</Button><Button variant="secondary" disabled={pending || index === 0} onClick={() => click('collections/' + current.id + '/items/' + item.id, 'PATCH', { expectedVersion: current.version, move: 'up' })}>Subir</Button><Button variant="secondary" disabled={pending || (index === shown.items.length - 1 && !shown.nextCursor)} onClick={() => click('collections/' + current.id + '/items/' + item.id, 'PATCH', { expectedVersion: current.version, move: 'down' })}>Descer</Button></> : target ? <Button variant="secondary" disabled={pending || item.collectionIds?.includes(target)} onClick={() => click('collections/' + target + '/items/' + item.id, 'PUT', { expectedVersion: collections.items.find(c => c.id === target)?.version })}>{item.collectionIds?.includes(target) ? 'Já está na coleção' : 'Adicionar à coleção'}</Button> : null}
+        <Button variant="danger" disabled={pending} onClick={() => click('favorites/' + item.linkId, 'DELETE')}><ActionIcon name="trash" />Remover favorito</Button>
+      </>
+    }} />{shown.nextCursor ? <Button variant="secondary" disabled={pending} onClick={() => void more('favorites')}>Mais favoritos</Button> : null}</section> : null}
+  </>
+  const collectionList = <>
+    <section aria-label="Suas coleções" className={styles.collection}>
+      <div className={styles.actions}>{collections.items.map(c => <Button key={c.id} variant="secondary" disabled={pending} aria-pressed={selected === c.id} onClick={() => { setSelected(c.id); setQuery('') }}>{c.name}</Button>)}</div>
+      {!collections.items.length ? <EmptyState /> : null}
+      {collections.nextCursor ? <Button variant="secondary" disabled={pending} onClick={() => void more('collections')}>Mais coleções</Button> : null}
+    </section>
+    {current ? <WorkspaceActions label="Ações da coleção"><strong>{current.name}</strong><Button variant="secondary" disabled={pending} onClick={() => setEditing('rename')}>Editar coleção</Button><Button variant="danger" disabled={pending} onClick={() => setConfirmDelete(true)}><ActionIcon name="trash" />Excluir coleção</Button></WorkspaceActions> : null}
+    {confirmDelete && current ? <section role="group" aria-label="Confirmar exclusão" className={styles.collection}><p>Excluir esta coleção? Os favoritos e os links continuam salvos.</p><div className={styles.actions}><Button disabled={pending} onClick={() => click('collections/' + current.id + '?expectedVersion=' + current.version, 'DELETE')}>Confirmar exclusão</Button><Button variant="secondary" onClick={() => setConfirmDelete(false)}>Cancelar</Button></div></section> : null}
+    {selected ? savedList : null}
+  </>
+  return <section className={styles.page} aria-label="Favoritos e coleções">
+    <WorkspaceActions>{tab === 'collections' ? <Button disabled={pending || phase !== 'ready'} onClick={() => setEditing('create')}><ActionIcon name="plus" />Nova coleção</Button> : <ButtonLink variant="secondary" href="/">Explorar catálogo</ButtonLink>}<RefreshButton disabled={pending} onClick={() => { setError(''); void refresh().catch(e => setError(e.message)) }} /></WorkspaceActions>
+    {error ? <p role="alert">{error}</p> : null}<p ref={status} tabIndex={-1} role="status" className={styles.status}>{notice}</p>
+    {phase === 'loading' ? <p role="status">Carregando favoritos…</p> : phase === 'denied' ? <p role="alert">Favoritos indisponíveis para esta conta.</p> : phase === 'error' ? null : <Tabs label="Favoritos e coleções" value={tab} onChange={value => { setTab(value); setQuery(''); if (value === 'favorites') setSelected('') }} items={[{ id: 'favorites', label: 'Favoritos', content: savedList }, { id: 'collections', label: 'Coleções', content: collectionList }]} />}
+    <OverlayDialog open={editing !== null} title={editing === 'rename' ? 'Editar coleção' : 'Nova coleção'} onClose={() => { if (!pending) setEditing(null) }}>
+      {editing ? <CollectionNameForm key={editing + ':' + current?.id + ':' + current?.version} initialName={editing === 'rename' ? current?.name : undefined} onSave={async input => { await (editing === 'rename' && current ? mutate('collections/' + current.id, 'PATCH', { name: input.name, expectedVersion: current.version }) : mutate('collections', 'POST', input)); setEditing(null) }} /> : null}
+    </OverlayDialog>
+  </section>
+}

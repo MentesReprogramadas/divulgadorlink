@@ -173,7 +173,7 @@ async function officeFromDatabase(tenantId: string, needle: string | null, statu
     prisma.$queryRaw<Array<{ kind: string; n: number }>>`
       SELECT kind, COUNT(*)::int AS n
       FROM analytics_events
-      WHERE "tenantId" = ${tenantId}
+      WHERE type = 'REAL' AND "tenantId" = ${tenantId}
         AND day >= (CURRENT_DATE - ${WINDOW_DAYS}::int)
       GROUP BY kind
     `,
@@ -189,7 +189,7 @@ async function officeFromDatabase(tenantId: string, needle: string | null, statu
         COUNT(*) FILTER (WHERE e.kind = 'CLICK')::int AS clicks
       FROM analytics_events e
       JOIN links l ON l.id = e."linkId"
-      WHERE e."tenantId" = ${tenantId}
+      WHERE e.type = 'REAL' AND e."tenantId" = ${tenantId}
         AND e.day >= (CURRENT_DATE - ${WINDOW_DAYS}::int)
       GROUP BY l.id, l.name, l.status
       ORDER BY clicks DESC, impressions DESC

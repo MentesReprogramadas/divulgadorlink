@@ -1,0 +1,11 @@
+{
+  "apiDeployment": "7bi1bhjldegtmkggneizwpkm",
+  "normalizedReplyUnauthorizedOperatorProbeHttp": 403,
+  "humanResend": "awaiting user",
+  "apiHealthHttp": 200,
+  "playwrightApiWorkerCases": 2,
+  "releaseCommit": "90bc715d4cbfc4478bf2a2775eb54177506944c3",
+  "recordedAtUTC": "2026-10-15T20:34:44.7464681+00:00",
+  "focusedTests": 13,
+  "apiDeploymentState": "finished"
+}

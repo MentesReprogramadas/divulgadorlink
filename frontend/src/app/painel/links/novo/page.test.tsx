@@ -1,3 +1,4 @@
+import { chooseSelect } from '@/test-select'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import Page from './page'
@@ -34,12 +35,12 @@ beforeEach(() => {
 afterEach(cleanup)
 
 async function fillAndSend() {
-  fireEvent.change(await screen.findByLabelText('Titulo'), { target: { value: 'Grupo' } })
-  fireEvent.change(screen.getByLabelText('Descrição'), { target: { value: 'Descrição do grupo' } })
-  fireEvent.change(screen.getByLabelText('URL'), { target: { value: 'https://example.com/grupo' } })
-  fireEvent.change(screen.getByLabelText('Rede'), { target: { value: 'net' } })
-  fireEvent.change(screen.getByLabelText('Nicho'), { target: { value: 'niche' } })
-  fireEvent.click(screen.getByRole('button', { name: 'Enviar' }))
+  fireEvent.change(await screen.findByLabelText('Título do link'), { target: { value: 'Grupo' } })
+  fireEvent.change(screen.getByLabelText('Link de acesso'), { target: { value: 'https://example.com/grupo' } }); fireEvent.click(screen.getByRole('button', { name: 'Continuar' })); fireEvent.change(screen.getByLabelText('Descrição'), { target: { value: 'Descrição do grupo' } })
+  fireEvent.change(screen.getByLabelText('Link de acesso'), { target: { value: 'https://example.com/grupo' } })
+  await chooseSelect(screen.getByLabelText('Rede do link'), 'net')
+  await chooseSelect(screen.getByLabelText('Assunto do link'), 'niche')
+  fireEvent.click(screen.getByRole('button', { name: 'Continuar' })); fireEvent.click(screen.getByRole('button', { name: 'Enviar' }))
 }
 
 describe('envio de link', () => {

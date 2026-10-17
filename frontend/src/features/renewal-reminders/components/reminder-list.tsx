@@ -1,8 +1,9 @@
 import { reminderDate, surfaceLabel, type RenewalReminder } from '../reminder-contract'
 import styles from './renewal-reminders.module.css'
+import { EmptyState } from '@/components/feedback/empty-state'
 
 export function ReminderList({ reminders }: { reminders: RenewalReminder[] }) {
-  if (!reminders.length) return <p className={styles.note}>Nenhum destaque perto do vencimento.</p>
+  if (!reminders.length) return <EmptyState />
   return <ul className={styles.list}>{reminders.map(row => <li key={row.promotionId}>
     <article className={styles.card} aria-label={'Vencimento de ' + row.link.name}>
       <div><h3>{row.link.name}</h3><p className={styles.note}>{surfaceLabel[row.surface] ?? row.surface}</p></div>

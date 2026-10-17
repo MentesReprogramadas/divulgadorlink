@@ -1,0 +1,6 @@
+.status { border: 1px solid var(--border-default); border-radius: var(--radius-lg); background: var(--surface-raised); padding: var(--space-6); display: grid; gap: var(--space-4); }
+.status p { margin: 0; overflow-wrap: anywhere; }
+.header { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-3); }
+.header > span:last-child { font-size: var(--text-sm); color: var(--text-secondary); }
+.status > button { justify-self: end; }
+.form { display: grid; gap: var(--space-4); }

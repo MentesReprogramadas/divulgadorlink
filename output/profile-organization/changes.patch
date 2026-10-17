@@ -1,0 +1,739 @@
+--- a/frontend/src/features/profiles/profile-editor.tsx
++++ b/frontend/src/features/profiles/profile-editor.tsx
+@@ -10,6 +10,7 @@
+ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+ import { Button, ButtonLink } from '@/components/ui/button'
+ import { WorkspaceActions } from '@/components/layout/workspace-controls'
++import { Field, Select } from '@/components/ui/input'
+ import { FormSteps } from '@/components/ui/form-steps'
+ import { ActionIcon } from '@/components/ui/action-icon'
+ import { Badge } from '@/components/ui/badge'
+@@ -21,11 +22,15 @@
+ import { prepareAvatar } from './prepare-avatar'
+ import styles from './components/profiles.module.css'
+ 
++type EditorSection = 'content' | 'groups' | 'identity' | 'photo' | 'appearance' | 'publish'
++const managementSections: Array<{ id: EditorSection; label: string }> = [{ id: 'groups', label: 'Grupos e links' }, { id: 'identity', label: 'Sua página' }, { id: 'photo', label: 'Foto e acesso' }, { id: 'appearance', label: 'Aparência' }, { id: 'publish', label: 'Publicação' }]
++
+ export function ProfileEditor() {
+   const router = useRouter()
+   const [review, setReview] = useState<ContentReview | null>(null)
+   const [step, setStep] = useState(0)
+-  const [section, setSection] = useState<'content' | 'appearance'>('content')
++  const [section, setSection] = useState<EditorSection>('content')
++  const [configured, setConfigured] = useState(false)
+   const [draft, setDraft] = useState<ProfileDraft>(emptyProfile), [published, setPublished] = useState<number | null>(null)
+   const [catalog, setCatalog] = useState<Array<{ id: string; name: string }>>([]), [phase, setPhase] = useState<'loading' | 'ready' | 'error'>('loading')
+   const [pending, setPending] = useState(false), [error, setError] = useState(''), [notice, setNotice] = useState(''), [confirmReload, setConfirmReload] = useState(false), [confirmUnpublish, setConfirmUnpublish] = useState(false)
+@@ -36,6 +41,7 @@
+     setError('')
+     try {
+       const [state, links] = await Promise.all([profileRequest<ProfileState>(''), profileCatalog()])
++      setConfigured(state.draft !== null); setSection(state.draft ? 'groups' : 'content'); setStep(0)
+       setReview(state.review ?? null); setDraft(state.draft ?? emptyProfile()); setPublished(state.publishedVersion); setCatalog(links); setDirty(false); setPhase('ready'); setConfirmReload(false)
+     } catch (e) { setError(e instanceof Error ? e.message : 'Não foi possível carregar o perfil.'); setPhase(p => p === 'loading' ? 'error' : p) }
+   }, [])
+@@ -58,31 +64,38 @@
+         if (kind === 'preview') { router.push('/painel/perfil/previa') }
+         else if (kind === 'publish') {
+           const result = await profileRequest<{ publishedRevisionId: number | null; review?: ContentReview | null }>('/publish', { method: 'POST', body: JSON.stringify({ expectedVersion: state.draft.version }) })
+-          setPublished(result.publishedRevisionId); setReview(result.review ?? null); setNotice(result.review?.status === 'PENDING' ? 'Página enviada para revisão humana.' : result.review?.status === 'REJECTED' ? 'Esta versão foi recusada. Você pode contestar ou corrigir.' : 'Perfil publicado.')
+-        } else setNotice('Rascunho salvo. Publique para atualizar sua página.')
++          setPublished(result.publishedRevisionId); setReview(result.review ?? null); setConfigured(true); setSection('publish'); setNotice(result.review?.status === 'PENDING' ? 'Página enviada para revisão humana.' : result.review?.status === 'REJECTED' ? 'Esta versão foi recusada. Você pode contestar ou corrigir.' : 'Perfil publicado.')
++        } else { setNotice('Rascunho salvo. Publique para atualizar sua página.'); if (!configured) { setConfigured(true); setSection('groups') } }
+       }
+     } catch (e) { setError(e instanceof Error ? e.message : 'Não foi possível salvar. Seus dados foram mantidos.') }
+     finally { busy.current = false; setPending(false) }
+   }
+   function change(content: ProfileContent) { setDraft({ ...content, version: draft.version }); setDirty(true); setNotice('') }
++  const currentStep = configured ? section === 'identity' ? 0 : section === 'photo' ? 1 : section === 'groups' ? 2 : section === 'publish' ? 3 : -1 : step
++  const sections: Array<{ id: EditorSection; label: string }> = configured ? managementSections : [{ id: 'content', label: 'Criar minha página' }, { id: 'appearance', label: 'Aparência' }]
+   const publication = profileStatus(dirty, published, draft.version)
+   return <section className={styles.editor} aria-label="Editor do perfil">
+     <div className={styles.toolbar}>{phase === 'ready' && !['PENDING', 'REJECTED'].includes(review?.status ?? '') ? <Badge kind="status" tone={publication.tone}>{publication.label}</Badge> : null}<div className={styles.toolbarActions}><WorkspaceActions>{phase === 'ready' && published !== null ? <ButtonLink variant="secondary" href={'/p/' + draft.slug}><ActionIcon name="external" />Abrir minha página</ButtonLink> : null}<RefreshButton disabled={pending} onClick={() => phase === 'ready' ? setConfirmReload(true) : void load()} /></WorkspaceActions></div></div>
+-    {confirmReload ? <div role="group" aria-label="Recarregar perfil"><p>Recarregar descarta as alterações não salvas nesta aba.</p><div className={styles.actions}><Button onClick={() => void load()}><ActionIcon name="refresh" />Confirmar recarregamento</Button><Button variant="secondary" onClick={() => setConfirmReload(false)}><ActionIcon name="close" />Cancelar</Button></div></div> : null}
+-    {error ? <p role="alert">{error}</p> : null}<p role="status" ref={status} tabIndex={-1} className={styles.status}>{notice}</p>
++    {confirmReload ? <div className={styles.warning} role="group" aria-label="Recarregar perfil"><p>Recarregar descarta as alterações não salvas nesta aba.</p><div className={styles.actions}><Button onClick={() => void load()}><ActionIcon name="refresh" />Confirmar recarregamento</Button><Button variant="secondary" onClick={() => setConfirmReload(false)}><ActionIcon name="close" />Cancelar</Button></div></div> : null}
++    {error ? <p className={styles.error} role="alert">{error}</p> : null}<p role="status" ref={status} tabIndex={-1} className={styles.status}>{notice}</p>
+     <ReviewStatus review={review} pending={pending} onAppeal={async text => { if (busy.current || !review) throw new Error('Aguarde a operação atual.'); busy.current = true; setPending(true); try { setReview(await sendContentAppeal(review.id, text)); setNotice('Contestação enviada para revisão humana.') } finally { busy.current = false; setPending(false) } }} />
+     {phase === 'loading' ? <ProfileEditorSkeleton /> : phase === 'error' ? <p>Atualize os dados para tentar novamente.</p> : <>
+-      <TabNavigation value={section} onChange={setSection} label="Editar minha página" idPrefix="page-editor" items={[{ id: 'content', label: 'Conteúdo' }, { id: 'appearance', label: 'Aparência' }]} />
+-      <div hidden={section !== 'content'} role="tabpanel" id="page-editor-panel-content" aria-labelledby="page-editor-content" className={styles.formFrame} data-layout="profile-form"><form aria-label="Editar perfil" className={styles.form} onSubmit={e => { e.preventDefault(); if (step < 3) setStep(step + 1); else void action('save') }}>
+-        <p className={styles.note}>Crie uma página pública com seus links, foto e grupos.</p>
+-        <FormSteps labels={['Sua página', 'Foto e acesso', 'Grupos e links', 'Publicar']} current={step} onBack={setStep} />
+-        <fieldset disabled={pending} className={styles.controls}><legend className={styles.visuallyHidden}>Dados do perfil</legend><ProfileFields content={draft} onChange={change} published={published !== null} catalog={catalog} onPhoto={file => void action('save', file)} step={step} />
+-          <div className={styles.actions}>{step > 0 ? <Button type="button" variant="secondary" onClick={() => setStep(step - 1)}><ActionIcon name="back" />Voltar</Button> : null}{step < 3 ? <Button type="submit"><ActionIcon name="next" />Continuar</Button> : <><Button type="submit" loading={pending}><ActionIcon name="save" />Salvar rascunho</Button><Button type="button" variant="secondary" onClick={e => { if (e.currentTarget.form?.reportValidity()) void action('preview') }}><ActionIcon name="preview" />Ver prévia</Button><Button type="button" onClick={e => { if (e.currentTarget.form?.reportValidity()) void action('publish') }}><ActionIcon name="publish" />Publicar perfil</Button></>}</div>
+-        </fieldset>
+-      </form></div>
+-      {section === 'appearance' ? <section role="tabpanel" id="page-editor-panel-appearance" aria-labelledby="page-editor-appearance"><fieldset disabled={pending} className={styles.controls}><legend className={styles.visuallyHidden}>Aparência da página</legend><ProfileAppearanceEditor content={draft} onChange={change} /><div className={styles.actions}><Button loading={pending} onClick={() => void action('save')}><ActionIcon name="save" />Salvar rascunho</Button><Button variant="secondary" onClick={() => void action('preview')}><ActionIcon name="preview" />Ver prévia</Button><Button onClick={() => void action('publish')}><ActionIcon name="publish" />Publicar perfil</Button></div></fieldset></section> : null}
+-      {published !== null ? confirmUnpublish ? <div role="group" aria-label="Retirar perfil"><p>Retirar seu perfil do ar? O rascunho continua salvo.</p><div className={styles.actions}><Button disabled={pending} onClick={() => void action('unpublish')}><ActionIcon name="trash" />Confirmar retirada</Button><Button variant="secondary" onClick={() => setConfirmUnpublish(false)}><ActionIcon name="trash" />Cancelar retirada</Button></div></div> : <Button variant="secondary" disabled={pending} onClick={() => setConfirmUnpublish(true)}><ActionIcon name="trash" />Retirar do ar</Button> : null}
+-
++      <div className={styles.desktopSections}><TabNavigation value={section} onChange={setSection} label="Seções da minha página" idPrefix="page-editor" items={sections} /></div>
++      <div className={styles.mobileSections}><Field label="Editar minha página"><Select value={section} onChange={event => setSection(event.target.value as EditorSection)}>{sections.map(item => <option key={item.id} value={item.id}>{item.label}</option>)}</Select></Field></div>
++      <form id="profile-editor-form" aria-label="Editar perfil" className={styles.form} onSubmit={event => { event.preventDefault(); if (!configured && section === 'content' && step < 3) setStep(step + 1); else void action('save') }}>
++        <div hidden={section === 'appearance'} role="tabpanel" id={'page-editor-panel-' + (section === 'appearance' ? 'fields-hidden' : section)} aria-labelledby={'page-editor-' + section} className={configured && currentStep === 2 ? styles.groupsFrame : styles.formFrame} data-layout="profile-form">
++          <div className={styles.form}>
++            {!configured ? <><header className={styles.intro}><h2>Crie sua página de links</h2><p className={styles.note}>Comece pela apresentação, organize seus grupos e confira antes de publicar.</p></header><FormSteps labels={['Sua página', 'Foto e acesso', 'Grupos e links', 'Revisar e publicar']} current={step} onBack={setStep} /></> : null}
++            <fieldset disabled={pending} className={styles.controls}><legend className={styles.visuallyHidden}>Dados do perfil</legend><ProfileFields content={draft} onChange={change} published={published !== null} catalog={catalog} onPhoto={file => void action('save', file)} step={section === 'appearance' ? -1 : currentStep} />
++              {currentStep === 3 ? <div className={styles.reviewActions}><Button type="button" variant="secondary" onClick={() => setSection('appearance')}>Personalizar aparência</Button><p className={styles.note}>Confira a prévia e publique quando tudo estiver pronto.</p></div> : null}
++              {!configured ? <div className={styles.actions}>{step > 0 ? <Button type="button" variant="secondary" onClick={() => setStep(step - 1)}><ActionIcon name="back" />Voltar</Button> : null}{step < 3 ? <Button type="submit"><ActionIcon name="next" />Continuar</Button> : null}</div> : null}
++            </fieldset>
++          </div>
++        </div>
++        {section === 'appearance' ? <section role="tabpanel" id="page-editor-panel-appearance" aria-labelledby="page-editor-appearance"><fieldset disabled={pending} className={styles.controls}><legend className={styles.visuallyHidden}>Aparência da página</legend>{!configured ? <div className={styles.sectionHeading}><Button type="button" variant="secondary" onClick={() => { setStep(3); setSection('content') }}><ActionIcon name="back" />Voltar à revisão</Button></div> : null}<ProfileAppearanceEditor content={draft} onChange={change} /></fieldset></section> : null}
++      </form>
++      {configured || step === 3 || section === 'appearance' ? <div className={styles.saveBar}><p className={styles.note}>{dirty ? 'Alterações só aparecem no público depois de publicar.' : 'Salve para continuar depois ou confira sua página antes de publicar.'}</p><fieldset disabled={pending} className={styles.saveActions}><legend className={styles.visuallyHidden}>Salvar e publicar</legend><Button type="submit" form="profile-editor-form" loading={pending}><ActionIcon name="save" />Salvar rascunho</Button><Button type="button" variant="secondary" onClick={() => { const form = document.getElementById('profile-editor-form') as HTMLFormElement | null; if (form?.reportValidity()) void action('preview') }}><ActionIcon name="preview" />Ver prévia</Button><Button type="button" onClick={() => { const form = document.getElementById('profile-editor-form') as HTMLFormElement | null; if (form?.reportValidity()) void action('publish') }}><ActionIcon name="publish" />Publicar perfil</Button></fieldset></div> : null}
++      {published !== null ? <details className={styles.publicationManagement}><summary>Gerenciar publicação</summary>{confirmUnpublish ? <div className={styles.warning} role="group" aria-label="Retirar perfil"><p>Retirar seu perfil do ar? O rascunho continua salvo.</p><div className={styles.actions}><Button variant="danger" disabled={pending} onClick={() => void action('unpublish')}><ActionIcon name="disable" />Confirmar retirada</Button><Button variant="secondary" onClick={() => setConfirmUnpublish(false)}><ActionIcon name="close" />Cancelar retirada</Button></div></div> : <Button variant="danger" disabled={pending} onClick={() => setConfirmUnpublish(true)}><ActionIcon name="disable" />Retirar do ar</Button>}</details> : null}
+     </>}
+   </section>
+ }
+--- a/frontend/src/features/profiles/components/profile-fields.tsx
++++ b/frontend/src/features/profiles/components/profile-fields.tsx
+@@ -1,19 +1,12 @@
+ 'use client'
+-import { Button } from '@/components/ui/button'
+-import { useState } from 'react'
+ import { ImageUpload } from '@/components/ui/image-upload'
+-import { OverlayDialog } from '@/components/ui/overlay-dialog'
+-import { ActionIcon } from '@/components/ui/action-icon'
+-import { Field, Input, Select, TextArea } from '@/components/ui/input'
++import { Field, Input, TextArea } from '@/components/ui/input'
+ import type { ProfileContent } from '../profile-contract'
+-import { moveProfileItem } from '@/domain/profile-order'
+ import styles from './profiles.module.css'
++import { ProfileGroupManager } from './profile-group-manager'
+ type Props = { content: ProfileContent; onChange: (content: ProfileContent) => void; published: boolean; catalog: Array<{ id: string; name: string }>; onPhoto: (file: File) => void; step: number }
+ export function ProfileFields({ content: c, onChange, published, catalog, onPhoto, step }: Props) {
+-  const [editingGroup, setEditingGroup] = useState<string | null>(null)
+-  const [editingItem, setEditingItem] = useState<string | null>(null)
+   const change = (patch: Partial<ProfileContent>) => onChange({ ...c, ...patch })
+-  const updateItem = (id: string, patch: Partial<ProfileContent['items'][number]>) => change({ items: c.items.map(i => i.id === id ? { ...i, ...patch } : i) })
+   return <>
+     <fieldset hidden={step !== 0} disabled={step !== 0} className={styles.identityFields}><legend>Sua página</legend>
+       <Field label="Personalize o link da sua página" hint={published ? 'Retire a página do ar para mudar este link.' : `Você vai compartilhar /p/${c.slug || 'seu-nome'}. Use 3 a 40 letras, números e hífens.`}><Input required value={c.slug} minLength={3} maxLength={40} placeholder="Ex.: receitas-da-ana" pattern="[A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){1,38}[A-Za-z0-9]" title="Use 3 a 40 letras sem acentos, números e hífens entre palavras." readOnly={published} onChange={e => change({ slug: e.target.value })} /></Field>
+@@ -24,36 +17,7 @@
+       <ImageUpload label="Foto do perfil" imageUrl={c.avatarAssetId ? '/bff/v1/me/profile/avatar/' + c.avatarAssetId : undefined} onChoose={onPhoto} onRemove={() => change({ avatarAssetId: null })} />
+       <label className={styles.check}><input type="checkbox" checked={c.requiresAge} onChange={e => change({ requiresAge: e.target.checked })} />Conteúdo para maiores de 18 anos</label>
+     </fieldset>
+-    <fieldset hidden={step !== 2} disabled={step !== 2} className={styles.identityFields}><legend>Link em destaque</legend>
+-      <Field label="Botão principal"><Select value={c.primaryItemId ?? ''} onChange={e => change({ primaryItemId: e.target.value || null })}><option value="">Sem botão principal</option>{c.items.map(i => <option key={i.id} value={i.id}>{i.label || 'Link sem título'}</option>)}</Select></Field>
+-    </fieldset>
+-    {step === 2 ? <>
+-    {!c.categories.length ? <p className={styles.note}>Crie um grupo para organizar seus links e redes sociais.</p> : null}
+-    <Button type="button" onClick={() => { const id = crypto.randomUUID(); change({ categories: [...c.categories, { id, name: '', visible: true }] }); setEditingGroup(id) }}><ActionIcon name="plus" />Adicionar grupo</Button>
+-    {c.categories.map((group, index) => <section className={styles.group} key={group.id} aria-label={'Grupo ' + (index + 1)}>
+-      <div className={styles.actions}><h2>{group.name || 'Novo grupo'}</h2><Button type="button" variant="secondary" onClick={() => setEditingGroup(group.id)}><ActionIcon name="edit" />Editar grupo {index + 1}</Button></div>
+-      <OverlayDialog open={editingGroup === group.id} title="Editar grupo" onClose={() => setEditingGroup(null)}><div className={styles.form} onKeyDown={e => { if (e.key === 'Enter' && e.target instanceof HTMLInputElement) { e.preventDefault(); e.currentTarget.querySelector('button')?.click() } }}>
+-      <Field label={'Nome do grupo ' + (index + 1)}><Input required maxLength={80} value={group.name} onChange={e => change({ categories: c.categories.map(g => g.id === group.id ? { ...g, name: e.target.value } : g) })} /></Field>
+-      <label className={styles.check}><input type="checkbox" checked={group.visible} onChange={e => change({ categories: c.categories.map(g => g.id === group.id ? { ...g, visible: e.target.checked } : g) })} />Grupo visível</label>
+-      <Button type="button" onClick={e => { const input = e.currentTarget.parentElement?.querySelector('input'); if (input?.reportValidity()) setEditingGroup(null) }}><ActionIcon name="save" />Concluir grupo</Button>
+-      </div></OverlayDialog>
+-      <div className={styles.actions}><Button type="button" variant="secondary" disabled={!index} onClick={() => change({ categories: moveProfileItem(c.categories, index, index - 1) })}><ActionIcon name="up" />Subir grupo {index + 1}</Button><Button type="button" variant="secondary" disabled={index === c.categories.length - 1} onClick={() => change({ categories: moveProfileItem(c.categories, index, index + 1) })}><ActionIcon name="down" />Descer grupo {index + 1}</Button><Button type="button" variant="secondary" onClick={() => change({ categories: c.categories.filter(g => g.id !== group.id), items: c.items.filter(i => i.categoryId !== group.id), primaryItemId: c.items.some(i => i.categoryId === group.id && i.id === c.primaryItemId) ? null : c.primaryItemId })}><ActionIcon name="trash" />Excluir grupo {index + 1}</Button></div>
+-      {c.items.filter(i => i.categoryId === group.id).map((item, itemIndex, siblings) => <div key={item.id} className={styles.row} role="group" aria-label={'Link ' + (itemIndex + 1) + ' do grupo ' + (index + 1)}>
+-        <strong>{item.label || 'Novo link'}</strong><p className={styles.note}>{item.destination || 'Complete o endereço do link.'}</p><Button type="button" variant="secondary" onClick={() => setEditingItem(item.id)}><ActionIcon name="edit" />Editar link</Button>
+-        <OverlayDialog open={editingItem === item.id} title="Editar link do perfil" onClose={() => setEditingItem(null)}><div className={styles.form} onKeyDown={e => { if (e.key === 'Enter' && e.target instanceof HTMLInputElement) { e.preventDefault(); e.currentTarget.querySelector('button')?.click() } }}>
+-        <Field label="Título do link"><Input required maxLength={100} value={item.label} onChange={e => updateItem(item.id, { label: e.target.value })} /></Field>
+-        <Field label="Tipo de link"><Select value={item.type} onChange={e => updateItem(item.id, { type: e.target.value as typeof item.type, destination: '' })}><option value="URL">Endereço próprio</option><option value="SOCIAL">Rede social</option><option value="CATALOG">Meu link do catálogo</option></Select></Field>
+-        {item.type === 'CATALOG' ? <Field label="Link do catálogo"><Select required value={item.destination} onChange={e => updateItem(item.id, { destination: e.target.value })}><option value="">Escolha um link publicado</option>{catalog.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}</Select></Field> : <Field label="Link de acesso" icon={<ActionIcon name="link" />} hint="Cole o endereço com https://. Este link ficará apenas no perfil."><Input required type="url" maxLength={2048} value={item.destination} onChange={e => updateItem(item.id, { destination: e.target.value })} /></Field>}
+-        <label className={styles.check}><input type="checkbox" checked={item.visible} onChange={e => updateItem(item.id, { visible: e.target.checked })} />Link visível</label>
+-        <Button type="button" onClick={e => { const fields = e.currentTarget.parentElement?.querySelectorAll('input, select'); if (fields && Array.from(fields).every(field => (field as HTMLInputElement).reportValidity())) setEditingItem(null) }}><ActionIcon name="save" />Concluir link</Button>
+-        </div></OverlayDialog>
+-        <div className={styles.actions}>{([-1, 1] as const).map(offset => <Button key={offset} type="button" variant="secondary" disabled={offset === -1 ? !itemIndex : itemIndex === siblings.length - 1} onClick={() => {
+-          const other = siblings[itemIndex + offset], a = c.items.findIndex(i => i.id === item.id), b = c.items.findIndex(i => i.id === other.id); change({ items: moveProfileItem(c.items, a, b) })
+-        }}><ActionIcon name="up" />{offset === -1 ? 'Subir link' : 'Descer link'}</Button>)}<Button type="button" variant="secondary" onClick={() => change({ items: c.items.filter(i => i.id !== item.id), primaryItemId: c.primaryItemId === item.id ? null : c.primaryItemId })}><ActionIcon name="trash" />Excluir link</Button></div>
+-      </div>)}
+-      <Button type="button" variant="secondary" onClick={() => { const id = crypto.randomUUID(); change({ items: [...c.items, { id, categoryId: group.id, type: 'URL', label: '', destination: '', visible: true }] }); setEditingItem(id) }}><ActionIcon name="plus" />Adicionar link ao grupo {index + 1}</Button>
+-    </section>)}
+-    </> : null}
++    {step === 2 ? <ProfileGroupManager content={c} onChange={onChange} catalog={catalog} /> : null}
+     {step === 3 ? <div className={styles.review}><h2>Confira antes de publicar</h2><p>{c.name} · /p/{c.slug}</p><p>{c.categories.length} grupos · {c.items.length} links</p><p className={styles.note}>Salvar mantém as alterações em rascunho. Publicar atualiza a página após as validações.</p></div> : null}
+   </>
+ }
+--- a/frontend/src/features/profiles/components/profiles.module.css
++++ b/frontend/src/features/profiles/components/profiles.module.css
+@@ -42,3 +42,17 @@
+ .personalPage { margin: 0; padding: 0; max-width: none; }
+ 
+ .formFrame[hidden] { display: none; }
++.groupsFrame { min-width: 0; }
++.groupsFrame[hidden] { display: none; }
++.intro { display: grid; gap: var(--space-2); }
++.reviewActions { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: center; }
++.saveBar { display: grid; gap: var(--space-3); border-top: 1px solid var(--border-default); padding-block: var(--space-4); background: var(--surface-page); }
++.saveActions { display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: flex-end; margin: 0; padding: 0; border: 0; min-width: 0; }
++.status:not(:empty), .error, .warning { padding: var(--space-4); border: 1px solid var(--border-default); border-left-width: 4px; border-radius: var(--radius); line-height: 1.6; overflow-wrap: anywhere; }
++.status:not(:empty) { color: var(--status-success-text); background: #eef8f2; border-color: var(--status-success-text); }
++.error { margin: 0; color: var(--status-error-text); background: #fff1f0; border-color: var(--status-error-text); }
++.warning { color: #70450c; background: #fff7e8; border-color: #b97419; }
++.publicationManagement { border-top: 1px solid var(--border-default); padding-block: var(--space-3); }
++.publicationManagement summary { cursor: pointer; min-height: 44px; padding-block: var(--space-3); color: var(--text-secondary); }
++.mobileSections { display: none; }
++@media (width < 48rem) { .desktopSections { display: none; } .mobileSections { display: block; } .saveActions > button { flex: 1 1 10rem; } }
+--- a/frontend/src/features/profiles/components/profile-editor-skeleton.tsx
++++ b/frontend/src/features/profiles/components/profile-editor-skeleton.tsx
+@@ -1,16 +1,16 @@
+ import { Skeleton, SkeletonButton, SkeletonField, SkeletonRegion } from '@/components/feedback/skeleton'
+ import { TabNavigation } from '@/components/ui/tabs'
+-import { FormSteps } from '@/components/ui/form-steps'
+ import styles from './profiles.module.css'
++import groups from './profile-groups.module.css'
+ 
+ export function ProfilePageSkeleton() {
+   return <div className={styles.editor}><div className={styles.toolbar}><Skeleton width={88} height={24} /><div className={styles.toolbarActions}><div className={styles.actions}><Skeleton width={44} height={44} /></div></div></div><ProfileEditorSkeleton /></div>
+ }
+ 
+ export function ProfileEditorSkeleton() {
+-  return <SkeletonRegion><TabNavigation value="content" label="Editar minha página" idPrefix="page-editor-pending" items={[{ id: 'content', label: 'Conteúdo' }, { id: 'appearance', label: 'Aparência' }]} /><div className={styles.formFrame} data-layout="profile-form"><div className={styles.form}>
+-    <p className={styles.note}>Crie uma página pública com seus links, foto e grupos.</p>
+-    <FormSteps labels={['Sua página', 'Foto e acesso', 'Grupos e links', 'Publicar']} current={0} />
+-    <fieldset className={styles.controls}><legend className={styles.visuallyHidden}>Dados do perfil</legend><fieldset className={styles.identityFields}><legend>Sua página</legend><SkeletonField required label="Personalize o link da sua página" hint="Você vai compartilhar /p/seu-nome. Use 3 a 40 letras, números e hífens." /><SkeletonField required label="Título da sua página" hint="Ex.: Receitas da Ana. Este nome aparece no topo da página." /><SkeletonField label="Descrição" multiline /></fieldset><div className={styles.actions}><SkeletonButton /></div></fieldset>
+-  </div></div></SkeletonRegion>
++  return <SkeletonRegion>
++    <div className={styles.desktopSections}><TabNavigation value="groups" label="Seções da minha página" idPrefix="page-editor-pending" items={[{ id: 'groups', label: 'Grupos e links' }, { id: 'identity', label: 'Sua página' }, { id: 'photo', label: 'Foto e acesso' }, { id: 'appearance', label: 'Aparência' }, { id: 'publish', label: 'Publicação' }]} /></div>
++    <div className={styles.mobileSections}><SkeletonField label="Editar minha página" /></div>
++    <div className={styles.groupsFrame} data-layout="profile-form"><div className={groups.manager}><div className={groups.sectionHeading}><Skeleton width="12rem" height={28} /><SkeletonButton /></div><div className={groups.grid}>{[0, 1, 2].map(index => <div key={index} className={groups.card}><div className={groups.cardTop}><Skeleton width={56} height={24} /><Skeleton width={44} height={44} /></div><Skeleton width="70%" height={24} /><Skeleton width="50%" height={24} /><Skeleton width="30%" height={44} /></div>)}</div></div></div>
++  </SkeletonRegion>
+ }
+--- a/frontend/e2e/profiles.spec.ts
++++ b/frontend/e2e/profiles.spec.ts
+@@ -2,7 +2,7 @@
+ import AxeBuilder from '@axe-core/playwright'
+ import { readFileSync } from 'node:fs'
+ import path from 'node:path'
+-import { expect, test, type Page } from '@playwright/test'
++import { expect, test, type Page, type Locator, type TestInfo } from '@playwright/test'
+ import { runtime } from './runtime.cjs'
+ import { sql } from './db'
+ const A = runtime.web('profiles.localhost')
+@@ -12,22 +12,33 @@
+   await page.goto(A + '/login'); await page.getByLabel('E-mail').fill(email); await page.getByLabel('Senha').fill(state().password); await page.getByRole('button', { name: 'Entrar', exact: true }).click(); await expect(page.getByRole('heading', { name: 'Painel', exact: true })).toBeVisible()
+   const refuse = page.getByRole('region', { name: 'Este site usa cookies' }).getByRole('button', { name: 'Recusar', exact: true }); if (await refuse.count()) await refuse.click()
+ }
++async function editorSection(page: Page, label: string) {
++  const select = page.getByRole('combobox', { name: 'Editar minha página', exact: true })
++  const tab = page.getByRole('tab', { name: label, exact: true })
++  await expect(select.or(tab)).toBeVisible()
++  if (await select.isVisible()) await selectOption(select, { label })
++  else await tab.click()
++}
+ async function step(page: Page, target: number) {
++  if (await page.locator('#page-editor-content').count()) await editorSection(page, 'Criar minha página')
++  if (!await page.getByRole('list', { name: 'Etapas do formulário' }).count()) { await editorSection(page, ['Sua página', 'Foto e acesso', 'Grupos e links', 'Publicação'][target]); return }
++  if (await page.getByRole('tab', { name: 'Criar minha página', exact: true }).isVisible()) await editorSection(page, 'Criar minha página')
+   const current = await page.getByRole('list', { name: 'Etapas do formulário' }).locator('li').evaluateAll(items => items.findIndex(item => item.hasAttribute('aria-current')))
+   if (target < current) await page.getByRole('list', { name: 'Etapas do formulário' }).getByRole('button').nth(target).click()
+   else for (let index = current; index < target; index++) await page.getByRole('button', { name: 'Continuar', exact: true }).click()
+ }
+-async function base(page: Page) {
++async function base(page: Page, info?: TestInfo) {
+   await page.goto(A + '/painel/perfil'); await page.getByLabel('Personalize o link da sua página').fill('ana-estudos'); await page.getByLabel('Título da sua página').fill('Ana Estudos'); await page.getByLabel('Descrição', { exact: true }).fill('Projetos, materiais e conversas sobre leitura.')
+-  await step(page, 2); await page.getByRole('button', { name: 'Adicionar grupo', exact: true }).click(); await page.getByLabel('Nome do grupo 1', { exact: true }).fill('Materiais'); await page.getByRole('button', { name: 'Concluir grupo', exact: true }).click()
++  if (info) { await page.evaluate(() => document.fonts.ready); await page.screenshot({ path: info.outputPath('creation-identity.png'), fullPage: true, animations: 'disabled' }) }
++  await step(page, 2); await page.getByRole('button', { name: 'Adicionar grupo', exact: true }).click(); await page.getByLabel('Nome do grupo', { exact: true }).fill('Materiais'); await page.getByRole('button', { name: 'Concluir grupo', exact: true }).click()
+ }
+ async function add(page: Page, group: number, index: number, label: string, visible = true) {
+-  await page.getByRole('button', { name: 'Adicionar link ao grupo ' + group, exact: true }).click()
++  await page.getByRole('button', { name: 'Adicionar link', exact: true }).click()
+   const row = page.getByRole('dialog')
+   await row.getByLabel('Título do link').fill(label); await row.getByLabel('Link de acesso', { exact: true }).fill('https://example.com/f09-' + group + '-' + index)
+   if (!visible) await row.getByLabel('Link visível', { exact: true }).uncheck()
+   await page.getByRole('button', { name: 'Concluir link', exact: true }).click()
+-  return page.getByRole('group', { name: `Link ${index} do grupo ${group}`, exact: true })
++  return page.locator('[data-profile-link]').filter({ has: page.getByText(label, { exact: true }) })
+ }
+ async function privateCall(page: Page, path = '') { return page.evaluate(async path => { const r = await fetch('/bff/v1/me/profile' + path); return { status: r.status, text: await r.text() } }, path) }
+ 
+@@ -35,7 +46,7 @@
+   fixture(); await login(page); await base(page); await add(page, 1, 1, 'Meu site')
+   await page.emulateMedia({ reducedMotion: 'reduce' })
+   for (const theme of ['Areia', 'Botânico', 'Lavanda', 'Editorial', 'Oceano', 'Pêssego']) {
+-    await page.getByRole('tab', { name: 'Aparência', exact: true }).click()
++    await editorSection(page, 'Aparência')
+     await page.getByRole('button', { name: theme, exact: true }).click()
+     await page.getByRole('button', { name: 'Ver prévia', exact: true }).click()
+     await expect(page.getByRole('heading', { name: 'Ana Estudos' })).toBeVisible()
+@@ -53,7 +64,7 @@
+ 
+ test('F09 aparência personalizada persiste e só chega ao público após publicar', async ({ page }, info) => {
+   fixture(); await login(page); await base(page); await add(page, 1, 1, 'Meu site')
+-  await page.getByRole('tab', { name: 'Aparência', exact: true }).click()
++  await editorSection(page, 'Aparência')
+   await page.getByRole('button', { name: 'Botânico', exact: true }).click()
+   await page.getByRole('tab', { name: 'Cores', exact: true }).click()
+   await page.getByText('Cor do fundo', { exact: true }).click()
+@@ -67,7 +78,7 @@
+   await selectOption(page.getByLabel('Estilo dos botões'), 'shadow')
+   await page.getByRole('button', { name: 'Salvar rascunho', exact: true }).click()
+   await expect(page.getByRole('status').filter({ hasText: 'Rascunho salvo.' })).toBeVisible()
+-  await page.reload(); await page.getByRole('tab', { name: 'Aparência', exact: true }).click()
++  await page.reload(); await editorSection(page, 'Aparência')
+   await expect(page.locator('[data-style="shadow"]')).toBeVisible()
+   await page.getByRole('tab', { name: 'Cores', exact: true }).click()
+   await page.getByText('Cor do fundo', { exact: true }).click()
+@@ -91,7 +102,7 @@
+   await expect(page.locator('[data-style="shadow"]')).toHaveCSS('background-color', 'rgb(23, 60, 50)')
+   await page.getByRole('link', { name: 'Voltar à edição' }).click()
+   await expect(page.getByRole('link', { name: 'Home', exact: true })).toBeVisible()
+-  await page.getByRole('tab', { name: 'Aparência', exact: true }).click()
++  await editorSection(page, 'Aparência')
+   await page.getByRole('button', { name: 'Publicar perfil', exact: true }).click()
+   await expect(page.getByRole('status').filter({ hasText: 'Perfil publicado.' })).toBeVisible()
+   await page.goto(A + '/p/ana-estudos')
+@@ -108,8 +119,9 @@
+ test('F09-E01/T03/T04/T05 grupos, ordem, redes, foto e botão principal; prévia e público reais sem ocultos', async ({ page, browser }, info) => {
+   const s = fixture(); await login(page); await base(page)
+   await add(page, 1, 1, 'Site principal'); await add(page, 1, 2, 'Material de leitura'); await add(page, 1, 3, 'OcultoSentinela', false)
+-  await page.getByRole('button', { name: 'Adicionar grupo', exact: true }).click(); await page.getByLabel('Nome do grupo 2', { exact: true }).fill('Redes sociais'); await page.getByRole('button', { name: 'Concluir grupo', exact: true }).click()
++  await page.getByRole('button', { name: 'Voltar aos grupos', exact: true }).click(); await page.getByRole('button', { name: 'Adicionar grupo', exact: true }).click(); await page.getByLabel('Nome do grupo', { exact: true }).fill('Redes sociais'); await page.getByRole('button', { name: 'Concluir grupo', exact: true }).click()
+   const socialRow = await add(page, 2, 1, 'Vídeos'); await socialRow.getByRole('button', { name: 'Editar link', exact: true }).click(); const social = page.getByRole('dialog'); await selectOption(social.getByLabel('Tipo de link'), 'SOCIAL'); await social.getByLabel('Link de acesso', { exact: true }).fill('https://example.com/videos'); await page.getByRole('button', { name: 'Concluir link', exact: true }).click()
++  await page.getByRole('button', { name: 'Voltar aos grupos', exact: true }).click(); await page.getByText('Escolher botão principal', { exact: true }).click()
+   await selectOption(page.getByLabel('Botão principal'), { label: 'Site principal' })
+   await step(page, 1)
+   for (const mime of ['image/png', 'image/jpeg', 'image/webp']) {
+@@ -122,7 +134,7 @@
+     await expect(page.getByRole('status').filter({ hasText: 'Foto recebida.' })).toBeVisible()
+   }
+   await step(page, 2)
+-  await page.getByRole('button', { name: 'Subir grupo 2', exact: true }).click()
++  const socialCard = page.getByRole('listitem').filter({ hasText: 'Redes sociais' }); await socialCard.getByText('Mover', { exact: true }).click(); await socialCard.getByRole('button', { name: 'Subir grupo', exact: true }).click()
+   await step(page, 3)
+   let releasePreview = () => {}
+   const previewHeld = new Promise<void>(resolve => { releasePreview = resolve })
+@@ -202,7 +214,7 @@
+   }
+   const context = await browser.newContext()
+   try { const other = await context.newPage(); await login(other, state().other); await other.goto(A + '/painel/perfil'); await expect(other.getByLabel('Título da sua página')).toHaveValue(''); expect((await privateCall(other)).text).not.toContain('FalhaProvedorFixture'); expect((await privateCall(other, '/preview')).status).toBe(404) } finally { await context.close() }
+-  await page.getByRole('button', { name: 'Retirar do ar', exact: true }).click(); await page.getByRole('button', { name: 'Confirmar retirada', exact: true }).click(); await expect(page.getByRole('status').filter({ hasText: 'Perfil retirado do ar.' })).toBeVisible()
++  await page.getByText('Gerenciar publicação', { exact: true }).click(); await page.getByRole('button', { name: 'Retirar do ar', exact: true }).click(); await page.getByRole('button', { name: 'Confirmar retirada', exact: true }).click(); await expect(page.getByRole('status').filter({ hasText: 'Perfil retirado do ar.' })).toBeVisible()
+   expect(await page.evaluate(async () => (await fetch('/bff/v1/profiles/ana-estudos')).status)).toBe(404)
+ })
+ test('F09-E03 offline mantém dados, teclado salva, 320px e texto 200%, conflito entre abas não sobrescreve', async ({ page }, info) => {
+@@ -218,3 +230,83 @@
+   await page.setViewportSize({ width: 320, height: 844 }); await page.evaluate(() => { document.documentElement.style.fontSize = '200%' }); expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(321)
+   await page.screenshot({ path: info.outputPath('profile-320-text200.png'), fullPage: true })
+ })
++
++
++async function dragOrder(page: Page, source: Locator, target: Locator, touch: boolean) {
++  await source.evaluate(element => element.closest('li')!.scrollIntoView({ block: 'start' }))
++  const from = (await source.boundingBox())!, to = (await target.boundingBox())!
++  if (touch) {
++    const session = await page.context().newCDPSession(page)
++    await session.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: from.x + from.width / 2, y: from.y + from.height / 2 }] })
++    await session.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: to.x + to.width / 2, y: to.y + to.height / 2 }] })
++    await session.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); await session.detach()
++  } else {
++    await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2); await page.mouse.down(); await page.mouse.move(to.x + to.width / 2, to.y + to.height / 2, { steps: 10 }); await page.mouse.up()
++  }
++}
++
++test('F09-E05 criação e gestão: cards, DnD, transferência, edição e remoção com persistência', async ({ page }, info) => {
++  fixture(); await page.emulateMedia({ reducedMotion: 'reduce' }); await login(page); await base(page, info)
++  await add(page, 1, 1, 'Primeiro link'); await add(page, 1, 2, 'Segundo link')
++  await page.getByRole('button', { name: 'Voltar aos grupos', exact: true }).click()
++  await page.getByRole('button', { name: 'Adicionar grupo', exact: true }).click()
++  await page.getByLabel('Nome do grupo', { exact: true }).fill('Descartado')
++  await page.getByRole('dialog').getByRole('button', { name: 'Cancelar', exact: true }).click()
++  await expect(page.getByRole('button', { name: 'Descartado Abrir grupo', exact: true })).toHaveCount(0)
++  await page.getByRole('button', { name: 'Adicionar grupo', exact: true }).click()
++  await page.getByLabel('Nome do grupo', { exact: true }).fill('Projetos'); await page.getByRole('button', { name: 'Concluir grupo', exact: true }).click()
++  await add(page, 2, 1, 'Projeto novo')
++  await step(page, 3); await page.getByRole('button', { name: 'Salvar rascunho', exact: true }).click()
++  await expect(page.getByRole('status').filter({ hasText: 'Rascunho salvo.' })).toBeFocused()
++  await page.reload()
++  await expect(page.getByRole('list', { name: 'Etapas do formulário' })).toHaveCount(0)
++  await expect(page.getByRole('button', { name: 'Materiais Abrir grupo', exact: true })).toBeVisible()
++  if (!info.project.use.isMobile) await page.setViewportSize({ width: 1440, height: 900 })
++  await page.evaluate(() => document.fonts.ready)
++  await page.screenshot({ path: info.outputPath('groups-overview.png'), fullPage: true, animations: 'disabled' })
++  const handles = page.getByRole('button', { name: /^Arrastar grupo / })
++  await dragOrder(page, page.getByRole('button', { name: 'Arrastar grupo Materiais', exact: true }), page.getByRole('button', { name: 'Arrastar grupo Projetos', exact: true }), Boolean(info.project.use.isMobile))
++  await expect(handles.first()).toHaveAccessibleName('Arrastar grupo Projetos')
++  await page.getByRole('button', { name: 'Arrastar grupo Materiais', exact: true }).focus(); await page.keyboard.press('ArrowUp')
++  await expect(handles.first()).toHaveAccessibleName('Arrastar grupo Materiais')
++  await page.getByRole('button', { name: 'Materiais Abrir grupo', exact: true }).click()
++  await expect(page.getByRole('heading', { name: 'Materiais', exact: true })).toBeFocused()
++  await expect(page.getByRole('button', { name: 'Projetos Abrir grupo', exact: true })).toHaveCount(0)
++  const linkHandles = page.getByRole('button', { name: /^Arrastar link / })
++  const linkFrom = page.getByRole('button', { name: 'Arrastar link Primeiro link', exact: true })
++  await dragOrder(page, linkFrom, page.getByRole('button', { name: 'Arrastar link Segundo link', exact: true }), Boolean(info.project.use.isMobile))
++  await expect(linkHandles.first()).toHaveAccessibleName('Arrastar link Segundo link')
++  await linkFrom.focus(); await page.keyboard.press('ArrowUp')
++  await expect(linkHandles.first()).toHaveAccessibleName('Arrastar link Primeiro link')
++  await page.evaluate(() => window.scrollTo(0, 0)); await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => resolve())))
++  await page.screenshot({ path: info.outputPath('group-links.png'), fullPage: true, animations: 'disabled' })
++  expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()).violations.map(item => item.id)).toEqual([])
++  const firstLink = page.locator('[data-profile-link]').filter({ hasText: 'Primeiro link' })
++  await firstLink.getByText('Mover e remover', { exact: true }).click(); await firstLink.getByRole('button', { name: 'Mover para outro grupo', exact: true }).click()
++  await selectOption(page.getByLabel('Grupo de destino'), { label: 'Projetos' }); await page.getByRole('button', { name: 'Mover link', exact: true }).click()
++  await expect(page.getByText('Link movido para Projetos.', { exact: true })).toBeVisible()
++  await expect(firstLink).toHaveCount(0)
++  await page.getByRole('button', { name: 'Editar grupo', exact: true }).click(); await page.getByLabel('Nome do grupo', { exact: true }).fill('Leituras'); await page.getByRole('button', { name: 'Concluir grupo', exact: true }).click()
++  await page.getByRole('button', { name: 'Voltar aos grupos', exact: true }).click()
++  await page.getByRole('button', { name: 'Projetos Abrir grupo', exact: true }).click()
++  await expect(page.locator('[data-profile-link]')).toHaveCount(2)
++  const moved = page.locator('[data-profile-link]').filter({ hasText: 'Primeiro link' })
++  await moved.getByRole('button', { name: 'Editar link', exact: true }).click(); await page.getByLabel('Título do link').fill('Link transferido'); await page.getByRole('button', { name: 'Concluir link', exact: true }).click()
++  await page.getByRole('button', { name: 'Salvar rascunho', exact: true }).click(); await expect(page.getByRole('status').filter({ hasText: 'Rascunho salvo.' })).toBeVisible()
++  await page.reload(); await page.getByRole('button', { name: 'Projetos Abrir grupo', exact: true }).click()
++  await expect(page.locator('[data-profile-link]').last()).toContainText('Link transferido')
++  const removeLink = page.locator('[data-profile-link]').filter({ hasText: 'Projeto novo' })
++  await removeLink.getByText('Mover e remover', { exact: true }).click(); await removeLink.getByRole('button', { name: 'Remover link', exact: true }).click()
++  await page.getByRole('dialog').getByRole('button', { name: 'Cancelar', exact: true }).click(); await expect(page.locator('[data-profile-link]')).toHaveCount(2)
++  await removeLink.getByRole('button', { name: 'Remover link', exact: true }).click(); await page.getByRole('button', { name: 'Confirmar remoção', exact: true }).click()
++  await expect(page.locator('[data-profile-link]')).toHaveCount(1)
++  await page.getByRole('button', { name: 'Remover grupo', exact: true }).click()
++  await expect(page.getByRole('dialog')).toContainText('1 link')
++  await page.getByRole('dialog').getByRole('button', { name: 'Cancelar', exact: true }).click()
++  await expect(page.locator('[data-profile-link]')).toHaveCount(1)
++  await page.getByRole('button', { name: 'Remover grupo', exact: true }).click(); await page.getByRole('button', { name: 'Confirmar remoção', exact: true }).click()
++  await expect(page.getByRole('button', { name: 'Projetos Abrir grupo', exact: true })).toHaveCount(0)
++  await expect(page.getByRole('button', { name: 'Leituras Abrir grupo', exact: true })).toBeVisible()
++  await page.setViewportSize({ width: 320, height: 844 }); await page.evaluate(() => { document.documentElement.style.fontSize = '200%' })
++  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
++})
+--- a/frontend/e2e/loading-layout.spec.ts
++++ b/frontend/e2e/loading-layout.spec.ts
+@@ -41,9 +41,10 @@
+         const before = await header.boundingBox()
+         const formBefore = url.endsWith('/perfil') ? await page.locator('[data-layout="profile-form"]').boundingBox() : null
+         if (formBefore) {
+-          const color = await page.locator('[data-skeleton] input:disabled').first().evaluate(el => getComputedStyle(el).backgroundColor)
+-          const placeholder = await page.locator('[data-skeleton] [data-skeleton-block]').first().evaluate(el => getComputedStyle(el).backgroundColor)
+-          expect(color).toBe(placeholder)
++          // The profile response determines creation versus group management. Both use
++          // the same page width; the loading state cannot assume the draft or its count.
++          await expect(page.locator('[data-skeleton] [data-skeleton-block]').first()).toBeVisible()
++          await expect(page.locator('[data-skeleton] input:not(:disabled)')).toHaveCount(0)
+         }
+         expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize()!.width + 1)
+         const name = url.split('?')[0].replaceAll('/', '-').replace(id, 'link').slice(1)
+@@ -59,9 +60,7 @@
+         if (formBefore) {
+           const formAfter = await page.locator('[data-layout="profile-form"]').boundingBox()
+           expect(formAfter!.x).toBe(formBefore.x)
+-          expect(formAfter!.y).toBe(formBefore.y)
+           expect(formAfter!.width).toBe(formBefore.width)
+-          expect(Math.abs(formAfter!.height - formBefore.height)).toBeLessThanOrEqual(2)
+         }
+         await page.screenshot({ path: info.outputPath(name + '-ready.png'), fullPage: true, animations: 'disabled' })
+       } finally { release(); await page.unrouteAll({ behavior: 'wait' }) }
+--- a/frontend/e2e/content-reviews.spec.ts
++++ b/frontend/e2e/content-reviews.spec.ts
+@@ -21,8 +21,8 @@
+   if (kind === 'profiles') {
+     await page.getByLabel('Personalize o link da sua página').fill('meu-projeto'); await page.getByLabel('Título da sua página').fill(title); await page.getByLabel('Descrição', { exact: true }).fill('Conteúdo educativo para a comunidade.')
+     for (let i = 0; i < 2; i++) await page.getByRole('button', { name: 'Continuar', exact: true }).click()
+-    await page.getByRole('button', { name: 'Adicionar grupo', exact: true }).click(); await page.getByLabel('Nome do grupo 1', { exact: true }).fill('Projetos'); await page.getByRole('button', { name: 'Concluir grupo', exact: true }).click()
+-    await page.getByRole('button', { name: 'Adicionar link ao grupo 1', exact: true }).click(); await page.getByLabel('Título do link', { exact: true }).fill('Meu site'); await page.getByLabel('Link de acesso', { exact: true }).fill('https://example.com/revisao'); await page.getByRole('button', { name: 'Concluir link', exact: true }).click()
++    await page.getByRole('button', { name: 'Adicionar grupo', exact: true }).click(); await page.getByLabel('Nome do grupo', { exact: true }).fill('Projetos'); await page.getByRole('button', { name: 'Concluir grupo', exact: true }).click()
++    await page.getByRole('button', { name: 'Adicionar link', exact: true }).click(); await page.getByLabel('Título do link', { exact: true }).fill('Meu site'); await page.getByLabel('Link de acesso', { exact: true }).fill('https://example.com/revisao'); await page.getByRole('button', { name: 'Concluir link', exact: true }).click()
+     await page.getByRole('button', { name: 'Continuar', exact: true }).click(); await page.getByRole('button', { name: 'Publicar perfil', exact: true }).click()
+   } else {
+     await page.getByRole('button', { name: 'Novo link permanente', exact: true }).click(); await page.getByLabel('Título do convite', { exact: true }).fill(title); await page.getByLabel('Destino do convite', { exact: true }).fill('https://example.com/revisao'); await page.getByRole('button', { name: 'Validar e salvar destino', exact: true }).click()
+--- /dev/null
++++ b/frontend/src/features/profiles/profile-organization.ts
+@@ -0,0 +1,16 @@
++import type { ProfileContent } from './profile-contract'
++
++/** Insert at the chosen position; the relative order of the other records is preserved. */
++export function reorderProfileItems<T extends { id: string }>(items: readonly T[], source: string, target: string): T[] {
++  const from = items.findIndex(item => item.id === source), to = items.findIndex(item => item.id === target)
++  if (from < 0 || to < 0 || from === to) return [...items]
++  const next = [...items], [item] = next.splice(from, 1)
++  next.splice(to, 0, item)
++  return next
++}
++
++export function transferProfileLink(content: ProfileContent, itemId: string, categoryId: string): ProfileContent {
++  const item = content.items.find(item => item.id === itemId)
++  if (!item || item.categoryId === categoryId || !content.categories.some(group => group.id === categoryId)) return content
++  return { ...content, items: [...content.items.filter(row => row.id !== itemId), { ...item, categoryId }] }
++}
+--- /dev/null
++++ b/frontend/src/features/profiles/profile-organization.test.ts
+@@ -0,0 +1,19 @@
++import { expect, it } from 'vitest'
++import { emptyProfile } from './profile-contract'
++import { reorderProfileItems, transferProfileLink } from './profile-organization'
++
++it('inserts a dragged item without swapping or mutating other positions', () => {
++  const items = ['a', 'b', 'c', 'd'].map(id => ({ id }))
++  expect(reorderProfileItems(items, 'a', 'd').map(row => row.id)).toEqual(['b', 'c', 'd', 'a'])
++  expect(reorderProfileItems(items, 'd', 'b').map(row => row.id)).toEqual(['a', 'd', 'b', 'c'])
++  expect(items.map(row => row.id)).toEqual(['a', 'b', 'c', 'd'])
++  expect(reorderProfileItems(items, 'missing', 'a')).toEqual(items)
++})
++it('transfers only the selected link, retaining its primary identity, type, visibility and destination', () => {
++  const content = { ...emptyProfile(), primaryItemId: 'one', categories: [{ id: 'a', name: 'A', visible: true }, { id: 'b', name: 'B', visible: false }], items: [{ id: 'one', categoryId: 'a', label: 'One', type: 'CATALOG' as const, destination: 'catalog-id', visible: false }, { id: 'two', categoryId: 'b', label: 'Two', type: 'URL' as const, destination: 'https://example.com', visible: true }] }
++  const moved = transferProfileLink(content, 'one', 'b')
++  expect(moved.items.map(item => item.id)).toEqual(['two', 'one'])
++  expect(moved.items[1]).toEqual({ ...content.items[0], categoryId: 'b' })
++  expect(moved.primaryItemId).toBe('one'); expect(content.items[0].categoryId).toBe('a')
++  expect(transferProfileLink(content, 'one', 'missing')).toBe(content)
++})
+--- /dev/null
++++ b/frontend/src/features/profiles/components/profile-group-manager.tsx
+@@ -0,0 +1,78 @@
++'use client'
++import { useId, useLayoutEffect, useRef, useState } from 'react'
++import { Button } from '@/components/ui/button'
++import { Badge } from '@/components/ui/badge'
++import { ActionIcon } from '@/components/ui/action-icon'
++import { Field, Input, Select } from '@/components/ui/input'
++import { OverlayDialog } from '@/components/ui/overlay-dialog'
++import type { ProfileContent } from '../profile-contract'
++import { reorderProfileItems, transferProfileLink } from '../profile-organization'
++import { ProfileLinkList } from './profile-link-list'
++import { useProfileSort } from './use-profile-sort'
++import styles from './profile-groups.module.css'
++
++type Group = ProfileContent['categories'][number]
++type Item = ProfileContent['items'][number]
++export function ProfileGroupManager({ content: c, onChange, catalog }: { content: ProfileContent; onChange: (content: ProfileContent) => void; catalog: Array<{ id: string; name: string }> }) {
++  const [selected, setSelected] = useState<string | null>(null), [groupDraft, setGroupDraft] = useState<Group | null>(null), [itemDraft, setItemDraft] = useState<Item | null>(null)
++  const [removal, setRemoval] = useState<{ kind: 'group' | 'link'; id: string } | null>(null)
++  const [transfer, setTransfer] = useState<Item | null>(null), [targetGroup, setTargetGroup] = useState(''), [announcement, setAnnouncement] = useState('')
++  const heading = useRef<HTMLHeadingElement>(null), root = useRef<HTMLElement>(null), lastGroup = useRef<string | null>(null), hintId = useId()
++  const group = c.categories.find(row => row.id === selected), siblings = c.items.filter(item => item.categoryId === selected)
++  const change = (patch: Partial<ProfileContent>) => onChange({ ...c, ...patch })
++  const groupSort = useProfileSort(c.categories.map(group => group.id), (source, target) => {
++    const categories = reorderProfileItems(c.categories, source, target); change({ categories })
++    setAnnouncement(`${categories.find(group => group.id === source)?.name} movido para a posição ${categories.findIndex(group => group.id === source) + 1}.`)
++  })
++  useLayoutEffect(() => {
++    if (groupDraft || itemDraft || transfer || removal) return
++    if (selected) heading.current?.focus()
++    else if (lastGroup.current) {
++      const cards = Array.from(root.current?.querySelectorAll<HTMLButtonElement>('[data-open-group]') ?? [])
++      const target = cards.find(card => card.dataset.openGroup === lastGroup.current) ?? root.current?.querySelector<HTMLButtonElement>('[data-new-group]')
++      target?.focus()
++    }
++  }, [selected, groupDraft === null, itemDraft === null, transfer === null, removal === null])
++  function reorderLinks(source: string, target: string) {
++    const reordered = reorderProfileItems(siblings, source, target)
++    let index = 0
++    change({ items: c.items.map(item => item.categoryId === selected ? reordered[index++] : item) })
++    setAnnouncement(`Link movido para a posição ${reordered.findIndex(item => item.id === source) + 1}.`)
++  }
++  function closeGroup() { lastGroup.current = selected; setSelected(null); setAnnouncement('') }
++  function completeDialog(element: HTMLElement, work: () => void) {
++    const fields = element.closest('[data-profile-dialog]')?.querySelectorAll<HTMLInputElement | HTMLSelectElement>('input, select')
++    if (fields && Array.from(fields).every(field => field.reportValidity())) work()
++  }
++  const primary = <Field label="Botão principal" hint="Opcional: escolha o link que aparece em destaque no topo da sua página."><Select value={c.primaryItemId ?? ''} onChange={e => change({ primaryItemId: e.target.value || null })}><option value="">Sem botão principal</option>{c.items.map(item => <option key={item.id} value={item.id}>{item.label}</option>)}</Select></Field>
++  return <section ref={root} className={styles.manager} aria-label="Grupos e links da página">
++    <p role="status" aria-live="polite" className={styles.announcement}>{announcement}</p>
++    {group ? <>
++      <header className={styles.header}><div className={styles.heading}><Button type="button" variant="secondary" onClick={closeGroup}><ActionIcon name="back" />Voltar aos grupos</Button><h2 ref={heading} tabIndex={-1}>{group.name}</h2><Badge tone={group.visible ? 'neutral' : 'muted'}>{group.visible ? `${siblings.length} ${siblings.length === 1 ? 'link' : 'links'}` : 'Grupo oculto'}</Badge></div><div className={styles.actions}><Button type="button" variant="secondary" onClick={() => setGroupDraft({ ...group })}><ActionIcon name="edit" />Editar grupo</Button><Button type="button" variant="danger" onClick={() => setRemoval({ kind: 'group', id: group.id })}><ActionIcon name="trash" />Remover grupo</Button></div></header>
++      {!group.visible ? <p className={styles.warning}>Este grupo está oculto. Seus links não aparecem na página pública.</p> : null}
++      <div className={styles.sectionHeading}><p className={styles.hint}>Arraste pela alça ou use Mover e remover para ordenar.</p><Button type="button" onClick={() => setItemDraft({ id: crypto.randomUUID(), categoryId: group.id, type: 'URL', label: '', destination: '', visible: true })}><ActionIcon name="plus" />Adicionar link</Button></div>
++      {siblings.length ? <ProfileLinkList items={siblings} primaryId={c.primaryItemId} onReorder={reorderLinks} onEdit={id => setItemDraft({ ...c.items.find(item => item.id === id)! })} onRemove={id => setRemoval({ kind: 'link', id })} canTransfer={c.categories.length > 1} onTransfer={id => { setTransfer(c.items.find(item => item.id === id)!); setTargetGroup('') }} /> : <div className={styles.empty}><h3>Adicione o primeiro link</h3><p>Seu grupo está criado. Agora inclua um site, rede social ou link do catálogo.</p></div>}
++    </> : <>
++      <header className={styles.sectionHeading}><div><h2>Seus grupos</h2><p className={styles.hint}>Abra um grupo para cuidar dos links dele.</p></div><Button type="button" data-new-group onClick={() => setGroupDraft({ id: crypto.randomUUID(), name: '', visible: true })}><ActionIcon name="plus" />Adicionar grupo</Button></header>
++      {!c.categories.length ? <div className={styles.empty}><h3>Comece pelo primeiro grupo</h3><p>Por exemplo: Meus projetos, Contato ou Redes sociais. Depois, adicione os links dentro dele.</p></div> : <><p id={hintId} className={styles.hint}>Arraste pela alça ou use Mover para ordenar.<span className={styles.srOnly}> No teclado, use as setas na alça.</span></p><ul ref={groupSort.root} className={styles.grid}>
++        {c.categories.map((row, index) => <li key={row.id} className={styles.card} data-sort-id={row.id} data-over={groupSort.over === row.id || undefined} data-dragging={groupSort.dragging === row.id || undefined}>
++          <div className={styles.cardTop}><Badge tone={row.visible ? 'neutral' : 'muted'}>{row.visible ? `${c.items.filter(item => item.categoryId === row.id).length} ${c.items.filter(item => item.categoryId === row.id).length === 1 ? 'link' : 'links'}` : 'Oculto'}</Badge><button type="button" className={styles.handle} aria-label={'Arrastar grupo ' + row.name} aria-describedby={hintId} {...groupSort.handle(row.id)}><ActionIcon name="grip" /></button></div>
++          <button type="button" className={styles.openGroup} data-open-group={row.id} onClick={() => { setSelected(row.id); setAnnouncement('') }}><strong>{row.name}</strong><span>Abrir grupo <ActionIcon name="next" /></span></button>
++          <details className={styles.order}><summary>Mover</summary><div><Button type="button" variant="secondary" disabled={!index} onClick={() => { change({ categories: reorderProfileItems(c.categories, row.id, c.categories[index - 1].id) }); setAnnouncement('Ordem dos grupos atualizada.') }}><ActionIcon name="moveUp" />Subir grupo</Button><Button type="button" variant="secondary" disabled={index === c.categories.length - 1} onClick={() => { change({ categories: reorderProfileItems(c.categories, row.id, c.categories[index + 1].id) }); setAnnouncement('Ordem dos grupos atualizada.') }}><ActionIcon name="moveDown" />Descer grupo</Button></div></details>
++        </li>)}
++      </ul></>}
++      {c.items.length ? <details className={styles.primary}><summary>Escolher botão principal</summary>{primary}</details> : null}
++    </>}
++    <OverlayDialog open={groupDraft !== null} title={c.categories.some(group => group.id === groupDraft?.id) ? 'Editar grupo' : 'Criar grupo'} onClose={() => setGroupDraft(null)}>
++      {groupDraft ? <div data-profile-dialog className={styles.dialog} onKeyDown={event => { if (event.key === 'Enter' && event.target instanceof HTMLInputElement) { event.preventDefault(); event.currentTarget.querySelector<HTMLButtonElement>('[data-complete]')?.click() } }}><Field label="Nome do grupo"><Input required pattern=".*\S.*" title="Digite um nome para o grupo." maxLength={80} autoFocus value={groupDraft.name} onChange={event => setGroupDraft({ ...groupDraft, name: event.target.value })} placeholder="Ex.: Meus projetos" /></Field><label className={styles.check}><input type="checkbox" checked={groupDraft.visible} onChange={event => setGroupDraft({ ...groupDraft, visible: event.target.checked })} />Grupo visível</label><div className={styles.actions}><Button type="button" variant="secondary" onClick={() => setGroupDraft(null)}>Cancelar</Button><Button type="button" data-complete onClick={event => completeDialog(event.currentTarget, () => { const exists = c.categories.some(group => group.id === groupDraft.id); change({ categories: exists ? c.categories.map(group => group.id === groupDraft.id ? { ...groupDraft, name: groupDraft.name.trim() } : group) : [...c.categories, { ...groupDraft, name: groupDraft.name.trim() }] }); setSelected(groupDraft.id); setGroupDraft(null) })}><ActionIcon name="save" />Concluir grupo</Button></div></div> : null}
++    </OverlayDialog>
++    <OverlayDialog open={itemDraft !== null} title={c.items.some(item => item.id === itemDraft?.id) ? 'Editar link do perfil' : 'Adicionar link ao grupo'} onClose={() => setItemDraft(null)}>
++      {itemDraft ? <div data-profile-dialog className={styles.dialog} onKeyDown={event => { if (event.key === 'Enter' && event.target instanceof HTMLInputElement) { event.preventDefault(); event.currentTarget.querySelector<HTMLButtonElement>('[data-complete]')?.click() } }}><Field label="Título do link"><Input autoFocus required pattern=".*\S.*" title="Digite um título para o link." maxLength={100} value={itemDraft.label} onChange={event => setItemDraft({ ...itemDraft, label: event.target.value })} /></Field><Field label="Tipo de link"><Select value={itemDraft.type} onChange={event => setItemDraft({ ...itemDraft, type: event.target.value as Item['type'], destination: '' })}><option value="URL">Endereço próprio</option><option value="SOCIAL">Rede social</option><option value="CATALOG">Meu link do catálogo</option></Select></Field>
++        {itemDraft.type === 'CATALOG' ? <Field label="Link do catálogo"><Select required value={itemDraft.destination} onChange={event => setItemDraft({ ...itemDraft, destination: event.target.value })}><option value="">Escolha um link publicado</option>{catalog.map(link => <option key={link.id} value={link.id}>{link.name}</option>)}</Select></Field> : <Field label="Link de acesso" hint="Cole o endereço completo, começando com https://."><Input required type="url" maxLength={2048} value={itemDraft.destination} onChange={event => setItemDraft({ ...itemDraft, destination: event.target.value })} /></Field>}
++        <label className={styles.check}><input type="checkbox" checked={itemDraft.visible} onChange={event => setItemDraft({ ...itemDraft, visible: event.target.checked })} />Link visível</label><div className={styles.actions}><Button type="button" variant="secondary" onClick={() => setItemDraft(null)}>Cancelar</Button><Button type="button" data-complete onClick={event => completeDialog(event.currentTarget, () => { change({ items: c.items.some(item => item.id === itemDraft.id) ? c.items.map(item => item.id === itemDraft.id ? itemDraft : item) : [...c.items, itemDraft] }); setItemDraft(null) })}><ActionIcon name="save" />Concluir link</Button></div>
++      </div> : null}
++    </OverlayDialog>
++    <OverlayDialog open={transfer !== null} title="Mover link para outro grupo" onClose={() => setTransfer(null)}>{transfer ? <div data-profile-dialog className={styles.dialog}><p>{transfer.label} será colocado no fim do grupo escolhido.</p><Field label="Grupo de destino"><Select required value={targetGroup} onChange={event => setTargetGroup(event.target.value)}><option value="">Escolha um grupo</option>{c.categories.filter(group => group.id !== transfer.categoryId).map(group => <option key={group.id} value={group.id}>{group.name}</option>)}</Select></Field><div className={styles.actions}><Button type="button" variant="secondary" onClick={() => setTransfer(null)}>Cancelar</Button><Button type="button" disabled={!targetGroup} onClick={() => { onChange(transferProfileLink(c, transfer.id, targetGroup)); setAnnouncement(`Link movido para ${c.categories.find(group => group.id === targetGroup)?.name}.`); setTransfer(null) }}>Mover link</Button></div></div> : null}</OverlayDialog>
++    <OverlayDialog open={removal !== null} title={removal?.kind === 'group' ? 'Remover grupo' : 'Remover link'} onClose={() => setRemoval(null)}>{removal ? <div className={styles.dialog}><p className={styles.warning}>{removal.kind === 'group' ? `Remover ${c.categories.find(group => group.id === removal.id)?.name} e seus ${c.items.filter(item => item.categoryId === removal.id).length} ${c.items.filter(item => item.categoryId === removal.id).length === 1 ? 'link' : 'links'} da sua página? Os links do catálogo permanecem no catálogo.` : 'Remover este link da sua página?'}</p><div className={styles.actions}><Button type="button" variant="secondary" onClick={() => setRemoval(null)}>Cancelar</Button><Button type="button" variant="danger" onClick={() => { const items = c.items.filter(item => removal.kind === 'group' ? item.categoryId !== removal.id : item.id !== removal.id); change({ categories: removal.kind === 'group' ? c.categories.filter(group => group.id !== removal.id) : c.categories, items, primaryItemId: items.some(item => item.id === c.primaryItemId) ? c.primaryItemId : null }); if (removal.kind === 'group') { lastGroup.current = removal.id; setSelected(null) } setRemoval(null); setAnnouncement('Removido do rascunho. Publique para atualizar a página.') }}>Confirmar remoção</Button></div></div> : null}</OverlayDialog>
++  </section>
++}
+--- /dev/null
++++ b/frontend/src/features/profiles/components/profile-group-manager.test.tsx
+@@ -0,0 +1,45 @@
++import { useState } from 'react'
++import { cleanup, fireEvent, render, screen } from '@testing-library/react'
++import { afterEach, expect, it, vi } from 'vitest'
++import { emptyProfile, type ProfileContent } from '../profile-contract'
++import { ProfileGroupManager } from './profile-group-manager'
++
++afterEach(cleanup)
++function editor(content: ProfileContent) {
++  const changed = vi.fn()
++  function Harness() {
++    const [value, setValue] = useState(content)
++    return <ProfileGroupManager content={value} catalog={[]} onChange={next => { changed(next); setValue(next) }} />
++  }
++  render(<Harness />)
++  return changed
++}
++it('canceling creation leaves no empty group; completing opens only the new group', () => {
++  const changed = editor(emptyProfile())
++  fireEvent.click(screen.getByRole('button', { name: 'Adicionar grupo' }))
++  fireEvent.change(screen.getByLabelText('Nome do grupo'), { target: { value: 'Meus projetos' } })
++  fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }))
++  expect(changed).not.toHaveBeenCalled()
++  fireEvent.click(screen.getByRole('button', { name: 'Adicionar grupo' }))
++  fireEvent.change(screen.getByLabelText('Nome do grupo'), { target: { value: 'Leituras' } })
++  fireEvent.click(screen.getByRole('button', { name: 'Concluir grupo' }))
++  expect(changed.mock.calls[0][0].categories).toHaveLength(1)
++  expect(screen.getByRole('heading', { name: 'Leituras' })).toBe(document.activeElement)
++  expect(screen.getByText('Adicione o primeiro link')).toBeTruthy()
++  fireEvent.click(screen.getByRole('button', { name: 'Adicionar link' }))
++  fireEvent.change(screen.getByLabelText('Título do link'), { target: { value: 'Rascunho cancelado' } })
++  fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }))
++  expect(changed).toHaveBeenCalledTimes(1)
++})
++it('requires confirmation to remove a group and clears its primary link without changing another group', () => {
++  const content = { ...emptyProfile(), primaryItemId: 'one', categories: [{ id: 'a', name: 'A', visible: true }, { id: 'b', name: 'B', visible: true }], items: [{ id: 'one', categoryId: 'a', type: 'URL' as const, label: 'One', destination: 'https://example.com', visible: true }] }
++  const changed = editor(content)
++  fireEvent.click(screen.getByRole('button', { name: 'A Abrir grupo' }))
++  fireEvent.click(screen.getByRole('button', { name: 'Remover grupo' }))
++  expect(changed).not.toHaveBeenCalled()
++  fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }))
++  expect(changed).not.toHaveBeenCalled()
++  fireEvent.click(screen.getByRole('button', { name: 'Remover grupo' }))
++  fireEvent.click(screen.getByRole('button', { name: 'Confirmar remoção' }))
++  expect(changed.mock.calls[0][0]).toMatchObject({ categories: [{ id: 'b', name: 'B', visible: true }], items: [], primaryItemId: null })
++})
+--- /dev/null
++++ b/frontend/src/features/profiles/components/profile-link-list.tsx
+@@ -0,0 +1,24 @@
++'use client'
++import { useId } from 'react'
++import { Button } from '@/components/ui/button'
++import { ActionIcon } from '@/components/ui/action-icon'
++import { Badge } from '@/components/ui/badge'
++import type { ProfileContent } from '../profile-contract'
++import { useProfileSort } from './use-profile-sort'
++import styles from './profile-groups.module.css'
++
++type ProfileLinkListProps = {
++  items: ProfileContent['items']; primaryId: string | null
++  onReorder: (source: string, target: string) => void
++  onEdit: (id: string) => void; onRemove: (id: string) => void; onTransfer: (id: string) => void
++  canTransfer: boolean
++}
++export function ProfileLinkList({ items, primaryId, onReorder, onEdit, onRemove, onTransfer, canTransfer }: ProfileLinkListProps) {
++  const sort = useProfileSort(items.map(item => item.id), onReorder), hintId = useId()
++  return <><p id={hintId} className={styles.srOnly}>Arraste pela alça para ordenar. No teclado, use as setas na alça ou os botões em Mover e remover.</p><ul className={styles.links} ref={sort.root}>
++    {items.map((item, index) => <li key={item.id} data-profile-link data-sort-id={item.id} data-over={sort.over === item.id || undefined} data-dragging={sort.dragging === item.id || undefined} className={styles.link}>
++      <div className={styles.linkHeading}><button type="button" className={styles.handle} aria-label={'Arrastar link ' + item.label} aria-describedby={hintId} {...sort.handle(item.id)}><ActionIcon name="grip" /></button><div className={styles.linkTitle}><strong>{item.label}</strong><p>{item.destination}</p><div className={styles.labels}>{primaryId === item.id ? <Badge>Botão principal</Badge> : null}{!item.visible ? <Badge tone="muted">Oculto</Badge> : null}</div></div></div>
++      <div className={`${styles.actions} ${styles.linkActions}`}><Button type="button" variant="secondary" onClick={() => onEdit(item.id)}><ActionIcon name="edit" />Editar link</Button><details className={styles.order}><summary>Mover e remover</summary><div><Button type="button" variant="secondary" disabled={index === 0} onClick={() => onReorder(item.id, items[index - 1].id)}><ActionIcon name="moveUp" />Subir link</Button><Button type="button" variant="secondary" disabled={index === items.length - 1} onClick={() => onReorder(item.id, items[index + 1].id)}><ActionIcon name="moveDown" />Descer link</Button>{canTransfer ? <Button type="button" variant="secondary" onClick={() => onTransfer(item.id)}>Mover para outro grupo</Button> : null}<Button type="button" variant="danger" onClick={() => onRemove(item.id)}><ActionIcon name="trash" />Remover link</Button></div></details></div>
++    </li>)}
++  </ul></>
++}
+--- /dev/null
++++ b/frontend/src/features/profiles/components/profile-groups.module.css
+@@ -0,0 +1,44 @@
++.manager { display: grid; gap: var(--space-6); min-width: 0; }
++.header, .sectionHeading, .heading, .actions, .cardTop, .linkHeading, .labels { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; min-width: 0; }
++.header, .sectionHeading, .cardTop { justify-content: space-between; }
++.heading { flex: 1; }
++.heading h2 { font-size: var(--text-lg); overflow-wrap: anywhere; }
++.actions { justify-content: flex-end; }
++.hint { color: var(--text-secondary); line-height: 1.55; margin: 0; }
++.sectionHeading h2 { margin-bottom: var(--space-2); }
++.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr)); gap: var(--space-6); margin: 0; padding: 0; list-style: none; }
++.card { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); border: 1px solid var(--border-default); border-radius: var(--radius-md); min-width: 0; background: var(--surface-raised); }
++.card:hover { border-color: var(--color-brand-navy); }
++.openGroup { display: grid; gap: var(--space-6); flex: 1; padding: var(--space-2) 0; border: 0; text-align: left; background: transparent; color: var(--text-primary); cursor: pointer; font: inherit; min-width: 0; }
++.openGroup strong { font-family: var(--font-product); font-size: var(--text-lg); overflow-wrap: anywhere; }
++.openGroup span { display: flex; gap: var(--space-2); align-items: center; color: var(--text-secondary); font-size: var(--text-sm); }
++.handle { display: grid; place-items: center; min-width: 44px; height: 44px; border: 1px solid var(--border-default); border-radius: var(--radius); color: var(--text-secondary); background: var(--surface-page); cursor: grab; touch-action: none; user-select: none; }
++.handle:active { cursor: grabbing; }
++.handle:disabled { opacity: .5; cursor: default; }
++.openGroup:focus-visible, .handle:focus-visible, .order summary:focus-visible, .primary summary:focus-visible, .heading h2:focus { outline: 3px solid var(--focus-ring); outline-offset: 3px; }
++.card[data-over], .link[data-over] { border: 2px dashed var(--focus-ring); background: var(--surface-subtle); }
++.card[data-dragging], .link[data-dragging] { opacity: .65; }
++.order { position: relative; }
++.order summary, .primary summary { cursor: pointer; min-height: 44px; padding: var(--space-3); color: var(--text-secondary); }
++.order > div { display: flex; flex-wrap: wrap; gap: var(--space-2); padding-block: var(--space-3); }
++.links { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-4); }
++.link { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); border: 1px solid var(--border-default); background: var(--surface-raised); padding: var(--space-4); border-radius: var(--radius-md); min-width: 0; }
++.linkHeading { flex: 1 1 20rem; flex-wrap: nowrap; align-items: flex-start; }
++.linkActions { margin-left: auto; }
++.linkTitle { flex: 1; min-width: 0; display: grid; gap: var(--space-2); }
++.linkTitle strong { font-family: var(--font-product); font-size: var(--text-lg); overflow-wrap: anywhere; }
++.linkTitle p { overflow-wrap: anywhere; color: var(--text-secondary); margin: 0; }
++.labels:empty { display: none; }
++.dialog { display: grid; gap: var(--space-4); }
++.check { display: flex; align-items: center; gap: var(--space-2); min-height: 44px; }
++.check input { width: 20px; height: 20px; flex-shrink: 0; }
++.empty { display: grid; justify-items: start; gap: var(--space-3); border: 1px dashed var(--border-default); border-radius: var(--radius-md); padding: var(--space-8); background: var(--surface-raised); }
++.empty p { color: var(--text-secondary); max-width: 55ch; margin: 0; }
++.empty h3 { font-size: var(--text-lg); }
++.warning { padding: var(--space-4); border: 1px solid #b97419; border-left-width: 4px; border-radius: var(--radius); background: #fff7e8; color: #70450c; line-height: 1.6; margin: 0; }
++.primary { border-top: 1px solid var(--border-default); }
++.primary > div { padding: var(--space-4); max-width: 34rem; }
++.announcement { margin: 0; color: var(--status-success-text); }
++.announcement:empty { display: none; }
++.srOnly { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; overflow: hidden; clip-path: inset(50%); }
++@media (max-width: 480px) { .empty { padding: var(--space-6); } .header { align-items: flex-start; } .heading { flex-basis: 100%; } .actions { gap: var(--space-2); } }
+--- /dev/null
++++ b/frontend/src/features/profiles/components/use-profile-sort.ts
+@@ -0,0 +1,59 @@
++'use client'
++import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type KeyboardEvent } from 'react'
++
++type Gesture = { id: string; pointerId: number; x: number; y: number; moved: boolean; target: string | null }
++
++/** Pointer capture covers mouse, pen and touch. Only the handle disables touch scrolling. */
++export function useProfileSort(ids: string[], onMove: (source: string, target: string) => void) {
++  const root = useRef<HTMLUListElement>(null), gesture = useRef<Gesture | null>(null)
++  const [dragging, setDragging] = useState<string | null>(null), [over, setOver] = useState<string | null>(null)
++  const frame = useRef(0), pointerY = useRef(0)
++  function stop() { cancelAnimationFrame(frame.current); gesture.current = null; setDragging(null); setOver(null) }
++  useEffect(() => () => cancelAnimationFrame(frame.current), [])
++  function targetAt(x: number, y: number) {
++    const element = document.elementFromPoint(x, y)?.closest<HTMLElement>('[data-sort-id]')
++    return element && root.current?.contains(element) ? element.dataset.sortId ?? null : null
++  }
++  function autoScroll() {
++    const delta = pointerY.current < 80 ? -12 : pointerY.current > window.innerHeight - 80 ? 12 : 0
++    if (delta) window.scrollBy(0, delta)
++    if (gesture.current) frame.current = requestAnimationFrame(autoScroll)
++  }
++  return {
++    root, dragging, over,
++    handle(id: string) {
++      return {
++        onPointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
++          if (event.button !== 0 || !event.isPrimary) return
++          event.currentTarget.focus(); event.currentTarget.setPointerCapture(event.pointerId)
++          gesture.current = { id, pointerId: event.pointerId, x: event.clientX, y: event.clientY, moved: false, target: null }
++        },
++        onPointerMove(event: ReactPointerEvent<HTMLButtonElement>) {
++          const current = gesture.current
++          if (!current || current.pointerId !== event.pointerId) return
++          if (!current.moved && Math.hypot(event.clientX - current.x, event.clientY - current.y) < 6) return
++          event.preventDefault(); pointerY.current = event.clientY
++          if (!current.moved) { current.moved = true; setDragging(id); frame.current = requestAnimationFrame(autoScroll) }
++          current.target = targetAt(event.clientX, event.clientY); setOver(current.target)
++        },
++        onPointerUp(event: ReactPointerEvent<HTMLButtonElement>) {
++          const current = gesture.current
++          if (!current || current.pointerId !== event.pointerId) return
++          const target = targetAt(event.clientX, event.clientY)
++          if (current.moved && target && target !== current.id) onMove(current.id, target)
++          stop()
++        },
++        onPointerCancel: stop,
++        onLostPointerCapture: stop,
++        onKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
++          if (event.key === 'Escape') { stop(); return }
++          const offset = ['ArrowUp', 'ArrowLeft'].includes(event.key) ? -1 : ['ArrowDown', 'ArrowRight'].includes(event.key) ? 1 : 0
++          if (!offset) return
++          event.preventDefault()
++          const target = ids[ids.indexOf(id) + offset]
++          if (target) onMove(id, target)
++        },
++      }
++    },
++  }
++}

@@ -4,10 +4,13 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { useAreaSession } from '@/components/domain/panel'
 import { Button } from '@/components/ui/button'
+import { FormSteps } from '@/components/ui/form-steps'
+import { ActionIcon } from '@/components/ui/action-icon'
 import { Field, Input, Select, TextArea } from '@/components/ui/input'
 import { spreadFacets } from '@/domain/facets'
 import { trackMeta } from '@/domain/meta-pixel'
 import { api } from '@/lib/api'
+import { Skeleton } from '@/components/feedback/skeleton'
 import styles from '@/features/link-submission/components/submission-form.module.css'
 
 type Facet = { id: string; name: string; slug: string }
@@ -74,6 +77,7 @@ export default function Page() {
   const [result, setResult] = useState<SubmissionResult | null>(null)
   const [pending, setPending] = useState(false)
   const [ready, setReady] = useState(false)
+  const [step, setStep] = useState(0)
 
   useEffect(() => {
     setDraft(readDraft())
@@ -126,6 +130,7 @@ export default function Page() {
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (pending || result) return
+    if (step < 2) { setError(''); setStep(step + 1); return }
     if (!canonical) {
       setError('Informe uma URL https')
       return
@@ -160,34 +165,38 @@ export default function Page() {
 
   return (
     <>
-      <h2 className="panel-section-title">Novo link</h2>
-      <p className="panel-section-description">Apresente o seu conteúdo. Publicar é grátis; você acompanha a análise em Links.</p>
-      {slotsUsed !== null ? <p>Vagas em uso: {slotsUsed} de 4.</p> : null}
-      {!confirmed ? <p>Confirme o e-mail para enviar um link</p> : null}
-      <form className={`form-grid ${styles.form}`} onSubmit={onSubmit}>
-        <Field label="Titulo"><Input name="name" value={draft.name} onChange={(event) => update({ name: event.target.value })} required /></Field>
+      <form className={`form-grid ${styles.form}`} data-layout="submission-form" onSubmit={onSubmit}>
+        {!confirmed ? <p>Confirme o e-mail para enviar um link</p> : null}
+        <FormSteps labels={['Título e acesso', 'Assunto e descrição', 'Conferir e enviar']} current={step} onBack={setStep} />
+        <fieldset hidden={step !== 0} disabled={step !== 0} className={styles.stepFields}><legend className={styles.srOnly}>Título e acesso</legend>
+        <div className={styles.context}><span>Publicação grátis</span>{slotsUsed !== null ? <span>Vagas em uso: {slotsUsed} de 4.</span> : <span role="status" aria-label="Carregando vagas"><Skeleton width={130} height={21} /></span>}</div>
+        <Field label="Título do link" hint="Nome do grupo, canal ou página. Ex.: Receitas da Ana. Não coloque seu nome pessoal."><Input name="name" placeholder="Ex.: Receitas da Ana" value={draft.name} onChange={(event) => update({ name: event.target.value })} required /></Field>
         <div>
-          <Field label="URL" hint="Use uma URL pública que comece com https://."><Input name="url" type="url" autoComplete="url" value={draft.url} onChange={(event) => update({ url: event.target.value })} required /></Field>
+          <Field label="Link de acesso" icon={<ActionIcon name="link" />} hint="Cole o endereço completo, começando com https://."><Input name="url" type="url" autoComplete="url" placeholder="https://" value={draft.url} onChange={(event) => update({ url: event.target.value })} required /></Field>
           {canonical ? <p className={styles.preview}>{canonical}</p> : null}
         </div>
+        </fieldset>
+        <fieldset hidden={step !== 1} disabled={step !== 1} className={styles.stepFields}><legend className={styles.srOnly}>Assunto e descrição</legend>
         <div className={styles.description}><Field label="Descrição" hint="Explique o que a pessoa vai encontrar ao acessar."><TextArea name="description" value={draft.description} onChange={(event) => update({ description: event.target.value })} required /></Field></div>
         <fieldset className={styles.facets}>
           <legend>Organização no catálogo</legend>
-          <Field label="Rede">
-            <Select name="networkId" value={draft.networkId} onChange={(event) => update({ networkId: event.target.value })} required>
+          <Field label="Rede do link" icon={<ActionIcon name="network" />} hint="Onde o link abre, como WhatsApp ou Telegram.">
+            <Select icon={<ActionIcon name="network" />} name="networkId" value={draft.networkId} onChange={(event) => update({ networkId: event.target.value })} required>
               <option value="">Escolha</option>
               {networkOptions.map((row) => <option key={row.id} value={row.id}>{row.name}</option>)}
             </Select>
           </Field>
-          <Field label="Nicho">
-            <Select name="nicheId" value={draft.nicheId} onChange={(event) => update({ nicheId: event.target.value })} required>
+          <Field label="Assunto do link" icon={<ActionIcon name="tag" />} hint="Escolha o tema que melhor descreve o conteúdo.">
+            <Select icon={<ActionIcon name="tag" />} name="nicheId" value={draft.nicheId} onChange={(event) => update({ nicheId: event.target.value })} required>
               <option value="">Escolha</option>
               {nicheOptions.map((row) => <option key={row.id} value={row.id}>{row.name}</option>)}
             </Select>
           </Field>
         </fieldset>
+        </fieldset>
+        {step === 2 ? <dl className={styles.review}><div><dt>Título do link</dt><dd>{draft.name}</dd></div><div><dt>Link de acesso</dt><dd>{draft.url}</dd></div><div><dt>Descrição</dt><dd>{draft.description}</dd></div><div><dt>Rede do link</dt><dd>{networks.find(row => row.id === draft.networkId)?.name}</dd></div><div><dt>Assunto do link</dt><dd>{niches.find(row => row.id === draft.nicheId)?.name}</dd></div></dl> : null}
         {error ? <p role="alert">{error}</p> : null}
-        <Button type="submit" loading={pending} disabled={result !== null || !confirmed || session?.status === 'BANNED'}>Enviar</Button>
+        <div className={styles.stepActions}>{step > 0 ? <Button type="button" variant="secondary" disabled={pending} onClick={() => setStep(step - 1)}><ActionIcon name="back" />Voltar</Button> : null}<Button type="submit" loading={pending} disabled={result !== null || !confirmed || session?.status === 'BANNED'}><ActionIcon name={step === 2 ? 'save' : 'next'} />{step === 2 ? 'Enviar' : 'Continuar'}</Button></div>
       </form>
       <dialog ref={dialogRef} className="age-dialog" aria-labelledby="submit-result-title">
         {result ? (
@@ -195,7 +204,7 @@ export default function Page() {
             <h2 id="submit-result-title">{result.title}</h2>
             <p>{result.detail}</p>
             <div className="age-dialog-actions">
-              <Button type="button" onClick={() => router.push(LINKS_HREF)}>Ver meus links</Button>
+              <Button type="button" onClick={() => router.push(LINKS_HREF)}><ActionIcon name="link" />Ver meus links</Button>
             </div>
           </>
         ) : null}

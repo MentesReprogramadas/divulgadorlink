@@ -38,7 +38,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
       'AND p.surface::text = a.surface AND p."activatedAt" <= a."createdAt" AND (p."expiresAt" IS NULL OR p."expiresAt" > a."createdAt")',
         'AND NOT EXISTS (SELECT 1 FROM promotion_pauses gap WHERE gap."promotionId"=p.id AND gap."tenantId"=p."tenantId" AND gap."startsAt"<=a."createdAt" AND (gap."endsAt" IS NULL OR gap."endsAt">a."createdAt"))',
       'AND ($7::text IS NULL OR p.id = $7)))::int AS "paidClicks"',
-      'FROM analytics_events a WHERE a."tenantId" = $1 AND a."linkId" = $2 AND a.day >= $8::date',
+      'FROM analytics_events a WHERE a.type = \'REAL\' AND a."tenantId" = $1 AND a."linkId" = $2 AND a.day >= $8::date',
       'AND ((a."createdAt" >= $3 AND a."createdAt" < $4) OR (a."createdAt" >= $5 AND a."createdAt" < $6))',
       'AND ($7::text IS NULL OR EXISTS (SELECT 1 FROM promotions selected WHERE selected.id = $7',
       'AND selected."tenantId" = a."tenantId" AND selected."linkId" = a."linkId" AND selected.surface::text = a.surface',
@@ -69,6 +69,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
       SELECT kind, COUNT(*)::int AS n
       FROM analytics_events
       WHERE "tenantId" = ${input.tenantId}
+        AND type = 'REAL'
         AND "linkId" = ${input.linkId}
         ${from}
         ${to}
@@ -86,6 +87,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
       SELECT "linkId", COUNT(*)::int AS n
       FROM analytics_events
       WHERE "tenantId" = ${tenantId}
+        AND type = 'REAL'
         AND kind = 'IMPRESSION'
         AND "linkId" IN (${Prisma.join(ids)})
       GROUP BY "linkId"

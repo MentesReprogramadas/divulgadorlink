@@ -1,0 +1,206 @@
+[
+  {
+    "file": "ui-desktop\\admin-configuracoes.png",
+    "old": [
+      1440,
+      900
+    ],
+    "new": [
+      1440,
+      900
+    ],
+    "bounds": [
+      36,
+      35,
+      1225,
+      632
+    ]
+  },
+  {
+    "file": "ui-desktop\\cadastro.png",
+    "old": [
+      1440,
+      900
+    ],
+    "new": [
+      1440,
+      900
+    ],
+    "bounds": [
+      1050,
+      35,
+      1292,
+      53
+    ]
+  },
+  {
+    "file": "ui-desktop\\divulgar.png",
+    "old": [
+      1440,
+      1068
+    ],
+    "new": [
+      1440,
+      1068
+    ],
+    "bounds": [
+      1050,
+      35,
+      1292,
+      53
+    ]
+  },
+  {
+    "file": "ui-desktop\\login.png",
+    "old": [
+      1440,
+      900
+    ],
+    "new": [
+      1440,
+      900
+    ],
+    "bounds": [
+      1050,
+      35,
+      1292,
+      53
+    ]
+  },
+  {
+    "file": "ui-desktop\\painel-links-novo.png",
+    "old": [
+      1440,
+      909
+    ],
+    "new": [
+      1440,
+      909
+    ],
+    "bounds": [
+      36,
+      35,
+      1360,
+      777
+    ]
+  },
+  {
+    "file": "ui-desktop\\recuperar-senha.png",
+    "old": [
+      1440,
+      900
+    ],
+    "new": [
+      1440,
+      900
+    ],
+    "bounds": [
+      1050,
+      35,
+      1292,
+      53
+    ]
+  },
+  {
+    "file": "ui-mobile\\admin-configuracoes.png",
+    "old": [
+      390,
+      858
+    ],
+    "new": [
+      390,
+      858
+    ],
+    "bounds": [
+      16,
+      14,
+      374,
+      58
+    ]
+  },
+  {
+    "file": "ui-mobile\\cadastro.png",
+    "old": [
+      390,
+      855
+    ],
+    "new": [
+      390,
+      855
+    ],
+    "bounds": [
+      16,
+      14,
+      374,
+      58
+    ]
+  },
+  {
+    "file": "ui-mobile\\divulgar.png",
+    "old": [
+      390,
+      1522
+    ],
+    "new": [
+      390,
+      1522
+    ],
+    "bounds": [
+      16,
+      14,
+      374,
+      58
+    ]
+  },
+  {
+    "file": "ui-mobile\\login.png",
+    "old": [
+      390,
+      844
+    ],
+    "new": [
+      390,
+      844
+    ],
+    "bounds": [
+      16,
+      14,
+      374,
+      58
+    ]
+  },
+  {
+    "file": "ui-mobile\\painel-links-novo.png",
+    "old": [
+      390,
+      844
+    ],
+    "new": [
+      390,
+      844
+    ],
+    "bounds": [
+      16,
+      14,
+      374,
+      58
+    ]
+  },
+  {
+    "file": "ui-mobile\\recuperar-senha.png",
+    "old": [
+      390,
+      844
+    ],
+    "new": [
+      390,
+      844
+    ],
+    "bounds": [
+      16,
+      14,
+      374,
+      58
+    ]
+  }
+]

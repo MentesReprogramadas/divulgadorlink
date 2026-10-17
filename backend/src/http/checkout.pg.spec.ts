@@ -320,8 +320,8 @@ describe('checkout no PostgreSQL', () => {
   it('webhook confirma uma vez e o replay não cria outra promoção', async () => {
     const created = await checkout({ linkId: 'link-webhook' })
     const orderId = created.json().orderId as string
-    const send = (eventId: string) => {
-      const body = JSON.stringify({ eventId, charge: { correlationID: orderId } })
+    const send = (eventId?: string) => {
+      const body = JSON.stringify({ event: 'OPENPIX:CHARGE_COMPLETED', eventId, charge: { correlationID: orderId } })
       return app.inject({
         method: 'POST',
         url: '/api/v1/payments/woovi/webhook',
@@ -329,6 +329,8 @@ describe('checkout no PostgreSQL', () => {
         payload: body,
       })
     }
+    expect((await send()).statusCode).toBe(200)
+    expect((await send()).statusCode).toBe(200)
     expect((await send('evt-1')).statusCode).toBe(200)
     expect((await send('evt-1')).statusCode).toBe(200)
     expect((await send('evt-2')).statusCode).toBe(200)

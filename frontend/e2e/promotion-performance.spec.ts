@@ -1,3 +1,4 @@
+import { expectSelected, selectOption } from './select-control'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
@@ -24,10 +25,10 @@ test('F01-E01/T03/T05 campanha sem cliques, CPC real e filtros persistentes', as
   await page.goto(A + route)
   expect((await reportResponse).headers()['cache-control']).toBe('private, no-store')
   await expect(page.getByRole('heading', { name: 'Comunidade Aprender' })).toBeVisible()
-  await page.getByLabel('Campanha', { exact: true }).selectOption(fixture.home)
+  await selectOption(page.getByLabel('Campanha', { exact: true }), fixture.home)
   await page.getByRole('button', { name: 'Aplicar período' }).click()
   await expect(page.getByText(/CPC indisponível:/)).toBeVisible()
-  await page.getByLabel('Campanha', { exact: true }).selectOption(fixture.search)
+  await selectOption(page.getByLabel('Campanha', { exact: true }), fixture.search)
   await page.getByRole('button', { name: 'Aplicar período' }).focus()
   await page.keyboard.press('Enter')
   const summary = page.getByRole('definition').filter({ hasText: 'R$' })
@@ -35,7 +36,7 @@ test('F01-E01/T03/T05 campanha sem cliques, CPC real e filtros persistentes', as
   await expect(page.locator('dl > div').filter({ hasText: 'Custo por clique em destaque' })).toContainText('1,00')
   await expect(page).toHaveURL(new RegExp('promotionId=' + fixture.search))
   await page.reload()
-  await expect(page.getByLabel('Campanha', { exact: true })).toHaveValue(fixture.search)
+  await expectSelected(page.getByLabel('Campanha', { exact: true }), fixture.search)
   await expect(page.getByRole('region', { name: 'Resultados diários' })).toContainText('Ativo no dia')
   await expect(page.getByText(/Comparação:/)).toContainText('mesma duração')
   expect(sql('SELECT COUNT(*) FROM promotion_investments WHERE "promotionId"=\'' + fixture.search + '\'')).toBe('1')

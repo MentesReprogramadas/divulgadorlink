@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Skeleton, SkeletonRegion } from '@/components/feedback/skeleton'
 import { AdMark, FacetBadge } from '@/components/ui/facet-badge'
 import { AgePrompt, confirmAge } from '@/components/domain/age-gate'
 import { ImpressionMark } from '@/components/domain/link-row'
@@ -48,6 +49,7 @@ export function SearchBox({
   const [value, setValue] = useState(initial)
   const [choices, setChoices] = useState<Choice[]>([])
   const [open, setOpen] = useState(false)
+  const [pending, setPending] = useState(false)
   const [active, setActive] = useState(-1)
   const [none, setNone] = useState(false)
   const [showImpressions, setShowImpressions] = useState(true)
@@ -57,7 +59,7 @@ export function SearchBox({
 
   useEffect(() => {
     function close(event: MouseEvent) {
-      if (!box.current?.contains(event.target as Node)) setOpen(false)
+      if (!box.current?.contains(event.target as Node)) { latestRequest.current++; setPending(false); setOpen(false) }
     }
     document.addEventListener('mousedown', close)
     return () => document.removeEventListener('mousedown', close)
@@ -68,13 +70,17 @@ export function SearchBox({
     setValue(next)
     setActive(-1)
     if (next.trim().length === 0) {
+      setPending(false)
       setChoices([])
       setNone(false)
       setOpen(false)
       return
     }
-    const result = await api<SuggestBody>(`/v1/search/suggest?q=${encodeURIComponent(next)}`)
+    setPending(true)
+    setOpen(true)
+    const result = await api<SuggestBody>(`/v1/search/suggest?q=${encodeURIComponent(next)}`).catch(() => ({ status: 503, body: {} as SuggestBody }))
     if (requestId !== latestRequest.current) return
+    setPending(false)
     const body = result.status === 200 ? result.body : {}
     const items = body.items ?? []
     const rows: Choice[] = []
@@ -115,6 +121,8 @@ export function SearchBox({
   }
 
   function onKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === 'Escape') { latestRequest.current++; setPending(false); setOpen(false); return }
+    if (pending) return
     if (!open || choices.length === 0) return
     if (event.key === 'ArrowDown') {
       event.preventDefault()
@@ -167,7 +175,8 @@ export function SearchBox({
       />
       {open ? (
         <div className={styles.popup}>
-          {choices.length > 0 ? (
+          {pending ? <SkeletonRegion label="Carregando sugestões">{Array.from({ length: Math.max(choices.length, 3) }, (_, i) => <div className={styles.option} key={i}><Skeleton width="75%" height={26} /></div>)}</SkeletonRegion> : null}
+          {!pending && choices.length > 0 ? (
             <div id={listId} className={styles.list} role="listbox" aria-label="Sugestões">
               {groups.map((group) => (
                 <div key={group.label} className={styles.group} role="group" aria-label={group.label}>
@@ -200,13 +209,13 @@ export function SearchBox({
               ))}
             </div>
           ) : null}
-          {none ? <p className="search-none">Nenhuma sugestão</p> : null}
+          {!pending && none ? <p className="search-none">Nenhuma sugestão</p> : null}
           <a className={styles.allResults} href={`/busca?q=${encodeURIComponent(value)}`}>
             Ver todos os resultados <span aria-hidden="true">→</span>
           </a>
         </div>
       ) : null}
-      {askAge ? <AgePrompt onYes={() => void answerAge('yes')} onNo={() => void answerAge('no')} /> : null}
+      {!pending && askAge ? <AgePrompt onYes={() => void answerAge('yes')} onNo={() => void answerAge('no')} /> : null}
     </div>
   )
 }

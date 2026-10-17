@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { PrismaClient } from '@prisma/client'
-import { beforeAll, beforeEach, afterAll, expect, it } from 'vitest'
+import { beforeAll, beforeEach, afterAll, expect, it, vi } from 'vitest'
 import { app } from '@/app'
 import { setProfilesForTest } from '@/http/controllers/@Profiles/routes'
 import { setTenantsRepositoryForTest } from '@/http/tenant'
@@ -41,6 +41,82 @@ function content(slug = 'meu-perfil'): ProfileContent {
 }
 async function save(c = content(), v = 0, actor = user) { const r = await call('PATCH', 'me/profile', { expectedVersion: v, content: c }, actor); expect(r.statusCode, r.body).toBe(200); return r.json().draft.version as number }
 async function publish(v = 1) { const r = await call('POST', 'me/profile/publish', { expectedVersion: v }); expect(r.statusCode, r.body).toBe(200); return r }
+it('publicação mantém snapshot privado completo; descartar restaura ocultos sem alterar a versão pública', async () => {
+  const original = content(); await save(original); await publish()
+  const published = (await call('GET', 'me/profile')).json().publishedContent
+  expect(published.categories).toHaveLength(original.categories.length)
+  expect(published.items).toHaveLength(original.items.length)
+  expect((await call('GET', 'profiles/meu-perfil', undefined, null)).body).not.toMatch(/publishedContent|publishedDraft|GrupoSecreto|OcultoSentinela/)
+  await save({ ...original, name: 'DescartarSentinela', categories: original.categories.slice(0, 1), items: original.items.filter(item => item.categoryId === original.categories[0].id) }, 1)
+  const response = await call('POST', 'me/profile/discard', { expectedVersion: 2 })
+  expect(response.statusCode, response.body).toBe(200)
+  expect(response.json().draft).toEqual({ ...published, version: 3 })
+  expect(response.json().publishedVersion).toBe(1)
+  expect((await call('GET', 'profiles/meu-perfil', undefined, null)).json().name).toBe(original.name)
+  expect((await call('POST', 'me/profile/discard', { expectedVersion: 2 })).statusCode).toBe(409)
+})
+it('descarte é privado, isolado por tenant e invalida revisão da versão descartada', async () => {
+  const original = content(); await save(original); await publish()
+  ports.judge = async () => ({ pass: false, confidence: 0.99, reasons: [] })
+  await save({ ...original, bio: 'Revisão a descartar' }, 1); await publish(2)
+  const review = (await call('GET', 'me/profile')).json().review
+  expect(review.status).toBe('PENDING')
+  expect((await call('POST', 'me/profile/discard', { expectedVersion: 2 }, null)).statusCode).toBe(401)
+  expect((await call('POST', 'me/profile/discard', { expectedVersion: 2 }, user, foreign)).statusCode).toBe(403)
+  expect((await call('POST', 'me/profile/discard', { expectedVersion: 2 }, other)).statusCode).toBe(409)
+  expect((await call('POST', 'me/profile/discard', { expectedVersion: 2 })).statusCode).toBe(200)
+  expect((await db.contentReview.findUniqueOrThrow({ where: { id: review.id } })).status).toBe('SUPERSEDED')
+  await db.user.update({ where: { id: user }, data: { status: 'BANNED' } })
+  expect((await call('POST', 'me/profile/discard', { expectedVersion: 3 })).statusCode).toBe(403)
+})
+it('aparência é privada no rascunho, versionada e validada antes da publicação', async () => {
+  const c = content(), appearance = { background: '#173c32', buttonColor: '#d9efb6', backgroundStyle: 'solid' as const, buttonStyle: 'shadow' as const, radius: 'pill' as const, font: 'modern' as const, alignment: 'center' as const }
+  await save(c); await publish()
+  await save({ ...c, appearance }, 1)
+  expect((await call('GET', 'profiles/meu-perfil', undefined, null)).json().appearance).toBeUndefined()
+  expect((await call('GET', 'me/profile/preview')).json().appearance).toEqual(appearance)
+  expect((await call('GET', 'me/profile')).json().draft.appearance).toEqual(appearance)
+  expect((await call('PATCH', 'me/profile', { expectedVersion: 2, content: { ...c, appearance: { ...appearance, background: 'url(x)' } } })).statusCode).toBe(400)
+  await publish(2)
+  expect((await call('GET', 'profiles/meu-perfil', undefined, null)).json().appearance).toEqual(appearance)
+})
+it('aprovação anterior permite aparência, organização e caixa/espaçamento sem consultar IA indisponível', async () => {
+  const c = content(); await save(c); await publish()
+  ports.judge = vi.fn(async () => { throw new Error('provider unavailable') })
+  await db.config.deleteMany({ where: { tenantId: tenant, key: 'MODERATION_AUTO_APPROVE_THRESHOLD' } })
+  const appearance = { background: '#173c32', buttonColor: '#d9efb6', backgroundStyle: 'solid' as const, buttonStyle: 'shadow' as const, radius: 'pill' as const, font: 'modern' as const, alignment: 'center' as const }
+  const next = { ...c, appearance, name: ' ANA ', categories: [...c.categories].reverse().map(group => ({ ...group, visible: true })), items: [...c.items].reverse(), primaryItemId: c.items[0].id }
+  await save(next, 1)
+  const response = await publish(2)
+  expect(response.json()).toEqual({ publishedRevisionId: 2 })
+  expect(ports.judge).not.toHaveBeenCalled()
+  expect(await db.contentReview.count({ where: { tenantId: tenant } })).toBe(0)
+  expect((await call('GET', 'profiles/meu-perfil', undefined, null)).json()).toMatchObject({ name: 'ANA', appearance, publishedRevisionId: 2 })
+})
+it('mudança textual recebe contexto aprovado; destino novo e texto suspeito voltam para análise', async () => {
+  const c = content(); await save(c); await publish()
+  ports.judge = vi.fn(async () => ({ pass: true, confidence: .98, reasons: [] }))
+  const edited = { ...c, name: 'Ana — meus projetos' }; await save(edited, 1); await publish(2)
+  expect(ports.judge).toHaveBeenCalledWith(expect.objectContaining({ profileContext: expect.objectContaining({ approved: { name: c.name, description: expect.stringContaining(c.bio) }, changedFields: ['nome'] }) }))
+  ports.judge = vi.fn(async () => ({ pass: false, confidence: .99, reasons: [] }))
+  const changed = { ...edited, items: [{ ...c.items[0], destination: 'https://example.com/novo-destino' }] }
+  await save(changed, 2); expect((await publish(3)).json().review.status).toBe('PENDING')
+  expect(ports.judge).toHaveBeenCalledWith(expect.objectContaining({ profileContext: expect.objectContaining({ changedFields: ['destino ou tipo de link'] }) }))
+  expect((await call('GET', 'profiles/meu-perfil', undefined, null)).json().items[0].destination).toBe(c.items[0].destination)
+  await save({ ...changed, bio: 'proibido-fixture' }, 3)
+  await db.blocklistTerm.create({ data: { tenantId: tenant, term: 'proibido-fixture' } })
+  expect((await publish(4)).json().review.status).toBe('PENDING')
+})
+it('reaproveitar aprovação não dispensa bloqueio atual de destinos ou elegibilidade do catálogo', async () => {
+  const c = content(); c.items.push({ id: randomUUID(), categoryId: c.categories[0].id, type: 'CATALOG', label: 'Catálogo', destination: link, visible: true })
+  await save(c); await publish(); await save({ ...c, primaryItemId: c.items[0].id }, 1)
+  await db.link.update({ where: { id: link }, data: { status: 'UNAVAILABLE' } })
+  expect((await call('POST', 'me/profile/publish', { expectedVersion: 2 })).statusCode).toBe(422)
+  await db.link.update({ where: { id: link }, data: { status: 'PUBLISHED' } })
+  ports.probe = async () => 404
+  expect((await call('POST', 'me/profile/publish', { expectedVersion: 2 })).statusCode).toBe(422)
+  expect((await call('GET', 'me/profile')).json().publishedVersion).toBe(1)
+})
 it('F09-T01/I01 concorrência de slug tem um vencedor e outro 409; mesmo slug em outro tenant é válido', async () => {
   const c = content(), writes = await Promise.all([user, other].map(actor => call('PATCH', 'me/profile', { expectedVersion: 0, content: c }, actor)))
   expect(writes.map(r => r.statusCode).sort()).toEqual([200, 409]); expect(await db.profile.count({ where: { tenantId: tenant } })).toBe(1)
@@ -72,7 +148,7 @@ it('F09-T06/I01 bloqueio textual, URL privada, destino morto e veredito suspeito
   const c = content(); await save(c); await publish()
   await db.blocklistTerm.create({ data: { tenantId: tenant, term: 'proibido-fixture' } })
   let v = await save({ ...c, bio: 'proibido-fixture' }, 1)
-  expect((await call('POST', 'me/profile/publish', { expectedVersion: v })).statusCode).toBe(422)
+  expect((await call('POST', 'me/profile/publish', { expectedVersion: v })).json().review.status).toBe('PENDING')
   for (const destination of ['javascript:alert(1)', 'http://example.com', 'https://127.0.0.1', 'https://admin:secret@example.com', 'https://[::1]/']) {
     v = await save({ ...c, items: [{ ...c.items[0], destination }] }, v)
     expect((await call('POST', 'me/profile/publish', { expectedVersion: v })).statusCode).toBe(422)
@@ -80,18 +156,20 @@ it('F09-T06/I01 bloqueio textual, URL privada, destino morto e veredito suspeito
   v = await save(c, v); ports.probe = async () => 404
   expect((await call('POST', 'me/profile/publish', { expectedVersion: v })).statusCode).toBe(422)
   ports.probe = async () => 200; ports.judge = async () => ({ pass: false, confidence: 0.99, reasons: ['fixture'] })
-  expect((await call('POST', 'me/profile/publish', { expectedVersion: v })).statusCode).toBe(422)
+  v = await save({ ...c, bio: 'Texto novo ainda não aprovado' }, v)
+  expect((await call('POST', 'me/profile/publish', { expectedVersion: v })).json().review.status).toBe('PENDING')
   expect((await call('GET', 'me/profile')).json().draft.version).toBe(v)
   expect((await call('GET', 'profiles/meu-perfil', undefined, null)).json().publishedRevisionId).toBe(1)
 })
 it('F09-I03 provedor indisponível/inconclusivo e disputa durante validação não publicam versão errada', async () => {
   const c = content(); await save(c)
   ports.judge = async () => { throw new Error('fixture provider unavailable') }
-  expect((await call('POST', 'me/profile/publish', { expectedVersion: 1 })).statusCode).toBe(503)
+  expect((await call('POST', 'me/profile/publish', { expectedVersion: 1 })).json().review.status).toBe('PENDING')
   ports.judge = async () => null
-  expect((await call('POST', 'me/profile/publish', { expectedVersion: 1 })).statusCode).toBe(503)
-  ports.judge = async () => { await save({ ...c, bio: 'Alterado em outra aba' }, 1); return { pass: true, confidence: 1, reasons: [] } }
-  expect((await call('POST', 'me/profile/publish', { expectedVersion: 1 })).statusCode).toBe(409)
+  expect((await call('POST', 'me/profile/publish', { expectedVersion: 1 })).json().review.status).toBe('PENDING')
+  await save({ ...c, bio: 'Nova tentativa' }, 1)
+  ports.judge = async () => { await save({ ...c, bio: 'Alterado em outra aba' }, 2); return { pass: true, confidence: 1, reasons: [] } }
+  expect((await call('POST', 'me/profile/publish', { expectedVersion: 2 })).statusCode).toBe(409)
   expect((await call('GET', 'profiles/meu-perfil', undefined, null)).statusCode).toBe(404)
 })
 it('F09-PG01/I03 restrições tenant/dono, versões concorrentes e rollback SQL real', async () => {
@@ -151,7 +229,7 @@ it('F09 avatar valida bytes, isolamento, publicação e retirada; e-mail não co
   await db.userIdentifier.updateMany({ where: { userId: user }, data: { confirmedAt: null } })
   expect((await call('POST', 'me/profile/publish', { expectedVersion: 1 })).statusCode).toBe(403)
   await db.userIdentifier.updateMany({ where: { userId: user }, data: { confirmedAt: new Date() } }); await publish()
-  const image = await call('GET', 'profiles/meu-perfil/avatar/' + id, undefined, null); expect(image.statusCode).toBe(200); expect(image.headers['content-type']).toBe('image/png')
+  const image = await call('GET', 'profiles/meu-perfil/avatar/' + id, undefined, null); expect(image.statusCode).toBe(200); expect(image.headers['content-type']).toBe('image/webp')
   await call('POST', 'me/profile/unpublish', { expectedVersion: 1 }); expect((await call('GET', 'profiles/meu-perfil', undefined, null)).statusCode).toBe(404)
   expect((await call('POST', 'me/profile/publish', { expectedVersion: 1 })).statusCode).toBe(409)
   expect((await call('POST', 'me/profile/unpublish', { expectedVersion: 1 })).statusCode).toBe(200)

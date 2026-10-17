@@ -56,7 +56,7 @@ export function TitleMark({ kind, slug }: { kind: 'niche' | 'network'; slug: str
   return <ContextIcon kind={kind} slug={slug} size={28} />
 }
 
-export function AdMark({ icon = 'dot' }: { icon?: 'dot' | 'diamond' }) {
+export function AdMark({ icon = 'diamond' }: { icon?: 'dot' | 'diamond' }) {
   return (
     <span className="ad-mark">
       {icon === 'diamond' ? (

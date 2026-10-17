@@ -1,0 +1,185 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\VSCODE\\divulgadorlinks\\output\\panel-redesign\\isolated-validation\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "e2e/.runtime/whatsapp-content-new.config.ts",
+      "--grep",
+      "páginas e convites"
+    ],
+    "configFile": "C:\\VSCODE\\divulgadorlinks\\output\\panel-redesign\\isolated-validation\\frontend\\e2e\\.runtime\\whatsapp-content-new.config.ts",
+    "rootDir": "C:/VSCODE/divulgadorlinks/output/panel-redesign/isolated-validation/frontend/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/output/panel-redesign/isolated-validation/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "C:/VSCODE/divulgadorlinks/output/panel-redesign/isolated-validation/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/content-reviews\\.spec\\.ts|profiles\\.spec\\.ts|redirects\\.spec\\.ts|evolution-moderation\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/output/panel-redesign/isolated-validation/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "C:/VSCODE/divulgadorlinks/output/panel-redesign/isolated-validation/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/content-reviews\\.spec\\.ts|profiles\\.spec\\.ts|redirects\\.spec\\.ts|evolution-moderation\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:/VSCODE/divulgadorlinks/output/panel-redesign/whatsapp-content-new-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "evolution-moderation.spec.ts",
+      "file": "evolution-moderation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F42 páginas e convites: citação exata, recusa, contestação e aprovação pelo grupo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10936,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T15:48:41.614Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "avisos-whatsapp",
+                      "contentType": "text/plain",
+                      "body": "8J+qqiAqUMOBR0lOQSBFTSBSRVZJU8ODTyoKCipVc3XDoXJpbyoKQXV0b3JhIGZpeHR1cmUKCipQw6FnaW5hKgoqUMOhZ2luYSBXQSBlMWMzOWU1MSoKQ29tdW5pZGFkZSBlZHVjYXRpdmEuCmh0dHA6Ly9sb2NhbGhvc3Q6MzAwMC9wL3BhZ2luYS13YS1lMWMzOWU1MQoKKkdydXBvcyBlIGxpbmtzKgpNYXRlcmlhaXMKQXVsYXMg4oCiIGh0dHBzOi8vZXhhbXBsZS5jb20vYXVsYXMKCipFbnZpbyoKVmVyc8OjbyAxIOKAoiBBZHVsdG86IE7Do28KCipBw6fDo28qClJlc3BvbmRhOiAqQVBST1ZBUiogb3UgKlJFQ1VTQVIgbW90aXZvKi4KClJldmlzw6NvOiBjbXZja24wamQwMDZtdTR5Z2Rzb3FtMngwClZhbGlkYWRlOiAyNGgKUGFpbmVsOiBodHRwOi8vbG9jYWxob3N0OjMwMDAvYWRtaW4vbW9kZXJhY2FvCgotLS0KCvCfjp/vuI8gKkNPTlZJVEUgRU0gUkVWSVPDg08qCgoqVXN1w6FyaW8qCkF1dG9yYSBmaXh0dXJlCgoqQ29udml0ZSoKKkNvbnZpdGUgV0EgZTFjMzllNTEqCmh0dHBzOi8vZXhhbXBsZS5jb20vY29tdW5pZGFkZQoKKkVudmlvKgpWZXJzw6NvIDEg4oCiIEFkdWx0bzogTsOjbwoKKkHDp8OjbyoKUmVzcG9uZGE6ICpBUFJPVkFSKiBvdSAqUkVDVVNBUiBtb3Rpdm8qLgoKUmV2aXPDo286IGNtdmNrbjBsOTAwNnF1NHlnZzBsOG5tNWwKVmFsaWRhZGU6IDI0aApQYWluZWw6IGh0dHA6Ly9sb2NhbGhvc3Q6MzAwMC9hZG1pbi9tb2RlcmFjYW8KCi0tLQoK8J+ToyAqQ09OVEVTVEHDh8ODTyDigKIgUMOBR0lOQSoKCipVc3XDoXJpbyoKQXV0b3JhIGZpeHR1cmUKCipQw6FnaW5hKgoqUMOhZ2luYSBXQSBlMWMzOWU1MSoKQ29tdW5pZGFkZSBlZHVjYXRpdmEuCmh0dHA6Ly9sb2NhbGhvc3Q6MzAwMC9wL3BhZ2luYS13YS1lMWMzOWU1MQoKKkdydXBvcyBlIGxpbmtzKgpNYXRlcmlhaXMKQXVsYXMg4oCiIGh0dHBzOi8vZXhhbXBsZS5jb20vYXVsYXMKCipFbnZpbyoKVmVyc8OjbyAxIOKAoiBBZHVsdG86IE7Do28KCipDb250ZXN0YcOnw6NvKgpDb21wYXJ0aWxoYW1vcyBhdWxhcyBlIG1hdGVyaWFpcyBwYXJhIGVzdHVkYW50ZXMuCgoqQcOnw6NvKgpSZXNwb25kYTogKkFQUk9WQVIqIG91ICpSRUNVU0FSIG1vdGl2byouCgpSZXZpc8OjbzogY212Y2tuNHRxMDA2eXU0eWdreTB0dWFqMwpWYWxpZGFkZTogMjRoClBhaW5lbDogaHR0cDovL2xvY2FsaG9zdDozMDAwL2FkbWluL21vZGVyYWNhbwoKLS0tCgrinYwgKlDDgUdJTkEg4oCiIFJFQ1VTQURPKgoKKlVzdcOhcmlvKgpBdXRvcmEgZml4dHVyZQoKKlDDoWdpbmEqCipQw6FnaW5hIFdBIGUxYzM5ZTUxKgpDb211bmlkYWRlIGVkdWNhdGl2YS4KaHR0cDovL2xvY2FsaG9zdDozMDAwL3AvcGFnaW5hLXdhLWUxYzM5ZTUxCgoqR3J1cG9zIGUgbGlua3MqCk1hdGVyaWFpcwpBdWxhcyDigKIgaHR0cHM6Ly9leGFtcGxlLmNvbS9hdWxhcwoKKkVudmlvKgpWZXJzw6NvIDEg4oCiIEFkdWx0bzogTsOjbwoKKlJlc3VsdGFkbyoKRW52aW8gbsOjbyBwdWJsaWNhZG8uIENvbnRlc3Rhw6fDo28gZGlzcG9uw612ZWwuCgoqTW90aXZvKgpFeHBsaXF1ZSBhIGZpbmFsaWRhZGUgZWR1Y2F0aXZhLgoKKkRlY2lkaWRvIHBvcioKQWRtaW4gZml4dHVyZSDigKIgV2hhdHNBcHAKClJldmlzw6NvOiBjbXZja24wamQwMDZtdTR5Z2Rzb3FtMngwClBhaW5lbDogaHR0cDovL2xvY2FsaG9zdDozMDAwL2FkbWluL21vZGVyYWNhbwoKLS0tCgrimqDvuI8gKkNPTUFORE8gTsODTyBBUExJQ0FETyoKCipVc3XDoXJpbyoKQXV0b3JhIGZpeHR1cmUKCipQw6FnaW5hKgoqUMOhZ2luYSBXQSBlMWMzOWU1MSoKQ29tdW5pZGFkZSBlZHVjYXRpdmEuCmh0dHA6Ly9sb2NhbGhvc3Q6MzAwMC9wL3BhZ2luYS13YS1lMWMzOWU1MQoKKkdydXBvcyBlIGxpbmtzKgpNYXRlcmlhaXMKQXVsYXMg4oCiIGh0dHBzOi8vZXhhbXBsZS5jb20vYXVsYXMKCipFbnZpbyoKVmVyc8OjbyAxIOKAoiBBZHVsdG86IE7Do28KCipSZXN1bHRhZG8qCkVzc2UgYXZpc28gZXhwaXJvdSBvdSBvIGNvbnRlw7pkbyBtdWRvdS4gQWJyYSBhIHJldmlzw6NvIGF0dWFsIG5vIHBhaW5lbC4KCipBw6fDo28qCkFjZXNzYXIgbyBwYWluZWwKaHR0cDovL2xvY2FsaG9zdDozMDAwL2FkbWluL21vZGVyYWNhbwoKUmV2aXPDo286IGNtdmNrbjBqZDAwNm11NHlnZHNvcW0yeDAKCi0tLQoK4pyFICpQw4FHSU5BIOKAoiBBUFJPVkFETyoKCipVc3XDoXJpbyoKQXV0b3JhIGZpeHR1cmUKCipQw6FnaW5hKgoqUMOhZ2luYSBXQSBlMWMzOWU1MSoKQ29tdW5pZGFkZSBlZHVjYXRpdmEuCmh0dHA6Ly9sb2NhbGhvc3Q6MzAwMC9wL3BhZ2luYS13YS1lMWMzOWU1MQoKKkdydXBvcyBlIGxpbmtzKgpNYXRlcmlhaXMKQXVsYXMg4oCiIGh0dHBzOi8vZXhhbXBsZS5jb20vYXVsYXMKCipFbnZpbyoKVmVyc8OjbyAxIOKAoiBBZHVsdG86IE7Do28KCipSZXN1bHRhZG8qClDDoWdpbmEgcHVibGljYWRhLgoKKkRlY2lkaWRvIHBvcioKQWRtaW4gZml4dHVyZSDigKIgV2hhdHNBcHAKClJldmlzw6NvOiBjbXZja240dHEwMDZ5dTR5Z2t5MHR1YWozClBhaW5lbDogaHR0cDovL2xvY2FsaG9zdDozMDAwL2FkbWluL21vZGVyYWNhbw=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4bc19451c914abe96904-e02e2eeb11ebc2d44af8",
+          "file": "evolution-moderation.spec.ts",
+          "line": 286,
+          "column": 5
+        },
+        {
+          "title": "F42 páginas e convites: citação exata, recusa, contestação e aprovação pelo grupo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8742,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T15:48:55.599Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "avisos-whatsapp",
+                      "contentType": "text/plain",
+                      "body": "8J+qqiAqUMOBR0lOQSBFTSBSRVZJU8ODTyoKCipVc3XDoXJpbyoKQXV0b3JhIGZpeHR1cmUKCipQw6FnaW5hKgoqUMOhZ2luYSBXQSBkZDllNDI5NCoKQ29tdW5pZGFkZSBlZHVjYXRpdmEuCmh0dHA6Ly9sb2NhbGhvc3Q6MzAwMC9wL3BhZ2luYS13YS1kZDllNDI5NAoKKkdydXBvcyBlIGxpbmtzKgpNYXRlcmlhaXMKQXVsYXMg4oCiIGh0dHBzOi8vZXhhbXBsZS5jb20vYXVsYXMKCipFbnZpbyoKVmVyc8OjbyAxIOKAoiBBZHVsdG86IE7Do28KCipBw6fDo28qClJlc3BvbmRhOiAqQVBST1ZBUiogb3UgKlJFQ1VTQVIgbW90aXZvKi4KClJldmlzw6NvOiBjbXZja25hdmQwMDc2dTR5Z2h0eHdtdTNrClZhbGlkYWRlOiAyNGgKUGFpbmVsOiBodHRwOi8vbG9jYWxob3N0OjMwMDAvYWRtaW4vbW9kZXJhY2FvCgotLS0KCvCfjp/vuI8gKkNPTlZJVEUgRU0gUkVWSVPDg08qCgoqVXN1w6FyaW8qCkF1dG9yYSBmaXh0dXJlCgoqQ29udml0ZSoKKkNvbnZpdGUgV0EgZGQ5ZTQyOTQqCmh0dHBzOi8vZXhhbXBsZS5jb20vY29tdW5pZGFkZQoKKkVudmlvKgpWZXJzw6NvIDEg4oCiIEFkdWx0bzogTsOjbwoKKkHDp8OjbyoKUmVzcG9uZGE6ICpBUFJPVkFSKiBvdSAqUkVDVVNBUiBtb3Rpdm8qLgoKUmV2aXPDo286IGNtdmNrbmF3ZTAwN2F1NHlnNjQyYmhhY3UKVmFsaWRhZGU6IDI0aApQYWluZWw6IGh0dHA6Ly9sb2NhbGhvc3Q6MzAwMC9hZG1pbi9tb2RlcmFjYW8KCi0tLQoK8J+ToyAqQ09OVEVTVEHDh8ODTyDigKIgUMOBR0lOQSoKCipVc3XDoXJpbyoKQXV0b3JhIGZpeHR1cmUKCipQw6FnaW5hKgoqUMOhZ2luYSBXQSBkZDllNDI5NCoKQ29tdW5pZGFkZSBlZHVjYXRpdmEuCmh0dHA6Ly9sb2NhbGhvc3Q6MzAwMC9wL3BhZ2luYS13YS1kZDllNDI5NAoKKkdydXBvcyBlIGxpbmtzKgpNYXRlcmlhaXMKQXVsYXMg4oCiIGh0dHBzOi8vZXhhbXBsZS5jb20vYXVsYXMKCipFbnZpbyoKVmVyc8OjbyAxIOKAoiBBZHVsdG86IE7Do28KCipDb250ZXN0YcOnw6NvKgpDb21wYXJ0aWxoYW1vcyBhdWxhcyBlIG1hdGVyaWFpcyBwYXJhIGVzdHVkYW50ZXMuCgoqQcOnw6NvKgpSZXNwb25kYTogKkFQUk9WQVIqIG91ICpSRUNVU0FSIG1vdGl2byouCgpSZXZpc8OjbzogY212Y2tuZTVlMDA3aXU0eWcwemg4bjMwOQpWYWxpZGFkZTogMjRoClBhaW5lbDogaHR0cDovL2xvY2FsaG9zdDozMDAwL2FkbWluL21vZGVyYWNhbwoKLS0tCgrinYwgKlDDgUdJTkEg4oCiIFJFQ1VTQURPKgoKKlVzdcOhcmlvKgpBdXRvcmEgZml4dHVyZQoKKlDDoWdpbmEqCipQw6FnaW5hIFdBIGRkOWU0Mjk0KgpDb211bmlkYWRlIGVkdWNhdGl2YS4KaHR0cDovL2xvY2FsaG9zdDozMDAwL3AvcGFnaW5hLXdhLWRkOWU0Mjk0CgoqR3J1cG9zIGUgbGlua3MqCk1hdGVyaWFpcwpBdWxhcyDigKIgaHR0cHM6Ly9leGFtcGxlLmNvbS9hdWxhcwoKKkVudmlvKgpWZXJzw6NvIDEg4oCiIEFkdWx0bzogTsOjbwoKKlJlc3VsdGFkbyoKRW52aW8gbsOjbyBwdWJsaWNhZG8uIENvbnRlc3Rhw6fDo28gZGlzcG9uw612ZWwuCgoqTW90aXZvKgpFeHBsaXF1ZSBhIGZpbmFsaWRhZGUgZWR1Y2F0aXZhLgoKKkRlY2lkaWRvIHBvcioKQWRtaW4gZml4dHVyZSDigKIgV2hhdHNBcHAKClJldmlzw6NvOiBjbXZja25hdmQwMDc2dTR5Z2h0eHdtdTNrClBhaW5lbDogaHR0cDovL2xvY2FsaG9zdDozMDAwL2FkbWluL21vZGVyYWNhbwoKLS0tCgrimqDvuI8gKkNPTUFORE8gTsODTyBBUExJQ0FETyoKCipVc3XDoXJpbyoKQXV0b3JhIGZpeHR1cmUKCipQw6FnaW5hKgoqUMOhZ2luYSBXQSBkZDllNDI5NCoKQ29tdW5pZGFkZSBlZHVjYXRpdmEuCmh0dHA6Ly9sb2NhbGhvc3Q6MzAwMC9wL3BhZ2luYS13YS1kZDllNDI5NAoKKkdydXBvcyBlIGxpbmtzKgpNYXRlcmlhaXMKQXVsYXMg4oCiIGh0dHBzOi8vZXhhbXBsZS5jb20vYXVsYXMKCipFbnZpbyoKVmVyc8OjbyAxIOKAoiBBZHVsdG86IE7Do28KCipSZXN1bHRhZG8qCkVzc2UgYXZpc28gZXhwaXJvdSBvdSBvIGNvbnRlw7pkbyBtdWRvdS4gQWJyYSBhIHJldmlzw6NvIGF0dWFsIG5vIHBhaW5lbC4KCipBw6fDo28qCkFjZXNzYXIgbyBwYWluZWwKaHR0cDovL2xvY2FsaG9zdDozMDAwL2FkbWluL21vZGVyYWNhbwoKUmV2aXPDo286IGNtdmNrbmF2ZDAwNzZ1NHlnaHR4d211M2sKCi0tLQoK4pyFICpQw4FHSU5BIOKAoiBBUFJPVkFETyoKCipVc3XDoXJpbyoKQXV0b3JhIGZpeHR1cmUKCipQw6FnaW5hKgoqUMOhZ2luYSBXQSBkZDllNDI5NCoKQ29tdW5pZGFkZSBlZHVjYXRpdmEuCmh0dHA6Ly9sb2NhbGhvc3Q6MzAwMC9wL3BhZ2luYS13YS1kZDllNDI5NAoKKkdydXBvcyBlIGxpbmtzKgpNYXRlcmlhaXMKQXVsYXMg4oCiIGh0dHBzOi8vZXhhbXBsZS5jb20vYXVsYXMKCipFbnZpbyoKVmVyc8OjbyAxIOKAoiBBZHVsdG86IE7Do28KCipSZXN1bHRhZG8qClDDoWdpbmEgcHVibGljYWRhLgoKKkRlY2lkaWRvIHBvcioKQWRtaW4gZml4dHVyZSDigKIgV2hhdHNBcHAKClJldmlzw6NvOiBjbXZja25lNWUwMDdpdTR5ZzB6aDhuMzA5ClBhaW5lbDogaHR0cDovL2xvY2FsaG9zdDozMDAwL2FkbWluL21vZGVyYWNhbw=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4bc19451c914abe96904-859ba138a0ca8e7c38b3",
+          "file": "evolution-moderation.spec.ts",
+          "line": 286,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-17T15:48:40.580Z",
+    "duration": 24072.214,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

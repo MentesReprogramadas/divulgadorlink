@@ -1,0 +1,43 @@
+const DEFAULT_SERVICE = 'divulgador-links-api'
+const HYPERDX_CLOUD_HOST = 'in-otel.hyperdx.io'
+
+export function shouldRegisterHyperDX(env: NodeJS.ProcessEnv): boolean {
+  if (env.NODE_ENV === 'test') return false
+  const hasKey = typeof env.HDX_API_KEY === 'string' && env.HDX_API_KEY.trim().length > 0
+  if (!hasKey) return false
+  const endpoint = env.OTEL_EXPORTER_OTLP_ENDPOINT
+  if (typeof endpoint !== 'string' || endpoint.trim().length === 0) return false
+  try {
+    const url = new URL(endpoint.trim())
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return false
+    return url.hostname !== HYPERDX_CLOUD_HOST
+  } catch {
+    return false
+  }
+}
+
+export function hyperdxServiceName(argv: readonly string[], configured?: string): string {
+  const base = configured?.trim() ? configured.trim() : DEFAULT_SERVICE
+  const entry = argv.join(' ').replace(/\\/g, '/')
+  const isWorker = /(?:^|[\s/])worker\.(?:ts|js|mjs|cjs)(?:\s|$)/.test(entry)
+  if (!isWorker) return base
+  if (base.endsWith('-worker')) return base
+  if (base.endsWith('-api')) return `${base.slice(0, -4)}-worker`
+  return `${base}-worker`
+}
+
+export function isActuatorProbe(url: string | undefined): boolean {
+  if (!url) return false
+  const path = url.split('?')[0]
+  return path.endsWith('/actuator/health')
+    || path.endsWith('/actuator/live')
+    || path.endsWith('/actuator/ready')
+}
+
+export function redisStatement(cmdName: string, cmdArgs: ReadonlyArray<unknown>): string {
+  const raw = cmdArgs[0]
+  const key = typeof raw === 'string' ? raw : Buffer.isBuffer(raw) ? raw.toString('utf8') : ''
+  const separator = key.lastIndexOf(':')
+  if (separator <= 0) return cmdName
+  return `${cmdName} ${key.slice(0, separator)}`
+}

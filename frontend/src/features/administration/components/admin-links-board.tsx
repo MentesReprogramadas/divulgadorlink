@@ -1,3 +1,6 @@
+import { ActionIcon } from '@/components/ui/action-icon'
+import { EmptyState } from '@/components/feedback/empty-state'
+import { AdminLinksSkeleton } from './admin-links-skeleton'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { LinkPromotionEditor } from './link-promotion-editor'
@@ -15,27 +18,16 @@ export type AdminLinkRow = { id: string; name: string; status: AdminLinkStatus; 
 export type AdminLinkFilter = AdminLinkStatus | 'ALL'
 type AdminLinksBoardProps = {
   links: AdminLinkRow[]
-  counts: Record<AdminLinkStatus, number>
-  filter: AdminLinkFilter
-  onFilterChange: (filter: AdminLinkFilter) => void
   onWithdraw: (link: AdminLinkRow) => void
   loading: boolean
-  query: string
 }
 
-export function AdminLinksBoard({ links, counts, filter, onFilterChange, onWithdraw, loading, query }: AdminLinksBoardProps) {
-  const total = LINK_STATUSES.reduce((sum, status) => sum + counts[status.value], 0)
-  const matching = filter === 'ALL' ? total : counts[filter]
+export function AdminLinksBoard({ links, onWithdraw, loading }: AdminLinksBoardProps) {
   return (
     <section className={styles.board} aria-label="Links">
-      <div className={styles.heading}><h2>Links</h2><p>{query ? `Resultados para “${query}”` : 'Acompanhe a publicação e gerencie cada link.'}</p></div>
-      <div className={styles.filters} role="group" aria-label="Filtrar links por status">
-        <button type="button" aria-pressed={filter === 'ALL'} onClick={() => onFilterChange('ALL')}>Todos <span>{total.toLocaleString('pt-BR')}</span></button>
-        {LINK_STATUSES.map(status => <button type="button" key={status.value} aria-pressed={filter === status.value} onClick={() => onFilterChange(status.value)}>{status.filter} <span>{counts[status.value].toLocaleString('pt-BR')}</span></button>)}
-      </div>
-      <p className={styles.result} role="status">{loading ? 'Carregando links…' : `Mostrando ${links.length.toLocaleString('pt-BR')} de ${matching.toLocaleString('pt-BR')} links${filter === 'ALL' ? '' : ` · ${LINK_STATUSES.find(status => status.value === filter)?.filter}`}.`}{!loading && matching > links.length ? ' Refine a busca para encontrar os demais.' : ''}</p>
+      {loading && !links.length ? <AdminLinksSkeleton /> : null}
       <div className={styles.grid} aria-busy={loading}>
-        {loading ? null : links.map(row => {
+        {links.map(row => {
           const status = LINK_STATUSES.find(item => item.value === row.status)!
           const canWithdraw = row.status === 'PUBLISHED' || row.status === 'PENDING_MODERATION' || row.status === 'PRE_REJECTED'
           return (
@@ -48,12 +40,12 @@ export function AdminLinksBoard({ links, counts, filter, onFilterChange, onWithd
               <div className={styles.actions}>
                 {row.status === 'PUBLISHED' ? <><Link className="button button-secondary" href={`/link/${row.id}`}>Ver no catálogo</Link><LinkPromotionEditor linkId={row.id} linkName={row.name} /></> : null}
                 {row.status === 'PENDING_MODERATION' ? <Link className="button button-secondary" href={`/admin/moderacao?link=${encodeURIComponent(row.id)}`}>Revisar envio</Link> : null}
-                {canWithdraw ? <Button type="button" variant="danger" onClick={() => onWithdraw(row)}>{row.status === 'PUBLISHED' ? 'Tirar do ar' : 'Retirar envio'}</Button> : null}
+                {canWithdraw ? <Button type="button" variant="danger" disabled={loading} onClick={() => onWithdraw(row)}><ActionIcon name="trash" />{row.status === 'PUBLISHED' ? 'Tirar do ar' : 'Retirar envio'}</Button> : null}
               </div>
             </article>
           )
         })}
-        {!loading && links.length === 0 ? <p className={styles.empty}>Nenhum link encontrado neste status{query ? ' para esta busca' : ''}.</p> : null}
+        {!loading && links.length === 0 ? <EmptyState /> : null}
       </div>
     </section>
   )

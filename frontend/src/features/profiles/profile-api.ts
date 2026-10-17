@@ -1,7 +1,9 @@
 import { api } from '@/lib/api'
+export class ProfileRequestError extends Error { constructor(message: string, public readonly status: number) { super(message) } }
+export const isProfileVersionConflict = (reason: unknown) => reason instanceof ProfileRequestError && reason.status === 409 && reason.message.toLowerCase().includes('outra aba')
 export async function profileRequest<T>(path: string, init?: RequestInit): Promise<T> {
   const r = await api<T & { message?: string }>('/v1/me/profile' + path, init).catch(() => { throw new Error('Sem conexão. Seus dados foram mantidos; tente novamente.') })
-  if (r.status !== 200) throw new Error(r.body.message ?? 'Não foi possível carregar o perfil. Tente novamente.')
+  if (r.status !== 200) throw new ProfileRequestError(r.body.message ?? 'Não foi possível carregar o perfil. Tente novamente.', r.status)
   return r.body
 }
 export async function profileCatalog() {

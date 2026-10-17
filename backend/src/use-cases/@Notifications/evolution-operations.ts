@@ -7,6 +7,11 @@ import { operationalEvent, pendingText, resolveHumanReview, ReviewError, reviewH
 import { deliverEmail } from '@/adapters/notifications/outbound-mail'
 import { emailBrand, moderationEmail, type ModerationOutcome } from '@/adapters/notifications/email/templates'
 import { logDomainEvent } from '@/observability/logger'
+import { CONTENT_REVIEW_KINDS, contentReviewHash, queueContentReview } from './content-review-events'
+import { ContentReviewError, decideContentReview } from '@/use-cases/@Moderation/review-public-content'
+import { publicContentValidationPorts, type PublicContentValidationPorts } from '@/use-cases/public-content-validation-ports'
+
+const REVIEW_KINDS = ['REVIEW_CASE', 'REVIEW_TEXT', ...CONTENT_REVIEW_KINDS]
 
 const settingsSchema = z.object({ enabled: z.boolean().default(true), actionsEnabled: z.boolean().default(true) }).strict()
 export const EVOLUTION_SETTINGS_KEY = 'EVOLUTION_INTEGRATION'
@@ -51,7 +56,7 @@ export async function authorizedOperator(db: PrismaClient, tenantId: string, pho
 }
 
 export async function quotedReviewReference(db: PrismaClient, tenantId: string, providerMessageId: string, secret: string): Promise<string | null> {
-  const matches = await db.operationalMessage.findMany({ where: { tenantId, providerMessageId, state: 'SENT', kind: { in: ['REVIEW_CASE', 'REVIEW_TEXT'] } }, select: { id: true }, take: 2 })
+  const matches = await db.operationalMessage.findMany({ where: { tenantId, providerMessageId, state: 'SENT', kind: { in: REVIEW_KINDS } }, select: { id: true }, take: 2 })
   // Never guess the latest review or accept a quote of a confirmation, user message or another tenant.
   return matches.length === 1 ? actionReference(matches[0]!.id, secret) : null
 }
@@ -80,6 +85,10 @@ export async function queueTextReview(tx: Prisma.TransactionClient, tenantId: st
 
 async function reviewStillCurrent(db: PrismaClient, event: OperationalMessage) {
   if (event.consumedAt || !event.expiresAt || event.expiresAt <= new Date()) return false
+  if (CONTENT_REVIEW_KINDS.includes(event.kind)) {
+    const row = await db.contentReview.findFirst({ where: { id: event.resourceId, tenantId: event.tenantId, status: 'PENDING', owner: { status: 'ACTIVE' } }, include: { profile: true, redirectRevision: { include: { handle: true } } } })
+    return Boolean(row && event.snapshotHash === contentReviewHash(row) && (row.kind === 'PROFILE' ? row.profile?.version === row.version : row.redirectRevision?.handle.version === row.version && !row.redirectRevision.handle.disabled))
+  }
   if (event.kind === 'REVIEW_CASE') {
     const row = await db.moderationCase.findFirst({ where: { id: event.resourceId, tenantId: event.tenantId, closedAt: null }, include: { link: true } })
     return Boolean(row && row.link.status === 'PENDING_MODERATION' && event.snapshotHash === reviewHash(row.link, `${row.id}:${row.appealedAt?.toISOString() ?? 'submission'}`))
@@ -96,22 +105,38 @@ export function renderOperationalMessage(event: Pick<OperationalMessage, 'id' | 
   const name = safeText(String(p.name ?? ''))
   const panel = `${origin.replace(/\/$/, '')}/admin/moderacao`
   const url = notificationUrl(p.canonicalUrl)
+  const type = p.resourceType === 'PROFILE' ? 'PÁGINA' : p.resourceType === 'REDIRECT' ? 'CONVITE' : 'LINK'
+  const symbol = p.resourceType === 'PROFILE' ? '🪪' : p.resourceType === 'REDIRECT' ? '🎟️' : '🔗'
+  const pageUrl = typeof p.publicPath === 'string' && /^\/p\/[a-z0-9-]+$/.test(p.publicPath) ? origin.replace(/\/$/, '') + p.publicPath : null
+  const groups = Array.isArray(p.groups) ? p.groups.slice(0, 4).map(group => {
+    if (!group || typeof group !== 'object' || Array.isArray(group)) return ''
+    const g = group as Record<string, unknown>
+    const items = Array.isArray(g.items) ? g.items.slice(0, 3).map(item => {
+      if (!item || typeof item !== 'object' || Array.isArray(item)) return ''
+      const i = item as Record<string, unknown>
+      const destination = notificationUrl(i.destination) ?? (typeof i.destination === 'string' && /^\/link\/[a-zA-Z0-9_-]+$/.test(i.destination) ? origin.replace(/\/$/, '') + i.destination : null)
+      return [safeText(String(i.label ?? ''), 80), destination].filter(Boolean).join(' • ')
+    }).filter(Boolean) : []
+    return [safeText(String(g.name ?? ''), 80), ...items, Array.isArray(g.items) && g.items.length > 3 ? `+${g.items.length - 3} links no painel` : ''].filter(Boolean).join('\n')
+  }).filter(Boolean).join('\n\n').slice(0, 1400) : ''
   const details = [
     p.ownerName ? `*Usuário*\n${safeText(String(p.ownerName), 100)}` : '',
-    name || url ? ['*Link*', name ? `*${name}*` : '', p.description ? safeText(String(p.description)) : '', url ?? ''].filter(Boolean).join('\n') : '',
+    name || url || pageUrl ? [p.resourceType === 'PROFILE' ? '*Página*' : p.resourceType === 'REDIRECT' ? '*Convite*' : '*Link*', name ? `*${name}*` : '', p.description ? safeText(String(p.description)) : '', url ?? pageUrl ?? ''].filter(Boolean).join('\n') : '',
     p.niche || p.network ? `*Classificação*\nCategoria: ${safeText(String(p.niche ?? '—'), 100)}\nRede: ${safeText(String(p.network ?? '—'), 100)}` : '',
+    groups ? `*Grupos e links*\n${groups}${Array.isArray(p.groups) && p.groups.length > 4 ? '\nMais grupos no painel.' : ''}` : '',
+    p.resourceType ? `*Envio*\nVersão ${Number(p.version) || 1} • Adulto: ${p.requiresAge === true ? 'Sim' : 'Não'}` : '',
     p.note ? `*Observação*\n${safeText(String(p.note), 200)}` : '',
   ].filter(Boolean)
   if (event.kind.startsWith('REVIEW_')) {
-    return [`🔎 *${safeText(String(p.type ?? 'Revisão')).toUpperCase()}*`, ...details, p.appeal ? `*Contestação*\n${safeText(String(p.appeal), 240)}` : '', '*Ação*\nResponda: *APROVAR* ou *RECUSAR motivo*.', `Revisão: ${event.id}\nValidade: 24h\nPainel: ${panel}`].filter(Boolean).join('\n\n')
+    return [p.appeal ? `📣 *CONTESTAÇÃO • ${type}*` : event.kind === 'REVIEW_TEXT' ? '✏️ *ALTERAÇÃO DE TEXTO*' : `${symbol} *${p.resourceType ? type + ' EM REVISÃO' : safeText(String(p.type ?? 'Novo link')).toUpperCase()}*`, ...details, p.appeal ? `*Contestação*\n${safeText(String(p.appeal), 240)}` : '', '*Ação*\nResponda: *APROVAR* ou *RECUSAR motivo*.', `Revisão: ${event.id}\nValidade: 24h\nPainel: ${panel}`].filter(Boolean).join('\n\n')
   }
-  if (event.kind === 'DECISION') return [p.decision === 'APPROVE' ? '✅ *APROVADO*' : '❌ *RECUSADO*', ...details, `*Resultado*\n${p.status === 'PUBLISHED' ? (p.decision === 'REJECT' ? 'Link continua publicado com o texto anterior.' : 'Link publicado.') : p.status === 'PRE_REJECTED' ? 'Não publicado • contestação disponível.' : 'Decisão registrada.'}`, p.reason ? `*Motivo*\n${safeText(String(p.reason))}` : '', `*Decidido por*\n${safeText(String(p.operator ?? 'Administrador'), 100)} • ${p.channel === 'WHATSAPP' ? 'WhatsApp' : 'Painel'}`, [p.reviewMessageId ? `Revisão: ${safeText(String(p.reviewMessageId), 100)}` : '', `Painel: ${panel}`].filter(Boolean).join('\n')].filter(Boolean).join('\n\n')
-  if (event.kind === 'REFUND_FAILED') return ['💰 *FALHA NO ESTORNO*', ...details, ['*Pedido*', safeText(event.resourceId ?? event.id, 100), typeof p.amountCents === 'number' && Number.isFinite(p.amountCents) ? `Valor: ${(p.amountCents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} • ${p.method === 'CARD' ? 'Cartão' : p.method === 'PIX' ? 'Pix' : 'Pagamento'}` : '', typeof p.attempts === 'number' ? `Tentativas: ${p.attempts}` : ''].filter(Boolean).join('\n'), `*Ação*\nVerificar estorno\n${origin.replace(/\/$/, '')}/admin/estornos`].join('\n\n')
+  if (event.kind === 'DECISION') return [p.decision === 'APPROVE' ? `✅ *${p.resourceType ? type + ' • ' : ''}APROVADO*` : `❌ *${p.resourceType ? type + ' • ' : ''}RECUSADO*`, ...details, `*Resultado*\n${p.resourceType ? p.decision === 'APPROVE' ? (p.resourceType === 'PROFILE' ? 'Página publicada.' : 'Destino do convite liberado.') : [p.previousPublished ? 'Publicação anterior mantida.' : 'Envio não publicado.', p.canAppeal ? 'Contestação disponível.' : 'Contestação já utilizada; corrija e envie nova versão.'].join(' ') : p.status === 'PUBLISHED' ? (p.decision === 'REJECT' ? 'Link continua publicado com o texto anterior.' : 'Link publicado.') : p.status === 'PRE_REJECTED' ? 'Não publicado • contestação disponível.' : 'Decisão registrada.'}`, p.reason ? `*Motivo*\n${safeText(String(p.reason))}` : '', `*Decidido por*\n${safeText(String(p.operator ?? 'Administrador'), 100)} • ${p.channel === 'WHATSAPP' ? 'WhatsApp' : 'Painel'}`, [p.reviewMessageId ? `Revisão: ${safeText(String(p.reviewMessageId), 100)}` : '', `Painel: ${panel}`].filter(Boolean).join('\n')].filter(Boolean).join('\n\n')
+  if (event.kind === 'REFUND_FAILED') return ['💸 *FALHA NO ESTORNO*', ...details, ['*Pedido*', safeText(event.resourceId ?? event.id, 100), typeof p.amountCents === 'number' && Number.isFinite(p.amountCents) ? `Valor: ${(p.amountCents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} • ${p.method === 'CARD' ? 'Cartão' : p.method === 'PIX' ? 'Pix' : 'Pagamento'}` : '', typeof p.attempts === 'number' ? `Tentativas: ${p.attempts}` : ''].filter(Boolean).join('\n'), `*Ação*\nVerificar estorno\n${origin.replace(/\/$/, '')}/admin/estornos`].join('\n\n')
   if (event.kind === 'COMMAND_RESULT') {
-    const explanations: Record<string, string> = { review_already_resolved: 'Essa revisão já foi decidida. A decisão anterior foi mantida.', review_reference_expired: 'Esse aviso expirou ou o conteúdo do link mudou. Abra a revisão atual no painel.', review_not_found: 'Essa revisão não está mais disponível.', reason_required: 'Para recusar, responda ao aviso com RECUSAR e o motivo.' }
+    const explanations: Record<string, string> = { review_already_resolved: 'Essa revisão já foi decidida. A decisão anterior foi mantida.', review_reference_expired: 'Esse aviso expirou ou o conteúdo mudou. Abra a revisão atual no painel.', review_not_found: 'Essa revisão não está mais disponível.', reason_required: 'Para recusar, responda ao aviso com RECUSAR e o motivo.', review_validation_failed: 'O conteúdo não passou nas validações de segurança ou disponibilidade. Peça a correção pelo painel.', review_validation_unavailable: 'Não foi possível revalidar agora. Tente novamente mais tarde; nada foi publicado.' }
     return ['⚠️ *COMANDO NÃO APLICADO*', ...details, `*Resultado*\n${explanations[String(p.resultCode)] ?? 'Confira a revisão no painel.'}`, `*Ação*\nAcessar o painel\n${panel}`, p.reviewMessageId ? `Revisão: ${safeText(String(p.reviewMessageId), 100)}` : ''].filter(Boolean).join('\n\n')
   }
-  return ['🟢 *ENVIO RECUPERADO*', ...details, `*Entrega*\nAviso: ${safeText(event.resourceId ?? event.id, 100)}\nEntrega pendente concluída.`, `*Ação*\n${origin.replace(/\/$/, '')}/admin/integracoes`].join('\n\n')
+  return ['📬 *ENVIO RECUPERADO*', ...details, `*Entrega*\nAviso: ${safeText(event.resourceId ?? event.id, 100)}\nEntrega pendente concluída.`, `*Ação*\n${origin.replace(/\/$/, '')}/admin/integracoes`].join('\n\n')
 }
 
 export class EvolutionDeliveryError extends Error {
@@ -143,7 +168,7 @@ export async function sendEvolution(config: { baseUrl: string; instance: string;
   } catch { throw new EvolutionDeliveryError('UNCERTAIN', 'provider_response_unconfirmed') }
 }
 
-export async function processEvolutionReceipt(db: PrismaClient, id: string) {
+export async function processEvolutionReceipt(db: PrismaClient, id: string, ports?: PublicContentValidationPorts) {
   const receipt = await db.evolutionReceipt.findUnique({ where: { id } })
   if (!receipt || receipt.state !== 'PENDING') return
   const claimed = await db.evolutionReceipt.updateMany({ where: { id, state: 'PENDING' }, data: { state: 'PROCESSING' } })
@@ -154,9 +179,21 @@ export async function processEvolutionReceipt(db: PrismaClient, id: string) {
     const eventId = receipt.reference.split('.')[0]!
     if (!config || !actor) throw new ReviewError(403, 'operator_forbidden')
     if (!matchesReference(receipt.reference, eventId, config.secret)) throw new ReviewError(403, 'invalid_reference')
-    const event = await db.operationalMessage.findFirst({ where: { id: eventId, tenantId: receipt.tenantId, kind: { in: ['REVIEW_CASE', 'REVIEW_TEXT'] } } })
+    const event = await db.operationalMessage.findFirst({ where: { id: eventId, tenantId: receipt.tenantId, kind: { in: REVIEW_KINDS } } })
     if (!event) throw new ReviewError(404, 'review_not_found')
-    await resolveHumanReview(db, { tenantId: receipt.tenantId, actorId: actor.id, reviewId: event.resourceId, fields: { decision: receipt.decision as 'APPROVE' | 'REJECT', reason: receipt.reason ?? undefined }, channel: 'WHATSAPP', requestId: receipt.id, messageId: event.id, operatorPhone: receipt.sender, receiptId: receipt.id })
+    if (CONTENT_REVIEW_KINDS.includes(event.kind)) {
+      if (receipt.decision === 'REJECT' && !receipt.reason?.trim()) throw new ReviewError(400, 'reason_required')
+      try {
+        await decideContentReview(db, { tenantId: receipt.tenantId, ownerId: actor.id }, event.resourceId, receipt.decision as 'APPROVE' | 'REJECT', receipt.reason ?? undefined, ports ?? publicContentValidationPorts(config.tenant.host), { messageId: event.id, operatorPhone: receipt.sender, receiptId: receipt.id })
+      } catch (error) {
+        if (error instanceof ReviewError) throw error
+        if (error instanceof ContentReviewError || (error && typeof error === 'object' && 'status' in error && typeof error.status === 'number')) {
+          const status = Number(error.status)
+          throw new ReviewError(status, status === 403 ? 'operator_forbidden' : status === 404 ? 'review_not_found' : status === 409 ? 'review_already_resolved' : status >= 500 ? 'review_validation_unavailable' : 'review_validation_failed')
+        }
+        throw error
+      }
+    } else await resolveHumanReview(db, { tenantId: receipt.tenantId, actorId: actor.id, reviewId: event.resourceId, fields: { decision: receipt.decision as 'APPROVE' | 'REJECT', reason: receipt.reason ?? undefined }, channel: 'WHATSAPP', requestId: receipt.id, messageId: event.id, operatorPhone: receipt.sender, receiptId: receipt.id })
   } catch (error) {
     const code = error instanceof ReviewError ? error.code : 'processing_failed'
     if (!(error instanceof ReviewError)) {
@@ -216,6 +253,8 @@ export async function runEvolutionCycle(db: PrismaClient, transport: typeof fetc
       await seedEvolutionOperators(db, tenant.id)
       const cases = await db.moderationCase.findMany({ where: { tenantId: tenant.id, closedAt: null, link: { status: 'PENDING_MODERATION' } }, select: { id: true }, take: 200, orderBy: { createdAt: 'asc' } })
       for (const row of cases) await queueCaseReview(db, row.id)
+      const contents = await db.contentReview.findMany({ where: { tenantId: tenant.id, status: 'PENDING', owner: { status: 'ACTIVE' } }, select: { id: true }, take: 200, orderBy: { createdAt: 'asc' } })
+      for (const row of contents) await queueContentReview(db, row.id)
       const proposals = await db.auditLog.findMany({ where: { tenantId: tenant.id, action: 'link.text.verdict', after: { path: ['decision'], equals: 'ADMIN' } }, orderBy: { createdAt: 'desc' }, take: 100 })
       for (const row of proposals) await queueTextReview(db, tenant.id, row.entityId)
     }

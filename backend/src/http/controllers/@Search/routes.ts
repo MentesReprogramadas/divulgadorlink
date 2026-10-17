@@ -15,10 +15,12 @@ import type { EmbeddingService } from '@/domain/embeddings/embedding-service'
 import {
   autocompleteIds,
   hybridSearchSql,
+  nameMatchSql,
   rankSearch,
   relevanceScore,
   resolveSearchTarget,
   searchFacetProbe,
+  searchRelevanceScore,
   visibleForAge,
 } from '@/use-cases/@Search/rank-links'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
@@ -178,7 +180,8 @@ async function loadCandidates(
   const rows = await candidates({ ...input, vector })
   return rows.map((row) => ({
     ...row,
-    relevance: relevanceScore(row.textScore, row.semanticScore ?? 0, input.textWeight, input.semanticWeight),
+    relevance: searchRelevanceScore(row.name, input.query,
+      relevanceScore(row.textScore, row.semanticScore ?? 0, input.textWeight, input.semanticWeight), input.textWeight),
   }))
 }
 
@@ -269,7 +272,7 @@ export async function getSuggest(request: FastifyRequest, reply: FastifyReply) {
       }))
     : await prisma.$queryRawUnsafe<SearchCandidate[]>(
       `
-        SELECT l."id", l."name", l."description", 1 AS relevance, 1 AS "textScore", NULL AS "semanticScore",
+        SELECT l."id", l."name", l."description", $3::float8 AS relevance, 1 AS "textScore", NULL AS "semanticScore",
           l."embeddingState",
           (
             SELECT p."activatedAt" FROM "promotions" p
@@ -284,11 +287,12 @@ export async function getSuggest(request: FastifyRequest, reply: FastifyReply) {
         JOIN "niches" n ON n."id" = l."nicheId"
         JOIN "networks" net ON net."id" = l."networkId"
         WHERE l."tenantId" = $1 AND ${PUBLIC_LINK_FILTER}
-          AND l."name" ILIKE '%' || $2 || '%'
+          AND ${nameMatchSql('$2')}
         LIMIT 8
       `,
       tenant.id,
       query.trim(),
+      textWeight,
     )
   const recommended = autocompleteIds(source, threshold, 8)
   const visible = visibleForAge(source, age)

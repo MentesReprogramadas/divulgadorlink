@@ -1,0 +1,13 @@
+.upload { display: grid; gap: var(--space-3); min-width: 0; }
+.title { font-weight: 600; }
+.dropzone { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); min-height: 120px; padding: var(--space-6); border: 2px dashed var(--border-default); border-radius: var(--radius-lg); background: var(--surface-page); cursor: pointer; }
+.dropzone:hover, .dropzone[data-dragging], .dropzone:focus-within { border-color: var(--color-brand-navy); background: var(--surface-subtle); }
+.dropzone:focus-within { outline: 2px solid var(--color-brand-navy); outline-offset: 3px; }
+.dropzone img, .placeholder { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; }
+.placeholder { display: grid; place-items: center; background: var(--surface-raised); color: var(--text-secondary); border: 1px solid var(--border-default); }
+.dropzone strong, .dropzone small { display: block; }
+.dropzone small, .upload p { color: var(--text-secondary); font-size: var(--text-sm); }
+.dropzone small { margin-top: var(--space-2); }
+.upload p { margin: 0; }
+.upload > button { justify-self: start; }
+.dropzone input { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }

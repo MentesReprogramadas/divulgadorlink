@@ -1,0 +1,214 @@
+.home-masthead {
+  margin-bottom: var(--space-12);
+}
+
+.home-masthead .entry-title {
+  margin: 0;
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  letter-spacing: -0.035em;
+  overflow-wrap: break-word;
+}
+
+.home-description {
+  max-width: 38ch;
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  color: var(--color-muted);
+}
+
+.home-search {
+  position: relative;
+  max-width: none;
+  margin-top: var(--space-8);
+}
+
+.home-search-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.home-search-icon {
+  position: absolute;
+  top: 50%;
+  left: var(--space-4);
+  z-index: 1;
+  display: flex;
+  color: var(--color-brand-navy);
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.home-search .field {
+  min-height: 56px;
+  margin: 0;
+  padding: 0 var(--space-4) 0 44px;
+  border: 1px solid var(--color-line);
+  border-bottom: 2px solid var(--color-brand-turquoise);
+  border-radius: 6px;
+  font-size: var(--text-body);
+  appearance: none;
+}
+
+.home-search .field::placeholder {
+  color: var(--color-muted);
+  opacity: 1;
+}
+
+.home-search .field::-webkit-search-decoration,
+.home-search .field::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+.home-search .field:focus-visible {
+  border-color: var(--color-brand-navy);
+  border-bottom-color: var(--color-brand-turquoise);
+}
+
+.home-explore-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--color-brand-navy);
+}
+
+.home-explore-title::after {
+  content: "";
+  display: block;
+  width: 32px;
+  height: 2px;
+  margin-top: var(--space-3);
+  background: var(--color-brand-turquoise);
+}
+
+.home-explore-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  gap: var(--space-12);
+  align-items: start;
+  margin-top: var(--space-6);
+}
+
+.home-explore h3 {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.facet {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-brand-navy);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+}
+.facet-icon { flex: none; }
+a.facet:hover { text-decoration: underline; text-underline-offset: 0.16em; }
+
+.home-facets {
+  columns: 2;
+  column-gap: var(--space-6);
+  margin: 0;
+}
+
+.facet-line .facet,
+.home-facets .facet {
+  display: flex;
+  position: relative;
+  margin: 0 0 var(--space-3);
+  padding: 10px 14px 12px;
+  break-inside: avoid;
+  font-size: var(--text-body);
+  font-weight: 400;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.page-facets { margin-top: var(--space-6); }
+.home-explore .page-facets { margin-top: 0; }
+.page-facets h2 {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.facet-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.facet-line {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.facet-line::-webkit-scrollbar {
+  display: none;
+}
+
+@media (max-width: 719px) {
+  .home-explore-columns:not(.is-open) .facet-stack .facet-line:first-child .facet:nth-child(n + 5) {
+    display: none;
+  }
+
+  .home-explore-columns:not(.is-open) .facet-stack .facet-line:nth-child(n + 2) {
+    display: none;
+  }
+}
+
+.facet-line.is-open {
+  flex-wrap: wrap;
+  overflow: visible;
+}
+
+.facet-line .facet {
+  flex: none;
+  margin: 0;
+}
+
+.facet-deferred {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.facet-more {
+  margin-top: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-brand-navy);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.facet-line .facet[aria-current="true"],
+.home-facets .facet[aria-current="true"] {
+  background: var(--color-lift);
+}
+.facet-line .facet[aria-current="true"]::after,
+.home-facets .facet[aria-current="true"]::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: var(--color-brand-turquoise);
+}

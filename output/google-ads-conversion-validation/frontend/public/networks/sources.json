@@ -1,0 +1,131 @@
+[
+  {
+    "slug": "discord",
+    "asset": "https://raw.githubusercontent.com/simple-icons/simple-icons/4d29a35c954699b389a834aacc97dd6e7e74143c/icons/discord.svg",
+    "source": "https://discord.com/branding",
+    "provider": "Simple Icons",
+    "revision": "4d29a35c954699b389a834aacc97dd6e7e74143c"
+  },
+  {
+    "slug": "facebook",
+    "asset": "https://raw.githubusercontent.com/simple-icons/simple-icons/4d29a35c954699b389a834aacc97dd6e7e74143c/icons/facebook.svg",
+    "source": "https://about.meta.com/brand/resources/facebook/logo",
+    "provider": "Simple Icons",
+    "revision": "4d29a35c954699b389a834aacc97dd6e7e74143c"
+  },
+  {
+    "slug": "instagram",
+    "asset": "https://raw.githubusercontent.com/simple-icons/simple-icons/4d29a35c954699b389a834aacc97dd6e7e74143c/icons/instagram.svg",
+    "source": "https://about.meta.com/brand/resources/instagram",
+    "provider": "Simple Icons",
+    "revision": "4d29a35c954699b389a834aacc97dd6e7e74143c"
+  },
+  {
+    "slug": "pinterest",
+    "asset": "https://raw.githubusercontent.com/simple-icons/simple-icons/4d29a35c954699b389a834aacc97dd6e7e74143c/icons/pinterest.svg",
+    "source": "https://business.pinterest.com/en/brand-guidelines",
+    "provider": "Simple Icons",
+    "revision": "4d29a35c954699b389a834aacc97dd6e7e74143c"
+  },
+  {
+    "slug": "reddit",
+    "asset": "https://raw.githubusercontent.com/simple-icons/simple-icons/4d29a35c954699b389a834aacc97dd6e7e74143c/icons/reddit.svg",
+    "source": "https://www.redditinc.com/brand",
+    "provider": "Simple Icons",
+    "revision": "4d29a35c954699b389a834aacc97dd6e7e74143c"
+  },
+  {
+    "slug": "telegram",
+    "asset": "https://raw.githubusercontent.com/simple-icons/simple-icons/4d29a35c954699b389a834aacc97dd6e7e74143c/icons/telegram.svg",
+    "source": "https://telegram.org/tour/screenshots",
+    "provider": "Simple Icons",
+    "revision": "4d29a35c954699b389a834aacc97dd6e7e74143c"
+  },
+  {
+    "slug": "threads",
+    "asset": "https://raw.githubusercontent.com/simple-icons/simple-icons/4d29a35c954699b389a834aacc97dd6e7e74143c/icons/threads.svg",
+    "source": "https://www.meta.com/brand/resources/instagram/threads",
+    "provider": "Simple Icons",
+    "revision": "4d29a35c954699b389a834aacc97dd6e7e74143c"
+  },
+  {
+    "slug": "tiktok",
+    "asset": "https://raw.githubusercontent.com/simple-icons/simple-icons/4d29a35c954699b389a834aacc97dd6e7e74143c/icons/tiktok.svg",
+    "source": "https://tiktok.com",
+    "provider": "Simple Icons",
+    "revision": "4d29a35c954699b389a834aacc97dd6e7e74143c"
+  },
+  {
+    "slug": "twitch",
+    "asset": "https://raw.githubusercontent.com/simple-icons/simple-icons/4d29a35c954699b389a834aacc97dd6e7e74143c/icons/twitch.svg",
+    "source": "https://brand.twitch.tv",
+    "provider": "Simple Icons",
+    "revision": "4d29a35c954699b389a834aacc97dd6e7e74143c"
+  },
+  {
+    "slug": "vimeo",
+    "asset": "https://raw.githubusercontent.com/simple-icons/simple-icons/4d29a35c954699b389a834aacc97dd6e7e74143c/icons/vimeo.svg",
+    "source": "https://press.vimeo.com/brand-guidelines",
+    "provider": "Simple Icons",
+    "revision": "4d29a35c954699b389a834aacc97dd6e7e74143c"
+  },
+  {
+    "slug": "whatsapp",
+    "asset": "https://raw.githubusercontent.com/simple-icons/simple-icons/4d29a35c954699b389a834aacc97dd6e7e74143c/icons/whatsapp.svg",
+    "source": "https://about.meta.com/brand/resources/whatsapp/whatsapp-brand",
+    "provider": "Simple Icons",
+    "revision": "4d29a35c954699b389a834aacc97dd6e7e74143c"
+  },
+  {
+    "slug": "x",
+    "asset": "https://raw.githubusercontent.com/simple-icons/simple-icons/4d29a35c954699b389a834aacc97dd6e7e74143c/icons/x.svg",
+    "source": "https://x.com",
+    "provider": "Simple Icons",
+    "revision": "4d29a35c954699b389a834aacc97dd6e7e74143c"
+  },
+  {
+    "slug": "youtube",
+    "asset": "https://raw.githubusercontent.com/simple-icons/simple-icons/4d29a35c954699b389a834aacc97dd6e7e74143c/icons/youtube.svg",
+    "source": "https://www.youtube.com/howyoutubeworks/resources/brand-resources/#logos-icons-and-colors",
+    "provider": "Simple Icons",
+    "revision": "4d29a35c954699b389a834aacc97dd6e7e74143c"
+  },
+  {
+    "slug": "onlyfans",
+    "asset": "https://raw.githubusercontent.com/simple-icons/simple-icons/4d29a35c954699b389a834aacc97dd6e7e74143c/icons/onlyfans.svg",
+    "source": "https://onlyfans.com/brand",
+    "provider": "Simple Icons",
+    "revision": "4d29a35c954699b389a834aacc97dd6e7e74143c"
+  },
+  {
+    "slug": "kwai",
+    "asset": "https://cdn-static.kwai.net/kos/s101/nlav11312/kwai-www-resource/icon/Kwai-Account-Logo.png",
+    "source": "https://www.kwai.com/id/brand-resource",
+    "provider": "Official app asset"
+  },
+  {
+    "slug": "privacy",
+    "asset": "https://privacy.com.br/icons/apple-icon-180.png",
+    "source": "https://privacy.com.br/brand",
+    "provider": "Official app asset"
+  },
+  {
+    "slug": "fansly",
+    "asset": "https://fansly.com/assets/images/icons/favicon-32x32.png?v=12",
+    "source": "https://fansly.com/",
+    "provider": "Official app asset"
+  },
+  {
+    "slug": "fatal-model",
+    "asset": "https://fatalmodel.com/favicon.ico",
+    "source": "https://fatalmodel.com/",
+    "provider": "Official app asset"
+  },
+  {
+    "slug": "linkedin",
+    "asset": "https://content.linkedin.com/content/dam/me/business/en-us/amp/xbu/linkedin-revised-brand-guidelines/logos/in-logo.zip",
+    "source": "https://brand.linkedin.com/downloads",
+    "provider": "Official brand download",
+    "file": "in-logo/LI-In-Bug.png"
+  }
+]

@@ -202,7 +202,7 @@ main.panel-page {
 input:not([type="checkbox"]):not([type="radio"]),
 select,
 textarea {
-  background-color: var(--color-control-bg);
+  background-color: var(--field-background, var(--color-control-bg));
   color: var(--color-ink);
 }
 .field,
@@ -213,10 +213,10 @@ textarea.field {
   min-height: 48px;
   margin: var(--space-2) 0 var(--space-4);
   padding: var(--space-3);
-  border: 1px solid #a4b2c4;
+  border: 1px solid var(--field-border, #a4b2c4);
   border-radius: var(--radius);
   font: inherit;
-  background-color: var(--color-control-bg);
+  background-color: var(--field-background, var(--color-control-bg));
   color: var(--color-ink);
 }
 .field:hover:not(:disabled) { border-color: var(--neutral-500); }
@@ -229,7 +229,7 @@ input:disabled,
 select:disabled,
 textarea:disabled {
   cursor: not-allowed;
-  opacity: 0.55;
+  opacity: var(--field-opacity, 0.55);
 }
 
 .card {

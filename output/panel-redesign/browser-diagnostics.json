@@ -1,0 +1,344 @@
+[
+  {
+    "suffix": "desktop",
+    "route": "painel",
+    "active": "<body><div hidden=\"\"><!--$--><!--/$--></div><a class=\"site-shell_skip__Tjqpy\" href=\"#main-content\">Ir para o conteúdo</a><header class=\"site-shell_header__wIER9\"><div class=\"site-shell_headerInner__ZF",
+    "rect": {
+      "x": 8,
+      "y": -89.59375,
+      "width": 153.765625,
+      "height": 48.796875,
+      "top": -89.59375,
+      "right": 161.765625,
+      "bottom": -40.796875,
+      "left": 8
+    },
+    "transform": "matrix(1, 0, 0, 1, 0, -97.5938)",
+    "position": "fixed",
+    "top": "8px",
+    "focused": false
+  },
+  {
+    "suffix": "desktop",
+    "route": "painel/links",
+    "active": "<body><div hidden=\"\"><!--$--><!--/$--></div><a class=\"site-shell_skip__Tjqpy\" href=\"#main-content\">Ir para o conteúdo</a><header class=\"site-shell_header__wIER9\"><div class=\"site-shell_headerInner__ZF",
+    "rect": {
+      "x": 8,
+      "y": -89.59375,
+      "width": 153.765625,
+      "height": 48.796875,
+      "top": -89.59375,
+      "right": 161.765625,
+      "bottom": -40.796875,
+      "left": 8
+    },
+    "transform": "matrix(1, 0, 0, 1, 0, -97.5938)",
+    "position": "fixed",
+    "top": "8px",
+    "focused": false
+  },
+  {
+    "suffix": "desktop",
+    "route": "painel/pedidos",
+    "active": "<body><div hidden=\"\"><!--$--><!--/$--></div><a class=\"site-shell_skip__Tjqpy\" href=\"#main-content\">Ir para o conteúdo</a><header class=\"site-shell_header__wIER9\"><div class=\"site-shell_headerInner__ZF",
+    "rect": {
+      "x": 8,
+      "y": -89.59375,
+      "width": 153.765625,
+      "height": 48.796875,
+      "top": -89.59375,
+      "right": 161.765625,
+      "bottom": -40.796875,
+      "left": 8
+    },
+    "transform": "matrix(1, 0, 0, 1, 0, -97.5938)",
+    "position": "fixed",
+    "top": "8px",
+    "focused": false
+  },
+  {
+    "suffix": "desktop",
+    "route": "painel/favoritos",
+    "active": "<body><div hidden=\"\"><!--$--><!--/$--></div><a class=\"site-shell_skip__Tjqpy\" href=\"#main-content\">Ir para o conteúdo</a><header class=\"site-shell_header__wIER9\"><div class=\"site-shell_headerInner__ZF",
+    "rect": {
+      "x": 8,
+      "y": -89.59375,
+      "width": 153.765625,
+      "height": 48.796875,
+      "top": -89.59375,
+      "right": 161.765625,
+      "bottom": -40.796875,
+      "left": 8
+    },
+    "transform": "matrix(1, 0, 0, 1, 0, -97.5938)",
+    "position": "fixed",
+    "top": "8px",
+    "focused": false
+  },
+  {
+    "suffix": "desktop",
+    "route": "painel/links/novo",
+    "active": "<body><div hidden=\"\"><!--$--><!--/$--></div><a class=\"site-shell_skip__Tjqpy\" href=\"#main-content\">Ir para o conteúdo</a><header class=\"site-shell_header__wIER9\"><div class=\"site-shell_headerInner__ZF",
+    "rect": {
+      "x": 8,
+      "y": -89.59375,
+      "width": 153.765625,
+      "height": 48.796875,
+      "top": -89.59375,
+      "right": 161.765625,
+      "bottom": -40.796875,
+      "left": 8
+    },
+    "transform": "matrix(1, 0, 0, 1, 0, -97.5938)",
+    "position": "fixed",
+    "top": "8px",
+    "focused": false
+  },
+  {
+    "suffix": "desktop",
+    "route": "painel/perfil",
+    "active": "<body><div hidden=\"\"><!--$--><!--/$--></div><a class=\"site-shell_skip__Tjqpy\" href=\"#main-content\">Ir para o conteúdo</a><header class=\"site-shell_header__wIER9\"><div class=\"site-shell_headerInner__ZF",
+    "rect": {
+      "x": 8,
+      "y": -89.59375,
+      "width": 153.765625,
+      "height": 48.796875,
+      "top": -89.59375,
+      "right": 161.765625,
+      "bottom": -40.796875,
+      "left": 8
+    },
+    "transform": "matrix(1, 0, 0, 1, 0, -97.5938)",
+    "position": "fixed",
+    "top": "8px",
+    "focused": false
+  },
+  {
+    "suffix": "desktop",
+    "route": "admin/visao",
+    "active": "<body><div hidden=\"\"><!--$--><!--/$--></div><a class=\"site-shell_skip__Tjqpy\" href=\"#main-content\">Ir para o conteúdo</a><header class=\"site-shell_header__wIER9\"><div class=\"site-shell_headerInner__ZF",
+    "rect": {
+      "x": 8,
+      "y": -89.59375,
+      "width": 153.765625,
+      "height": 48.796875,
+      "top": -89.59375,
+      "right": 161.765625,
+      "bottom": -40.796875,
+      "left": 8
+    },
+    "transform": "matrix(1, 0, 0, 1, 0, -97.5938)",
+    "position": "fixed",
+    "top": "8px",
+    "focused": false
+  },
+  {
+    "suffix": "desktop",
+    "route": "admin/configuracoes",
+    "active": "<body><div hidden=\"\"><!--$--><!--/$--></div><a class=\"site-shell_skip__Tjqpy\" href=\"#main-content\">Ir para o conteúdo</a><header class=\"site-shell_header__wIER9\"><div class=\"site-shell_headerInner__ZF",
+    "rect": {
+      "x": 8,
+      "y": -89.59375,
+      "width": 153.765625,
+      "height": 48.796875,
+      "top": -89.59375,
+      "right": 161.765625,
+      "bottom": -40.796875,
+      "left": 8
+    },
+    "transform": "matrix(1, 0, 0, 1, 0, -97.5938)",
+    "position": "fixed",
+    "top": "8px",
+    "focused": false
+  },
+  {
+    "suffix": "desktop",
+    "route": "admin/integracoes",
+    "active": "<body><div hidden=\"\"><!--$--><!--/$--></div><a class=\"site-shell_skip__Tjqpy\" href=\"#main-content\">Ir para o conteúdo</a><header class=\"site-shell_header__wIER9\"><div class=\"site-shell_headerInner__ZF",
+    "rect": {
+      "x": 8,
+      "y": -89.59375,
+      "width": 153.765625,
+      "height": 48.796875,
+      "top": -89.59375,
+      "right": 161.765625,
+      "bottom": -40.796875,
+      "left": 8
+    },
+    "transform": "matrix(1, 0, 0, 1, 0, -97.5938)",
+    "position": "fixed",
+    "top": "8px",
+    "focused": false
+  },
+  {
+    "suffix": "mobile",
+    "route": "painel",
+    "active": "<body><div hidden=\"\"><!--$--><!--/$--></div><a class=\"site-shell_skip__Tjqpy\" href=\"#main-content\">Ir para o conteúdo</a><header class=\"site-shell_header__wIER9\"><div class=\"site-shell_headerInner__ZF",
+    "rect": {
+      "x": 8,
+      "y": -89.59375,
+      "width": 153.765625,
+      "height": 48.796875,
+      "top": -89.59375,
+      "right": 161.765625,
+      "bottom": -40.796875,
+      "left": 8
+    },
+    "transform": "matrix(1, 0, 0, 1, 0, -97.5938)",
+    "position": "fixed",
+    "top": "8px",
+    "focused": false
+  },
+  {
+    "suffix": "mobile",
+    "route": "painel/links",
+    "active": "<body><div hidden=\"\"><!--$--><!--/$--></div><a class=\"site-shell_skip__Tjqpy\" href=\"#main-content\">Ir para o conteúdo</a><header class=\"site-shell_header__wIER9\"><div class=\"site-shell_headerInner__ZF",
+    "rect": {
+      "x": 8,
+      "y": -89.59375,
+      "width": 153.765625,
+      "height": 48.796875,
+      "top": -89.59375,
+      "right": 161.765625,
+      "bottom": -40.796875,
+      "left": 8
+    },
+    "transform": "matrix(1, 0, 0, 1, 0, -97.5938)",
+    "position": "fixed",
+    "top": "8px",
+    "focused": false
+  },
+  {
+    "suffix": "mobile",
+    "route": "painel/pedidos",
+    "active": "<body><div hidden=\"\"><!--$--><!--/$--></div><a class=\"site-shell_skip__Tjqpy\" href=\"#main-content\">Ir para o conteúdo</a><header class=\"site-shell_header__wIER9\"><div class=\"site-shell_headerInner__ZF",
+    "rect": {
+      "x": 8,
+      "y": -89.59375,
+      "width": 153.765625,
+      "height": 48.796875,
+      "top": -89.59375,
+      "right": 161.765625,
+      "bottom": -40.796875,
+      "left": 8
+    },
+    "transform": "matrix(1, 0, 0, 1, 0, -97.5938)",
+    "position": "fixed",
+    "top": "8px",
+    "focused": false
+  },
+  {
+    "suffix": "mobile",
+    "route": "painel/favoritos",
+    "active": "<body><div hidden=\"\"><!--$--><!--/$--></div><a class=\"site-shell_skip__Tjqpy\" href=\"#main-content\">Ir para o conteúdo</a><header class=\"site-shell_header__wIER9\"><div class=\"site-shell_headerInner__ZF",
+    "rect": {
+      "x": 8,
+      "y": -89.59375,
+      "width": 153.765625,
+      "height": 48.796875,
+      "top": -89.59375,
+      "right": 161.765625,
+      "bottom": -40.796875,
+      "left": 8
+    },
+    "transform": "matrix(1, 0, 0, 1, 0, -97.5938)",
+    "position": "fixed",
+    "top": "8px",
+    "focused": false
+  },
+  {
+    "suffix": "mobile",
+    "route": "painel/links/novo",
+    "active": "<body><div hidden=\"\"><!--$--><!--/$--></div><a class=\"site-shell_skip__Tjqpy\" href=\"#main-content\">Ir para o conteúdo</a><header class=\"site-shell_header__wIER9\"><div class=\"site-shell_headerInner__ZF",
+    "rect": {
+      "x": 8,
+      "y": -89.59375,
+      "width": 153.765625,
+      "height": 48.796875,
+      "top": -89.59375,
+      "right": 161.765625,
+      "bottom": -40.796875,
+      "left": 8
+    },
+    "transform": "matrix(1, 0, 0, 1, 0, -97.5938)",
+    "position": "fixed",
+    "top": "8px",
+    "focused": false
+  },
+  {
+    "suffix": "mobile",
+    "route": "painel/perfil",
+    "active": "<body><div hidden=\"\"><!--$--><!--/$--></div><a class=\"site-shell_skip__Tjqpy\" href=\"#main-content\">Ir para o conteúdo</a><header class=\"site-shell_header__wIER9\"><div class=\"site-shell_headerInner__ZF",
+    "rect": {
+      "x": 8,
+      "y": -89.59375,
+      "width": 153.765625,
+      "height": 48.796875,
+      "top": -89.59375,
+      "right": 161.765625,
+      "bottom": -40.796875,
+      "left": 8
+    },
+    "transform": "matrix(1, 0, 0, 1, 0, -97.5938)",
+    "position": "fixed",
+    "top": "8px",
+    "focused": false
+  },
+  {
+    "suffix": "mobile",
+    "route": "admin/visao",
+    "active": "<body><div hidden=\"\"><!--$--><!--/$--></div><a class=\"site-shell_skip__Tjqpy\" href=\"#main-content\">Ir para o conteúdo</a><header class=\"site-shell_header__wIER9\"><div class=\"site-shell_headerInner__ZF",
+    "rect": {
+      "x": 8,
+      "y": -89.59375,
+      "width": 153.765625,
+      "height": 48.796875,
+      "top": -89.59375,
+      "right": 161.765625,
+      "bottom": -40.796875,
+      "left": 8
+    },
+    "transform": "matrix(1, 0, 0, 1, 0, -97.5938)",
+    "position": "fixed",
+    "top": "8px",
+    "focused": false
+  },
+  {
+    "suffix": "mobile",
+    "route": "admin/configuracoes",
+    "active": "<body><div hidden=\"\"><!--$--><!--/$--></div><a class=\"site-shell_skip__Tjqpy\" href=\"#main-content\">Ir para o conteúdo</a><header class=\"site-shell_header__wIER9\"><div class=\"site-shell_headerInner__ZF",
+    "rect": {
+      "x": 8,
+      "y": -89.59375,
+      "width": 153.765625,
+      "height": 48.796875,
+      "top": -89.59375,
+      "right": 161.765625,
+      "bottom": -40.796875,
+      "left": 8
+    },
+    "transform": "matrix(1, 0, 0, 1, 0, -97.5938)",
+    "position": "fixed",
+    "top": "8px",
+    "focused": false
+  },
+  {
+    "suffix": "mobile",
+    "route": "admin/integracoes",
+    "active": "<body><div hidden=\"\"><!--$--><!--/$--></div><a class=\"site-shell_skip__Tjqpy\" href=\"#main-content\">Ir para o conteúdo</a><header class=\"site-shell_header__wIER9\"><div class=\"site-shell_headerInner__ZF",
+    "rect": {
+      "x": 8,
+      "y": -89.59375,
+      "width": 153.765625,
+      "height": 48.796875,
+      "top": -89.59375,
+      "right": 161.765625,
+      "bottom": -40.796875,
+      "left": 8
+    },
+    "transform": "matrix(1, 0, 0, 1, 0, -97.5938)",
+    "position": "fixed",
+    "top": "8px",
+    "focused": false
+  }
+]

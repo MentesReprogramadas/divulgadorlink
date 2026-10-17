@@ -1,0 +1,3 @@
+.refresh { display: inline-grid; place-items: center; flex: none; width: 44px; min-height: 44px; padding: 0; }
+.back { display: inline-flex; align-items: center; gap: var(--space-2); min-height: 44px; font-weight: 600; }
+.back svg { flex: none; }

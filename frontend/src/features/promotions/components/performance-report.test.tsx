@@ -18,7 +18,7 @@ describe('F01 relatório', () => {
   it('F01-C01 mostra resumo, comparação, filtros rotulados e dias com destaque', () => {
     render(<PerformanceReport report={report} filters={{ from: report.from }} />)
     expect(screen.getByRole('heading', { name: report.link.name })).toBeTruthy()
-    expect(screen.getByLabelText('De').getAttribute('value')).toBe(report.from)
+    expect(screen.getByLabelText('De').getAttribute('value')).toBe('01/10/2026')
     expect(screen.getByRole('form', { name: 'Filtrar relatório' }).getAttribute('method')).toBe('get')
     expect(screen.getByText(/Comparação: 24\/09\/2026 a 30\/09\/2026/)).toBeTruthy()
     expect(screen.getByText('Ativo no dia')).toBeTruthy()
@@ -53,6 +53,6 @@ describe('F01 relatório', () => {
     vi.mocked(api).mockResolvedValue({ status: 400, body: { message: 'Período inválido.' } })
     render(<PerformanceScreen linkId="own-link" filters={{ from: '2026-10-10', to: '2026-10-01' }} />)
     await waitFor(() => expect(screen.getByRole('alert').textContent).toBe('Período inválido.'))
-    expect((screen.getByLabelText('De') as HTMLInputElement).value).toBe('2026-10-10')
+    expect((screen.getByLabelText('De') as HTMLInputElement).value).toBe('10/10/2026')
   })
 })

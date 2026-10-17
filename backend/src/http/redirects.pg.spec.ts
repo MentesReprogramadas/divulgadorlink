@@ -44,16 +44,16 @@ it('F12-T02 conteúdo suspeito, termo bloqueado e provedor ausente mantêm revis
   const first = await create(), path = 'me/redirects/' + first.id
   ports.judge = async () => ({ pass: false, confidence: 0.99, reasons: ['fixture'] })
   const blocked = await call('POST', path + '/destinations', input(1, 'https://example.com/segredo'))
-  expect(blocked.statusCode).toBe(422); expect(blocked.json().resource).toEqual({ id: first.id, version: 2 })
+  expect(blocked.statusCode).toBe(200); expect(blocked.json().destinationRevision.status).toBe('PENDING_REVIEW')
   ports.judge = async () => null
-  expect((await call('POST', path + '/destinations', input(2))).statusCode).toBe(503)
+  expect((await call('POST', path + '/destinations', input(2))).json().destinationRevision.status).toBe('PENDING_REVIEW')
   ports.judge = async () => { throw new Error('secret-sentinel') }
-  const failure = await call('POST', path + '/destinations', input(3)); expect(failure.statusCode).toBe(503); expect(failure.body).not.toContain('secret-sentinel')
+  const failure = await call('POST', path + '/destinations', input(3)); expect(failure.statusCode).toBe(200); expect(failure.body).not.toContain('secret-sentinel')
   await db.blocklistTerm.create({ data: { tenantId: tenant, term: 'proibido' } })
   ports.judge = async () => ({ pass: true, confidence: 0.99, reasons: [] })
-  expect((await call('POST', path + '/destinations', { ...input(4), label: 'proibido' })).statusCode).toBe(422)
+  expect((await call('POST', path + '/destinations', { ...input(4), label: 'proibido' })).json().destinationRevision.status).toBe('PENDING_REVIEW')
   const live = await call('GET', 'r/' + first.id, undefined, null); expect(live.headers.location).toBe(first.body.destinationUrl); expect(live.body).not.toContain('segredo')
-  const detail = (await call('GET', path)).json(); expect(detail.activeRevisionId).toBe(first.destinationRevision.id); expect(detail.revisions[0].status).toBe('BLOCKED')
+  const detail = (await call('GET', path)).json(); expect(detail.activeRevisionId).toBe(first.destinationRevision.id); expect(detail.revisions[0].status).toBe('PENDING_REVIEW')
 })
 it('F12-T01/T04 URL privada bloqueada sem probe, destino indisponível sem Location e recuperação usa nova validação', async () => {
   const first = await create(); let probes = 0; ports.probe = async () => { probes++; return 200 }

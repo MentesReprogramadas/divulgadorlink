@@ -2,6 +2,13 @@
 
 import { useEffect, useState } from 'react'
 import { api } from '@/lib/api'
+import { OverlayDialog } from '@/components/ui/overlay-dialog'
+import { ActionIcon } from '@/components/ui/action-icon'
+import { WorkspaceFilters } from '@/components/layout/workspace-controls'
+import { Field, Input, Select } from '@/components/ui/input'
+import { FacetSummariesSkeleton } from '@/features/administration/components/settings-skeleton'
+import { EmptyState } from '@/components/feedback/empty-state'
+import styles from '@/features/administration/components/facet-summaries.module.css'
 
 type FacetKind = 'niche' | 'network'
 
@@ -75,9 +82,9 @@ function FacetEditor({
 
   return (
     <div className="catalog-copy-editor">
-      <h3 className="setting-title">{row.name}</h3>
-      <p className="setting-copy">{row.slug}</p>
+      <label className="field-label" htmlFor={'resumo-' + row.id}>Resumo de {row.name}</label>
       <textarea
+        id={'resumo-' + row.id}
         className="field"
         rows={5}
         aria-label={`Resumo de ${row.name}`}
@@ -87,7 +94,7 @@ function FacetEditor({
       />
       <p id={`resumo-${row.id}-tamanho`} className="setting-copy">{lengthHint(row, count)}</p>
       <button type="button" className="button button-primary" disabled={saving} onClick={() => void save()}>
-        {`Salvar ${row.name}`}
+        <ActionIcon name="save" />{`Salvar ${row.name}`}
       </button>
       {error ? <p>{error}</p> : null}
     </div>
@@ -100,6 +107,7 @@ export function FacetSummaries() {
   const [kind, setKind] = useState<FacetKind>('niche')
   const [query, setQuery] = useState('')
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [editing, setEditing] = useState(false)
   const [drafts, setDrafts] = useState<Record<string, string>>({})
 
   useEffect(() => {
@@ -133,50 +141,47 @@ export function FacetSummaries() {
   const draft = selected ? drafts[selected.id] ?? selected.summary ?? '' : ''
 
   return (
-    <section className="catalog-copy">
-      <h2 className="panel-section-title">Textos do catálogo</h2>
-      <p className="catalog-copy-lead">Esse texto é a descrição que o Google mostra na página do nicho ou da rede.</p>
+    <section className={styles.board} aria-label="Textos do catálogo">
+      {!lists && !loadError ? <FacetSummariesSkeleton /> : null}
       {loadError ? <p>{loadError}</p> : null}
       {lists ? (
         <>
-          <div className="filter-row" role="tablist" aria-label="Tipo de catálogo">
-            <button type="button" role="tab" aria-selected={kind === 'niche'} onClick={() => setKind('niche')}>Nichos</button>
-            <button type="button" role="tab" aria-selected={kind === 'network'} onClick={() => setKind('network')}>Redes</button>
-          </div>
-          <div className="catalog-copy-board">
+          <div className={styles.board}>
             <div>
-              <input
-                className="field"
-                aria-label="Filtrar catálogos"
+              <WorkspaceFilters label="Filtrar textos do catálogo">
+              <Field label="Tipo de catálogo"><Select value={kind} onChange={event => setKind(event.target.value as FacetKind)}><option value="niche">Categorias</option><option value="network">Redes</option></Select></Field>
+              <Field label="Filtrar catálogos"><Input
+                placeholder="Nome da categoria ou rede"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-              />
-              <div className="catalog-copy-list">
-                {visible.length === 0 ? <p className="catalog-copy-empty">Nenhum catálogo com esse nome.</p> : null}
+              /></Field>
+              </WorkspaceFilters>
+              <div className={styles.list}>
+                {visible.length === 0 ? <EmptyState /> : null}
                 {visible.map((row) => (
                   <button
                     key={row.id}
                     type="button"
-                    className="catalog-copy-item"
+                    className={styles.item}
                     aria-current={selected?.id === row.id ? 'true' : undefined}
-                    onClick={() => setSelectedId(row.id)}
-                  >
-                    <span>{row.name}</span>
+                    onClick={() => { setSelectedId(row.id); setEditing(true) }}
+                  ><ActionIcon name="edit" />
+                    <span>Editar {row.name}</span>
                     <span className="catalog-copy-status">{searchLabel(row)}</span>
                   </button>
                 ))}
               </div>
             </div>
-            {selected ? (
+            <OverlayDialog open={editing && !!selected} title={'Editar texto de ' + (selected?.name ?? 'catálogo')} onClose={() => setEditing(false)}>{selected ? (
               <FacetEditor
                 key={selected.id}
                 kind={kind}
                 row={selected}
                 value={draft}
                 onChange={(value) => setDrafts((current) => ({ ...current, [selected.id]: value }))}
-                onSaved={(next) => replace(kind, next)}
+                onSaved={(next) => { replace(kind, next); setEditing(false) }}
               />
-            ) : null}
+            ) : null}</OverlayDialog>
           </div>
         </>
       ) : null}

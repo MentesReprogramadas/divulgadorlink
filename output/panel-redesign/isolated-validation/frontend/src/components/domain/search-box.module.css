@@ -1,0 +1,118 @@
+.popup {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 6px);
+  inset-inline: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+  box-shadow: 0 12px 32px rgb(10 25 47 / 14%);
+}
+
+.list {
+  max-height: min(440px, 52dvh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.group + .group {
+  border-top: 1px solid var(--color-line);
+}
+
+.groupTitle {
+  padding: 10px 16px;
+  background: var(--surface-subtle);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 12px 16px;
+  color: var(--color-brand-navy);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.option + .option {
+  border-top: 1px solid var(--color-line);
+}
+
+.option:hover,
+.option[aria-selected="true"] {
+  background: var(--surface-subtle);
+  box-shadow: inset 3px 0 var(--color-brand-navy);
+  text-decoration: none;
+}
+
+.option:hover .title,
+.option[aria-selected="true"] .title {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.metadata {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin-top: 6px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.metadata :global(.facet) {
+  gap: 4px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: var(--surface-subtle);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.metadata :global(.impression-mark) {
+  margin: 0;
+  font-size: 12px;
+}
+
+.arrow {
+  flex: none;
+}
+
+.allResults {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--color-line);
+  color: var(--color-brand-navy);
+  font-size: 14px;
+  font-weight: 600;
+  text-underline-offset: 3px;
+}

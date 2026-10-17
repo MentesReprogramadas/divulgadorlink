@@ -1,0 +1,217 @@
+import { selectOption } from './select-control'
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
+import { expect, test, type Page } from '@playwright/test'
+import AxeBuilder from '@axe-core/playwright'
+import { runtime } from './runtime.cjs'
+
+const origin = runtime.web('tenant-a.localhost')
+function state() { return JSON.parse(readFileSync(path.join(__dirname, 'state.json'), 'utf8')) as { bia: string; admin: string; password: string } }
+async function login(page: Page, admin = false) {
+  const s = state()
+  await page.context().addCookies([{ name: 'tla_consent', value: 'denied', domain: 'tenant-a.localhost', path: '/' }])
+  await page.goto(origin + '/login')
+  await page.getByLabel('E-mail', { exact: true }).fill(admin ? s.admin : s.bia)
+  await page.getByLabel('Senha', { exact: true }).fill(s.password)
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Painel', exact: true })).toBeVisible()
+}
+async function checkLayout(page: Page) {
+  await page.evaluate(async () => { await Promise.all(document.getAnimations().filter(animation => animation.effect?.getTiming().iterations !== Infinity).map(animation => animation.finished.catch(() => undefined))) })
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize()!.width + 1)
+  const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze()
+  expect(result.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) }))).toEqual([])
+}
+
+test('W05 ícones distinguem destinos e grupos no painel e admin', async ({ page }, info) => {
+  await login(page, true)
+  for (const area of ['panel', 'admin'] as const) {
+    await page.goto(origin + (area === 'panel' ? '/painel' : '/admin/visao'))
+    if (info.project.name.includes('mobile')) await page.getByRole('button', { name: 'Menu', exact: true }).click()
+    const nav = page.getByRole('navigation', { name: area === 'panel' ? 'Áreas do painel' : 'Admin', exact: true })
+    await nav.locator('summary').click()
+    const symbols = await nav.locator('a:has(svg), summary').evaluateAll(items => items.map(item => ({
+      label: item.textContent, drawing: item.querySelector('svg path')?.getAttribute('d'),
+    })))
+    expect(symbols.every(symbol => symbol.drawing)).toBe(true)
+    expect(new Set(symbols.map(symbol => symbol.drawing)).size).toBe(symbols.length)
+    await checkLayout(page)
+    await page.screenshot({ path: info.outputPath(area + '-icons.png'), animations: 'disabled', fullPage: true })
+    if (info.project.name.includes('mobile')) {
+      await page.keyboard.press('Escape')
+      await expect(page.getByRole('button', { name: 'Menu', exact: true })).toBeFocused()
+    }
+  }
+})
+
+test('W04 saída fica no cabeçalho ou no final da sidebar e encerra a sessão', async ({ page }, info) => {
+  await login(page)
+  const main = page.locator('#main-content')
+  await expect(main.getByRole('button', { name: 'Sair', exact: true })).toHaveCount(0)
+  if (info.project.name.includes('mobile')) {
+    await expect(page.getByRole('button', { name: 'Sair', exact: true })).toBeHidden()
+    const menu = page.getByRole('button', { name: 'Menu', exact: true })
+    const logo = page.getByRole('link', { name: 'Home', exact: true })
+    const logoBox = await logo.boundingBox(), menuBox = await menu.boundingBox()
+    expect(logoBox!.x).toBe(16)
+    expect(Math.round(menuBox!.x + menuBox!.width)).toBe(page.viewportSize()!.width - 16)
+    await menu.click()
+    const drawer = page.getByRole('dialog')
+    const logout = drawer.getByRole('button', { name: 'Sair', exact: true })
+    await expect(logout).toBeVisible()
+    const last = await drawer.locator('a, button').last().textContent()
+    expect(last).toBe('Sair')
+    expect(await logout.evaluate(el => getComputedStyle(el).color)).toBe('rgb(163, 46, 40)')
+  } else {
+    await expect(page.getByRole('navigation', { name: 'Navegação principal' }).getByRole('button', { name: 'Sair', exact: true })).toBeVisible()
+  }
+  await checkLayout(page)
+  await page.screenshot({ path: info.outputPath('logout-location.png'), animations: 'disabled' })
+  await page.getByRole('button', { name: 'Sair', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Entrar', exact: true })).toBeVisible()
+  expect((await page.context().cookies()).find(cookie => cookie.name === 'refreshToken')).toBeUndefined()
+  expect(await page.evaluate(() => sessionStorage.getItem('catalogo.session'))).toBeNull()
+  expect(await page.evaluate(async () => (await fetch('/bff/v1/links/mine')).status)).toBe(401)
+})
+test('W01 painel: resumo sem abas, menu acessível e filtros combinados recuperáveis', async ({ page }, info) => {
+  const errors: string[] = []; page.on('pageerror', e => errors.push(e.message))
+  await login(page)
+  await expect(page.getByRole('heading', { name: 'Seu resumo' })).toHaveCount(0)
+  await expect(page.getByRole('group', { name: 'Ações da página' }).getByRole('link', { name: 'Novo link', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Precisa de atenção' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Links mais clicados' })).toBeVisible()
+  await expect(page.getByRole('navigation', { name: 'Operação', exact: true })).toHaveCount(0)
+  await checkLayout(page)
+  await page.screenshot({ path: info.outputPath('panel-overview.png'), fullPage: true })
+  if (info.project.name.includes('mobile')) {
+    const menu = page.getByRole('button', { name: 'Menu', exact: true })
+    await menu.focus(); await page.keyboard.press('Enter')
+    const drawer = page.getByRole('dialog', { name: 'Meu espaço', exact: true })
+    await expect(drawer).toBeVisible()
+    await drawer.getByRole('button', { name: 'Fechar menu' }).focus()
+    await page.keyboard.press('Shift+Tab')
+    await expect(drawer.getByRole('button', { name: 'Sair', exact: true })).toBeFocused()
+    await page.keyboard.press('Tab')
+    await expect(drawer.getByRole('button', { name: 'Fechar menu' })).toBeFocused()
+    await expect(page.getByText('Menu do painel', { exact: true })).toHaveCount(0)
+    await expect(drawer.getByRole('link', { name: 'Links', exact: true })).toBeHidden()
+    await drawer.locator('summary').filter({ hasText: 'Publicação' }).focus()
+    await page.keyboard.press('Enter')
+    await expect(drawer.getByRole('link', { name: 'Links', exact: true })).toBeVisible()
+    await checkLayout(page)
+    await page.screenshot({ path: info.outputPath('panel-sidebar.png'), animations: 'disabled' })
+    await page.keyboard.press('Escape')
+    await expect(drawer).not.toBeVisible(); await expect(menu).toBeFocused()
+    await menu.click()
+  }
+  const nav = page.getByRole('navigation', { name: 'Áreas do painel', exact: true })
+  if (!await nav.getByRole('link', { name: 'Links', exact: true }).isVisible()) await nav.getByText('Publicação', { exact: true }).click()
+  await nav.getByRole('link', { name: 'Links', exact: true }).click()
+  await expect(page.getByLabel('Buscar nos meus links')).toBeVisible()
+  if (info.project.name.includes('mobile')) {
+    await expect(page.getByLabel('Rede', { exact: true })).toBeHidden()
+    await page.getByRole('button', { name: 'Ver mais filtros', exact: true }).click()
+    await expect(page.getByLabel('Rede', { exact: true })).toBeVisible()
+    await page.getByRole('button', { name: 'Ver menos filtros', exact: true }).click()
+    await expect(page.getByLabel('Rede', { exact: true })).toBeHidden()
+  }
+  await page.getByLabel('Buscar nos meus links').fill('SemResultadoSentinelaLayout')
+  await expect(page.getByText('Nenhum link neste filtro')).toBeVisible()
+  await page.getByRole('button', { name: 'Limpar filtros', exact: true }).click()
+  await expect(page.getByRole('article').first()).toBeVisible()
+  const card = page.getByRole('article').first()
+  await card.getByText('Mais opções', { exact: true }).focus()
+  await page.keyboard.press('Enter')
+  await expect(card.getByRole('link', { name: 'Acessar', exact: true })).toBeVisible()
+  await expect(card.getByRole('link', { name: 'Disponibilidade', exact: true })).toBeVisible()
+  await page.keyboard.press('Enter')
+  await selectOption(page.getByLabel('Situação do link'), 'published')
+  await selectOption(page.getByLabel('Ordenar por'), 'clicks')
+  await checkLayout(page)
+  await page.screenshot({ path: info.outputPath('panel-links.png'), fullPage: true })
+  for (const route of ['pedidos', 'conta', 'perfil', 'convites', 'favoritos', 'lembretes']) {
+    await page.goto(origin + '/painel/' + route)
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+    await page.waitForLoadState('networkidle')
+    await checkLayout(page)
+    await page.screenshot({ path: info.outputPath('panel-' + route + '.png'), fullPage: true, animations: 'disabled' })
+  }
+  await page.setViewportSize({ width: 320, height: 844 })
+  await page.evaluate(() => { document.documentElement.style.fontSize = '200%' })
+  await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(321)
+  expect(errors).toEqual([])
+})
+
+test('W03 formulário em etapas valida antes de avançar e mantém os campos ao voltar', async ({ page }, info) => {
+  await login(page)
+  let submissions = 0
+  page.on('request', request => { if (request.method() === 'POST' && /\/bff\/v1\/links$/.test(request.url())) submissions++ })
+  await page.goto(origin + '/painel/links/novo')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Novo link')
+  await page.screenshot({ path: info.outputPath('submission-first-step.png'), fullPage: true, animations: 'disabled' })
+  await page.getByRole('button', { name: 'Continuar', exact: true }).click()
+  await expect(page.getByText('Etapa 1 de 3: Título e acesso')).toBeVisible()
+  await expect(page.getByLabel('Título do link', { exact: true })).toHaveAttribute('aria-invalid', 'true')
+  await expect(page.getByLabel('Título do link', { exact: true })).toBeFocused()
+  await page.getByLabel('Título do link', { exact: true }).fill('Comunidade de leitura')
+  await page.getByLabel('Link de acesso', { exact: true }).fill('https://example.com/leitura')
+  await page.getByRole('button', { name: 'Continuar', exact: true }).click()
+  await expect(page.getByText('Etapa 2 de 3: Assunto e descrição')).toBeFocused()
+  await page.getByLabel('Descrição', { exact: true }).fill('Encontros para conversar sobre livros.')
+  await page.getByRole('button', { name: 'Continuar', exact: true }).click()
+  await expect(page.getByText('Etapa 2 de 3: Assunto e descrição')).toBeAttached()
+  const network = page.getByLabel('Rede do link', { exact: true })
+  await expect(network.locator('svg')).toHaveCount(2)
+  await expect(page.getByLabel('Assunto do link', { exact: true }).locator('svg')).toHaveCount(2)
+  await network.focus(); await page.keyboard.press('Space')
+  await expect(page.getByRole('listbox')).toBeVisible()
+  await page.screenshot({ path: info.outputPath('select-options.png'), animations: 'disabled' })
+  await page.keyboard.press('Escape'); await expect(network).toBeFocused()
+  await selectOption(network, { label: 'Site' })
+  await selectOption(page.getByLabel('Assunto do link', { exact: true }), { label: 'Jogos' })
+  await page.getByRole('button', { name: 'Continuar', exact: true }).click()
+  await expect(page.getByText('Etapa 3 de 3: Conferir e enviar')).toBeAttached()
+  await checkLayout(page)
+  await page.getByRole('button', { name: 'Voltar', exact: true }).click()
+  await page.getByRole('button', { name: 'Voltar', exact: true }).click()
+  await expect(page.getByLabel('Título do link', { exact: true })).toHaveValue('Comunidade de leitura')
+  await page.getByRole('button', { name: 'Continuar', exact: true }).click()
+  await expect(page.getByLabel('Descrição', { exact: true })).toHaveValue('Encontros para conversar sobre livros.')
+  expect(submissions).toBe(0)
+  await checkLayout(page)
+  await page.screenshot({ path: info.outputPath('submission-step.png'), fullPage: true })
+})
+test('W02 admin: áreas separadas, filtros de fila e navegação em todas as jornadas', async ({ page }, info) => {
+  const errors: string[] = []; page.on('pageerror', e => errors.push(e.message))
+  await login(page, true); await page.goto(origin + '/admin/visao')
+  await expect(page.getByRole('heading', { name: 'Publicação no catálogo' })).toBeVisible()
+  await checkLayout(page)
+  await page.screenshot({ path: info.outputPath('admin-overview.png'), fullPage: true })
+  for (const area of ['contas', 'links', 'cliques', 'pagadores', 'trafego', 'financeiro', 'retencao']) {
+    await selectOption(page.getByLabel('Área de gestão', { exact: true }), area)
+    await page.waitForLoadState('networkidle')
+    await checkLayout(page)
+  }
+  for (const route of ['moderacao', 'denuncias', 'disponibilidade', 'planos', 'estornos', 'integracoes', 'configuracoes']) {
+    await page.goto(origin + '/admin/' + route)
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+    await page.waitForLoadState('networkidle')
+    if (route === 'moderacao') {
+      await expect(page.getByRole('article').first()).toBeVisible()
+      await page.getByLabel('Buscar na fila').fill('SemResultadoSentinelaLayout')
+      await expect(page.getByText('Nenhum caso corresponde aos filtros.')).toBeVisible()
+      await page.getByRole('button', { name: 'Limpar filtros', exact: true }).click()
+      await expect(page.getByRole('article').first()).toBeVisible()
+      await page.screenshot({ path: info.outputPath('admin-moderation.png'), fullPage: true })
+    }
+    if (route === 'configuracoes') await page.screenshot({ path: info.outputPath('admin-configurations.png'), fullPage: true, animations: 'disabled' })
+    await checkLayout(page)
+  }
+  if (info.project.name.includes('mobile')) { await page.getByRole('button', { name: 'Menu', exact: true }).click(); await expect(page.getByRole('navigation', { name: 'Admin', exact: true })).toBeVisible(); await checkLayout(page); await page.screenshot({ path: info.outputPath('admin-sidebar.png'), animations: 'disabled' }); await page.keyboard.press('Escape') }
+  await page.setViewportSize({ width: 320, height: 844 })
+  await page.evaluate(() => { document.documentElement.style.fontSize = '200%' })
+  await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(321)
+  expect(errors).toEqual([])
+})

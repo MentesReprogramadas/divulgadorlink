@@ -15,5 +15,5 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params, content = await loadPublicProfile(slug)
   if (!content) notFound()
-  return <main className={styles.publicPage}>{content.restricted ? <ProfileAgeGate /> : <ProfileView content={content} avatarUrl={content.avatarAssetId ? '/bff/v1/profiles/' + encodeURIComponent(slug) + '/avatar/' + content.avatarAssetId : undefined} />}</main>
+  return <main className={styles.personalPage}>{content.restricted ? <ProfileAgeGate /> : <ProfileView content={content} avatarUrl={content.avatarAssetId ? '/bff/v1/profiles/' + encodeURIComponent(slug) + '/avatar/' + content.avatarAssetId : undefined} />}</main>
 }

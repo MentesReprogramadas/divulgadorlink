@@ -2,13 +2,18 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Button, ButtonLink } from '@/components/ui/button'
+import { ActionIcon } from '@/components/ui/action-icon'
 import { Badge } from '@/components/ui/badge'
-import { Field, Input } from '@/components/ui/input'
+import { Field, Input, Select } from '@/components/ui/input'
 import { Pagination } from '@/components/ui/pagination'
 import { LinkMeta } from '@/components/domain/link-meta'
 import { formatRate } from '@/domain/format'
 import { linkStatusLabel, linkStatusTone } from '@/domain/labels'
 import { api } from '@/lib/api'
+import styles from '@/components/layout/workspace-dashboard.module.css'
+import { WorkspaceActions, WorkspaceFilters } from '@/components/layout/workspace-controls'
+import { EmptyState } from '@/components/feedback/empty-state'
+import { Skeleton } from '@/components/feedback/skeleton'
 
 export type PanelLink = {
   id: string
@@ -39,7 +44,6 @@ const FILTERS: Array<{ id: FilterId; label: string; match: (link: PanelLink) => 
 const GLYPH: Record<string, string> = {
   external: 'M6.5 3.5H3.8A1.3 1.3 0 0 0 2.5 4.8v7.4a1.3 1.3 0 0 0 1.3 1.3h7.4a1.3 1.3 0 0 0 1.3-1.3V9.5M8.5 2.5h5v5M13.5 2.5 7.2 8.8',
   pencil: 'M9.8 2.7 13.3 6.2 5.2 14.3H1.7V10.8z',
-  star: 'M8 1.6 9.8 5.5l4.2.4-3.2 2.8 1 4.1L8 10.7 4.2 12.8l1-4.1L2 5.9l4.2-.4z',
   flag: 'M3.2 14V2.4h7.1L8.8 5l1.5 2.6H3.2',
   eye: 'M1.4 8S3.8 3.6 8 3.6 14.6 8 14.6 8 12.2 12.4 8 12.4 1.4 8 1.4 8zM8 10.1a2.1 2.1 0 1 0 0-4.2 2.1 2.1 0 0 0 0 4.2z',
   pointer: 'M4.6 2.2v9.2l2.1-2.2 2.5 3.4 1.6-.9-2.5-3.4 3.4-.3z',
@@ -61,7 +65,7 @@ function formatNumber(value: number): string {
 }
 
 function LinkMetrics({ numbers }: { numbers: Stats | null | undefined }) {
-  if (numbers === undefined) return <p className="panel-meta">Contando</p>
+  if (numbers === undefined) return <div className="panel-stats" role="status" aria-label="Contando métricas">{['Impressões', 'Cliques', 'Taxa de cliques'].map(label => <div className="metric" key={label}><Skeleton width={48} height={24} /><span className="metric-label">{label}</span></div>)}</div>
   if (numbers === null) return <p className="panel-meta">Contagem indisponível</p>
   const rows = [
     { key: 'impressions', label: 'Impressões', value: formatNumber(numbers.impressions), live: numbers.impressions > 0, icon: 'eye' },
@@ -98,7 +102,12 @@ export function LinkList({
   const [editing, setEditing] = useState<string | null>(null)
   const [filter, setFilter] = useState<FilterId>('all')
   const [page, setPage] = useState(1)
+  const [query, setQuery] = useState('')
+  const [network, setNetwork] = useState('ALL')
+  const [sort, setSort] = useState('name')
   const matched = links.filter(FILTERS.find((item) => item.id === filter)?.match ?? (() => true))
+    .filter(link => (network === 'ALL' || link.network?.name === network) && `${link.name} ${link.description ?? ''} ${link.niche?.name ?? ''}`.toLocaleLowerCase('pt-BR').includes(query.toLocaleLowerCase('pt-BR').trim()))
+    .sort((a,b) => sort === 'clicks' ? (stats[b.id]?.clicks ?? -1) - (stats[a.id]?.clicks ?? -1) : a.name.localeCompare(b.name, 'pt-BR'))
   const pages = Math.max(1, Math.ceil(matched.length / PAGE_SIZE))
   const current = Math.min(page, pages)
   const visible = matched.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE)
@@ -110,26 +119,15 @@ export function LinkList({
   }
 
   return (
-    <div className="link-board">
-      <div className="filter-row" role="tablist" aria-label="Filtrar links">
-        {FILTERS.map((item) => {
-          const count = links.filter(item.match).length
-          if (item.id !== 'all' && count === 0) return null
-          return (
-            <button
-              key={item.id}
-              type="button"
-              role="tab"
-              aria-selected={filter === item.id}
-              onClick={() => choose(item.id)}
-            >
-              {item.label}
-              <span>{count}</span>
-            </button>
-          )
-        })}
-      </div>
-      {visible.length === 0 ? <p className="panel-empty">Nenhum link neste filtro</p> : null}
+    <div className={`link-board ${styles.dashboard}`}>
+      <WorkspaceActions>{!banned ? <ButtonLink href="/painel/links/novo"><ActionIcon name="createLink" />Novo link</ButtonLink> : null}<Button variant="secondary" onClick={() => { setQuery(''); setNetwork('ALL'); setSort('name'); choose('all') }}><ActionIcon name="resetFilters" />Limpar filtros</Button></WorkspaceActions>
+      <WorkspaceFilters label="Filtrar links">
+        <Field label="Buscar nos meus links"><Input type="search" value={query} placeholder="Nome, descrição ou categoria" onChange={event => { setQuery(event.target.value); setPage(1) }} /></Field>
+        <Field label="Situação do link"><Select value={filter} onChange={event => choose(event.target.value as FilterId)}>{FILTERS.map(item => <option key={item.id} value={item.id}>{item.label} ({links.filter(item.match).length})</option>)}</Select></Field>
+        <Field label="Rede"><Select value={network} onChange={event => { setNetwork(event.target.value); setPage(1) }}><option value="ALL">Todas as redes</option>{Array.from(new Set(links.flatMap(link => link.network?.name ? [link.network.name] : []))).sort().map(name => <option key={name} value={name}>{name}</option>)}</Select></Field>
+        <Field label="Ordenar por"><Select value={sort} onChange={event => { setSort(event.target.value); setPage(1) }}><option value="name">Nome</option><option value="clicks">Mais cliques</option></Select></Field>
+      </WorkspaceFilters>
+      {visible.length === 0 ? <EmptyState>Nenhum link neste filtro</EmptyState> : null}
       <div className="panel-link-grid">
         {visible.map((link) => {
           const description = descriptionOf(link)
@@ -148,14 +146,13 @@ export function LinkList({
               {link.occupiesSlot ? <p className="panel-meta">Ocupa uma vaga</p> : null}
               <LinkMetrics numbers={numbers} />
               <div className="link-card-actions">
-                {!banned ? <ButtonLink variant="ghost" href={`/painel/links/${link.id}/resultado`}>Ver resultado</ButtonLink> : null}
-                {!banned ? <ButtonLink variant="ghost" href={`/painel/links/${link.id}/disponibilidade`}>Disponibilidade</ButtonLink> : null}
-                <ButtonLink className="action-open" variant="secondary" href={`/link/${link.id}`}><Glyph name="external" />Acessar</ButtonLink>
+                {!banned ? <ButtonLink variant="ghost" href={`/painel/links/${link.id}/resultado`}><ActionIcon name="chart" />Ver resultado</ButtonLink> : null}
                 {editable ? (
                   <Button className="action-edit" type="button" variant="secondary" onClick={() => setEditing(link.id)}><Glyph name="pencil" />Editar</Button>
                 ) : null}
-                {link.status === 'PRE_REJECTED' ? <ButtonLink className="action-contest" variant="secondary" href={`/painel/links/${link.id}/contestar`}><Glyph name="flag" />Contestar</ButtonLink> : null}
-                {link.status === 'PUBLISHED' && !banned ? <ButtonLink className="action-feature" variant="secondary" href={`/painel/links/${link.id}/destaque`}><Glyph name="star" />Destacar</ButtonLink> : null}
+                {link.status === 'PRE_REJECTED' ? <ButtonLink className="action-contest" variant="secondary" href={`/painel/links/${link.id}/contestar`}><ActionIcon name="appeal" width={14} height={14} />Contestar</ButtonLink> : null}
+                {link.status === 'PUBLISHED' && !banned ? <ButtonLink className="action-feature" variant="secondary" href={`/painel/links/${link.id}/destaque`}><ActionIcon name="promotion" width={14} height={14} />Destacar</ButtonLink> : null}
+                <details className={styles.moreActions}><summary>Mais opções</summary><div>{!banned ? <ButtonLink variant="ghost" href={`/painel/links/${link.id}/disponibilidade`}><ActionIcon name="availability" />Disponibilidade</ButtonLink> : null}<ButtonLink variant="secondary" href={`/link/${link.id}`}><Glyph name="external" />Acessar</ButtonLink></div></details>
               </div>
             </article>
           )
@@ -209,15 +206,15 @@ export function LinkEditor({
       ) : null}
       {editable ? (
         <form className="editor-form" onSubmit={(event) => void save(event)}>
-          <Field label="Novo nome">
-            <Input name="name" aria-label="Novo nome" defaultValue={link.name} required />
+          <Field label="Título do link" hint="Nome do grupo, canal ou página. Não use seu nome pessoal.">
+            <Input name="name" defaultValue={link.name} required />
           </Field>
           <Field label="Nova descrição">
             <Input name="description" aria-label="Nova descrição" defaultValue={link.description ?? ''} />
           </Field>
           <div className="editor-actions">
-            {onCancel ? <Button type="button" variant="secondary" onClick={onCancel}>Cancelar</Button> : null}
-            <Button type="submit" disabled={saving}>Salvar texto</Button>
+            {onCancel ? <Button type="button" variant="secondary" onClick={onCancel}><ActionIcon name="close" />Cancelar</Button> : null}
+            <Button type="submit" disabled={saving}><ActionIcon name="save" />Salvar texto</Button>
           </div>
           {note ? <p role="status">{note}</p> : null}
         </form>

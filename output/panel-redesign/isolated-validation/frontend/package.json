@@ -1,0 +1,47 @@
+{
+  "name": "divulgador-links-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p e2e/tsconfig.json",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "test:visual": "playwright test --config playwright.visual.config.ts",
+    "storybook": "storybook dev -p 6006",
+    "build:storybook": "storybook build"
+  },
+  "dependencies": {
+    "@base-ui/react": "^1.9.0",
+    "@stripe/react-stripe-js": "^7.0.0",
+    "@stripe/stripe-js": "^10.0.0",
+    "next": "15.5.26",
+    "qrcode": "^1.5.4",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@eslint/js": "^9.39.1",
+    "@playwright/test": "^1.55.0",
+    "@storybook/nextjs-vite": "10.6.2",
+    "@testing-library/react": "^16.3.0",
+    "@types/node": "^22.9.3",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.39.1",
+    "jsdom": "^26.1.0",
+    "storybook": "10.6.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.46.0",
+    "vitest": "^5.0.3"
+  },
+  "overrides": {
+    "postcss": "8.5.28"
+  }
+}

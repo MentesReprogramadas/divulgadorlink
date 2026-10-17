@@ -43,7 +43,7 @@ describe('F07 correção e fila', () => {
     render(<UrlProposalQueue />)
     await screen.findByRole('button', { name: 'Tentar de novo' })
     fireEvent.click(screen.getByRole('button', { name: 'Tentar de novo' }))
-    await screen.findByText('Nenhuma correção aguardando análise.')
+    await screen.findByText('Nada por aqui ainda.')
     expect(screen.queryByText('Decisão salva.')).toBeNull()
   })
 })

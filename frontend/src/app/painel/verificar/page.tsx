@@ -1,11 +1,15 @@
 'use client'
 
+import { VerificationSkeleton } from '@/features/account/components/verification-skeleton'
+
+import { ActionIcon } from '@/components/ui/action-icon'
+
 import { useEffect, useRef, useState } from 'react'
 import { useAreaSession } from '@/components/domain/panel'
 import { CodeBoxes } from '@/components/domain/code-boxes'
 import { Button } from '@/components/ui/button'
 import { Field, Input } from '@/components/ui/input'
-import { clearSession, readSession, writeSession } from '@/domain/session'
+import { readSession, writeSession } from '@/domain/session'
 import { api } from '@/lib/api'
 
 type ConfirmBody = {
@@ -164,12 +168,6 @@ export default function Page() {
     setPhase('code')
   }
 
-  async function logout() {
-    await api('/v1/auth/logout', { method: 'POST' })
-    clearSession()
-    window.location.href = '/painel'
-  }
-
   return (
     <main className="auth-page">
       <h1 className="entry-title">{phase === 'change' ? 'Trocar e-mail' : 'Confirme o e-mail'}</h1>
@@ -178,16 +176,16 @@ export default function Page() {
           ? 'O código vai para o endereço novo. Até enviar, o código atual continua valendo.'
           : 'O código chega no e-mail da conta. Depois disso o formulário de publicar abre direto.'}
       </p>
-      {phase === 'loading' ? <p role="status">Carregando</p> : null}
+      {phase === 'loading' ? <VerificationSkeleton /> : null}
       {phase === 'code' ? (
         <form className="auth-form" onSubmit={(event) => void submit(event)}>
           <p className="verify-target">
             {masked ? <>Código enviado para <strong>{masked}</strong></> : null}
-            <button type="button" className="quiet-button" onClick={openChange}>Trocar e-mail</button>
+            <button type="button" className="quiet-button" onClick={openChange}><ActionIcon name="edit" />Trocar e-mail</button>
           </p>
           <CodeBoxes value={trimmed} onChange={setCode} disabled={sending} />
-          <Button type="submit" disabled={sending || trimmed.length < 6}>Confirmar e-mail</Button>
-          <Button type="button" variant="secondary" disabled={sending || retryAfter > 0} onClick={() => void resend()}>
+          <Button type="submit" disabled={sending || trimmed.length < 6}><ActionIcon name="check" />Confirmar e-mail</Button>
+          <Button type="button" variant="secondary" disabled={sending || retryAfter > 0} onClick={() => void resend()}><ActionIcon name="check" />
             {retryAfter > 0 ? `Reenviar em ${retryAfter}s` : 'Reenviar código'}
           </Button>
         </form>
@@ -197,14 +195,13 @@ export default function Page() {
           <Field label="Novo e-mail">
             <Input name="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
           </Field>
-          <Button type="submit" disabled={sending || !email.trim()}>Enviar código</Button>
+          <Button type="submit" disabled={sending || !email.trim()}><ActionIcon name="check" />Enviar código</Button>
           <p className="auth-switch">
-            <button type="button" className="quiet-button" onClick={backToCode}>Voltar para a verificação</button>
+            <button type="button" className="quiet-button" onClick={backToCode}><ActionIcon name="back" />Voltar para a verificação</button>
           </p>
         </form>
       ) : null}
       {message ? <p role="status">{message}</p> : null}
-      <p className="auth-switch"><button type="button" className="quiet-button" onClick={() => void logout()}>Sair</button></p>
     </main>
   )
 }

@@ -1,0 +1,32 @@
+.collapsed {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.expanded {
+  overflow-wrap: anywhere;
+}
+
+.toggle {
+  position: relative;
+  z-index: 1;
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-brand-navy);
+  font: inherit;
+  font-weight: 600;
+  line-height: inherit;
+  white-space: nowrap;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.toggle:focus-visible {
+  outline-offset: -1px;
+}

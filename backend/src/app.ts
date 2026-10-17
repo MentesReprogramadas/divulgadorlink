@@ -1,3 +1,4 @@
+import { contentReviewRoutes } from '@/http/controllers/@Moderation/content-reviews'
 import { favoritesRoutes } from '@/http/controllers/@Collections/routes'
 import { profilesRoutes } from '@/http/controllers/@Profiles/routes'
 import { redirectsRoutes } from '@/http/controllers/@Redirects/routes'
@@ -117,6 +118,7 @@ app.register(
     await instance.register(catalogRoutes)
     await instance.register(relatedLinksRoutes)
     await instance.register(favoritesRoutes)
+    await instance.register(contentReviewRoutes)
     await instance.register(profilesRoutes)
     await instance.register(redirectsRoutes)
     await instance.register(analyticsRoutes)

@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto'
 import type { Prisma } from '@prisma/client'
-import { avatarPng } from '@/domain/profiles/avatar'
+import { avatarWebp } from '@/domain/profiles/avatar-webp'
 export interface ProfileMedia {
   put(input: { tenantId: string; ownerId: string; base64: string }): Promise<string>
   get(input: { tenantId: string; ownerId: string; id: string }): Promise<Buffer | null>
@@ -9,7 +9,7 @@ export interface ProfileMedia {
 export class PrismaProfileMedia implements ProfileMedia {
   constructor(private readonly db: Prisma.TransactionClient) {}
   async put(input: { tenantId: string; ownerId: string; base64: string }) {
-    const bytes = avatarPng(input.base64), id = createHash('sha256').update(bytes).digest('hex')
+    const bytes = await avatarWebp(input.base64), id = createHash('sha256').update(bytes).digest('hex')
     await this.db.profileAsset.upsert({ where: { tenantId_ownerId_id: { tenantId: input.tenantId, ownerId: input.ownerId, id } }, create: { id, tenantId: input.tenantId, ownerId: input.ownerId, bytes }, update: {} })
     return id
   }

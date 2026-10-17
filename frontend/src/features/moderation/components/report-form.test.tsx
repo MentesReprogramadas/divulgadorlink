@@ -1,3 +1,4 @@
+import { chooseSelect } from '@/test-select'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ReportForm } from './report-form'
@@ -12,7 +13,7 @@ describe('F06 formulário e fila', () => {
     const promise = new Promise<{ id: string; status: 'RECEIVED'; createdAt: string; privateComment: string }>(resolve => { finish = resolve })
     const submit = vi.fn().mockReturnValue(promise)
     const { container } = render(<ReportForm name="Grupo de estudo" onSubmit={submit} />)
-    fireEvent.change(screen.getByLabelText('Motivo'), { target: { value: 'SPAM' } })
+    await chooseSelect(screen.getByLabelText('Motivo'), 'SPAM')
     fireEvent.change(screen.getByLabelText('Comentário (opcional)'), { target: { value: '<script>texto</script>' } })
     const form = screen.getByRole('form', { name: 'Denunciar um link' })
     fireEvent.submit(form); fireEvent.submit(form)
@@ -29,7 +30,7 @@ describe('F06 formulário e fila', () => {
   it('F06-C01 conserva comentário e motivo após falha recuperável', async () => {
     const submit = vi.fn().mockRejectedValueOnce(new Error('Sem conexão. Tente novamente.')).mockResolvedValue({ id: 'retry-ok', status: 'RECEIVED', createdAt: '2026-10-14' })
     render(<ReportForm name="Grupo" onSubmit={submit} />)
-    fireEvent.change(screen.getByLabelText('Motivo'), { target: { value: 'EXPIRED_INVITE' } })
+    await chooseSelect(screen.getByLabelText('Motivo'), 'EXPIRED_INVITE')
     fireEvent.change(screen.getByLabelText('Comentário (opcional)'), { target: { value: 'Convite não abre' } })
     fireEvent.submit(screen.getByRole('form', { name: 'Denunciar um link' }))
     await screen.findByRole('alert')
@@ -47,13 +48,13 @@ describe('F06 formulário e fila', () => {
     unmount()
     vi.mocked(api).mockResolvedValueOnce({ status: 200, body: { reports: [], nextCursor: null } })
     render(<ReportQueue filters={{}} />)
-    await screen.findByText('Nenhuma denúncia neste filtro.')
+    await screen.findByText('Nada por aqui ainda.')
   })
   it('F06-C01 fila apresenta falha recuperável e nova leitura real do adapter', async () => {
     vi.mocked(api).mockRejectedValueOnce(new Error('offline')).mockResolvedValueOnce({ status: 200, body: { reports: [], nextCursor: null } })
     render(<ReportQueue filters={{}} />)
     fireEvent.click(await screen.findByRole('button', { name: 'Tentar de novo' }))
-    await screen.findByText('Nenhuma denúncia neste filtro.')
+    await screen.findByText('Nada por aqui ainda.')
     expect(api).toHaveBeenCalledTimes(2)
   })
 })

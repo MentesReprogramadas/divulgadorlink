@@ -1,0 +1,4640 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\VSCODE\\divulgadorlinks\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "e2e/.runtime/full-skeleton.config.ts"
+    ],
+    "configFile": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\.runtime\\full-skeleton.config.ts",
+    "rootDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/output/panel-redesign/functional-skeleton-final",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "setup",
+        "name": "setup",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/auth\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/output/panel-redesign/functional-skeleton-final",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features",
+        "name": "features",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/output/panel-redesign/functional-skeleton-final",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features-mobile",
+        "name": "features-mobile",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/output/panel-redesign/functional-skeleton-final",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "catalog",
+        "name": "catalog",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/catalog\\.spec\\.ts|mail\\.spec\\.ts|advertise\\.spec\\.ts|legal\\.spec\\.ts|funnel\\.spec\\.ts|signup\\.spec\\.ts|submit-link\\.spec\\.ts|security-headers\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "auth.setup.ts",
+      "file": "auth.setup.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "sessão da Bia para os testes do painel",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "setup",
+              "projectName": "setup",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 451,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:20:46.493Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "17e3fe6f4d9d8bd79c6b-40367c7f5b2a9e9ad033",
+          "file": "auth.setup.ts",
+          "line": 8,
+          "column": 6
+        }
+      ]
+    },
+    {
+      "title": "evolution-moderation.spec.ts",
+      "file": "evolution-moderation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F42-E10 respostas normalizadas pela Evolution escolhem a citação exata entre várias pendências",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4245,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:20:47.572Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4bc19451c914abe96904-82645fb8ea656531f6e9",
+          "file": "evolution-moderation.spec.ts",
+          "line": 72,
+          "column": 5
+        },
+        {
+          "title": "F42-E08 envio, contestação e edição percorrem a interface e o worker reais",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4823,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:20:51.832Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4bc19451c914abe96904-e3ed75764d48462b348d",
+          "file": "evolution-moderation.spec.ts",
+          "line": 107,
+          "column": 5
+        },
+        {
+          "title": "F42-E01 aprovação pelo grupo publica e audita sem duplicação",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2127,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:20:56.787Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4bc19451c914abe96904-fc824a80de9b28c7942f",
+          "file": "evolution-moderation.spec.ts",
+          "line": 157,
+          "column": 5
+        },
+        {
+          "title": "F42-E02 recusa precisa de motivo e não publica o link",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2279,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:20:58.920Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4bc19451c914abe96904-853705d8fa94d2bba11b",
+          "file": "evolution-moderation.spec.ts",
+          "line": 174,
+          "column": 5
+        },
+        {
+          "title": "F42-E03 painel vence mensagem tardia e preserva decisão",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2102,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:21:01.205Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4bc19451c914abe96904-7c426e1b6069c2375811",
+          "file": "evolution-moderation.spec.ts",
+          "line": 188,
+          "column": 5
+        },
+        {
+          "title": "F42-E05/E06 painel de integração limita acesso e funciona no mobile",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1773,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:21:03.312Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4bc19451c914abe96904-be6b348abe120833dcd0",
+          "file": "evolution-moderation.spec.ts",
+          "line": 201,
+          "column": 5
+        },
+        {
+          "title": "F42-E07 webhook forjado, grupo errado e operador não autorizado não decidem",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1263,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:21:05.091Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4bc19451c914abe96904-5023e54060c650c104b8",
+          "file": "evolution-moderation.spec.ts",
+          "line": 235,
+          "column": 5
+        },
+        {
+          "title": "F42-E04 Evolution indisponível não impede a decisão no painel",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1868,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:21:06.359Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4bc19451c914abe96904-caee3cd1b75a9132320b",
+          "file": "evolution-moderation.spec.ts",
+          "line": 245,
+          "column": 5
+        },
+        {
+          "title": "F42-E09 envio bloqueado no provedor não ocupa a fila de pagamentos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2078,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:21:08.233Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4bc19451c914abe96904-5590d3e168bad2a20a4a",
+          "file": "evolution-moderation.spec.ts",
+          "line": 264,
+          "column": 5
+        },
+        {
+          "title": "F42-E10 respostas normalizadas pela Evolution escolhem a citação exata entre várias pendências",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7166,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:23:19.402Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4bc19451c914abe96904-8daa86560bbe9ae3c0bc",
+          "file": "evolution-moderation.spec.ts",
+          "line": 72,
+          "column": 5
+        },
+        {
+          "title": "F42-E08 envio, contestação e edição percorrem a interface e o worker reais",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5095,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:23:26.584Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4bc19451c914abe96904-a900b53b4f7cb3441bee",
+          "file": "evolution-moderation.spec.ts",
+          "line": 107,
+          "column": 5
+        },
+        {
+          "title": "F42-E01 aprovação pelo grupo publica e audita sem duplicação",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2354,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:23:31.831Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4bc19451c914abe96904-1eee74efe8a4708439ca",
+          "file": "evolution-moderation.spec.ts",
+          "line": 157,
+          "column": 5
+        },
+        {
+          "title": "F42-E02 recusa precisa de motivo e não publica o link",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2519,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:23:34.194Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4bc19451c914abe96904-9f233645a12d1d32d9cd",
+          "file": "evolution-moderation.spec.ts",
+          "line": 174,
+          "column": 5
+        },
+        {
+          "title": "F42-E03 painel vence mensagem tardia e preserva decisão",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2354,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:23:36.719Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4bc19451c914abe96904-a32edeb7f5aea5f5e604",
+          "file": "evolution-moderation.spec.ts",
+          "line": 188,
+          "column": 5
+        },
+        {
+          "title": "F42-E05/E06 painel de integração limita acesso e funciona no mobile",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1790,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:23:39.079Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4bc19451c914abe96904-12f0a1e76c22dee32f5c",
+          "file": "evolution-moderation.spec.ts",
+          "line": 201,
+          "column": 5
+        },
+        {
+          "title": "F42-E07 webhook forjado, grupo errado e operador não autorizado não decidem",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1371,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:23:40.875Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4bc19451c914abe96904-84726c9fb84e734794d1",
+          "file": "evolution-moderation.spec.ts",
+          "line": 235,
+          "column": 5
+        },
+        {
+          "title": "F42-E04 Evolution indisponível não impede a decisão no painel",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1909,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:23:42.251Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4bc19451c914abe96904-360b5257fc4a188d6a13",
+          "file": "evolution-moderation.spec.ts",
+          "line": 245,
+          "column": 5
+        },
+        {
+          "title": "F42-E09 envio bloqueado no provedor não ocupa a fila de pagamentos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2137,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:23:44.165Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4bc19451c914abe96904-47c686e853baad972553",
+          "file": "evolution-moderation.spec.ts",
+          "line": 264,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "favorites.spec.ts",
+      "file": "favorites.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F04-E01/T01/T03/T05 catálogo, persistência, duas coleções, ordenação e exclusão preservam favoritos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6213,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:21:10.320Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "16966837d6a9b32aed7f-f9407ab7d5295fe9ceed",
+          "file": "favorites.spec.ts",
+          "line": 29,
+          "column": 5
+        },
+        {
+          "title": "F04-E02/T02/T04 anônimo pede login, outra conta não recebe coleções e indisponível não vaza destino",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3178,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:21:16.538Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "16966837d6a9b32aed7f-695a2c5f7fb163fa1b9a",
+          "file": "favorites.spec.ts",
+          "line": 67,
+          "column": 5
+        },
+        {
+          "title": "F04-E03 offline preserva nome, teclado confirma, reload e reflow 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1819,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:21:19.721Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "16966837d6a9b32aed7f-7584884ef50ecd282a8e",
+          "file": "favorites.spec.ts",
+          "line": 88,
+          "column": 5
+        },
+        {
+          "title": "F04-E01/T01/T03/T05 catálogo, persistência, duas coleções, ordenação e exclusão preservam favoritos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6615,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:23:46.310Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "16966837d6a9b32aed7f-6be61b45851c41476e0b",
+          "file": "favorites.spec.ts",
+          "line": 29,
+          "column": 5
+        },
+        {
+          "title": "F04-E02/T02/T04 anônimo pede login, outra conta não recebe coleções e indisponível não vaza destino",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3706,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:23:52.930Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "16966837d6a9b32aed7f-a74213dce01c6bb43d28",
+          "file": "favorites.spec.ts",
+          "line": 67,
+          "column": 5
+        },
+        {
+          "title": "F04-E03 offline preserva nome, teclado confirma, reload e reflow 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1992,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:23:56.643Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "16966837d6a9b32aed7f-7d3883a2093d1daf0613",
+          "file": "favorites.spec.ts",
+          "line": 88,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "link-availability.spec.ts",
+      "file": "link-availability.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F07-E01/T01/T05 worker retira no limiar, aprovação recupera URL e saldo pago",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9840,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:21:21.550Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "17c859c02a214031b875-3e00e80989d761e843f0",
+          "file": "link-availability.spec.ts",
+          "line": 60,
+          "column": 5
+        },
+        {
+          "title": "F07-E02 proposta privada não aparece no público nem para outro dono",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 613,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:21:31.398Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "17c859c02a214031b875-139e70cce78c072cd385",
+          "file": "link-availability.spec.ts",
+          "line": 99,
+          "column": 5
+        },
+        {
+          "title": "F07-E03 offline preserva convite e justificativa; recuperação por teclado e histórico",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3441,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:21:32.016Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "17c859c02a214031b875-0e8a0d9b516805d91fb4",
+          "file": "link-availability.spec.ts",
+          "line": 113,
+          "column": 5
+        },
+        {
+          "title": "F07-E01/T01/T05 worker retira no limiar, aprovação recupera URL e saldo pago",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10623,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:23:58.644Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "17c859c02a214031b875-1822721a37917676234c",
+          "file": "link-availability.spec.ts",
+          "line": 60,
+          "column": 5
+        },
+        {
+          "title": "F07-E02 proposta privada não aparece no público nem para outro dono",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 728,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:24:09.273Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "17c859c02a214031b875-8249eeb320132ccf08f8",
+          "file": "link-availability.spec.ts",
+          "line": 99,
+          "column": 5
+        },
+        {
+          "title": "F07-E03 offline preserva convite e justificativa; recuperação por teclado e histórico",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4680,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:24:10.006Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "17c859c02a214031b875-d19de0a181de5ca4aa8c",
+          "file": "link-availability.spec.ts",
+          "line": 113,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "link-reports.spec.ts",
+      "file": "link-reports.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F06-E01/T02/T03/T05 detalhe público, login com retorno, triagem e histórico persistido",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3942,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:21:35.465Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c68aa6aa0af42fdd7a76-5d89feb9292cc4ad36e0",
+          "file": "link-reports.spec.ts",
+          "line": 33,
+          "column": 5
+        },
+        {
+          "title": "F06-E02 fila e comentários privados não vazam no detalhe, DTO público ou acesso direto",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 598,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:21:39.412Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c68aa6aa0af42fdd7a76-796a72b6d270194f2d66",
+          "file": "link-reports.spec.ts",
+          "line": 85,
+          "column": 5
+        },
+        {
+          "title": "F06-E03 envio e decisão recuperam rede real, preservam texto e funcionam por teclado",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3480,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:21:40.016Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c68aa6aa0af42fdd7a76-edfc6cfb1e9342002e34",
+          "file": "link-reports.spec.ts",
+          "line": 105,
+          "column": 5
+        },
+        {
+          "title": "F06-E01/T02/T03/T05 detalhe público, login com retorno, triagem e histórico persistido",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4137,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:24:14.697Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c68aa6aa0af42fdd7a76-5bb119fca02ca6d269bd",
+          "file": "link-reports.spec.ts",
+          "line": 33,
+          "column": 5
+        },
+        {
+          "title": "F06-E02 fila e comentários privados não vazam no detalhe, DTO público ou acesso direto",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 611,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:24:18.839Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c68aa6aa0af42fdd7a76-8e6641a5a060bc91725d",
+          "file": "link-reports.spec.ts",
+          "line": 85,
+          "column": 5
+        },
+        {
+          "title": "F06-E03 envio e decisão recuperam rede real, preservam texto e funcionam por teclado",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4631,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:24:19.455Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c68aa6aa0af42fdd7a76-6d3a91ee7dfa5f172607",
+          "file": "link-reports.spec.ts",
+          "line": 105,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "loading-layout.spec.ts",
+      "file": "loading-layout.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "L01 painel: skeletons durante rede lenta preservam cabeçalho, largura e controles",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4943,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "/painel",
+                      "duration": 341
+                    },
+                    {
+                      "title": "/painel/links",
+                      "duration": 327
+                    },
+                    {
+                      "title": "/painel/pedidos",
+                      "duration": 302
+                    },
+                    {
+                      "title": "/painel/perfil",
+                      "duration": 689
+                    },
+                    {
+                      "title": "/painel/favoritos",
+                      "duration": 295
+                    },
+                    {
+                      "title": "/painel/convites",
+                      "duration": 299
+                    },
+                    {
+                      "title": "/painel/lembretes",
+                      "duration": 279
+                    },
+                    {
+                      "title": "/painel/links/cmvbtw7tk001tu4dgvw8ujior/editar",
+                      "duration": 305
+                    },
+                    {
+                      "title": "/painel/links/cmvbtw7tk001tu4dgvw8ujior/disponibilidade",
+                      "duration": 267
+                    },
+                    {
+                      "title": "/painel/links/cmvbtw7tk001tu4dgvw8ujior/resultado",
+                      "duration": 364
+                    },
+                    {
+                      "title": "/painel/links/cmvbtw7tk001tu4dgvw8ujior/destaque",
+                      "duration": 306
+                    },
+                    {
+                      "title": "/painel/denunciar/cmvbtw7tk001tu4dgvw8ujior",
+                      "duration": 297
+                    },
+                    {
+                      "title": "/busca?q=Receitas",
+                      "duration": 525
+                    }
+                  ],
+                  "startTime": "2026-10-17T03:21:43.534Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "adebdf491de5741badc8-c853d07c699e4260b88f",
+          "file": "loading-layout.spec.ts",
+          "line": 20,
+          "column": 7
+        },
+        {
+          "title": "L01 admin: skeletons durante rede lenta preservam cabeçalho, largura e controles",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3266,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "/admin/visao",
+                      "duration": 374
+                    },
+                    {
+                      "title": "/admin/moderacao",
+                      "duration": 294
+                    },
+                    {
+                      "title": "/admin/denuncias",
+                      "duration": 297
+                    },
+                    {
+                      "title": "/admin/disponibilidade",
+                      "duration": 300
+                    },
+                    {
+                      "title": "/admin/planos",
+                      "duration": 302
+                    },
+                    {
+                      "title": "/admin/estornos",
+                      "duration": 295
+                    },
+                    {
+                      "title": "/admin/integracoes",
+                      "duration": 333
+                    },
+                    {
+                      "title": "/admin/configuracoes",
+                      "duration": 704
+                    }
+                  ],
+                  "startTime": "2026-10-17T03:21:48.483Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "adebdf491de5741badc8-3a0b8296303b003adf81",
+          "file": "loading-layout.spec.ts",
+          "line": 20,
+          "column": 7
+        },
+        {
+          "title": "L02 atualização da disponibilidade mantém o conteúdo e bloqueia atualização duplicada",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 544,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:21:51.754Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "adebdf491de5741badc8-0914f4957541809f597e",
+          "file": "loading-layout.spec.ts",
+          "line": 72,
+          "column": 5
+        },
+        {
+          "title": "L03 envio mantém a dimensão do botão e os campos enquanto aguarda a resposta",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 397,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:21:52.303Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "adebdf491de5741badc8-69adbe29e6296937b23a",
+          "file": "loading-layout.spec.ts",
+          "line": 91,
+          "column": 5
+        },
+        {
+          "title": "L04 sessão lenta preserva a geometria do formulário de publicar e respeita movimento reduzido",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 908,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:21:52.705Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "adebdf491de5741badc8-429e3b5ac6655ab6a528",
+          "file": "loading-layout.spec.ts",
+          "line": 111,
+          "column": 5
+        },
+        {
+          "title": "L05 navegação entre abas mostra somente o skeleton de destino, sem a visão geral",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 794,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:21:53.619Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "adebdf491de5741badc8-92b1ce77998dec01fc3f",
+          "file": "loading-layout.spec.ts",
+          "line": 139,
+          "column": 5
+        },
+        {
+          "title": "L06 menu do site usa uma coluna no catálogo e busca e duas no painel e admin",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 940,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:21:54.418Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "adebdf491de5741badc8-2c24d1767a51edd0ee2c",
+          "file": "loading-layout.spec.ts",
+          "line": 167,
+          "column": 5
+        },
+        {
+          "title": "L01 painel: skeletons durante rede lenta preservam cabeçalho, largura e controles",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4895,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "/painel",
+                      "duration": 358
+                    },
+                    {
+                      "title": "/painel/links",
+                      "duration": 324
+                    },
+                    {
+                      "title": "/painel/pedidos",
+                      "duration": 269
+                    },
+                    {
+                      "title": "/painel/perfil",
+                      "duration": 650
+                    },
+                    {
+                      "title": "/painel/favoritos",
+                      "duration": 281
+                    },
+                    {
+                      "title": "/painel/convites",
+                      "duration": 250
+                    },
+                    {
+                      "title": "/painel/lembretes",
+                      "duration": 266
+                    },
+                    {
+                      "title": "/painel/links/cmvbtw7tk001tu4dgvw8ujior/editar",
+                      "duration": 234
+                    },
+                    {
+                      "title": "/painel/links/cmvbtw7tk001tu4dgvw8ujior/disponibilidade",
+                      "duration": 286
+                    },
+                    {
+                      "title": "/painel/links/cmvbtw7tk001tu4dgvw8ujior/resultado",
+                      "duration": 343
+                    },
+                    {
+                      "title": "/painel/links/cmvbtw7tk001tu4dgvw8ujior/destaque",
+                      "duration": 293
+                    },
+                    {
+                      "title": "/painel/denunciar/cmvbtw7tk001tu4dgvw8ujior",
+                      "duration": 280
+                    },
+                    {
+                      "title": "/busca?q=Receitas",
+                      "duration": 535
+                    }
+                  ],
+                  "startTime": "2026-10-17T03:24:24.124Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "adebdf491de5741badc8-4db88a0be36ab83c384f",
+          "file": "loading-layout.spec.ts",
+          "line": 20,
+          "column": 7
+        },
+        {
+          "title": "L01 admin: skeletons durante rede lenta preservam cabeçalho, largura e controles",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3927,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "/admin/visao",
+                      "duration": 302
+                    },
+                    {
+                      "title": "/admin/moderacao",
+                      "duration": 291
+                    },
+                    {
+                      "title": "/admin/denuncias",
+                      "duration": 244
+                    },
+                    {
+                      "title": "/admin/disponibilidade",
+                      "duration": 1139
+                    },
+                    {
+                      "title": "/admin/planos",
+                      "duration": 352
+                    },
+                    {
+                      "title": "/admin/estornos",
+                      "duration": 280
+                    },
+                    {
+                      "title": "/admin/integracoes",
+                      "duration": 306
+                    },
+                    {
+                      "title": "/admin/configuracoes",
+                      "duration": 657
+                    }
+                  ],
+                  "startTime": "2026-10-17T03:24:29.024Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "adebdf491de5741badc8-d2df399b42d52a08bc9d",
+          "file": "loading-layout.spec.ts",
+          "line": 20,
+          "column": 7
+        },
+        {
+          "title": "L02 atualização da disponibilidade mantém o conteúdo e bloqueia atualização duplicada",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 546,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:24:32.955Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "adebdf491de5741badc8-c567600d8e5d2b23d473",
+          "file": "loading-layout.spec.ts",
+          "line": 72,
+          "column": 5
+        },
+        {
+          "title": "L03 envio mantém a dimensão do botão e os campos enquanto aguarda a resposta",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 400,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:24:33.505Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "adebdf491de5741badc8-ebafbd2af8724f511a24",
+          "file": "loading-layout.spec.ts",
+          "line": 91,
+          "column": 5
+        },
+        {
+          "title": "L04 sessão lenta preserva a geometria do formulário de publicar e respeita movimento reduzido",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 647,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:24:33.910Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "adebdf491de5741badc8-bf22043f5b0c4fbaee7b",
+          "file": "loading-layout.spec.ts",
+          "line": 111,
+          "column": 5
+        },
+        {
+          "title": "L05 navegação entre abas mostra somente o skeleton de destino, sem a visão geral",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1141,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:24:34.562Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "adebdf491de5741badc8-f9fe033dd9a98fb447d3",
+          "file": "loading-layout.spec.ts",
+          "line": 139,
+          "column": 5
+        },
+        {
+          "title": "L06 menu do site usa uma coluna no catálogo e busca e duas no painel e admin",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1352,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:24:35.708Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "adebdf491de5741badc8-d41af1516a1f1785acca",
+          "file": "loading-layout.spec.ts",
+          "line": 167,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "profiles.spec.ts",
+      "file": "profiles.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F09-E01/T03/T04/T05 grupos, ordem, redes, foto e botão principal; prévia e público reais sem ocultos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5378,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:21:55.367Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-36fa52b16a2e25f97903",
+          "file": "profiles.spec.ts",
+          "line": 33,
+          "column": 5
+        },
+        {
+          "title": "F09-E04 restrição de idade não entrega conteúdo no HTML/API antes do aceite real",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2030,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:22:00.750Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-e7f3b8c59d52f199c731",
+          "file": "profiles.spec.ts",
+          "line": 103,
+          "column": 5
+        },
+        {
+          "title": "F09-E02/T02/T06 sessão real, admin não ganha dono, suspeita/provedor bloqueiam e preservam página anterior",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3110,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:22:02.786Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-9496e5aec7dec60534bd",
+          "file": "profiles.spec.ts",
+          "line": 118,
+          "column": 5
+        },
+        {
+          "title": "F09-E03 offline mantém dados, teclado salva, 320px e texto 200%, conflito entre abas não sobrescreve",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2336,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:22:05.902Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-05c2fd196ef2298e0828",
+          "file": "profiles.spec.ts",
+          "line": 133,
+          "column": 5
+        },
+        {
+          "title": "F09-E01/T03/T04/T05 grupos, ordem, redes, foto e botão principal; prévia e público reais sem ocultos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7057,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:24:37.075Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-3a57e1259e431d658dbc",
+          "file": "profiles.spec.ts",
+          "line": 33,
+          "column": 5
+        },
+        {
+          "title": "F09-E04 restrição de idade não entrega conteúdo no HTML/API antes do aceite real",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2130,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:24:44.141Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-12b1344e822d69999376",
+          "file": "profiles.spec.ts",
+          "line": 103,
+          "column": 5
+        },
+        {
+          "title": "F09-E02/T02/T06 sessão real, admin não ganha dono, suspeita/provedor bloqueiam e preservam página anterior",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3580,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:24:46.277Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-bc03408829391484de4c",
+          "file": "profiles.spec.ts",
+          "line": 118,
+          "column": 5
+        },
+        {
+          "title": "F09-E03 offline mantém dados, teclado salva, 320px e texto 200%, conflito entre abas não sobrescreve",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2671,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:24:49.863Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-d4c30f404f9031d4d018",
+          "file": "profiles.spec.ts",
+          "line": 133,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "promotion-performance.spec.ts",
+      "file": "promotion-performance.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F01-E01/T03/T05 campanha sem cliques, CPC real e filtros persistentes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2410,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:22:08.247Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4e49eb8fc706e4f6540f-568b1150e9a675507500",
+          "file": "promotion-performance.spec.ts",
+          "line": 22,
+          "column": 5
+        },
+        {
+          "title": "F01-E02/T01 nega outro dono e exige sessão sem revelar dados",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 751,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:22:10.662Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4e49eb8fc706e4f6540f-0c0f70b6338a59f0369d",
+          "file": "promotion-performance.spec.ts",
+          "line": 45,
+          "column": 5
+        },
+        {
+          "title": "F01-E03 recuperação de rede, teclado, zoom e 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 887,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:22:11.418Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4e49eb8fc706e4f6540f-f04f87cade83ab25ad07",
+          "file": "promotion-performance.spec.ts",
+          "line": 61,
+          "column": 5
+        },
+        {
+          "title": "F01-E01/T03/T05 campanha sem cliques, CPC real e filtros persistentes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2829,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:24:52.545Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4e49eb8fc706e4f6540f-0e778fd23a9d10533009",
+          "file": "promotion-performance.spec.ts",
+          "line": 22,
+          "column": 5
+        },
+        {
+          "title": "F01-E02/T01 nega outro dono e exige sessão sem revelar dados",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 700,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:24:55.381Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4e49eb8fc706e4f6540f-e14a44d118c015fb7d6e",
+          "file": "promotion-performance.spec.ts",
+          "line": 45,
+          "column": 5
+        },
+        {
+          "title": "F01-E03 recuperação de rede, teclado, zoom e 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 866,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:24:56.085Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4e49eb8fc706e4f6540f-affbc6e648cc82e4f2af",
+          "file": "promotion-performance.spec.ts",
+          "line": 61,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "redirects.spec.ts",
+      "file": "redirects.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F12-E01/T01/T03/T04/T05 endereço fixo, cópia, destino A/B, validação pendente e indisponibilidade",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3156,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:22:12.315Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-b2f613899c676b55152a",
+          "file": "redirects.spec.ts",
+          "line": 30,
+          "column": 5
+        },
+        {
+          "title": "F12-E02/T02 sessão e outro ADMIN não liberam acesso; conteúdo suspeito e provedor mantêm destino anterior",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2507,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:22:15.475Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-fa381e1201e431d07029",
+          "file": "redirects.spec.ts",
+          "line": 59,
+          "column": 5
+        },
+        {
+          "title": "F12-E03 offline mantém campos, teclado confirma, conflito entre abas e reflow 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2488,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:22:17.987Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-b3e0f1483cd1a64fdaac",
+          "file": "redirects.spec.ts",
+          "line": 77,
+          "column": 5
+        },
+        {
+          "title": "F12-E04 restrição de idade oculta destino no HTML e API até o aceite",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1614,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:22:20.481Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-774497cc715390533be7",
+          "file": "redirects.spec.ts",
+          "line": 96,
+          "column": 5
+        },
+        {
+          "title": "F12-E01/T01/T03/T04/T05 endereço fixo, cópia, destino A/B, validação pendente e indisponibilidade",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3690,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:24:56.959Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-a46542e44f4829162d36",
+          "file": "redirects.spec.ts",
+          "line": 30,
+          "column": 5
+        },
+        {
+          "title": "F12-E02/T02 sessão e outro ADMIN não liberam acesso; conteúdo suspeito e provedor mantêm destino anterior",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2792,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:25:00.655Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-04f6b9bf241069d4ac36",
+          "file": "redirects.spec.ts",
+          "line": 59,
+          "column": 5
+        },
+        {
+          "title": "F12-E03 offline mantém campos, teclado confirma, conflito entre abas e reflow 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2570,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:25:03.454Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-f7da661aef84093e8cd2",
+          "file": "redirects.spec.ts",
+          "line": 77,
+          "column": 5
+        },
+        {
+          "title": "F12-E04 restrição de idade oculta destino no HTML e API até o aceite",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2051,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:25:06.034Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-86961d02627f9bb0f658",
+          "file": "redirects.spec.ts",
+          "line": 96,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "related-links.spec.ts",
+      "file": "related-links.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F03-E01/T01/T03/T04 sugestões reais, destino e analytics RELATED; vazio remove seção",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5057,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:22:22.104Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c154a1e39d3e01588a50-cf701368dc3e5f98a974",
+          "file": "related-links.spec.ts",
+          "line": 23,
+          "column": 5
+        },
+        {
+          "title": "F03-E02/T01 privacidade no HTML, payload e DOM; aceite adulto usa API real",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4014,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:22:27.165Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c154a1e39d3e01588a50-e1e3ce4f293de7ead754",
+          "file": "related-links.spec.ts",
+          "line": 45,
+          "column": 5
+        },
+        {
+          "title": "F03-E03/T01/T03 paginação, offline recuperável, teclado e 320px com texto 200%",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10627,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:22:31.184Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c154a1e39d3e01588a50-3d01892643ee6f925884",
+          "file": "related-links.spec.ts",
+          "line": 62,
+          "column": 5
+        },
+        {
+          "title": "F03-E01/T01/T03/T04 sugestões reais, destino e analytics RELATED; vazio remove seção",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5224,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:25:08.096Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c154a1e39d3e01588a50-194e0df7ca7f009b70fe",
+          "file": "related-links.spec.ts",
+          "line": 23,
+          "column": 5
+        },
+        {
+          "title": "F03-E02/T01 privacidade no HTML, payload e DOM; aceite adulto usa API real",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4007,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:25:13.326Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c154a1e39d3e01588a50-91f1054cd46805872b91",
+          "file": "related-links.spec.ts",
+          "line": 45,
+          "column": 5
+        },
+        {
+          "title": "F03-E03/T01/T03 paginação, offline recuperável, teclado e 320px com texto 200%",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4210,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:25:17.337Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c154a1e39d3e01588a50-f197fe17a7efb340527e",
+          "file": "related-links.spec.ts",
+          "line": 62,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "renewal-reminders.spec.ts",
+      "file": "renewal-reminders.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F02-E01/T01/T04/T05 opt-in, e-mail e CTA usam a renovação sem compra automática",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4331,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:22:41.818Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3deb5d7ac9e7f262eee2-d1527e8ea23be754c982",
+          "file": "renewal-reminders.spec.ts",
+          "line": 28,
+          "column": 5
+        },
+        {
+          "title": "F02-E02 acesso privado não expõe dados ao público ou a outro dono",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1003,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:22:46.155Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3deb5d7ac9e7f262eee2-a6a769b6797b1f2ebf4b",
+          "file": "renewal-reminders.spec.ts",
+          "line": 52,
+          "column": 5
+        },
+        {
+          "title": "F02-E03 offline mantém opção, teclado salva e reload confirma no mobile",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1431,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:22:47.165Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3deb5d7ac9e7f262eee2-d711e6fd922937618c7c",
+          "file": "renewal-reminders.spec.ts",
+          "line": 60,
+          "column": 5
+        },
+        {
+          "title": "F02-E01/T01/T04/T05 opt-in, e-mail e CTA usam a renovação sem compra automática",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2838,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:25:21.556Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3deb5d7ac9e7f262eee2-da2eac57f73e9395b879",
+          "file": "renewal-reminders.spec.ts",
+          "line": 28,
+          "column": 5
+        },
+        {
+          "title": "F02-E02 acesso privado não expõe dados ao público ou a outro dono",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 899,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:25:24.398Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3deb5d7ac9e7f262eee2-c23a89e4245c93ab015a",
+          "file": "renewal-reminders.spec.ts",
+          "line": 52,
+          "column": 5
+        },
+        {
+          "title": "F02-E03 offline mantém opção, teclado salva e reload confirma no mobile",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1601,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:25:25.303Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3deb5d7ac9e7f262eee2-453dd504858434788926",
+          "file": "renewal-reminders.spec.ts",
+          "line": 60,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "workspace-layout.spec.ts",
+      "file": "workspace-layout.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "W04 saída fica no cabeçalho ou no final da sidebar e encerra a sessão",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1096,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:22:48.605Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-85492ba51272e29a0df6",
+          "file": "workspace-layout.spec.ts",
+          "line": 26,
+          "column": 5
+        },
+        {
+          "title": "W01 painel: resumo sem abas, menu acessível e filtros combinados recuperáveis",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10614,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:22:49.706Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-9d129eda158d8a230d04",
+          "file": "workspace-layout.spec.ts",
+          "line": 55,
+          "column": 5
+        },
+        {
+          "title": "W03 formulário em etapas valida antes de avançar e mantém os campos ao voltar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2703,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:23:00.326Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-ec44bcf40533a62e7015",
+          "file": "workspace-layout.spec.ts",
+          "line": 125,
+          "column": 5
+        },
+        {
+          "title": "W02 admin: áreas separadas, filtros de fila e navegação em todas as jornadas",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 14768,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:23:03.035Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-87393c4b43ba0a9b925d",
+          "file": "workspace-layout.spec.ts",
+          "line": 164,
+          "column": 5
+        },
+        {
+          "title": "W04 saída fica no cabeçalho ou no final da sidebar e encerra a sessão",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1167,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:25:26.913Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-81504ca24c22d5d41891",
+          "file": "workspace-layout.spec.ts",
+          "line": 26,
+          "column": 5
+        },
+        {
+          "title": "W01 painel: resumo sem abas, menu acessível e filtros combinados recuperáveis",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10332,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:25:28.085Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-677b23d9f83f012414f8",
+          "file": "workspace-layout.spec.ts",
+          "line": 55,
+          "column": 5
+        },
+        {
+          "title": "W03 formulário em etapas valida antes de avançar e mantém os campos ao voltar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2775,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:25:38.422Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-b9702d790a94de18e1be",
+          "file": "workspace-layout.spec.ts",
+          "line": 125,
+          "column": 5
+        },
+        {
+          "title": "W02 admin: áreas separadas, filtros de fila e navegação em todas as jornadas",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 13468,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:25:41.201Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-fd6383a559955f47dc27",
+          "file": "workspace-layout.spec.ts",
+          "line": 164,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "advertise.spec.ts",
+      "file": "advertise.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "a landing do anúncio usa o mesmo cabeçalho e não lista faceta restrita",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 330,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:25:55.879Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "acfff0f2abec3b16e6bd-e40411ada6279e7c2f21",
+          "file": "advertise.spec.ts",
+          "line": 6,
+          "column": 5
+        },
+        {
+          "title": "a home em 390px mostra o nicho inteiro e não rola para o lado",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 225,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:25:56.321Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "acfff0f2abec3b16e6bd-8bbf99dc357a0456e0d7",
+          "file": "advertise.spec.ts",
+          "line": 26,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "catalog.spec.ts",
+      "file": "catalog.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "home, SEO, cards e isolamento visual",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1001,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:25:56.563Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "30aa42b97d8966d0c2dc-5d42f7cebe001d035cd7",
+          "file": "catalog.spec.ts",
+          "line": 75,
+          "column": 5
+        },
+        {
+          "title": "indisponível, inexistente e outro tenant",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 329,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:25:57.569Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "30aa42b97d8966d0c2dc-c5c236ffa5d0a5ba3e87",
+          "file": "catalog.spec.ts",
+          "line": 115,
+          "column": 5
+        },
+        {
+          "title": "busca mostra erro controlado e autocomplete real",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 655,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:25:57.911Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "30aa42b97d8966d0c2dc-f687015ab7fa6486ad66",
+          "file": "catalog.spec.ts",
+          "line": 130,
+          "column": 5
+        },
+        {
+          "title": "cadastro sem confirmação não envia link",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1833,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:25:58.578Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "30aa42b97d8966d0c2dc-575cea74fecba7471d86",
+          "file": "catalog.spec.ts",
+          "line": 142,
+          "column": 5
+        },
+        {
+          "title": "login, refresh e sessão mínima",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 786,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:26:00.432Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "30aa42b97d8966d0c2dc-ef2c8025e76d6e6a1ba0",
+          "file": "catalog.spec.ts",
+          "line": 189,
+          "column": 5
+        },
+        {
+          "title": "vitrine pagina por cursor com limite no servidor",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 253,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:26:01.236Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "30aa42b97d8966d0c2dc-8ab0485e1a900d737f9b",
+          "file": "catalog.spec.ts",
+          "line": 240,
+          "column": 5
+        },
+        {
+          "title": "criação, SSRF, payload e edição publicada",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4975,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:26:01.511Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "30aa42b97d8966d0c2dc-fd9b27d2bb23c93534dd",
+          "file": "catalog.spec.ts",
+          "line": 261,
+          "column": 5
+        },
+        {
+          "title": "analytics, clique e open redirect",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 16784,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:26:06.505Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "30aa42b97d8966d0c2dc-229ce793fa75792e582e",
+          "file": "catalog.spec.ts",
+          "line": 336,
+          "column": 5
+        },
+        {
+          "title": "checkout, webhook RSA, replay e assinatura inválida",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4044,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:26:23.312Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "30aa42b97d8966d0c2dc-1371822fc35565398ff6",
+          "file": "catalog.spec.ts",
+          "line": 392,
+          "column": 5
+        },
+        {
+          "title": "logout idempotente",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 523,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:26:27.385Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "30aa42b97d8966d0c2dc-183e0910320bdd9e5031",
+          "file": "catalog.spec.ts",
+          "line": 487,
+          "column": 5
+        },
+        {
+          "title": "IDOR e tenant",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1367,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:26:27.948Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "30aa42b97d8966d0c2dc-a14d28abff46e8f8815c",
+          "file": "catalog.spec.ts",
+          "line": 504,
+          "column": 5
+        },
+        {
+          "title": "admin não confia no cookie e a decisão persiste",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3754,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:26:29.351Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "30aa42b97d8966d0c2dc-09af00ae8ba66425c474",
+          "file": "catalog.spec.ts",
+          "line": 540,
+          "column": 5
+        },
+        {
+          "title": "mobile: home, busca, login, painel e checkout",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3346,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:26:33.144Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "30aa42b97d8966d0c2dc-331bb0704f5845698409",
+          "file": "catalog.spec.ts",
+          "line": 580,
+          "column": 5
+        },
+        {
+          "title": "Pix expirado no browser: worker real expira, a tela esconde o código e nova tentativa gera outro pedido",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 14857,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "(node:17020) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\nnpm notice run divulgador-links-api@0.1.0 npx\nnpm notice run tsx scripts/promote-job.ts expire-71aee949-089a-4133-93c5-2e994435d2e4\n(node:66564) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:69668) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                    },
+                    {
+                      "text": "(node:2060) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:26:36.566Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "30aa42b97d8966d0c2dc-ada4caf98adc89e8053e",
+          "file": "catalog.spec.ts",
+          "line": 602,
+          "column": 5
+        },
+        {
+          "title": "troca de e-mail guarda o anterior e tira o envio sem derrubar o publicado",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1441,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:26:51.555Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "30aa42b97d8966d0c2dc-3fabac015eb83ae93503",
+          "file": "catalog.spec.ts",
+          "line": 643,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "funnel.spec.ts",
+      "file": "funnel.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "sem aceite não guarda campanha nem chama a Meta",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1391,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:26:53.065Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9a65ae986d971b004edc-63a0f4ba196ddd573b65",
+          "file": "funnel.spec.ts",
+          "line": 7,
+          "column": 5
+        },
+        {
+          "title": "com consentimento o primeiro anúncio permanece na conta",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2127,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:26:54.510Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9a65ae986d971b004edc-b4eba7cef45f0212a898",
+          "file": "funnel.spec.ts",
+          "line": 32,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "legal.spec.ts",
+      "file": "legal.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "cadastro aponta para privacidade e termos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 431,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:26:56.697Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0fb7d420323fe6d6fc1e-5946c0691b406ddd3794",
+          "file": "legal.spec.ts",
+          "line": 6,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "mail.spec.ts",
+      "file": "mail.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "cadastro manda o código no e-mail e a tela não mostra o código",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 715,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:26:57.186Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4af1cca458e4e1e90acf-0ec68c0d677309498c10",
+          "file": "mail.spec.ts",
+          "line": 70,
+          "column": 5
+        },
+        {
+          "title": "esqueci a senha troca a senha e entra com a nova",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3219,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:26:57.959Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4af1cca458e4e1e90acf-0a4607adfc776764d1b1",
+          "file": "mail.spec.ts",
+          "line": 87,
+          "column": 5
+        },
+        {
+          "title": "moderação avisa o dono quando o link é publicado",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4854,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:27:01.229Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4af1cca458e4e1e90acf-5ed2415f2d0da96b9225",
+          "file": "mail.spec.ts",
+          "line": 114,
+          "column": 5
+        },
+        {
+          "title": "banimento avisa e o painel mostra a conta suspensa",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2046,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:27:06.144Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4af1cca458e4e1e90acf-353554e5642658b48729",
+          "file": "mail.spec.ts",
+          "line": 140,
+          "column": 5
+        },
+        {
+          "title": "excluir a conta avisa e a senha deixa de entrar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2268,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:27:08.273Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4af1cca458e4e1e90acf-590ae0a4dedd6fd732db",
+          "file": "mail.spec.ts",
+          "line": 160,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "security-headers.spec.ts",
+      "file": "security-headers.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "a home manda os headers e não anuncia o Next",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 306,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:27:10.598Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9e3ea47c3dd308804f1b-7b6008d8ffb71c3cba0f",
+          "file": "security-headers.spec.ts",
+          "line": 4,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "signup.spec.ts",
+      "file": "signup.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "cadastro sem telefone cai na verificação e avisa o spam",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1568,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:27:10.980Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5334e3b62ca8fd4a4b6-e615bbe04541ae795b42",
+          "file": "signup.spec.ts",
+          "line": 9,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "submit-link.spec.ts",
+      "file": "submit-link.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "o envio guarda rascunho, mostra a vaga e não chama de publicado",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5827,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:27:12.606Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c2e728d992a1cdc112a5-fb9a78f7f05b7bae2ca6",
+          "file": "submit-link.spec.ts",
+          "line": 18,
+          "column": 5
+        },
+        {
+          "title": "o botão de envio não dispara duas vezes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "catalog",
+              "projectName": "catalog",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1864,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T03:27:18.503Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c2e728d992a1cdc112a5-90df85c7aebe7e18c745",
+          "file": "submit-link.spec.ts",
+          "line": 50,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-17T03:20:45.534Z",
+    "duration": 395965.425,
+    "expected": 122,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

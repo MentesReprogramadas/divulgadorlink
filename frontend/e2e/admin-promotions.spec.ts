@@ -1,11 +1,28 @@
+import { expectSelected, selectOption } from './select-control'
 import { runtime as e2eRuntime } from './runtime.cjs'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
+import { setTimeout as delay } from 'node:timers/promises'
 import { expect, test } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { sql } from './db'
 
 const origin = (e2eRuntime.web('tenant-a.localhost'))
+
+test.afterEach(async ({}, info) => {
+  // These fixtures share Bia with screenshot journeys: remove only this test's
+  // resources so slot counters and catalog contents do not depend on test order.
+  const condition = `id='admin-promotion-${info.project.name}' OR id LIKE 'status-${info.project.name}-%'`
+  for (let attempt = 0; ; attempt++) {
+    try {
+      sql(`BEGIN; SELECT id FROM links WHERE ${condition} ORDER BY id FOR UPDATE; DELETE FROM moderation_cases WHERE "linkId" IN (SELECT id FROM links WHERE ${condition}); DELETE FROM promotions WHERE "linkId" IN (SELECT id FROM links WHERE ${condition}); DELETE FROM link_availability WHERE "linkId" IN (SELECT id FROM links WHERE ${condition}); DELETE FROM analytics_events WHERE "linkId" IN (SELECT id FROM links WHERE ${condition}); DELETE FROM audit_logs WHERE "entityId" IN (SELECT id FROM links WHERE ${condition}); DELETE FROM links WHERE ${condition}; COMMIT`)
+      break
+    } catch (error) {
+      if (attempt >= 2 || !String(error).includes('deadlock detected')) throw error
+      await delay(150 * (attempt + 1))
+    }
+  }
+})
 
 test('admin define período, prazo indeterminado e remove o destaque sem cobrança', async ({ page }, testInfo) => {
   test.setTimeout(120_000)
@@ -24,7 +41,7 @@ test('admin define período, prazo indeterminado e remove o destaque sem cobran�
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
   await expect(page).toHaveURL(/\/painel/)
   await page.goto(`${origin}/admin/visao`)
-  await page.getByRole('navigation', { name: 'Seções', exact: true }).getByRole('button', { name: /^Links(?: |$)/ }).click()
+  await selectOption(page.getByLabel('Área de gestão', { exact: true }), 'links')
   const card = page.getByRole('article').filter({ has: page.getByRole('heading', { name, exact: true }) })
   const trigger = card.getByRole('button', { name: 'Gerenciar destaque' })
   await trigger.click()
@@ -33,16 +50,16 @@ test('admin define período, prazo indeterminado e remove o destaque sem cobran�
   await expect(dialog.getByLabel('Onde destacar')).toBeFocused()
   await page.keyboard.press('Tab')
   await expect(dialog.getByLabel('Período')).toBeFocused()
-  await dialog.getByLabel('Onde destacar').selectOption('HOME')
-  await dialog.getByLabel('Período').selectOption('custom')
+  await selectOption(dialog.getByLabel('Onde destacar'), 'HOME')
+  await selectOption(dialog.getByLabel('Período'), 'custom')
   await dialog.getByLabel('Data e hora de término').fill('2030-11-10T12:00')
   await dialog.getByRole('button', { name: 'Salvar destaque', exact: true }).click()
   await expect(dialog).not.toBeVisible()
   expect(sql(`SELECT COUNT(*) FROM promotions WHERE "linkId"='${id}' AND administrative AND status='ACTIVE' AND "expiresAt" IS NOT NULL`)).toBe('1')
   await expect(trigger).toBeFocused()
   await trigger.click()
-  await expect(dialog.getByLabel('Período')).toHaveValue('custom')
-  await dialog.getByLabel('Período').selectOption('indefinite')
+  await expectSelected(dialog.getByLabel('Período'), 'custom')
+  await selectOption(dialog.getByLabel('Período'), 'indefinite')
   await page.evaluate(() => document.fonts.ready)
   const accessibility = await new AxeBuilder({ page }).include('dialog[open]').withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()
   expect(accessibility.violations.map(row => ({ id: row.id, nodes: row.nodes.map(node => node.target) }))).toEqual([])
@@ -64,9 +81,9 @@ test('admin define período, prazo indeterminado e remove o destaque sem cobran�
   const publicCard = page.getByRole('article').filter({ has: page.getByRole('link', { name, exact: true }) })
   await expect(publicCard.getByText('Patrocinado', { exact: true })).toBeVisible()
   await page.goto(`${origin}/admin/visao`)
-  await page.getByRole('navigation', { name: 'Seções', exact: true }).getByRole('button', { name: /^Links(?: |$)/ }).click()
+  await selectOption(page.getByLabel('Área de gestão', { exact: true }), 'links')
   await trigger.click()
-  await expect(dialog.getByLabel('Período')).toHaveValue('indefinite')
+  await expectSelected(dialog.getByLabel('Período'), 'indefinite')
   await page.keyboard.press('Escape')
   await expect(trigger).toBeFocused()
   await page.keyboard.press('Enter')
@@ -95,19 +112,20 @@ test('gestão filtra todos os status, conta além de 40 cards e oferece ações 
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
   await expect(page).toHaveURL(/\/painel/)
   await page.goto(`${origin}/admin/visao`)
-  await page.getByRole('navigation', { name: 'Seções', exact: true }).getByRole('button', { name: /^Links(?: |$)/ }).click()
+  await selectOption(page.getByLabel('Área de gestão', { exact: true }), 'links')
   await page.getByRole('textbox', { name: 'Buscar contas e links' }).fill(name)
   await page.getByRole('button', { name: 'Buscar', exact: true }).click()
-  const filters = page.getByRole('group', { name: 'Filtrar links por status' })
-  await expect(filters.getByRole('button', { name: 'Todos 49', exact: true })).toBeVisible()
-  await expect(filters.getByRole('button', { name: 'Publicados 45', exact: true })).toBeVisible()
+  const filters = page.getByLabel('Situação dos links', { exact: true })
+  const counts = await page.evaluate(async name => (await (await fetch('/bff/v1/admin/office?q=' + encodeURIComponent(name))).json()).linkStatusCounts, name)
+  expect(counts.PUBLISHED).toBe(45)
+  expect(Object.values(counts).reduce((total: number, value) => total + Number(value), 0)).toBe(49)
   const board = page.getByRole('region', { name: 'Links', exact: true })
-  await expect(board.getByRole('status')).toContainText('Mostrando 40 de 49')
+  await expect(board.getByRole('article')).toHaveCount(40)
   for (const [filter, status, label] of [
-    ['Rascunhos 1', 'DRAFT', 'Rascunho'], ['Pré-rejeitados 1', 'PRE_REJECTED', 'Pré-rejeitado'],
-    ['Fora do ar 1', 'UNAVAILABLE', 'Fora do ar'], ['Aguardando revisão 1', 'PENDING_MODERATION', 'Aguardando revisão'],
+    ['Rascunhos', 'DRAFT', 'Rascunho'], ['Pré-rejeitados', 'PRE_REJECTED', 'Pré-rejeitado'],
+    ['Fora do ar', 'UNAVAILABLE', 'Fora do ar'], ['Aguardando revisão', 'PENDING_MODERATION', 'Aguardando revisão'],
   ]) {
-    await filters.getByRole('button', { name: filter, exact: true }).click()
+    await selectOption(filters, { label: filter })
     await expect(board.getByRole('article')).toHaveCount(1)
     const card = board.getByRole('article', { name: `${name} ${status}` })
     await expect(card.getByLabel(`Status: ${label}`)).toBeVisible()
