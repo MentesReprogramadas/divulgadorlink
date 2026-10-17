@@ -131,7 +131,7 @@ describe('envio de link', () => {
       return defaultApi(path, init)
     })
     render(<Page />)
-    await screen.findByLabelText('Titulo')
+    await screen.findByLabelText('Título do link')
     expect(trackGoogleAdsLinkSubmission).not.toHaveBeenCalled()
     await fillAndSend()
     await waitFor(() => expect(trackGoogleAdsLinkSubmission).toHaveBeenCalledExactlyOnceWith('link-published'))
