@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button'
 import { trackMeta } from '@/domain/meta-pixel'
 import { installGoogleAds, setGoogleAdsConsent, trackGoogleAdsPageView } from '@/domain/google-ads'
 import { api } from '@/lib/api'
+import {profileMeasurementConsent,writeProfileMeasurementConsent} from '@/domain/profile-measurement-consent'
+import preferenceStyles from './consent-preferences.module.css'
 
 type Choice = 'marketing' | 'denied' | null
 
@@ -76,6 +78,7 @@ export function CookieSettings() {
 export function Consent({ pending }: { pending: boolean }) {
   const [choice, setChoice] = useState<Choice | undefined>(pending ? null : undefined)
   const [reviewing, setReviewing] = useState(false)
+  const [ads,setAds]=useState(false),[measurement,setMeasurement]=useState(false)
   const ref = useRef<HTMLElement>(null)
   const [bannerHeight, setBannerHeight] = useState(0)
   const open = choice === null || reviewing
@@ -94,7 +97,7 @@ export function Consent({ pending }: { pending: boolean }) {
   }, [])
 
   useEffect(() => {
-    function review() { setReviewing(true) }
+    function review() {setAds(readConsent()==='marketing');setMeasurement(profileMeasurementConsent());setReviewing(true) }
     window.addEventListener(COOKIE_REVIEW, review)
     return () => window.removeEventListener(COOKIE_REVIEW, review)
   }, [])
@@ -124,10 +127,11 @@ export function Consent({ pending }: { pending: boolean }) {
     }
   }, [choice])
 
-  function choose(value: Exclude<Choice, null>) {
+  function choose(value: Exclude<Choice, null>,measure=value==='marketing') {
     const changing = choice !== null && choice !== value
     if (choice !== value) countChoice(value)
     writeConsent(value)
+    writeProfileMeasurementConsent(measure)
     setGoogleAdsConsent(value === 'marketing')
     setChoice(value)
     setReviewing(false)
@@ -144,11 +148,13 @@ export function Consent({ pending }: { pending: boolean }) {
         <div className="cookie-banner-inner">
           <div className="cookie-banner-copy">
             <h2 id="cookie-title">Este site usa cookies</h2>
-            <p id="cookie-description">Usamos cookies para o site funcionar e, com seu aceite, medir anúncios. Veja a{' '}<a href="/privacidade">Política de Privacidade</a>.</p>
+            <p id="cookie-description">Usamos cookies para o site funcionar e, com seu aceite, medir anúncios e a interação com páginas. Veja a{' '}<a href="/privacidade">Política de Privacidade</a>.</p>
+            {reviewing?<fieldset className={preferenceStyles.preferences}><legend>Cookies opcionais</legend><label><input type="checkbox" checked={ads} onChange={event=>setAds(event.target.checked)}/>Medição de anúncios</label><label><input type="checkbox" checked={measurement} onChange={event=>setMeasurement(event.target.checked)}/>Medição da página visitada</label></fieldset>:null}
           </div>
           <div className="cookie-banner-actions">
             <Button type="button" onClick={() => choose('marketing')}>Aceitar</Button>
             <Button type="button" variant="secondary" onClick={() => choose('denied')}>Recusar</Button>
+            {reviewing?<Button type="button" onClick={()=>choose(ads?'marketing':'denied',measurement)}>Salvar preferências</Button>:<Button type="button" variant="secondary" onClick={()=>{setAds(false);setMeasurement(false);setReviewing(true)}}>Ajustar preferências</Button>}
           </div>
         </div>
       </section>

@@ -13,6 +13,8 @@ import { api } from '@/lib/api'
 import styles from '@/components/layout/workspace-dashboard.module.css'
 import { WorkspaceActions, WorkspaceFilters } from '@/components/layout/workspace-controls'
 import { EmptyState } from '@/components/feedback/empty-state'
+import { Tabs } from '@/components/ui/tabs'
+import { LinkDiscoveryEditor } from '@/features/catalog/discovery/link-discovery-editor'
 import { Skeleton } from '@/components/feedback/skeleton'
 
 export type PanelLink = {
@@ -175,6 +177,7 @@ export function LinkEditor({
   framed?: boolean
   onCancel?: () => void
 }) {
+  const [tab,setTab] = useState('text')
   const [note, setNote] = useState('')
   const [saving, setSaving] = useState(false)
   const editable = (link.status === 'PUBLISHED' || link.status === 'PENDING_MODERATION') && !banned
@@ -205,7 +208,7 @@ export function LinkEditor({
         </>
       ) : null}
       {editable ? (
-        <form className="editor-form" onSubmit={(event) => void save(event)}>
+        <Tabs value={tab} onChange={setTab} label="Dados do link" items={[{id:"text",label:"Texto",icon:"edit",content:<form className="editor-form" onSubmit={(event) => void save(event)}>
           <Field label="Título do link" hint="Nome do grupo, canal ou página. Não use seu nome pessoal.">
             <Input name="name" defaultValue={link.name} required />
           </Field>
@@ -217,7 +220,7 @@ export function LinkEditor({
             <Button type="submit" disabled={saving}><ActionIcon name="save" />Salvar texto</Button>
           </div>
           {note ? <p role="status">{note}</p> : null}
-        </form>
+        </form>},{id:"discovery",label:"Local e idioma",icon:"city",content:tab === "discovery" ? <LinkDiscoveryEditor linkId={link.id}/> : null}]} />
       ) : (
         <p className="panel-empty">Este link não pode ser editado agora.</p>
       )}

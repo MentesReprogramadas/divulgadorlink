@@ -1,6 +1,6 @@
 'use client'
 
-import { cloneElement, isValidElement, useId, useState, type InputHTMLAttributes, type ReactNode, type TextareaHTMLAttributes } from 'react'
+import { cloneElement, isValidElement, useId, useState, type InputHTMLAttributes, type Ref, type ReactNode, type TextareaHTMLAttributes } from 'react'
 export { Select } from './select'
 import styles from './input.module.css'
 
@@ -59,7 +59,7 @@ export function Input({
   invalid,
   className,
   ...props
-}: InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean }) {
+}: InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean; ref?: Ref<HTMLInputElement> }) {
   return <input className={controlClass(invalid, [styles.control, className].filter(Boolean).join(' '))} aria-invalid={invalid || undefined} {...props} />
 }
 

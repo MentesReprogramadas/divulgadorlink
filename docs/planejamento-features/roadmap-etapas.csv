@@ -1,337 +1,337 @@
-"feature","titulo","ordem","onda","etapa","dependencias","estado","responsavel","commit","ambiente","execucao","comando","exit_code","evidencia","bloqueio","aceite"
-"F42","Moderação e alertas operacionais no grupo pela Evolution API","1","0","F42-S0","G00","CONCLUIDA","Codex","9204cefb7488b97410dbf91bb62fea8656343b9b","Local descartável + CI Node 22 + Coolify produção","2026-10-15; CI 38753110997; M01","Consultas autenticadas Evolution + revisão D44-D47 (segredos omitidos)","0","execucao-f42.md; evidencias-f42.json","","APROVADO; F42 concluída; F01-F41 não iniciadas"
-"F42","Moderação e alertas operacionais no grupo pela Evolution API","1","0","F42-S1","F42-S0","CONCLUIDA","Codex","9204cefb7488b97410dbf91bb62fea8656343b9b","Local descartável + CI Node 22 + Coolify produção","2026-10-15; CI 38753110997; M01","npm test (backend e frontend)","0","execucao-f42.md; evidencias-f42.json","","APROVADO; F42 concluída; F01-F41 não iniciadas"
-"F42","Moderação e alertas operacionais no grupo pela Evolution API","1","0","F42-S2","F42-S1","CONCLUIDA","Codex","9204cefb7488b97410dbf91bb62fea8656343b9b","Local descartável + CI Node 22 + Coolify produção","2026-10-15; CI 38753110997; M01","prisma migrate deploy; PG F42; API anterior /actuator/ready","0","execucao-f42.md; evidencias-f42.json","","APROVADO; F42 concluída; F01-F41 não iniciadas"
-"F42","Moderação e alertas operacionais no grupo pela Evolution API","1","0","F42-S3","F42-S2","CONCLUIDA","Codex","9204cefb7488b97410dbf91bb62fea8656343b9b","Local descartável + CI Node 22 + Coolify produção","2026-10-15; CI 38753110997; M01","npm run lint; npm run typecheck; npm test; npm run build","0","execucao-f42.md; evidencias-f42.json","","APROVADO; F42 concluída; F01-F41 não iniciadas"
-"F42","Moderação e alertas operacionais no grupo pela Evolution API","1","0","F42-S4","F42-S3","CONCLUIDA","Codex","9204cefb7488b97410dbf91bb62fea8656343b9b","Local descartável + CI Node 22 + Coolify produção","2026-10-15; CI 38753110997; M01","Vitest componente Evolution; Playwright E05/E06 desktop/mobile","0","execucao-f42.md; evidencias-f42.json","","APROVADO; F42 concluída; F01-F41 não iniciadas"
-"F42","Moderação e alertas operacionais no grupo pela Evolution API","1","0","F42-S5","F42-S4","CONCLUIDA","Codex","9204cefb7488b97410dbf91bb62fea8656343b9b","Local descartável + CI Node 22 + Coolify produção","2026-10-15; CI 38753110997; M01","PG_SPECS=1 npm run test:pg; Playwright E04/E09","0","execucao-f42.md; evidencias-f42.json","","APROVADO; F42 concluída; F01-F41 não iniciadas"
-"F42","Moderação e alertas operacionais no grupo pela Evolution API","1","0","F42-S6","F42-S5","CONCLUIDA","Codex","9204cefb7488b97410dbf91bb62fea8656343b9b","Local descartável + CI Node 22 + Coolify produção","2026-10-15; CI 38753110997; M01","npx playwright test --project=features --project=features-mobile --project=catalog","0","execucao-f42.md; evidencias-f42.json","","APROVADO; F42 concluída; F01-F41 não iniciadas"
-"F42","Moderação e alertas operacionais no grupo pela Evolution API","1","0","F42-S7","F42-S6","CONCLUIDA","Codex","9204cefb7488b97410dbf91bb62fea8656343b9b","Local descartável + CI Node 22 + Coolify produção","2026-10-15; CI 38753110997; M01","GitHub Actions 38753110997; Coolify health; F42-M01 iPhone final 8391","0","execucao-f42.md; evidencias-f42.json","","APROVADO; F42 concluída; F01-F41 não iniciadas"
-"F01","Relatório de resultado do destaque","2","1","F01-S0","F42 G00","CONCLUÍDA","Codex","d9dbffd","Windows local; PostgreSQL/Redis descartaveis; CI Node22","2026-10-15; CI 38832840220","Ver execucao-f01.md e evidencias/F01/2026-10-15/resultados.json","0","execucao-f01.md; evidencias/F01/2026-10-15/resultados.json","","APROVADO na branch; deploy nao realizado"
-"F01","Relatório de resultado do destaque","2","1","F01-S1","F01-S0","CONCLUÍDA","Codex","d9dbffd","Windows local; PostgreSQL/Redis descartaveis; CI Node22","2026-10-15; CI 38832840220","Ver execucao-f01.md e evidencias/F01/2026-10-15/resultados.json","0","execucao-f01.md; evidencias/F01/2026-10-15/resultados.json","","APROVADO na branch; deploy nao realizado"
-"F01","Relatório de resultado do destaque","2","1","F01-S2","F01-S1","CONCLUÍDA","Codex","d9dbffd","Windows local; PostgreSQL/Redis descartaveis; CI Node22","2026-10-15; CI 38832840220","Ver execucao-f01.md e evidencias/F01/2026-10-15/resultados.json","0","execucao-f01.md; evidencias/F01/2026-10-15/resultados.json","","APROVADO na branch; deploy nao realizado"
-"F01","Relatório de resultado do destaque","2","1","F01-S3","F01-S2","CONCLUÍDA","Codex","d9dbffd","Windows local; PostgreSQL/Redis descartaveis; CI Node22","2026-10-15; CI 38832840220","Ver execucao-f01.md e evidencias/F01/2026-10-15/resultados.json","0","execucao-f01.md; evidencias/F01/2026-10-15/resultados.json","","APROVADO na branch; deploy nao realizado"
-"F01","Relatório de resultado do destaque","2","1","F01-S4","F01-S3","CONCLUÍDA","Codex","d9dbffd","Windows local; PostgreSQL/Redis descartaveis; CI Node22","2026-10-15; CI 38832840220","Ver execucao-f01.md e evidencias/F01/2026-10-15/resultados.json","0","execucao-f01.md; evidencias/F01/2026-10-15/resultados.json","","APROVADO na branch; deploy nao realizado"
-"F01","Relatório de resultado do destaque","2","1","F01-S5","F01-S4","CONCLUÍDA","Codex","d9dbffd","Windows local; PostgreSQL/Redis descartaveis; CI Node22","2026-10-15; CI 38832840220","Ver execucao-f01.md e evidencias/F01/2026-10-15/resultados.json","0","execucao-f01.md; evidencias/F01/2026-10-15/resultados.json","","APROVADO na branch; deploy nao realizado"
-"F01","Relatório de resultado do destaque","2","1","F01-S6","F01-S5","CONCLUÍDA","Codex","d9dbffd","Windows local; PostgreSQL/Redis descartaveis; CI Node22","2026-10-15; CI 38832840220","Ver execucao-f01.md e evidencias/F01/2026-10-15/resultados.json","0","execucao-f01.md; evidencias/F01/2026-10-15/resultados.json","","APROVADO na branch; deploy nao realizado"
-"F01","Relatório de resultado do destaque","2","1","F01-S7","F01-S6","CONCLUÍDA","Codex","d9dbffd","Windows local; PostgreSQL/Redis descartaveis; CI Node22","2026-10-15; CI 38832840220","Ver execucao-f01.md e evidencias/F01/2026-10-15/resultados.json","0","execucao-f01.md; evidencias/F01/2026-10-15/resultados.json","","APROVADO na branch; deploy nao realizado"
-"F06","Denunciar um link","3","1","F06-S0","F42 G00","CONCLUÍDA","Codex","accca5b","Windows; PostgreSQL/Redis descartaveis","2026-10-15; CI 38834620829","Ver execucao-f06.md","0","execucao-f06.md; evidencias/F06/2026-10-15/","","APROVADO na branch; CI 60 E2E; sem deploy"
-"F06","Denunciar um link","3","1","F06-S1","F06-S0","CONCLUÍDA","Codex","accca5b","Windows; PostgreSQL/Redis descartaveis","2026-10-15; CI 38834620829","Ver execucao-f06.md","0","execucao-f06.md; evidencias/F06/2026-10-15/","","APROVADO na branch; CI 60 E2E; sem deploy"
-"F06","Denunciar um link","3","1","F06-S2","F06-S1","CONCLUÍDA","Codex","accca5b","Windows; PostgreSQL/Redis descartaveis","2026-10-15; CI 38834620829","Ver execucao-f06.md","0","execucao-f06.md; evidencias/F06/2026-10-15/","","APROVADO na branch; CI 60 E2E; sem deploy"
-"F06","Denunciar um link","3","1","F06-S3","F06-S2","CONCLUÍDA","Codex","accca5b","Windows; PostgreSQL/Redis descartaveis","2026-10-15; CI 38834620829","Ver execucao-f06.md","0","execucao-f06.md; evidencias/F06/2026-10-15/","","APROVADO na branch; CI 60 E2E; sem deploy"
-"F06","Denunciar um link","3","1","F06-S4","F06-S3","CONCLUÍDA","Codex","accca5b","Windows; PostgreSQL/Redis descartaveis","2026-10-15; CI 38834620829","Ver execucao-f06.md","0","execucao-f06.md; evidencias/F06/2026-10-15/","","APROVADO na branch; CI 60 E2E; sem deploy"
-"F06","Denunciar um link","3","1","F06-S5","F06-S4","CONCLUÍDA","Codex","accca5b","Windows; PostgreSQL/Redis descartaveis","2026-10-15; CI 38834620829","Ver execucao-f06.md","0","execucao-f06.md; evidencias/F06/2026-10-15/","","APROVADO na branch; CI 60 E2E; sem deploy"
-"F06","Denunciar um link","3","1","F06-S6","F06-S5","CONCLUÍDA","Codex","accca5b","Windows; PostgreSQL/Redis descartaveis","2026-10-15; CI 38834620829","Ver execucao-f06.md","0","execucao-f06.md; evidencias/F06/2026-10-15/","","APROVADO na branch; CI 60 E2E; sem deploy"
-"F06","Denunciar um link","3","1","F06-S7","F06-S6","CONCLUÍDA","Codex","accca5b","Windows; PostgreSQL/Redis descartaveis","2026-10-15; CI 38834620829","Ver execucao-f06.md","0","execucao-f06.md; evidencias/F06/2026-10-15/","","APROVADO na branch; CI 60 E2E; sem deploy"
-"F07","Acompanhamento de disponibilidade","4","1","F07-S0","F42 G00","CONCLUIDA","Codex","9b64caffc540e310297ff38df1ff9ce4eda8fc40","Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium","2026-10-15; CI 38840376754","backend: lint/typecheck/test/test:pg/build; frontend: lint/typecheck/test/test:e2e","0","execucao-f07.md; evidencias/F07/2026-10-15/f07-ci-success.json","","APROVADO NA BRANCH; monitor desligado; produção fora do aceite"
-"F07","Acompanhamento de disponibilidade","4","1","F07-S1","F07-S0","CONCLUIDA","Codex","9b64caffc540e310297ff38df1ff9ce4eda8fc40","Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium","2026-10-15; CI 38840376754","backend: lint/typecheck/test/test:pg/build; frontend: lint/typecheck/test/test:e2e","0","execucao-f07.md; evidencias/F07/2026-10-15/f07-ci-success.json","","APROVADO NA BRANCH; monitor desligado; produção fora do aceite"
-"F07","Acompanhamento de disponibilidade","4","1","F07-S2","F07-S1","CONCLUIDA","Codex","9b64caffc540e310297ff38df1ff9ce4eda8fc40","Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium","2026-10-15; CI 38840376754","backend: lint/typecheck/test/test:pg/build; frontend: lint/typecheck/test/test:e2e","0","execucao-f07.md; evidencias/F07/2026-10-15/f07-ci-success.json","","APROVADO NA BRANCH; monitor desligado; produção fora do aceite"
-"F07","Acompanhamento de disponibilidade","4","1","F07-S3","F07-S2","CONCLUIDA","Codex","9b64caffc540e310297ff38df1ff9ce4eda8fc40","Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium","2026-10-15; CI 38840376754","backend: lint/typecheck/test/test:pg/build; frontend: lint/typecheck/test/test:e2e","0","execucao-f07.md; evidencias/F07/2026-10-15/f07-ci-success.json","","APROVADO NA BRANCH; monitor desligado; produção fora do aceite"
-"F07","Acompanhamento de disponibilidade","4","1","F07-S4","F07-S3","CONCLUIDA","Codex","9b64caffc540e310297ff38df1ff9ce4eda8fc40","Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium","2026-10-15; CI 38840376754","backend: lint/typecheck/test/test:pg/build; frontend: lint/typecheck/test/test:e2e","0","execucao-f07.md; evidencias/F07/2026-10-15/f07-ci-success.json","","APROVADO NA BRANCH; monitor desligado; produção fora do aceite"
-"F07","Acompanhamento de disponibilidade","4","1","F07-S5","F07-S4","CONCLUIDA","Codex","9b64caffc540e310297ff38df1ff9ce4eda8fc40","Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium","2026-10-15; CI 38840376754","backend: lint/typecheck/test/test:pg/build; frontend: lint/typecheck/test/test:e2e","0","execucao-f07.md; evidencias/F07/2026-10-15/f07-ci-success.json","","APROVADO NA BRANCH; monitor desligado; produção fora do aceite"
-"F07","Acompanhamento de disponibilidade","4","1","F07-S6","F07-S5","CONCLUIDA","Codex","9b64caffc540e310297ff38df1ff9ce4eda8fc40","Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium","2026-10-15; CI 38840376754","backend: lint/typecheck/test/test:pg/build; frontend: lint/typecheck/test/test:e2e","0","execucao-f07.md; evidencias/F07/2026-10-15/f07-ci-success.json","","APROVADO NA BRANCH; monitor desligado; produção fora do aceite"
-"F07","Acompanhamento de disponibilidade","4","1","F07-S7","F07-S6","CONCLUIDA","Codex","9b64caffc540e310297ff38df1ff9ce4eda8fc40","Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium","2026-10-15; CI 38840376754","backend: lint/typecheck/test/test:pg/build; frontend: lint/typecheck/test/test:e2e","0","execucao-f07.md; evidencias/F07/2026-10-15/f07-ci-success.json","","APROVADO NA BRANCH; monitor desligado; produção fora do aceite"
-"F02","Lembrete de renovação","5","2","F02-S0","F42 G00 F01","CONCLUIDA","Codex","c712f827427837d50ea0820fb170ccbd66de954f","Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium","2026-10-16; CI 38909863096","Revisão da spec/F01/F07; decisão D03 registrada antes do agendamento","0","execucao-f02.md; evidencias/F02/2026-10-16/f02-ci-success.json","","APROVADO NA BRANCH; entrega desligada; sem deploy"
-"F02","Lembrete de renovação","5","2","F02-S1","F02-S0","CONCLUIDA","Codex","c712f827427837d50ea0820fb170ccbd66de954f","Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium","2026-10-16; CI 38909863096","vitest renewal-reminder.spec.ts; vitest reminder-preference-form.test.tsx (vermelho e verde)","0","execucao-f02.md; evidencias/F02/2026-10-16/f02-ci-success.json","","APROVADO NA BRANCH; entrega desligada; sem deploy"
-"F02","Lembrete de renovação","5","2","F02-S2","F02-S1","CONCLUIDA","Codex","c712f827427837d50ea0820fb170ccbd66de954f","Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium","2026-10-16; CI 38909863096","prisma migrate deploy no harness; SQL aditivo e EXPLAIN no clone f02_migration_proof","0","execucao-f02.md; evidencias/F02/2026-10-16/f02-ci-success.json","","APROVADO NA BRANCH; entrega desligada; sem deploy"
-"F02","Lembrete de renovação","5","2","F02-S3","F02-S2","CONCLUIDA","Codex","c712f827427837d50ea0820fb170ccbd66de954f","Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium","2026-10-16; CI 38909863096","backend lint/typecheck/test/build; testes PG da F02","0","execucao-f02.md; evidencias/F02/2026-10-16/f02-ci-success.json","","APROVADO NA BRANCH; entrega desligada; sem deploy"
-"F02","Lembrete de renovação","5","2","F02-S4","F02-S3","CONCLUIDA","Codex","c712f827427837d50ea0820fb170ccbd66de954f","Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium","2026-10-16; CI 38909863096","frontend lint/typecheck/test/build; inspeção Chrome e capturas reais","0","execucao-f02.md; evidencias/F02/2026-10-16/f02-ci-success.json","","APROVADO NA BRANCH; entrega desligada; sem deploy"
-"F02","Lembrete de renovação","5","2","F02-S5","F02-S4","CONCLUIDA","Codex","c712f827427837d50ea0820fb170ccbd66de954f","Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium","2026-10-16; CI 38909863096","npm run test:pg; F02 HTTP/PG/Redis/worker; 110 testes totais","0","execucao-f02.md; evidencias/F02/2026-10-16/f02-ci-success.json","","APROVADO NA BRANCH; entrega desligada; sem deploy"
-"F02","Lembrete de renovação","5","2","F02-S6","F02-S5","CONCLUIDA","Codex","c712f827427837d50ea0820fb170ccbd66de954f","Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium","2026-10-16; CI 38909863096","npm run test:e2e; 72 testes; desktop/mobile; 0 skips/retries","0","execucao-f02.md; evidencias/F02/2026-10-16/f02-ci-success.json","","APROVADO NA BRANCH; entrega desligada; sem deploy"
-"F02","Lembrete de renovação","5","2","F02-S7","F02-S6","CONCLUIDA","Codex","c712f827427837d50ea0820fb170ccbd66de954f","Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium","2026-10-16; CI 38909863096","gh run view 38909863096; quatro jobs aprovados; evidências registradas","0","execucao-f02.md; evidencias/F02/2026-10-16/f02-ci-success.json","","APROVADO NA BRANCH; entrega desligada; sem deploy"
-"F03","Links relacionados","6","2","F03-S0","F42 G00","CONCLUIDA","Codex","2672f834a3f2e34c6e7c794e0f9c31cfb57a885c","Local descartável + CI Node 22","2026-10-16; CI 38917846538","revisão de contratos/reuso/D04; execucao-f03.md","0","execucao-f03.md; evidencias/F03/2026-10-16","","APROVADO NA BRANCH; parar após F03; sem deploy"
-"F03","Links relacionados","6","2","F03-S1","F03-S0","CONCLUIDA","Codex","2672f834a3f2e34c6e7c794e0f9c31cfb57a885c","Local descartável + CI Node 22","2026-10-16; CI 38917846538","vitest related-links.spec.ts; related-links.test.tsx; logs RED/GREEN","0","execucao-f03.md; evidencias/F03/2026-10-16","","APROVADO NA BRANCH; parar após F03; sem deploy"
-"F03","Links relacionados","6","2","F03-S2","F03-S1","CONCLUIDA","Codex","2672f834a3f2e34c6e7c794e0f9c31cfb57a885c","Local descartável + CI Node 22","2026-10-16; CI 38917846538","prisma migrate deploy; SQL em clone; EXPLAIN ANALYZE; prova de compatibilidade","0","execucao-f03.md; evidencias/F03/2026-10-16","","APROVADO NA BRANCH; parar após F03; sem deploy"
-"F03","Links relacionados","6","2","F03-S3","F03-S2","CONCLUIDA","Codex","2672f834a3f2e34c6e7c794e0f9c31cfb57a885c","Local descartável + CI Node 22","2026-10-16; CI 38917846538","vitest related-links.spec.ts; related-links.pg.spec.ts","0","execucao-f03.md; evidencias/F03/2026-10-16","","APROVADO NA BRANCH; parar após F03; sem deploy"
-"F03","Links relacionados","6","2","F03-S4","F03-S3","CONCLUIDA","Codex","2672f834a3f2e34c6e7c794e0f9c31cfb57a885c","Local descartável + CI Node 22","2026-10-16; CI 38917846538","vitest related-links.test.tsx; upstream.test.ts; Chrome DevTools","0","execucao-f03.md; evidencias/F03/2026-10-16","","APROVADO NA BRANCH; parar após F03; sem deploy"
-"F03","Links relacionados","6","2","F03-S5","F03-S4","CONCLUIDA","Codex","2672f834a3f2e34c6e7c794e0f9c31cfb57a885c","Local descartável + CI Node 22","2026-10-16; CI 38917846538","npm run test:pg; vitest related-links.pg.spec.ts","0","execucao-f03.md; evidencias/F03/2026-10-16","","APROVADO NA BRANCH; parar após F03; sem deploy"
-"F03","Links relacionados","6","2","F03-S6","F03-S5","CONCLUIDA","Codex","2672f834a3f2e34c6e7c794e0f9c31cfb57a885c","Local descartável + CI Node 22","2026-10-16; CI 38917846538","npm run test:e2e; Playwright related-links desktop/mobile; inspeção real","0","execucao-f03.md; evidencias/F03/2026-10-16","","APROVADO NA BRANCH; parar após F03; sem deploy"
-"F03","Links relacionados","6","2","F03-S7","F03-S6","CONCLUIDA","Codex","2672f834a3f2e34c6e7c794e0f9c31cfb57a885c","Local descartável + CI Node 22","2026-10-16; CI 38917846538","lint/typecheck/unit/build backend/frontend; PG; Playwright; CI 38917846538","0","execucao-f03.md; evidencias/F03/2026-10-16","","APROVADO NA BRANCH; parar após F03; sem deploy"
-"F04","Favoritos e coleções","7","2","F04-S0","F42 G00","CONCLUIDA","Codex","1f283a46cfe0a71cea2afb2abde223cb6dd9eb43","Local descartável + CI Node 22","2026-10-16; CI 38923117928","revisão de reuso, contratos, D05 e autorização; execucao-f04.md","0","execucao-f04.md; evidencias/F04/2026-10-16","","APROVADO NA BRANCH; parar após F04; sem deploy"
-"F04","Favoritos e coleções","7","2","F04-S1","F04-S0","CONCLUIDA","Codex","1f283a46cfe0a71cea2afb2abde223cb6dd9eb43","Local descartável + CI Node 22","2026-10-16; CI 38923117928","vitest favorites.spec.ts e testes de componentes favoritos; RED/GREEN","0","execucao-f04.md; evidencias/F04/2026-10-16","","APROVADO NA BRANCH; parar após F04; sem deploy"
-"F04","Favoritos e coleções","7","2","F04-S2","F04-S1","CONCLUIDA","Codex","1f283a46cfe0a71cea2afb2abde223cb6dd9eb43","Local descartável + CI Node 22","2026-10-16; CI 38923117928","prisma migrate deploy; clone anterior; EXPLAIN ANALYZE e recuperação","0","execucao-f04.md; evidencias/F04/2026-10-16","","APROVADO NA BRANCH; parar após F04; sem deploy"
-"F04","Favoritos e coleções","7","2","F04-S3","F04-S2","CONCLUIDA","Codex","1f283a46cfe0a71cea2afb2abde223cb6dd9eb43","Local descartável + CI Node 22","2026-10-16; CI 38923117928","vitest favorites.spec.ts e favorites.pg.spec.ts; typecheck","0","execucao-f04.md; evidencias/F04/2026-10-16","","APROVADO NA BRANCH; parar após F04; sem deploy"
-"F04","Favoritos e coleções","7","2","F04-S4","F04-S3","CONCLUIDA","Codex","1f283a46cfe0a71cea2afb2abde223cb6dd9eb43","Local descartável + CI Node 22","2026-10-16; CI 38923117928","vitest favoritos componentes; Chrome DevTools e capturas finais","0","execucao-f04.md; evidencias/F04/2026-10-16","","APROVADO NA BRANCH; parar após F04; sem deploy"
-"F04","Favoritos e coleções","7","2","F04-S5","F04-S4","CONCLUIDA","Codex","1f283a46cfe0a71cea2afb2abde223cb6dd9eb43","Local descartável + CI Node 22","2026-10-16; CI 38923117928","npm run test:pg; favorites.pg.spec.ts com HTTP/PG reais","0","execucao-f04.md; evidencias/F04/2026-10-16","","APROVADO NA BRANCH; parar após F04; sem deploy"
-"F04","Favoritos e coleções","7","2","F04-S6","F04-S5","CONCLUIDA","Codex","1f283a46cfe0a71cea2afb2abde223cb6dd9eb43","Local descartável + CI Node 22","2026-10-16; CI 38923117928","npm run test:e2e; favorites/related desktop/mobile; inspeção visual","0","execucao-f04.md; evidencias/F04/2026-10-16","","APROVADO NA BRANCH; parar após F04; sem deploy"
-"F04","Favoritos e coleções","7","2","F04-S7","F04-S6","CONCLUIDA","Codex","1f283a46cfe0a71cea2afb2abde223cb6dd9eb43","Local descartável + CI Node 22","2026-10-16; CI 38923117928","lint/typecheck/unit/build backend/frontend; PG; Playwright; CI 38923117928","0","execucao-f04.md; evidencias/F04/2026-10-16","","APROVADO NA BRANCH; parar após F04; sem deploy"
-"F09","Perfil público com categorias próprias","8","2","F09-S0","F42 G00","CONCLUIDA","Codex","aba5b14907ec5d4bb794266b768cd282470a3d20","Local descartável + CI Node 22","2026-10-16; CI 38940575906","Revisão de contratos/reuso e D10 resolvida pelo usuário","0","execucao-f09.md; evidencias/F09/2026-10-16","","APROVADO NA BRANCH; parar após F09; sem deploy"
-"F09","Perfil público com categorias próprias","8","2","F09-S1","F09-S0","CONCLUIDA","Codex","aba5b14907ec5d4bb794266b768cd282470a3d20","Local descartável + CI Node 22","2026-10-16; CI 38940575906","Vitest U/C RED/GREEN; ordenação no domínio frontend; projeção/mídia/editor","0","execucao-f09.md; evidencias/F09/2026-10-16","","APROVADO NA BRANCH; parar após F09; sem deploy"
-"F09","Perfil público com categorias próprias","8","2","F09-S2","F09-S1","CONCLUIDA","Codex","aba5b14907ec5d4bb794266b768cd282470a3d20","Local descartável + CI Node 22","2026-10-16; CI 38940575906","Prisma validate/deploy; SQL exato no clone; fingerprints/EXPLAIN; rollback-proof","0","execucao-f09.md; evidencias/F09/2026-10-16","","APROVADO NA BRANCH; parar após F09; sem deploy"
-"F09","Perfil público com categorias próprias","8","2","F09-S3","F09-S2","CONCLUIDA","Codex","aba5b14907ec5d4bb794266b768cd282470a3d20","Local descartável + CI Node 22","2026-10-16; CI 38940575906","Vitest domínio/adapter e profiles.pg.spec.ts; API/CSRF/versionamento","0","execucao-f09.md; evidencias/F09/2026-10-16","","APROVADO NA BRANCH; parar após F09; sem deploy"
-"F09","Perfil público com categorias próprias","8","2","F09-S4","F09-S3","CONCLUIDA","Codex","aba5b14907ec5d4bb794266b768cd282470a3d20","Local descartável + CI Node 22","2026-10-16; CI 38940575906","Vitest componentes; build frontend; inspeção Chrome desktop/mobile","0","execucao-f09.md; evidencias/F09/2026-10-16","","APROVADO NA BRANCH; parar após F09; sem deploy"
-"F09","Perfil público com categorias próprias","8","2","F09-S5","F09-S4","CONCLUIDA","Codex","aba5b14907ec5d4bb794266b768cd282470a3d20","Local descartável + CI Node 22","2026-10-16; CI 38940575906","npm run test:pg; dez testes F09 com Fastify/PG real e triggers","0","execucao-f09.md; evidencias/F09/2026-10-16","","APROVADO NA BRANCH; parar após F09; sem deploy"
-"F09","Perfil público com categorias próprias","8","2","F09-S6","F09-S5","CONCLUIDA","Codex","aba5b14907ec5d4bb794266b768cd282470a3d20","Local descartável + CI Node 22","2026-10-16; CI 38940575906","Playwright profiles.spec.ts em features/features-mobile; revisão PNG/teclado/320px","0","execucao-f09.md; evidencias/F09/2026-10-16","","APROVADO NA BRANCH; parar após F09; sem deploy"
-"F09","Perfil público com categorias próprias","8","2","F09-S7","F09-S6","CONCLUIDA","Codex","aba5b14907ec5d4bb794266b768cd282470a3d20","Local descartável + CI Node 22","2026-10-16; CI 38940575906","lint/typecheck/unit/build backend/frontend; 137 PG; 92 E2E; CI 38940575906","0","execucao-f09.md; evidencias/F09/2026-10-16","","APROVADO NA BRANCH; parar após F09; sem deploy"
-"F12","Link permanente para convites","9","2","F12-S0","F42 G00 F07","CONCLUIDA","Codex","1809e1d97f0b7e7681409041a2073412352d91d6","Local descartável + CI; sem produção","2026-10-16; CI 38971032480","Revisão de contratos/reuso e decisões D14","0","execucao-f12.md; evidencias/F12/2026-10-16","","APROVADO NA BRANCH; F19 não iniciada; sem deploy"
-"F12","Link permanente para convites","9","2","F12-S1","F12-S0","CONCLUIDA","Codex","1809e1d97f0b7e7681409041a2073412352d91d6","Local descartável + CI; sem produção","2026-10-16; CI 38971032480","Vitest domínio 7 e componentes 3; RED/GREEN e concorrência","0","execucao-f12.md; evidencias/F12/2026-10-16","","APROVADO NA BRANCH; F19 não iniciada; sem deploy"
-"F12","Link permanente para convites","9","2","F12-S2","F12-S1","CONCLUIDA","Codex","1809e1d97f0b7e7681409041a2073412352d91d6","Local descartável + CI; sem produção","2026-10-16; CI 38971032480","Migration clone 42 tabelas + EXPLAIN 10 mil registros","0","execucao-f12.md; evidencias/F12/2026-10-16","","APROVADO NA BRANCH; F19 não iniciada; sem deploy"
-"F12","Link permanente para convites","9","2","F12-S3","F12-S2","CONCLUIDA","Codex","1809e1d97f0b7e7681409041a2073412352d91d6","Local descartável + CI; sem produção","2026-10-16; CI 38971032480","Lint/typecheck/unit/build backend","0","execucao-f12.md; evidencias/F12/2026-10-16","","APROVADO NA BRANCH; F19 não iniciada; sem deploy"
-"F12","Link permanente para convites","9","2","F12-S4","F12-S3","CONCLUIDA","Codex","1809e1d97f0b7e7681409041a2073412352d91d6","Local descartável + CI; sem produção","2026-10-16; CI 38971032480","Lint/typecheck/unit/build frontend","0","execucao-f12.md; evidencias/F12/2026-10-16","","APROVADO NA BRANCH; F19 não iniciada; sem deploy"
-"F12","Link permanente para convites","9","2","F12-S5","F12-S4","CONCLUIDA","Codex","1809e1d97f0b7e7681409041a2073412352d91d6","Local descartável + CI; sem produção","2026-10-16; CI 38971032480","npm run test:pg (152; F12 15)","0","execucao-f12.md; evidencias/F12/2026-10-16","","APROVADO NA BRANCH; F19 não iniciada; sem deploy"
-"F12","Link permanente para convites","9","2","F12-S6","F12-S5","CONCLUIDA","Codex","1809e1d97f0b7e7681409041a2073412352d91d6","Local descartável + CI; sem produção","2026-10-16; CI 38971032480","npm run test:e2e (100); inspeção Chrome desktop/mobile","0","execucao-f12.md; evidencias/F12/2026-10-16","","APROVADO NA BRANCH; F19 não iniciada; sem deploy"
-"F12","Link permanente para convites","9","2","F12-S7","F12-S6","CONCLUIDA","Codex","1809e1d97f0b7e7681409041a2073412352d91d6","Local descartável + CI; sem produção","2026-10-16; CI 38971032480","CI verify/web/images/e2e + aceite/reversão e parada","0","execucao-f12.md; evidencias/F12/2026-10-16","","APROVADO NA BRANCH; F19 não iniciada; sem deploy"
-"F19","Prévia e histórico de versões","10","2","F19-S0","F42 G00 F09","NAO_INICIADA","","","","","","","","",""
-"F19","Prévia e histórico de versões","10","2","F19-S1","F19-S0","NAO_INICIADA","","","","","","","","",""
-"F19","Prévia e histórico de versões","10","2","F19-S2","F19-S1","NAO_INICIADA","","","","","","","","",""
-"F19","Prévia e histórico de versões","10","2","F19-S3","F19-S2","NAO_INICIADA","","","","","","","","",""
-"F19","Prévia e histórico de versões","10","2","F19-S4","F19-S3","NAO_INICIADA","","","","","","","","",""
-"F19","Prévia e histórico de versões","10","2","F19-S5","F19-S4","NAO_INICIADA","","","","","","","","",""
-"F19","Prévia e histórico de versões","10","2","F19-S6","F19-S5","NAO_INICIADA","","","","","","","","",""
-"F19","Prévia e histórico de versões","10","2","F19-S7","F19-S6","NAO_INICIADA","","","","","","","","",""
-"F08","Painel de oportunidades de busca","11","3","F08-S0","F42 G00","NAO_INICIADA","","","","","","","","",""
-"F08","Painel de oportunidades de busca","11","3","F08-S1","F08-S0","NAO_INICIADA","","","","","","","","",""
-"F08","Painel de oportunidades de busca","11","3","F08-S2","F08-S1","NAO_INICIADA","","","","","","","","",""
-"F08","Painel de oportunidades de busca","11","3","F08-S3","F08-S2","NAO_INICIADA","","","","","","","","",""
-"F08","Painel de oportunidades de busca","11","3","F08-S4","F08-S3","NAO_INICIADA","","","","","","","","",""
-"F08","Painel de oportunidades de busca","11","3","F08-S5","F08-S4","NAO_INICIADA","","","","","","","","",""
-"F08","Painel de oportunidades de busca","11","3","F08-S6","F08-S5","NAO_INICIADA","","","","","","","","",""
-"F08","Painel de oportunidades de busca","11","3","F08-S7","F08-S6","NAO_INICIADA","","","","","","","","",""
-"F11","Planos para perfis e páginas","12","3","F11-S0","F42 G00 F09","NAO_INICIADA","","","","","","","","",""
-"F11","Planos para perfis e páginas","12","3","F11-S1","F11-S0","NAO_INICIADA","","","","","","","","",""
-"F11","Planos para perfis e páginas","12","3","F11-S2","F11-S1","NAO_INICIADA","","","","","","","","",""
-"F11","Planos para perfis e páginas","12","3","F11-S3","F11-S2","NAO_INICIADA","","","","","","","","",""
-"F11","Planos para perfis e páginas","12","3","F11-S4","F11-S3","NAO_INICIADA","","","","","","","","",""
-"F11","Planos para perfis e páginas","12","3","F11-S5","F11-S4","NAO_INICIADA","","","","","","","","",""
-"F11","Planos para perfis e páginas","12","3","F11-S6","F11-S5","NAO_INICIADA","","","","","","","","",""
-"F11","Planos para perfis e páginas","12","3","F11-S7","F11-S6","NAO_INICIADA","","","","","","","","",""
-"F13","QR Code permanente","13","3","F13-S0","F42 G00 F09 F12","NAO_INICIADA","","","","","","","","",""
-"F13","QR Code permanente","13","3","F13-S1","F13-S0","NAO_INICIADA","","","","","","","","",""
-"F13","QR Code permanente","13","3","F13-S2","F13-S1","NAO_INICIADA","","","","","","","","",""
-"F13","QR Code permanente","13","3","F13-S3","F13-S2","NAO_INICIADA","","","","","","","","",""
-"F13","QR Code permanente","13","3","F13-S4","F13-S3","NAO_INICIADA","","","","","","","","",""
-"F13","QR Code permanente","13","3","F13-S5","F13-S4","NAO_INICIADA","","","","","","","","",""
-"F13","QR Code permanente","13","3","F13-S6","F13-S5","NAO_INICIADA","","","","","","","","",""
-"F13","QR Code permanente","13","3","F13-S7","F13-S6","NAO_INICIADA","","","","","","","","",""
-"F14","Agendamento de links","14","3","F14-S0","F42 G00 F09","NAO_INICIADA","","","","","","","","",""
-"F14","Agendamento de links","14","3","F14-S1","F14-S0","NAO_INICIADA","","","","","","","","",""
-"F14","Agendamento de links","14","3","F14-S2","F14-S1","NAO_INICIADA","","","","","","","","",""
-"F14","Agendamento de links","14","3","F14-S3","F14-S2","NAO_INICIADA","","","","","","","","",""
-"F14","Agendamento de links","14","3","F14-S4","F14-S3","NAO_INICIADA","","","","","","","","",""
-"F14","Agendamento de links","14","3","F14-S5","F14-S4","NAO_INICIADA","","","","","","","","",""
-"F14","Agendamento de links","14","3","F14-S6","F14-S5","NAO_INICIADA","","","","","","","","",""
-"F14","Agendamento de links","14","3","F14-S7","F14-S6","NAO_INICIADA","","","","","","","","",""
-"F16","Templates por atividade","15","3","F16-S0","F42 G00 F09 F19","NAO_INICIADA","","","","","","","","",""
-"F16","Templates por atividade","15","3","F16-S1","F16-S0","NAO_INICIADA","","","","","","","","",""
-"F16","Templates por atividade","15","3","F16-S2","F16-S1","NAO_INICIADA","","","","","","","","",""
-"F16","Templates por atividade","15","3","F16-S3","F16-S2","NAO_INICIADA","","","","","","","","",""
-"F16","Templates por atividade","15","3","F16-S4","F16-S3","NAO_INICIADA","","","","","","","","",""
-"F16","Templates por atividade","15","3","F16-S5","F16-S4","NAO_INICIADA","","","","","","","","",""
-"F16","Templates por atividade","15","3","F16-S6","F16-S5","NAO_INICIADA","","","","","","","","",""
-"F16","Templates por atividade","15","3","F16-S7","F16-S6","NAO_INICIADA","","","","","","","","",""
-"F17","Importação em lote","16","3","F17-S0","F42 G00 F09","NAO_INICIADA","","","","","","","","",""
-"F17","Importação em lote","16","3","F17-S1","F17-S0","NAO_INICIADA","","","","","","","","",""
-"F17","Importação em lote","16","3","F17-S2","F17-S1","NAO_INICIADA","","","","","","","","",""
-"F17","Importação em lote","16","3","F17-S3","F17-S2","NAO_INICIADA","","","","","","","","",""
-"F17","Importação em lote","16","3","F17-S4","F17-S3","NAO_INICIADA","","","","","","","","",""
-"F17","Importação em lote","16","3","F17-S5","F17-S4","NAO_INICIADA","","","","","","","","",""
-"F17","Importação em lote","16","3","F17-S6","F17-S5","NAO_INICIADA","","","","","","","","",""
-"F17","Importação em lote","16","3","F17-S7","F17-S6","NAO_INICIADA","","","","","","","","",""
-"F18","Busca dentro do perfil","17","3","F18-S0","F42 G00 F09 F14","NAO_INICIADA","","","","","","","","",""
-"F18","Busca dentro do perfil","17","3","F18-S1","F18-S0","NAO_INICIADA","","","","","","","","",""
-"F18","Busca dentro do perfil","17","3","F18-S2","F18-S1","NAO_INICIADA","","","","","","","","",""
-"F18","Busca dentro do perfil","17","3","F18-S3","F18-S2","NAO_INICIADA","","","","","","","","",""
-"F18","Busca dentro do perfil","17","3","F18-S4","F18-S3","NAO_INICIADA","","","","","","","","",""
-"F18","Busca dentro do perfil","17","3","F18-S5","F18-S4","NAO_INICIADA","","","","","","","","",""
-"F18","Busca dentro do perfil","17","3","F18-S6","F18-S5","NAO_INICIADA","","","","","","","","",""
-"F18","Busca dentro do perfil","17","3","F18-S7","F18-S6","NAO_INICIADA","","","","","","","","",""
-"F27","Filtros por cidade idioma e modalidade","18","3","F27-S0","F42 G00","NAO_INICIADA","","","","","","","","",""
-"F27","Filtros por cidade idioma e modalidade","18","3","F27-S1","F27-S0","NAO_INICIADA","","","","","","","","",""
-"F27","Filtros por cidade idioma e modalidade","18","3","F27-S2","F27-S1","NAO_INICIADA","","","","","","","","",""
-"F27","Filtros por cidade idioma e modalidade","18","3","F27-S3","F27-S2","NAO_INICIADA","","","","","","","","",""
-"F27","Filtros por cidade idioma e modalidade","18","3","F27-S4","F27-S3","NAO_INICIADA","","","","","","","","",""
-"F27","Filtros por cidade idioma e modalidade","18","3","F27-S5","F27-S4","NAO_INICIADA","","","","","","","","",""
-"F27","Filtros por cidade idioma e modalidade","18","3","F27-S6","F27-S5","NAO_INICIADA","","","","","","","","",""
-"F27","Filtros por cidade idioma e modalidade","18","3","F27-S7","F27-S6","NAO_INICIADA","","","","","","","","",""
-"F31","Mapa de interação da página","19","3","F31-S0","F42 G00 F09 F19","NAO_INICIADA","","","","","","","","",""
-"F31","Mapa de interação da página","19","3","F31-S1","F31-S0","NAO_INICIADA","","","","","","","","",""
-"F31","Mapa de interação da página","19","3","F31-S2","F31-S1","NAO_INICIADA","","","","","","","","",""
-"F31","Mapa de interação da página","19","3","F31-S3","F31-S2","NAO_INICIADA","","","","","","","","",""
-"F31","Mapa de interação da página","19","3","F31-S4","F31-S3","NAO_INICIADA","","","","","","","","",""
-"F31","Mapa de interação da página","19","3","F31-S5","F31-S4","NAO_INICIADA","","","","","","","","",""
-"F31","Mapa de interação da página","19","3","F31-S6","F31-S5","NAO_INICIADA","","","","","","","","",""
-"F31","Mapa de interação da página","19","3","F31-S7","F31-S6","NAO_INICIADA","","","","","","","","",""
-"F34","Checklist de publicação","20","3","F34-S0","F42 G00 F09","NAO_INICIADA","","","","","","","","",""
-"F34","Checklist de publicação","20","3","F34-S1","F34-S0","NAO_INICIADA","","","","","","","","",""
-"F34","Checklist de publicação","20","3","F34-S2","F34-S1","NAO_INICIADA","","","","","","","","",""
-"F34","Checklist de publicação","20","3","F34-S3","F34-S2","NAO_INICIADA","","","","","","","","",""
-"F34","Checklist de publicação","20","3","F34-S4","F34-S3","NAO_INICIADA","","","","","","","","",""
-"F34","Checklist de publicação","20","3","F34-S5","F34-S4","NAO_INICIADA","","","","","","","","",""
-"F34","Checklist de publicação","20","3","F34-S6","F34-S5","NAO_INICIADA","","","","","","","","",""
-"F34","Checklist de publicação","20","3","F34-S7","F34-S6","NAO_INICIADA","","","","","","","","",""
-"F37","Botão com alternativas de acesso","21","3","F37-S0","F42 G00 F09 F12","NAO_INICIADA","","","","","","","","",""
-"F37","Botão com alternativas de acesso","21","3","F37-S1","F37-S0","NAO_INICIADA","","","","","","","","",""
-"F37","Botão com alternativas de acesso","21","3","F37-S2","F37-S1","NAO_INICIADA","","","","","","","","",""
-"F37","Botão com alternativas de acesso","21","3","F37-S3","F37-S2","NAO_INICIADA","","","","","","","","",""
-"F37","Botão com alternativas de acesso","21","3","F37-S4","F37-S3","NAO_INICIADA","","","","","","","","",""
-"F37","Botão com alternativas de acesso","21","3","F37-S5","F37-S4","NAO_INICIADA","","","","","","","","",""
-"F37","Botão com alternativas de acesso","21","3","F37-S6","F37-S5","NAO_INICIADA","","","","","","","","",""
-"F37","Botão com alternativas de acesso","21","3","F37-S7","F37-S6","NAO_INICIADA","","","","","","","","",""
-"F38","Exportação do perfil","22","3","F38-S0","F42 G00 F09 F19","NAO_INICIADA","","","","","","","","",""
-"F38","Exportação do perfil","22","3","F38-S1","F38-S0","NAO_INICIADA","","","","","","","","",""
-"F38","Exportação do perfil","22","3","F38-S2","F38-S1","NAO_INICIADA","","","","","","","","",""
-"F38","Exportação do perfil","22","3","F38-S3","F38-S2","NAO_INICIADA","","","","","","","","",""
-"F38","Exportação do perfil","22","3","F38-S4","F38-S3","NAO_INICIADA","","","","","","","","",""
-"F38","Exportação do perfil","22","3","F38-S5","F38-S4","NAO_INICIADA","","","","","","","","",""
-"F38","Exportação do perfil","22","3","F38-S6","F38-S5","NAO_INICIADA","","","","","","","","",""
-"F38","Exportação do perfil","22","3","F38-S7","F38-S6","NAO_INICIADA","","","","","","","","",""
-"F05","Seguir nichos","23","4","F05-S0","F42 G00 F02","NAO_INICIADA","","","","","","","","",""
-"F05","Seguir nichos","23","4","F05-S1","F05-S0","NAO_INICIADA","","","","","","","","",""
-"F05","Seguir nichos","23","4","F05-S2","F05-S1","NAO_INICIADA","","","","","","","","",""
-"F05","Seguir nichos","23","4","F05-S3","F05-S2","NAO_INICIADA","","","","","","","","",""
-"F05","Seguir nichos","23","4","F05-S4","F05-S3","NAO_INICIADA","","","","","","","","",""
-"F05","Seguir nichos","23","4","F05-S5","F05-S4","NAO_INICIADA","","","","","","","","",""
-"F05","Seguir nichos","23","4","F05-S6","F05-S5","NAO_INICIADA","","","","","","","","",""
-"F05","Seguir nichos","23","4","F05-S7","F05-S6","NAO_INICIADA","","","","","","","","",""
-"F15","Página por campanha","24","4","F15-S0","F42 G00 F09 F19","NAO_INICIADA","","","","","","","","",""
-"F15","Página por campanha","24","4","F15-S1","F15-S0","NAO_INICIADA","","","","","","","","",""
-"F15","Página por campanha","24","4","F15-S2","F15-S1","NAO_INICIADA","","","","","","","","",""
-"F15","Página por campanha","24","4","F15-S3","F15-S2","NAO_INICIADA","","","","","","","","",""
-"F15","Página por campanha","24","4","F15-S4","F15-S3","NAO_INICIADA","","","","","","","","",""
-"F15","Página por campanha","24","4","F15-S5","F15-S4","NAO_INICIADA","","","","","","","","",""
-"F15","Página por campanha","24","4","F15-S6","F15-S5","NAO_INICIADA","","","","","","","","",""
-"F15","Página por campanha","24","4","F15-S7","F15-S6","NAO_INICIADA","","","","","","","","",""
-"F20","Equipe e permissões","25","4","F20-S0","F42 G00 F09","NAO_INICIADA","","","","","","","","",""
-"F20","Equipe e permissões","25","4","F20-S1","F20-S0","NAO_INICIADA","","","","","","","","",""
-"F20","Equipe e permissões","25","4","F20-S2","F20-S1","NAO_INICIADA","","","","","","","","",""
-"F20","Equipe e permissões","25","4","F20-S3","F20-S2","NAO_INICIADA","","","","","","","","",""
-"F20","Equipe e permissões","25","4","F20-S4","F20-S3","NAO_INICIADA","","","","","","","","",""
-"F20","Equipe e permissões","25","4","F20-S5","F20-S4","NAO_INICIADA","","","","","","","","",""
-"F20","Equipe e permissões","25","4","F20-S6","F20-S5","NAO_INICIADA","","","","","","","","",""
-"F20","Equipe e permissões","25","4","F20-S7","F20-S6","NAO_INICIADA","","","","","","","","",""
-"F21","Mídia kit do divulgador","26","4","F21-S0","F42 G00 F09 F01","NAO_INICIADA","","","","","","","","",""
-"F21","Mídia kit do divulgador","26","4","F21-S1","F21-S0","NAO_INICIADA","","","","","","","","",""
-"F21","Mídia kit do divulgador","26","4","F21-S2","F21-S1","NAO_INICIADA","","","","","","","","",""
-"F21","Mídia kit do divulgador","26","4","F21-S3","F21-S2","NAO_INICIADA","","","","","","","","",""
-"F21","Mídia kit do divulgador","26","4","F21-S4","F21-S3","NAO_INICIADA","","","","","","","","",""
-"F21","Mídia kit do divulgador","26","4","F21-S5","F21-S4","NAO_INICIADA","","","","","","","","",""
-"F21","Mídia kit do divulgador","26","4","F21-S6","F21-S5","NAO_INICIADA","","","","","","","","",""
-"F21","Mídia kit do divulgador","26","4","F21-S7","F21-S6","NAO_INICIADA","","","","","","","","",""
-"F22","Formulário de contato na página","27","4","F22-S0","F42 G00 F09 F20","NAO_INICIADA","","","","","","","","",""
-"F22","Formulário de contato na página","27","4","F22-S1","F22-S0","NAO_INICIADA","","","","","","","","",""
-"F22","Formulário de contato na página","27","4","F22-S2","F22-S1","NAO_INICIADA","","","","","","","","",""
-"F22","Formulário de contato na página","27","4","F22-S3","F22-S2","NAO_INICIADA","","","","","","","","",""
-"F22","Formulário de contato na página","27","4","F22-S4","F22-S3","NAO_INICIADA","","","","","","","","",""
-"F22","Formulário de contato na página","27","4","F22-S5","F22-S4","NAO_INICIADA","","","","","","","","",""
-"F22","Formulário de contato na página","27","4","F22-S6","F22-S5","NAO_INICIADA","","","","","","","","",""
-"F22","Formulário de contato na página","27","4","F22-S7","F22-S6","NAO_INICIADA","","","","","","","","",""
-"F23","Distribuidor de convites","28","4","F23-S0","F42 G00 F12","NAO_INICIADA","","","","","","","","",""
-"F23","Distribuidor de convites","28","4","F23-S1","F23-S0","NAO_INICIADA","","","","","","","","",""
-"F23","Distribuidor de convites","28","4","F23-S2","F23-S1","NAO_INICIADA","","","","","","","","",""
-"F23","Distribuidor de convites","28","4","F23-S3","F23-S2","NAO_INICIADA","","","","","","","","",""
-"F23","Distribuidor de convites","28","4","F23-S4","F23-S3","NAO_INICIADA","","","","","","","","",""
-"F23","Distribuidor de convites","28","4","F23-S5","F23-S4","NAO_INICIADA","","","","","","","","",""
-"F23","Distribuidor de convites","28","4","F23-S6","F23-S5","NAO_INICIADA","","","","","","","","",""
-"F23","Distribuidor de convites","28","4","F23-S7","F23-S6","NAO_INICIADA","","","","","","","","",""
-"F25","Assistente de criação de perfil","29","4","F25-S0","F42 G00 F09 F16 F17","NAO_INICIADA","","","","","","","","",""
-"F25","Assistente de criação de perfil","29","4","F25-S1","F25-S0","NAO_INICIADA","","","","","","","","",""
-"F25","Assistente de criação de perfil","29","4","F25-S2","F25-S1","NAO_INICIADA","","","","","","","","",""
-"F25","Assistente de criação de perfil","29","4","F25-S3","F25-S2","NAO_INICIADA","","","","","","","","",""
-"F25","Assistente de criação de perfil","29","4","F25-S4","F25-S3","NAO_INICIADA","","","","","","","","",""
-"F25","Assistente de criação de perfil","29","4","F25-S5","F25-S4","NAO_INICIADA","","","","","","","","",""
-"F25","Assistente de criação de perfil","29","4","F25-S6","F25-S5","NAO_INICIADA","","","","","","","","",""
-"F25","Assistente de criação de perfil","29","4","F25-S7","F25-S6","NAO_INICIADA","","","","","","","","",""
-"F28","Comprovação de propriedade","30","4","F28-S0","F42 G00 F12","NAO_INICIADA","","","","","","","","",""
-"F28","Comprovação de propriedade","30","4","F28-S1","F28-S0","NAO_INICIADA","","","","","","","","",""
-"F28","Comprovação de propriedade","30","4","F28-S2","F28-S1","NAO_INICIADA","","","","","","","","",""
-"F28","Comprovação de propriedade","30","4","F28-S3","F28-S2","NAO_INICIADA","","","","","","","","",""
-"F28","Comprovação de propriedade","30","4","F28-S4","F28-S3","NAO_INICIADA","","","","","","","","",""
-"F28","Comprovação de propriedade","30","4","F28-S5","F28-S4","NAO_INICIADA","","","","","","","","",""
-"F28","Comprovação de propriedade","30","4","F28-S6","F28-S5","NAO_INICIADA","","","","","","","","",""
-"F28","Comprovação de propriedade","30","4","F28-S7","F28-S6","NAO_INICIADA","","","","","","","","",""
-"F29","Página de evento","31","4","F29-S0","F42 G00 F09 F14","NAO_INICIADA","","","","","","","","",""
-"F29","Página de evento","31","4","F29-S1","F29-S0","NAO_INICIADA","","","","","","","","",""
-"F29","Página de evento","31","4","F29-S2","F29-S1","NAO_INICIADA","","","","","","","","",""
-"F29","Página de evento","31","4","F29-S3","F29-S2","NAO_INICIADA","","","","","","","","",""
-"F29","Página de evento","31","4","F29-S4","F29-S3","NAO_INICIADA","","","","","","","","",""
-"F29","Página de evento","31","4","F29-S5","F29-S4","NAO_INICIADA","","","","","","","","",""
-"F29","Página de evento","31","4","F29-S6","F29-S5","NAO_INICIADA","","","","","","","","",""
-"F29","Página de evento","31","4","F29-S7","F29-S6","NAO_INICIADA","","","","","","","","",""
-"F32","Kit de divulgação","32","4","F32-S0","F42 G00 F09 F13","NAO_INICIADA","","","","","","","","",""
-"F32","Kit de divulgação","32","4","F32-S1","F32-S0","NAO_INICIADA","","","","","","","","",""
-"F32","Kit de divulgação","32","4","F32-S2","F32-S1","NAO_INICIADA","","","","","","","","",""
-"F32","Kit de divulgação","32","4","F32-S3","F32-S2","NAO_INICIADA","","","","","","","","",""
-"F32","Kit de divulgação","32","4","F32-S4","F32-S3","NAO_INICIADA","","","","","","","","",""
-"F32","Kit de divulgação","32","4","F32-S5","F32-S4","NAO_INICIADA","","","","","","","","",""
-"F32","Kit de divulgação","32","4","F32-S6","F32-S5","NAO_INICIADA","","","","","","","","",""
-"F32","Kit de divulgação","32","4","F32-S7","F32-S6","NAO_INICIADA","","","","","","","","",""
-"F33","Coleções públicas compartilháveis","33","4","F33-S0","F42 G00 F04","NAO_INICIADA","","","","","","","","",""
-"F33","Coleções públicas compartilháveis","33","4","F33-S1","F33-S0","NAO_INICIADA","","","","","","","","",""
-"F33","Coleções públicas compartilháveis","33","4","F33-S2","F33-S1","NAO_INICIADA","","","","","","","","",""
-"F33","Coleções públicas compartilháveis","33","4","F33-S3","F33-S2","NAO_INICIADA","","","","","","","","",""
-"F33","Coleções públicas compartilháveis","33","4","F33-S4","F33-S3","NAO_INICIADA","","","","","","","","",""
-"F33","Coleções públicas compartilháveis","33","4","F33-S5","F33-S4","NAO_INICIADA","","","","","","","","",""
-"F33","Coleções públicas compartilháveis","33","4","F33-S6","F33-S5","NAO_INICIADA","","","","","","","","",""
-"F33","Coleções públicas compartilháveis","33","4","F33-S7","F33-S6","NAO_INICIADA","","","","","","","","",""
-"F10","Página premium com subdomínio","34","5","F10-S0","F42 G00 F09 F11 F19 F16","NAO_INICIADA","","","","","","","","",""
-"F10","Página premium com subdomínio","34","5","F10-S1","F10-S0","NAO_INICIADA","","","","","","","","",""
-"F10","Página premium com subdomínio","34","5","F10-S2","F10-S1","NAO_INICIADA","","","","","","","","",""
-"F10","Página premium com subdomínio","34","5","F10-S3","F10-S2","NAO_INICIADA","","","","","","","","",""
-"F10","Página premium com subdomínio","34","5","F10-S4","F10-S3","NAO_INICIADA","","","","","","","","",""
-"F10","Página premium com subdomínio","34","5","F10-S5","F10-S4","NAO_INICIADA","","","","","","","","",""
-"F10","Página premium com subdomínio","34","5","F10-S6","F10-S5","NAO_INICIADA","","","","","","","","",""
-"F10","Página premium com subdomínio","34","5","F10-S7","F10-S6","NAO_INICIADA","","","","","","","","",""
-"F24","Descoberta de perfis","35","5","F24-S0","F42 G00 F09 F03","NAO_INICIADA","","","","","","","","",""
-"F24","Descoberta de perfis","35","5","F24-S1","F24-S0","NAO_INICIADA","","","","","","","","",""
-"F24","Descoberta de perfis","35","5","F24-S2","F24-S1","NAO_INICIADA","","","","","","","","",""
-"F24","Descoberta de perfis","35","5","F24-S3","F24-S2","NAO_INICIADA","","","","","","","","",""
-"F24","Descoberta de perfis","35","5","F24-S4","F24-S3","NAO_INICIADA","","","","","","","","",""
-"F24","Descoberta de perfis","35","5","F24-S5","F24-S4","NAO_INICIADA","","","","","","","","",""
-"F24","Descoberta de perfis","35","5","F24-S6","F24-S5","NAO_INICIADA","","","","","","","","",""
-"F24","Descoberta de perfis","35","5","F24-S7","F24-S6","NAO_INICIADA","","","","","","","","",""
-"F30","Integrações e avisos automáticos","36","5","F30-S0","F42 G00 F22 F02","NAO_INICIADA","","","","","","","","",""
-"F30","Integrações e avisos automáticos","36","5","F30-S1","F30-S0","NAO_INICIADA","","","","","","","","",""
-"F30","Integrações e avisos automáticos","36","5","F30-S2","F30-S1","NAO_INICIADA","","","","","","","","",""
-"F30","Integrações e avisos automáticos","36","5","F30-S3","F30-S2","NAO_INICIADA","","","","","","","","",""
-"F30","Integrações e avisos automáticos","36","5","F30-S4","F30-S3","NAO_INICIADA","","","","","","","","",""
-"F30","Integrações e avisos automáticos","36","5","F30-S5","F30-S4","NAO_INICIADA","","","","","","","","",""
-"F30","Integrações e avisos automáticos","36","5","F30-S6","F30-S5","NAO_INICIADA","","","","","","","","",""
-"F30","Integrações e avisos automáticos","36","5","F30-S7","F30-S6","NAO_INICIADA","","","","","","","","",""
-"F35","Central de contatos recebidos","37","5","F35-S0","F42 G00 F22 F20","NAO_INICIADA","","","","","","","","",""
-"F35","Central de contatos recebidos","37","5","F35-S1","F35-S0","NAO_INICIADA","","","","","","","","",""
-"F35","Central de contatos recebidos","37","5","F35-S2","F35-S1","NAO_INICIADA","","","","","","","","",""
-"F35","Central de contatos recebidos","37","5","F35-S3","F35-S2","NAO_INICIADA","","","","","","","","",""
-"F35","Central de contatos recebidos","37","5","F35-S4","F35-S3","NAO_INICIADA","","","","","","","","",""
-"F35","Central de contatos recebidos","37","5","F35-S5","F35-S4","NAO_INICIADA","","","","","","","","",""
-"F35","Central de contatos recebidos","37","5","F35-S6","F35-S5","NAO_INICIADA","","","","","","","","",""
-"F35","Central de contatos recebidos","37","5","F35-S7","F35-S6","NAO_INICIADA","","","","","","","","",""
-"F39","Página em vários idiomas","38","5","F39-S0","F42 G00 F09 F19","NAO_INICIADA","","","","","","","","",""
-"F39","Página em vários idiomas","38","5","F39-S1","F39-S0","NAO_INICIADA","","","","","","","","",""
-"F39","Página em vários idiomas","38","5","F39-S2","F39-S1","NAO_INICIADA","","","","","","","","",""
-"F39","Página em vários idiomas","38","5","F39-S3","F39-S2","NAO_INICIADA","","","","","","","","",""
-"F39","Página em vários idiomas","38","5","F39-S4","F39-S3","NAO_INICIADA","","","","","","","","",""
-"F39","Página em vários idiomas","38","5","F39-S5","F39-S4","NAO_INICIADA","","","","","","","","",""
-"F39","Página em vários idiomas","38","5","F39-S6","F39-S5","NAO_INICIADA","","","","","","","","",""
-"F39","Página em vários idiomas","38","5","F39-S7","F39-S6","NAO_INICIADA","","","","","","","","",""
-"F26","Teste de versões de botões","39","6","F26-S0","F42 G00 F09 F31","NAO_INICIADA","","","","","","","","",""
-"F26","Teste de versões de botões","39","6","F26-S1","F26-S0","NAO_INICIADA","","","","","","","","",""
-"F26","Teste de versões de botões","39","6","F26-S2","F26-S1","NAO_INICIADA","","","","","","","","",""
-"F26","Teste de versões de botões","39","6","F26-S3","F26-S2","NAO_INICIADA","","","","","","","","",""
-"F26","Teste de versões de botões","39","6","F26-S4","F26-S3","NAO_INICIADA","","","","","","","","",""
-"F26","Teste de versões de botões","39","6","F26-S5","F26-S4","NAO_INICIADA","","","","","","","","",""
-"F26","Teste de versões de botões","39","6","F26-S6","F26-S5","NAO_INICIADA","","","","","","","","",""
-"F26","Teste de versões de botões","39","6","F26-S7","F26-S6","NAO_INICIADA","","","","","","","","",""
-"F36","Pacotes para agências","40","6","F36-S0","F42 G00 F20 F11 F21","NAO_INICIADA","","","","","","","","",""
-"F36","Pacotes para agências","40","6","F36-S1","F36-S0","NAO_INICIADA","","","","","","","","",""
-"F36","Pacotes para agências","40","6","F36-S2","F36-S1","NAO_INICIADA","","","","","","","","",""
-"F36","Pacotes para agências","40","6","F36-S3","F36-S2","NAO_INICIADA","","","","","","","","",""
-"F36","Pacotes para agências","40","6","F36-S4","F36-S3","NAO_INICIADA","","","","","","","","",""
-"F36","Pacotes para agências","40","6","F36-S5","F36-S4","NAO_INICIADA","","","","","","","","",""
-"F36","Pacotes para agências","40","6","F36-S6","F36-S5","NAO_INICIADA","","","","","","","","",""
-"F36","Pacotes para agências","40","6","F36-S7","F36-S6","NAO_INICIADA","","","","","","","","",""
-"F40","Diagnóstico da página","41","6","F40-S0","F42 G00 F09 F07 F31","NAO_INICIADA","","","","","","","","",""
-"F40","Diagnóstico da página","41","6","F40-S1","F40-S0","NAO_INICIADA","","","","","","","","",""
-"F40","Diagnóstico da página","41","6","F40-S2","F40-S1","NAO_INICIADA","","","","","","","","",""
-"F40","Diagnóstico da página","41","6","F40-S3","F40-S2","NAO_INICIADA","","","","","","","","",""
-"F40","Diagnóstico da página","41","6","F40-S4","F40-S3","NAO_INICIADA","","","","","","","","",""
-"F40","Diagnóstico da página","41","6","F40-S5","F40-S4","NAO_INICIADA","","","","","","","","",""
-"F40","Diagnóstico da página","41","6","F40-S6","F40-S5","NAO_INICIADA","","","","","","","","",""
-"F40","Diagnóstico da página","41","6","F40-S7","F40-S6","NAO_INICIADA","","","","","","","","",""
-"F41","App instalável","42","6","F41-S0","F42 G00 F09","NAO_INICIADA","","","","","","","","",""
-"F41","App instalável","42","6","F41-S1","F41-S0","NAO_INICIADA","","","","","","","","",""
-"F41","App instalável","42","6","F41-S2","F41-S1","NAO_INICIADA","","","","","","","","",""
-"F41","App instalável","42","6","F41-S3","F41-S2","NAO_INICIADA","","","","","","","","",""
-"F41","App instalável","42","6","F41-S4","F41-S3","NAO_INICIADA","","","","","","","","",""
-"F41","App instalável","42","6","F41-S5","F41-S4","NAO_INICIADA","","","","","","","","",""
-"F41","App instalável","42","6","F41-S6","F41-S5","NAO_INICIADA","","","","","","","","",""
-"F41","App instalável","42","6","F41-S7","F41-S6","NAO_INICIADA","","","","","","","","",""
+feature,titulo,ordem,onda,etapa,dependencias,estado,responsavel,commit,ambiente,execucao,comando,exit_code,evidencia,bloqueio,aceite
+F42,Moderação e alertas operacionais no grupo pela Evolution API,1,0,F42-S0,G00,CONCLUIDA,Codex,9204cefb7488b97410dbf91bb62fea8656343b9b,Local descartável + CI Node 22 + Coolify produção,2026-10-15; CI 38753110997; M01,Consultas autenticadas Evolution + revisão D44-D47 (segredos omitidos),0,execucao-f42.md; evidencias-f42.json,,APROVADO; F42 concluída; F01-F41 não iniciadas
+F42,Moderação e alertas operacionais no grupo pela Evolution API,1,0,F42-S1,F42-S0,CONCLUIDA,Codex,9204cefb7488b97410dbf91bb62fea8656343b9b,Local descartável + CI Node 22 + Coolify produção,2026-10-15; CI 38753110997; M01,npm test (backend e frontend),0,execucao-f42.md; evidencias-f42.json,,APROVADO; F42 concluída; F01-F41 não iniciadas
+F42,Moderação e alertas operacionais no grupo pela Evolution API,1,0,F42-S2,F42-S1,CONCLUIDA,Codex,9204cefb7488b97410dbf91bb62fea8656343b9b,Local descartável + CI Node 22 + Coolify produção,2026-10-15; CI 38753110997; M01,prisma migrate deploy; PG F42; API anterior /actuator/ready,0,execucao-f42.md; evidencias-f42.json,,APROVADO; F42 concluída; F01-F41 não iniciadas
+F42,Moderação e alertas operacionais no grupo pela Evolution API,1,0,F42-S3,F42-S2,CONCLUIDA,Codex,9204cefb7488b97410dbf91bb62fea8656343b9b,Local descartável + CI Node 22 + Coolify produção,2026-10-15; CI 38753110997; M01,npm run lint; npm run typecheck; npm test; npm run build,0,execucao-f42.md; evidencias-f42.json,,APROVADO; F42 concluída; F01-F41 não iniciadas
+F42,Moderação e alertas operacionais no grupo pela Evolution API,1,0,F42-S4,F42-S3,CONCLUIDA,Codex,9204cefb7488b97410dbf91bb62fea8656343b9b,Local descartável + CI Node 22 + Coolify produção,2026-10-15; CI 38753110997; M01,Vitest componente Evolution; Playwright E05/E06 desktop/mobile,0,execucao-f42.md; evidencias-f42.json,,APROVADO; F42 concluída; F01-F41 não iniciadas
+F42,Moderação e alertas operacionais no grupo pela Evolution API,1,0,F42-S5,F42-S4,CONCLUIDA,Codex,9204cefb7488b97410dbf91bb62fea8656343b9b,Local descartável + CI Node 22 + Coolify produção,2026-10-15; CI 38753110997; M01,PG_SPECS=1 npm run test:pg; Playwright E04/E09,0,execucao-f42.md; evidencias-f42.json,,APROVADO; F42 concluída; F01-F41 não iniciadas
+F42,Moderação e alertas operacionais no grupo pela Evolution API,1,0,F42-S6,F42-S5,CONCLUIDA,Codex,9204cefb7488b97410dbf91bb62fea8656343b9b,Local descartável + CI Node 22 + Coolify produção,2026-10-15; CI 38753110997; M01,npx playwright test --project=features --project=features-mobile --project=catalog,0,execucao-f42.md; evidencias-f42.json,,APROVADO; F42 concluída; F01-F41 não iniciadas
+F42,Moderação e alertas operacionais no grupo pela Evolution API,1,0,F42-S7,F42-S6,CONCLUIDA,Codex,9204cefb7488b97410dbf91bb62fea8656343b9b,Local descartável + CI Node 22 + Coolify produção,2026-10-15; CI 38753110997; M01,GitHub Actions 38753110997; Coolify health; F42-M01 iPhone final 8391,0,execucao-f42.md; evidencias-f42.json,,APROVADO; F42 concluída; F01-F41 não iniciadas
+F01,Relatório de resultado do destaque,2,1,F01-S0,F42 G00,CONCLUÍDA,Codex,d9dbffd,Windows local; PostgreSQL/Redis descartaveis; CI Node22,2026-10-15; CI 38832840220,Ver execucao-f01.md e evidencias/F01/2026-10-15/resultados.json,0,execucao-f01.md; evidencias/F01/2026-10-15/resultados.json,,APROVADO na branch; deploy nao realizado
+F01,Relatório de resultado do destaque,2,1,F01-S1,F01-S0,CONCLUÍDA,Codex,d9dbffd,Windows local; PostgreSQL/Redis descartaveis; CI Node22,2026-10-15; CI 38832840220,Ver execucao-f01.md e evidencias/F01/2026-10-15/resultados.json,0,execucao-f01.md; evidencias/F01/2026-10-15/resultados.json,,APROVADO na branch; deploy nao realizado
+F01,Relatório de resultado do destaque,2,1,F01-S2,F01-S1,CONCLUÍDA,Codex,d9dbffd,Windows local; PostgreSQL/Redis descartaveis; CI Node22,2026-10-15; CI 38832840220,Ver execucao-f01.md e evidencias/F01/2026-10-15/resultados.json,0,execucao-f01.md; evidencias/F01/2026-10-15/resultados.json,,APROVADO na branch; deploy nao realizado
+F01,Relatório de resultado do destaque,2,1,F01-S3,F01-S2,CONCLUÍDA,Codex,d9dbffd,Windows local; PostgreSQL/Redis descartaveis; CI Node22,2026-10-15; CI 38832840220,Ver execucao-f01.md e evidencias/F01/2026-10-15/resultados.json,0,execucao-f01.md; evidencias/F01/2026-10-15/resultados.json,,APROVADO na branch; deploy nao realizado
+F01,Relatório de resultado do destaque,2,1,F01-S4,F01-S3,CONCLUÍDA,Codex,d9dbffd,Windows local; PostgreSQL/Redis descartaveis; CI Node22,2026-10-15; CI 38832840220,Ver execucao-f01.md e evidencias/F01/2026-10-15/resultados.json,0,execucao-f01.md; evidencias/F01/2026-10-15/resultados.json,,APROVADO na branch; deploy nao realizado
+F01,Relatório de resultado do destaque,2,1,F01-S5,F01-S4,CONCLUÍDA,Codex,d9dbffd,Windows local; PostgreSQL/Redis descartaveis; CI Node22,2026-10-15; CI 38832840220,Ver execucao-f01.md e evidencias/F01/2026-10-15/resultados.json,0,execucao-f01.md; evidencias/F01/2026-10-15/resultados.json,,APROVADO na branch; deploy nao realizado
+F01,Relatório de resultado do destaque,2,1,F01-S6,F01-S5,CONCLUÍDA,Codex,d9dbffd,Windows local; PostgreSQL/Redis descartaveis; CI Node22,2026-10-15; CI 38832840220,Ver execucao-f01.md e evidencias/F01/2026-10-15/resultados.json,0,execucao-f01.md; evidencias/F01/2026-10-15/resultados.json,,APROVADO na branch; deploy nao realizado
+F01,Relatório de resultado do destaque,2,1,F01-S7,F01-S6,CONCLUÍDA,Codex,d9dbffd,Windows local; PostgreSQL/Redis descartaveis; CI Node22,2026-10-15; CI 38832840220,Ver execucao-f01.md e evidencias/F01/2026-10-15/resultados.json,0,execucao-f01.md; evidencias/F01/2026-10-15/resultados.json,,APROVADO na branch; deploy nao realizado
+F06,Denunciar um link,3,1,F06-S0,F42 G00,CONCLUÍDA,Codex,accca5b,Windows; PostgreSQL/Redis descartaveis,2026-10-15; CI 38834620829,Ver execucao-f06.md,0,execucao-f06.md; evidencias/F06/2026-10-15/,,APROVADO na branch; CI 60 E2E; sem deploy
+F06,Denunciar um link,3,1,F06-S1,F06-S0,CONCLUÍDA,Codex,accca5b,Windows; PostgreSQL/Redis descartaveis,2026-10-15; CI 38834620829,Ver execucao-f06.md,0,execucao-f06.md; evidencias/F06/2026-10-15/,,APROVADO na branch; CI 60 E2E; sem deploy
+F06,Denunciar um link,3,1,F06-S2,F06-S1,CONCLUÍDA,Codex,accca5b,Windows; PostgreSQL/Redis descartaveis,2026-10-15; CI 38834620829,Ver execucao-f06.md,0,execucao-f06.md; evidencias/F06/2026-10-15/,,APROVADO na branch; CI 60 E2E; sem deploy
+F06,Denunciar um link,3,1,F06-S3,F06-S2,CONCLUÍDA,Codex,accca5b,Windows; PostgreSQL/Redis descartaveis,2026-10-15; CI 38834620829,Ver execucao-f06.md,0,execucao-f06.md; evidencias/F06/2026-10-15/,,APROVADO na branch; CI 60 E2E; sem deploy
+F06,Denunciar um link,3,1,F06-S4,F06-S3,CONCLUÍDA,Codex,accca5b,Windows; PostgreSQL/Redis descartaveis,2026-10-15; CI 38834620829,Ver execucao-f06.md,0,execucao-f06.md; evidencias/F06/2026-10-15/,,APROVADO na branch; CI 60 E2E; sem deploy
+F06,Denunciar um link,3,1,F06-S5,F06-S4,CONCLUÍDA,Codex,accca5b,Windows; PostgreSQL/Redis descartaveis,2026-10-15; CI 38834620829,Ver execucao-f06.md,0,execucao-f06.md; evidencias/F06/2026-10-15/,,APROVADO na branch; CI 60 E2E; sem deploy
+F06,Denunciar um link,3,1,F06-S6,F06-S5,CONCLUÍDA,Codex,accca5b,Windows; PostgreSQL/Redis descartaveis,2026-10-15; CI 38834620829,Ver execucao-f06.md,0,execucao-f06.md; evidencias/F06/2026-10-15/,,APROVADO na branch; CI 60 E2E; sem deploy
+F06,Denunciar um link,3,1,F06-S7,F06-S6,CONCLUÍDA,Codex,accca5b,Windows; PostgreSQL/Redis descartaveis,2026-10-15; CI 38834620829,Ver execucao-f06.md,0,execucao-f06.md; evidencias/F06/2026-10-15/,,APROVADO na branch; CI 60 E2E; sem deploy
+F07,Acompanhamento de disponibilidade,4,1,F07-S0,F42 G00,CONCLUIDA,Codex,9b64caffc540e310297ff38df1ff9ce4eda8fc40,Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium,2026-10-15; CI 38840376754,backend: lint/typecheck/test/test:pg/build; frontend: lint/typecheck/test/test:e2e,0,execucao-f07.md; evidencias/F07/2026-10-15/f07-ci-success.json,,APROVADO NA BRANCH; monitor desligado; produção fora do aceite
+F07,Acompanhamento de disponibilidade,4,1,F07-S1,F07-S0,CONCLUIDA,Codex,9b64caffc540e310297ff38df1ff9ce4eda8fc40,Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium,2026-10-15; CI 38840376754,backend: lint/typecheck/test/test:pg/build; frontend: lint/typecheck/test/test:e2e,0,execucao-f07.md; evidencias/F07/2026-10-15/f07-ci-success.json,,APROVADO NA BRANCH; monitor desligado; produção fora do aceite
+F07,Acompanhamento de disponibilidade,4,1,F07-S2,F07-S1,CONCLUIDA,Codex,9b64caffc540e310297ff38df1ff9ce4eda8fc40,Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium,2026-10-15; CI 38840376754,backend: lint/typecheck/test/test:pg/build; frontend: lint/typecheck/test/test:e2e,0,execucao-f07.md; evidencias/F07/2026-10-15/f07-ci-success.json,,APROVADO NA BRANCH; monitor desligado; produção fora do aceite
+F07,Acompanhamento de disponibilidade,4,1,F07-S3,F07-S2,CONCLUIDA,Codex,9b64caffc540e310297ff38df1ff9ce4eda8fc40,Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium,2026-10-15; CI 38840376754,backend: lint/typecheck/test/test:pg/build; frontend: lint/typecheck/test/test:e2e,0,execucao-f07.md; evidencias/F07/2026-10-15/f07-ci-success.json,,APROVADO NA BRANCH; monitor desligado; produção fora do aceite
+F07,Acompanhamento de disponibilidade,4,1,F07-S4,F07-S3,CONCLUIDA,Codex,9b64caffc540e310297ff38df1ff9ce4eda8fc40,Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium,2026-10-15; CI 38840376754,backend: lint/typecheck/test/test:pg/build; frontend: lint/typecheck/test/test:e2e,0,execucao-f07.md; evidencias/F07/2026-10-15/f07-ci-success.json,,APROVADO NA BRANCH; monitor desligado; produção fora do aceite
+F07,Acompanhamento de disponibilidade,4,1,F07-S5,F07-S4,CONCLUIDA,Codex,9b64caffc540e310297ff38df1ff9ce4eda8fc40,Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium,2026-10-15; CI 38840376754,backend: lint/typecheck/test/test:pg/build; frontend: lint/typecheck/test/test:e2e,0,execucao-f07.md; evidencias/F07/2026-10-15/f07-ci-success.json,,APROVADO NA BRANCH; monitor desligado; produção fora do aceite
+F07,Acompanhamento de disponibilidade,4,1,F07-S6,F07-S5,CONCLUIDA,Codex,9b64caffc540e310297ff38df1ff9ce4eda8fc40,Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium,2026-10-15; CI 38840376754,backend: lint/typecheck/test/test:pg/build; frontend: lint/typecheck/test/test:e2e,0,execucao-f07.md; evidencias/F07/2026-10-15/f07-ci-success.json,,APROVADO NA BRANCH; monitor desligado; produção fora do aceite
+F07,Acompanhamento de disponibilidade,4,1,F07-S7,F07-S6,CONCLUIDA,Codex,9b64caffc540e310297ff38df1ff9ce4eda8fc40,Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium,2026-10-15; CI 38840376754,backend: lint/typecheck/test/test:pg/build; frontend: lint/typecheck/test/test:e2e,0,execucao-f07.md; evidencias/F07/2026-10-15/f07-ci-success.json,,APROVADO NA BRANCH; monitor desligado; produção fora do aceite
+F02,Lembrete de renovação,5,2,F02-S0,F42 G00 F01,CONCLUIDA,Codex,c712f827427837d50ea0820fb170ccbd66de954f,Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium,2026-10-16; CI 38909863096,Revisão da spec/F01/F07; decisão D03 registrada antes do agendamento,0,execucao-f02.md; evidencias/F02/2026-10-16/f02-ci-success.json,,APROVADO NA BRANCH; entrega desligada; sem deploy
+F02,Lembrete de renovação,5,2,F02-S1,F02-S0,CONCLUIDA,Codex,c712f827427837d50ea0820fb170ccbd66de954f,Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium,2026-10-16; CI 38909863096,vitest renewal-reminder.spec.ts; vitest reminder-preference-form.test.tsx (vermelho e verde),0,execucao-f02.md; evidencias/F02/2026-10-16/f02-ci-success.json,,APROVADO NA BRANCH; entrega desligada; sem deploy
+F02,Lembrete de renovação,5,2,F02-S2,F02-S1,CONCLUIDA,Codex,c712f827427837d50ea0820fb170ccbd66de954f,Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium,2026-10-16; CI 38909863096,prisma migrate deploy no harness; SQL aditivo e EXPLAIN no clone f02_migration_proof,0,execucao-f02.md; evidencias/F02/2026-10-16/f02-ci-success.json,,APROVADO NA BRANCH; entrega desligada; sem deploy
+F02,Lembrete de renovação,5,2,F02-S3,F02-S2,CONCLUIDA,Codex,c712f827427837d50ea0820fb170ccbd66de954f,Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium,2026-10-16; CI 38909863096,backend lint/typecheck/test/build; testes PG da F02,0,execucao-f02.md; evidencias/F02/2026-10-16/f02-ci-success.json,,APROVADO NA BRANCH; entrega desligada; sem deploy
+F02,Lembrete de renovação,5,2,F02-S4,F02-S3,CONCLUIDA,Codex,c712f827427837d50ea0820fb170ccbd66de954f,Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium,2026-10-16; CI 38909863096,frontend lint/typecheck/test/build; inspeção Chrome e capturas reais,0,execucao-f02.md; evidencias/F02/2026-10-16/f02-ci-success.json,,APROVADO NA BRANCH; entrega desligada; sem deploy
+F02,Lembrete de renovação,5,2,F02-S5,F02-S4,CONCLUIDA,Codex,c712f827427837d50ea0820fb170ccbd66de954f,Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium,2026-10-16; CI 38909863096,npm run test:pg; F02 HTTP/PG/Redis/worker; 110 testes totais,0,execucao-f02.md; evidencias/F02/2026-10-16/f02-ci-success.json,,APROVADO NA BRANCH; entrega desligada; sem deploy
+F02,Lembrete de renovação,5,2,F02-S6,F02-S5,CONCLUIDA,Codex,c712f827427837d50ea0820fb170ccbd66de954f,Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium,2026-10-16; CI 38909863096,npm run test:e2e; 72 testes; desktop/mobile; 0 skips/retries,0,execucao-f02.md; evidencias/F02/2026-10-16/f02-ci-success.json,,APROVADO NA BRANCH; entrega desligada; sem deploy
+F02,Lembrete de renovação,5,2,F02-S7,F02-S6,CONCLUIDA,Codex,c712f827427837d50ea0820fb170ccbd66de954f,Local descartável + CI Ubuntu Node22; PG16/Redis7; Chromium,2026-10-16; CI 38909863096,gh run view 38909863096; quatro jobs aprovados; evidências registradas,0,execucao-f02.md; evidencias/F02/2026-10-16/f02-ci-success.json,,APROVADO NA BRANCH; entrega desligada; sem deploy
+F03,Links relacionados,6,2,F03-S0,F42 G00,CONCLUIDA,Codex,2672f834a3f2e34c6e7c794e0f9c31cfb57a885c,Local descartável + CI Node 22,2026-10-16; CI 38917846538,revisão de contratos/reuso/D04; execucao-f03.md,0,execucao-f03.md; evidencias/F03/2026-10-16,,APROVADO NA BRANCH; parar após F03; sem deploy
+F03,Links relacionados,6,2,F03-S1,F03-S0,CONCLUIDA,Codex,2672f834a3f2e34c6e7c794e0f9c31cfb57a885c,Local descartável + CI Node 22,2026-10-16; CI 38917846538,vitest related-links.spec.ts; related-links.test.tsx; logs RED/GREEN,0,execucao-f03.md; evidencias/F03/2026-10-16,,APROVADO NA BRANCH; parar após F03; sem deploy
+F03,Links relacionados,6,2,F03-S2,F03-S1,CONCLUIDA,Codex,2672f834a3f2e34c6e7c794e0f9c31cfb57a885c,Local descartável + CI Node 22,2026-10-16; CI 38917846538,prisma migrate deploy; SQL em clone; EXPLAIN ANALYZE; prova de compatibilidade,0,execucao-f03.md; evidencias/F03/2026-10-16,,APROVADO NA BRANCH; parar após F03; sem deploy
+F03,Links relacionados,6,2,F03-S3,F03-S2,CONCLUIDA,Codex,2672f834a3f2e34c6e7c794e0f9c31cfb57a885c,Local descartável + CI Node 22,2026-10-16; CI 38917846538,vitest related-links.spec.ts; related-links.pg.spec.ts,0,execucao-f03.md; evidencias/F03/2026-10-16,,APROVADO NA BRANCH; parar após F03; sem deploy
+F03,Links relacionados,6,2,F03-S4,F03-S3,CONCLUIDA,Codex,2672f834a3f2e34c6e7c794e0f9c31cfb57a885c,Local descartável + CI Node 22,2026-10-16; CI 38917846538,vitest related-links.test.tsx; upstream.test.ts; Chrome DevTools,0,execucao-f03.md; evidencias/F03/2026-10-16,,APROVADO NA BRANCH; parar após F03; sem deploy
+F03,Links relacionados,6,2,F03-S5,F03-S4,CONCLUIDA,Codex,2672f834a3f2e34c6e7c794e0f9c31cfb57a885c,Local descartável + CI Node 22,2026-10-16; CI 38917846538,npm run test:pg; vitest related-links.pg.spec.ts,0,execucao-f03.md; evidencias/F03/2026-10-16,,APROVADO NA BRANCH; parar após F03; sem deploy
+F03,Links relacionados,6,2,F03-S6,F03-S5,CONCLUIDA,Codex,2672f834a3f2e34c6e7c794e0f9c31cfb57a885c,Local descartável + CI Node 22,2026-10-16; CI 38917846538,npm run test:e2e; Playwright related-links desktop/mobile; inspeção real,0,execucao-f03.md; evidencias/F03/2026-10-16,,APROVADO NA BRANCH; parar após F03; sem deploy
+F03,Links relacionados,6,2,F03-S7,F03-S6,CONCLUIDA,Codex,2672f834a3f2e34c6e7c794e0f9c31cfb57a885c,Local descartável + CI Node 22,2026-10-16; CI 38917846538,lint/typecheck/unit/build backend/frontend; PG; Playwright; CI 38917846538,0,execucao-f03.md; evidencias/F03/2026-10-16,,APROVADO NA BRANCH; parar após F03; sem deploy
+F04,Favoritos e coleções,7,2,F04-S0,F42 G00,CONCLUIDA,Codex,1f283a46cfe0a71cea2afb2abde223cb6dd9eb43,Local descartável + CI Node 22,2026-10-16; CI 38923117928,"revisão de reuso, contratos, D05 e autorização; execucao-f04.md",0,execucao-f04.md; evidencias/F04/2026-10-16,,APROVADO NA BRANCH; parar após F04; sem deploy
+F04,Favoritos e coleções,7,2,F04-S1,F04-S0,CONCLUIDA,Codex,1f283a46cfe0a71cea2afb2abde223cb6dd9eb43,Local descartável + CI Node 22,2026-10-16; CI 38923117928,vitest favorites.spec.ts e testes de componentes favoritos; RED/GREEN,0,execucao-f04.md; evidencias/F04/2026-10-16,,APROVADO NA BRANCH; parar após F04; sem deploy
+F04,Favoritos e coleções,7,2,F04-S2,F04-S1,CONCLUIDA,Codex,1f283a46cfe0a71cea2afb2abde223cb6dd9eb43,Local descartável + CI Node 22,2026-10-16; CI 38923117928,prisma migrate deploy; clone anterior; EXPLAIN ANALYZE e recuperação,0,execucao-f04.md; evidencias/F04/2026-10-16,,APROVADO NA BRANCH; parar após F04; sem deploy
+F04,Favoritos e coleções,7,2,F04-S3,F04-S2,CONCLUIDA,Codex,1f283a46cfe0a71cea2afb2abde223cb6dd9eb43,Local descartável + CI Node 22,2026-10-16; CI 38923117928,vitest favorites.spec.ts e favorites.pg.spec.ts; typecheck,0,execucao-f04.md; evidencias/F04/2026-10-16,,APROVADO NA BRANCH; parar após F04; sem deploy
+F04,Favoritos e coleções,7,2,F04-S4,F04-S3,CONCLUIDA,Codex,1f283a46cfe0a71cea2afb2abde223cb6dd9eb43,Local descartável + CI Node 22,2026-10-16; CI 38923117928,vitest favoritos componentes; Chrome DevTools e capturas finais,0,execucao-f04.md; evidencias/F04/2026-10-16,,APROVADO NA BRANCH; parar após F04; sem deploy
+F04,Favoritos e coleções,7,2,F04-S5,F04-S4,CONCLUIDA,Codex,1f283a46cfe0a71cea2afb2abde223cb6dd9eb43,Local descartável + CI Node 22,2026-10-16; CI 38923117928,npm run test:pg; favorites.pg.spec.ts com HTTP/PG reais,0,execucao-f04.md; evidencias/F04/2026-10-16,,APROVADO NA BRANCH; parar após F04; sem deploy
+F04,Favoritos e coleções,7,2,F04-S6,F04-S5,CONCLUIDA,Codex,1f283a46cfe0a71cea2afb2abde223cb6dd9eb43,Local descartável + CI Node 22,2026-10-16; CI 38923117928,npm run test:e2e; favorites/related desktop/mobile; inspeção visual,0,execucao-f04.md; evidencias/F04/2026-10-16,,APROVADO NA BRANCH; parar após F04; sem deploy
+F04,Favoritos e coleções,7,2,F04-S7,F04-S6,CONCLUIDA,Codex,1f283a46cfe0a71cea2afb2abde223cb6dd9eb43,Local descartável + CI Node 22,2026-10-16; CI 38923117928,lint/typecheck/unit/build backend/frontend; PG; Playwright; CI 38923117928,0,execucao-f04.md; evidencias/F04/2026-10-16,,APROVADO NA BRANCH; parar após F04; sem deploy
+F09,Perfil público com categorias próprias,8,2,F09-S0,F42 G00,CONCLUIDA,Codex,aba5b14907ec5d4bb794266b768cd282470a3d20,Local descartável + CI Node 22,2026-10-16; CI 38940575906,Revisão de contratos/reuso e D10 resolvida pelo usuário,0,execucao-f09.md; evidencias/F09/2026-10-16,,APROVADO NA BRANCH; parar após F09; sem deploy
+F09,Perfil público com categorias próprias,8,2,F09-S1,F09-S0,CONCLUIDA,Codex,aba5b14907ec5d4bb794266b768cd282470a3d20,Local descartável + CI Node 22,2026-10-16; CI 38940575906,Vitest U/C RED/GREEN; ordenação no domínio frontend; projeção/mídia/editor,0,execucao-f09.md; evidencias/F09/2026-10-16,,APROVADO NA BRANCH; parar após F09; sem deploy
+F09,Perfil público com categorias próprias,8,2,F09-S2,F09-S1,CONCLUIDA,Codex,aba5b14907ec5d4bb794266b768cd282470a3d20,Local descartável + CI Node 22,2026-10-16; CI 38940575906,Prisma validate/deploy; SQL exato no clone; fingerprints/EXPLAIN; rollback-proof,0,execucao-f09.md; evidencias/F09/2026-10-16,,APROVADO NA BRANCH; parar após F09; sem deploy
+F09,Perfil público com categorias próprias,8,2,F09-S3,F09-S2,CONCLUIDA,Codex,aba5b14907ec5d4bb794266b768cd282470a3d20,Local descartável + CI Node 22,2026-10-16; CI 38940575906,Vitest domínio/adapter e profiles.pg.spec.ts; API/CSRF/versionamento,0,execucao-f09.md; evidencias/F09/2026-10-16,,APROVADO NA BRANCH; parar após F09; sem deploy
+F09,Perfil público com categorias próprias,8,2,F09-S4,F09-S3,CONCLUIDA,Codex,aba5b14907ec5d4bb794266b768cd282470a3d20,Local descartável + CI Node 22,2026-10-16; CI 38940575906,Vitest componentes; build frontend; inspeção Chrome desktop/mobile,0,execucao-f09.md; evidencias/F09/2026-10-16,,APROVADO NA BRANCH; parar após F09; sem deploy
+F09,Perfil público com categorias próprias,8,2,F09-S5,F09-S4,CONCLUIDA,Codex,aba5b14907ec5d4bb794266b768cd282470a3d20,Local descartável + CI Node 22,2026-10-16; CI 38940575906,npm run test:pg; dez testes F09 com Fastify/PG real e triggers,0,execucao-f09.md; evidencias/F09/2026-10-16,,APROVADO NA BRANCH; parar após F09; sem deploy
+F09,Perfil público com categorias próprias,8,2,F09-S6,F09-S5,CONCLUIDA,Codex,aba5b14907ec5d4bb794266b768cd282470a3d20,Local descartável + CI Node 22,2026-10-16; CI 38940575906,Playwright profiles.spec.ts em features/features-mobile; revisão PNG/teclado/320px,0,execucao-f09.md; evidencias/F09/2026-10-16,,APROVADO NA BRANCH; parar após F09; sem deploy
+F09,Perfil público com categorias próprias,8,2,F09-S7,F09-S6,CONCLUIDA,Codex,aba5b14907ec5d4bb794266b768cd282470a3d20,Local descartável + CI Node 22,2026-10-16; CI 38940575906,lint/typecheck/unit/build backend/frontend; 137 PG; 92 E2E; CI 38940575906,0,execucao-f09.md; evidencias/F09/2026-10-16,,APROVADO NA BRANCH; parar após F09; sem deploy
+F12,Link permanente para convites,9,2,F12-S0,F42 G00 F07,CONCLUIDA,Codex,1809e1d97f0b7e7681409041a2073412352d91d6,Local descartável + CI; sem produção,2026-10-16; CI 38971032480,Revisão de contratos/reuso e decisões D14,0,execucao-f12.md; evidencias/F12/2026-10-16,,APROVADO NA BRANCH; F19 não iniciada; sem deploy
+F12,Link permanente para convites,9,2,F12-S1,F12-S0,CONCLUIDA,Codex,1809e1d97f0b7e7681409041a2073412352d91d6,Local descartável + CI; sem produção,2026-10-16; CI 38971032480,Vitest domínio 7 e componentes 3; RED/GREEN e concorrência,0,execucao-f12.md; evidencias/F12/2026-10-16,,APROVADO NA BRANCH; F19 não iniciada; sem deploy
+F12,Link permanente para convites,9,2,F12-S2,F12-S1,CONCLUIDA,Codex,1809e1d97f0b7e7681409041a2073412352d91d6,Local descartável + CI; sem produção,2026-10-16; CI 38971032480,Migration clone 42 tabelas + EXPLAIN 10 mil registros,0,execucao-f12.md; evidencias/F12/2026-10-16,,APROVADO NA BRANCH; F19 não iniciada; sem deploy
+F12,Link permanente para convites,9,2,F12-S3,F12-S2,CONCLUIDA,Codex,1809e1d97f0b7e7681409041a2073412352d91d6,Local descartável + CI; sem produção,2026-10-16; CI 38971032480,Lint/typecheck/unit/build backend,0,execucao-f12.md; evidencias/F12/2026-10-16,,APROVADO NA BRANCH; F19 não iniciada; sem deploy
+F12,Link permanente para convites,9,2,F12-S4,F12-S3,CONCLUIDA,Codex,1809e1d97f0b7e7681409041a2073412352d91d6,Local descartável + CI; sem produção,2026-10-16; CI 38971032480,Lint/typecheck/unit/build frontend,0,execucao-f12.md; evidencias/F12/2026-10-16,,APROVADO NA BRANCH; F19 não iniciada; sem deploy
+F12,Link permanente para convites,9,2,F12-S5,F12-S4,CONCLUIDA,Codex,1809e1d97f0b7e7681409041a2073412352d91d6,Local descartável + CI; sem produção,2026-10-16; CI 38971032480,npm run test:pg (152; F12 15),0,execucao-f12.md; evidencias/F12/2026-10-16,,APROVADO NA BRANCH; F19 não iniciada; sem deploy
+F12,Link permanente para convites,9,2,F12-S6,F12-S5,CONCLUIDA,Codex,1809e1d97f0b7e7681409041a2073412352d91d6,Local descartável + CI; sem produção,2026-10-16; CI 38971032480,npm run test:e2e (100); inspeção Chrome desktop/mobile,0,execucao-f12.md; evidencias/F12/2026-10-16,,APROVADO NA BRANCH; F19 não iniciada; sem deploy
+F12,Link permanente para convites,9,2,F12-S7,F12-S6,CONCLUIDA,Codex,1809e1d97f0b7e7681409041a2073412352d91d6,Local descartável + CI; sem produção,2026-10-16; CI 38971032480,CI verify/web/images/e2e + aceite/reversão e parada,0,execucao-f12.md; evidencias/F12/2026-10-16,,APROVADO NA BRANCH; F19 não iniciada; sem deploy
+F19,Prévia e histórico de versões,10,2,F19-S0,F42 G00 F09,CONCLUÍDA,Codex,,Local isolado; Chromium desktop/mobile; PostgreSQL/Redis descartáveis,2026-10-17,Ver comandos e relatórios por etapa em execucao-f19.md,0,execucao-f19.md; output/roadmap-f19,,Validação local; CI/produção separados
+F19,Prévia e histórico de versões,10,2,F19-S1,F19-S0,CONCLUÍDA,Codex,,Local isolado; Chromium desktop/mobile; PostgreSQL/Redis descartáveis,2026-10-17,Ver comandos e relatórios por etapa em execucao-f19.md,0,execucao-f19.md; output/roadmap-f19,,Validação local; CI/produção separados
+F19,Prévia e histórico de versões,10,2,F19-S2,F19-S1,CONCLUÍDA,Codex,,Local isolado; Chromium desktop/mobile; PostgreSQL/Redis descartáveis,2026-10-17,Ver comandos e relatórios por etapa em execucao-f19.md,0,execucao-f19.md; output/roadmap-f19,,Validação local; CI/produção separados
+F19,Prévia e histórico de versões,10,2,F19-S3,F19-S2,CONCLUÍDA,Codex,,Local isolado; Chromium desktop/mobile; PostgreSQL/Redis descartáveis,2026-10-17,Ver comandos e relatórios por etapa em execucao-f19.md,0,execucao-f19.md; output/roadmap-f19,,Validação local; CI/produção separados
+F19,Prévia e histórico de versões,10,2,F19-S4,F19-S3,CONCLUÍDA,Codex,,Local isolado; Chromium desktop/mobile; PostgreSQL/Redis descartáveis,2026-10-17,Ver comandos e relatórios por etapa em execucao-f19.md,0,execucao-f19.md; output/roadmap-f19,,Validação local; CI/produção separados
+F19,Prévia e histórico de versões,10,2,F19-S5,F19-S4,CONCLUÍDA,Codex,,Local isolado; Chromium desktop/mobile; PostgreSQL/Redis descartáveis,2026-10-17,Ver comandos e relatórios por etapa em execucao-f19.md,0,execucao-f19.md; output/roadmap-f19,,Validação local; CI/produção separados
+F19,Prévia e histórico de versões,10,2,F19-S6,F19-S5,CONCLUÍDA,Codex,,Local isolado; Chromium desktop/mobile; PostgreSQL/Redis descartáveis,2026-10-17,Ver comandos e relatórios por etapa em execucao-f19.md,0,execucao-f19.md; output/roadmap-f19,,Validação local; CI/produção separados
+F19,Prévia e histórico de versões,10,2,F19-S7,F19-S6,EM REVISÃO,Codex,,Local isolado; Chromium desktop/mobile; PostgreSQL/Redis descartáveis,2026-10-17,Ver comandos e relatórios por etapa em execucao-f19.md,,execucao-f19.md; output/roadmap-f19,CI/liberação não executados; nenhum commit/push autorizado,Validação local; CI/produção separados
+F08,Painel de oportunidades de busca,11,3,F08-S0,F42 G00,CONCLUÍDA,Codex,,Local isolado; Chromium desktop/mobile; PostgreSQL/Redis descartáveis,2026-10-17; validação local,Ver comandos/relatórios por etapa em execucao-f08.md,0,execucao-f08.md; evidências F08; output/roadmap-f08,,Validação local; liberação separada
+F08,Painel de oportunidades de busca,11,3,F08-S1,F08-S0,CONCLUÍDA,Codex,,Local isolado; Chromium desktop/mobile; PostgreSQL/Redis descartáveis,2026-10-17; validação local,Ver comandos/relatórios por etapa em execucao-f08.md,0,execucao-f08.md; evidências F08; output/roadmap-f08,,Validação local; liberação separada
+F08,Painel de oportunidades de busca,11,3,F08-S2,F08-S1,CONCLUÍDA,Codex,,Local isolado; Chromium desktop/mobile; PostgreSQL/Redis descartáveis,2026-10-17; validação local,Ver comandos/relatórios por etapa em execucao-f08.md,0,execucao-f08.md; evidências F08; output/roadmap-f08,,Validação local; liberação separada
+F08,Painel de oportunidades de busca,11,3,F08-S3,F08-S2,CONCLUÍDA,Codex,,Local isolado; Chromium desktop/mobile; PostgreSQL/Redis descartáveis,2026-10-17; validação local,Ver comandos/relatórios por etapa em execucao-f08.md,0,execucao-f08.md; evidências F08; output/roadmap-f08,,Validação local; liberação separada
+F08,Painel de oportunidades de busca,11,3,F08-S4,F08-S3,CONCLUÍDA,Codex,,Local isolado; Chromium desktop/mobile; PostgreSQL/Redis descartáveis,2026-10-17; validação local,Ver comandos/relatórios por etapa em execucao-f08.md,0,execucao-f08.md; evidências F08; output/roadmap-f08,,Validação local; liberação separada
+F08,Painel de oportunidades de busca,11,3,F08-S5,F08-S4,CONCLUÍDA,Codex,,Local isolado; Chromium desktop/mobile; PostgreSQL/Redis descartáveis,2026-10-17; validação local,Ver comandos/relatórios por etapa em execucao-f08.md,0,execucao-f08.md; evidências F08; output/roadmap-f08,,Validação local; liberação separada
+F08,Painel de oportunidades de busca,11,3,F08-S6,F08-S5,CONCLUÍDA,Codex,,Local isolado; Chromium desktop/mobile; PostgreSQL/Redis descartáveis,2026-10-17; validação local,Ver comandos/relatórios por etapa em execucao-f08.md,0,execucao-f08.md; evidências F08; output/roadmap-f08,,Validação local; liberação separada
+F08,Painel de oportunidades de busca,11,3,F08-S7,F08-S6,EM REVISÃO,Codex,,Local isolado; Chromium desktop/mobile; PostgreSQL/Redis descartáveis,2026-10-17; validação local,Ver comandos/relatórios por etapa em execucao-f08.md,,execucao-f08.md; evidências F08; output/roadmap-f08,CI/liberação remotos não executados; sem commit/push/deploy,Validação local; liberação separada
+F11,Planos para perfis e páginas,12,3,F11-S0,F42 G00 F09,CONCLUÍDA,Codex,,Local isolado; PostgreSQL descartável; SDK real contra provedor local,2026-10-17; implementação local,Comandos e resultados em execucao-f11.md,0,execucao-f11.md; evidências F11; output/roadmap-f11/source-manifest.json,,VALIDADA LOCALMENTE; liberação comercial separada
+F11,Planos para perfis e páginas,12,3,F11-S1,F11-S0,CONCLUÍDA,Codex,,Local isolado; PostgreSQL descartável; SDK real contra provedor local,2026-10-17; implementação local,Comandos e resultados em execucao-f11.md,0,execucao-f11.md; evidências F11; output/roadmap-f11/source-manifest.json,,VALIDADA LOCALMENTE; liberação comercial separada
+F11,Planos para perfis e páginas,12,3,F11-S2,F11-S1,CONCLUÍDA,Codex,,Local isolado; PostgreSQL descartável; SDK real contra provedor local,2026-10-17; implementação local,Comandos e resultados em execucao-f11.md,0,execucao-f11.md; evidências F11; output/roadmap-f11/source-manifest.json,,VALIDADA LOCALMENTE; liberação comercial separada
+F11,Planos para perfis e páginas,12,3,F11-S3,F11-S2,CONCLUÍDA,Codex,,Local isolado; PostgreSQL descartável; SDK real contra provedor local,2026-10-17; implementação local,Comandos e resultados em execucao-f11.md,0,execucao-f11.md; evidências F11; output/roadmap-f11/source-manifest.json,,VALIDADA LOCALMENTE; liberação comercial separada
+F11,Planos para perfis e páginas,12,3,F11-S4,F11-S3,CONCLUÍDA,Codex,,Local isolado; PostgreSQL descartável; SDK real contra provedor local,2026-10-17; implementação local,Comandos e resultados em execucao-f11.md,0,execucao-f11.md; evidências F11; output/roadmap-f11/source-manifest.json,,VALIDADA LOCALMENTE; liberação comercial separada
+F11,Planos para perfis e páginas,12,3,F11-S5,F11-S4,CONCLUÍDA,Codex,,Local isolado; PostgreSQL descartável; SDK real contra provedor local,2026-10-17; implementação local,Comandos e resultados em execucao-f11.md,0,execucao-f11.md; evidências F11; output/roadmap-f11/source-manifest.json,,VALIDADA LOCALMENTE; liberação comercial separada
+F11,Planos para perfis e páginas,12,3,F11-S6,F11-S5,CONCLUÍDA,Codex,,Local isolado; PostgreSQL descartável; SDK real contra provedor local,2026-10-17; implementação local,Comandos e resultados em execucao-f11.md,0,execucao-f11.md; evidências F11; output/roadmap-f11/source-manifest.json,,VALIDADA LOCALMENTE; liberação comercial separada
+F11,Planos para perfis e páginas,12,3,F11-S7,F11-S6,EM REVISÃO,Codex,,Local isolado; PostgreSQL descartável; SDK real contra provedor local,2026-10-17; implementação local,Comandos e resultados em execucao-f11.md,,execucao-f11.md; evidências F11; output/roadmap-f11/source-manifest.json,CI remoto e liberação comercial não executados,VALIDADA LOCALMENTE; liberação comercial separada
+F13,QR Code permanente,13,3,F13-S0,F42 G00 F09 F12,CONCLUÍDA,Codex,,Local isolado; APIs/PG reais; leitura de PNG/SVG,2026-10-17,Comandos e resultados em execucao-f13.md,0,execucao-f13.md; 12 capturas; output/roadmap-f13/source-manifest.json,,VALIDADA LOCALMENTE
+F13,QR Code permanente,13,3,F13-S1,F13-S0,CONCLUÍDA,Codex,,Local isolado; APIs/PG reais; leitura de PNG/SVG,2026-10-17,Comandos e resultados em execucao-f13.md,0,execucao-f13.md; 12 capturas; output/roadmap-f13/source-manifest.json,,VALIDADA LOCALMENTE
+F13,QR Code permanente,13,3,F13-S2,F13-S1,CONCLUÍDA,Codex,,Local isolado; APIs/PG reais; leitura de PNG/SVG,2026-10-17,Comandos e resultados em execucao-f13.md,0,execucao-f13.md; 12 capturas; output/roadmap-f13/source-manifest.json,,VALIDADA LOCALMENTE
+F13,QR Code permanente,13,3,F13-S3,F13-S2,CONCLUÍDA,Codex,,Local isolado; APIs/PG reais; leitura de PNG/SVG,2026-10-17,Comandos e resultados em execucao-f13.md,0,execucao-f13.md; 12 capturas; output/roadmap-f13/source-manifest.json,,VALIDADA LOCALMENTE
+F13,QR Code permanente,13,3,F13-S4,F13-S3,CONCLUÍDA,Codex,,Local isolado; APIs/PG reais; leitura de PNG/SVG,2026-10-17,Comandos e resultados em execucao-f13.md,0,execucao-f13.md; 12 capturas; output/roadmap-f13/source-manifest.json,,VALIDADA LOCALMENTE
+F13,QR Code permanente,13,3,F13-S5,F13-S4,CONCLUÍDA,Codex,,Local isolado; APIs/PG reais; leitura de PNG/SVG,2026-10-17,Comandos e resultados em execucao-f13.md,0,execucao-f13.md; 12 capturas; output/roadmap-f13/source-manifest.json,,VALIDADA LOCALMENTE
+F13,QR Code permanente,13,3,F13-S6,F13-S5,CONCLUÍDA,Codex,,Local isolado; APIs/PG reais; leitura de PNG/SVG,2026-10-17,Comandos e resultados em execucao-f13.md,0,execucao-f13.md; 12 capturas; output/roadmap-f13/source-manifest.json,,VALIDADA LOCALMENTE
+F13,QR Code permanente,13,3,F13-S7,F13-S6,EM REVISÃO,Codex,,Local isolado; APIs/PG reais; leitura de PNG/SVG,2026-10-17,Comandos e resultados em execucao-f13.md,,execucao-f13.md; 12 capturas; output/roadmap-f13/source-manifest.json,CI/liberação remotos não executados,VALIDADA LOCALMENTE
+F14,Agendamento de links,14,3,F14-S0,F42 G00 F09 F11,CONCLUÍDA,Codex,,Local isolado; PostgreSQL real; E2E desktop/mobile,2026-10-17; validação local,Comandos e provas em execucao-f14.md,0,execucao-f14.md; 18 capturas; output/roadmap-f14/source-manifest.json,,VALIDADA LOCALMENTE; CI/liberação separados
+F14,Agendamento de links,14,3,F14-S1,F14-S0,CONCLUÍDA,Codex,,Local isolado; PostgreSQL real; E2E desktop/mobile,2026-10-17; validação local,Comandos e provas em execucao-f14.md,0,execucao-f14.md; 18 capturas; output/roadmap-f14/source-manifest.json,,VALIDADA LOCALMENTE; CI/liberação separados
+F14,Agendamento de links,14,3,F14-S2,F14-S1,CONCLUÍDA,Codex,,Local isolado; PostgreSQL real; E2E desktop/mobile,2026-10-17; validação local,Comandos e provas em execucao-f14.md,0,execucao-f14.md; 18 capturas; output/roadmap-f14/source-manifest.json,,VALIDADA LOCALMENTE; CI/liberação separados
+F14,Agendamento de links,14,3,F14-S3,F14-S2,CONCLUÍDA,Codex,,Local isolado; PostgreSQL real; E2E desktop/mobile,2026-10-17; validação local,Comandos e provas em execucao-f14.md,0,execucao-f14.md; 18 capturas; output/roadmap-f14/source-manifest.json,,VALIDADA LOCALMENTE; CI/liberação separados
+F14,Agendamento de links,14,3,F14-S4,F14-S3,CONCLUÍDA,Codex,,Local isolado; PostgreSQL real; E2E desktop/mobile,2026-10-17; validação local,Comandos e provas em execucao-f14.md,0,execucao-f14.md; 18 capturas; output/roadmap-f14/source-manifest.json,,VALIDADA LOCALMENTE; CI/liberação separados
+F14,Agendamento de links,14,3,F14-S5,F14-S4,CONCLUÍDA,Codex,,Local isolado; PostgreSQL real; E2E desktop/mobile,2026-10-17; validação local,Comandos e provas em execucao-f14.md,0,execucao-f14.md; 18 capturas; output/roadmap-f14/source-manifest.json,,VALIDADA LOCALMENTE; CI/liberação separados
+F14,Agendamento de links,14,3,F14-S6,F14-S5,CONCLUÍDA,Codex,,Local isolado; PostgreSQL real; E2E desktop/mobile,2026-10-17; validação local,Comandos e provas em execucao-f14.md,0,execucao-f14.md; 18 capturas; output/roadmap-f14/source-manifest.json,,VALIDADA LOCALMENTE; CI/liberação separados
+F14,Agendamento de links,14,3,F14-S7,F14-S6,EM REVISÃO,Codex,,Local isolado; PostgreSQL real; E2E desktop/mobile,2026-10-17; validação local,Comandos e provas em execucao-f14.md,,execucao-f14.md; 18 capturas; output/roadmap-f14/source-manifest.json,CI/deploy remotos não executados,VALIDADA LOCALMENTE; CI/liberação separados
+F16,Templates por atividade,15,3,F16-S0,F42 G00 F09 F19,CONCLUÍDA,Codex,,Local isolado; PostgreSQL real; Chromium desktop/mobile,2026-10-17/18; validação local,Comandos e provas em execucao-f16.md,0,execucao-f16.md; 28 capturas; output/roadmap-f16/source-manifest.json,,VALIDADA LOCALMENTE; CI/liberação separados
+F16,Templates por atividade,15,3,F16-S1,F16-S0,CONCLUÍDA,Codex,,Local isolado; PostgreSQL real; Chromium desktop/mobile,2026-10-17/18; validação local,Comandos e provas em execucao-f16.md,0,execucao-f16.md; 28 capturas; output/roadmap-f16/source-manifest.json,,VALIDADA LOCALMENTE; CI/liberação separados
+F16,Templates por atividade,15,3,F16-S2,F16-S1,CONCLUÍDA,Codex,,Local isolado; PostgreSQL real; Chromium desktop/mobile,2026-10-17/18; validação local,Comandos e provas em execucao-f16.md,0,execucao-f16.md; 28 capturas; output/roadmap-f16/source-manifest.json,,VALIDADA LOCALMENTE; CI/liberação separados
+F16,Templates por atividade,15,3,F16-S3,F16-S2,CONCLUÍDA,Codex,,Local isolado; PostgreSQL real; Chromium desktop/mobile,2026-10-17/18; validação local,Comandos e provas em execucao-f16.md,0,execucao-f16.md; 28 capturas; output/roadmap-f16/source-manifest.json,,VALIDADA LOCALMENTE; CI/liberação separados
+F16,Templates por atividade,15,3,F16-S4,F16-S3,CONCLUÍDA,Codex,,Local isolado; PostgreSQL real; Chromium desktop/mobile,2026-10-17/18; validação local,Comandos e provas em execucao-f16.md,0,execucao-f16.md; 28 capturas; output/roadmap-f16/source-manifest.json,,VALIDADA LOCALMENTE; CI/liberação separados
+F16,Templates por atividade,15,3,F16-S5,F16-S4,CONCLUÍDA,Codex,,Local isolado; PostgreSQL real; Chromium desktop/mobile,2026-10-17/18; validação local,Comandos e provas em execucao-f16.md,0,execucao-f16.md; 28 capturas; output/roadmap-f16/source-manifest.json,,VALIDADA LOCALMENTE; CI/liberação separados
+F16,Templates por atividade,15,3,F16-S6,F16-S5,CONCLUÍDA,Codex,,Local isolado; PostgreSQL real; Chromium desktop/mobile,2026-10-17/18; validação local,Comandos e provas em execucao-f16.md,0,execucao-f16.md; 28 capturas; output/roadmap-f16/source-manifest.json,,VALIDADA LOCALMENTE; CI/liberação separados
+F16,Templates por atividade,15,3,F16-S7,F16-S6,EM REVISÃO,Codex,,Local isolado; PostgreSQL real; Chromium desktop/mobile,2026-10-17/18; validação local,Comandos e provas em execucao-f16.md,,execucao-f16.md; 28 capturas; output/roadmap-f16/source-manifest.json,CI/deploy remotos não executados,VALIDADA LOCALMENTE; CI/liberação separados
+F17,Importação em lote,16,3,F17-S0,F42 G00 F09,CONCLUÍDA,Codex,,Local isolado; PG real; Chromium desktop/mobile,2026-10-18; validação local,Comandos e provas em execucao-f17.md,0,execucao-f17.md; 20 capturas; output/roadmap-f17/source-manifest.json,,VALIDADA LOCALMENTE; CI/liberação separados
+F17,Importação em lote,16,3,F17-S1,F17-S0,CONCLUÍDA,Codex,,Local isolado; PG real; Chromium desktop/mobile,2026-10-18; validação local,Comandos e provas em execucao-f17.md,0,execucao-f17.md; 20 capturas; output/roadmap-f17/source-manifest.json,,VALIDADA LOCALMENTE; CI/liberação separados
+F17,Importação em lote,16,3,F17-S2,F17-S1,CONCLUÍDA,Codex,,Local isolado; PG real; Chromium desktop/mobile,2026-10-18; validação local,Comandos e provas em execucao-f17.md,0,execucao-f17.md; 20 capturas; output/roadmap-f17/source-manifest.json,,VALIDADA LOCALMENTE; CI/liberação separados
+F17,Importação em lote,16,3,F17-S3,F17-S2,CONCLUÍDA,Codex,,Local isolado; PG real; Chromium desktop/mobile,2026-10-18; validação local,Comandos e provas em execucao-f17.md,0,execucao-f17.md; 20 capturas; output/roadmap-f17/source-manifest.json,,VALIDADA LOCALMENTE; CI/liberação separados
+F17,Importação em lote,16,3,F17-S4,F17-S3,CONCLUÍDA,Codex,,Local isolado; PG real; Chromium desktop/mobile,2026-10-18; validação local,Comandos e provas em execucao-f17.md,0,execucao-f17.md; 20 capturas; output/roadmap-f17/source-manifest.json,,VALIDADA LOCALMENTE; CI/liberação separados
+F17,Importação em lote,16,3,F17-S5,F17-S4,CONCLUÍDA,Codex,,Local isolado; PG real; Chromium desktop/mobile,2026-10-18; validação local,Comandos e provas em execucao-f17.md,0,execucao-f17.md; 20 capturas; output/roadmap-f17/source-manifest.json,,VALIDADA LOCALMENTE; CI/liberação separados
+F17,Importação em lote,16,3,F17-S6,F17-S5,CONCLUÍDA,Codex,,Local isolado; PG real; Chromium desktop/mobile,2026-10-18; validação local,Comandos e provas em execucao-f17.md,0,execucao-f17.md; 20 capturas; output/roadmap-f17/source-manifest.json,,VALIDADA LOCALMENTE; CI/liberação separados
+F17,Importação em lote,16,3,F17-S7,F17-S6,EM REVISÃO,Codex,,Local isolado; PG real; Chromium desktop/mobile,2026-10-18; validação local,Comandos e provas em execucao-f17.md,,execucao-f17.md; 20 capturas; output/roadmap-f17/source-manifest.json,CI/deploy remotos não executados,VALIDADA LOCALMENTE; CI/liberação separados
+F18,Busca dentro do perfil,17,3,F18-S0,F42 G00 F09 F14,CONCLUÍDA,Codex,,Local descartável Windows; PG/Redis próprios; Chromium desktop/mobile,2026-10-18; validação local,Inventário/reconciliação D20 e contratos; execucao-f18.md,0,execucao-f18.md; 20 capturas; output/roadmap-f18/source-manifest.json,,VALIDADA LOCALMENTE; execução encerrada na F18
+F18,Busca dentro do perfil,17,3,F18-S1,F18-S0,CONCLUÍDA,Codex,,Local descartável Windows; PG/Redis próprios; Chromium desktop/mobile,2026-10-18; validação local,npx vitest run src/domain/profiles/profile-item-search.spec.ts src/lib/profile-item-search-page.spec.ts; frontend profile-explorer.test.tsx e profile-search-contract.test.ts,0,execucao-f18.md; 20 capturas; output/roadmap-f18/source-manifest.json,,VALIDADA LOCALMENTE; execução encerrada na F18
+F18,Busca dentro do perfil,17,3,F18-S2,F18-S1,CONCLUÍDA,Codex,,Local descartável Windows; PG/Redis próprios; Chromium desktop/mobile,2026-10-18; validação local,PG_SPECS=1 npx vitest run --no-file-parallelism src/http/profile-item-search.pg.spec.ts; EXPLAIN tenant/slug (query-plan.log),0,execucao-f18.md; 20 capturas; output/roadmap-f18/source-manifest.json,,VALIDADA LOCALMENTE; execução encerrada na F18
+F18,Busca dentro do perfil,17,3,F18-S3,F18-S2,CONCLUÍDA,Codex,,Local descartável Windows; PG/Redis próprios; Chromium desktop/mobile,2026-10-18; validação local,backend npm run lint; npm run typecheck; npm test; npm run build,0,execucao-f18.md; 20 capturas; output/roadmap-f18/source-manifest.json,,VALIDADA LOCALMENTE; execução encerrada na F18
+F18,Busca dentro do perfil,17,3,F18-S4,F18-S3,CONCLUÍDA,Codex,,Local descartável Windows; PG/Redis próprios; Chromium desktop/mobile,2026-10-18; validação local,frontend npm run lint; npm run typecheck; npm test -- --run,0,execucao-f18.md; 20 capturas; output/roadmap-f18/source-manifest.json,,VALIDADA LOCALMENTE; execução encerrada na F18
+F18,Busca dentro do perfil,17,3,F18-S5,F18-S4,CONCLUÍDA,Codex,,Local descartável Windows; PG/Redis próprios; Chromium desktop/mobile,2026-10-18; validação local,PG_SPECS=1 npm run test:pg; todas as URLs de teste em 5741/f18_regression,0,execucao-f18.md; 20 capturas; output/roadmap-f18/source-manifest.json,,VALIDADA LOCALMENTE; execução encerrada na F18
+F18,Busca dentro do perfil,17,3,F18-S6,F18-S5,CONCLUÍDA,Codex,,Local descartável Windows; PG/Redis próprios; Chromium desktop/mobile,2026-10-18; validação local,"npx playwright test --project=features --project=features-mobile (14 arquivos, 129 casos); npx playwright test --config playwright.profile-search.config.ts (6 finais); capturas inspecionadas",0,execucao-f18.md; 20 capturas; output/roadmap-f18/source-manifest.json,,VALIDADA LOCALMENTE; execução encerrada na F18
+F18,Busca dentro do perfil,17,3,F18-S7,F18-S6,EM REVISÃO,Codex,,Local descartável Windows; PG/Redis próprios; Chromium desktop/mobile,2026-10-18; validação local,"Checks locais executados; CI/liberação remotos pendentes, sem commit/push/deploy",,execucao-f18.md; 20 capturas; output/roadmap-f18/source-manifest.json,CI/liberação remotos não executados,VALIDADA LOCALMENTE; execução encerrada na F18
+F27,Filtros por cidade idioma e modalidade,18,3,F27-S0,F42 G00,CONCLUÍDA,Codex,,Windows local; PG5742; snapshots isolados em output/roadmap-f27,2026-10-18; validação local,git status --short; leitura AGENTS/spec/plano; import-reference.py,0,execucao-f27.md; 18 capturas; output/roadmap-f27/source-manifest.json,,APROVADO LOCALMENTE; evidências na execução
+F27,Filtros por cidade idioma e modalidade,18,3,F27-S1,F27-S0,CONCLUÍDA,Codex,,Windows local; PG5742; snapshots isolados em output/roadmap-f27,2026-10-18; validação local,npm test -- --run src/domain/catalog/discovery-metadata.spec.ts; npm test -- --run src/features/catalog/discovery,0,execucao-f27.md; 18 capturas; output/roadmap-f27/source-manifest.json,,APROVADO LOCALMENTE; evidências na execução
+F27,Filtros por cidade idioma e modalidade,18,3,F27-S2,F27-S1,CONCLUÍDA,Codex,,Windows local; PG5742; snapshots isolados em output/roadmap-f27,2026-10-18; validação local,prisma migrate deploy; upgrade-proof.cjs; prove-reversal.cjs,0,execucao-f27.md; 18 capturas; output/roadmap-f27/source-manifest.json,,APROVADO LOCALMENTE; evidências na execução
+F27,Filtros por cidade idioma e modalidade,18,3,F27-S3,F27-S2,CONCLUÍDA,Codex,,Windows local; PG5742; snapshots isolados em output/roadmap-f27,2026-10-18; validação local,npm run lint; npm run typecheck; testes de domínio e HTTP/PG,0,execucao-f27.md; 18 capturas; output/roadmap-f27/source-manifest.json,,APROVADO LOCALMENTE; evidências na execução
+F27,Filtros por cidade idioma e modalidade,18,3,F27-S4,F27-S3,CONCLUÍDA,Codex,,Windows local; PG5742; snapshots isolados em output/roadmap-f27,2026-10-18; validação local,npm test -- --run src/features/catalog/discovery; 18 capturas e revisão nativa,0,execucao-f27.md; 18 capturas; output/roadmap-f27/source-manifest.json,,APROVADO LOCALMENTE; evidências na execução
+F27,Filtros por cidade idioma e modalidade,18,3,F27-S5,F27-S4,CONCLUÍDA,Codex,,Windows local; PG5742; snapshots isolados em output/roadmap-f27,2026-10-18; validação local,PG_SPECS=1; cinco aliases locais; npm run test:pg,0,execucao-f27.md; 18 capturas; output/roadmap-f27/source-manifest.json,,APROVADO LOCALMENTE; evidências na execução
+F27,Filtros por cidade idioma e modalidade,18,3,F27-S6,F27-S5,CONCLUÍDA,Codex,,Windows local; PG5742; snapshots isolados em output/roadmap-f27,2026-10-18; validação local,npx playwright test --config playwright.discovery.config.ts; Google Ads direcionado,0,execucao-f27.md; 18 capturas; output/roadmap-f27/source-manifest.json,,APROVADO LOCALMENTE; evidências na execução
+F27,Filtros por cidade idioma e modalidade,18,3,F27-S7,F27-S6,EM REVISÃO,Codex,,Windows local; PG5742; snapshots isolados em output/roadmap-f27,2026-10-18; validação local,"Playwright conjunto, 11 specs, 122 casos; rodada direcionada Google Ads",1,execucao-f27.md; 18 capturas; output/roadmap-f27/source-manifest.json; execucao-f31.md (W02 3/3; regressão E2E 152/152),CI/liberação remotos; REG-F03-001 global. Os dois W02 foram corrigidos e validados na F31.,Pendente: W02 suporte/CI/liberação
+F31,Mapa de interação da página,19,3,F31-S0,F42 G00 F09 F19,CONCLUÍDA,Codex,,Windows local; PostgreSQL/Redis próprios; Chromium desktop/mobile emulado,2026-10-18; checkpoint F31 local,Leitura AGENTS/spec/plano; decisões D33 e revisão de reuso,0,execucao-f31.md; 12 capturas; output/roadmap-f31/source-manifest.json,,APROVADO LOCALMENTE
+F31,Mapa de interação da página,19,3,F31-S1,F31-S0,CONCLUÍDA,Codex,,Windows local; PostgreSQL/Redis próprios; Chromium desktop/mobile emulado,2026-10-18; checkpoint F31 local,Vitest domínio e componentes; RED registrado,0,execucao-f31.md; 12 capturas; output/roadmap-f31/source-manifest.json,,APROVADO LOCALMENTE
+F31,Mapa de interação da página,19,3,F31-S2,F31-S1,CONCLUÍDA,Codex,,Windows local; PostgreSQL/Redis próprios; Chromium desktop/mobile emulado,2026-10-18; checkpoint F31 local,Prisma validate/generate/migrate; hashes legado e EXPLAIN,0,execucao-f31.md; 12 capturas; output/roadmap-f31/source-manifest.json,,APROVADO LOCALMENTE
+F31,Mapa de interação da página,19,3,F31-S3,F31-S2,CONCLUÍDA,Codex,,Windows local; PostgreSQL/Redis próprios; Chromium desktop/mobile emulado,2026-10-18; checkpoint F31 local,Vitest 527 backend; nove PG F31; worker real no E04,0,execucao-f31.md; 12 capturas; output/roadmap-f31/source-manifest.json,,APROVADO LOCALMENTE
+F31,Mapa de interação da página,19,3,F31-S4,F31-S3,CONCLUÍDA,Codex,,Windows local; PostgreSQL/Redis próprios; Chromium desktop/mobile emulado,2026-10-18; checkpoint F31 local,Vitest 321 frontend; lint/typecheck; build Next real,0,execucao-f31.md; 12 capturas; output/roadmap-f31/source-manifest.json,,APROVADO LOCALMENTE
+F31,Mapa de interação da página,19,3,F31-S5,F31-S4,CONCLUÍDA,Codex,,Windows local; PostgreSQL/Redis próprios; Chromium desktop/mobile emulado,2026-10-18; checkpoint F31 local,npx vitest run src/http/profile-interaction.pg.spec.ts,0,execucao-f31.md; 12 capturas; output/roadmap-f31/source-manifest.json,,APROVADO LOCALMENTE
+F31,Mapa de interação da página,19,3,F31-S6,F31-S5,CONCLUÍDA,Codex,,Windows local; PostgreSQL/Redis próprios; Chromium desktop/mobile emulado,2026-10-18; checkpoint F31 local,npx playwright test -c playwright.interaction.config.ts,0,execucao-f31.md; 12 capturas; output/roadmap-f31/source-manifest.json,,APROVADO LOCALMENTE
+F31,Mapa de interação da página,19,3,F31-S7,F31-S6,EM REVISÃO,Codex,,Windows local; PostgreSQL/Redis próprios; Chromium desktop/mobile emulado,2026-10-18; checkpoint F31 local,Regressão E2E 152/152; PG global 254/255; CI não executado,1,execucao-f31.md; 12 capturas; output/roadmap-f31/source-manifest.json,REG-F03-001 preexistente; CI/liberação remotos pendentes,EM REVISÃO; sem aprovação remota
+F34,Checklist de publicação,20,3,F34-S0,F42 G00 F09,CONCLUÍDA,Codex,,Windows local; PG/Redis próprios; Chromium desktop/mobile emulado,2026-10-18; fechamento F34 local,Spec/plano/AGENTS; D36 e reuso,0,execucao-f34.md; output/roadmap-f34/source-manifest.json; 14 capturas,,APROVADO LOCALMENTE
+F34,Checklist de publicação,20,3,F34-S1,F34-S0,CONCLUÍDA,Codex,,Windows local; PG/Redis próprios; Chromium desktop/mobile emulado,2026-10-18; fechamento F34 local,Vitest RED 5 U / 3 C; GREEN,0,execucao-f34.md; output/roadmap-f34/source-manifest.json; 14 capturas,,APROVADO LOCALMENTE
+F34,Checklist de publicação,20,3,F34-S2,F34-S1,CONCLUÍDA,Codex,,Windows local; PG/Redis próprios; Chromium desktop/mobile emulado,2026-10-18; fechamento F34 local,Sem migration; consulta AuditLog e reader anterior,0,execucao-f34.md; output/roadmap-f34/source-manifest.json; 14 capturas,,APROVADO LOCALMENTE
+F34,Checklist de publicação,20,3,F34-S3,F34-S2,CONCLUÍDA,Codex,,Windows local; PG/Redis próprios; Chromium desktop/mobile emulado,2026-10-18; fechamento F34 local,532 U backend; nove PG próprios,0,execucao-f34.md; output/roadmap-f34/source-manifest.json; 14 capturas,,APROVADO LOCALMENTE
+F34,Checklist de publicação,20,3,F34-S4,F34-S3,CONCLUÍDA,Codex,,Windows local; PG/Redis próprios; Chromium desktop/mobile emulado,2026-10-18; fechamento F34 local,324 U frontend; dez C afetados; lint/typecheck/build,0,execucao-f34.md; output/roadmap-f34/source-manifest.json; 14 capturas,,APROVADO LOCALMENTE
+F34,Checklist de publicação,20,3,F34-S5,F34-S4,CONCLUÍDA,Codex,,Windows local; PG/Redis próprios; Chromium desktop/mobile emulado,2026-10-18; fechamento F34 local,PG afetado 60/60 em sete arquivos,0,execucao-f34.md; output/roadmap-f34/source-manifest.json; 14 capturas,,APROVADO LOCALMENTE
+F34,Checklist de publicação,20,3,F34-S6,F34-S5,CONCLUÍDA,Codex,,Windows local; PG/Redis próprios; Chromium desktop/mobile emulado,2026-10-18; fechamento F34 local,Playwright próprio 6/6; 14 capturas revistas,0,execucao-f34.md; output/roadmap-f34/source-manifest.json; 14 capturas,,APROVADO LOCALMENTE
+F34,Checklist de publicação,20,3,F34-S7,F34-S6,EM REVISÃO,Codex,,Windows local; PG/Redis próprios; Chromium desktop/mobile emulado,2026-10-18; fechamento F34 local,Regressão E2E 73/73; reversão; CI/liberação pendentes,0,execucao-f34.md; output/roadmap-f34/source-manifest.json; 14 capturas,REG-F03-001 global preexistente; CI/liberação remotos pendentes,EM REVISÃO; sem aprovação remota
+F37,Botão com alternativas de acesso,21,3,F37-S0,F42 G00 F09 F12 F19,CONCLUÍDA,Codex,,Windows local; PG/Redis próprios; Chromium desktop/mobile emulado,2026-10-18; F37 encerrada por pedido do usuário,D39 e contratos; reuso F09/F12/F19/F31,0,execucao-f37.md; output/roadmap-f37/source-manifest.json; evidencias/f37-2026-10-18,,APROVADO LOCALMENTE
+F37,Botão com alternativas de acesso,21,3,F37-S1,F37-S0,CONCLUÍDA,Codex,,Windows local; PG/Redis próprios; Chromium desktop/mobile emulado,2026-10-18; F37 encerrada por pedido do usuário,"RED/GREEN domínio, projeção, componente e shell",0,execucao-f37.md; output/roadmap-f37/source-manifest.json; evidencias/f37-2026-10-18,,APROVADO LOCALMENTE
+F37,Botão com alternativas de acesso,21,3,F37-S2,F37-S1,CONCLUÍDA,Codex,,Windows local; PG/Redis próprios; Chromium desktop/mobile emulado,2026-10-18; F37 encerrada por pedido do usuário,Duas migrations; upgrade/imutabilidade/retencão; EXPLAIN,0,execucao-f37.md; output/roadmap-f37/source-manifest.json; evidencias/f37-2026-10-18,,APROVADO LOCALMENTE
+F37,Botão com alternativas de acesso,21,3,F37-S3,F37-S2,CONCLUÍDA,Codex,,Windows local; PG/Redis próprios; Chromium desktop/mobile emulado,2026-10-18; F37 encerrada por pedido do usuário,539 backend; 13 PG próprios,0,execucao-f37.md; output/roadmap-f37/source-manifest.json; evidencias/f37-2026-10-18,,APROVADO LOCALMENTE
+F37,Botão com alternativas de acesso,21,3,F37-S4,F37-S3,CONCLUÍDA,Codex,,Windows local; PG/Redis próprios; Chromium desktop/mobile emulado,2026-10-18; F37 encerrada por pedido do usuário,330 frontend; stepper; renderer/estado público compartilhados,0,execucao-f37.md; output/roadmap-f37/source-manifest.json; evidencias/f37-2026-10-18,,APROVADO LOCALMENTE
+F37,Botão com alternativas de acesso,21,3,F37-S5,F37-S4,CONCLUÍDA,Codex,,Windows local; PG/Redis próprios; Chromium desktop/mobile emulado,2026-10-18; F37 encerrada por pedido do usuário,129 PG afetados em catorze arquivos,0,execucao-f37.md; output/roadmap-f37/source-manifest.json; evidencias/f37-2026-10-18,,APROVADO LOCALMENTE
+F37,Botão com alternativas de acesso,21,3,F37-S6,F37-S5,CONCLUÍDA,Codex,,Windows local; PG/Redis próprios; Chromium desktop/mobile emulado,2026-10-18; F37 encerrada por pedido do usuário,Playwright F37 8/8; 26 capturas revisadas,0,execucao-f37.md; output/roadmap-f37/source-manifest.json; evidencias/f37-2026-10-18,,APROVADO LOCALMENTE
+F37,Botão com alternativas de acesso,21,3,F37-S7,F37-S6,EM REVISÃO,Codex,,Windows local; PG/Redis próprios; Chromium desktop/mobile emulado,2026-10-18; F37 encerrada por pedido do usuário,E2E 81/81; reversão; CI/liberação pendentes,0,execucao-f37.md; output/roadmap-f37/source-manifest.json; evidencias/f37-2026-10-18,REG-F03-001 global preexistente; CI/plataformas físicas/liberação remotos pendentes,EM REVISÃO; sem liberação remota
+F38,Exportação do perfil,22,3,F38-S0,F42 G00 F09 F19,NAO_INICIADA,,,,,,,,,
+F38,Exportação do perfil,22,3,F38-S1,F38-S0,NAO_INICIADA,,,,,,,,,
+F38,Exportação do perfil,22,3,F38-S2,F38-S1,NAO_INICIADA,,,,,,,,,
+F38,Exportação do perfil,22,3,F38-S3,F38-S2,NAO_INICIADA,,,,,,,,,
+F38,Exportação do perfil,22,3,F38-S4,F38-S3,NAO_INICIADA,,,,,,,,,
+F38,Exportação do perfil,22,3,F38-S5,F38-S4,NAO_INICIADA,,,,,,,,,
+F38,Exportação do perfil,22,3,F38-S6,F38-S5,NAO_INICIADA,,,,,,,,,
+F38,Exportação do perfil,22,3,F38-S7,F38-S6,NAO_INICIADA,,,,,,,,,
+F05,Seguir nichos,23,4,F05-S0,F42 G00 F02,NAO_INICIADA,,,,,,,,,
+F05,Seguir nichos,23,4,F05-S1,F05-S0,NAO_INICIADA,,,,,,,,,
+F05,Seguir nichos,23,4,F05-S2,F05-S1,NAO_INICIADA,,,,,,,,,
+F05,Seguir nichos,23,4,F05-S3,F05-S2,NAO_INICIADA,,,,,,,,,
+F05,Seguir nichos,23,4,F05-S4,F05-S3,NAO_INICIADA,,,,,,,,,
+F05,Seguir nichos,23,4,F05-S5,F05-S4,NAO_INICIADA,,,,,,,,,
+F05,Seguir nichos,23,4,F05-S6,F05-S5,NAO_INICIADA,,,,,,,,,
+F05,Seguir nichos,23,4,F05-S7,F05-S6,NAO_INICIADA,,,,,,,,,
+F15,Página por campanha,24,4,F15-S0,F42 G00 F09 F19,NAO_INICIADA,,,,,,,,,
+F15,Página por campanha,24,4,F15-S1,F15-S0,NAO_INICIADA,,,,,,,,,
+F15,Página por campanha,24,4,F15-S2,F15-S1,NAO_INICIADA,,,,,,,,,
+F15,Página por campanha,24,4,F15-S3,F15-S2,NAO_INICIADA,,,,,,,,,
+F15,Página por campanha,24,4,F15-S4,F15-S3,NAO_INICIADA,,,,,,,,,
+F15,Página por campanha,24,4,F15-S5,F15-S4,NAO_INICIADA,,,,,,,,,
+F15,Página por campanha,24,4,F15-S6,F15-S5,NAO_INICIADA,,,,,,,,,
+F15,Página por campanha,24,4,F15-S7,F15-S6,NAO_INICIADA,,,,,,,,,
+F20,Equipe e permissões,25,4,F20-S0,F42 G00 F09,NAO_INICIADA,,,,,,,,,
+F20,Equipe e permissões,25,4,F20-S1,F20-S0,NAO_INICIADA,,,,,,,,,
+F20,Equipe e permissões,25,4,F20-S2,F20-S1,NAO_INICIADA,,,,,,,,,
+F20,Equipe e permissões,25,4,F20-S3,F20-S2,NAO_INICIADA,,,,,,,,,
+F20,Equipe e permissões,25,4,F20-S4,F20-S3,NAO_INICIADA,,,,,,,,,
+F20,Equipe e permissões,25,4,F20-S5,F20-S4,NAO_INICIADA,,,,,,,,,
+F20,Equipe e permissões,25,4,F20-S6,F20-S5,NAO_INICIADA,,,,,,,,,
+F20,Equipe e permissões,25,4,F20-S7,F20-S6,NAO_INICIADA,,,,,,,,,
+F21,Mídia kit do divulgador,26,4,F21-S0,F42 G00 F09 F01,NAO_INICIADA,,,,,,,,,
+F21,Mídia kit do divulgador,26,4,F21-S1,F21-S0,NAO_INICIADA,,,,,,,,,
+F21,Mídia kit do divulgador,26,4,F21-S2,F21-S1,NAO_INICIADA,,,,,,,,,
+F21,Mídia kit do divulgador,26,4,F21-S3,F21-S2,NAO_INICIADA,,,,,,,,,
+F21,Mídia kit do divulgador,26,4,F21-S4,F21-S3,NAO_INICIADA,,,,,,,,,
+F21,Mídia kit do divulgador,26,4,F21-S5,F21-S4,NAO_INICIADA,,,,,,,,,
+F21,Mídia kit do divulgador,26,4,F21-S6,F21-S5,NAO_INICIADA,,,,,,,,,
+F21,Mídia kit do divulgador,26,4,F21-S7,F21-S6,NAO_INICIADA,,,,,,,,,
+F22,Formulário de contato na página,27,4,F22-S0,F42 G00 F09 F20,NAO_INICIADA,,,,,,,,,
+F22,Formulário de contato na página,27,4,F22-S1,F22-S0,NAO_INICIADA,,,,,,,,,
+F22,Formulário de contato na página,27,4,F22-S2,F22-S1,NAO_INICIADA,,,,,,,,,
+F22,Formulário de contato na página,27,4,F22-S3,F22-S2,NAO_INICIADA,,,,,,,,,
+F22,Formulário de contato na página,27,4,F22-S4,F22-S3,NAO_INICIADA,,,,,,,,,
+F22,Formulário de contato na página,27,4,F22-S5,F22-S4,NAO_INICIADA,,,,,,,,,
+F22,Formulário de contato na página,27,4,F22-S6,F22-S5,NAO_INICIADA,,,,,,,,,
+F22,Formulário de contato na página,27,4,F22-S7,F22-S6,NAO_INICIADA,,,,,,,,,
+F23,Distribuidor de convites,28,4,F23-S0,F42 G00 F12,NAO_INICIADA,,,,,,,,,
+F23,Distribuidor de convites,28,4,F23-S1,F23-S0,NAO_INICIADA,,,,,,,,,
+F23,Distribuidor de convites,28,4,F23-S2,F23-S1,NAO_INICIADA,,,,,,,,,
+F23,Distribuidor de convites,28,4,F23-S3,F23-S2,NAO_INICIADA,,,,,,,,,
+F23,Distribuidor de convites,28,4,F23-S4,F23-S3,NAO_INICIADA,,,,,,,,,
+F23,Distribuidor de convites,28,4,F23-S5,F23-S4,NAO_INICIADA,,,,,,,,,
+F23,Distribuidor de convites,28,4,F23-S6,F23-S5,NAO_INICIADA,,,,,,,,,
+F23,Distribuidor de convites,28,4,F23-S7,F23-S6,NAO_INICIADA,,,,,,,,,
+F25,Assistente de criação de perfil,29,4,F25-S0,F42 G00 F09 F16 F17,NAO_INICIADA,,,,,,,,,
+F25,Assistente de criação de perfil,29,4,F25-S1,F25-S0,NAO_INICIADA,,,,,,,,,
+F25,Assistente de criação de perfil,29,4,F25-S2,F25-S1,NAO_INICIADA,,,,,,,,,
+F25,Assistente de criação de perfil,29,4,F25-S3,F25-S2,NAO_INICIADA,,,,,,,,,
+F25,Assistente de criação de perfil,29,4,F25-S4,F25-S3,NAO_INICIADA,,,,,,,,,
+F25,Assistente de criação de perfil,29,4,F25-S5,F25-S4,NAO_INICIADA,,,,,,,,,
+F25,Assistente de criação de perfil,29,4,F25-S6,F25-S5,NAO_INICIADA,,,,,,,,,
+F25,Assistente de criação de perfil,29,4,F25-S7,F25-S6,NAO_INICIADA,,,,,,,,,
+F28,Comprovação de propriedade,30,4,F28-S0,F42 G00 F12,NAO_INICIADA,,,,,,,,,
+F28,Comprovação de propriedade,30,4,F28-S1,F28-S0,NAO_INICIADA,,,,,,,,,
+F28,Comprovação de propriedade,30,4,F28-S2,F28-S1,NAO_INICIADA,,,,,,,,,
+F28,Comprovação de propriedade,30,4,F28-S3,F28-S2,NAO_INICIADA,,,,,,,,,
+F28,Comprovação de propriedade,30,4,F28-S4,F28-S3,NAO_INICIADA,,,,,,,,,
+F28,Comprovação de propriedade,30,4,F28-S5,F28-S4,NAO_INICIADA,,,,,,,,,
+F28,Comprovação de propriedade,30,4,F28-S6,F28-S5,NAO_INICIADA,,,,,,,,,
+F28,Comprovação de propriedade,30,4,F28-S7,F28-S6,NAO_INICIADA,,,,,,,,,
+F29,Página de evento,31,4,F29-S0,F42 G00 F09 F14,NAO_INICIADA,,,,,,,,,
+F29,Página de evento,31,4,F29-S1,F29-S0,NAO_INICIADA,,,,,,,,,
+F29,Página de evento,31,4,F29-S2,F29-S1,NAO_INICIADA,,,,,,,,,
+F29,Página de evento,31,4,F29-S3,F29-S2,NAO_INICIADA,,,,,,,,,
+F29,Página de evento,31,4,F29-S4,F29-S3,NAO_INICIADA,,,,,,,,,
+F29,Página de evento,31,4,F29-S5,F29-S4,NAO_INICIADA,,,,,,,,,
+F29,Página de evento,31,4,F29-S6,F29-S5,NAO_INICIADA,,,,,,,,,
+F29,Página de evento,31,4,F29-S7,F29-S6,NAO_INICIADA,,,,,,,,,
+F32,Kit de divulgação,32,4,F32-S0,F42 G00 F09 F13,NAO_INICIADA,,,,,,,,,
+F32,Kit de divulgação,32,4,F32-S1,F32-S0,NAO_INICIADA,,,,,,,,,
+F32,Kit de divulgação,32,4,F32-S2,F32-S1,NAO_INICIADA,,,,,,,,,
+F32,Kit de divulgação,32,4,F32-S3,F32-S2,NAO_INICIADA,,,,,,,,,
+F32,Kit de divulgação,32,4,F32-S4,F32-S3,NAO_INICIADA,,,,,,,,,
+F32,Kit de divulgação,32,4,F32-S5,F32-S4,NAO_INICIADA,,,,,,,,,
+F32,Kit de divulgação,32,4,F32-S6,F32-S5,NAO_INICIADA,,,,,,,,,
+F32,Kit de divulgação,32,4,F32-S7,F32-S6,NAO_INICIADA,,,,,,,,,
+F33,Coleções públicas compartilháveis,33,4,F33-S0,F42 G00 F04,NAO_INICIADA,,,,,,,,,
+F33,Coleções públicas compartilháveis,33,4,F33-S1,F33-S0,NAO_INICIADA,,,,,,,,,
+F33,Coleções públicas compartilháveis,33,4,F33-S2,F33-S1,NAO_INICIADA,,,,,,,,,
+F33,Coleções públicas compartilháveis,33,4,F33-S3,F33-S2,NAO_INICIADA,,,,,,,,,
+F33,Coleções públicas compartilháveis,33,4,F33-S4,F33-S3,NAO_INICIADA,,,,,,,,,
+F33,Coleções públicas compartilháveis,33,4,F33-S5,F33-S4,NAO_INICIADA,,,,,,,,,
+F33,Coleções públicas compartilháveis,33,4,F33-S6,F33-S5,NAO_INICIADA,,,,,,,,,
+F33,Coleções públicas compartilháveis,33,4,F33-S7,F33-S6,NAO_INICIADA,,,,,,,,,
+F10,Página premium com subdomínio,34,5,F10-S0,F42 G00 F09 F11 F19 F16,NAO_INICIADA,,,,,,,,,
+F10,Página premium com subdomínio,34,5,F10-S1,F10-S0,NAO_INICIADA,,,,,,,,,
+F10,Página premium com subdomínio,34,5,F10-S2,F10-S1,NAO_INICIADA,,,,,,,,,
+F10,Página premium com subdomínio,34,5,F10-S3,F10-S2,NAO_INICIADA,,,,,,,,,
+F10,Página premium com subdomínio,34,5,F10-S4,F10-S3,NAO_INICIADA,,,,,,,,,
+F10,Página premium com subdomínio,34,5,F10-S5,F10-S4,NAO_INICIADA,,,,,,,,,
+F10,Página premium com subdomínio,34,5,F10-S6,F10-S5,NAO_INICIADA,,,,,,,,,
+F10,Página premium com subdomínio,34,5,F10-S7,F10-S6,NAO_INICIADA,,,,,,,,,
+F24,Descoberta de perfis,35,5,F24-S0,F42 G00 F09 F03,NAO_INICIADA,,,,,,,,,
+F24,Descoberta de perfis,35,5,F24-S1,F24-S0,NAO_INICIADA,,,,,,,,,
+F24,Descoberta de perfis,35,5,F24-S2,F24-S1,NAO_INICIADA,,,,,,,,,
+F24,Descoberta de perfis,35,5,F24-S3,F24-S2,NAO_INICIADA,,,,,,,,,
+F24,Descoberta de perfis,35,5,F24-S4,F24-S3,NAO_INICIADA,,,,,,,,,
+F24,Descoberta de perfis,35,5,F24-S5,F24-S4,NAO_INICIADA,,,,,,,,,
+F24,Descoberta de perfis,35,5,F24-S6,F24-S5,NAO_INICIADA,,,,,,,,,
+F24,Descoberta de perfis,35,5,F24-S7,F24-S6,NAO_INICIADA,,,,,,,,,
+F30,Integrações e avisos automáticos,36,5,F30-S0,F42 G00 F22 F02,NAO_INICIADA,,,,,,,,,
+F30,Integrações e avisos automáticos,36,5,F30-S1,F30-S0,NAO_INICIADA,,,,,,,,,
+F30,Integrações e avisos automáticos,36,5,F30-S2,F30-S1,NAO_INICIADA,,,,,,,,,
+F30,Integrações e avisos automáticos,36,5,F30-S3,F30-S2,NAO_INICIADA,,,,,,,,,
+F30,Integrações e avisos automáticos,36,5,F30-S4,F30-S3,NAO_INICIADA,,,,,,,,,
+F30,Integrações e avisos automáticos,36,5,F30-S5,F30-S4,NAO_INICIADA,,,,,,,,,
+F30,Integrações e avisos automáticos,36,5,F30-S6,F30-S5,NAO_INICIADA,,,,,,,,,
+F30,Integrações e avisos automáticos,36,5,F30-S7,F30-S6,NAO_INICIADA,,,,,,,,,
+F35,Central de contatos recebidos,37,5,F35-S0,F42 G00 F22 F20,NAO_INICIADA,,,,,,,,,
+F35,Central de contatos recebidos,37,5,F35-S1,F35-S0,NAO_INICIADA,,,,,,,,,
+F35,Central de contatos recebidos,37,5,F35-S2,F35-S1,NAO_INICIADA,,,,,,,,,
+F35,Central de contatos recebidos,37,5,F35-S3,F35-S2,NAO_INICIADA,,,,,,,,,
+F35,Central de contatos recebidos,37,5,F35-S4,F35-S3,NAO_INICIADA,,,,,,,,,
+F35,Central de contatos recebidos,37,5,F35-S5,F35-S4,NAO_INICIADA,,,,,,,,,
+F35,Central de contatos recebidos,37,5,F35-S6,F35-S5,NAO_INICIADA,,,,,,,,,
+F35,Central de contatos recebidos,37,5,F35-S7,F35-S6,NAO_INICIADA,,,,,,,,,
+F39,Página em vários idiomas,38,5,F39-S0,F42 G00 F09 F19,NAO_INICIADA,,,,,,,,,
+F39,Página em vários idiomas,38,5,F39-S1,F39-S0,NAO_INICIADA,,,,,,,,,
+F39,Página em vários idiomas,38,5,F39-S2,F39-S1,NAO_INICIADA,,,,,,,,,
+F39,Página em vários idiomas,38,5,F39-S3,F39-S2,NAO_INICIADA,,,,,,,,,
+F39,Página em vários idiomas,38,5,F39-S4,F39-S3,NAO_INICIADA,,,,,,,,,
+F39,Página em vários idiomas,38,5,F39-S5,F39-S4,NAO_INICIADA,,,,,,,,,
+F39,Página em vários idiomas,38,5,F39-S6,F39-S5,NAO_INICIADA,,,,,,,,,
+F39,Página em vários idiomas,38,5,F39-S7,F39-S6,NAO_INICIADA,,,,,,,,,
+F26,Teste de versões de botões,39,6,F26-S0,F42 G00 F09 F31,NAO_INICIADA,,,,,,,,,
+F26,Teste de versões de botões,39,6,F26-S1,F26-S0,NAO_INICIADA,,,,,,,,,
+F26,Teste de versões de botões,39,6,F26-S2,F26-S1,NAO_INICIADA,,,,,,,,,
+F26,Teste de versões de botões,39,6,F26-S3,F26-S2,NAO_INICIADA,,,,,,,,,
+F26,Teste de versões de botões,39,6,F26-S4,F26-S3,NAO_INICIADA,,,,,,,,,
+F26,Teste de versões de botões,39,6,F26-S5,F26-S4,NAO_INICIADA,,,,,,,,,
+F26,Teste de versões de botões,39,6,F26-S6,F26-S5,NAO_INICIADA,,,,,,,,,
+F26,Teste de versões de botões,39,6,F26-S7,F26-S6,NAO_INICIADA,,,,,,,,,
+F36,Pacotes para agências,40,6,F36-S0,F42 G00 F20 F11 F21,NAO_INICIADA,,,,,,,,,
+F36,Pacotes para agências,40,6,F36-S1,F36-S0,NAO_INICIADA,,,,,,,,,
+F36,Pacotes para agências,40,6,F36-S2,F36-S1,NAO_INICIADA,,,,,,,,,
+F36,Pacotes para agências,40,6,F36-S3,F36-S2,NAO_INICIADA,,,,,,,,,
+F36,Pacotes para agências,40,6,F36-S4,F36-S3,NAO_INICIADA,,,,,,,,,
+F36,Pacotes para agências,40,6,F36-S5,F36-S4,NAO_INICIADA,,,,,,,,,
+F36,Pacotes para agências,40,6,F36-S6,F36-S5,NAO_INICIADA,,,,,,,,,
+F36,Pacotes para agências,40,6,F36-S7,F36-S6,NAO_INICIADA,,,,,,,,,
+F40,Diagnóstico da página,41,6,F40-S0,F42 G00 F09 F07 F31,NAO_INICIADA,,,,,,,,,
+F40,Diagnóstico da página,41,6,F40-S1,F40-S0,NAO_INICIADA,,,,,,,,,
+F40,Diagnóstico da página,41,6,F40-S2,F40-S1,NAO_INICIADA,,,,,,,,,
+F40,Diagnóstico da página,41,6,F40-S3,F40-S2,NAO_INICIADA,,,,,,,,,
+F40,Diagnóstico da página,41,6,F40-S4,F40-S3,NAO_INICIADA,,,,,,,,,
+F40,Diagnóstico da página,41,6,F40-S5,F40-S4,NAO_INICIADA,,,,,,,,,
+F40,Diagnóstico da página,41,6,F40-S6,F40-S5,NAO_INICIADA,,,,,,,,,
+F40,Diagnóstico da página,41,6,F40-S7,F40-S6,NAO_INICIADA,,,,,,,,,
+F41,App instalável,42,6,F41-S0,F42 G00 F09,NAO_INICIADA,,,,,,,,,
+F41,App instalável,42,6,F41-S1,F41-S0,NAO_INICIADA,,,,,,,,,
+F41,App instalável,42,6,F41-S2,F41-S1,NAO_INICIADA,,,,,,,,,
+F41,App instalável,42,6,F41-S3,F41-S2,NAO_INICIADA,,,,,,,,,
+F41,App instalável,42,6,F41-S4,F41-S3,NAO_INICIADA,,,,,,,,,
+F41,App instalável,42,6,F41-S5,F41-S4,NAO_INICIADA,,,,,,,,,
+F41,App instalável,42,6,F41-S6,F41-S5,NAO_INICIADA,,,,,,,,,
+F41,App instalável,42,6,F41-S7,F41-S6,NAO_INICIADA,,,,,,,,,

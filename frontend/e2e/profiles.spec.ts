@@ -278,7 +278,7 @@ test('F09-E01/T03/T04/T05 grupos, ordem, redes, foto e botão principal; prévia
   await step(page, 3)
   let releasePreview = () => {}
   const previewHeld = new Promise<void>(resolve => { releasePreview = resolve })
-  await page.route('**/bff/v1/me/profile/preview', async route => { await previewHeld; await route.continue() })
+  await page.route('**/bff/v1/me/profile/preview/items', async route => { await previewHeld; await route.continue() })
   try {
     await page.getByRole('button', { name: 'Ver prévia', exact: true }).click()
     await expect(page).toHaveURL(A + '/painel/perfil/previa')

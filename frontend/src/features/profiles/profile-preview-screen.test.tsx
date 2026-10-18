@@ -7,10 +7,10 @@ vi.mock('./profile-api', () => ({ profileRequest: request }))
 afterEach(() => { cleanup(); vi.resetAllMocks() })
 
 it('carrega somente a prévia da sessão e mantém o aviso e o retorno visíveis', async () => {
-  request.mockResolvedValueOnce({ ...emptyProfile(), name: 'Rascunho da Ana', restricted: false, publishedRevisionId: 1 })
+  request.mockResolvedValueOnce({ ...emptyProfile(), name: 'Rascunho da Ana', restricted: false, publishedRevisionId: 1,search:{filters:{q:'',categoryId:null,cursor:null},groups:[],total:0,nextCursor:null} })
   render(<ProfilePreviewScreen />)
   await screen.findByRole('heading', { name: 'Rascunho da Ana' })
-  expect(request).toHaveBeenCalledWith('/preview')
+  expect(request).toHaveBeenCalledWith('/preview/items')
   expect(screen.getByRole('region', { name: 'Modo de prévia' })).toBeTruthy()
   expect(screen.getByRole('link', { name: 'Voltar à edição' }).getAttribute('href')).toBe('/painel/perfil')
 })

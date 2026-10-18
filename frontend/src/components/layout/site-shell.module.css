@@ -32,3 +32,5 @@
   .nav a { justify-content: flex-start; width: 100%; }
   .footer { padding: var(--space-6) var(--space-4); }
 }
+
+.menuToggle:disabled { cursor: progress; }

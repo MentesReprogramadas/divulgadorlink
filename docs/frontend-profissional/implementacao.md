@@ -309,3 +309,51 @@ Migração aplicada apenas ao banco descartável e ao desenvolvimento confirmado
 A assinatura passou a texto de 9 px e logo de 66 px, sem cápsula ou fundo, no rodapé da página e da prévia. Os quatro snapshots Windows foram comparados e aprovados após inspeção: as diferenças estão restritas à marca. A publicação de Minha página e Convites agora usa decisão automática ou fila humana por categoria, motivo de recusa e uma contestação por envio, por novo pedido expresso. As regras anteriores de bloqueio editorial definitivo foram superadas; bloqueios técnicos de segurança continuam obrigatórios. Histórico desta personalização permanece acima.
 
 Contrato, migração, critérios, resultados (229 unitários frontend, 436 backend, 46 PostgreSQL, 44 E2E e duas jornadas visuais), limites e reversão em [Revisão de páginas e convites](revisao-paginas-convites.md). Na primeira entrega a revisão destes tipos ocorria no admin. O pedido seguinte ampliou a decisão para WhatsApp, registrado no complemento do mesmo documento.
+
+## F19 — histórico da Minha página, 17/10/2026
+
+Entrada Histórico aguarda o autosave e abre publicações anteriores com comparação semântica, diferenças em destaque, campos iguais recolhidos e restauração explicitamente confirmada. Reutiliza a prévia privada atual. Snapshots privados imutáveis não substituem a projeção pública. Fotos antigas removidas são omitidas na restauração, com aviso. Skeletons compartilham geometria/CSS dos cards; oito capturas inspecionadas e espaçamento conferido no E2E. Decisões/alternativas, limites e evidências em [execução F19](../planejamento-features/execucao-f19.md).
+
+## F08 — oportunidades de busca, 17/10/2026
+
+Área de gestão ganhou a opção Buscas com filtros padronizados, oportunidade, período, rede/nicho dos resultados e controles recolhíveis no mobile. Cards de demanda distinguem falta de oferta e pouca interação; cobertura e amostra ficam explícitas. Esqueleto de atualização preserva altura, posição, explicação e scroll. A regressão também comprovou e corrigiu o menu mobile habilitado antes da hidratação: estado desabilitado/ocupado até o handler ficar pronto. Oito capturas inspecionadas; 32 E2E, 19 PG, 264 unitários frontend e 473 backend. Sem nova biblioteca visual, commit, push ou deploy. [Decisões, alternativas, critérios e reversão](../planejamento-features/execucao-f08.md).
+
+## F11 — assinaturas de páginas, 17/10/2026
+
+Rotas `/painel/assinatura` e `/admin/assinaturas`: comparação de planos, situação/cobertura, confirmação explícita, cancelamento de renovação e troca no próximo ciclo; administração com listagem e formulários em modal/etapas. Ações à direita, componentes locais, CSS Modules e dezesseis capturas inspecionadas. O gratuito e a marca continuam preservados; venda de recursos futuros permanece bloqueada. Nenhuma biblioteca visual adicionada. Dez E2E específicos e 69 de regressão aprovados, além de 212 PG e checks locais. [Contratos, escolhas/alternativas, migração, segurança e reversão](../planejamento-features/execucao-f11.md). S7 remoto/comercial continua em revisão, sem commit/push/deploy.
+
+## F13 — QR compartilhado
+
+Modal específico composto com controles existentes, CSS Module e qrcode já instalado, sem alterar Pix. Skeleton 13rem com geometria idêntica, seleção PNG/SVG/tamanho, erro/retry, aviso de permanência e retorno explícito de foco após consulta assíncrona. Revisão visual e testes registrados em [execução F13](../planejamento-features/execucao-f13.md) e evidências F13. Nenhum token/biblioteca visual nova.
+
+## F14 — agenda na página
+
+Ação Agendar nos botões com capacidade vigente; modal separado com DatePicker/Select locais, pausa, validação ligada ao campo e confirmação no rascunho. A prévia existente permite Agora/Antes/Depois. Renderer público continua SSR e filtra no servidor; atualização preserva geometria de títulos longos, sem links vencidos clicáveis no erro. 18 capturas inspecionadas, 85 E2E de regressão e 6 finais sobrepostos, 219 PG; [execução F14](../planejamento-features/execucao-f14.md). Sem biblioteca visual ou token novo.
+
+## F16 — modelos por atividade
+
+Cinco modelos declarativos com o ProfileView real; filtro, prévia em duas etapas, preservar por padrão e substituir com confirmação explícita. Exemplos ocultos precisam configurar destino no editor e passar pela moderação normal. Ajuste aria-current contextual em Modelos/Histórico; skeleton corresponde à composição de cards. 28 capturas inspecionadas, 117 E2E e seis finais sobrepostos, 227 PG. [Execução F16](../planejamento-features/execucao-f16.md). Sem lib de UI/token novo.
+
+## F17 — importação revisada para a página
+
+Fluxo Colar/Revisar/Confirmar, filtro com motivos por linha, edição isolada em modal e confirmação obrigatória. Nome real do grupo aparece na lista; skeleton usa a composição do formulário. Sucesso somente após commit, com retry durável mesmo se a resposta se perder. Não cria Link no catálogo nem publica automaticamente. 20 capturas inspecionadas, 233 PG, 123 E2E e seis finais sobrepostos. [Execução F17](../planejamento-features/execucao-f17.md).
+
+## F18 — busca contextual na página pessoal
+
+Controles locais abaixo da identidade, grupo/texto AND e ações à direita; mesmo ProfileView no público/prévia, com skeleton sem href obsoleto e estados locais de vazio/erro. CSS Module corrige a largura herdada de form e aplica tema pessoal aos campos/hover/paginação. Timer servidor compartilhado com consumidor anterior, sem nova regra comercial. 20 capturas finais inspecionadas; teclado/foco/Axe nos estados exercitados, 239 PG, 129 E2E e seis finais sobrepostos. [Execução e alternativas](../planejamento-features/execucao-f18.md). Parada ao concluir F18; CI/liberação remotos pendentes.
+
+## F27 — filtros declarados de cidade/idioma/participação
+
+Filtros locais padronizados e combinados no catálogo/busca/nicho/rede; opcionais na terceira etapa de criar link, em modal separado. Edição em tab local, versão/erro/retry e skeleton equivalente. 18 capturas inspecionadas e seis E2E finais próprios; regressões globais e limites documentados na [execução F27](../planejamento-features/execucao-f27.md). Nenhuma nova biblioteca visual ou token; ErrorState ganhou variante compacta para manter Salvar visível após erro, com default anterior preservado.
+
+## F31 — métricas da página
+
+Tela privada com ações externas à direita, filtros em card, vazio único, totais e alcance sem inferir leitura. Dataset insuficiente não gera lista repetitiva de números zero; a ausência da própria página oferece Criar minha página. Mesmo ProfileView público/prévia; observação apenas na composição pública, com finalidade específica. Skeleton preserva o vazio e a geometria medida; erros em português e recuperação mantêm filtros. 12 capturas revisadas, oito E2E próprios e 152 de regressão com sobreposição. PG global com uma pendência antiga F03; [execução e limites](../planejamento-features/execucao-f31.md).
+
+## F34 — checklist
+
+Quatro etapas obrigatórias e três sugestões, progresso do servidor e ações para seções do editor existente. Prévia/cópia explicitam seus limites. Atualização preserva dimensões medidas em desktop/mobile; espaçamento mobile corrigido após revisão nativa. [14 capturas e validação](evidencias/f34-2026-10-18/README.md); [contratos/testes/reversão](../planejamento-features/execucao-f34.md).
+
+## F37 — alternativas de acesso
+
+Grupos de canais com escolha humana, fontes aprovadas F12, pausa a publicar, validação por rede e clique revalidado. Listagem/filtros, formulário separado com stepper e configuração em duas etapas; prévia/renderer/histórico existentes. Recuperação pública usa página pessoal e pequena marca, sem chrome geral. [26 capturas](evidencias/f37-2026-10-18/README.md); [contratos/testes/escolhas/reversão](../planejamento-features/execucao-f37.md).

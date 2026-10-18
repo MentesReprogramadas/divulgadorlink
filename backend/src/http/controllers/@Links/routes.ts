@@ -35,6 +35,7 @@ import { preRefuse } from '@/use-cases/@Moderation/pre-refuse'
 import { registerAppealRoute } from '@/http/controllers/@Admin/moderation'
 import { getModerationCasesRepository } from '@/repositories/moderation-cases-repository'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
+import {discoveryFields,parseDiscovery,cityById} from '@/domain/catalog/discovery-metadata'
 
 export const submitLinkBodySchema = z
   .object({
@@ -44,6 +45,7 @@ export const submitLinkBodySchema = z
     networkId: z.string().min(1),
     nicheId: z.string().min(1),
     otherNote: z.string().optional(),
+    ...discoveryFields,
   })
   .strict()
 
@@ -266,6 +268,7 @@ async function createLink(request: FastifyRequest, reply: FastifyReply) {
         networkId: network.id,
         nicheId: niche.id,
         otherNote: body.otherNote ?? null,
+        ...parseDiscovery(body),
       },
       (openSlots) => {
         try {
@@ -485,6 +488,7 @@ async function listMine(request: FastifyRequest, reply: FastifyReply) {
         network: { name: network?.name ?? '', slug: network?.slug ?? '' },
         niche: { name: niche?.name ?? '', slug: niche?.slug ?? '' },
         pendingText,
+        discovery:{...parseDiscovery(link),city:cityById(link.cityId),version:link.discoveryVersion??0},
       })
     }
     return reply.status(200).send({

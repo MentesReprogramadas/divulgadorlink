@@ -1,0 +1,62 @@
+# F16 — Modelos por atividade
+
+Estado: S0–S6 concluídas localmente em 17–18/10/2026; S7 em revisão por CI/liberação remotos pendentes. Continuidade para F17 autorizada, sem Git/deploy.
+
+## D18 — escolhas de implementação
+
+- Cinco modelos versionados em código: comunidades/grupos, criadores, lojas, profissionais e eventos. Reutilizar tokens/validação de aparência e o único ProfileView, tanto na seleção quanto na prévia existente. Não introduzir CMS, outra árvore de página ou biblioteca de UI. Modelos usam grupos/botões/identidade já disponíveis; não antecipam os blocos ricos pagos de outra feature.
+- Prévia demonstrativa mostra dados fictícios identificados como exemplo, sem gravar ou publicar. Nome, endereço, descrição e foto reais são preservados na aplicação; dados pessoais fictícios da demonstração não vão para a identidade salva. A estrutura e os textos dos botões são editáveis no editor atual.
+- Página configurada: padrão manter meus grupos e links, aplicando apenas aparência. Substituir estrutura exige confirmação explícita, versão atual e resumo do que será removido; identidade/endereço ficam preservados. Alternativas: substituir silenciosamente, mesclar por nomes ambíguos ou criar cópia inteira de renderer; descartadas por perda/duplicação e manutenção. Reaplicar não deve acumular grupos.
+- Para página vazia/substituição, exemplos de botões começam ocultos e marcados como exemplo. A publicação deve recusar um exemplo tornado visível até o destino ser configurado; não basta confiar em badge/checkbox. Ao configurar pelo formulário, pedir endereço real obrigatório e reaproveitar moderação/segurança/publicação normais. Avaliar um marcador mínimo no item/snapshot, sem nova tabela de templates ou trilha comercial. Alternativas: salvar exemplos como links comuns prontos para publicação ou proibir example.com globalmente; descartadas por publicação acidental e regressão dos links legítimos existentes.
+- F19 conserva publicações anteriores; aplicar modelo muda somente o rascunho. Não alegar que o histórico atual guarda todo rascunho descartado: substituição de alterações não publicadas precisa aviso/confirmacão claros. Não criar retenção nova por conveniência.
+
+## Contrato fechado para a próxima fatia
+
+GET `/profile-templates` retorna somente catálogo público fictício/configurações versionadas. POST privado `/me/profile/apply-template` recebe `templateVersionId,preserveContent,expectedVersion,confirmedReplacement`, sem aceitar dono/tenant/CSS/HTML do corpo. Exige rascunho com identidade válida já salvo; a UI usa o flush atual antes da operação. Manter conteúdo aplica somente aparência quando já há grupos/itens; em página vazia cria estrutura. Substituir grupos/links exige confirmação explícita e preserva identidade, slug, foto e bio. Operação no lock/versão da página, sem outro escritor de autosave: concorrência/reenvio obsoleto pode retornar 409, preservando o resultado único; sem efeito externo que justifique uma tabela de idempotência nova.
+
+Para exemplos editáveis, usar marcador mínimo `templateExample` no item e nos snapshots, default false/ausente para conteúdo antigo. Apenas aplicação do catálogo cria true. Salvar normalmente não confia no marcador enviado: preserva o true original enquanto o mesmo destino/tipo não for alterado; editar só label/visibilidade não o libera. Novos itens não ganham dispensa por forjar true. Configurar um exemplo abre o formulário existente com destino vazio obrigatório e visibilidade ativada; concluir segue o salvamento e a validação normais. Não tornar um exemplo visível/publicável por mero toggle.
+
+Publicar recusa exemplo visível; projeção pública/prévia real sempre o exclui, mesmo em defesa de snapshots legados. Exemplos ocultos genuínos não devem provocar probes de URLs fictícias ou enviar texto fictício para a IA: a validação usa conteúdo real, preservando os exemplos apenas no rascunho/snapshot privado. Rascunho completo deve continuar consistente em publicação automática/humana/WhatsApp e F19, para não deixar um banner permanente de alterações por perder os itens ocultos. Não alterar moderação de itens reais; testes devem provar que forjar o marcador não contorna a revisão.
+
+Modelos utilizam apenas aparência/grupos/botões que já são gratuitos; não criam agendamento ou bloco rico pago, e preservar conteúdo mantém a agenda F14. Limites existentes de 100 grupos/500 itens e os controles atuais de publicação continuam no servidor. Nenhum preço ou cap novo.
+
+## Inventário reconciliado
+
+Editor tem autosave com um escritor/versionamento, seções Página/Aparência/Grupos, modais locais e confirmação de publicação. `profileAppearance`/`appearanceInput` validam tokens; `ProfileView` já representa os cinco casos com dados/configuração. F19 mantém snapshots publicados e restaurações explícitas; F14 agora acrescenta agendas que uma operação de preservar conteúdo não pode descartar. Conferir application service e versão na mesma transação antes de fechar API/arquivos. Nenhum preço, quota, permissão ou liberação automática será alterado.
+
+## Primeiro RED/GREEN
+
+`profile-templates.spec.ts`: dois testes falharam por catálogo ausente; depois passaram com as cinco atividades/versionIds estáveis, validação existente de aparência, rejeição de estilo/HTML fora da allowlist, versão desconhecida e cópias defensivas. Configuração declarativa no domínio; não há renderer, CMS ou biblioteca novos. Logs `output/roadmap-f16-catalog-red.log` e `roadmap-f16-catalog-green.log`. Ainda não são prova de aplicação/publicação; esses gates seguem pendentes.
+
+## Implementação e provas locais já executadas
+
+- Domínio: mais quatro RED reais e GREEN de preservação, confirmação, identidade, exemplos ocultos e proteção do marcador; seis testes próprios no total. API reaproveita o lock e a escrita do perfil; checagem de referências de catálogo extraída para os dois consumidores, mantendo autorização/tenant. Sem rede em aplicação de modelo e sem segundo escritor de autosave.
+- Migração: ensaio em PostgreSQL próprio **5741/f16**, aplicando primeiro as versões anteriores com item antigo e agenda F14, depois o marcador. Hash dos campos anteriores do item/perfil permaneceu igual e marcador inicial false. `upgrade-proof.json`. Aplicada também em **localhost:5437/divulgador** após confirmar baseline F14, preservando hashes de **25 pedidos, 38 promoções, um perfil e um item**. `development-preservation.json`. Não houve acesso a banco remoto.
+- **Oito PG próprios** passaram, incluindo falha real de INSERT por trigger limitada à fixture e rollback integral de grupos/itens/versão/audit. Concorrência com um vencedor, confirmação, no-op, marcador forjado, segurança de URL, publicação automática/humana, avisos sem URLs fictícias, história/restauração preservando marcadores privados e foto/agenda reais. **51 PG afetados** em cinco arquivos e **227 PG completos em 23 arquivos** passaram. Provas refinadas de foto não nula/restauração foram repetidas nos oito próprios; relatórios se sobrepõem.
+- Backend lint/typecheck/build e **500 unitários/115 arquivos** aprovados; frontend **294 unitários/89 arquivos**, lint/typecheck aprovados no checkpoint de navegação. Novos testes de componente comprovam prévia antes de aplicar, confirmação, erro com escolha preservada, pendência, um envio, filtro, identidade ausente e configuração de exemplo sem o cliente se conceder publicação.
+- **Seis E2E específicos** passaram desktop/mobile. Primeiro E01 teve RED real do Axe: área rolável não focável por teclado. Corrigido com tabIndex/foco visível; Page Down agora é exercitado nos cinco modelos, sem desativar regra. Trace RED em `keyboard-red-results`; GREEN `e2e-keyboard.log`. A regressão ampliada foi concluída com **117/117 cenários aprovados**, incluindo moderação, Evolution e todos os consumidores relacionados.
+- Inspeção inicial encontrou a seção Minha página sem destaque nas subrotas. Corrigida com aria-current=location no contexto, mantendo page apenas no destino exato e sem selecionar Links junto. Teste específico e regressão de navegação incluídos. A confirmação obrigatória tem required e asterisco visual, com escolha preservada e controle de duplicação no servidor.
+
+## Interface e alternativas
+
+Ação Modelos no editor salva o rascunho antes de abrir a listagem. Uma página de escolha, filtro por atividade e cards; nenhuma aba/entrada extra na sidebar. Modelos usam o único ProfileView na demonstração e a prévia existente para conferir dados reais. A demonstração não navega para URLs fictícias. Alternativas de duplicar layouts por profissão, trazer outra biblioteca visual ou misturar formulário e listagem foram descartadas.
+
+Após aplicar, sucesso só com a resposta do servidor. Preservar informa Estilo aplicado e mantém grupos/links/agendas; substituir informa configurar os exemplos. O formulário atual abre o exemplo com destino vazio obrigatório, preserva cancelamento e deixa o servidor remover o marcador após configuração real. Skeleton inicial/atualização usa composição/dimensões dos cards; layout e zoom foram inspecionados no navegador. Sem alteração de preço, quota, capacidade paga ou consentimento.
+
+## Reversão e limites
+
+Retirar a ação/rota de escolha preserva os dados e a página existente; manter o backend com o guard de exemplos e a projeção compatível. **Não fazer downgrade para backend que ignore templateExample**: uma edição antiga poderia perder a proteção e tornar um exemplo publicável. Eventual compensação para downgrade precisa especificação/revisão própria; não resetar banco nem apagar rascunhos/histórico. O mesmo cuidado de projeção de agendas da F14 continua valendo.
+
+Indicador de uso pode usar o audit existente profile.template.applied, com ID de versão/modo/versão do rascunho, sem novo payload de contato/visitante ou marketing. Sem CMS/provedor/dependência nova. CI, deploy, aparelho físico e Safari não foram validados. A prova de teclado atual é Chromium; não chamar o ajuste de prova de Safari apenas pelo texto da regra do Axe. S7 remoto permanece separado.
+
+## Fechamento local S0–S6
+
+Backend: lint/typecheck/build, **500 unitários/115 arquivos**; **227 PG/23 arquivos** em banco descartável novo, incluindo oito F16. Os oito próprios repetidos após refinamentos de assertivas de foto/restauração passaram; relatórios sobrepostos, sem nova implementação backend. Frontend final: lint/typecheck (src+E2E), **294 unitários/89 arquivos** e build Next do harness aprovados. Logs accepted/final/pg-full em output/roadmap-f16; exit code 0. Os testes de domínio F17 iniciados posteriormente não compõem essa contagem histórica.
+
+**117/117 E2E** conjuntos em features/features-mobile, namespace roadmap-f16/offset500: templates, schedules, QR, profiles, redirects, history, billing, content-reviews, evolution-moderation, loading-layout e workspace-layout. Relatório e2e-regression-results.json. **6/6 E2E finais** em playwright.templates.config.ts validam o delta posterior de confirmação obrigatória e acesso por outro ADMIN no navegador; relatório e2e-final-results.json. São sobrepostos, não 123 testes únicos. Nenhum skip/flaky/falha nos relatórios aceitos. Primeira falha de teclado e trace foram preservados, não apagados da narrativa.
+
+**28 capturas finais inspecionadas** em docs/frontend-profissional/evidencias/f16-2026-10-17: cinco prévias, listagem, confirmação, erro/retry, rascunho, público, histórico, skeleton e 320px/200%, desktop/mobile. Conteúdo rolável acessível por Page Down, foco/Escape e retorno ao gatilho; ações alcançáveis por teclado no zoom. Axe A/AA sem violações nos estados exercitados, sem desligar regra. Não equivale a acessibilidade total/Safari/aparelho físico validado.
+
+F16-T01: não existe aplicar antes de conferir a prévia, cancelamento não grava. T02: responsividade/zoom/teclado reais. T03: flag forjada não libera exemplo, configuração real segue a moderação atual e exemplos não entram no público/avisos. T04: substituir exige confirmação; preservar é padrão, identidade/agenda/publicação não mudam, conflito/retry/falha transacional não duplicam nem perdem conteúdo.
+
+Manifesto source-manifest.json sela **45 arquivos** contra a cópia da execução final, antes das mudanças compartilhadas da F17. Migração de upgrade e localhost5437 preservaram dados antigos conforme provas acima. Nenhum banco remoto, mensagem real, pagamento, commit, push, CI remoto ou deploy. S7 permanece em revisão. Reversão descrita acima mantém guards de exemplo e agenda.

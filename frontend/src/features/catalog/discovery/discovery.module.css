@@ -1,0 +1,10 @@
+.fields { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(220px,100%),1fr)); gap: var(--space-4); min-width: 0; }
+.city { position: relative; min-width: 0; }
+.cityList { position: absolute; z-index: 120; top: calc(100% - 8px); left: 0; right: 0; max-height: 240px; overflow-y: auto; margin: 0; padding: 6px; list-style: none; border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--surface-raised); color: var(--text-primary); box-shadow: 0 12px 32px #0a192f26; }
+.cityList li { padding: 12px; min-height: 44px; border-radius: 6px; cursor: pointer; overflow-wrap: anywhere; }
+.cityList li:hover, .cityList li[aria-selected='true'] { background: var(--surface-subtle); }
+.feedback { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; font-size: var(--text-sm); color: var(--text-secondary); }
+.form { display: grid; gap: var(--space-6); width: 100%; max-width: none; margin: 0; }
+.editorForm { gap: var(--space-4); }
+.filtersForm { margin-block: var(--space-6); }
+.filtersForm :global([data-workspace-filters]) { align-items: start; }

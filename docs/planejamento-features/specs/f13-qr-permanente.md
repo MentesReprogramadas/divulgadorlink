@@ -2,7 +2,7 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 13.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
+**Estado:** S0–S6 validadas localmente; S7 em revisão por CI/liberação remotos pendentes. Contrato reconciliado abaixo.
 **Onda:** 3. **Ordem:** 13.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “QR Code permanente”.  
 **Plano:** [F13 implementação](../planos/f13-qr-permanente.md).  
@@ -10,6 +10,16 @@
 **Governança:** [arquitetura](../arquitetura-e-reuso.md), [testes](../qualidade-e-testes.md), [decisões](../decisoes.md), [roadmap](../roadmap-auditavel.md).
 
 ## Objetivo e fronteira
+
+## Reconciliação executável — 17/10/2026
+
+D15 e alternativas em [execução F13](../execucao-f13.md). A ação fica no endereço publicado de Minha página e no detalhe de Convites; reutiliza GET `/me/profile` e `/me/redirects/:id`, sem endpoint, modelo, migração ou worker novo. Perfil usa o slug publicado, convite usa `/r/:UUID`; nunca destino temporário, draft ou token. QR não modifica dados. Idade/moderação/disponibilidade continuam nas rotas públicas existentes. Sem variante de campanha ou rastreamento novo nesta entrega.
+
+Entrada efetiva: origem validada, `{kind: PROFILE|REDIRECT,path}`, formato PNG/SVG e tamanho 256/512/1024. Padrão PNG/512; preto/branco, margem 4, correção M. `qrcode@1.5.4` existente gera os arquivos. `jsqr@1.4.0` é leitor independente somente de QA, licença Apache-2.0. MIME e pixels do download são conferidos no navegador.
+
+Caminhos reais: `frontend/src/features/permanent-qr/{qr-target,generate-qr,qr-dialog}` e testes adjacentes; E2E `frontend/e2e/permanent-qr.spec.ts`, registrado em features e features-mobile. As sugestões de caminhos e cenários PG abaixo são históricas: autorização/isolamento/ausência de efeitos são exercitados pelas APIs reais sobre PostgreSQL no harness E2E. Não há persistência própria que justifique migration/teste PG artificial.
+
+Foco retorna ao acionador capturado antes da revalidação assíncrona; modal reutiliza OverlayDialog/Select/Field/Button/SkeletonRegion. Erro permite tentar novamente, geração antiga é descartada, downloads têm nome/MIME derivados e objeto temporário revogado. A advertência explica a dependência do endereço e plataforma; trocar o slug exige retirar a página do ar conforme regra já existente.
 
 permitir compartilhar perfis e convites em materiais impressos sem trocar o QR a cada atualização do destino.
 

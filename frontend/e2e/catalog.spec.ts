@@ -129,7 +129,7 @@ test('indisponível, inexistente e outro tenant', async ({ browser }) => {
 
 test('busca mostra erro controlado e autocomplete real', async ({ browser }) => {
   const page = await browser.newPage()
-  const document = await page.goto(`${A}/busca?q=receitas`, { waitUntil: 'domcontentloaded' })
+  const document = await page.goto(`${A}/busca?q=FalhaBuscaFixture`, { waitUntil: 'domcontentloaded' })
   expect(await document?.text()).toContain('Carregando')
   await expect(page.locator('main').getByRole('alert')).toBeVisible()
   await expect(page.locator('main').getByRole('alert')).not.toContainText(/prisma|stack|JWT_SECRET/i)

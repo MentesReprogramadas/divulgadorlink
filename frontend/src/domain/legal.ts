@@ -40,9 +40,18 @@ export function legalDocument(contact: string | null): { privacy: LegalDocument;
           ],
         },
         {
-          title: 'Medição do catálogo',
+            title: 'Medição da sua página de links',
+            paragraphs: [
+              'O responsável pela página pode ativar ou pausar a medição. Só coletamos quando o visitante aceita a finalidade Medição da página visitada, em Gerenciar cookies. O aceite antigo para anúncios não ativa essa finalidade. A escolha fica no cookie tla_profile_measure por até 365 dias e pode ser alterada sem autorizar anúncios.',
+              'Medimos visitas, botões visíveis por pelo menos um segundo, cliques e alcance de rolagem em faixas, por publicação e tipo de tela. Rolagem não comprova leitura. Não guardamos conteúdo digitado, destinos, IP, user-agent ou referrer nesses eventos. A sessão original é substituída por um pseudônimo diário por site. Dono, administrador, prévia, suporte, bots, DNT e Global Privacy Control não entram na coleta.',
+              'Eventos são apagados após 180 dias. O relatório exige pelo menos 10 sessões diárias medidas por filtro e não estima pessoas únicas nem visitas sem consentimento. A ausência de amostra é mostrada como indisponível.',
+            ],
+          },
+          {
+            title: 'Medição do catálogo',
           paragraphs: [
             'Os eventos de analytics não guardam IP nem user-agent. Guardam um identificador opaco de sessão, o link, a superfície, o dia e se foi impressão ou clique. Dono e admin não entram nessa contagem.',
+            'Somente com aceite de cookies, medimos termos de busca, categorias dos resultados, quantidade de links e cliques de saída. Descartamos termos com sinais de contatos, documentos ou segredos. As observações usam um pseudônimo diário por sessão e site, sem guardar IP, user-agent ou a sessão original, e são apagadas após 180 dias. O painel mostra apenas grupos com pelo menos 10 buscas. DNT e Global Privacy Control impedem essa coleta.',
             'Eles duram 12 meses e depois são apagados por um processo diário. O dia em que completam 12 meses permanece. Pedido e pagamento não entram nesse apagamento.',
           ],
         },

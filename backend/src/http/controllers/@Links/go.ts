@@ -1,3 +1,4 @@
+import { observeSearchExit } from '@/http/search-observation'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { env } from '@/env'
 import { readSurface } from '@/domain/analytics/surface-token'
@@ -58,6 +59,7 @@ async function goToLink(request: FastifyRequest<{ Params: GoParams }>, reply: Fa
   const origin = token ? readSurface(tenantId, link.id, token, env.JWT_SECRET) : null
   if (origin) {
     await recordClick({ request, reply, link, origin })
+    if (origin === 'search') await observeSearchExit(request, { tenantId, linkId: link.id, ownerId: link.ownerId, queryId: (request.query as { queryId?: unknown }).queryId })
   }
 
   return reply.redirect(link.canonicalUrl)

@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import { supportDatabaseUrl, supportReadContext } from '@/lib/support-read-context'
 
 export type TenantRecord = {
   id: string
@@ -24,12 +25,29 @@ export class InMemoryTenantsRepository implements TenantsRepository {
   }
 }
 
-const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient }
+const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient; supportPrisma?: PrismaClient }
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient()
+const primary = globalForPrisma.prisma ?? new PrismaClient()
+let supportClient = globalForPrisma.supportPrisma
+function readOnlyClient(): PrismaClient {
+  if (!supportClient) {
+    supportClient = new PrismaClient({ datasourceUrl: supportDatabaseUrl(process.env.DATABASE_URL!) })
+    if (process.env.NODE_ENV !== 'production') globalForPrisma.supportPrisma = supportClient
+  }
+  return supportClient
+}
+// Route all repository access, including raw SQL and interactive transactions,
+// through PostgreSQL's read-only pool while a support GET is executing.
+export const prisma = new Proxy(primary, {
+  get(target, property) {
+    const client = supportReadContext.getStore() ? readOnlyClient() : target
+    const value: unknown = Reflect.get(client, property)
+    return typeof value === 'function' ? value.bind(client) : value
+  },
+})
 
 if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = prisma
+  globalForPrisma.prisma = primary
 }
 
 export class PrismaTenantsRepository implements TenantsRepository {

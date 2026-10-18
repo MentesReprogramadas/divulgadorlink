@@ -7,6 +7,7 @@ const SECRET_KEYS = new Set([
   'token',
   'refreshToken',
   'accessToken',
+  'supportSession',
   'csrf',
   'clientSecret',
   'authorization',

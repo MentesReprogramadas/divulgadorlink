@@ -14,7 +14,22 @@ describe('sessão por cookie no cliente', () => {
 
   afterEach(() => {
     vi.unstubAllGlobals()
+    delete document.body.dataset.support
     document.cookie = 'csrf=; Path=/; Max-Age=0'
+  })
+
+  it('support rejects mutations locally and never refreshes a restricted or expired session', async () => {
+    document.body.dataset.support = 'true'
+    const fetchMock = vi.fn<(url: string, init: RequestInit) => Promise<Response>>().mockImplementation(async () => reply(401))
+    vi.stubGlobal('fetch', fetchMock)
+    const mutation = await api('/v1/me/profile', { method: 'PATCH', body: '{}' })
+    expect(mutation.status).toBe(403)
+    expect(fetchMock).not.toHaveBeenCalled()
+    expect((await api('/v1/auth/session')).status).toBe(401)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    await api('/v1/support/exit', { method: 'POST' })
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(fetchMock.mock.calls[1]?.[0]).toBe('/bff/v1/support/exit')
   })
 
   it('não guarda nem devolve token no sessionStorage', () => {

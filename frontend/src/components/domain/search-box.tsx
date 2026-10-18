@@ -36,11 +36,13 @@ export function SearchBox({
   label,
   initial = '',
   className,
+  discoveryQuery = "",
 }: {
   id: string
   label: string
   initial?: string
   className?: string
+  discoveryQuery?: string
 }) {
   const router = useRouter()
   const listId = useId()
@@ -78,7 +80,7 @@ export function SearchBox({
     }
     setPending(true)
     setOpen(true)
-    const result = await api<SuggestBody>(`/v1/search/suggest?q=${encodeURIComponent(next)}`).catch(() => ({ status: 503, body: {} as SuggestBody }))
+    const result = await api<SuggestBody>(`/v1/search/suggest?q=${encodeURIComponent(next)}${discoveryQuery ? `&${discoveryQuery}` : ""}`).catch(() => ({ status: 503, body: {} as SuggestBody }))
     if (requestId !== latestRequest.current) return
     setPending(false)
     const body = result.status === 200 ? result.body : {}
@@ -89,9 +91,9 @@ export function SearchBox({
       rows.push({
         key: `facet-${body.facet.kind}-${body.facet.slug}`,
         kind: 'facet',
-        href: body.facet.kind === 'niche'
+        href: (body.facet.kind === 'niche'
           ? `/nicho/${encodeURIComponent(body.facet.slug)}`
-          : `/rede/${encodeURIComponent(body.facet.slug)}`,
+          : `/rede/${encodeURIComponent(body.facet.slug)}`) + (discoveryQuery ? `?${discoveryQuery}` : ""),
         name,
         label: body.facet.kind === 'niche' ? 'Nicho' : 'Rede',
       })
@@ -210,7 +212,7 @@ export function SearchBox({
             </div>
           ) : null}
           {!pending && none ? <p className="search-none">Nenhuma sugestão</p> : null}
-          <a className={styles.allResults} href={`/busca?q=${encodeURIComponent(value)}`}>
+          <a className={styles.allResults} href={`/busca?q=${encodeURIComponent(value)}${discoveryQuery ? `&${discoveryQuery}` : ""}`}>
             Ver todos os resultados <span aria-hidden="true">→</span>
           </a>
         </div>

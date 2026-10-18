@@ -17,6 +17,9 @@ async function handle(request: Request, context: { params: Promise<{ path: strin
     idempotencyKey: request.headers.get('idempotency-key') ?? '',
     csrf: request.headers.get('x-csrf-token') ?? '',
     userAgent: request.headers.get('user-agent') ?? '',
+    dnt: request.headers.get('dnt') ?? '',
+    gpc: request.headers.get('sec-gpc') ?? '',
+    analyticsTest: request.headers.get('x-analytics-test') ?? '',
     body,
   })
   const headers = new Headers()

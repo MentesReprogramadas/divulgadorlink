@@ -3,7 +3,14 @@ export function workspaceHeading(path: string): { title: string; hint: string } 
     "/painel": ["Painel", "Tudo o que você precisa para cuidar dos seus links."],
     "/painel/links": ["Meus links", "Encontre um link e escolha o próximo passo."],
     "/painel/pedidos": ["Meus pedidos", "Pagamentos e destaques, em um só lugar."],
+    "/painel/assinatura": ["Assinatura da minha página", "Seu plano e os próximos pagamentos."],
     "/painel/perfil": ["Minha página de links", "Organize sua página e publique quando estiver pronta."],
+    "/painel/perfil/metricas": ["Métricas da minha página", "Acompanhe a interação com os seus links."],
+    "/painel/perfil/checklist": ["Checklist da minha página", "Veja o próximo passo para publicar e compartilhar."],
+    "/painel/perfil/canais": ["Canais de acesso", "Deixe o visitante escolher onde entrar."],
+    "/painel/perfil/historico": ["Histórico da minha página", "Compare e restaure uma publicação anterior."],
+    "/painel/perfil/modelos": ["Modelos da minha página", "Escolha uma estrutura e personalize no seu rascunho."],
+    "/painel/perfil/importar": ["Importar links para minha página", "Revise e organize antes de adicionar ao rascunho."],
     "/painel/convites": ["Convites permanentes", "Um endereço fixo. O destino você atualiza."],
     "/painel/favoritos": ["Favoritos", "Seus links salvos, organizados por você."],
     "/painel/lembretes": ["Lembretes", "Escolha quais avisos quer receber."],
@@ -13,12 +20,14 @@ export function workspaceHeading(path: string): { title: string; hint: string } 
     "/admin/denuncias": ["Denúncias", "Analise os relatos e acompanhe as decisões."],
     "/admin/disponibilidade": ["Correções de links", "Confira os convites corrigidos pelos responsáveis."],
     "/admin/planos": ["Planos de destaque", "Organize as ofertas disponíveis no checkout."],
+    "/admin/assinaturas": ["Assinaturas de páginas", "Planos mensais e pendências de cobrança."],
     "/admin/estornos": ["Estornos", "Acompanhe as devoluções e tentativas pendentes."],
     "/admin/integracoes": ["Integrações", "Conexões e avisos da operação."],
     "/admin/configuracoes": ["Configurações", "Ajuste as opções e o conteúdo do catálogo."],
   };
   const value = titles[path];
   if (value) return { title: value[0], hint: value[1] };
+  if(path.startsWith('/painel/perfil/canais/'))return{title:path.endsWith('/novo')?'Novo grupo de canais':'Grupo de canais',hint:'Organize as alternativas no rascunho da página.'}
   const linkTasks: Record<string, [string, string]> = {
     editar: ["Editar link", "Atualize os dados do conteúdo que você compartilha."],
     destaque: ["Destacar link", "Confira as opções disponíveis para este link."],

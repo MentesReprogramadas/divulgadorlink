@@ -1,6 +1,7 @@
 'use client'
 
 import { OfficeSkeleton } from '@/features/administration/components/insight-skeleton'
+import { SupportEntry, SUPPORT_RETURN_KEY } from '@/features/support/support-entry'
 
 import { ActionIcon } from '@/components/ui/action-icon'
 
@@ -20,6 +21,7 @@ import { LINK_STATUSES, AdminLinksBoard, type AdminLinkFilter, type AdminLinkRow
 import { FinancePanel } from './finance-panel'
 import { RetentionPanel } from './retention-panel'
 import { TrafficPanel } from './traffic-panel'
+import { SearchOpportunitiesPanel } from '@/features/search-opportunities/search-opportunities-panel'
 
 type Office = {
   windowDays: number
@@ -62,6 +64,7 @@ const USER_STATUS: Record<string, string> = {
 
 const SECTIONS = [
   { id: 'metricas', label: 'Métricas', gloss: 'Totais do site' },
+  { id: 'buscas', label: 'Buscas', gloss: 'Oportunidades de conteúdo' },
   { id: 'trafego', label: 'Tráfego', gloss: 'Visitas, funil e cookies' },
   { id: 'financeiro', label: 'Financeiro', gloss: 'Pix, cartão, horários' },
   { id: 'cliques', label: 'Mais clicados', gloss: 'Últimos 30 dias' },
@@ -72,7 +75,7 @@ const SECTIONS = [
 ] as const
 
 type SectionId = (typeof SECTIONS)[number]['id']
-const SECTION_ICONS = { metricas: 'chart', trafego: 'traffic', financeiro: 'payment', cliques: 'pointer', pagadores: 'payers', contas: 'accounts', links: 'link', retencao: 'retention' } as const
+const SECTION_ICONS = { buscas: 'opportunities', metricas: 'chart', trafego: 'traffic', financeiro: 'payment', cliques: 'pointer', pagadores: 'payers', contas: 'accounts', links: 'link', retencao: 'retention' } as const
 const SECTION_ITEMS = SECTIONS.map(item => ({ ...item, icon: SECTION_ICONS[item.id] }))
 
 function count(value: number): string {
@@ -100,10 +103,35 @@ export function OfficeBoard() {
   const loadSequence = useRef(0)
   const dialogRef = useRef<HTMLDialogElement>(null)
   const pendingRef = useRef(false)
+  const returnRef = useRef<{ userId: string; scrollY: number } | null>(null)
 
   useLayoutEffect(() => {
     if (officeCache) setOffice(officeCache)
+    if (new URLSearchParams(window.location.search).get('suporte') !== 'retorno') return
+    setSection('contas')
+    try {
+      const raw = sessionStorage.getItem(SUPPORT_RETURN_KEY)
+      if (!raw) return
+      const saved = JSON.parse(raw) as { query?: unknown; userId?: unknown; scrollY?: unknown }
+      if (typeof saved.query === 'string') { setQ(saved.query); setDraft(saved.query) }
+      if (typeof saved.userId === 'string' && typeof saved.scrollY === 'number') returnRef.current = { userId: saved.userId, scrollY: saved.scrollY }
+    } catch { setSection('contas') }
   }, [])
+
+  useEffect(() => {
+    if (!office || loading || section !== 'contas' || !returnRef.current) return
+    const saved = returnRef.current
+    const frame = requestAnimationFrame(() => {
+      const target = document.getElementById(`support-user-${saved.userId}`)
+      if (!target) return
+      target.focus({ preventScroll: true })
+      window.scrollTo(0, saved.scrollY)
+      returnRef.current = null
+      sessionStorage.removeItem(SUPPORT_RETURN_KEY)
+      window.history.replaceState(null, '', '/admin/visao')
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [office, loading, section])
 
   async function load(query: string, status: AdminLinkFilter = linkStatus) {
     const sequence = ++loadSequence.current
@@ -170,20 +198,21 @@ export function OfficeBoard() {
 
   return (
     <div className={styles.dashboard}>
-      <WorkspaceActions>
+      {section !== 'buscas' ? <WorkspaceActions>
         <RefreshButton onClick={() => void load(q)} />
         {section === 'contas' || section === 'links' ? <><Button type="submit" form="office-filters"><ActionIcon name="search" />Buscar</Button><Button variant="secondary" onClick={() => { setDraft(''); setQ(''); setLinkStatus('ALL') }}><ActionIcon name="resetFilters" />Limpar busca</Button></> : null}
-      </WorkspaceActions>
+      </WorkspaceActions> : null}
       <WorkspaceFilters id="office-filters" label="Filtrar gestão" onSubmit={event => { event.preventDefault(); setQ(draft.trim()) }}>
         <ResponsiveTabs value={section} onChange={setSection} label="Área de gestão" idPrefix="office-area" items={SECTION_ITEMS} />
         {section === 'contas' || section === 'links' ? <Field label="Buscar contas e links"><Input value={draft} onChange={event => setDraft(event.target.value)} placeholder="Nome, e-mail ou link" /></Field> : null}
         {section === 'links' ? <Field label="Situação dos links"><Select value={linkStatus} onChange={event => setLinkStatus(event.target.value as AdminLinkFilter)}><option value="ALL">Todos</option>{LINK_STATUSES.map(status => <option key={status.value} value={status.value}>{status.filter}</option>)}</Select></Field> : null}
       </WorkspaceFilters>
       <div className={styles.dashboard} role="tabpanel" id={`office-area-panel-${section}`} aria-labelledby={`office-area-${section}`} tabIndex={0}>
+      {section === 'buscas' ? <SearchOpportunitiesPanel /> : null}
       {section === 'retencao' ? <RetentionPanel /> : null}
       {section === 'trafego' ? <TrafficPanel /> : null}
       {section === 'financeiro' ? <FinancePanel /> : null}
-      {section === 'retencao' || section === 'trafego' || section === 'financeiro' ? null : <>
+      {section === 'buscas' || section === 'retencao' || section === 'trafego' || section === 'financeiro' ? null : <>
       {failed || !office ? (
         failed ? <ErrorState onRetry={() => load(q)} /> : <OfficeSkeleton section={section} />
       ) : (
@@ -249,10 +278,11 @@ export function OfficeBoard() {
               {office.users.length === 0 ? <EmptyState /> : (
                 <div className="refund-grid">
                   {office.users.map((row) => (
-                    <article key={row.id} className="summary-card">
+                    <article key={row.id} id={`support-user-${row.id}`} tabIndex={-1} className="summary-card">
                       <h2>{row.name || 'Sem nome'}</h2>
                       <p>{row.email || row.id}</p>
                       <p className="moderation-kicker">{USER_STATUS[row.status] ?? row.status} · {row.role === 'ADMIN' ? 'Admin' : 'Usuário'} · {count(row.links)} links</p>
+                      {row.role === 'USER' ? <SupportEntry userId={row.id} name={row.name || row.email || row.id} query={q} /> : null}
                       {row.status === 'ACTIVE' && row.role !== 'ADMIN' ? (
                         <div className="moderation-actions">
                           <Button variant="danger" onClick={() => { setReason(''); setPrompt({ kind: 'ban', id: row.id, name: row.name || row.email || row.id }) }}><ActionIcon name="ban" />Suspender</Button>

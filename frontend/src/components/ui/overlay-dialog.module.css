@@ -9,6 +9,7 @@
 .header h2 { margin: 0; font-size: var(--text-lg); }
 .header button { display: grid; place-items: center; flex: none; width: 44px; height: 44px; padding: 0; border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--surface-page); color: var(--text-primary); cursor: pointer; }
 .body { padding: var(--space-6); overflow-wrap: anywhere; }
+.header button:disabled { opacity: .55; cursor: wait; }
 .hiddenTitle { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }
 .dialog[data-variant='sidebar'] .body { padding: var(--space-4); }
 .dialog[data-variant='sidebar'] .panel { display: flex; flex-direction: column; }

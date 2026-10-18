@@ -3,11 +3,11 @@ import { ImageUpload } from '@/components/ui/image-upload'
 import { Field, Input, TextArea } from '@/components/ui/input'
 import type { ProfileContent } from '../profile-contract'
 import styles from './profiles.module.css'
-import { ProfileGroupManager } from './profile-group-manager'
+import { ProfileGroupManager,type ProfileChannelsNavigation } from './profile-group-manager'
 import { ChangedField, useProfileChanges } from './profile-changes'
 
-type Props = { content: ProfileContent; onChange: (content: ProfileContent) => void; published: boolean; catalog: Array<{ id: string; name: string }>; onPhoto: (file: File) => void; step: number }
-export function ProfileFields({ content: c, onChange, published, catalog, onPhoto, step }: Props) {
+type Props = { content: ProfileContent; onChange: (content: ProfileContent) => void; published: boolean; catalog: Array<{ id: string; name: string }>; onPhoto: (file: File) => void; step: number; scheduling?: { allowed: boolean; serverNow: string };channels?:ProfileChannelsNavigation }
+export function ProfileFields({ content: c, onChange, published, catalog, onPhoto, step, scheduling,channels }: Props) {
   const changes = useProfileChanges(), change = (patch: Partial<ProfileContent>) => onChange({ ...c, ...patch })
   return <>
     <fieldset hidden={step !== 0} disabled={step !== 0} className={styles.identityFields}><legend>Página</legend>
@@ -17,6 +17,6 @@ export function ProfileFields({ content: c, onChange, published, catalog, onPhot
       <ChangedField changed={changes.field('avatarAssetId', c.avatarAssetId)}><ImageUpload label="Foto do perfil" imageUrl={c.avatarAssetId ? '/bff/v1/me/profile/avatar/' + c.avatarAssetId : undefined} onChoose={onPhoto} onRemove={() => change({ avatarAssetId: null })} /></ChangedField>
       <ChangedField changed={changes.field('requiresAge', c.requiresAge)}><label className={styles.check}><input type="checkbox" checked={c.requiresAge} onChange={event => change({ requiresAge: event.target.checked })} />Conteúdo para maiores de 18 anos</label></ChangedField>
     </fieldset>
-    {step === 2 ? <ProfileGroupManager content={c} onChange={onChange} catalog={catalog} /> : null}
+    {step === 2 ? <ProfileGroupManager content={c} onChange={onChange} catalog={catalog} scheduling={scheduling} channels={channels} /> : null}
   </>
 }

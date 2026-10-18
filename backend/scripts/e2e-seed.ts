@@ -160,6 +160,33 @@ async function main() {
   const favoritesOwner = await user({ tenantId: favoritesTenant.tenant.id, name: 'Leitora', email: 'owner@favorites.test', phone: '5511911160001', confirmed: true })
   await user({ tenantId: favoritesTenant.tenant.id, name: 'Outra leitora', email: 'other@favorites.test', phone: '5511911160002', confirmed: true })
   const state = {
+    channels: await (async()=>{
+      const p=await tenantBundle('channels.localhost','Canais fixture')
+      const owner=await user({tenantId:p.tenant.id,name:'Ana Comunidade',email:'owner@channels.test',phone:'5511911220001',confirmed:true})
+      await user({tenantId:p.tenant.id,name:'Outro autor',email:'other@channels.test',phone:'5511911220002',confirmed:true,role:'ADMIN'})
+      await prisma.network.upsert({where:{tenantId_slug:{tenantId:p.tenant.id,slug:'telegram'}},create:{tenantId:p.tenant.id,name:'Telegram',slug:'telegram',knownHosts:['t.me']},update:{knownHosts:['t.me']}})
+      await prisma.network.upsert({where:{tenantId_slug:{tenantId:p.tenant.id,slug:'whatsapp'}},create:{tenantId:p.tenant.id,name:'WhatsApp',slug:'whatsapp',knownHosts:['chat.whatsapp.com','wa.me']},update:{knownHosts:['chat.whatsapp.com','wa.me']}})
+      return {tenantId:p.tenant.id,ownerId:owner.id,owner:'owner@channels.test',other:'other@channels.test',password:'Senha-e2e-1'}
+    })(),
+    checklist: await (async()=>{
+      const p=await tenantBundle('checklist.localhost','Checklist fixture')
+      const owner=await user({tenantId:p.tenant.id,name:'Ana Checklist',email:'owner@checklist.test',phone:'5511911210001',confirmed:true})
+      await user({tenantId:p.tenant.id,name:'Outro autor',email:'other@checklist.test',phone:'5511911210002',confirmed:true,role:'ADMIN'})
+      return {tenantId:p.tenant.id,ownerId:owner.id,owner:'owner@checklist.test',other:'other@checklist.test',password:'Senha-e2e-1'}
+    })(),
+    interaction: await (async()=>{
+      const p=await tenantBundle('interaction.localhost','Interação fixture')
+      const owner=await user({tenantId:p.tenant.id,name:'Ana Projetos',email:'owner@interaction.test',phone:'5511911200001',confirmed:true})
+      await user({tenantId:p.tenant.id,name:'Outro autor',email:'other@interaction.test',phone:'5511911200002',confirmed:true,role:'ADMIN'})
+      return {tenantId:p.tenant.id,ownerId:owner.id,owner:'owner@interaction.test',other:'other@interaction.test',password:'Senha-e2e-1'}
+    })(),
+    discovery: await (async () => {
+      const p=await tenantBundle('discovery.localhost','Descoberta fixture')
+      const owner=await user({tenantId:p.tenant.id,name:'Autora F27',email:'owner@discovery.test',phone:'5511911190001',confirmed:true})
+      await user({tenantId:p.tenant.id,name:'Outro autor',email:'other@discovery.test',phone:'5511911190002',confirmed:true,role:'ADMIN'})
+      const catalog=await link({tenantId:p.tenant.id,ownerId:owner.id,networkId:p.network.id,nicheId:p.niche.id,name:'Comunidade de leitura',description:'Conversas sobre livros',url:'https://example.com/f27-legacy',status:'PUBLISHED'})
+      return {tenantId:p.tenant.id,ownerId:owner.id,catalogId:catalog.id,owner:'owner@discovery.test',other:'other@discovery.test',password:'Senha-e2e-1'}
+    })(),
     redirects: await (async () => {
       const p = await tenantBundle('redirects.localhost', 'Convites fixture')
       const owner = await user({ tenantId: p.tenant.id, name: 'Responsável pelos convites', email: 'owner@redirects.test', phone: '5511911180001', confirmed: true })

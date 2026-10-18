@@ -99,6 +99,10 @@ export type NicheRecord = {
 }
 
 export type LinkRecord = {
+  cityId?:string|null
+  languageTag?:string|null
+  modality?:string|null
+  discoveryVersion?:number
   id: string
   tenantId: string
   ownerId: string | null

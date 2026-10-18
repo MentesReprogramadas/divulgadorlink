@@ -4,10 +4,11 @@ import type { ReactNode } from 'react'
 import { SiteNavigation } from './site-navigation'
 import { CookieSettings } from '@/components/domain/consent'
 import styles from './site-shell.module.css'
+import { SupportBanner } from '@/features/support/support-banner'
 
-export function SiteShell({ role, children }: { role?: string; children: ReactNode }) {
+export function SiteShell({ role, support = false, children }: { role?: string; support?: boolean; children: ReactNode }) {
   const pathname = usePathname()
-  if (/^\/p\/[^/]+\/?$/.test(pathname) || pathname === '/painel/perfil/previa') return <>{children}</>
+  if (/^\/p\/[^/]+(?:\/canais\/estado)?\/?$/.test(pathname) || pathname === '/painel/perfil/previa') return <>{support ? <SupportBanner /> : null}{children}</>
   return (
     <>
       <a className={styles.skip} href="#main-content">Ir para o conteúdo</a>
@@ -16,9 +17,10 @@ export function SiteShell({ role, children }: { role?: string; children: ReactNo
           <a className={styles.brand} href="/" aria-label="Home">
             <img src="/logo.svg" alt="" width={1292} height={235} />
           </a>
-          <SiteNavigation role={role} />
+          <SiteNavigation role={role} support={support} />
         </div>
       </header>
+      {support ? <SupportBanner /> : null}
       <div id="main-content" className={styles.content} tabIndex={-1}>{children}</div>
       <footer className={styles.footer}>
         <span className={styles.footerBrand}>Tem Link Aqui</span>

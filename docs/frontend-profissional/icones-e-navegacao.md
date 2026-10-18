@@ -77,3 +77,29 @@ Fontes adicionais: [Simple Icons](https://github.com/simple-icons/simple-icons),
 ## Formulário de criação de link — 17/10/2026
 
 Rede e assunto reutilizam `FacetIcon`, os mesmos logos e pictogramas das facetas do catálogo. O Select recebe ícones por valor, mantendo texto acessível, busca por digitação e contrato de envio. Os ícones aparecem tanto nas opções quanto no valor selecionado e são decorativos; nenhuma nova associação de significado foi criada.
+
+## F19 — histórico e restauração, 17/10/2026
+
+ActionIcon history usa lista com relógio para publicações anteriores; restore usa seta de desfazer para copiar uma versão ao rascunho. Não reutilizam ícones de retenção comercial ou estorno. Ver diferenças reutiliza preview por ser inspeção; Voltar à edição usa back. Estado acessível continua no texto, com SVG decorativo.
+
+F08 (17/10/2026): contexto “Buscas” da gestão usa `opportunities` (lâmpada de oportunidade), distinto da lupa usada na ação de buscar e da navegação pública. Filtros, refresh e paginação mantêm os significados existentes. W05 desktop/mobile confirmou desenhos distintos entre contextos; W06 confirma o menu indisponível apenas até hidratar, preservando o desenho.
+
+F11 (17/10/2026): `subscription` identifica a assinatura da própria página; `billingAdmin` identifica a administração de contratos, com documento/setas distintos. Não reutilizam recibo de Pedidos, cartão de Pagamento, lista de Destaques ou configuração. Menus do painel/admin e respectivos skeletons preservam os mesmos significados. Testes de colisão e W05 desktop/mobile aprovados.
+
+F13 validada localmente: `qr` usa três marcadores de QR para a exportação nas duas superfícies; `download` usa seta para bandeja e identifica baixar arquivo. Não reutilizam a grade da Visão geral ou a seta/lista de Mostrar mais. Copiar endereço mantém o ícone copy. Todos os desenhos são decorativos, com rótulos textuais; a regressão de navegação desktop/mobile passou na bateria de 79 E2E.
+
+F14: schedule usa calendário com relógio para programar exibição; calendar continua identificando o seletor de datas. Não reutiliza histórico, QR ou disponibilidade. Rótulo Agendar acompanha o desenho; regressão dos menus/ícones incluída na execução conjunta.
+
+F16: templates usa camadas empilhadas para Modelos; não reutiliza o desenho de Página/Aparência/Histórico. Ver modelo usa preview, pois tem o mesmo significado de visualizar. Minha página mantém aria-current=location nas subrotas, e page apenas no destino exato; testes de navegação/ícones incluídos.
+
+F17: importLinks usa seta entrando em documento/lista, distinto de download, copiar, criar link e publicar. Editar/salvar/voltar conservam os desenhos do mesmo significado; duplicado tem texto sem reciclar o ícone Copiar como outro conceito. A entrada fica no editor, sem novo item de sidebar.
+
+F18: busca, pasta/grupo, limpar, voltar e próximo mantêm os ícones existentes para esses mesmos significados. Controles na página pessoal e prévia; nenhum novo item de sidebar. Botões continuam com nomes acessíveis e rótulos, paginação move o foco ao resultado.
+
+F27: city usa pin, language usa tradução A/ideograma, modality usa tela/cadeira; desenhos distintos de Rede, Assunto e navegação de página. Aplicar/Limpar/Salvar/Voltar mantêm seus significados existentes. Labels textuais acompanham SVG decorativo; sem novo item de sidebar.
+
+F31: interaction usa página com ponteiro para Métricas da minha página; pauseMeasurement usa duas barras para Pausar medição. Distintos de chart/resultado de destaque, pointer/saída e reviews/moderação. Voltar/atualizar/pesquisar/criar página mantêm os significados existentes, SVG decorativo e label textual. Nenhum novo destino raiz na sidebar.
+
+F34: checklist usa lista com três marcas, distinta da prancheta de moderação; publicação usa publish, abrir página usa profile, acompanhar análise usa reviews, recusa usa edit. Cada significado mantém seu desenho, com rótulo e SVG decorativo. Editor e skeleton compartilham inventário de ações. Nenhum item raiz novo na sidebar.
+
+F37: channels representa duas escolhas/saídas, distinta de link/invite/interaction; primaryLink representa botão principal com outros botões menores, distinto de favoritos. Editar/remover/voltar/atualizar conservam desenhos do mesmo significado. Rede usa FacetIcon existente, acompanhada de nome e texto; nenhum ícone sozinho identifica a escolha. Entrada contextual em Minha página, sem novo item raiz; skeleton compartilha ProfileGroupActions.

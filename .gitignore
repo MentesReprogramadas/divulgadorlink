@@ -13,3 +13,23 @@ frontend/e2e/state.json
 pnpm-lock.yaml
 pnpm-workspace.yaml
 yarn.lock
+
+# Isolated roadmap harness copies and generated runtime evidence
+/output/roadmap-f19/
+/output/roadmap-f08/
+/output/roadmap-f11/
+/output/roadmap-f13/
+/output/roadmap-f14/
+/output/roadmap-f14-*
+/output/roadmap-f16/
+/output/roadmap-f16-*
+/output/roadmap-f17/
+/output/roadmap-f17-*
+/output/roadmap-f18/
+/output/roadmap-f18-*
+/output/roadmap-f27/
+/output/roadmap-f27-*
+
+/output/roadmap-f31/
+/output/roadmap-f34/
+/output/roadmap-f37/

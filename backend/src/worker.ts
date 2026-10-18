@@ -1,3 +1,6 @@
+import { purgeSearchObservations } from '@/repositories/search-observations'
+import { purgeProfileInteractions } from '@/repositories/profile-interactions'
+import { startProfileBillingDrain } from '@/use-cases/@Billing/billing-drain'
 import './observability/register-hyperdx'
 import { runRenewalReminderCycle, type RenewalCycleInput } from '@/use-cases/@Notifications/renewal-reminders'
 import { enqueueRenewalReminderCycle, RENEWAL_QUEUE_NAME } from '@/adapters/queues/enqueue-renewal-reminders'
@@ -32,6 +35,7 @@ import type { ModelVerdict } from '@/use-cases/@Links/proposed-text-decision'
 import { pixExpiresInSeconds } from '@/domain/payments/pix-expiration'
 import { prismaRetentionView } from '@/repositories/analytics-retention'
 import { purgeRedirectHistory } from '@/repositories/redirects-repository'
+import { purgeProfileHistory } from '@/repositories/profiles-repository'
 import { getOrderInsightsRepository, META_CONTEXT_TTL_DAYS } from '@/repositories/order-insights-repository'
 import { runAnalyticsPurge } from '@/use-cases/@Analytics/purge-old-events'
 import { runAvailabilityCycle, type AvailabilityCycleInput } from '@/use-cases/@Links/monitor-availability'
@@ -275,7 +279,8 @@ export function createWorker(connection: Redis, deps: WorkerDeps, queueName = QU
         return decision
       }
       if (job.name === 'purge-analytics') {
-        const deleted = await runAnalyticsPurge(prismaRetentionView(), new Date())
+        const profileDeleted=await purgeProfileInteractions(deps.db??prisma)
+        const deleted = await runAnalyticsPurge(prismaRetentionView(), new Date())+profileDeleted.count
         if (deleted > 0) logDomainEvent('analytics.purged', { entity: String(deleted) })
         return deleted
       }
@@ -324,7 +329,8 @@ export function createWorker(connection: Redis, deps: WorkerDeps, queueName = QU
   return worker
 }
 
-async function startWorker(): Promise<void> {
+export async function startWorker(): Promise<void> {
+  startProfileBillingDrain()
   const connection = createRedis(env.REDIS_URL, { maxRetriesPerRequest: null })
   const moderation = env.OPENAI_API_KEY ? new OpenAiTextModeration(env.OPENAI_API_KEY) : null
   createWorker(connection, { textJudge: moderation ? (text) => moderation.judge(text) : null })
@@ -351,6 +357,9 @@ async function startWorker(): Promise<void> {
   const day = 24 * 60 * 60 * 1000
   const purge = async () => {
     await purgeRedirectHistory(prisma)
+    await purgeProfileHistory(prisma)
+    await purgeSearchObservations(prisma)
+    await purgeProfileInteractions(prisma)
     const deleted = await runAnalyticsPurge(prismaRetentionView(), new Date())
     if (deleted > 0) logDomainEvent('analytics.purged', { entity: String(deleted) })
     const stale = await getOrderInsightsRepository().purgeMetaContexts(new Date(Date.now() - META_CONTEXT_TTL_DAYS * day))

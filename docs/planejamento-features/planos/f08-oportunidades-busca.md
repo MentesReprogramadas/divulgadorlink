@@ -2,10 +2,18 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 11.
 
-**Estado:** NÃO INICIADO. Somente planejamento autorizado.  
+**Estado:** S0–S6 concluídas localmente; S7 em revisão. Implementação autorizada pelo usuário.
 **Spec vinculante:** [F08](../specs/f08-oportunidades-busca.md).  
 **Dependências:** G00, base existente.  
 **Onda:** 3. Etapas rastreadas no [roadmap](../roadmap-auditavel.md) e na [matriz](../matriz-aceitacao.csv).
+
+## Reconciliação de execução — 17/10/2026
+
+[Execução F08](../execucao-f08.md) registra decisões e alternativas, contratos efetivos e provas. D09 foi resolvida pelo usuário: consentimento obrigatório, dez buscas e 180 dias. A busca atual não recebe filtros de rede/nicho; os filtros administrativos consideram as categorias dos resultados exibidos, com essa distinção explícita na interface. Consultas vazias ficam na visão sem filtros de categoria.
+
+Contrato efetivo: `GET /api/v1/admin/search-opportunities?from&to&networkId&nicheId&opportunity&page`, com `opportunity=NO_RESULTS|LOW_INTERACTION` opcional. Resposta privada: `items[{term,searches,empty,withResults,exits,exitRate,opportunity}],threshold,retentionDays,coverage,from,to,networks,niches,page,total`. A busca emite `queryId` opcional somente quando a observação elegível foi armazenada; a saída existente valida consulta/sessão/tenant/resultado, consentimento e prazo. Falha de analytics não bloqueia a busca.
+
+Os caminhos propostos abaixo eram sugestões: domínio em `domain/search/search-observation`, persistência em `repositories/search-observations`, adapter HTTP em `http/search-observation`, relatório em `controllers/@Admin/search-opportunities`, composição em `features/search-opportunities`. Testes reais preservam IDs da feature e os nomes ingleses locais. O roteiro original não é uma segunda lista de pendências: o ledger e a execução informam o estado atual de cada etapa.
 
 ## Resultado e fronteira de implementação
 
@@ -15,7 +23,7 @@ Contrato a entregar: GET /api/v1/admin/search-opportunities?from&to; emissão de
 
 Dados: SearchObservation agregável, queryId opaco, filtros normalizados e cliques associados; retenção e minimização de termos antes de persistir.
 
-Todos os itens abaixo são tarefas futuras. Não executar comandos, criar migration ou escrever aplicação só porque este plano existe. Não acionar implantação automática via push na main: o projeto publica a main pelo Coolify.
+O roteiro abaixo preserva as obrigações planejadas. A execução autorizada, os caminhos efetivos, resultados e desvios de sequência estão reconciliados em [execução F08](../execucao-f08.md); o plano isoladamente não autoriza novas operações externas. Não acionar implantação automática via push na main: o projeto publica a main pelo Coolify.
 
 ## Arquivos e pontos de integração
 

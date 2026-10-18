@@ -1,3 +1,7 @@
+import {ZodError} from 'zod'
+import {parseDiscovery,matchesDiscovery,discoverySql,type DiscoveryMetadata} from '@/domain/catalog/discovery-metadata'
+import { searchOutcome } from '@/domain/search/search-observation'
+import { observeSearch } from '@/http/search-observation'
 import { newOrderSeed, randomOrder } from '@/domain/catalog/random-order'
 import type { PrismaClient } from '@prisma/client'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
@@ -26,7 +30,7 @@ import {
 } from '@/use-cases/@Search/rank-links'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
 
-export type SearchCandidate = {
+export type SearchCandidate = Partial<DiscoveryMetadata> & {
   id: string
   name: string
   description: string
@@ -43,6 +47,7 @@ export type SearchCandidate = {
 }
 
 export type CandidateQuery = {
+  filters?:DiscoveryMetadata
   tenantId: string
   query: string
   vector: number[]
@@ -74,8 +79,9 @@ export function sqlCandidateSource(client: PrismaClient): CandidateSource {
       niche_slug: string | null
       network_name: string | null
       network_slug: string | null
+      cityId:string|null;languageTag:string|null;modality:DiscoveryMetadata['modality']
     }>>(
-      hybridSearchSql(),
+      hybridSearchSql(discoverySql(8)),
       input.query,
       `[${input.vector.join(',')}]`,
       input.tenantId,
@@ -83,6 +89,7 @@ export function sqlCandidateSource(client: PrismaClient): CandidateSource {
       input.textWeight,
       input.semanticWeight,
       input.threshold,
+      input.filters?.cityId??null,input.filters?.languageTag??null,input.filters?.modality??null,
     )
     return rows.map((row) => ({
       id: row.id,
@@ -97,6 +104,7 @@ export function sqlCandidateSource(client: PrismaClient): CandidateSource {
       nicheSlug: row.niche_slug,
       networkName: row.network_name,
       networkSlug: row.network_slug,
+      cityId:row.cityId,languageTag:row.languageTag,modality:row.modality,
     }))
   }
 }
@@ -191,6 +199,8 @@ export async function getSearch(request: FastifyRequest, reply: FastifyReply) {
   const query = typeof (request.query as { q?: string }).q === 'string' ? (request.query as { q: string }).q : ''
   try {
     const tenant = await resolveTenant((request.headers.host ?? '').split(':')[0] || '')
+    const filters=parseDiscovery(request.query)
+    const observe=(input:Parameters<typeof observeSearch>[2])=>Object.values(filters).some(Boolean)?Promise.resolve(null):observeSearch(request,reply,input)
     const rows = await configRows(tenant.id)
     const threshold = readConfig(rows, 'SEARCH_RELEVANCE_THRESHOLD')
     const textWeight = readConfig(rows, 'SEARCH_TEXT_WEIGHT')
@@ -214,6 +224,7 @@ export async function getSearch(request: FastifyRequest, reply: FastifyReply) {
         : false
     const showImpressions = await publicImpressions(tenant.id)
     if (resolved.exclusive && !(facetNeedsAge && age === 'yes')) {
+      if (facetNeedsAge) await observe({ tenantId: tenant.id, query, outcome: 'GATED' })
       return reply.status(200).send({
         target,
         threshold,
@@ -227,29 +238,35 @@ export async function getSearch(request: FastifyRequest, reply: FastifyReply) {
     let candidates: SearchCandidate[]
     try {
       candidates = await loadCandidates(
-        { tenantId: tenant.id, query, age, textWeight, semanticWeight, threshold },
+        { tenantId: tenant.id, query, age, textWeight, semanticWeight, threshold,filters },
         composition.embedding(),
         composition.candidates,
       )
     } catch {
+      await observe({ tenantId: tenant.id, query, outcome: 'FAILED' })
       return reply.status(503).send(buildError({ code: provider_error, message: 'Busca indisponível.', request_id: request.id }))
     }
 
-    const visible = visibleForAge(candidates, age)
+    const visible = visibleForAge(candidates, age).filter(row=>matchesDiscovery(row,filters))
     const eligible = rankSearch(visible, threshold)
     const seed = newOrderSeed()
     const ranked = { sponsored: randomOrder(eligible.sponsored, seed), organic: randomOrder(eligible.organic, seed) }
-    const withheld = rankSearch(candidates, threshold)
+    const withheld = rankSearch(candidates.filter(row=>matchesDiscovery(row,filters)), threshold)
     const hidden = withheld.sponsored.length + withheld.organic.length - ranked.sponsored.length - ranked.organic.length
+    const sponsored = await withImpressions(tenant.id, ranked.sponsored.map(row => toDto(tenant.id, row, threshold)))
+    const organic = await withImpressions(tenant.id, ranked.organic.map(row => toDto(tenant.id, row, threshold)))
+    const queryId = await observe({ tenantId: tenant.id, query, outcome: searchOutcome({ failed: false, gated: hidden > 0 || (facetNeedsAge && age !== 'yes'), count: ranked.sponsored.length + ranked.organic.length }), resultIds: hidden > 0 || (facetNeedsAge && age !== 'yes') ? [] : [...ranked.sponsored, ...ranked.organic].map(row => row.id) })
     return reply.status(200).send({
-      target,
+      ...(queryId ? { queryId } : {}),
+      target,...(Object.values(filters).some(Boolean)?{activeFilters:filters}:{}),
       threshold,
       showImpressions,
       ...(age === 'unknown' && (hidden > 0 || facetNeedsAge) ? { ageRequired: true } : {}),
-      sponsored: await withImpressions(tenant.id, ranked.sponsored.map((row) => toDto(tenant.id, row, threshold))),
-      organic: await withImpressions(tenant.id, ranked.organic.map((row) => toDto(tenant.id, row, threshold))),
+      sponsored,
+      organic,
     })
   } catch (error) {
+    if(error instanceof ZodError)return reply.status(400).send(buildError({code:'validation',message:'Confira a cidade, o idioma e o formato.',request_id:request.id}))
     if (error instanceof ResourceNotFoundError) {
       return reply.status(404).send({ message: error.message })
     }
@@ -258,6 +275,8 @@ export async function getSearch(request: FastifyRequest, reply: FastifyReply) {
 }
 
 export async function getSuggest(request: FastifyRequest, reply: FastifyReply) {
+  let filters: ReturnType<typeof parseDiscovery>
+  try {filters=parseDiscovery(request.query)} catch {return reply.status(400).send({message:'Confira a cidade, o idioma e o formato.'})}
   const query = typeof (request.query as { q?: string }).q === 'string' ? (request.query as { q: string }).q : ''
   const tenant = await resolveTenant((request.headers.host ?? '').split(':')[0] || '')
   const rows = await configRows(tenant.id)
@@ -268,14 +287,14 @@ export async function getSuggest(request: FastifyRequest, reply: FastifyReply) {
   const needle = query.trim().toLowerCase()
   const source = process.env.NODE_ENV === 'test'
     ? testCandidates
-      .filter((row) => row.name.toLowerCase().includes(needle))
+      .filter((row) => row.name.toLowerCase().includes(needle) && matchesDiscovery(row,filters))
       .map((row) => ({
         ...row,
         relevance: relevanceScore(row.textScore, row.semanticScore ?? 0, textWeight, semanticWeight),
       }))
     : await prisma.$queryRawUnsafe<SearchCandidate[]>(
       `
-        SELECT l."id", l."name", l."description", $3::float8 AS relevance, 1 AS "textScore", NULL AS "semanticScore",
+        SELECT l."id", l."name", l."description", l."cityId", l."languageTag", l."modality", $3::float8 AS relevance, 1 AS "textScore", NULL AS "semanticScore",
           l."embeddingState",
           (
             SELECT p."activatedAt" FROM "promotions" p
@@ -291,11 +310,13 @@ export async function getSuggest(request: FastifyRequest, reply: FastifyReply) {
         JOIN "networks" net ON net."id" = l."networkId"
         WHERE l."tenantId" = $1 AND ${PUBLIC_LINK_FILTER}
           AND ${nameMatchSql('$2')}
+          ${discoverySql(4)}
         LIMIT 8
       `,
       tenant.id,
       query.trim(),
       textWeight,
+      filters.cityId,filters.languageTag,filters.modality,
     )
   const recommended = autocompleteIds(source, threshold, 8)
   const visible = visibleForAge(source, age)

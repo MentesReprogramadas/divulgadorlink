@@ -2,7 +2,7 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 10.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
+**Estado:** IMPLEMENTADA E VALIDADA LOCALMENTE; S7 em revisão (CI/liberação pendentes).
 **Onda:** 2. **Ordem:** 10.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Prévia e histórico de versões”.  
 **Plano:** [F19 implementação](../planos/f19-historico-versoes.md).  
@@ -140,3 +140,9 @@ Sem resolução das decisões bloqueantes e dependências concluídas, a feature
 
 **Indicadores:** uso da prévia e restaurações concluídas.
 
+
+## Reconciliação de execução — 17/10/2026
+
+[Execução F19](../execucao-f19.md) é o registro vigente de contratos, arquivos reais, decisões/alternativas, resultados e reversão. Prévia existente foi reutilizada; snapshots de publicações em ProfileRevision, 50/180 com preservação da atual; restauração explícita cria novo rascunho e revalida destinos. D21 mídia resolvida pelo usuário: não reter fotos antigas, omitir foto removida e avisar ao restaurar. Identidade, ACL e cobrança não são restauradas. Datas legadas são marcadas como importação. Publicação repetida conserva idempotência, criando um snapshot; restores concorrentes têm conflito.
+
+Contratos reais: GET `/api/v1/me/profile/revisions`, GET `/api/v1/me/profile/revisions/:id` e POST `/api/v1/me/profile/revisions/:id/restore` com `{expectedVersion}`. Casos U/PG/C/E nos arquivos `profile-history.spec.ts`, `profile-history.pg.spec.ts`, `profile-history-screen.test.tsx`, `profile-comparison.test.ts` e `profile-history.spec.ts` do E2E. Comandos e evidências no registro; nomes e comandos propostos acima são históricos. Checklist futuro não substitui os gates efetivos registrados no ledger. S7 remoto permanece aberto, sem commit/push/deploy.

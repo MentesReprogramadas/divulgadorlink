@@ -94,6 +94,10 @@ model Tenant {
   urlRevisions UrlRevision[]
   promotionPauses PromotionPause[]
   profiles Profile[]
+  searchObservations SearchObservation[]
+  profilePlans ProfilePlan[]
+  profileBillingAccounts ProfileBillingAccount[]
+  profileBillingSettings ProfileBillingSettings?
 
 }
 
@@ -111,6 +115,7 @@ model User {
   favorites Favorite[]
   collections Collection[]
   profiles Profile[]
+  profileBillingAccounts ProfileBillingAccount[]
   profileAssets ProfileAsset[]
   redirectHandles RedirectHandle[]
   @@unique([id, tenantId], map: "users_id_tenantid_key")
@@ -282,6 +287,10 @@ model Link {
   nicheId      String
   niche        Niche      @relation(fields: [nicheId], references: [id])
   otherNote    String?
+  cityId       String?
+  languageTag  String?
+  modality     String?
+  discoveryVersion Int @default(0)
   status              LinkStatus
   occupiesSlot        Boolean    @default(true)
   everPublished       Boolean    @default(false)
@@ -788,6 +797,11 @@ model CollectionItem {
   @@map("collection_items")
 }
 model Profile {
+ channelsDraft ProfileChannelDraft?
+ channelsRevisions ProfileChannelRevision[]
+ interactionEvents ProfileInteractionEvent[]
+ measurement ProfileMeasurement?
+ revisions ProfileRevision[]
  reviews ContentReview[]
  appearance Json?
  id String @id @default(uuid())
@@ -813,6 +827,77 @@ model Profile {
  @@unique([tenantId, ownerId], map: "profiles_tenant_owner_key")
  @@unique([id, tenantId, ownerId], map: "profiles_identity_key")
  @@map("profiles")
+}
+model ProfileMeasurement {
+ profileId String @id
+ tenantId String
+ ownerId String
+ profile Profile @relation(fields: [profileId, tenantId, ownerId], references: [id, tenantId, ownerId], onDelete: Cascade, onUpdate: NoAction, map: "profile_measurements_profile_fkey")
+ enabled Boolean @default(false)
+ version Int @default(0)
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ @@unique([profileId, tenantId, ownerId], map: "profile_measurements_identity_key")
+ @@map("profile_measurements")
+}
+model ProfileInteractionEvent {
+ id String @id @default(uuid())
+ eventId String @db.Uuid
+ tenantId String
+ profileId String
+ ownerId String
+ profile Profile @relation(fields: [profileId, tenantId, ownerId], references: [id, tenantId, ownerId], onDelete: Cascade, onUpdate: NoAction, map: "profile_interaction_events_profile_fkey")
+ revisionId Int
+ blockId String? @db.Uuid
+ kind String
+ viewportBucket String
+ scrollBucket Int?
+ sessionKey String @db.VarChar(64)
+ dedupeKey String @db.VarChar(64)
+ day DateTime @db.Date
+ createdAt DateTime @default(now())
+ @@unique([tenantId, eventId], map: "profile_events_event_key")
+ @@unique([tenantId, profileId, dedupeKey], map: "profile_events_dedupe_key")
+ @@index([tenantId, profileId, revisionId, createdAt], map: "profile_events_context_time_idx")
+ @@index([createdAt], map: "profile_events_retention_idx")
+ @@map("profile_interaction_events")
+}
+model ProfileRevision {
+ channels ProfileChannelRevision?
+ id String @id @default(uuid())
+ profileId String
+ tenantId String
+ ownerId String
+ profile Profile @relation(fields: [profileId, tenantId, ownerId], references: [id, tenantId, ownerId], onDelete: Cascade, onUpdate: NoAction, map: "profile_revisions_profile_fk")
+ version Int
+ snapshot Json
+ avatarAssetId String?
+ imported Boolean @default(false)
+ createdAt DateTime @default(now())
+ @@unique([profileId, version], map: "profile_revisions_version_key")
+ @@index([tenantId, ownerId, profileId, version], map: "profile_revisions_owner_version_idx")
+ @@map("profile_revisions")
+}
+model ProfileChannelDraft {
+ profileId String @id
+ tenantId String
+ ownerId String
+ settings Json
+ updatedAt DateTime @updatedAt
+ profile Profile @relation(fields: [profileId, tenantId, ownerId], references: [id, tenantId, ownerId], onDelete: Cascade, onUpdate: NoAction, map: "profile_channel_drafts_profile_fk")
+ @@unique([profileId, tenantId, ownerId], map: "profile_channel_drafts_identity_key")
+ @@map("profile_channel_drafts")
+}
+model ProfileChannelRevision {
+ profileId String
+ tenantId String
+ ownerId String
+ version Int
+ settings Json
+ profile Profile @relation(fields: [profileId, tenantId, ownerId], references: [id, tenantId, ownerId], onDelete: Cascade, onUpdate: NoAction, map: "profile_channel_revisions_profile_fk")
+ revision ProfileRevision @relation(fields: [profileId, version], references: [profileId, version], onDelete: Cascade, onUpdate: NoAction, map: "profile_channel_revisions_revision_fk")
+ @@id([profileId, version])
+ @@map("profile_channel_revisions")
 }
 model ProfileCategory {
  id String
@@ -842,6 +927,11 @@ model ProfileItem {
  linkId String?
  link Link? @relation(fields: [linkId, tenantId], references: [id, tenantId], onDelete: Cascade, onUpdate: NoAction, map: "profile_items_link_fk")
  visible Boolean
+ startsAt DateTime?
+ endsAt DateTime?
+ timeZone String?
+ paused Boolean @default(false)
+ templateExample Boolean @default(false)
  position Int
  @@id([profileId, id])
  @@unique([profileId, position], map: "profile_items_position_key")
@@ -933,4 +1023,198 @@ model ContentReview {
  @@unique([redirectRevisionId, tenantId], map: "content_reviews_redirect_identity_key")
  @@index([tenantId, kind, status, createdAt], map: "content_reviews_queue_idx")
  @@map("content_reviews")
+}
+
+model SearchObservation {
+  id String @id @default(uuid())
+  tenantId String
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  term String
+  sessionKey String
+  day DateTime @db.Date
+  outcome String
+  resultCount Int?
+  resultIds String[]
+  nicheIds String[]
+  networkIds String[]
+  clickedAt DateTime?
+  createdAt DateTime @default(now())
+  @@unique([tenantId, sessionKey, day, term, outcome])
+  @@index([tenantId, createdAt])
+  @@index([tenantId, sessionKey, day])
+  @@map("search_observations")
+}
+
+model ProfileBillingSettings {
+  tenantId String @id
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  enabled Boolean @default(false)
+  publicOrigin String
+  fiscalReviewed Boolean @default(false)
+  livemode Boolean @default(false)
+  version Int @default(0)
+  updatedAt DateTime @updatedAt
+  @@map("profile_billing_settings")
+}
+
+model ProfilePlan {
+  id String @id @default(uuid())
+  tenantId String
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  tier String
+  title String
+  enabled Boolean @default(false)
+  version Int @default(0)
+  providerProductId String? @unique
+  versions ProfilePlanVersion[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([tenantId, tier])
+  @@unique([id, tenantId])
+  @@map("profile_plans")
+}
+
+model ProfilePlanVersion {
+  id String @id @default(uuid())
+  tenantId String
+  planId String
+  plan ProfilePlan @relation(fields: [planId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  version Int
+  amountCents Int
+  currency String @default("BRL")
+  interval String @default("month")
+  capabilities String[]
+  providerPriceId String? @unique
+  providerProductId String?
+  livemode Boolean @default(false)
+  createdAt DateTime @default(now())
+  subscriptions ProfileSubscription[] @relation("SubscribedVersion")
+  scheduledSubscriptions ProfileSubscription[] @relation("ScheduledVersion")
+  operations ProfileBillingOperation[]
+  @@unique([planId, version])
+  @@unique([id, tenantId])
+  @@index([tenantId, planId, version])
+  @@map("profile_plan_versions")
+}
+
+model ProfileBillingAccount {
+  id String @id @default(uuid())
+  tenantId String
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  ownerId String
+  owner User @relation(fields: [ownerId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  providerCustomerId String? @unique
+  subscriptions ProfileSubscription[]
+  events ProfileBillingEvent[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([tenantId, ownerId])
+  @@unique([id, tenantId, ownerId])
+  @@map("profile_billing_accounts")
+}
+
+model ProfileSubscription {
+  id String @id @default(uuid())
+  tenantId String
+  ownerId String
+  accountId String
+  account ProfileBillingAccount @relation(fields: [accountId, tenantId, ownerId], references: [id, tenantId, ownerId], onDelete: Restrict)
+  planVersionId String
+  planVersion ProfilePlanVersion @relation("SubscribedVersion", fields: [planVersionId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  scheduledVersionId String?
+  scheduledVersion ProfilePlanVersion? @relation("ScheduledVersion", fields: [scheduledVersionId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  providerSubscriptionId String? @unique
+  providerCheckoutId String? @unique
+  providerScheduleId String?
+  checkoutUrl String?
+  checkoutExpiresAt DateTime?
+  status String @default("PENDING")
+  periodStart DateTime?
+  periodEnd DateTime?
+  paidThrough DateTime?
+  cancelAtPeriodEnd Boolean @default(false)
+  version Int @default(0)
+  reconcileVersion Int @default(0)
+  reviewReason String?
+  entitlements ProfileEntitlement[]
+  operations ProfileBillingOperation[]
+  events ProfileBillingEvent[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([id, tenantId, ownerId])
+  @@index([tenantId, ownerId, createdAt])
+    @@index([status, updatedAt])
+  @@map("profile_subscriptions")
+}
+
+model ProfileEntitlement {
+  id String @id @default(uuid())
+  tenantId String
+  ownerId String
+  subscriptionId String
+  subscription ProfileSubscription @relation(fields: [subscriptionId, tenantId, ownerId], references: [id, tenantId, ownerId], onDelete: Restrict)
+  capability String
+  validFrom DateTime
+  validUntil DateTime
+  revokedAt DateTime?
+  @@unique([subscriptionId, capability])
+  @@index([tenantId, ownerId, validUntil])
+  @@map("profile_entitlements")
+}
+
+model ProfileBillingOperation {
+  id String @id @default(uuid())
+  tenantId String
+  ownerId String
+  subscriptionId String
+  subscription ProfileSubscription @relation(fields: [subscriptionId, tenantId, ownerId], references: [id, tenantId, ownerId], onDelete: Restrict)
+  targetVersionId String?
+  targetVersion ProfilePlanVersion? @relation(fields: [targetVersionId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  kind String
+  requestKey String
+  fingerprint String
+  expectedVersion Int
+  referencePeriodEnd DateTime?
+  returnPath String?
+  returnOrigin String?
+  state String @default("PENDING")
+  attempts Int @default(0)
+  nextAttemptAt DateTime @default(now())
+  lockedAt DateTime?
+  leaseToken String?
+  lastError String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([tenantId, ownerId, requestKey])
+  @@unique([subscriptionId, kind, expectedVersion])
+  @@index([state, nextAttemptAt])
+  @@map("profile_billing_operations")
+}
+
+model ProfileBillingEvent {
+  id String @id
+  tenantId String
+  ownerId String
+  accountId String
+  account ProfileBillingAccount @relation(fields: [accountId, tenantId, ownerId], references: [id, tenantId, ownerId], onDelete: Restrict)
+  subscriptionId String?
+  subscription ProfileSubscription? @relation(fields: [subscriptionId, tenantId, ownerId], references: [id, tenantId, ownerId], onDelete: Restrict)
+  kind String
+  objectId String
+  objectType String
+  livemode Boolean
+  occurredAt DateTime
+  state String @default("PENDING")
+  reconcileVersion Int?
+  attempts Int @default(0)
+  nextAttemptAt DateTime @default(now())
+  lockedAt DateTime?
+  leaseToken String?
+  lastError String?
+  receivedAt DateTime @default(now())
+  processedAt DateTime?
+  @@index([state, nextAttemptAt])
+  @@index([tenantId, receivedAt])
+    @@index([subscriptionId, kind, receivedAt])
+  @@map("profile_billing_events")
 }

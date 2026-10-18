@@ -11,6 +11,10 @@ export async function GET(request: Request, context: { params: Promise<{ linkId:
     path: `/go/${params.linkId}${url.search}`,
     host: tenantHost(hostHeader.split(':')[0] || 'localhost'),
     cookie: request.headers.get('cookie') ?? '',
+    userAgent: request.headers.get('user-agent') ?? '',
+    dnt: request.headers.get('dnt') ?? '',
+    gpc: request.headers.get('sec-gpc') ?? '',
+    analyticsTest: request.headers.get('x-analytics-test') ?? '',
   })
   const location = result.headers.location
   if (typeof location === 'string' && result.status >= 300 && result.status < 400) {

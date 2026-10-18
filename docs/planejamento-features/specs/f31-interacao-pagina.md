@@ -2,7 +2,7 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 19.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
+**Estado:** S0–S6 verificadas localmente em 18/10/2026; S7 EM REVISÃO. [Execução, decisões e limites](../execucao-f31.md).  
 **Onda:** 3. **Ordem:** 19.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Mapa de interação da página”.  
 **Plano:** [F31 implementação](../planos/f31-interacao-pagina.md).  
@@ -117,11 +117,11 @@ Criar um teste com ID Tnn para cada AC, com o seguinte protocolo específico da 
 
 ## Arquivos de teste propostos
 
-- U: `backend/src/domain/analytics/interacao-pagina.spec.ts`.
-- C: `frontend/src/components/domain/interacao-pagina.test.tsx`.
-- I: `backend/src/http/interacao-pagina.http.spec.ts`.
-- PG: `backend/src/http/interacao-pagina.pg.spec.ts`; registrar no comando/CI de PG.
-- E: `frontend/e2e/interacao-pagina.spec.ts`; registrar no projeto features e features-mobile antes de executar.
+- U: `backend/src/domain/analytics/profile-interaction.spec.ts`.
+- C: `frontend/src/features/profile-interaction/interaction-screen.test.tsx`.
+- I: `backend/src/http/profile-interaction.pg.spec.ts`.
+- PG: `backend/src/http/profile-interaction.pg.spec.ts`; registrar no comando/CI de PG.
+- E: `frontend/e2e/profile-interaction.spec.ts`; registrar no projeto features e features-mobile antes de executar.
 - Consumidores e novos caminhos sugeridos estão no plano; todos devem ser reconciliados com a árvore existente em S0.
 
 ## Decisões e condições de liberação
@@ -142,3 +142,7 @@ Sem resolução das decisões bloqueantes e dependências concluídas, a feature
 
 **Indicadores:** uso do relatório e alterações de página feitas a partir dele.
 
+
+## Reconciliação da implementação F31
+
+Domínio em domain/analytics/profile-interaction.ts, persistência em repositories/profile-interactions.ts, controller próprio @Analytics/profile-interaction.ts registrado no app. GET/PATCH /me/profile/measurement controla a preferência. POST /analytics/profiles/events retorna counted (201 inserido; 200 repetido/excluído); relatório retorna range, revision, viewport, revisions, minimumSample, retentionDays, coverage e summary. Duas tabelas aditivas, agregados derivados em SQL, cinco ACs preservados. Tela /painel/perfil/metricas; hooks de medição e fronteira, consentimento específico e controles locais. Os caminhos iniciais eram propostas; não criar arquivos vazios nos nomes antigos. Novos detalhes, contratos, D33, provas e exceções estão em [execucao-f31.md](../execucao-f31.md).

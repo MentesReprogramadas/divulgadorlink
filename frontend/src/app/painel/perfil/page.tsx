@@ -1,2 +1,3 @@
 import { ProfileEditor } from '@/features/profiles/profile-editor'
-export default function Page() { return <ProfileEditor /> }
+import {profileEditorSection} from '@/features/profiles/profile-editor-section'
+export default async function Page({searchParams}:{searchParams:Promise<{secao?:string|string[]}>}) { return <ProfileEditor initialSection={profileEditorSection((await searchParams).secao)}/> }

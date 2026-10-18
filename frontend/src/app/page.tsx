@@ -5,6 +5,7 @@ import { HomeSkeleton } from '@/features/catalog/components/catalog-skeleton'
 export const dynamic = 'force-dynamic'
 export const generateMetadata = generateHomeMetadata
 
-export default function Page({ searchParams }: { searchParams: Promise<{ cursor?: string }> }) {
-  return <Suspense fallback={<HomeSkeleton />}><HomeContent searchParams={searchParams} /></Suspense>
+export default async function Page({ searchParams }: { searchParams: Promise<Record<string,string|string[]|undefined>> }) {
+  const query=await searchParams
+  return <Suspense key={JSON.stringify(query)} fallback={<HomeSkeleton />}><HomeContent searchParams={Promise.resolve(query)} /></Suspense>
 }

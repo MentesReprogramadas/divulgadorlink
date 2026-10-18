@@ -16,6 +16,7 @@ beforeEach(() => {
 afterEach(() => {
   cleanup()
   document.cookie = 'tla_consent=; Path=/; Max-Age=0'
+  document.cookie = 'tla_profile_measure=; Path=/; Max-Age=0'
   document.getElementById('google-ads-tag')?.remove()
   const host = window as Window & { dataLayer?: unknown[]; gtag?: unknown }
   delete host.dataLayer
@@ -24,6 +25,16 @@ afterEach(() => {
 })
 
 describe('aviso de cookies', () => {
+  it('F31-T03 an old ads consent does not grant page measurement and optional purposes can be chosen independently',()=>{
+    document.cookie='tla_consent=marketing; Path=/'
+    render(<><CookieSettings/><Consent pending={false}/></>)
+    expect(document.cookie).not.toContain('tla_profile_measure=v1_yes')
+    fireEvent.click(screen.getByRole('button',{name:'Gerenciar cookies'}))
+    expect((screen.getByLabelText('Medição da página visitada') as HTMLInputElement).checked).toBe(false)
+    fireEvent.click(screen.getByLabelText('Medição da página visitada'))
+    fireEvent.click(screen.getByRole('button',{name:'Salvar preferências'}))
+    expect(document.cookie).toContain('tla_profile_measure=v1_yes')
+  })
   it('exibe uma região sem modal nem bloqueio de interação com a página', () => {
     render(<><a href="/busca">Buscar links</a><Consent pending /></>)
     const banner = screen.getByRole('region', { name: 'Este site usa cookies' })

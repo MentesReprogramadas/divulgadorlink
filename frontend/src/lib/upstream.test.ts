@@ -35,3 +35,14 @@ it('F03-C03 optional deadline aborts a stalled transport and legacy calls still 
     expect(result.status).toBe(200); expect(JSON.parse(result.body.toString())).toEqual({ host: 'fixture.test', cookie: 'age=yes' })
   } finally { server.closeAllConnections(); await new Promise<void>(resolve => server.close(() => resolve())) }
 })
+
+it('F08 transports privacy opt-outs and the explicit test marker across the BFF boundary', async () => {
+  const server = createServer((req, res) => res.end(JSON.stringify({ dnt: req.headers.dnt, gpc: req.headers['sec-gpc'], test: req.headers['x-analytics-test'] })))
+  await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve))
+  const address = server.address(); if (!address || typeof address === 'string') throw new Error('Missing test server')
+  vi.stubEnv('API_ORIGIN', 'http://127.0.0.1:' + address.port)
+  try {
+    const result = await forward({ method: 'GET', path: '/search', host: 'fixture.test', dnt: '1', gpc: '1', analyticsTest: '1' })
+    expect(JSON.parse(result.body.toString())).toEqual({ dnt: '1', gpc: '1', test: '1' })
+  } finally { server.closeAllConnections(); await new Promise<void>(resolve => server.close(() => resolve())) }
+})

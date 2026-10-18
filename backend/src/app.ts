@@ -1,6 +1,8 @@
 import { contentReviewRoutes } from '@/http/controllers/@Moderation/content-reviews'
 import { favoritesRoutes } from '@/http/controllers/@Collections/routes'
 import { profilesRoutes } from '@/http/controllers/@Profiles/routes'
+import { profileInteractionRoutes } from '@/http/controllers/@Analytics/profile-interaction'
+import { profileBillingRoutes, profileBillingWebhookRoutes } from '@/http/controllers/@Billing/routes'
 import { redirectsRoutes } from '@/http/controllers/@Redirects/routes'
 import { relatedLinksRoutes } from '@/http/controllers/@Catalog/related-links'
 import { renewalReminderRoutes } from '@/http/controllers/@Notifications/renewal-reminders'
@@ -20,6 +22,7 @@ import { goRoutes } from '@/http/controllers/@Links/go'
 import { linksRoutes } from '@/http/controllers/@Links/routes'
 import { paymentRoutes, paymentWebhookRoutes } from '@/http/controllers/@Payments/routes'
 import { catalogRoutes } from '@/http/controllers/@Catalog/routes'
+import {discoveryRoutes} from '@/http/controllers/@Catalog/discovery'
 import { searchRoutes } from '@/http/controllers/@Search/routes'
 import { health, live, ready } from '@/http/controllers/@Health/health'
 import { isActuatorProbe } from '@/observability/hyperdx-config'
@@ -27,6 +30,8 @@ import { logDomainEvent } from '@/observability/logger'
 import { registerEvolutionRoutes } from '@/http/controllers/@Integrations/evolution'
 import { linkReportRoutes } from '@/http/controllers/@Moderation/reports'
 import { availabilityRoutes } from '@/http/controllers/@Links/availability'
+import { supportGuard, supportResponse, supportRoutes } from '@/http/support-mode'
+import { supportReadContext } from '@/lib/support-read-context'
 
 function observeServerError(error: unknown, requestId: string, status: number): void {
   const asError = error instanceof Error ? error : new Error('Internal server error')
@@ -67,6 +72,7 @@ app.addHook('onResponse', async (request, reply) => {
     entity: `${request.method} ${request.routeOptions.url ?? request.url.split('?')[0]}`,
     duration_ms: reply.elapsedTime,
     status: reply.statusCode,
+    ...(request.supportSession ? { support_actor_id: request.supportSession.actorId, support_subject_id: request.supportSession.targetId } : {}),
   })
 })
 
@@ -75,7 +81,9 @@ app.register(fastifyCookie)
 app.addHook('preHandler', async (request, reply) => {
   if (request.method === 'GET' || request.method === 'HEAD' || request.method === 'OPTIONS') return
   const authorization = request.headers.authorization
-  if (typeof authorization === 'string' && authorization.startsWith('Bearer ')) return
+  const supportControl = request.routeOptions.url === '/api/v1/support/exit'
+    || request.routeOptions.url === '/api/v1/admin/users/:id/support'
+  if (!supportControl && typeof authorization === 'string' && authorization.startsWith('Bearer ')) return
   const cookies = request.cookies ?? {}
   if (!cookies.accessToken && !cookies.refreshToken) return
   const header = request.headers['x-csrf-token']
@@ -107,23 +115,37 @@ app.register(fastifyJwt, {
 
 const prefix = '/api/v1'
 
+app.addHook('onRequest', (request, reply, done) => {
+  void supportGuard(request, reply).then(() => {
+    if (reply.sent) return
+    if (request.supportSession) supportReadContext.run(true, done)
+    else done()
+  }, done)
+})
+app.addHook('onSend', supportResponse)
+
 app.register(
   async (instance) => {
     instance.get('/actuator/health', health)
     instance.get('/actuator/live', live)
     instance.get('/actuator/ready', ready)
     await instance.register(authRoutes, { prefix: '/auth' })
+    await instance.register(supportRoutes)
     await instance.register(linksRoutes, { prefix: '/links' })
     await instance.register(searchRoutes)
     await instance.register(catalogRoutes)
+    await instance.register(discoveryRoutes)
     await instance.register(relatedLinksRoutes)
     await instance.register(favoritesRoutes)
     await instance.register(contentReviewRoutes)
     await instance.register(profilesRoutes)
+    await instance.register(profileInteractionRoutes)
+    await instance.register(profileBillingRoutes)
     await instance.register(redirectsRoutes)
     await instance.register(analyticsRoutes)
     await instance.register(paymentRoutes)
     await instance.register(paymentWebhookRoutes)
+    await instance.register(profileBillingWebhookRoutes)
     await instance.register(adminRoutes)
     await instance.register(registerEvolutionRoutes)
     await instance.register(linkReportRoutes)

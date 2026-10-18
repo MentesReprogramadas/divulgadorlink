@@ -12,9 +12,10 @@ import { navigationIcons, type NavigationDestination } from './navigation-icons'
 import { SidebarLink } from './sidebar-link'
 import styles from './site-shell.module.css'
 
-export function SiteNavigation({ role }: { role?: string }) {
+export function SiteNavigation({ role, support = false }: { role?: string; support?: boolean }) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
+  const [ready, setReady] = useState(false)
   const [sessionRole, setSessionRole] = useState(role)
   const toggle = useRef<HTMLButtonElement>(null)
   const items = [{ href: '/busca', label: 'Busca' }, ...accountLinks(sessionRole)]
@@ -23,6 +24,7 @@ export function SiteNavigation({ role }: { role?: string }) {
   const showWorkspace = signedIn && (pathname.startsWith('/painel') || pathname.startsWith('/admin') && sessionRole === 'ADMIN') && pathname !== '/painel/verificar'
   function close() { setOpen(false); toggle.current?.focus() }
   useEffect(() => { setOpen(false) }, [pathname])
+  useEffect(() => { setReady(true) }, [])
   useEffect(() => {
     function sync() { setSessionRole(readSession()?.role ?? role) }
     sync()
@@ -38,7 +40,7 @@ export function SiteNavigation({ role }: { role?: string }) {
 
   return (
     <div className={styles.navigation}>
-      <button ref={toggle} type="button" className={styles.menuToggle} aria-label="Menu" aria-controls="mobile-navigation" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}>
+      <button ref={toggle} type="button" disabled={!ready} aria-busy={!ready || undefined} className={styles.menuToggle} aria-label="Menu" aria-controls="mobile-navigation" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d={open ? 'm6 6 12 12M6 18 18 6' : 'M4 6h16M4 12h16M4 18h16'} stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
         </svg>
@@ -54,7 +56,7 @@ export function SiteNavigation({ role }: { role?: string }) {
             </a>
           )
         })}
-        {signedIn ? <LogoutButton /> : null}
+        {signedIn && !support ? <LogoutButton /> : null}
       </nav>
       <OverlayDialog open={open} title={showWorkspace ? workspace === 'admin' ? 'Administração' : 'Meu espaço' : 'Menu'} onClose={close} variant="sidebar">
         <div id="mobile-navigation" className={styles.drawerContent} onClick={event => { if ((event.target as HTMLElement).closest('a')) close() }}>
@@ -63,7 +65,7 @@ export function SiteNavigation({ role }: { role?: string }) {
           </nav>
           {showWorkspace ? <WorkspaceNavigation area={workspace} role={sessionRole} /> : null}
           <div className={styles.drawerFooter}>
-            {signedIn ? <LogoutButton /> : null}
+            {signedIn && !support ? <LogoutButton /> : null}
           </div>
         </div>
       </OverlayDialog>

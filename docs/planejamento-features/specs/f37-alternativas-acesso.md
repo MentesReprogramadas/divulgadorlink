@@ -2,11 +2,11 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 21.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
+**Estado:** S0–S6 verificadas localmente em 18/10/2026; S7 em revisão.  
 **Onda:** 3. **Ordem:** 21.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Botão com alternativas de acesso”.  
 **Plano:** [F37 implementação](../planos/f37-alternativas-acesso.md).  
-**Dependências obrigatórias:** G00, [F09](../specs/f09-perfil-publico.md), [F12](../specs/f12-link-permanente.md).  
+**Dependências obrigatórias:** G00, [F09](../specs/f09-perfil-publico.md), [F12](../specs/f12-link-permanente.md), [F19](../specs/f19-historico-versoes.md).  
 **Governança:** [arquitetura](../arquitetura-e-reuso.md), [testes](../qualidade-e-testes.md), [decisões](../decisoes.md), [roadmap](../roadmap-auditavel.md).
 
 ## Objetivo e fronteira
@@ -43,15 +43,15 @@ Proposta de migração: avaliar mudanças de schema e adicionar somente campos/t
 
 Regra transversal: IDs de outro tenant não podem ser aceitos em relações. Projeções públicas são allowlists; rascunhos, contatos, tokens e dados privados não entram por serialização automática. Dinheiro em centavos e tempo armazenado em UTC; a agregação de analytics existente mantém America/Sao_Paulo. Índices devem ser baseados em consulta real, sem plataforma de dados nova por padrão.
 
-## Contratos propostos
+## Contratos implementados
 
-Rotas/operações: CRUD grupo/canais dentro /api/v1/me/profile/items; projeção pública retorna apenas canais elegíveis.
+Rotas/operações: CRUD grupo/canais em /api/v1/me/profile/channel-groups/:id, com listagem própria e seleção em /api/v1/me/profile/channel-destinations; projeção pública retorna apenas canais elegíveis.
 
-**Entrada específica:** `channels[{id,label,networkId,destinationRevisionId,paused}],expectedVersion`.
+**Entrada específica:** `name,visible,channels[{id,label,networkId,destinationRevisionId,paused}],expectedVersion`.
 
-**Saída específica:** `publicBlock{channels elegíveis,surfaceTokens},version`.
+**Saída específica:** `channelGroups[{id,name,channels[{id,label,network,href}]}],publishedRevisionId`; href assinado tem propósito próprio, distinto de analytics/surfaceToken.
 
-Todos os caminhos são propostas a reconciliar com rotas atuais em S0; não estão implementados. Quando a rota abreviada omite prefixo, o prefixo é /api/v1. PATCH/POST/DELETE com sessão preservam CSRF do app e enviam host pelo BFF; tenant não vem do corpo. GET público não exige autenticação indevida. Exportações, tokens e respostas privadas usam política de cache que impeça exposição.
+Rotas reconciliadas e implementadas, com detalhamento no registro de execução. Quando a rota abreviada omite prefixo, o prefixo é /api/v1. PATCH/POST/DELETE com sessão preservam CSRF do app e enviam host pelo BFF; tenant não vem do corpo. GET público não exige autenticação indevida. Exportações, tokens e respostas privadas usam política de cache que impeça exposição.
 
 Erros: aplicar o envelope existente code/message/request_id; 400 para entrada inválida, 401 sem sessão em recurso privado, 403 para contexto de tenant incompatível quando contrato atual exige, 404 para recurso alheio/ausente sem enumerar dados, 409 para conflito de versão/identidade, 429 para limite, 503 para indisponibilidade externa quando apropriado. Rotas existentes podem ter semântica específica; preservar testes de contrato e documentar divergência antes de mudar.
 
@@ -78,7 +78,7 @@ Cada linha preserva uma obrigação da fonte. Se um critério envolve decisão a
 
 ## Cenários específicos e oráculos
 
-Fixture comum: tenant A/B, dono A/outro dono A/admin A/dono B, IDs determinísticos por F37; T0 = 2026-10-14T12:00:00Z quando houver tempo. Acrescentar dados específicos abaixo sem alterar o seed global de outros testes.
+Fixture comum: tenant A/B, dono A/outro dono A/admin A/dono B, IDs determinísticos por F37; T0 = 2026-10-18T12:00:00Z nos PG próprios; E2E usa o relógio do servidor do harness, sem congelar a disponibilidade real da aplicação. Acrescentar dados específicos abaixo sem alterar o seed global de outros testes.
 
 ### Unitários de domínio
 
@@ -116,16 +116,16 @@ Criar um teste com ID Tnn para cada AC, com o seguinte protocolo específico da 
 
 ## Arquivos de teste propostos
 
-- U: `backend/src/domain/profiles/alternativas-acesso.spec.ts`.
-- C: `frontend/src/components/domain/alternativas-acesso.test.tsx`.
-- I: `backend/src/http/alternativas-acesso.http.spec.ts`.
-- PG: `backend/src/http/alternativas-acesso.pg.spec.ts`; registrar no comando/CI de PG.
-- E: `frontend/e2e/alternativas-acesso.spec.ts`; registrar no projeto features e features-mobile antes de executar.
+- U: `backend/src/domain/profiles/profile-channels.spec.ts`.
+- C: `frontend/src/features/profile-channels/channel-choices.test.tsx`.
+- I: `backend/src/http/profile-channels.pg.spec.ts`.
+- PG: `backend/src/http/profile-channels.pg.spec.ts`; registrar no comando/CI de PG.
+- E: `frontend/e2e/profile-channels.spec.ts`; registrar no projeto features e features-mobile antes de executar.
 - Consumidores e novos caminhos sugeridos estão no plano; todos devem ser reconciliados com a árvore existente em S0.
 
 ## Decisões e condições de liberação
 
-D39 layout, limite de canais e semântica de indisponíveis.
+D39 resolvida: até oito canais por grupo, fontes próprias F12 aprovadas, rede verificada, pausa a publicar, disponibilidade revalidada no clique e metadata associada a revisões F19.
 
 Risco específico: Não assumir que comunidades em canais diferentes são equivalentes; responsabilidade de descrição do dono.
 
@@ -141,3 +141,9 @@ Sem resolução das decisões bloqueantes e dependências concluídas, a feature
 
 **Indicadores:** cliques por canal e uso dos blocos com alternativas.
 
+
+Escolhas e alternativas de S0: [execução F37](../execucao-f37.md). Critérios locais aprovados; S7 global/remoto permanece em revisão.
+
+Reconciliação técnica: F19 é dependência obrigatória porque a metadata publicada referencia suas revisões imutáveis e acompanha a retenção; F31 é reaproveitada condicionalmente para medição, sem conceder capacidade. Decisão D39 em execucao-f37.md. Autorização mais recente determina parar ao concluir F37; F38 e posteriores não iniciar.
+
+[Fechamento local, contratos, escolhas, rollback e resultados](../execucao-f37.md). Pausa solicitada após F37; próxima F38 não iniciada.

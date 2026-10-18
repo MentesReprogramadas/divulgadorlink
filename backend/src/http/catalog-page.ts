@@ -1,5 +1,7 @@
 import { newOrderSeed, randomOrder } from '@/domain/catalog/random-order'
 import { PUBLIC_LINK_FILTER } from '@/domain/catalog/public-link'
+import {createHash} from 'node:crypto'
+import {discoverySql,type DiscoveryMetadata} from '@/domain/catalog/discovery-metadata'
 
 export class InvalidCursorError extends Error {
   constructor() {
@@ -15,6 +17,7 @@ export type CatalogCursor = {
   activatedAt: string | null
   id: string
   seed?: string
+  filterKey?: string
 }
 
 export function capLimit(raw: unknown): number {
@@ -38,14 +41,22 @@ export function decodeCursor(raw: unknown): CatalogCursor | null {
     throw new InvalidCursorError()
   }
   if (!parsed || typeof parsed !== 'object') throw new InvalidCursorError()
-  const row = parsed as { kind?: unknown; activatedAt?: unknown; id?: unknown; seed?: unknown }
+  const row = parsed as { kind?: unknown; activatedAt?: unknown; id?: unknown; seed?: unknown; filterKey?:unknown }
   if ((row.kind !== 'sponsored' && row.kind !== 'organic') || typeof row.id !== 'string' || row.id.length === 0) {
     throw new InvalidCursorError()
   }
   if (row.activatedAt !== null && typeof row.activatedAt !== 'string') throw new InvalidCursorError()
   if (row.seed !== undefined && (typeof row.seed !== 'string' || !/^[a-f0-9]{32}$/.test(row.seed))) throw new InvalidCursorError()
-  return { kind: row.kind, activatedAt: row.activatedAt ?? null, id: row.id, seed: row.seed as string | undefined }
+  if(row.filterKey!==undefined&&(typeof row.filterKey!=='string'||!/^[a-f0-9]{64}$/.test(row.filterKey)))throw new InvalidCursorError()
+  return { kind: row.kind, activatedAt: row.activatedAt ?? null, id: row.id, seed: row.seed as string | undefined,...(row.filterKey?{filterKey:row.filterKey as string}:{}) }
 }
+
+export function discoveryCursorContext(filters:DiscoveryMetadata,context:unknown,cursor:CatalogCursor|null){
+ const key=Object.values(filters).some(Boolean)?createHash('sha256').update(JSON.stringify([context,filters])).digest('hex'):undefined
+ if(cursor?.filterKey!==key&&(cursor?.filterKey||key)&&cursor)throw new InvalidCursorError()
+ return key
+}
+export function tagDiscoveryCursor(raw:string|null,key:string|undefined){return raw&&key?encodeCursor({...decodeCursor(raw)!,filterKey:key}):raw}
 
 type Ranked = { id: string; relevance: number; homeActivatedAt: Date | null }
 
@@ -97,6 +108,7 @@ export function homePageSql(surface: 'HOME' | 'NICHE'): { sponsored: string; org
       AND ($2::text = 'yes' OR n."requiresAge" = false)
       AND ($3::text IS NULL OR n."slug" = $3)
       AND ($4::text IS NULL OR net."slug" = $4)
+      ${discoverySql(8)}
       AND ($5::text IS NULL OR (md5($6::text || l."id") COLLATE "C", l."id") > (md5($6::text || $5::text), $5::text))
     ORDER BY md5($6::text || l."id") COLLATE "C" ASC, l."id" ASC
     LIMIT $7
@@ -113,6 +125,7 @@ export function homePageSql(surface: 'HOME' | 'NICHE'): { sponsored: string; org
       AND ($2::text = 'yes' OR n."requiresAge" = false)
       AND ($3::text IS NULL OR n."slug" = $3)
       AND ($4::text IS NULL OR net."slug" = $4)
+      ${discoverySql(8)}
       AND NOT EXISTS (
         SELECT 1 FROM "promotions" p
         WHERE p."linkId" = l."id" AND p."status" = 'ACTIVE' AND (NOT p.administrative OR p."expiresAt" IS NULL OR p."expiresAt" > NOW()) AND p."surface" = '${surface}'::"PromotionSurface"

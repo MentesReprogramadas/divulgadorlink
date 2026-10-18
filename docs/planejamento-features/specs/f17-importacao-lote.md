@@ -2,7 +2,7 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 16.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
+**Estado:** S0–S6 validadas localmente; S7 EM REVISÃO por CI/liberação remotos pendentes.
 **Onda:** 3. **Ordem:** 16.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Importação em lote”.  
 **Plano:** [F17 implementação](../planos/f17-importacao-lote.md).  
@@ -51,7 +51,7 @@ Rotas/operações: POST /api/v1/me/profile/import/preview; POST /import/confirm 
 
 **Saída específica:** `preview{items[{line,url,status,errors}],expiresAt}; confirmação{createdIds,rejectedLines}`.
 
-Todos os caminhos são propostas a reconciliar com rotas atuais em S0; não estão implementados. Quando a rota abreviada omite prefixo, o prefixo é /api/v1. PATCH/POST/DELETE com sessão preservam CSRF do app e enviam host pelo BFF; tenant não vem do corpo. GET público não exige autenticação indevida. Exportações, tokens e respostas privadas usam política de cache que impeça exposição.
+Os dois POST privados foram implementados nos caminhos completos abaixo; nomes/DTO antigos desta seção foram reconciliados em S0. Quando a rota abreviada omite prefixo, o prefixo é /api/v1. PATCH/POST/DELETE com sessão preservam CSRF do app e enviam host pelo BFF; tenant não vem do corpo. GET público não exige autenticação indevida. Exportações, tokens e respostas privadas usam política de cache que impeça exposição.
 
 Erros: aplicar o envelope existente code/message/request_id; 400 para entrada inválida, 401 sem sessão em recurso privado, 403 para contexto de tenant incompatível quando contrato atual exige, 404 para recurso alheio/ausente sem enumerar dados, 409 para conflito de versão/identidade, 429 para limite, 503 para indisponibilidade externa quando apropriado. Rotas existentes podem ter semântica específica; preservar testes de contrato e documentar divergência antes de mudar.
 
@@ -89,7 +89,7 @@ Cada cenário precisa criar a entrada e verificar o resultado descrito; usar rel
 
 ### Integração HTTP e persistência
 
-- **F17-I01:** Confirmar lote repetido não duplica itens; falha parcial informa exatamente itens persistidos; importação de perfil não cria Link publicado.
+- **F17-I01:** Confirmar lote repetido não duplica itens; falha transacional não persiste nenhum selecionado e retry recupera os IDs já confirmados; importação de perfil não cria Link no catálogo.
 - **F17-I02:** chamar operação privada como outro dono A e dono B; afirmar código de negação e ausência de mutação/retorno de dados de F17. Para leitura pública, afirmar apenas campos elegíveis, sem bloquear o visitante legítimo.
 - **F17-I03:** repetir mutação ou evento aplicável e simular falha na fronteira de persistência/provedor; conferir invariantes, não apenas resposta. Se não houver mutação, repetir leitura/geração e comprovar ausência de efeitos.
 - **F17-PG01:** validar constraints/consulta real descritas na seção Dados; quando não houver migração nova, testar isolamento e consulta sobre modelos existentes, sem migração artificial.
@@ -124,11 +124,22 @@ Criar um teste com ID Tnn para cada AC, com o seguinte protocolo específico da 
 
 ## Decisões e condições de liberação
 
-D19 tamanho de lote, atomicidade ou sucesso parcial e expiração da prévia.
+D19 resolvida: até 50 endereços por lote, prévia privada de dez minutos e confirmação atômica da seleção. [Contrato/alternativas](../execucao-f17.md).
 
 Risco específico: Não buscar metadados sem safe-fetch; não criar fila se tamanho aprovado cabe com segurança no request.
 
 Sem resolução das decisões bloqueantes e dependências concluídas, a feature não avança para implementação. Critério de saída: ACs com evidências, U/C/I/E relevantes verdes, PG/Redis quando exigidos, revisão de design e rollout/rollback aprovados. Seguir Definition of Done comum, sem marcar testes não executados como aprovados.
+
+## Contrato reconciliado em 18/10/2026
+
+Decisões e alternativas detalhadas na [execução F17](../execucao-f17.md). Até 50 endereços não vazios/500 posições contando linhas vazias; até 2048 caracteres por URL, inclusive após canonicalização. Prévia dez minutos, por dono/tenant/versão. Não busca HTML/metadados externos: hostname sugere título e não aprova conteúdo. AssertPublicHttps/canonicalUrl atuais; rede/IA/humano/WhatsApp permanecem na publicação existente.
+
+- POST `/api/v1/me/profile/import/preview`: `lines[],expectedVersion`; retorna `previewId` assinado, `idempotencyKey`, `expectedVersion`, `expiresAt`, `items[{line,url,suggestedTitle,status,message}]`.
+- POST `/api/v1/me/profile/import/confirm`: `previewId,expectedVersion,idempotencyKey,selectedItems[{line,label,categoryId|null,newCategoryName|null}]`; retorna `createdIds,alreadyApplied,profile`. Não aceita destino/dono/tenant do cliente como autoridade. Linha inválida/repetida não pode ser confirmada.
+- Seleção revisada entra inteira em uma transação no rascunho; erros não criam sucesso parcial silencioso. Mesma chave/payload retorna os mesmos IDs sem sobrescrever edição posterior. Recibo durável na chave primária do audit existente, sem URL/título/entrada; sem tabela/fila/migração nova. Prévia não grava nada.
+- Manter todos os grupos/links/identidade/agendas/exemplos anteriores; publicação e histórico continuam separados. Limites existentes 100 grupos/500 itens. Grupo alheio, conta suspensa, versão obsoleta, token adulterado/expirado e payload diferente negados no servidor.
+- UI `/painel/perfil/importar`, ação Importar links faz flush antes de navegar. Colar → listagem com erro por linha/filtro/paginação → confirmação. Editar título/grupo em modal próprio; retry preserva seleção. Corrigir endereço volta a Colar e exige prévia nova. Proteger fechamento de aba com entrada não confirmada sem persistir URLs em storage/analytics.
+- Reuso: backend profile-import.ts (regra pura), profile-import-token.ts (assinatura privada), profiles-repository e routes existentes (lock/escrita/projeção); frontend features/profile-import e controles locais. Testes reais profile-import.spec.ts/token.spec.ts, profile-import.pg.spec.ts, import-screen.test.tsx e e2e/profile-import.spec.ts. Os nomes de arquivos antigos no plano eram sugestões, não obrigação de duplicar módulo.
 
 ## Fonte integral da feature
 

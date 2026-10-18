@@ -1,3 +1,4 @@
+import { registerSearchOpportunityRoutes } from './search-opportunities'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
 import {
@@ -127,6 +128,7 @@ export async function adminRoutes(app: FastifyInstance) {
   await registerAdminPromotionRoutes(app)
   await registerRetentionRoutes(app)
   await registerTrafficAdminRoutes(app)
+  await registerSearchOpportunityRoutes(app)
   await registerFinanceRoutes(app)
   await registerSettingsRoutes(app)
   await registerFacetRoutes(app)

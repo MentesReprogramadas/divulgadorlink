@@ -1,6 +1,7 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 
 export async function readAccessUser(request: FastifyRequest): Promise<FastifyRequest['user'] | null> {
+  if (request.supportUser) { request.user = request.supportUser; return request.supportUser }
   const authorization = request.headers.authorization
   const bearer = typeof authorization === 'string' && authorization.startsWith('Bearer ')
   const cookie = request.cookies.accessToken

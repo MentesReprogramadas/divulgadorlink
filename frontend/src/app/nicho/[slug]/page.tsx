@@ -1,3 +1,5 @@
+import { discoveryQueryRecord } from '@/features/catalog/discovery/discovery-contract'
+import { InvalidDiscovery } from '@/features/catalog/discovery/invalid-discovery'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { FacetCatalog, type FacetCatalogBody } from '@/components/domain/facet-catalog'
@@ -16,8 +18,10 @@ type NicheBody = FacetCatalogBody & {
   networks?: Array<{ id: string; name: string; slug: string; requiresAge?: boolean }>
 }
 
-function apiPath(slug: string, network: string | null): string {
-  const filter = network ? `?network=${encodeURIComponent(network)}` : ''
+function apiPath(slug: string, network: string | null, discovery = ""): string {
+  const query = new URLSearchParams(discovery)
+  if (network) query.set("network",network)
+  const filter = query.size ? `?${query}` : ""
   return `/api/v1/niches/${encodeURIComponent(slug)}${filter}`
 }
 
@@ -26,12 +30,13 @@ export async function generateMetadata({
   searchParams,
 }: {
   params: Promise<{ slug: string }>
-  searchParams: Promise<{ rede?: string | string[] }>
+  searchParams: Promise<Record<string,string|string[]|undefined>>
 }): Promise<Metadata> {
   const { slug } = await params
   const query = await searchParams
-  const loaded = await loadCatalog(apiPath(slug, oneSlug(query.rede)))
+  const loaded = await loadCatalog(apiPath(slug, oneSlug(query.rede), discoveryQueryRecord(query).toString()))
   if (loaded.status === 404) notFound()
+  if (loaded.status === 400) return {robots:{index:false,follow:true}}
   const body = loaded.body as NicheBody | null
   if (!body?.seo?.canonical) throw new Error('Niche SEO missing')
   return metadataFromSeo(body.seo)
@@ -42,12 +47,14 @@ export default async function Page({
   searchParams,
 }: {
   params: Promise<{ slug: string }>
-  searchParams: Promise<{ rede?: string | string[] }>
+  searchParams: Promise<Record<string,string|string[]|undefined>>
 }) {
   const { slug } = await params
-  const network = oneSlug((await searchParams).rede)
-  const loaded = await loadCatalog(apiPath(slug, network))
+  const query = await searchParams
+  const network = oneSlug(query.rede)
+  const loaded = await loadCatalog(apiPath(slug, network, discoveryQueryRecord(query).toString()))
   if (loaded.status === 404) notFound()
+  if (loaded.status === 400) return <main><InvalidDiscovery href={`/nicho/${encodeURIComponent(slug)}`}/></main>
   const body = loaded.body as NicheBody | null
   if (!body?.seo?.title) {
     return (

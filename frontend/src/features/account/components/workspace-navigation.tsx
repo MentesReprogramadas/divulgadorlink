@@ -12,17 +12,18 @@ type NavigationGroup = { label: string; items: NavigationItem[]; submenu?: { lab
 const panelGroups: NavigationGroup[] = [
   { label: 'Seu espaço', items: [{ href: '/painel', label: 'Visão geral' }], submenu: { label: 'Publicação', icon: 'publish', items: [{ href: '/painel/links', label: 'Links' }, { href: '/painel/links/novo', label: 'Criar link' }, { href: '/painel/perfil', label: 'Minha página' }, { href: '/painel/convites', label: 'Convites' }] } },
   { label: 'Acompanhar', items: [{ href: '/painel/pedidos', label: 'Pedidos' }, { href: '/painel/lembretes', label: 'Lembretes' }, { href: '/painel/favoritos', label: 'Favoritos' }] },
-  { label: 'Preferências', items: [{ href: '/painel/conta', label: 'Conta' }] },
+  { label: 'Preferências', items: [{ href: '/painel/assinatura', label: 'Assinatura' }, { href: '/painel/conta', label: 'Conta' }] },
 ]
 const adminGroups: NavigationGroup[] = [
   { label: 'Operação', items: [{ href: '/admin/visao', label: 'Gestão' }], submenu: { label: 'Revisões', icon: 'reviews', items: [{ href: '/admin/moderacao', label: 'Moderação' }, { href: '/admin/denuncias', label: 'Denúncias' }, { href: '/admin/disponibilidade', label: 'Correções' }] } },
-  { label: 'Comercial', items: [{ href: '/admin/planos', label: 'Planos' }, { href: '/admin/estornos', label: 'Estornos' }] },
+  { label: 'Comercial', items: [{ href: '/admin/planos', label: 'Destaques' }, { href: '/admin/assinaturas', label: 'Assinaturas' }, { href: '/admin/estornos', label: 'Estornos' }] },
   { label: 'Sistema', items: [{ href: '/admin/integracoes', label: 'Integrações' }, { href: '/admin/configuracoes', label: 'Configurações' }] },
 ]
 export function WorkspaceNavigation({ area, role }: { area: 'panel' | 'admin'; role?: string }) {
   const path = usePathname()
   function itemLink(item: NavigationItem) {
-    return <SidebarLink key={item.href} href={item.href} active={path === item.href || item.href === '/painel' && path === '/painel/visao'}>
+    const profileSubpage=item.href==='/painel/perfil'&&path.startsWith('/painel/perfil/')
+    return <SidebarLink key={item.href} href={item.href} active={profileSubpage || path === item.href || item.href === '/painel' && path === '/painel/visao'} current={profileSubpage?'location':'page'}>
       <ActionIcon name={navigationIcons[item.href]} width={19} height={19} strokeWidth={1.6} />{item.label}
     </SidebarLink>
   }

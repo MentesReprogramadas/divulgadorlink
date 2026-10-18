@@ -2,7 +2,7 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 10.
 
-**Estado:** NÃO INICIADO. Somente planejamento autorizado.  
+**Estado:** S0–S6 concluídas localmente; S7 em revisão. Implementação autorizada pelo usuário em 17/10/2026.
 **Spec vinculante:** [F19](../specs/f19-historico-versoes.md).  
 **Dependências:** G00, [F09](../specs/f09-perfil-publico.md).  
 **Onda:** 2. Etapas rastreadas no [roadmap](../roadmap-auditavel.md) e na [matriz](../matriz-aceitacao.csv).
@@ -15,7 +15,7 @@ Contrato a entregar: GET /api/v1/me/profile/revisions; POST /revisions/:id/resto
 
 Dados: ProfileRevision imutável e publishedRevisionId; draft com versão otimista; snapshot só apresentação/links, nunca ACL/billing; perfil mínimo F09 já tem separação draft/published.
 
-Todos os itens abaixo são tarefas futuras. Não executar comandos, criar migration ou escrever aplicação só porque este plano existe. Não acionar implantação automática via push na main: o projeto publica a main pelo Coolify.
+O roteiro original abaixo foi reconciliado com a [execução F19](../execucao-f19.md), que registra os caminhos efetivos, decisões e provas; não representa uma segunda lista de pendências. O plano isoladamente não autoriza novas operações externas. Não acionar implantação automática via push na main: o projeto publica a main pelo Coolify.
 
 ## Arquivos e pontos de integração
 
@@ -158,3 +158,9 @@ Esses nomes não são obrigação de criar arquivos vazios. Preferir ampliação
 
 **Registro inicial:** responsável não atribuído; commit de implementação inexistente; resultados NÃO EXECUTADOS; liberação NÃO AUTORIZADA por este documento.
 
+
+## Reconciliação de execução — 17/10/2026
+
+[Execução F19](../execucao-f19.md) é o registro vigente de contratos, arquivos reais, decisões/alternativas, resultados e reversão. Prévia existente foi reutilizada; snapshots de publicações em ProfileRevision, 50/180 com preservação da atual; restauração explícita cria novo rascunho e revalida destinos. D21 mídia resolvida pelo usuário: não reter fotos antigas, omitir foto removida e avisar ao restaurar. Identidade, ACL e cobrança não são restauradas. Datas legadas são marcadas como importação. Publicação repetida conserva idempotência, criando um snapshot; restores concorrentes têm conflito.
+
+Contratos reais: GET `/api/v1/me/profile/revisions`, GET `/api/v1/me/profile/revisions/:id` e POST `/api/v1/me/profile/revisions/:id/restore` com `{expectedVersion}`. Casos U/PG/C/E nos arquivos `profile-history.spec.ts`, `profile-history.pg.spec.ts`, `profile-history-screen.test.tsx`, `profile-comparison.test.ts` e `profile-history.spec.ts` do E2E. Comandos e evidências no registro; nomes e comandos propostos acima são históricos. Checklist futuro não substitui os gates efetivos registrados no ledger. S7 remoto permanece aberto, sem commit/push/deploy.

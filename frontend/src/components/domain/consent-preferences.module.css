@@ -1,0 +1,4 @@
+.preferences{display:grid;gap:var(--space-3);margin:var(--space-4) 0 0;padding:var(--space-4);border:1px solid var(--border-default);border-radius:var(--radius-md);min-width:0}
+.preferences legend{font-weight:600;padding:0 var(--space-2)}
+.preferences label{display:flex;align-items:flex-start;gap:var(--space-3);font-size:var(--text-sm);line-height:1.5;cursor:pointer}
+.preferences input{flex:none;margin:.2rem 0 0;accent-color:var(--action-primary-bg);width:1rem;height:1rem}

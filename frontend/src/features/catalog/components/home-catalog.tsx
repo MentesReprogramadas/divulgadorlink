@@ -8,6 +8,7 @@ import { type LinkContext } from '@/components/domain/link-meta'
 import { LinkRow } from '@/components/domain/link-row'
 import { EmptyState } from '@/components/feedback/empty-state'
 import { api } from '@/lib/api'
+import { discoveryParams, emptyDiscovery, type DiscoveryValues } from '@/features/catalog/discovery/discovery-contract'
 import styles from './home-catalog.module.css'
 
 type HomeCard = {
@@ -30,7 +31,7 @@ function rowHref(row: HomeCard): string {
   return `/link/${row.id}?surfaceToken=${encodeURIComponent(row.surfaceToken)}`
 }
 
-export function HomeCatalog({ initial }: { initial: HomePage }) {
+export function HomeCatalog({ initial, filters = emptyDiscovery() }: { initial: HomePage; filters?: DiscoveryValues }) {
   const [catalog, setCatalog] = useState(initial)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
@@ -43,7 +44,8 @@ export function HomeCatalog({ initial }: { initial: HomePage }) {
     setLoading(true)
     setError(false)
     try {
-      const result = await api<HomePage>(`/v1/home?cursor=${encodeURIComponent(catalog.nextCursor)}`)
+      const filterQuery=discoveryParams(filters).toString()
+      const result = await api<HomePage>(`/v1/home?cursor=${encodeURIComponent(catalog.nextCursor)}${filterQuery ? `&${filterQuery}` : ''}`)
       if (result.status !== 200) throw new Error('Não foi possível carregar os links.')
       const seen = new Set([...catalog.sponsored, ...catalog.organic].map((row) => row.id))
       const append = (rows: HomeCard[]) => rows.filter((row) => {
@@ -95,7 +97,7 @@ export function HomeCatalog({ initial }: { initial: HomePage }) {
                 ))}
               </CatalogGrid>
             </section>
-          ) : <div className="home-empty"><EmptyState>Nenhum link publicado</EmptyState></div>}
+          ) : <div className="home-empty"><EmptyState>{Object.values(filters).some(Boolean) ? 'Nenhum link encontrado com estes filtros' : 'Nenhum link publicado'}</EmptyState></div>}
         </div>
       ) : null}
       {error ? <p className={styles.feedback} role="alert">Não foi possível carregar mais links. Os anteriores continuam aqui. Tente novamente.</p> : null}

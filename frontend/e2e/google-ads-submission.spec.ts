@@ -1,6 +1,9 @@
 import { expect, test } from '@playwright/test'
+import {runtime} from './runtime.cjs'
+import {selectOption} from './select-control'
 
-test.use({ baseURL: process.env.GOOGLE_ADS_TEST_ORIGIN ?? 'http://tenant-a.localhost:3000' })
+const origin=process.env.GOOGLE_ADS_TEST_ORIGIN ?? runtime.web('tenant-a.localhost')
+test.use({ baseURL: origin })
 
 for (const scenario of ['accepted', 'published', 'denied', 'pending-consent', 'rejected', 'duplicate', 'offline'] as const) {
   test(`Google Ads: envio de link ${scenario}`, async ({ page }, testInfo) => {
@@ -36,23 +39,25 @@ for (const scenario of ['accepted', 'published', 'denied', 'pending-consent', 'r
       } else await route.fulfill({ json: {} })
     })
     if (consent) {
-      await page.context().addCookies([{ name: 'tla_consent', value: consent, url: testInfo.project.use.baseURL ?? process.env.GOOGLE_ADS_TEST_ORIGIN ?? 'http://tenant-a.localhost:3000' }])
+      await page.context().addCookies([{ name: 'tla_consent', value: consent, url: origin }])
     }
     await page.goto('/painel/links/novo')
     const conversions = () => page.evaluate(() => {
       const host = window as Window & { dataLayer?: ArrayLike<unknown>[] }
       return (host.dataLayer ?? []).map(command => Array.from(command)).filter(command => command[0] === 'event' && command[1] === 'conversion')
     })
-    await expect(page.getByLabel('Titulo')).toBeVisible()
+    await expect(page.getByLabel('Título do link')).toBeVisible()
     expect(await conversions()).toEqual([])
-    await page.getByLabel('Titulo').fill('Link de demonstração')
-    await page.getByLabel('URL').fill('https://example.com/google-ads')
-    await page.getByLabel('Descrição').fill('Conteúdo de teste sem dados pessoais')
-    await page.getByLabel('Rede').selectOption('net')
-    await page.getByLabel('Nicho').selectOption('niche')
+    await page.getByLabel('Título do link').fill('Link de demonstração')
+    await page.getByLabel('Link de acesso').fill('https://example.com/google-ads')
+    await page.getByRole('button',{name:'Continuar',exact:true}).click()
+    await page.getByLabel('Descrição',{exact:true}).fill('Conteúdo de teste sem dados pessoais')
+    await selectOption(page.getByLabel('Rede do link'),'net')
+    await selectOption(page.getByLabel('Assunto do link'),'niche')
+    await page.getByRole('button',{name:'Continuar',exact:true}).click()
     await page.getByRole('button', { name: 'Enviar', exact: true }).click()
     if (scenario === 'offline' || scenario === 'duplicate') {
-      await expect(page.getByRole('alert')).toBeVisible()
+      await expect(page.getByRole('main').getByRole('alert')).toBeVisible()
     } else {
       await expect(page.getByRole('heading', { name: scenario === 'rejected' ? 'Envio não aceito' : 'Enviado para análise.' })).toBeVisible()
     }

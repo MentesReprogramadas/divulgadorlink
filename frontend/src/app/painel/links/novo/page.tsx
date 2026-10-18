@@ -48,7 +48,10 @@ function describeSubmission(status: string | undefined): SubmissionResult {
   }
 }
 
-type Draft = { name: string; description: string; url: string; networkId: string; nicheId: string }
+import { DiscoveryDraftButton } from '@/features/catalog/discovery/discovery-draft-button'
+import { emptyDiscovery, readDiscovery, type DiscoveryValues } from '@/features/catalog/discovery/discovery-contract'
+
+type Draft = { discovery?: DiscoveryValues; name: string; description: string; url: string; networkId: string; nicheId: string }
 
 function readDraft(): Draft {
   try {
@@ -61,6 +64,7 @@ function readDraft(): Draft {
       url: parsed.url ?? '',
       networkId: parsed.networkId ?? '',
       nicheId: parsed.nicheId ?? '',
+      discovery: readDiscovery(new URLSearchParams(Object.entries(parsed.discovery ?? {}).filter((entry): entry is [string,string] => typeof entry[1] === 'string'))),
     }
   } catch {
     return { name: '', description: '', url: '', networkId: '', nicheId: '' }
@@ -150,6 +154,7 @@ export default function Page() {
           description: draft.description,
           networkId: draft.networkId,
           nicheId: draft.nicheId,
+          ...(draft.discovery ?? emptyDiscovery()),
         }),
       })
       setPending(false)
@@ -202,6 +207,7 @@ export default function Page() {
         </fieldset>
         </fieldset>
         {step === 2 ? <dl className={styles.review}><div><dt>Título do link</dt><dd>{draft.name}</dd></div><div><dt>Link de acesso</dt><dd>{draft.url}</dd></div><div><dt>Descrição</dt><dd>{draft.description}</dd></div><div><dt>Rede do link</dt><dd>{networks.find(row => row.id === draft.networkId)?.name}</dd></div><div><dt>Assunto do link</dt><dd>{niches.find(row => row.id === draft.nicheId)?.name}</dd></div></dl> : null}
+        {step === 2 ? <DiscoveryDraftButton value={draft.discovery ?? emptyDiscovery()} onChange={discovery => update({discovery})} /> : null}
         {error ? <p role="alert">{error}</p> : null}
         <div className={styles.stepActions}>{step > 0 ? <Button type="button" variant="secondary" disabled={pending} onClick={() => setStep(step - 1)}><ActionIcon name="back" />Voltar</Button> : null}<Button type="submit" loading={pending} disabled={result !== null || !confirmed || session?.status === 'BANNED'}><ActionIcon name={step === 2 ? 'save' : 'next'} />{step === 2 ? 'Enviar' : 'Continuar'}</Button></div>
       </form>

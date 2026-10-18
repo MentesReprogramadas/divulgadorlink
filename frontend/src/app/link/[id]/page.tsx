@@ -75,7 +75,7 @@ export default async function Page({
   searchParams,
 }: {
   params: Promise<{ id: string }>
-  searchParams: Promise<{ surfaceToken?: string }>
+  searchParams: Promise<{ surfaceToken?: string; queryId?: string }>
 }) {
   const { id } = await params
   const query = await searchParams
@@ -91,7 +91,7 @@ export default async function Page({
     )
   }
   const token = query.surfaceToken || link.surfaceToken || ''
-  const href = trackedGoPath(id, query.surfaceToken, link.surfaceToken)
+  const href = trackedGoPath(id, query.surfaceToken, link.surfaceToken, query.queryId)
   const description = usableDescription(link.name ?? '', link.description)
   return (
     <main className="detail-page">

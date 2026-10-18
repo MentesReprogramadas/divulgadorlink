@@ -1,3 +1,6 @@
+import {ZodError} from 'zod'
+import {parseDiscovery,matchesDiscovery,type DiscoveryMetadata} from '@/domain/catalog/discovery-metadata'
+import {discoveryCursorContext,tagDiscoveryCursor} from '@/http/catalog-page'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { signSurface, type AnalyticsOrigin } from '@/domain/analytics/surface-token'
 import {
@@ -22,7 +25,7 @@ import { indexableEntries } from '@/http/sitemap-index'
 import { rankHome, rankNiche, visibleForAge } from '@/use-cases/@Search/rank-links'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
 
-export type CatalogLink = {
+export type CatalogLink = Partial<DiscoveryMetadata> & {
   id: string
   name: string
   description: string
@@ -179,7 +182,7 @@ async function getHome(request: FastifyRequest, reply: FastifyReply) {
     const tenant = await resolveTenant(host)
     const age = ageFromCookie(request)
     const rows = process.env.NODE_ENV === 'test' ? linksFor() : []
-    const query = request.query as { limit?: string; cursor?: string }
+    const query = request.query as { limit?: string; cursor?: string };const filters=parseDiscovery(query)
     const limit = capLimit(query.limit)
     let cursor
     try {
@@ -193,8 +196,9 @@ async function getHome(request: FastifyRequest, reply: FastifyReply) {
     type CardRow = { id: string; name: string; description: string; nicheName?: string | null; nicheSlug?: string | null; networkName?: string | null; networkSlug?: string | null }
     let page: { sponsored: CardRow[]; organic: CardRow[]; nextCursor: string | null }
     if (process.env.NODE_ENV === 'test') {
-      const visible = visibleForAge(rows, age)
+      const visible = visibleForAge(rows, age).filter(row=>matchesDiscovery(row,filters))
       const byId = new Map(visible.map((row) => [row.id, row]))
+      const filterKey=discoveryCursorContext(filters,[tenant.id,age,'HOME',null,null],cursor)
       const ranked = pageRanked(rankHome(visible.map((row) => ({
         id: row.id,
         name: row.name,
@@ -206,7 +210,7 @@ async function getHome(request: FastifyRequest, reply: FastifyReply) {
       page = {
         sponsored: ranked.sponsored.map(present),
         organic: ranked.organic.map(present),
-        nextCursor: ranked.nextCursor,
+        nextCursor: tagDiscoveryCursor(ranked.nextCursor,filterKey),
       }
     } else {
       const loaded = await queryCatalogPage(prisma, {
@@ -216,7 +220,7 @@ async function getHome(request: FastifyRequest, reply: FastifyReply) {
         nicheSlug: null,
         networkSlug: null,
         limit,
-        cursor,
+        cursor,filters,
       })
       page = {
         sponsored: loaded.rows.filter((row) => row.homeActivatedAt),
@@ -249,9 +253,10 @@ async function getHome(request: FastifyRequest, reply: FastifyReply) {
       showImpressions: await publicImpressions(tenant.id),
       sponsored: await counted(tenant.id, page.sponsored, 'home', nicheOkBySlug),
       organic: await counted(tenant.id, page.organic, 'home', nicheOkBySlug),
-      nextCursor: page.nextCursor,
+      nextCursor: page.nextCursor,activeFilters:filters,
     })
   } catch (error) {
+    if(error instanceof ZodError)return reply.status(400).send(buildError({code:'validation',message:'Confira a cidade, o idioma e o formato.',request_id:request.id}))
     if (error instanceof InvalidCursorError) {
       return reply.status(400).send(buildError({ code: 'validation', message: 'Validation error.', request_id: request.id }))
     }
@@ -334,7 +339,7 @@ async function getFacet(
     if (!facet) {
       return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
     }
-    const query = request.query as { limit?: string; cursor?: string; niche?: string; network?: string }
+    const query = request.query as { limit?: string; cursor?: string; niche?: string; network?: string };const filters=parseDiscovery(query)
     const filterNiche = kind === 'network' ? slugOf(query.niche) : null
     const filterNetwork = kind === 'niche' ? slugOf(query.network) : null
     const niches = kind === 'network' ? await companionFacets(tenant.id, 'network', slug) : undefined
@@ -344,7 +349,7 @@ async function getFacet(
       ? snapshot.niches.some((row) => row.slug === filterNiche && row.requiresAge)
       : snapshot.networks.some((row) => row.slug === filterNetwork && row.requiresAge === true)
     const ageRestricted = requiresAge || companionRequiresAge
-    const filtered = Boolean(query.network || query.niche || query.cursor)
+    const filtered = Boolean(query.network || query.niche || query.cursor || Object.values(filters).some(Boolean))
     const heading = facet.name
     const description = facetBlurb(kind, facet.name, requiresAge && age !== 'yes' ? null : facet.summary)
     const path = facetPath(kind, slug)
@@ -399,7 +404,7 @@ async function getFacet(
         ...(networks ? { networks } : {}),
         sponsored,
         organic,
-        nextCursor,
+        nextCursor,activeFilters:filters,
       })
     }
     if (process.env.NODE_ENV !== 'test') {
@@ -410,7 +415,7 @@ async function getFacet(
         nicheSlug: kind === 'niche' ? slug : filterNiche,
         networkSlug: kind === 'network' ? slug : filterNetwork,
         limit,
-        cursor,
+        cursor,filters,
       })
       return sendPage(
         loaded.rows.filter((row) => row.homeActivatedAt),
@@ -422,7 +427,7 @@ async function getFacet(
       if (kind === 'niche') return row.nicheSlug === slug && (!filterNetwork || row.networkSlug === filterNetwork)
       return row.networkSlug === slug && (!filterNiche || row.nicheSlug === filterNiche)
     })
-    const visible = visibleForAge(rows, age)
+    const visible = visibleForAge(rows, age).filter(row=>matchesDiscovery(row,filters))
     const ranked = rankNiche(visible.map((row) => ({
       id: row.id,
       name: row.name,
@@ -430,15 +435,17 @@ async function getFacet(
       relevance: row.relevance,
       nicheActivatedAt: row.nicheActivatedAt,
     })))
+    const key=discoveryCursorContext(filters,[tenant.id,age,'NICHE',kind==='niche'?slug:filterNiche,kind==='network'?slug:filterNetwork],cursor)
     const page = pageRanked(ranked, cursor, limit)
     const byId = new Map(visible.map((row) => [row.id, row]))
     const present = (id: string) => byId.get(id)!
     return sendPage(
       page.sponsored.map((row) => present(row.id)),
       page.organic.map((row) => present(row.id)),
-      page.nextCursor,
+      tagDiscoveryCursor(page.nextCursor,key),
     )
   } catch (error) {
+    if(error instanceof ZodError)return reply.status(400).send(buildError({code:'validation',message:'Confira a cidade, o idioma e o formato.',request_id:request.id}))
     if (error instanceof InvalidCursorError) {
       return reply.status(400).send(buildError({ code: 'validation', message: 'Validation error.', request_id: request.id }))
     }

@@ -1,6 +1,6 @@
 # Roadmap auditável por etapa
 
-**Baseline inicial:** 14 de outubro de 2026. **Repriorização:** 15 de outubro de 2026, F42 em primeiro lugar. **Execução:** P0/F42 concluído em produção e validado, por autorização posterior. Continuação F01–F41 autorizada em branch separada; F01 concluída na branch; F06 concluída na branch e F07 concluída na branch, com CI aprovado. F02, F03 e F04 concluídas na branch; ajuste aleatório de F03 validado e parada solicitada após F04. Autorização posterior concluiu somente F09, com D10 resolvida, seis ACs e S0–S7 verificados no CI 38940575906. A parada após F09 foi revogada em 16/10/2026 pela autorização de execução contínua. F12 concluída na branch com CI aprovado. A instrução posterior determina parar após F12; F19 não iniciada. Aprovação automática e retenção foram definidas pelo usuário, conforme [execução F12](execucao-f12.md). Ver [execução F09](execucao-f09.md) e [execução contínua](execucao-roadmap.md). Evidências em [execução F42](execucao-f42.md).
+**Baseline inicial:** 14 de outubro de 2026. **Repriorização:** 15 de outubro de 2026, F42 em primeiro lugar. **Execução:** P0/F42 concluído em produção e validado, por autorização posterior. Continuação F01–F41 autorizada em branch separada; F01 concluída na branch; F06 concluída na branch e F07 concluída na branch, com CI aprovado. F02, F03 e F04 concluídas na branch; ajuste aleatório de F03 validado e parada solicitada após F04. Autorização posterior concluiu somente F09, com D10 resolvida, seis ACs e S0–S7 verificados no CI 38940575906. A parada após F09 foi revogada em 16/10/2026 pela autorização de execução contínua. F12 concluída na branch com CI aprovado. A parada após F12 foi superada pelo pedido de continuação em 17/10: F19 S0–S6 validadas localmente, S7 em revisão por CI/liberação pendentes; F08 S0–S6 validadas localmente; F11 S0–S6 validadas localmente; F13 S0–S6 validadas localmente; F14 S0–S6 validadas localmente; F16 S0–S6 validadas localmente; F17 S0–S6 validadas localmente; F18 S0–S6 validadas localmente; execução encerrada na F18 por pedido do usuário em 18/10. CI/liberação dessas entregas permanecem separados. Aprovação automática e retenção foram definidas pelo usuário, conforme [execução F12](execucao-f12.md). Ver [execução F09](execucao-f09.md) e [execução contínua](execucao-roadmap.md). Evidências em [execução F42](execucao-f42.md).
 
 [Índice](README.md) · [Ordem](ordem-de-entrega.md) · [Decisões](decisoes.md) · [Qualidade](qualidade-e-testes.md) · [Ledger em CSV](roadmap-etapas.csv) · [Matriz AC](matriz-aceitacao.csv).
 
@@ -180,29 +180,29 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 
 | Etapa | Estado | Pré-requisito imediato | Entregável a verificar |
 | --- | --- | --- | --- |
-| F19-S0 | NÃO INICIADA | F42 (prioridade), F09 | [Escopo contratos e reuso](planos/f19-historico-versoes.md#f19-s0-escopo-contratos-e-revisão-de-reutilização) |
-| F19-S1 | NÃO INICIADA | F19-S0 | [Testes U e C](planos/f19-historico-versoes.md#f19-s1-testes-unitários-e-componentes-antes-da-regra) |
-| F19-S2 | NÃO INICIADA | F19-S1 | [Dados e migração](planos/f19-historico-versoes.md#f19-s2-dados-invariantes-e-migração) |
-| F19-S3 | NÃO INICIADA | F19-S2 | [Domínio API e jobs](planos/f19-historico-versoes.md#f19-s3-regra-de-negócio-api-e-jobs) |
-| F19-S4 | NÃO INICIADA | F19-S3 | [Interface](planos/f19-historico-versoes.md#f19-s4-interface-composição-e-estados) |
-| F19-S5 | NÃO INICIADA | F19-S4 | [Integração e ACs](planos/f19-historico-versoes.md#f19-s5-integração-contrato-persistência-e-falhas) |
-| F19-S6 | NÃO INICIADA | F19-S5 | [Playwright e QA](planos/f19-historico-versoes.md#f19-s6-e2e-playwright-e-revisão-visual) |
-| F19-S7 | NÃO INICIADA | F19-S6 | [Regressão e liberação](planos/f19-historico-versoes.md#f19-s7-regressão-rollout-e-fechamento-auditável) |
+| F19-S0 | CONCLUÍDA | F42 (prioridade), F09 | [Escopo contratos e reuso](planos/f19-historico-versoes.md#f19-s0-escopo-contratos-e-revisão-de-reutilização) |
+| F19-S1 | CONCLUÍDA | F19-S0 | [Testes U e C](planos/f19-historico-versoes.md#f19-s1-testes-unitários-e-componentes-antes-da-regra) |
+| F19-S2 | CONCLUÍDA | F19-S1 | [Dados e migração](planos/f19-historico-versoes.md#f19-s2-dados-invariantes-e-migração) |
+| F19-S3 | CONCLUÍDA | F19-S2 | [Domínio API e jobs](planos/f19-historico-versoes.md#f19-s3-regra-de-negócio-api-e-jobs) |
+| F19-S4 | CONCLUÍDA | F19-S3 | [Interface](planos/f19-historico-versoes.md#f19-s4-interface-composição-e-estados) |
+| F19-S5 | CONCLUÍDA | F19-S4 | [Integração e ACs](planos/f19-historico-versoes.md#f19-s5-integração-contrato-persistência-e-falhas) |
+| F19-S6 | CONCLUÍDA | F19-S5 | [Playwright e QA](planos/f19-historico-versoes.md#f19-s6-e2e-playwright-e-revisão-visual) |
+| F19-S7 | EM REVISÃO | F19-S6 | [Regressão e liberação](planos/f19-historico-versoes.md#f19-s7-regressão-rollout-e-fechamento-auditável) |
 
 ### 11 F08 Painel de oportunidades de busca
 
-[Spec](specs/f08-oportunidades-busca.md) · [Plano](planos/f08-oportunidades-busca.md). Onda 3. Dependências: G00 e base existente. Decisões: D09 amostra mínima, normalização, retenção e escolha de consentimento para observações.
+[Spec](specs/f08-oportunidades-busca.md) · [Plano](planos/f08-oportunidades-busca.md). Onda 3. Dependências: G00 e base existente. D09 resolvida: consentimento, dez buscas e 180 dias; normalização e filtros reconciliados em [execução F08](execucao-f08.md). S0–S6 validadas localmente; S7 remoto em revisão.
 
 | Etapa | Estado | Pré-requisito imediato | Entregável a verificar |
 | --- | --- | --- | --- |
-| F08-S0 | NÃO INICIADA | F42 (prioridade), G00 | [Escopo contratos e reuso](planos/f08-oportunidades-busca.md#f08-s0-escopo-contratos-e-revisão-de-reutilização) |
-| F08-S1 | NÃO INICIADA | F08-S0 | [Testes U e C](planos/f08-oportunidades-busca.md#f08-s1-testes-unitários-e-componentes-antes-da-regra) |
-| F08-S2 | NÃO INICIADA | F08-S1 | [Dados e migração](planos/f08-oportunidades-busca.md#f08-s2-dados-invariantes-e-migração) |
-| F08-S3 | NÃO INICIADA | F08-S2 | [Domínio API e jobs](planos/f08-oportunidades-busca.md#f08-s3-regra-de-negócio-api-e-jobs) |
-| F08-S4 | NÃO INICIADA | F08-S3 | [Interface](planos/f08-oportunidades-busca.md#f08-s4-interface-composição-e-estados) |
-| F08-S5 | NÃO INICIADA | F08-S4 | [Integração e ACs](planos/f08-oportunidades-busca.md#f08-s5-integração-contrato-persistência-e-falhas) |
-| F08-S6 | NÃO INICIADA | F08-S5 | [Playwright e QA](planos/f08-oportunidades-busca.md#f08-s6-e2e-playwright-e-revisão-visual) |
-| F08-S7 | NÃO INICIADA | F08-S6 | [Regressão e liberação](planos/f08-oportunidades-busca.md#f08-s7-regressão-rollout-e-fechamento-auditável) |
+| F08-S0 | CONCLUÍDA | F42 (prioridade), G00 | [Escopo contratos e reuso](planos/f08-oportunidades-busca.md#f08-s0-escopo-contratos-e-revisão-de-reutilização) |
+| F08-S1 | CONCLUÍDA | F08-S0 | [Testes U e C](planos/f08-oportunidades-busca.md#f08-s1-testes-unitários-e-componentes-antes-da-regra) |
+| F08-S2 | CONCLUÍDA | F08-S1 | [Dados e migração](planos/f08-oportunidades-busca.md#f08-s2-dados-invariantes-e-migração) |
+| F08-S3 | CONCLUÍDA | F08-S2 | [Domínio API e jobs](planos/f08-oportunidades-busca.md#f08-s3-regra-de-negócio-api-e-jobs) |
+| F08-S4 | CONCLUÍDA | F08-S3 | [Interface](planos/f08-oportunidades-busca.md#f08-s4-interface-composição-e-estados) |
+| F08-S5 | CONCLUÍDA | F08-S4 | [Integração e ACs](planos/f08-oportunidades-busca.md#f08-s5-integração-contrato-persistência-e-falhas) |
+| F08-S6 | CONCLUÍDA | F08-S5 | [Playwright e QA](planos/f08-oportunidades-busca.md#f08-s6-e2e-playwright-e-revisão-visual) |
+| F08-S7 | EM REVISÃO | F08-S6 | [Regressão e liberação](planos/f08-oportunidades-busca.md#f08-s7-regressão-rollout-e-fechamento-auditável) |
 
 ### 12 F11 Planos para perfis e páginas
 
@@ -210,14 +210,14 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 
 | Etapa | Estado | Pré-requisito imediato | Entregável a verificar |
 | --- | --- | --- | --- |
-| F11-S0 | NÃO INICIADA | F42 (prioridade), F09 | [Escopo contratos e reuso](planos/f11-planos-perfis.md#f11-s0-escopo-contratos-e-revisão-de-reutilização) |
-| F11-S1 | NÃO INICIADA | F11-S0 | [Testes U e C](planos/f11-planos-perfis.md#f11-s1-testes-unitários-e-componentes-antes-da-regra) |
-| F11-S2 | NÃO INICIADA | F11-S1 | [Dados e migração](planos/f11-planos-perfis.md#f11-s2-dados-invariantes-e-migração) |
-| F11-S3 | NÃO INICIADA | F11-S2 | [Domínio API e jobs](planos/f11-planos-perfis.md#f11-s3-regra-de-negócio-api-e-jobs) |
-| F11-S4 | NÃO INICIADA | F11-S3 | [Interface](planos/f11-planos-perfis.md#f11-s4-interface-composição-e-estados) |
-| F11-S5 | NÃO INICIADA | F11-S4 | [Integração e ACs](planos/f11-planos-perfis.md#f11-s5-integração-contrato-persistência-e-falhas) |
-| F11-S6 | NÃO INICIADA | F11-S5 | [Playwright e QA](planos/f11-planos-perfis.md#f11-s6-e2e-playwright-e-revisão-visual) |
-| F11-S7 | NÃO INICIADA | F11-S6 | [Regressão e liberação](planos/f11-planos-perfis.md#f11-s7-regressão-rollout-e-fechamento-auditável) |
+| F11-S0 | CONCLUÍDA | F42 (prioridade), F09 | [Escopo contratos e reuso](planos/f11-planos-perfis.md#f11-s0-escopo-contratos-e-revisão-de-reutilização) |
+| F11-S1 | CONCLUÍDA | F11-S0 | [Testes U e C](planos/f11-planos-perfis.md#f11-s1-testes-unitários-e-componentes-antes-da-regra) |
+| F11-S2 | CONCLUÍDA | F11-S1 | [Dados e migração](planos/f11-planos-perfis.md#f11-s2-dados-invariantes-e-migração) |
+| F11-S3 | CONCLUÍDA | F11-S2 | [Domínio API e jobs](planos/f11-planos-perfis.md#f11-s3-regra-de-negócio-api-e-jobs) |
+| F11-S4 | CONCLUÍDA | F11-S3 | [Interface](planos/f11-planos-perfis.md#f11-s4-interface-composição-e-estados) |
+| F11-S5 | CONCLUÍDA | F11-S4 | [Integração e ACs](planos/f11-planos-perfis.md#f11-s5-integração-contrato-persistência-e-falhas) |
+| F11-S6 | CONCLUÍDA | F11-S5 | [Playwright e QA](planos/f11-planos-perfis.md#f11-s6-e2e-playwright-e-revisão-visual) |
+| F11-S7 | EM REVISÃO | F11-S6 | [Regressão e liberação](planos/f11-planos-perfis.md#f11-s7-regressão-rollout-e-fechamento-auditável) |
 
 ### 13 F13 QR Code permanente
 
@@ -225,14 +225,14 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 
 | Etapa | Estado | Pré-requisito imediato | Entregável a verificar |
 | --- | --- | --- | --- |
-| F13-S0 | NÃO INICIADA | F42 (prioridade), F09, F12 | [Escopo contratos e reuso](planos/f13-qr-permanente.md#f13-s0-escopo-contratos-e-revisão-de-reutilização) |
-| F13-S1 | NÃO INICIADA | F13-S0 | [Testes U e C](planos/f13-qr-permanente.md#f13-s1-testes-unitários-e-componentes-antes-da-regra) |
-| F13-S2 | NÃO INICIADA | F13-S1 | [Dados e migração](planos/f13-qr-permanente.md#f13-s2-dados-invariantes-e-migração) |
-| F13-S3 | NÃO INICIADA | F13-S2 | [Domínio API e jobs](planos/f13-qr-permanente.md#f13-s3-regra-de-negócio-api-e-jobs) |
-| F13-S4 | NÃO INICIADA | F13-S3 | [Interface](planos/f13-qr-permanente.md#f13-s4-interface-composição-e-estados) |
-| F13-S5 | NÃO INICIADA | F13-S4 | [Integração e ACs](planos/f13-qr-permanente.md#f13-s5-integração-contrato-persistência-e-falhas) |
-| F13-S6 | NÃO INICIADA | F13-S5 | [Playwright e QA](planos/f13-qr-permanente.md#f13-s6-e2e-playwright-e-revisão-visual) |
-| F13-S7 | NÃO INICIADA | F13-S6 | [Regressão e liberação](planos/f13-qr-permanente.md#f13-s7-regressão-rollout-e-fechamento-auditável) |
+| F13-S0 | CONCLUÍDA | F42 (prioridade), F09, F12 | [Escopo contratos e reuso](planos/f13-qr-permanente.md#f13-s0-escopo-contratos-e-revisão-de-reutilização) |
+| F13-S1 | CONCLUÍDA | F13-S0 | [Testes U e C](planos/f13-qr-permanente.md#f13-s1-testes-unitários-e-componentes-antes-da-regra) |
+| F13-S2 | CONCLUÍDA | F13-S1 | [Dados e migração](planos/f13-qr-permanente.md#f13-s2-dados-invariantes-e-migração) |
+| F13-S3 | CONCLUÍDA | F13-S2 | [Domínio API e jobs](planos/f13-qr-permanente.md#f13-s3-regra-de-negócio-api-e-jobs) |
+| F13-S4 | CONCLUÍDA | F13-S3 | [Interface](planos/f13-qr-permanente.md#f13-s4-interface-composição-e-estados) |
+| F13-S5 | CONCLUÍDA | F13-S4 | [Integração e ACs](planos/f13-qr-permanente.md#f13-s5-integração-contrato-persistência-e-falhas) |
+| F13-S6 | CONCLUÍDA | F13-S5 | [Playwright e QA](planos/f13-qr-permanente.md#f13-s6-e2e-playwright-e-revisão-visual) |
+| F13-S7 | EM REVISÃO | F13-S6 | [Regressão e liberação](planos/f13-qr-permanente.md#f13-s7-regressão-rollout-e-fechamento-auditável) |
 
 ### 14 F14 Agendamento de links
 
@@ -240,14 +240,14 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 
 | Etapa | Estado | Pré-requisito imediato | Entregável a verificar |
 | --- | --- | --- | --- |
-| F14-S0 | NÃO INICIADA | F42 (prioridade), F09 | [Escopo contratos e reuso](planos/f14-agendamento.md#f14-s0-escopo-contratos-e-revisão-de-reutilização) |
-| F14-S1 | NÃO INICIADA | F14-S0 | [Testes U e C](planos/f14-agendamento.md#f14-s1-testes-unitários-e-componentes-antes-da-regra) |
-| F14-S2 | NÃO INICIADA | F14-S1 | [Dados e migração](planos/f14-agendamento.md#f14-s2-dados-invariantes-e-migração) |
-| F14-S3 | NÃO INICIADA | F14-S2 | [Domínio API e jobs](planos/f14-agendamento.md#f14-s3-regra-de-negócio-api-e-jobs) |
-| F14-S4 | NÃO INICIADA | F14-S3 | [Interface](planos/f14-agendamento.md#f14-s4-interface-composição-e-estados) |
-| F14-S5 | NÃO INICIADA | F14-S4 | [Integração e ACs](planos/f14-agendamento.md#f14-s5-integração-contrato-persistência-e-falhas) |
-| F14-S6 | NÃO INICIADA | F14-S5 | [Playwright e QA](planos/f14-agendamento.md#f14-s6-e2e-playwright-e-revisão-visual) |
-| F14-S7 | NÃO INICIADA | F14-S6 | [Regressão e liberação](planos/f14-agendamento.md#f14-s7-regressão-rollout-e-fechamento-auditável) |
+| F14-S0 | CONCLUÍDA | F42 (prioridade), F09, F11 | [Escopo contratos e reuso](planos/f14-agendamento.md#f14-s0-escopo-contratos-e-revisão-de-reutilização) |
+| F14-S1 | CONCLUÍDA | F14-S0 | [Testes U e C](planos/f14-agendamento.md#f14-s1-testes-unitários-e-componentes-antes-da-regra) |
+| F14-S2 | CONCLUÍDA | F14-S1 | [Dados e migração](planos/f14-agendamento.md#f14-s2-dados-invariantes-e-migração) |
+| F14-S3 | CONCLUÍDA | F14-S2 | [Domínio API e jobs](planos/f14-agendamento.md#f14-s3-regra-de-negócio-api-e-jobs) |
+| F14-S4 | CONCLUÍDA | F14-S3 | [Interface](planos/f14-agendamento.md#f14-s4-interface-composição-e-estados) |
+| F14-S5 | CONCLUÍDA | F14-S4 | [Integração e ACs](planos/f14-agendamento.md#f14-s5-integração-contrato-persistência-e-falhas) |
+| F14-S6 | CONCLUÍDA | F14-S5 | [Playwright e QA](planos/f14-agendamento.md#f14-s6-e2e-playwright-e-revisão-visual) |
+| F14-S7 | EM REVISÃO | F14-S6 | [Regressão e liberação](planos/f14-agendamento.md#f14-s7-regressão-rollout-e-fechamento-auditável) |
 
 ### 15 F16 Templates por atividade
 
@@ -255,14 +255,14 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 
 | Etapa | Estado | Pré-requisito imediato | Entregável a verificar |
 | --- | --- | --- | --- |
-| F16-S0 | NÃO INICIADA | F42 (prioridade), F09, F19 | [Escopo contratos e reuso](planos/f16-templates.md#f16-s0-escopo-contratos-e-revisão-de-reutilização) |
-| F16-S1 | NÃO INICIADA | F16-S0 | [Testes U e C](planos/f16-templates.md#f16-s1-testes-unitários-e-componentes-antes-da-regra) |
-| F16-S2 | NÃO INICIADA | F16-S1 | [Dados e migração](planos/f16-templates.md#f16-s2-dados-invariantes-e-migração) |
-| F16-S3 | NÃO INICIADA | F16-S2 | [Domínio API e jobs](planos/f16-templates.md#f16-s3-regra-de-negócio-api-e-jobs) |
-| F16-S4 | NÃO INICIADA | F16-S3 | [Interface](planos/f16-templates.md#f16-s4-interface-composição-e-estados) |
-| F16-S5 | NÃO INICIADA | F16-S4 | [Integração e ACs](planos/f16-templates.md#f16-s5-integração-contrato-persistência-e-falhas) |
-| F16-S6 | NÃO INICIADA | F16-S5 | [Playwright e QA](planos/f16-templates.md#f16-s6-e2e-playwright-e-revisão-visual) |
-| F16-S7 | NÃO INICIADA | F16-S6 | [Regressão e liberação](planos/f16-templates.md#f16-s7-regressão-rollout-e-fechamento-auditável) |
+| F16-S0 | CONCLUÍDA | F42 (prioridade), F09, F19 | [Escopo contratos e reuso](planos/f16-templates.md#f16-s0-escopo-contratos-e-revisão-de-reutilização) |
+| F16-S1 | CONCLUÍDA | F16-S0 | [Testes U e C](planos/f16-templates.md#f16-s1-testes-unitários-e-componentes-antes-da-regra) |
+| F16-S2 | CONCLUÍDA | F16-S1 | [Dados e migração](planos/f16-templates.md#f16-s2-dados-invariantes-e-migração) |
+| F16-S3 | CONCLUÍDA | F16-S2 | [Domínio API e jobs](planos/f16-templates.md#f16-s3-regra-de-negócio-api-e-jobs) |
+| F16-S4 | CONCLUÍDA | F16-S3 | [Interface](planos/f16-templates.md#f16-s4-interface-composição-e-estados) |
+| F16-S5 | CONCLUÍDA | F16-S4 | [Integração e ACs](planos/f16-templates.md#f16-s5-integração-contrato-persistência-e-falhas) |
+| F16-S6 | CONCLUÍDA | F16-S5 | [Playwright e QA](planos/f16-templates.md#f16-s6-e2e-playwright-e-revisão-visual) |
+| F16-S7 | EM REVISÃO | F16-S6 | [Regressão e liberação](planos/f16-templates.md#f16-s7-regressão-rollout-e-fechamento-auditável) |
 
 ### 16 F17 Importação em lote
 
@@ -270,14 +270,14 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 
 | Etapa | Estado | Pré-requisito imediato | Entregável a verificar |
 | --- | --- | --- | --- |
-| F17-S0 | NÃO INICIADA | F42 (prioridade), F09 | [Escopo contratos e reuso](planos/f17-importacao-lote.md#f17-s0-escopo-contratos-e-revisão-de-reutilização) |
-| F17-S1 | NÃO INICIADA | F17-S0 | [Testes U e C](planos/f17-importacao-lote.md#f17-s1-testes-unitários-e-componentes-antes-da-regra) |
-| F17-S2 | NÃO INICIADA | F17-S1 | [Dados e migração](planos/f17-importacao-lote.md#f17-s2-dados-invariantes-e-migração) |
-| F17-S3 | NÃO INICIADA | F17-S2 | [Domínio API e jobs](planos/f17-importacao-lote.md#f17-s3-regra-de-negócio-api-e-jobs) |
-| F17-S4 | NÃO INICIADA | F17-S3 | [Interface](planos/f17-importacao-lote.md#f17-s4-interface-composição-e-estados) |
-| F17-S5 | NÃO INICIADA | F17-S4 | [Integração e ACs](planos/f17-importacao-lote.md#f17-s5-integração-contrato-persistência-e-falhas) |
-| F17-S6 | NÃO INICIADA | F17-S5 | [Playwright e QA](planos/f17-importacao-lote.md#f17-s6-e2e-playwright-e-revisão-visual) |
-| F17-S7 | NÃO INICIADA | F17-S6 | [Regressão e liberação](planos/f17-importacao-lote.md#f17-s7-regressão-rollout-e-fechamento-auditável) |
+| F17-S0 | CONCLUÍDA | F42 (prioridade), F09 | [Escopo contratos e reuso](planos/f17-importacao-lote.md#f17-s0-escopo-contratos-e-revisão-de-reutilização) |
+| F17-S1 | CONCLUÍDA | F17-S0 | [Testes U e C](planos/f17-importacao-lote.md#f17-s1-testes-unitários-e-componentes-antes-da-regra) |
+| F17-S2 | CONCLUÍDA | F17-S1 | [Dados e migração](planos/f17-importacao-lote.md#f17-s2-dados-invariantes-e-migração) |
+| F17-S3 | CONCLUÍDA | F17-S2 | [Domínio API e jobs](planos/f17-importacao-lote.md#f17-s3-regra-de-negócio-api-e-jobs) |
+| F17-S4 | CONCLUÍDA | F17-S3 | [Interface](planos/f17-importacao-lote.md#f17-s4-interface-composição-e-estados) |
+| F17-S5 | CONCLUÍDA | F17-S4 | [Integração e ACs](planos/f17-importacao-lote.md#f17-s5-integração-contrato-persistência-e-falhas) |
+| F17-S6 | CONCLUÍDA | F17-S5 | [Playwright e QA](planos/f17-importacao-lote.md#f17-s6-e2e-playwright-e-revisão-visual) |
+| F17-S7 | EM REVISÃO | F17-S6 | [Regressão e liberação](planos/f17-importacao-lote.md#f17-s7-regressão-rollout-e-fechamento-auditável) |
 
 ### 17 F18 Busca dentro do perfil
 
@@ -285,14 +285,14 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 
 | Etapa | Estado | Pré-requisito imediato | Entregável a verificar |
 | --- | --- | --- | --- |
-| F18-S0 | NÃO INICIADA | F42 (prioridade), F09, F14 | [Escopo contratos e reuso](planos/f18-busca-perfil.md#f18-s0-escopo-contratos-e-revisão-de-reutilização) |
-| F18-S1 | NÃO INICIADA | F18-S0 | [Testes U e C](planos/f18-busca-perfil.md#f18-s1-testes-unitários-e-componentes-antes-da-regra) |
-| F18-S2 | NÃO INICIADA | F18-S1 | [Dados e migração](planos/f18-busca-perfil.md#f18-s2-dados-invariantes-e-migração) |
-| F18-S3 | NÃO INICIADA | F18-S2 | [Domínio API e jobs](planos/f18-busca-perfil.md#f18-s3-regra-de-negócio-api-e-jobs) |
-| F18-S4 | NÃO INICIADA | F18-S3 | [Interface](planos/f18-busca-perfil.md#f18-s4-interface-composição-e-estados) |
-| F18-S5 | NÃO INICIADA | F18-S4 | [Integração e ACs](planos/f18-busca-perfil.md#f18-s5-integração-contrato-persistência-e-falhas) |
-| F18-S6 | NÃO INICIADA | F18-S5 | [Playwright e QA](planos/f18-busca-perfil.md#f18-s6-e2e-playwright-e-revisão-visual) |
-| F18-S7 | NÃO INICIADA | F18-S6 | [Regressão e liberação](planos/f18-busca-perfil.md#f18-s7-regressão-rollout-e-fechamento-auditável) |
+| F18-S0 | CONCLUÍDA | F42 (prioridade), F09, F14 | [Escopo contratos e reuso](planos/f18-busca-perfil.md#f18-s0-escopo-contratos-e-revisão-de-reutilização) |
+| F18-S1 | CONCLUÍDA | F18-S0 | [Testes U e C](planos/f18-busca-perfil.md#f18-s1-testes-unitários-e-componentes-antes-da-regra) |
+| F18-S2 | CONCLUÍDA | F18-S1 | [Dados e migração](planos/f18-busca-perfil.md#f18-s2-dados-invariantes-e-migração) |
+| F18-S3 | CONCLUÍDA | F18-S2 | [Domínio API e jobs](planos/f18-busca-perfil.md#f18-s3-regra-de-negócio-api-e-jobs) |
+| F18-S4 | CONCLUÍDA | F18-S3 | [Interface](planos/f18-busca-perfil.md#f18-s4-interface-composição-e-estados) |
+| F18-S5 | CONCLUÍDA | F18-S4 | [Integração e ACs](planos/f18-busca-perfil.md#f18-s5-integração-contrato-persistência-e-falhas) |
+| F18-S6 | CONCLUÍDA | F18-S5 | [Playwright e QA](planos/f18-busca-perfil.md#f18-s6-e2e-playwright-e-revisão-visual) |
+| F18-S7 | EM REVISÃO | F18-S6 | [Regressão e liberação](planos/f18-busca-perfil.md#f18-s7-regressão-rollout-e-fechamento-auditável) |
 
 ### 18 F27 Filtros por cidade idioma e modalidade
 
@@ -300,14 +300,14 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 
 | Etapa | Estado | Pré-requisito imediato | Entregável a verificar |
 | --- | --- | --- | --- |
-| F27-S0 | NÃO INICIADA | F42 (prioridade), G00 | [Escopo contratos e reuso](planos/f27-filtros-locais.md#f27-s0-escopo-contratos-e-revisão-de-reutilização) |
-| F27-S1 | NÃO INICIADA | F27-S0 | [Testes U e C](planos/f27-filtros-locais.md#f27-s1-testes-unitários-e-componentes-antes-da-regra) |
-| F27-S2 | NÃO INICIADA | F27-S1 | [Dados e migração](planos/f27-filtros-locais.md#f27-s2-dados-invariantes-e-migração) |
-| F27-S3 | NÃO INICIADA | F27-S2 | [Domínio API e jobs](planos/f27-filtros-locais.md#f27-s3-regra-de-negócio-api-e-jobs) |
-| F27-S4 | NÃO INICIADA | F27-S3 | [Interface](planos/f27-filtros-locais.md#f27-s4-interface-composição-e-estados) |
-| F27-S5 | NÃO INICIADA | F27-S4 | [Integração e ACs](planos/f27-filtros-locais.md#f27-s5-integração-contrato-persistência-e-falhas) |
-| F27-S6 | NÃO INICIADA | F27-S5 | [Playwright e QA](planos/f27-filtros-locais.md#f27-s6-e2e-playwright-e-revisão-visual) |
-| F27-S7 | NÃO INICIADA | F27-S6 | [Regressão e liberação](planos/f27-filtros-locais.md#f27-s7-regressão-rollout-e-fechamento-auditável) |
+| F27-S0 | CONCLUÍDA | F42 (prioridade), G00 | [Escopo contratos e reuso](planos/f27-filtros-locais.md#f27-s0-escopo-contratos-e-revisão-de-reutilização) |
+| F27-S1 | CONCLUÍDA | F27-S0 | [Testes U e C](planos/f27-filtros-locais.md#f27-s1-testes-unitários-e-componentes-antes-da-regra) |
+| F27-S2 | CONCLUÍDA | F27-S1 | [Dados e migração](planos/f27-filtros-locais.md#f27-s2-dados-invariantes-e-migração) |
+| F27-S3 | CONCLUÍDA | F27-S2 | [Domínio API e jobs](planos/f27-filtros-locais.md#f27-s3-regra-de-negócio-api-e-jobs) |
+| F27-S4 | CONCLUÍDA | F27-S3 | [Interface](planos/f27-filtros-locais.md#f27-s4-interface-composição-e-estados) |
+| F27-S5 | CONCLUÍDA | F27-S4 | [Integração e ACs](planos/f27-filtros-locais.md#f27-s5-integração-contrato-persistência-e-falhas) |
+| F27-S6 | CONCLUÍDA | F27-S5 | [Playwright e QA](planos/f27-filtros-locais.md#f27-s6-e2e-playwright-e-revisão-visual) |
+| F27-S7 | EM REVISÃO | F27-S6 | [Regressão e liberação](planos/f27-filtros-locais.md#f27-s7-regressão-rollout-e-fechamento-auditável) |
 
 ### 19 F31 Mapa de interação da página
 
@@ -315,14 +315,14 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 
 | Etapa | Estado | Pré-requisito imediato | Entregável a verificar |
 | --- | --- | --- | --- |
-| F31-S0 | NÃO INICIADA | F42 (prioridade), F09, F19 | [Escopo contratos e reuso](planos/f31-interacao-pagina.md#f31-s0-escopo-contratos-e-revisão-de-reutilização) |
-| F31-S1 | NÃO INICIADA | F31-S0 | [Testes U e C](planos/f31-interacao-pagina.md#f31-s1-testes-unitários-e-componentes-antes-da-regra) |
-| F31-S2 | NÃO INICIADA | F31-S1 | [Dados e migração](planos/f31-interacao-pagina.md#f31-s2-dados-invariantes-e-migração) |
-| F31-S3 | NÃO INICIADA | F31-S2 | [Domínio API e jobs](planos/f31-interacao-pagina.md#f31-s3-regra-de-negócio-api-e-jobs) |
-| F31-S4 | NÃO INICIADA | F31-S3 | [Interface](planos/f31-interacao-pagina.md#f31-s4-interface-composição-e-estados) |
-| F31-S5 | NÃO INICIADA | F31-S4 | [Integração e ACs](planos/f31-interacao-pagina.md#f31-s5-integração-contrato-persistência-e-falhas) |
-| F31-S6 | NÃO INICIADA | F31-S5 | [Playwright e QA](planos/f31-interacao-pagina.md#f31-s6-e2e-playwright-e-revisão-visual) |
-| F31-S7 | NÃO INICIADA | F31-S6 | [Regressão e liberação](planos/f31-interacao-pagina.md#f31-s7-regressão-rollout-e-fechamento-auditável) |
+| F31-S0 | CONCLUÍDA | F42 (prioridade), F09, F19 | [Escopo contratos e reuso](planos/f31-interacao-pagina.md#f31-s0-escopo-contratos-e-revisão-de-reutilização) |
+| F31-S1 | CONCLUÍDA | F31-S0 | [Testes U e C](planos/f31-interacao-pagina.md#f31-s1-testes-unitários-e-componentes-antes-da-regra) |
+| F31-S2 | CONCLUÍDA | F31-S1 | [Dados e migração](planos/f31-interacao-pagina.md#f31-s2-dados-invariantes-e-migração) |
+| F31-S3 | CONCLUÍDA | F31-S2 | [Domínio API e jobs](planos/f31-interacao-pagina.md#f31-s3-regra-de-negócio-api-e-jobs) |
+| F31-S4 | CONCLUÍDA | F31-S3 | [Interface](planos/f31-interacao-pagina.md#f31-s4-interface-composição-e-estados) |
+| F31-S5 | CONCLUÍDA | F31-S4 | [Integração e ACs](planos/f31-interacao-pagina.md#f31-s5-integração-contrato-persistência-e-falhas) |
+| F31-S6 | CONCLUÍDA | F31-S5 | [Playwright e QA](planos/f31-interacao-pagina.md#f31-s6-e2e-playwright-e-revisão-visual) |
+| F31-S7 | EM REVISÃO | F31-S6 | [Regressão e liberação](planos/f31-interacao-pagina.md#f31-s7-regressão-rollout-e-fechamento-auditável) |
 
 ### 20 F34 Checklist de publicação
 
@@ -330,14 +330,14 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 
 | Etapa | Estado | Pré-requisito imediato | Entregável a verificar |
 | --- | --- | --- | --- |
-| F34-S0 | NÃO INICIADA | F42 (prioridade), F09 | [Escopo contratos e reuso](planos/f34-checklist-publicacao.md#f34-s0-escopo-contratos-e-revisão-de-reutilização) |
-| F34-S1 | NÃO INICIADA | F34-S0 | [Testes U e C](planos/f34-checklist-publicacao.md#f34-s1-testes-unitários-e-componentes-antes-da-regra) |
-| F34-S2 | NÃO INICIADA | F34-S1 | [Dados e migração](planos/f34-checklist-publicacao.md#f34-s2-dados-invariantes-e-migração) |
-| F34-S3 | NÃO INICIADA | F34-S2 | [Domínio API e jobs](planos/f34-checklist-publicacao.md#f34-s3-regra-de-negócio-api-e-jobs) |
-| F34-S4 | NÃO INICIADA | F34-S3 | [Interface](planos/f34-checklist-publicacao.md#f34-s4-interface-composição-e-estados) |
-| F34-S5 | NÃO INICIADA | F34-S4 | [Integração e ACs](planos/f34-checklist-publicacao.md#f34-s5-integração-contrato-persistência-e-falhas) |
-| F34-S6 | NÃO INICIADA | F34-S5 | [Playwright e QA](planos/f34-checklist-publicacao.md#f34-s6-e2e-playwright-e-revisão-visual) |
-| F34-S7 | NÃO INICIADA | F34-S6 | [Regressão e liberação](planos/f34-checklist-publicacao.md#f34-s7-regressão-rollout-e-fechamento-auditável) |
+| F34-S0 | CONCLUÍDA | F42 (prioridade), F09 | [Escopo contratos e reuso](planos/f34-checklist-publicacao.md#f34-s0-escopo-contratos-e-revisão-de-reutilização) |
+| F34-S1 | CONCLUÍDA | F34-S0 | CONCLUÍDA |
+| F34-S2 | CONCLUÍDA | F34-S1 | CONCLUÍDA |
+| F34-S3 | CONCLUÍDA | F34-S2 | CONCLUÍDA |
+| F34-S4 | CONCLUÍDA | F34-S3 | CONCLUÍDA |
+| F34-S5 | CONCLUÍDA | F34-S4 | CONCLUÍDA |
+| F34-S6 | CONCLUÍDA | F34-S5 | CONCLUÍDA |
+| F34-S7 | EM REVISÃO | F34-S6 | CONCLUÍDA |
 
 ### 21 F37 Botão com alternativas de acesso
 
@@ -345,14 +345,14 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 
 | Etapa | Estado | Pré-requisito imediato | Entregável a verificar |
 | --- | --- | --- | --- |
-| F37-S0 | NÃO INICIADA | F42 (prioridade), F09, F12 | [Escopo contratos e reuso](planos/f37-alternativas-acesso.md#f37-s0-escopo-contratos-e-revisão-de-reutilização) |
-| F37-S1 | NÃO INICIADA | F37-S0 | [Testes U e C](planos/f37-alternativas-acesso.md#f37-s1-testes-unitários-e-componentes-antes-da-regra) |
-| F37-S2 | NÃO INICIADA | F37-S1 | [Dados e migração](planos/f37-alternativas-acesso.md#f37-s2-dados-invariantes-e-migração) |
-| F37-S3 | NÃO INICIADA | F37-S2 | [Domínio API e jobs](planos/f37-alternativas-acesso.md#f37-s3-regra-de-negócio-api-e-jobs) |
-| F37-S4 | NÃO INICIADA | F37-S3 | [Interface](planos/f37-alternativas-acesso.md#f37-s4-interface-composição-e-estados) |
-| F37-S5 | NÃO INICIADA | F37-S4 | [Integração e ACs](planos/f37-alternativas-acesso.md#f37-s5-integração-contrato-persistência-e-falhas) |
-| F37-S6 | NÃO INICIADA | F37-S5 | [Playwright e QA](planos/f37-alternativas-acesso.md#f37-s6-e2e-playwright-e-revisão-visual) |
-| F37-S7 | NÃO INICIADA | F37-S6 | [Regressão e liberação](planos/f37-alternativas-acesso.md#f37-s7-regressão-rollout-e-fechamento-auditável) |
+| F37-S0 | CONCLUÍDA | F42 (prioridade), F09, F12, F19 | [Escopo contratos e reuso](planos/f37-alternativas-acesso.md#f37-s0-escopo-contratos-e-revisão-de-reutilização) |
+| F37-S1 | CONCLUÍDA | F37-S0 | CONCLUÍDA |
+| F37-S2 | CONCLUÍDA | F37-S1 | CONCLUÍDA |
+| F37-S3 | CONCLUÍDA | F37-S2 | CONCLUÍDA |
+| F37-S4 | CONCLUÍDA | F37-S3 | CONCLUÍDA |
+| F37-S5 | CONCLUÍDA | F37-S4 | CONCLUÍDA |
+| F37-S6 | CONCLUÍDA | F37-S5 | CONCLUÍDA |
+| F37-S7 | EM REVISÃO | F37-S6 | CONCLUÍDA |
 
 ### 22 F38 Exportação do perfil
 
@@ -698,3 +698,15 @@ Autorização específica posterior: assinatura pequena e ciclo IA → aprovaç�
 Por novo pedido expresso, revisões humanas de F09/F12 e suas contestações também usam o grupo Evolution configurado, a mesma autorização por operador ADMIN e a mesma operação de decisão do painel. O aviso citado identifica a versão exata; expiração, substituição e contestação invalidam mensagens anteriores. Decisão e registro do aviso de confirmação são atômicos, sem alterar aprovação automática, regras de segurança ou cobrança. Avisos ganham símbolos distintos por evento e mantêm seções curtas.
 
 Contrato, critérios, limites, evidências e resultados no [complemento da implementação](../frontend-profissional/revisao-paginas-convites.md#complemento-autorizado--aprovação-pelo-whatsapp).
+
+## 17/10/2026 — continuação autorizada e F19 local
+
+F19 S0–S6 validadas localmente, com D21 resolvida e quatro ACs verificados. S7 em revisão por CI/liberação não executados. [Execução](execucao-f19.md) contém decisões, alternativas, testes e limites. A continuação foi autorizada sem parada por feature; F08 entra em S0, independente de F19. Sem branch/commit/push/deploy novos.
+
+Retomada de 18/10: F27 S0–S6 localmente verificadas; S7 global/CI/liberação em revisão. Continuação segue F31 até F23, com parada antes de F25. [Evidências e pendências](execucao-f27.md).
+
+Fechamento local F31 de 18/10: S0–S6 verificadas, cinco ACs e oito E2E próprios; S7 em revisão por REG-F03-001 e CI/liberação. [Execução F31](execucao-f31.md). Próxima F34; parada antes de F25 preservada.
+
+## Parada solicitada após F37
+
+18/10/2026: F27/F31/F34/F37 implementadas e verificadas localmente nesta retomada; S7 global/remoto em revisão. F38 e posteriores não iniciadas. [Registro F37](execucao-f37.md). Nenhuma branch/commit/push/deploy novo.

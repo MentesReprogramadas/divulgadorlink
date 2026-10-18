@@ -1,0 +1,63 @@
+# F14 — Agendamento de botões
+
+Estado: S0–S6 concluídas localmente; S7 em revisão por CI/liberação remotos pendentes. Continuidade autorizada, escolhas rotineiras documentadas sem novas perguntas. Checkout main com alterações locais; sem commit/push/deploy.
+
+## D16 — decisão e alternativas
+
+- Intervalo `[início,fim)`: início incluso, fim excluído; qualquer extremo pode ficar vazio. Pausa prevalece. Horário efetivo vem do servidor, nunca do relógio do visitante. Guardar instantes UTC e fuso IANA explícito. Data civil inexistente ou ambígua em transição de horário deve ser rejeitada com orientação para escolher outro horário, evitando escolher silenciosamente uma das ocorrências. Alternativas: fuso implícito, arredondamento ou primeira ocorrência automática; descartadas por surpresa e divergência entre aparelhos.
+- Agendamento pertence ao conteúdo do rascunho, passa pelo mesmo salvar/prévia/publicar/revisão/histórico. Não publicar automaticamente ao salvar uma data. Ocultar botão não desativa convite/handle: o redirecionamento continua com suas próprias regras. Não alterar quotas, moderação ou preços.
+- F11 já reserva `profile.scheduling` para planos pagos. Reutilizar essa capacidade e sua cobertura efetiva no servidor; não criar flag visual que conceda permissão. Gratuito mantém todos os recursos anteriores. Ao perder a cobertura, preservar conteúdo e configuração e ocultar os botões agendados, sem liberar antes do início ou após o fim. Permitir remover um agendamento para recuperar um botão comum. Alternativas: liberar recurso comercial sem contrato ou apagar agenda ao expirar; descartadas. Vendas seguem desabilitadas até configuração operacional completa.
+
+## Inventário e lacunas
+
+`profiles-repository.ts` já centraliza dono/tenant, versão otimista, escrita transacional, snapshots publicados e uma projeção para público/prévia. `ProfileGroupManager` já cria/edita itens em modal; `DatePicker` aceita hora e `Select` é personalizado. `ProfilePreviewScreen` usa a mesma view pública e banner privado. F19 guarda snapshots tipados; os campos novos devem sobreviver a salvar, publicar, restaurar, comparar e autosave. `normalizedProfile` hoje faz allowlist e precisa incluir agenda para não descartá-la.
+
+Público é SSR dinâmico e upstream no-store; nenhuma fila nova se a elegibilidade for calculada em cada leitura. Página já aberta precisará respeitar a próxima fronteira por atualização segura sem entregar conteúdo futuro ao navegador. Prévia temporal somente autenticada e do próprio rascunho; query pública nunca troca relógio. Reconciliar os caminhos propostos após fechar o contrato real.
+
+## Gates planejados — comprovação registrada abaixo
+
+S1: RED/GREEN de fronteiras, UTC/fuso, datas inválidas e pausa; componente com erro/recuperação. S2: migração aditiva e compatibilidade de snapshots antigos. S3/S5: autorização efetiva, versão/tenant, projeção sem conteúdo futuro, API/SSR e relógio injetado em fixtures explícitas. S4/S6: editor, estados e prévia existentes, desktop/mobile/teclado/zoom e E2E com PostgreSQL real. S7: regressão, reversão e evidências; CI/deploy separados.
+
+## Contrato implementado e escolhas adicionais
+
+- Reutilizado PATCH `/me/profile` com `expectedVersion` e o escritor de autosave; descartada a rota por item proposta na spec, pois criaria disputa de versões e publicação implícita. GET privado devolve `scheduling.allowed/serverNow`; UI deriva apenas o rótulo da agenda, sem conceder permissão. Conferência efetiva de capacidade no servidor ao criar/alterar agenda e em cada projeção pública. Sem cobertura permite manter conteúdo sem agenda, preservar/restaurar histórico e remover a configuração; não permite criar/editar uma agenda.
+- Reutilizada política `profileCapabilities` de F11, extraindo a leitura de cobertura para responsabilidade compartilhada. Identificadores, status, período pago, entitlement e capacidade entregue continuam obrigatórios. Reconfirmar e-mail não remove saldo pago; conta sem identificadores continua sem capacidade, conforme F11. A registry agora inclui scheduling; analytics/blocos/subdomínio continuam futuros. Vendas não foram ativadas.
+- `visibleProfile` preserva agenda no snapshot interno de publicação. `profileAt` filtra por elegibilidade real de catálogo/grupo/visibilidade e janela, remove agenda e grupos vazios da projeção pública, limpa botão principal inelegível e calcula próxima fronteira. Nunca congelar apenas os itens visíveis no instante de publicar: isso perderia os futuros.
+- SSR público permanece dinâmico/no-store. Página aberta recebe só a projeção atual, reconsulta ao atingir a próxima fronteira e substitui links antigos por skeletons com a mesma estrutura enquanto aguarda; erro mantém links antigos desabilitados e oferece retry. Timer deriva do intervalo informado pelo servidor, não do relógio civil do visitante; há margem conservadora de 1 segundo e mínimo de 250ms nas proximidades da fronteira. Navegador em segundo plano revalida ao voltar. Não há promessa de atualização instantânea em aparelho offline/suspenso; cada resposta HTTP continua filtrada pelo relógio real do servidor.
+- Prévia existente mantém banner/retorno e ganhou Agora/Antes do início/Depois do fim. Query `at` só é aceita na rota privada, com dono/tenant/capacidade; o público não troca relógio por query. Controles permanecem durante a atualização; links anteriores usam skeletons. Antes usa mínimo início menos 1ms, depois usa máximo fim, extremos existentes. Não criar uma segunda página de prévia.
+- DatePicker/Select/OverlayDialog locais, modal de agenda separado do modal de edição, três campos e pausa. Datas civis têm ano de quatro dígitos a partir de 1970; API aceita instantes UTC válidos. Fusos comuns aparecem por cidades em português, mantendo IANA no valor; fuso atual do navegador e fuso armazenado também são preservados. Não instalar biblioteca de datas/UI nem usar um offset fixo para converter fuso. Horário ambíguo/inexistente exige outra hora; alternativas de arredondamento/offset implícito foram descartadas.
+- F19: normalização/autosave/comparação/restauração preservam agenda. Restaurar só cria rascunho, não publica nem concede benefício. Ocultar botão mantém o handle funcionando, comprovado com redirecionamento 302 real em PG.
+
+## Provas já executadas
+
+RED/GREEN: backend três testes falharam pelas regras ainda ausentes e depois passaram; ampliado com projeção sem sentinelas e preservação do snapshot. Frontend conversão teve um RED real/um caso já verde; modal teve dois RED reais e depois GREEN. `profile-live` prova relógio civil divergente, atualização por fronteira, links desabilitados na falha e retry.
+
+PG afetados: **62/62 em sete arquivos** na primeira bateria. PG completo final: **219/219 em 22 arquivos**, incluindo **sete F14**, banco novo `localhost:5740/f14_regression`. Uma tentativa anterior não informou CHECKOUT/SEARCH/EVOLUTION_DATABASE_URL e seis arquivos falharam no setup; não foi contada como suíte aprovada nem se alterou teste para ignorá-los. A repetição configurou todas as URLs para o mesmo banco descartável e passou. Logs `output/roadmap-f14-pg-accepted.log` e anteriores.
+
+Upgrade: banco próprio `f14_upgrade` aplicou todas as migrations anteriores, recebeu perfil/grupo/item antigos, depois aplicou somente a migration nova. SHA dos campos anteriores do item e perfil permaneceram iguais; colunas novas null/null/null/false. Prova `output/roadmap-f14/upgrade-proof.json`; nenhuma migration destrutiva/backfill ou índice sem consulta real. A consulta continua por identidade do perfil e seus itens, com índices existentes; não há varredura global de agenda. O EXPLAIN da fixture pequena (seis perfis) escolheu Seq Scan, registrado em query-plan.log; não é benchmark de produção nem prova de ganho de índice.
+
+Desenvolvimento: confirmado destino **localhost:5437/divulgador**, baseline conhecido e apenas migration `20261018020000_profile_schedules` pendente. Aplicada preservando hashes de **25 pedidos, 38 promoções, um perfil e um item**. Prova `development-preservation.json`; nenhum banco remoto tocado.
+
+E2E específicos: **6/6** desktop/mobile, três jornadas. Criação/validação/teclado, autosave, publicação separada, prévia temporal, fronteiras exatas em API/SSR, reload sem ressurreição por cache, isolamento, expiração, remoção e histórico. Página já aberta testada com clock do servidor avançado separadamente de page.clock; falha real de rede BFF e retry. Primeiro E03 parou por locator abrangendo o announcer do Next: escopado ao main, sem relaxar a assertiva de erro. Trace preservado em `e2e-complete-results`. Regressão conjunta com os consumidores ainda em execução.
+
+## Reversão e liberação
+
+Reversão preferida: retirar a entrada de edição e manter o backend com projeção de agenda e leituras compatíveis, preservando snapshots/dados. **Não fazer downgrade direto para um renderer antigo que ignore schedule**, pois ele poderia exibir itens fora do período. Se for indispensável voltar o backend, preparar migração compensatória revisada que retire temporariamente do ar as publicações com agenda, preservando rascunhos/histórico; isso é procedimento de liberação futuro, não foi executado em produção. Nunca resetar banco nem apagar agenda para reverter.
+
+Sem novo preço, taxa, desconto, prorrata, alteração de cobrança ou telemetria pessoal. Indicadores podem ser agregados a partir de itens com agenda, sem criar rastreamento de visitantes. CI remoto/deploy continuam separados; S7 não será marcado concluído apenas com testes locais. Fixtures PG/Redis E2E são próprias e serão removidas pelo teardown; banco PG de validação 5740 será removido após o fechamento.
+
+## Fechamento S0–S6 local
+
+Backend: lint/typecheck/build e **494 unitários em 113 arquivos** aprovados; **219 PG em 22 arquivos**, sete F14. Frontend: lint/typecheck (src+E2E), **287 unitários em 87 arquivos** e build Next do harness aprovados. Logs finais em `output/roadmap-f14-*-final.log`, `roadmap-f14-backend-build.log`, `roadmap-f14-pg-accepted.log` e `roadmap-f14/validation/frontend/e2e/.runtime/server.log`; exit code 0. Os refinamentos finais de erro/geometria receberam nova validação frontend e E2E.
+
+Comandos: `npm run lint`, `npm run typecheck`, `npm test`, `npm run build` backend; frontend build pelo serve.mjs do harness. PG: `PG_SPECS=1 npm run test:pg`, ANALYTICS/CHECKOUT/SEARCH/EVOLUTION/BILLING_DATABASE_URL apontando para o mesmo banco descartável 5740/f14_regression. Nenhuma suíte foi marcada verde com setup incompleto.
+
+**85/85 E2E** em execução conjunta: profile-schedules, permanent-qr, profiles, redirects, profile-history, profile-billing, loading-layout e workspace-layout, projetos features/features-mobile, namespace roadmap-f14/offset400. Relatório `e2e-regression-results.json`. **6/6 E2E finais** em playwright.schedule.config.ts após preservar geometria de botão com título de múltiplas linhas e vincular validação ao campo: `e2e-final-results.json`. Relatórios sobrepostos; não somar como casos únicos. A regressão ampla corresponde ao checkpoint anterior aos refinamentos de geometria, erro ligado ao campo e alinhamento do aviso de rede na página personalizada; os seis finais validam o delta.
+
+F14-T01: API/SSR antes ausente, início incluso/fim excluído, reload sem cache e página já aberta atualizada por consulta real. T02: UTC/IANA, data impossível/ambígua, ordem de datas e checks PostgreSQL com rollback. T03: prévia existente Agora/Antes/Depois; autosave/publicação/histórico separados; rascunho e configuração preservados em erro. T04: botão oculto e handle real ainda resolvendo 302, sem desativação. Permissões negativas, versão concorrente/idempotência, expiração/remover agenda e histórico comprovados em PG/E2E.
+
+Dezoito capturas finais inspecionadas em `docs/frontend-profissional/evidencias/f14-2026-10-17`. Axe A/AA sem violações nos estados testados; teclado/Escape/foco, 320px/200% e alcance da ação com rolagem vertical aprovados. Skeleton do botão conserva largura/altura reais mesmo com título longo, medidos no navegador; destino fica sem clique enquanto aguarda. Isso não equivale a acessibilidade total ou aparelho físico validado.
+
+Manifesto `source-manifest.json` confere os arquivos de aplicação/harness contra a cópia da execução final. Migração local 5437 preservou dados; upgrade e PostgreSQL descartável registrados acima. Sem commit/push/deploy/CI remoto. S7 permanece em revisão e a registry de entrega não ativa vendas por conta própria.
+
+Limpeza concluída: container PG próprio de validação 5740 removido após as provas; PG/Redis E2E removidos pelo teardown. O banco de desenvolvimento 5437 e processos alheios permanecem ativos.

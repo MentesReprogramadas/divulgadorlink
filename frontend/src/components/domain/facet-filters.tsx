@@ -69,9 +69,11 @@ const HOME_PREVIEW = 6
 export function HomeExplore({
   niches,
   networks,
+  discoveryQuery = '',
 }: {
   niches: FacetItem[]
   networks: FacetItem[]
+  discoveryQuery?: string
 }) {
   const [open, setOpen] = useState(false)
   const groupId = useId()
@@ -96,7 +98,7 @@ export function HomeExplore({
                   kind={group.kind}
                   slug={item.slug}
                   name={item.requiresAge ? `${item.name} 18+` : item.name}
-                  href={`${group.base}/${encodeURIComponent(item.slug)}`}
+                  href={`${group.base}/${encodeURIComponent(item.slug)}${discoveryQuery ? `?${discoveryQuery}` : ''}`}
                 />
               ))}
             </div>

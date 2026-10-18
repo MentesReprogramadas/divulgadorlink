@@ -1,4 +1,4 @@
-import type { AnchorHTMLAttributes, ButtonHTMLAttributes } from 'react'
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes, Ref } from 'react'
 import styles from './button.module.css'
 
 type Variant = 'primary' | 'secondary' | 'ghost' | 'danger'
@@ -17,7 +17,7 @@ export function Button({
   disabled,
   children,
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; loading?: boolean }) {
+}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; loading?: boolean; ref?: Ref<HTMLButtonElement> }) {
   return (
     <button data-variant={variant} className={[CLASS[variant], styles.root, className].filter(Boolean).join(' ')} disabled={disabled || loading} aria-busy={loading || undefined} {...props}>
       {loading ? <span className={`button-spinner ${styles.spinner}`} aria-hidden="true" /> : null}

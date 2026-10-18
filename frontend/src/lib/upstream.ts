@@ -17,6 +17,9 @@ export function forward(input: {
   idempotencyKey?: string
   csrf?: string
   userAgent?: string
+  dnt?: string
+  gpc?: string
+  analyticsTest?: string
   timeoutMs?: number
 }): Promise<{ status: number; headers: NodeJS.Dict<string | string[]>; body: Buffer }> {
   // Match the API's existing Fastify 1 MiB body limit before writing to a socket.
@@ -42,6 +45,9 @@ export function forward(input: {
         ...(input.authorization ? { authorization: input.authorization } : {}),
         ...(input.idempotencyKey ? { 'idempotency-key': input.idempotencyKey } : {}),
         ...(input.csrf ? { 'x-csrf-token': input.csrf } : {}),
+        ...(input.dnt === '1' ? { dnt: '1' } : {}),
+        ...(input.gpc === '1' ? { 'sec-gpc': '1' } : {}),
+        ...(input.analyticsTest === '1' ? { 'x-analytics-test': '1' } : {}),
         ...(input.userAgent ? { 'user-agent': input.userAgent.slice(0, 512) } : {}),
         ...(input.body ? { 'content-type': 'application/json', 'content-length': input.body.length } : {}),
       },

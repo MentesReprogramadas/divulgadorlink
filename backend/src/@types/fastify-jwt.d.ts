@@ -8,6 +8,7 @@ declare module '@fastify/jwt' {
       tenantId: string
       typ: 'access' | 'refresh'
       jti?: string
+      sid?: string
     }
     user: {
       sub: string
@@ -15,6 +16,7 @@ declare module '@fastify/jwt' {
       tenantId: string
       typ: 'access' | 'refresh'
       jti?: string
+      sid?: string
     }
   }
 }

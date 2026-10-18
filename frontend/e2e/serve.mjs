@@ -1,4 +1,5 @@
 import { runtime as e2eRuntime } from './runtime.cjs'
+import { billingStub } from './billing-stub.mjs'
 import { spawn, spawnSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { createServer } from 'node:http'
@@ -56,9 +57,10 @@ let profileValidationCount = 0, lastProfileValidation = null, profileValidationU
 const stub = createServer((req, res) => {
   const chunks = []
   req.on('data', (chunk) => chunks.push(chunk))
-  req.on('end', () => {
+  req.on('end', async () => {
     const raw = Buffer.concat(chunks).toString()
     res.setHeader('content-type', 'application/json')
+    if (await billingStub(req,res,raw,e2eRuntime)) return
     if (req.method === 'GET' && req.url === '/redirect-validation/pending') { res.end(JSON.stringify({ count: redirectValidations.length })); return }
     if (req.method === 'POST' && req.url === '/redirect-validation/release') {
       for (const pending of redirectValidations.splice(0)) pending.end(JSON.stringify({ pass: true, confidence: 0.99, reasons: [] }))
@@ -208,8 +210,8 @@ const apiEnv = {
 
 const tsx = path.join(backend, 'node_modules/tsx/dist/cli.mjs')
 const next = path.join(frontend, 'node_modules/next/dist/bin/next')
-start([process.execPath, tsx, process.env.E2E_SEARCH_EMBEDDING === '1' ? 'scripts/e2e-search-server.ts' : 'src/server.ts'], backend, apiEnv)
-start([process.execPath, tsx, 'src/worker.ts'], backend, apiEnv)
+start([process.execPath, tsx, 'scripts/e2e-billing-server.ts'], backend, apiEnv)
+start([process.execPath, tsx, 'scripts/e2e-billing-worker.ts'], backend, apiEnv)
 
 async function waitOk(url) {
   for (let attempt = 0; attempt < 60; attempt += 1) {

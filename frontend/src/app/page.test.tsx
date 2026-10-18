@@ -7,6 +7,7 @@ vi.mock('next/headers', () => ({ headers: async () => new Headers({ host: 'local
 vi.mock('@/lib/upstream', () => ({ forward, tenantHost: (host: string) => host }))
 vi.mock('@/components/domain/home-search', () => ({ HomeSearch: () => <form aria-label="Busca" /> }))
 vi.mock('@/components/domain/facet-filters', () => ({ HomeExplore: () => <div>Facetas</div> }))
+vi.mock('@/features/catalog/discovery/discovery-filters',()=>({DiscoveryFilters:()=> <div aria-label="Filtros de local e idioma"/>}))
 
 const row = { id: 'link', name: 'Comunidade', description: 'Descrição curta', surfaceToken: 'token+assinado' }
 const seo = {

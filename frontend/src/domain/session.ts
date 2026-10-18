@@ -60,9 +60,9 @@ export function writeSession(session: Session): void {
   window.dispatchEvent(new Event(SESSION_EVENT))
 }
 
-export function clearSession(): void {
+export function clearSession(preserveRole = false): void {
   window.sessionStorage.removeItem(KEY)
-  document.cookie = 'catalogo_role=; Path=/; Max-Age=0'
+  if (!preserveRole) document.cookie = 'catalogo_role=; Path=/; Max-Age=0'
 }
 
 export async function loadSession(

@@ -1,10 +1,17 @@
+import { renderToString } from 'react-dom/server'
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { SiteNavigation } from './site-navigation'
+import { WorkspaceNavigation } from '@/features/account/components/workspace-navigation'
 
 const { pathname } = vi.hoisted(() => ({ pathname: vi.fn(() => '/') }))
 vi.mock('next/navigation', () => ({ usePathname: pathname }))
 afterEach(() => { cleanup(); pathname.mockReturnValue('/') })
+
+it('F16 keeps Minha página selected for models/history without selecting an unrelated navigation destination',()=>{
+  pathname.mockReturnValue('/painel/perfil/modelos');const view=render(<WorkspaceNavigation area="panel" role="USER"/>);expect(screen.getByRole('link',{name:'Minha página'}).getAttribute('aria-current')).toBe('location');expect(screen.getByRole('link',{name:'Links'}).getAttribute('aria-current')).toBeNull()
+  pathname.mockReturnValue('/painel/perfil/historico');view.rerender(<WorkspaceNavigation area="panel" role="USER"/>);expect(screen.getByRole('link',{name:'Minha página'}).getAttribute('aria-current')).toBe('location');expect(view.container.querySelectorAll('[aria-current]').length).toBe(1)
+})
 
 describe('navegação principal', () => {
   it('preserva os destinos públicos e acompanha cada rótulo com ícone decorativo', () => {
@@ -70,4 +77,14 @@ describe('navegação principal', () => {
     fireEvent.click(drawerLink)
     expect(screen.getByRole('button', { name: 'Menu' }).getAttribute('aria-expanded')).toBe('false')
   })
+})
+
+it('W06 server HTML keeps the menu unavailable until its client handler and mount effects are ready', () => {
+  const template = document.createElement('template')
+  template.innerHTML = renderToString(<SiteNavigation role="USER" />)
+  expect(template.content.querySelector('button[aria-label="Menu"]')?.hasAttribute('disabled')).toBe(true)
+  render(<SiteNavigation role="USER" />)
+  const toggle = screen.getByRole('button', { name: 'Menu' }) as HTMLButtonElement
+  expect(toggle.disabled).toBe(false); fireEvent.click(toggle)
+  expect(screen.getByRole('dialog')).toBeTruthy()
 })

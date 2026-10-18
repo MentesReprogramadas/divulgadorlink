@@ -1,7 +1,11 @@
 'use client'
 import { FavoriteButton } from '@/features/favorites/components/favorite-button'
 
+import { DiscoveryFilters } from '@/features/catalog/discovery/discovery-filters'
+import { discoveryHref, emptyDiscovery, type DiscoveryValues } from '@/features/catalog/discovery/discovery-contract'
 import { useRouter } from 'next/navigation'
+import {useState} from 'react'
+import {CatalogCardsSkeleton} from '@/features/catalog/components/catalog-skeleton'
 import { AgePrompt, confirmAge } from '@/components/domain/age-gate'
 import { FacetFilters } from '@/components/domain/facet-filters'
 import { LinkRow } from '@/components/domain/link-row'
@@ -24,6 +28,7 @@ type Card = {
 type FacetItem = { id: string; name: string; slug: string; requiresAge?: boolean }
 
 export type FacetCatalogBody = {
+  activeFilters?: DiscoveryValues
   heading: string
   seo: {
     title: string
@@ -120,6 +125,7 @@ export function FacetCatalog({
   body: FacetCatalogBody
 }) {
   const router = useRouter()
+  const [filtering,setFiltering]=useState(false)
   const showImpressions = body.showImpressions !== false
   const sponsored = body.sponsored ?? []
   const organic = body.organic ?? []
@@ -147,17 +153,19 @@ export function FacetCatalog({
         kind={facetKind}
         items={facets}
         active={active}
-        hrefFor={(next) => facetHref(route, slug, next)}
+        hrefFor={(next) => discoveryHref(facetHref(route, slug, next), body.activeFilters ?? emptyDiscovery())}
       />
+      <DiscoveryFilters initial={body.activeFilters ?? emptyDiscovery()} onPending={setFiltering}/>
       {body.ageRequired ? <AgePrompt onYes={() => void answer('yes')} onNo={() => void answer('no')} /> : null}
       {body.blocked ? <p className="age-blocked">Este conteúdo é só para maiores de 18 anos.</p> : null}
-      {sponsored.length > 0 ? (
+      {filtering ? <CatalogCardsSkeleton count={Math.max(sponsored.length+organic.length,3)}/> : null}
+      {!filtering && sponsored.length > 0 ? (
         <ResultList id={`${listPrefix}-patrocinados`} title="Patrocinados" rows={sponsored} placement="sponsored" showImpressions={showImpressions} />
       ) : null}
-      {organic.length > 0 ? (
+      {!filtering && organic.length > 0 ? (
         <ResultList id={`${listPrefix}-organicos`} title="Orgânicos" rows={organic} placement="organic" showImpressions={showImpressions} />
       ) : null}
-      {!body.ageRequired && !body.blocked && sponsored.length === 0 && organic.length === 0 ? <EmptyState>Nenhum link publicado</EmptyState> : null}
+      {!filtering && !body.ageRequired && !body.blocked && sponsored.length === 0 && organic.length === 0 ? <EmptyState>{Object.values(body.activeFilters??{}).some(Boolean)?'Nenhum link encontrado com estes filtros':'Nenhum link publicado'}</EmptyState> : null}
     </main>
   )
 }

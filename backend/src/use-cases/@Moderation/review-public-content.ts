@@ -8,6 +8,9 @@ import { validateRedirectContent } from '@/use-cases/@Redirects/validate-content
 import { canSubmitLinkFromIdentifiers } from '@/use-cases/@Auth/confirm-identifier'
 import type { PublicContentValidationPorts } from '@/use-cases/public-content-validation-ports'
 import { appeal } from './appeal'
+import { recordProfileRevision } from '@/repositories/profile-revisions'
+import {assertChannelPublication} from '@/repositories/profile-channels-storage'
+import {ProfileError} from '@/domain/profiles/profile'
 import { contentReviewHash, contentReviewPayload, queueContentReview, CONTENT_REVIEW_KINDS } from '@/use-cases/@Notifications/content-review-events'
 import { operationalEvent, ReviewError } from './resolve-human-review'
 
@@ -81,11 +84,13 @@ export async function decideContentReview(db: PrismaClient, actor: ReviewActor, 
       if (!claimed.count) throw new ReviewError(409, 'review_already_resolved')
     }
     if (profile && resource.profile) {
+      try{await assertChannelPublication(tx,resource.profile,profile)}catch(error){if(error instanceof ProfileError)throw new ContentReviewError(error.status,error.message);throw error}
       const refs = [...new Set(profile.items.filter(item => item.type === 'CATALOG').map(item => item.destination))]
       const links = await tx.link.findMany({ where: { id: { in: refs }, tenantId: row.tenantId, ownerId: row.ownerId, status: 'PUBLISHED', niche: { tenantId: row.tenantId }, network: { tenantId: row.tenantId } }, select: { id: true } })
       if (links.length !== refs.length) throw new ContentReviewError(422, 'Um link do catálogo mudou. Peça a correção antes de aprovar.')
       if (profile.avatarAssetId && !await tx.profileAsset.findUnique({ where: { tenantId_ownerId_id: { tenantId: row.tenantId, ownerId: row.ownerId, id: profile.avatarAssetId } } })) throw new ContentReviewError(422, 'A foto não está mais disponível. Peça um novo envio.')
       await tx.profile.update({ where: { id: resource.profile.id }, data: { publication: visibleProfile(profile, new Set(links.map(link => link.id))), publishedDraft: profileInput.parse(row.snapshot), publishedVersion: row.version } })
+      await recordProfileRevision(tx, resource.profile, profileInput.parse(row.snapshot))
     }
     if (resource.redirect) {
       await tx.redirectDestination.update({ where: { id: resource.redirect.id }, data: { status: decision === 'APPROVE' ? 'APPROVED' : 'REJECTED', ...(destination ? { destinationUrl: destination } : {}), errorMessage: decision === 'REJECT' ? reason!.trim() : null, resolvedAt: new Date() } })

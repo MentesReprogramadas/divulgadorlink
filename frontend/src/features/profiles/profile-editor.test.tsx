@@ -80,7 +80,7 @@ it('endereço publicado fica visível e copia sem salvar ou publicar novamente',
   fireEvent.click(copy)
   await screen.findByText('Link da página copiado.')
   expect(writeText).toHaveBeenCalledWith(address.href)
-  expect(request.mock.calls.some(([, init]) => init?.method)).toBe(false)
+  expect(request.mock.calls.filter(([, init]) => init?.method).map(([route,init])=>[route,JSON.parse(init.body)])).toEqual([['/checklist/actions',{action:'LINK_COPIED',expectedVersion:1}]])
 })
 it('falha ao copiar permite tentar novamente e conserva o endereço público', async () => {
   const writeText = vi.fn().mockRejectedValueOnce(new Error('permission')).mockResolvedValue(undefined)

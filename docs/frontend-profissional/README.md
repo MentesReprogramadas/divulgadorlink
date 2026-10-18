@@ -14,6 +14,7 @@ Construir uma base profissional de engenharia, UX/UI e Design System: fronteiras
 - [Piloto e qualidade](piloto-e-qualidade.md): escopo revisável, critérios e sequência de execução.
 - [Evidências de verificação](verificacao.md): testes de conexão, validação das Skills e limites desta etapa.
 - [Implementação e revisão das telas](implementacao.md): mudanças executadas e verificações da versão atual.
+- [Modo de suporte administrativo](modo-suporte.md): consulta do painel do usuário, barreiras de escrita, validação e reversão.
 - ../../AGENTS.md: proteções comuns e limites de autorização; Skills são procedimentos especializados e não redefinem essas proteções.
 
 ## Baseline observado

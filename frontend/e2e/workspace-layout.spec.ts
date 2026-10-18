@@ -215,3 +215,19 @@ test('W02 admin: áreas separadas, filtros de fila e navegação em todas as jor
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(321)
   expect(errors).toEqual([])
 })
+
+test('W06 menu só aceita interação quando a hidratação está pronta', async ({ page, browser }) => {
+  await login(page)
+  const context = await browser.newContext({ storageState: await page.context().storageState(), viewport: { width: 390, height: 844 } })
+  const slow = await context.newPage()
+  let release!: () => void
+  const held = new Promise<void>(resolve => { release = resolve })
+  await slow.route('**/_next/static/**/*.js', async route => { await held; await route.continue() })
+  try {
+    await slow.goto(origin + '/painel', { waitUntil: 'commit' })
+    const menu = slow.getByRole('button', { name: 'Menu', exact: true })
+    await expect(menu).toBeVisible(); await expect(menu).toBeDisabled()
+    release(); await expect(menu).toBeEnabled(); await menu.click()
+    await expect(slow.getByRole('dialog').getByRole('button', { name: 'Sair', exact: true })).toBeVisible()
+  } finally { release(); await slow.unrouteAll({ behavior: 'wait' }); await context.close() }
+})

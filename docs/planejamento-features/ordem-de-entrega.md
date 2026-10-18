@@ -48,3 +48,7 @@ O MVP proposto de perfis termina em F09, F12, F19, F13, F14, F16, F18, F31 e F34
 
 Registrar data, motivo, evidência de demanda, custo de dependências, IDs afetados, decisão e responsável. Atualizar ordem no README e roadmap no mesmo conjunto de alterações. Não alterar o ID da feature para encaixá-la na nova posição. Não omitir testes, segurança ou migração para cumprir uma prioridade.
 
+
+## Reconciliação F37 e parada atual
+
+18/10/2026: F37 associa metadata às revisões F19 e reutiliza sua imutabilidade/retenção; por isso F19 passou a ser dependência técnica explícita, além de F09/F12. F31 é condicional para medição conforme capacidade/consentimento. A ordem das 42 features não mudou. Execução encerrada após F37 por pedido mais recente; próxima F38, sem iniciar outras etapas. [Decisão D39 e fechamento](execucao-f37.md).

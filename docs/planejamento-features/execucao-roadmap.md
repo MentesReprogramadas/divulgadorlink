@@ -1,5 +1,7 @@
 # Execução contínua do roadmap
 
+Estado corrente em 18/10/2026: F19, F08 e F11 S0–S6 validadas localmente; F13 S0–S6 validada localmente; F14 S0–S6 validadas localmente; F16 S0–S6 validadas localmente; F17 S0–S6 validadas localmente; F18 S0–S6 validadas localmente; execução encerrada na F18 por pedido do usuário em 18/10. O checkout atual é main com alterações locais preservadas; o AGENTS vigente exige pedido para novas operações de Git. Não foram criados branch, commit, push ou deploy nesta continuação. Os registros de branch/CI abaixo são históricos, não descrição do estado atual.
+
 ## Autorização e isolamento
 
 Em 15/10/2026 o usuário autorizou continuar a sequência completa, com testes, commits e pushes em branch diferente da main, sem encerrar após a primeira feature. Esta instrução substitui o limite anterior de executar apenas P0. Branch: codex/roadmap-features; base: 55b115b. A main e produção não serão publicadas por este trabalho. Alterações locais pré-existentes ficam no checkout original.
@@ -88,3 +90,47 @@ Autorização específica posterior: assinatura pequena e ciclo IA → aprovaç�
 Por novo pedido expresso, revisões humanas de F09/F12 e suas contestações também usam o grupo Evolution configurado, a mesma autorização por operador ADMIN e a mesma operação de decisão do painel. O aviso citado identifica a versão exata; expiração, substituição e contestação invalidam mensagens anteriores. Decisão e registro do aviso de confirmação são atômicos, sem alterar aprovação automática, regras de segurança ou cobrança. Avisos ganham símbolos distintos por evento e mantêm seções curtas.
 
 Contrato, critérios, limites, evidências e resultados no [complemento da implementação](../frontend-profissional/revisao-paginas-convites.md#complemento-autorizado--aprovação-pelo-whatsapp).
+
+## 17/10/2026 — F19 e continuação sem parada por feature
+
+Usuário autorizou F19 e sequência, depois delegou decisões fundamentadas com alternativas documentadas. F19 implementada/validada localmente, com S0–S6 e ACs em execucao-f19.md; S7 remoto em revisão. Fotos antigas não são guardadas, conforme escolha expressa. F08 D09 aprovada: consentimento obrigatório, dez buscas e 180 dias. Sem branch, commit, push ou deploy novos.
+
+## 17/10/2026 — F08 validada e avanço da sequência
+
+F08 S0–S6 concluídas localmente: observações consentidas, pseudônimo diário por tenant, limiar dez, retenção 180 dias, consulta/saída correlacionadas e relatório administrativo. As escolhas técnicas e alternativas foram registradas sem nova pergunta, conforme instrução do usuário. Regra de categorias conciliada com a busca efetiva, sem inventar filtros de entrada. 32 E2E finais sem retry/skip, 19 PG, tipos/lint/build; correção adjacente de hidratação do menu comprovada por RED e teste de rede lenta. [Registro completo](execucao-f08.md). F11 é a próxima; S7 remoto de F19/F08 continua em revisão, sem impedir trabalho independente. Nenhum commit/push/deploy nesta execução.
+
+## 17/10/2026 — F11 validada; F13 S0–S6 validada localmente; F14 S0–S6 validadas localmente; F16 S0–S6 validadas localmente; F17 S0–S6 validadas localmente; F18 S0–S6 validadas localmente; execução encerrada na F18 por pedido do usuário em 18/10
+
+F11 entregue localmente com catálogo/capacidades, versões de preço, intenções duráveis e SDK Billing separado dos destaques; confirmação canônica, troca no próximo ciclo, cancelamento/suspensão/exclusão e recuperação. 490 unitários backend, 212 PG, dez E2E específicos e 69 de regressão em relatórios com sobreposição; dezesseis capturas revisadas. Migração de desenvolvimento preservou integralmente pedidos/destaques/página. Venda continua desligada por padrão, marca e gratuito preservados; recursos futuros não são vendidos. [Decisões, alternativas e limites](execucao-f11.md). S7 remoto/comercial permanece em revisão. F13 reutiliza qrcode e as APIs atuais, com decoder somente de QA; implementação/testes em [execução F13](execucao-f13.md).
+
+## 18/10/2026 — F18 encerrada; parada solicitada cumprida
+
+Busca contextual pública/prévia com filtro por grupo, URL/cursor, teclado e projeção temporal segura. [Execução F18](execucao-f18.md): S0–S6 verificadas, 511 U backend/305 U frontend/239 PG, 129 E2E mais seis finais sobrepostos, 20 capturas. Planos/spec/matriz reconciliados; S7 remoto pendente. Próxima F27 permanece NÃO INICIADA. Checkout main com alterações locais preservadas, sem operações Git/deploy nesta continuação.
+
+## 18/10/2026 — retomada F27 até antes da F25
+
+Usuário autorizou F27, F31, F34, F37, F38, F05, F15, F20, F21, F22 e F23 na ordem do roadmap; parar ao chegar na F25, que fica não iniciada. F27 em implementação, com decisões D29 e evidências parciais em [execucao-f27.md](execucao-f27.md). Sem branches/commits/push/deploy novos. Preservar mudanças simultâneas do modo de suporte de outra atividade.
+
+## 18/10/2026 — F27 validada localmente; preparação F31
+
+F27 S0–S6 e cinco ACs verificados: 520 U backend, 311 U frontend, 246 PG e seis E2E finais próprios; 18 capturas. Regressões amplas, falhas e limites separados em [execucao-f27.md](execucao-f27.md); S7 global/CI/liberação pendentes. F31 iniciou somente preparação D33, sem coleta habilitada, em [execucao-f31.md](execucao-f31.md). Seguir sequência autorizada até F23; F25 permanece não iniciada.
+
+## 18/10/2026 — F31 em validação local
+
+API, persistência, consentimento específico, observação de blocos e relatório implementados; regressões unitárias e oito PG próprios aprovados. E2E desktop/mobile, inspeção visual e regressão final ainda em andamento. [Decisões e alternativas](execucao-f31.md). F34 e seguintes não iniciadas neste checkpoint; F25 continua fora da execução.
+
+## 18/10/2026 — F31 encerrada localmente; avanço para F34
+
+F31 S0–S6 verificadas: nove PG próprios, 527 U backend/321 U frontend, oito E2E próprios finais, 152 E2E de regressão com sobreposição e 12 capturas revisadas. PG global 254/255: REG-F03-001 reproduzida no código inalterado, mantida visível em S7. [Registro completo](execucao-f31.md), [pendência](pendencias-validacao.md). Sem Git/deploy novos. Sequência continua F34/F37/F38/F05/F15/F20/F21/F22/F23; F25 não iniciada.
+
+## 18/10/2026 — F34 encerrada localmente
+
+S0–S6 verificadas: 532 U backend/324 frontend; 60 PG afetados (nove próprios); seis E2E próprios finais; 73 de regressão com sobreposição; 14 capturas revisadas; reader F31 compatível. [Registro](execucao-f34.md). S7 global/remoto em revisão, sem Git/deploy novos. Próxima F37; parada antes da F25 mantida.
+
+## 18/10/2026 — F37 encerrada localmente e parada
+
+F27, F31, F34 e F37 concluídas no ambiente local declarado nesta retomada. F37: 539 backend/330 frontend, 129 PG afetados, oito E2E próprios dentro dos 81 de regressão e 26 capturas revisadas. [Execução F37](execucao-f37.md). S7 global/CI/liberação pendentes; REG-F03-001 não ocultada. Pedido mais recente revoga a continuação até F25: parar agora. F38 é a próxima; nenhuma feature posterior iniciada. Sem Git/deploy novos.
+
+## 18/10/2026 — branch de teste autorizada após F37
+
+Após encerrar as features, o usuário autorizou commit e branch para testar na própria pasta principal. Branch codex/roadmap-f37-testes criada a partir de a7aad9c em C:/VSCODE/divulgadorlinks; frontend/backend compartilham esse checkout. O commit reúne o código acumulado, migrations, testes, docs e evidências até F37, incluindo os módulos anteriores necessários. Envs reais, saídas de harness e imagens avulsas de output permanecem locais; exclusões antigas em output não foram incorporadas. Typecheck dos dois pacotes repetido e aprovado antes do commit; validação funcional permanece a registrada por feature, incluindo os 81 E2E locais finais. Push direcionado exclusivamente à nova branch, sem merge ou deploy da main. CI remoto é um gate separado e ainda não declarado aprovado. Nenhuma feature posterior à F37 iniciada.

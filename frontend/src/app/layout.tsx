@@ -26,12 +26,13 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const jar = await cookies()
   const role = jar.get('catalogo_role')?.value
+  const support = jar.has('supportSession')
   const stored = jar.get('tla_consent')?.value
   const pending = stored !== 'marketing' && stored !== 'denied'
   return (
     <html lang="pt-BR" className={`${sourceSans.variable} ${outfit.variable}`}>
-      <body>
-        <SiteShell role={role}>{children}</SiteShell>
+      <body data-support={support ? 'true' : undefined}>
+        <SiteShell role={role} support={support}>{children}</SiteShell>
         <Consent pending={pending} />
         <SiteVisits />
       </body>

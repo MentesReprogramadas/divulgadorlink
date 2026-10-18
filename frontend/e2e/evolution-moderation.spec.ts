@@ -72,7 +72,7 @@ async function reviewReference(request: APIRequestContext, name: string) {
 test('F42-E11 cadastro concluído avisa novo usuário sem expor contatos no WhatsApp', async ({ request, playwright }) => {
   const name = `Cadastro-${randomUUID()}`
   const email = `novo-${randomUUID()}@example.test`
-  const response = await request.post('http://127.0.0.1:3333/api/v1/auth/register', {
+  const response = await request.post(e2eRuntime.apiOrigin + '/api/v1/auth/register', {
     headers: { host: 'evolution.localhost' }, data: { name, email, password: state.password },
   })
   expect(response.status()).toBe(201)
@@ -80,13 +80,13 @@ test('F42-E11 cadastro concluído avisa novo usuário sem expor contatos no What
   expect(sql(`SELECT COUNT(*) FROM operational_messages WHERE "tenantId"='${state.tenantA}' AND kind='NEW_USER' AND "resourceId"='${userId}'`)).toBe('1')
   const anonymous = await playwright.request.newContext()
   try {
-    const duplicate = await anonymous.post('http://127.0.0.1:3333/api/v1/auth/register', {
+    const duplicate = await anonymous.post(e2eRuntime.apiOrigin + '/api/v1/auth/register', {
       headers: { host: 'evolution.localhost' }, data: { name, email, password: state.password },
     })
     expect(duplicate.status()).toBe(409)
   } finally { await anonymous.dispose() }
   await cycle()
-  const messages = await (await request.get('http://127.0.0.1:4099/evolution/messages')).json() as { text: string }[]
+  const messages = await (await request.get(e2eRuntime.stubOrigin + '/evolution/messages')).json() as { text: string }[]
   const notices = messages.filter(message => message.text.includes(name) && message.text.includes('NOVO USUÁRIO'))
   expect(notices).toHaveLength(1)
   expect(notices[0]!.text).not.toContain(email)

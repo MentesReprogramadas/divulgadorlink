@@ -13,18 +13,18 @@ Uma proposta dentro de spec não altera regra de produto aprovada. Sem decisão,
 | F05 | D06 frequência, consentimento, retenção do histórico de resumo e regras de conteúdo restrito. | F05-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
 | F06 | D07 denúncia anônima ou autenticada, janela de deduplicação e retenção. | F06-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
 | F07 | D08 RESOLVIDA: pausa do tempo pago e retomada após aprovação; 360 min, limiar 3, backoff 30/60 min e host 60 s. | Decisão do usuário em 15/10/2026; implementação e limites em [execução F07](execucao-f07.md) |
-| F08 | D09 amostra mínima, normalização, retenção e escolha de consentimento para observações. | F08-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
+| F08 | D09 RESOLVIDA: consentimento obrigatório, mínimo de 10 buscas e retenção de 180 dias; excluir termos pessoais. Normalização conservadora e filtros por categorias efetivamente exibidas implementados; decisões/alternativas em [execução F08](execucao-f08.md). | F08-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
 | F09 | D10 ATUALIZADA em 17/10: IA aprova ou encaminha para humano; recusa com motivo e uma contestação por versão. Substitui o bloqueio editorial sem revisão escolhido em 16/10. Slug por tenant; publicação separada; mídia normalizada e validada via porta PostgreSQL sem provedor novo. Limites e contratos na spec reconciliada. | Decisão do usuário em 16/10/2026; [spec F09](specs/f09-perfil-publico.md#reconciliação-de-execução-e-d10--16102026) e [execução F09](execucao-f09.md); concluída na branch; CI 38940575906 aprovado |
 | F10 | D11 DNS/TLS wildcard e origens confiáveis; D12 inadimplência, cancelamento, reserva e redirecionamento de host. | F10-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
-| F11 | D13 preços, limites, periodicidade, prorrata, provedor e tratamento tributário; D12 grace/cancelamento. | F11-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
+| F11 | D13 técnica registrada: BRL mensal, centavos/Price versionado configurável, Stripe Billing separado; sem preço inventado, venda desabilitada até preço/provedor/fiscal/capacidades reais. D12 assinatura: cancelamento/troca no fim do período, sem prorrata/trial nem extensão além do pago; conteúdo e marca preservados. Alternativas em [execução F11](execucao-f11.md). | S0–S6 validadas localmente; habilitação comercial e S7 ainda pendentes; política de host F10 continua própria |
 | F12 | D14 ATUALIZADA em 17/10: liberação automática após validações ou revisão humana com recusa/contestação; erros de segurança/URL continuam exigindo correção. No-store/302, recuperação mediante nova validação e até 50 versões por 180 dias, preservando a publicação atual. | Respostas do usuário em 16/10/2026; [execução F12](execucao-f12.md) |
-| F13 | D15 formatos, tamanho e método de decodificação para teste; adicionar dependência só se inexistente e justificada. | F13-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
-| F14 | D16 convenção de intervalo e comportamento de datas ambíguas em fuso. | F14-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
+| F13 | D15 registrada: PNG/SVG; 256/512/1024 px, padrão 512; margem 4, correção M; qrcode atual, leitor de pixels só para QA pois BarcodeDetector está ausente. Ver [execução F13](execucao-f13.md); S0–S6 validadas localmente, S7 em revisão. | F13-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
+| F14 | D16 registrada: [início,fim), UTC/fuso IANA, pausa prevalece; horários ambíguos/inexistentes rejeitados. Inventário e alternativas em [execução F14](execucao-f14.md); S0–S6 validadas localmente; S7 em revisão. | F14-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
 | F15 | D17 cópia versus referência dos destinos, URL e comportamento após arquivar. | F15-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
-| F16 | D18 modelos iniciais, regras de preservação de conteúdo e limites de personalização. | F16-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
-| F17 | D19 tamanho de lote, atomicidade ou sucesso parcial e expiração da prévia. | F17-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
-| F18 | D20 tamanho mínimo de busca e paginação; começar lexical. | F18-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
-| F19 | D21 retenção RESOLVIDA: até 50 versões por 180 dias, preservando a publicação atual. Recuperação de mídia removida ainda exige reconciliação em F19-S0/S2; não foi definida pela resposta sobre retenção. | Resposta do usuário em 16/10/2026; F19 ainda não implementada |
+| F16 | D18 registrada: cinco modelos versionados em código; preservar conteúdo por padrão, confirmação para substituição e marcador protegido de exemplos ocultos. Catálogo gratuito com renderer/temas atuais, sem CMS/preço novo. [Decisões e alternativas](execucao-f16.md); S0–S6 validadas localmente; S7 em revisão. | F16-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
+| F17 | D19: até 50 endereços, prévia privada de dez minutos, seleção revisada atômica, sem publicação nem busca de metadados. [Escolhas/alternativas](execucao-f17.md); S0–S6 validadas localmente, S7 em revisão. | F17-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
+| F18 | D20 resolvida: mínimo 1, máximo 100 caracteres; lexical título/grupo, AND categoria, 20/página, cursor assinado vinculado à projeção/versão e reinício informado. Sem tracking novo. [Escolhas e alternativas](execucao-f18.md). | S0–S6 validadas localmente; S7 remoto em revisão; parada após F18 |
+| F19 | D21 RESOLVIDA: até 50 versões por 180 dias, preservando a publicação atual. Usuário escolheu não guardar fotos antigas: restaurar sem foto quando removida, com aviso. | Respostas em 16–17/10/2026; implementação local em [execução F19](execucao-f19.md) |
 | F20 | D22 matriz owner/editor/leitor, prazo de convite e transferência de dono. | F20-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
 | F21 | D23 métricas permitidas, frequência de atualização e compartilhamento de contato. | F21-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
 | F22 | D24 retenção, exclusão, campos permitidos, destinatários e opt-in de novidades. | F22-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
@@ -32,17 +32,17 @@ Uma proposta dentro de spec não altera regra de produto aprovada. Sem decisão,
 | F24 | D26 elegibilidade mínima, ranking, limites e conteúdo com restrição. | F24-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
 | F25 | D27 provedor/modelo, orçamento, política de dados e validação de fatos; seleção externa antes de integrar. | F25-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
 | F26 | D28 objetivo, amostra, efeito mínimo, confiança, horizonte e consentimento. | F26-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
-| F27 | D29 origem do catálogo de localidades, semântica de ausentes e migração de metadados. | F27-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
+| F27 | D29 resolvida: snapshot IBGE Brasil/IANA; metadados nullable declarados, sem inferência; AND antes de rank/página; edição própria versionada e auditada. [Escolhas e alternativas](execucao-f27.md). | S0–S6 localmente verificadas; S7 global/CI/liberação em revisão |
 | F28 | D30 métodos viáveis por rede, validade, revalidação e retenção da evidência. | F28-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
 | F29 | D31 modelo de evento, política ICS para remarcação e inscrições externas. | F29-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
 | F30 | D32 tipos de eventos, retry/backoff/retencão, rotação e política de saída de dados. | F30-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
-| F31 | D33 taxonomia, sessão, consentimento, retenção e amostra para estatísticas de perfil. | F31-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
+| F31 | D33 resolvida: finalidade própria, opt-in do dono, dez sessões diárias, 180 dias e versões/viewports separados; [escolhas e alternativas](execucao-f31.md). | S0–S6 locais; S7 depende da REG-F03-001 e CI/liberação |
 | F32 | D34 formatos, dimensões, fontes, limite de texto e mecanismo de render suportado. | F32-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
 | F33 | D35 coleção pode incluir item indisponível como aviso sem destino, slug e tratamento de conteúdo restrito. | F33-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
-| F34 | D36 passos iniciais e eventos de intenção versus compartilhamento confirmado. | F34-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
+| F34 | D36 RESOLVIDA: quatro obrigatórios derivados e três sugestões; prévia/cópia registram intenção, sem confirmar teste/entrega; publicação final F09. | 18/10/2026; [execução F34](execucao-f34.md) |
 | F35 | D37 transições/reabertura, retenção e papéis que podem exportar/excluir. | F35-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
 | F36 | D38 limites/preços, vínculo de cobrança, consentimento e procedimento de transferência. | F36-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
-| F37 | D39 layout, limite de canais e semântica de indisponíveis. | F37-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
+| F37 | D39 RESOLVIDA: oito canais, fontes F12 aprovadas, rede verificada, pausa a publicar, metadata F19, clique revalidado e medição F31 consentida. | 18/10/2026; [execução F37](execucao-f37.md) |
 | F38 | D40 campos exportáveis, acesso de colaboradores e política de mídia. | F38-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
 | F39 | D41 idiomas, URL canônica, fallback e regras para destino por idioma. | F39-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
 | F40 | D42 limiares, catálogo de regras, janela e validade de descarte. | F40-S0 e contratos dependentes em S2; autorização comercial antes de S7 quando aplicável |
@@ -85,3 +85,11 @@ As credenciais foram classificadas e configuradas somente no mecanismo de segred
 
 
 Atualização expressa de D10/D14: [Revisão de páginas e convites](../frontend-profissional/revisao-paginas-convites.md). Retenção, cobrança e isolamento não mudaram.
+
+### D36 — execução F34
+
+Resolvida em 18/10/2026: quatro obrigatórios derivados; três sugestões; marcos mínimos versionados em AuditLog; prévia/cópia não provam teste/entrega; GET puro e publish F09 final. Alternativas, reversão e testes em [execução F34](execucao-f34.md).
+
+### D39 — execução F37
+
+Metadata aditiva de itens e revisões F19; convites próprios F12; rede por knownHosts; limite composicional de oito; pausa no rascunho até publicar; escolha do visitante, sem prometer equivalência. Medição F31 sujeita ao plano e consentimento. Alternativas rejeitadas, indisponibilidade, token e reversão: [execução](execucao-f37.md).

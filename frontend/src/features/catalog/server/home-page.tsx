@@ -7,6 +7,9 @@ import { metadataFromSeo } from '@/domain/crawler-policy'
 import { homeStructuredData } from '@/domain/home-structured-data'
 import { jsonLdScript } from '@/domain/json-ld'
 import { forward, tenantHost } from '@/lib/upstream'
+import { DiscoveryFilters } from '@/features/catalog/discovery/discovery-filters'
+import { discoveryQueryRecord, emptyDiscovery, type DiscoveryValues } from '@/features/catalog/discovery/discovery-contract'
+import { InvalidDiscovery } from '@/features/catalog/discovery/invalid-discovery'
 import styles from '@/app/home.module.css'
 import { HomeCatalog } from '@/features/catalog/components/home-catalog'
 
@@ -14,6 +17,7 @@ import { HomeCatalog } from '@/features/catalog/components/home-catalog'
 type Facet = { name?: string; slug?: string } | null
 type Card = { id: string; name: string; description: string; surfaceToken: string; impressions?: number; niche?: Facet; network?: Facet; indexable?: boolean }
 type Home = {
+  activeFilters?: DiscoveryValues
   seo: {
     title: string
     description: string
@@ -30,27 +34,35 @@ type Home = {
   organic: Card[]
 }
 
-const loadHome = cache(async (cursor = ''): Promise<Home> => {
+const loadHome = cache(async (query = ''): Promise<Home | null> => {
   const hostHeader = (await headers()).get('host') ?? 'localhost'
-  const query = cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''
   const result = await forward({
     method: 'GET',
-    path: `/api/v1/home${query}`,
+    path: `/api/v1/home${query ? `?${query}` : ""}`,
     host: tenantHost(hostHeader.split(':')[0] || 'localhost'),
   })
+  if (result.status === 400) return null
   if (result.status !== 200) throw new Error(`Home upstream returned ${result.status}`)
   return JSON.parse(result.body.toString()) as Home
 })
 
-export async function generateHomeMetadata(): Promise<Metadata> {
+export async function generateHomeMetadata({searchParams}:{searchParams:Promise<Record<string,string|string[]|undefined>>}): Promise<Metadata> {
   const home = await loadHome()
-  return metadataFromSeo(home.seo)
+  if (!home) throw new Error("Home SEO missing")
+  const metadata=metadataFromSeo(home.seo)
+  if(discoveryQueryRecord(await searchParams).size)metadata.robots={index:false,follow:true}
+  return metadata
 }
 
 
-export async function HomeContent({ searchParams }: { searchParams: Promise<{ cursor?: string }> }) {
-  const cursor = (await searchParams).cursor ?? ''
-  const home = await loadHome(cursor)
+export async function HomeContent({ searchParams }: { searchParams: Promise<Record<string,string|string[]|undefined>> }) {
+  const query = await searchParams
+  const filtersQuery = discoveryQueryRecord(query)
+  if (Array.isArray(query.cursor)) query.cursor.forEach(value=>filtersQuery.append('cursor',value))
+  else if (typeof query.cursor === 'string') filtersQuery.set('cursor',query.cursor)
+  const home = await loadHome(filtersQuery.toString())
+  if (!home) return <main className={styles.page}><InvalidDiscovery href="/"/></main>
+  const filters = home.activeFilters ?? emptyDiscovery()
   return (
     <>
       <script
@@ -70,13 +82,14 @@ export async function HomeContent({ searchParams }: { searchParams: Promise<{ cu
               <h1 className="entry-title">Encontre o que você procura.</h1>
               <p className="home-description">Links, comunidades e serviços organizados por tema e rede.</p>
             </div>
-            <HomeSearch />
+            <HomeSearch discoveryQuery={discoveryQueryRecord(query).toString()}/>
           </section>
           <section className={`home-explore ${styles.explore}`} aria-labelledby="home-explore">
             <h2 id="home-explore" className="home-explore-title">Explorar</h2>
-            <HomeExplore niches={home.niches} networks={home.networks} />
+            <HomeExplore niches={home.niches} networks={home.networks} discoveryQuery={discoveryQueryRecord(query).toString()}/>
           </section>
-          <HomeCatalog key={cursor} initial={{ sponsored: home.sponsored, organic: home.organic, nextCursor: home.nextCursor, showImpressions: home.showImpressions }} />
+          <DiscoveryFilters initial={filters}/>
+          <HomeCatalog filters={filters} key={filtersQuery.toString()} initial={{ sponsored: home.sponsored, organic: home.organic, nextCursor: home.nextCursor, showImpressions: home.showImpressions }} />
         </div>
       </main>
     </>

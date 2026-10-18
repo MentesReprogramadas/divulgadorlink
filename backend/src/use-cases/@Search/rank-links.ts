@@ -146,10 +146,10 @@ export function autocompleteIds(rows: SearchRow[], threshold: number, limit = 8)
   return [...ranked.sponsored, ...ranked.organic].slice(0, limit).map((row) => row.id)
 }
 
-export function hybridSearchSql(): string {
+export function hybridSearchSql(discoveryClause=''): string {
   return `
     WITH query_embedding AS (SELECT $2::vector AS v)
-    SELECT l."id", l."name", l."description",
+    SELECT l."id", l."name", l."description", l."cityId", l."languageTag", l."modality",
       ts_rank(to_tsvector('simple', l."name" || ' ' || l."description"), plainto_tsquery('simple', $1)) AS text_score,
       CASE WHEN l."embedding" IS NULL THEN NULL ELSE 1 - (l."embedding" <=> (SELECT v FROM query_embedding)) END AS semantic_score,
       l."embeddingState",
@@ -169,6 +169,7 @@ export function hybridSearchSql(): string {
     JOIN "networks" net ON net."id" = l."networkId"
     WHERE l."tenantId" = $3
       AND ${PUBLIC_LINK_FILTER}
+      ${discoveryClause}
       AND ($4::text <> 'no' OR NOT (n."requiresAge" OR net."requiresAge"))
       AND GREATEST(
         CASE WHEN ${nameMatchSql()} THEN $5 ELSE 0 END,

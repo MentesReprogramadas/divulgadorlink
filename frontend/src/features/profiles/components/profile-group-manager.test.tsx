@@ -6,6 +6,11 @@ import { ProfileGroupManager } from './profile-group-manager'
 import { chooseSelect } from '@/test-select'
 
 afterEach(cleanup)
+it('F16-C06 configuring a sample requires a real destination; cancel preserves it and the client does not grant itself publication rights',()=>{
+  const content:ProfileContent={...emptyProfile(),categories:[{id:'g',name:'Comunidade',visible:true}],items:[{id:'i',categoryId:'g',type:'URL',label:'Entrar no grupo',destination:'https://example.com/modelos/comunidades/entrar',visible:false,templateExample:true}]}
+  const changed=editor(content);fireEvent.click(screen.getByRole('button',{name:/Abrir grupo/}));fireEvent.click(screen.getByRole('button',{name:'Configurar exemplo'}));expect((screen.getByLabelText('Link de acesso') as HTMLInputElement).value).toBe('');fireEvent.click(screen.getByRole('button',{name:'Cancelar'}));expect(changed).not.toHaveBeenCalled()
+  fireEvent.click(screen.getByRole('button',{name:'Configurar exemplo'}));fireEvent.change(screen.getByLabelText('Link de acesso'),{target:{value:'https://example.org/grupo-real'}});fireEvent.click(screen.getByRole('button',{name:'Concluir link'}));expect(changed).toHaveBeenCalledTimes(1);expect(changed.mock.calls[0][0].items[0]).toMatchObject({destination:'https://example.org/grupo-real',visible:true,templateExample:true})
+})
 function editor(content: ProfileContent) {
   const changed = vi.fn()
   function Harness() {

@@ -2,7 +2,7 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 13.
 
-**Estado:** NÃO INICIADO. Somente planejamento autorizado.  
+**Estado:** S0–S6 concluídas localmente; S7 EM REVISÃO (CI/liberação remotos pendentes).
 **Spec vinculante:** [F13](../specs/f13-qr-permanente.md).  
 **Dependências:** G00, [F09](../specs/f09-perfil-publico.md), [F12](../specs/f12-link-permanente.md).  
 **Onda:** 3. Etapas rastreadas no [roadmap](../roadmap-auditavel.md) e na [matriz](../matriz-aceitacao.csv).
@@ -15,7 +15,7 @@ Contrato a entregar: GET /api/v1/me/share-targets/:id ou derivação segura no c
 
 Dados: Derivar QR do endereço estável de Profile ou RedirectHandle; sem tabela nova se download puder ser regenerado; variante de campanha exige ID validado.
 
-Todos os itens abaixo são tarefas futuras. Não executar comandos, criar migration ou escrever aplicação só porque este plano existe. Não acionar implantação automática via push na main: o projeto publica a main pelo Coolify.
+Registro original de tarefas preservado; a reconciliação e as provas atuais estão em [execução F13](../execucao-f13.md). A implementação foi autorizada posteriormente pelo usuário. Não acionar implantação automática via push na main: o projeto publica a main pelo Coolify.
 
 ## Arquivos e pontos de integração
 
@@ -41,24 +41,24 @@ Esses nomes não são obrigação de criar arquivos vazios. Preferir ampliação
 **Entrada:** dependências concluídas, spec revisada e autorização de implementação.  
 **Saída auditável:** ADR/contrato revisado, ACs sem ambiguidade bloqueante, lista final de arquivos e fixtures.
 
-- [ ] Confrontar fonte e todos os ACs F13-AC01, F13-AC02, F13-AC03, F13-AC04; registrar mudanças de escopo sem apagar obrigações.
-- [ ] Fechar: D15 formatos, tamanho e método de decodificação para teste; adicionar dependência só se inexistente e justificada.
-- [ ] Ler os pontos existentes acima; registrar o que será estendido e por que qualquer componente/porta/modelo novo é necessário.
-- [ ] Definir campos/tipos/validações reais de entrada `targetType,targetId,format,size conforme D15` e saída `arquivo com MIME correto; payload decodificável igual a stableUrl`; alinhar status/erros à aplicação.
-- [ ] Desenhar a jornada Selecionar perfil ou handle, visualizar e baixar; descrever permanência do endereço.
-- [ ] Definir fixture F13, permissões, relógio e adapters externos necessários. Não depender de serviços de produção.
-- [ ] Registrar rollout e como a versão anterior continuará funcionando durante alteração de dados.
+- [x] Confrontar fonte e todos os ACs F13-AC01, F13-AC02, F13-AC03, F13-AC04; registrar mudanças de escopo sem apagar obrigações.
+- [x] Fechar: D15 formatos, tamanho e método de decodificação para teste; adicionar dependência só se inexistente e justificada.
+- [x] Ler os pontos existentes acima; registrar o que será estendido e por que qualquer componente/porta/modelo novo é necessário.
+- [x] Definir campos/tipos/validações reais de entrada `targetType,targetId,format,size conforme D15` e saída `arquivo com MIME correto; payload decodificável igual a stableUrl`; alinhar status/erros à aplicação.
+- [x] Desenhar a jornada Selecionar perfil ou handle, visualizar e baixar; descrever permanência do endereço.
+- [x] Definir fixture F13, permissões, relógio e adapters externos necessários. Não depender de serviços de produção.
+- [x] Registrar rollout e como a versão anterior continuará funcionando durante alteração de dados.
 
 ## F13-S1 Testes unitários e componentes antes da regra
 
 **Entrada:** contratos e decisões S0 fechados.  
 **Saída auditável:** testes que falham pelo comportamento ausente, não por erro de configuração.
 
-- [ ] Implementar em `frontend/src/domain/qr-permanente.test.ts` cada cenário U da spec: Conteúdo decodificado equivale à URL estável, nunca ao convite temporário; tamanho inválido recusado; formato permitido apenas.
-- [ ] Confirmar falha esperada de cada comportamento ausente; guardar comando/saída/commit sem alterar regra para obter verde artificial.
-- [ ] Em `frontend/src/components/domain/qr-permanente.test.tsx`, criar C01/C02 com interação real, estados vazio/erro/loading e fixture sentinela; não fazer snapshot espelhando implementação.
-- [ ] Se extrair lógica compartilhada, adicionar regressão do consumidor anterior antes de movê-la.
-- [ ] Preparar casos Tnn na camada correta e adicionar títulos com IDs; casos ainda não implementados ficam pendentes na matriz.
+- [x] Implementar em `frontend/src/domain/qr-permanente.test.ts` cada cenário U da spec: Conteúdo decodificado equivale à URL estável, nunca ao convite temporário; tamanho inválido recusado; formato permitido apenas.
+- [x] Confirmar falha esperada de cada comportamento ausente; guardar comando/saída/commit sem alterar regra para obter verde artificial.
+- [x] Em `frontend/src/components/domain/qr-permanente.test.tsx`, criar C01/C02 com interação real, estados vazio/erro/loading e fixture sentinela; não fazer snapshot espelhando implementação.
+- [x] Se extrair lógica compartilhada, adicionar regressão do consumidor anterior antes de movê-la.
+- [x] Preparar casos Tnn na camada correta e adicionar títulos com IDs; casos ainda não implementados ficam pendentes na matriz.
 
 **Comando futuro, diretório frontend:** `npx vitest run src/domain/qr-permanente.test.ts`.  
 **Comando futuro, diretório frontend:** `npx vitest run src/components/domain/qr-permanente.test.tsx`.
@@ -68,51 +68,51 @@ Esses nomes não são obrigação de criar arquivos vazios. Preferir ampliação
 **Entrada:** S1 com falhas esperadas e esquema revisado.  
 **Saída auditável:** persistência/DTO corretos, migration revisada se necessária e plano de recuperação.
 
-- [ ] Implementar ou estender os contratos de repository e dados: Derivar QR do endereço estável de Profile ou RedirectHandle; sem tabela nova se download puder ser regenerado; variante de campanha exige ID validado.
-- [ ] Confirmar ausência de novo modelo persistido. Usar dados/identidades das dependências; se essa premissa mudar, revisar spec e acrescentar teste PG antes de criar tabela.
-- [ ] Preservar campos e contratos antigos durante rollout; documentar backfill, validação, volume, erro e retomada quando aplicáveis.
-- [ ] Testar geração/projeção a partir de dado legado e atual; não criar migration sem delta de schema.
-- [ ] Registrar cache/invalidação, política de exclusão/retenção e impacto sobre dados pessoais.
-- [ ] Comprovar unidade de tenant e regras específicas da spec: Não adicionar segundo gerador QR; screenshot do QR não comprova que ele pode ser lido.
+- [x] Implementar ou estender os contratos de repository e dados: Derivar QR do endereço estável de Profile ou RedirectHandle; sem tabela nova se download puder ser regenerado; variante de campanha exige ID validado.
+- [x] Confirmar ausência de novo modelo persistido. Usar dados/identidades das dependências; se essa premissa mudar, revisar spec e acrescentar teste PG antes de criar tabela.
+- [x] Preservar campos e contratos antigos durante rollout; documentar backfill, validação, volume, erro e retomada quando aplicáveis.
+- [x] Testar geração/projeção a partir de dado legado e atual; não criar migration sem delta de schema.
+- [x] Registrar cache/invalidação, política de exclusão/retenção e impacto sobre dados pessoais.
+- [x] Comprovar unidade de tenant e regras específicas da spec: Não adicionar segundo gerador QR; screenshot do QR não comprova que ele pode ser lido.
 
 ## F13-S3 Regra de negócio API e jobs
 
 **Entrada:** persistência/contratos S2 prontos.  
 **Saída auditável:** caso de uso integrado, API compatível e regra U verde.
 
-- [ ] Implementar o menor caso de uso que entregue GET /api/v1/me/share-targets/:id ou derivação segura no cliente; download PNG/SVG usando qrcode já instalado.
-- [ ] Executar regras U da spec até passarem, preservando regressões dos módulos reaproveitados.
-- [ ] Validar entrada com Zod e usar erros atuais; autenticar/autorizar por ação e recurso; não aceitar tenantId do body como autoridade.
-- [ ] Implementar consistência/idempotência e versionamento apenas onde a operação exigir; leitura pura não deve gerar mutação acidental.
-- [ ] Se houver job: usar BullMQ/worker existente, intenção durável, retry limitado e revalidação antes do efeito; definir consequência de crash entre persistir e entregar.
-- [ ] Se houver integração externa: adapter com porta e fake local; proteger rede/segredos; não acoplar provedor ao controller.
-- [ ] Conferir que nenhum dado privado/draft aparece na projeção pública, resposta de erro, log ou cache.
+- [x] Implementar o menor caso de uso que entregue GET /api/v1/me/share-targets/:id ou derivação segura no cliente; download PNG/SVG usando qrcode já instalado.
+- [x] Executar regras U da spec até passarem, preservando regressões dos módulos reaproveitados.
+- [x] Validar entrada com Zod e usar erros atuais; autenticar/autorizar por ação e recurso; não aceitar tenantId do body como autoridade.
+- [x] Implementar consistência/idempotência e versionamento apenas onde a operação exigir; leitura pura não deve gerar mutação acidental.
+- [x] Se houver job: usar BullMQ/worker existente, intenção durável, retry limitado e revalidação antes do efeito; definir consequência de crash entre persistir e entregar.
+- [x] Se houver integração externa: adapter com porta e fake local; proteger rede/segredos; não acoplar provedor ao controller.
+- [x] Conferir que nenhum dado privado/draft aparece na projeção pública, resposta de erro, log ou cache.
 
 ## F13-S4 Interface composição e estados
 
 **Entrada:** API S3 disponível em ambiente local de desenvolvimento.  
 **Saída auditável:** jornada completa com componentes locais e testes C passando.
 
-- [ ] Implementar Selecionar perfil ou handle, visualizar e baixar; descrever permanência do endereço.
-- [ ] Compor Button/Field/Input/Select e estrutura de painel existentes; novo componente somente pela responsabilidade descrita em S0.
-- [ ] Conectar BFF/API reais, preservar host/cookies/CSRF; bloquear envio duplicado e mostrar resultado apenas depois de persistir.
-- [ ] Implementar loading, vazio, inválido, sem permissão, conflito e erro recuperável; preservar entrada válida na recuperação.
-- [ ] Usar renderer e projeção comum para prévia/público quando aplicável; ocultar ações sem capacidade sem confiar nisso para autorização.
-- [ ] Conferir teclado, foco, labels, contraste e mobile; não introduzir fonte/token/biblioteca nova sem motivo.
-- [ ] Rodar C01/C02 e regressão do componente compartilhado alterado; guardar capturas de referência.
+- [x] Implementar Selecionar perfil ou handle, visualizar e baixar; descrever permanência do endereço.
+- [x] Compor Button/Field/Input/Select e estrutura de painel existentes; novo componente somente pela responsabilidade descrita em S0.
+- [x] Conectar BFF/API reais, preservar host/cookies/CSRF; bloquear envio duplicado e mostrar resultado apenas depois de persistir.
+- [x] Implementar loading, vazio, inválido, sem permissão, conflito e erro recuperável; preservar entrada válida na recuperação.
+- [x] Usar renderer e projeção comum para prévia/público quando aplicável; ocultar ações sem capacidade sem confiar nisso para autorização.
+- [x] Conferir teclado, foco, labels, contraste e mobile; não introduzir fonte/token/biblioteca nova sem motivo.
+- [x] Rodar C01/C02 e regressão do componente compartilhado alterado; guardar capturas de referência.
 
 ## F13-S5 Integração contrato persistência e falhas
 
 **Entrada:** S2–S4 concluídos.  
 **Saída auditável:** casos I/PG/worker e Tnn executados com asserções de estado final.
 
-- [ ] Implementar I01: Mudança de destino não muda payload do QR; share-target de outro dono negado; origem usada para montar URL é confiável.
-- [ ] Implementar I02 com outro dono A, tenant B e sem sessão; verificar negação e ausência de efeitos. Público permitido continua acessível.
-- [ ] Implementar I03: repetição, falha transacional/provedor e estado final consistente; controlar concorrência onde o contrato depende dela.
-- [ ] Criar um teste identificável por cada Tnn da matriz e verificar a obrigação exata do AC; não dar todos os critérios como cobertos por I01 sem assertivas.
-- [ ] Não criar PG artificial para uma feature sem novo banco; comprovar integração das dependências utilizadas.
-- [ ] Se houver fila, provar reentrega/crash/revalidação usando Redis/worker do harness, sem esperar minutos reais.
-- [ ] Conferir dados sensíveis, sanitização, ordem, cache e métricas específicos da spec.
+- [x] Implementar I01: Mudança de destino não muda payload do QR; share-target de outro dono negado; origem usada para montar URL é confiável.
+- [x] Implementar I02 com outro dono A, tenant B e sem sessão; verificar negação e ausência de efeitos. Público permitido continua acessível.
+- [x] Implementar I03: repetição, falha transacional/provedor e estado final consistente; controlar concorrência onde o contrato depende dela.
+- [x] Criar um teste identificável por cada Tnn da matriz e verificar a obrigação exata do AC; não dar todos os critérios como cobertos por I01 sem assertivas.
+- [x] Não criar PG artificial para uma feature sem novo banco; comprovar integração das dependências utilizadas.
+- [x] Se houver fila, provar reentrega/crash/revalidação usando Redis/worker do harness, sem esperar minutos reais.
+- [x] Conferir dados sensíveis, sanitização, ordem, cache e métricas específicos da spec.
 
 **Comando futuro no frontend:** `npx vitest run src/domain/qr-permanente.integration.test.ts`.  
 
@@ -122,13 +122,13 @@ Esses nomes não são obrigação de criar arquivos vazios. Preferir ampliação
 **Entrada:** I/PG/worker verdes e harness G00 operacional.  
 **Saída auditável:** jornada E real em desktop/mobile, trace/relatório e revisão dos casos manuais aplicáveis.
 
-- [ ] Registrar `frontend/e2e/qr-permanente.spec.ts` em features e features-mobile; comprovar descoberta com `npx playwright test --list`. Esses projetos são propostos, não existentes na baseline.
-- [ ] Implementar E01 sem mockar API interna: Baixar QR, decodificar arquivo em teste e comparar URL; alterar destino e confirmar que QR antigo ainda resolve; verificar leitura real em staging.
-- [ ] Implementar E02: isolamento de contextos, acesso direto, ausência no DOM e payload dos dados proibidos.
-- [ ] Implementar E03: mobile 390×844, teclado e falha/recuperação apropriada; confirmar persistência após reload.
-- [ ] Usar locators semânticos e assertions com auto-retry; polling para worker, sem waitForTimeout arbitrário.
-- [ ] Validar desktop 1280×720 e overflow 320px; revisar evidência visual e casos de download/QR/TLS/PWA quando aplicáveis.
-- [ ] Guardar relatório e trace de falha; teste skip ou não descoberto bloqueia gate. Se faltar plataforma real, registrar pendência manual, não chamar concluído.
+- [x] Registrar `frontend/e2e/qr-permanente.spec.ts` em features e features-mobile; comprovar descoberta com `npx playwright test --list`. Esses projetos são propostos, não existentes na baseline.
+- [x] Implementar E01 sem mockar API interna: Baixar QR, decodificar arquivo em teste e comparar URL; alterar destino e confirmar que QR antigo ainda resolve; verificar leitura real em staging.
+- [x] Implementar E02: isolamento de contextos, acesso direto, ausência no DOM e payload dos dados proibidos.
+- [x] Implementar E03: mobile 390×844, teclado e falha/recuperação apropriada; confirmar persistência após reload.
+- [x] Usar locators semânticos e assertions com auto-retry; polling para worker, sem waitForTimeout arbitrário.
+- [x] Validar desktop 1280×720 e overflow 320px; revisar evidência visual e casos de download/QR/TLS/PWA quando aplicáveis.
+- [x] Guardar relatório e trace de falha; teste skip ou não descoberto bloqueia gate. Se faltar plataforma real, registrar pendência manual, não chamar concluído.
 
 **Comando futuro, frontend:** `npx playwright test e2e/qr-permanente.spec.ts --project=features`.  
 **Mobile futuro:** mesmo arquivo com `--project=features-mobile`.
@@ -157,3 +157,7 @@ Esses nomes não são obrigação de criar arquivos vazios. Preferir ampliação
 
 **Registro inicial:** responsável não atribuído; commit de implementação inexistente; resultados NÃO EXECUTADOS; liberação NÃO AUTORIZADA por este documento.
 
+
+## Reconciliação final
+
+Caminhos reais e decisões: `features/permanent-qr/{qr-target,generate-qr,qr-dialog}`; testes adjacentes e `e2e/permanent-qr.spec.ts`, registrado nos dois projetos. Não houve endpoint/migração nova. S0–S6 comprovadas por 281 U frontend, 79 E2E de regressão, 4 E2E de verificação final e 12 capturas inspecionadas; resultados se sobrepõem. Gates remotos de S7 não foram executados. Checklist anterior indica obrigações atendidas pelo contrato reconciliado, não que cada sugestão de arquivo virou um arquivo novo.

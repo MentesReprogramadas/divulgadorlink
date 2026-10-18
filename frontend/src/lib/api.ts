@@ -12,8 +12,12 @@ async function send(path: string, init: RequestInit): Promise<Response> {
 }
 
 export async function api<T>(path: string, init: RequestInit = {}): Promise<{ status: number; body: T }> {
+  const support = typeof document !== 'undefined' && document.body.dataset.support === 'true'
+  if (support && (init.method ?? 'GET').toUpperCase() !== 'GET' && path !== '/v1/support/exit') {
+    return { status: 403, body: { code: 'support_read_only', message: 'Modo de suporte: somente leitura.' } as T }
+  }
   let response = await send(path, init)
-  if (response.status === 401 && (!path.startsWith('/v1/auth/') || path === '/v1/auth/session')) {
+  if (!support && response.status === 401 && (!path.startsWith('/v1/auth/') || path === '/v1/auth/session')) {
     const refreshed = await send('/v1/auth/refresh', { method: 'POST' })
     if (refreshed.ok) response = await send(path, init)
   }

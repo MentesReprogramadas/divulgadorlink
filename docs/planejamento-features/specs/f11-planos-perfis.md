@@ -2,12 +2,16 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 12.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
+**Estado:** VALIDADA LOCALMENTE; S0–S6 verificadas, S7 remoto/comercial EM REVISÃO.
 **Onda:** 3. **Ordem:** 12.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Planos para perfis e páginas”.  
 **Plano:** [F11 implementação](../planos/f11-planos-perfis.md).  
 **Dependências obrigatórias:** G00, [F09](../specs/f09-perfil-publico.md).  
 **Governança:** [arquitetura](../arquitetura-e-reuso.md), [testes](../qualidade-e-testes.md), [decisões](../decisoes.md), [roadmap](../roadmap-auditavel.md).
+
+## Reconciliação autorizada — 17/10/2026
+
+A instrução mais recente delega a escolha fundamentada e exige registrar alternativas. [Execução F11](../execucao-f11.md) contém as decisões D12/D13, inventário e testes iniciais. A marca continua em todos os planos por pedido posterior explícito; o editor atual não recebe paywall retroativo. Recursos futuros não serão vendidos como disponíveis. Preços e prontidão vêm do servidor e de configuração real, com venda desabilitada por padrão; não há autorização de implantação implícita. A execução e os resultados efetivos estão registrados no documento vinculado; a liberação comercial permanece separada.
 
 ## Objetivo e fronteira
 
@@ -117,11 +121,11 @@ Criar um teste com ID Tnn para cada AC, com o seguinte protocolo específico da 
 
 ## Arquivos de teste propostos
 
-- U: `backend/src/domain/billing/planos-perfis.spec.ts`.
-- C: `frontend/src/components/domain/planos-perfis.test.tsx`.
-- I: `backend/src/http/planos-perfis.http.spec.ts`.
-- PG: `backend/src/http/planos-perfis.pg.spec.ts`; registrar no comando/CI de PG.
-- E: `frontend/e2e/planos-perfis.spec.ts`; registrar no projeto features e features-mobile antes de executar.
+- U: `backend/src/domain/billing/profile-plans.spec.ts`.
+- C: `frontend/src/features/profile-billing/billing-screen.test.tsx`.
+- I: `backend/src/http/profile-billing-routes.pg.spec.ts`.
+- PG: `backend/src/http/profile-billing-processing.pg.spec.ts`; registrar no comando/CI de PG.
+- E: `frontend/e2e/profile-billing.spec.ts`; registrar no projeto features e features-mobile antes de executar.
 - Consumidores e novos caminhos sugeridos estão no plano; todos devem ser reconciliados com a árvore existente em S0.
 
 ## Decisões e condições de liberação

@@ -2,7 +2,7 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 15.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
+**Estado:** S0–S6 validadas localmente; S7 EM REVISÃO por CI/liberação remotos pendentes.
 **Onda:** 3. **Ordem:** 15.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Templates por atividade”.  
 **Plano:** [F16 implementação](../planos/f16-templates.md).  
@@ -10,6 +10,18 @@
 **Governança:** [arquitetura](../arquitetura-e-reuso.md), [testes](../qualidade-e-testes.md), [decisões](../decisoes.md), [roadmap](../roadmap-auditavel.md).
 
 ## Objetivo e fronteira
+
+## Reconciliação executável — 17/10/2026
+
+D18 e alternativas em [execução F16](../execucao-f16.md). Catálogo versionado em código com cinco atividades (comunidades, criadores, lojas, profissionais, eventos), usando os valores dos temas existentes e `appearanceInput`. Não há CMS, CRUD administrativo ou renderer paralelo. Modelos compõem grupos/botões atuais; não antecipam blocos ricos pagos. Nome/endereço/bio/foto da demonstração não são copiados para a identidade real.
+
+GET `/api/v1/profile-templates` é público e só retorna configurações/dados fictícios. POST `/api/v1/me/profile/apply-template` usa `{templateVersionId,preserveContent,expectedVersion,confirmedReplacement}`, rascunho próprio já salvo, lock e versão atuais. Body não escolhe dono/tenant/HTML/CSS. Página configurada preserva grupos/links/ordem/agendas por padrão e recebe apenas aparência; substituir estrutura exige confirmação, mantendo identidade. Sem publicação automática. Reenvio obsoleto/concorrente retorna 409 sem duplicar grupos; reaplicar preservando uma configuração idêntica é no-op.
+
+Migração aditiva `20261018030000_profile_template_examples`: `ProfileItem.templateExample` default false; snapshots antigos sem campo continuam válidos. Somente a aplicação do catálogo cria exemplos true, ocultos. Salvar normalmente ignora o marcador do cliente e só libera um exemplo quando seu destino/tipo é configurado. Tornar visível ou editar apenas label/flag não libera publicação. Projeção sempre exclui exemplos; publicação recusa exemplo visível. Exemplos ocultos genuínos não são probes/texto para IA, mantendo os dados privados completos para F19 e os caminhos automático/humano/WhatsApp. Itens reais, inclusive ocultos, conservam a política anterior de validação. Forjar true em URL nova não contorna segurança/moderação.
+
+Interface: `/painel/perfil/modelos`, aberta pela ação Modelos que primeiro usa o flush do autosave. Listagem/filtragem, prévia no ProfileView existente e modal em duas etapas. Demonstração fictícia é inerte, tem descrição acessível e região de rolagem focável por teclado; aplicar só após continuar. Confirmação obrigatória e estado pending desabilitam envio duplicado/fechamento; erro preserva escolha. Exemplos são configurados no formulário de link atual com destino vazio obrigatório. Fonte `clean` continua identificada como Simples na comparação de versões.
+
+Caminhos reais: domínio `profiles/profile-templates.ts/template-content.ts`, repository/rotas Profiles atuais, validação compartilhada e `http/profile-templates.pg.spec.ts`; frontend `features/profile-templates`, editor/grupos/normalização/renderer e `e2e/profile-templates.spec.ts`, registrado nos dois projetos. Primitivas locais, FormSteps/OverlayDialog/Select/EmptyState e CSS Modules. OverlayDialog recebeu closeDisabled opcional; SidebarLink recebeu contexto location para destacar Minha página nas subrotas, preservando page para destino exato. As propostas abaixo são históricas; não implicam criar módulos vazios ou uma tabela TemplateVersion.
 
 acelerar a criação de páginas adequadas a diferentes públicos.
 

@@ -2,14 +2,28 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 14.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
+**Estado:** S0–S6 validadas localmente; S7 EM REVISÃO por CI/liberação remotos pendentes.
 **Onda:** 3. **Ordem:** 14.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Agendamento de links”.  
 **Plano:** [F14 implementação](../planos/f14-agendamento.md).  
-**Dependências obrigatórias:** G00, [F09](../specs/f09-perfil-publico.md).  
+**Dependências obrigatórias:** G00, [F09](../specs/f09-perfil-publico.md), [F11](../specs/f11-planos-perfis.md).
 **Governança:** [arquitetura](../arquitetura-e-reuso.md), [testes](../qualidade-e-testes.md), [decisões](../decisoes.md), [roadmap](../roadmap-auditavel.md).
 
 ## Objetivo e fronteira
+
+## Reconciliação executável — 17/10/2026
+
+D16 e alternativas em [execução F14](../execucao-f14.md). Intervalo `[início,fim)`, extremos opcionais, pausa prevalece, instantes UTC com fuso IANA visível. A interface rejeita data civil inexistente ou ambígua em transições de horário; não escolhe silenciosamente um offset. Trocar o fuso interpreta os valores civis exibidos naquele fuso. UI não concede autorização nem define o relógio público.
+
+Reutiliza PATCH `/me/profile` com `content.items[].schedule` e `expectedVersion`, sem criar outro escritor por item que concorreria com autosave. Campos: `{startsAt:string|null,endsAt:string|null,timeZone:string,paused:boolean}`; agenda ausente/null significa botão comum. GET `/me/profile` informa capacidade efetiva e `serverNow`; a publicação e projeção pública usam o relógio de servidor. GET `/me/profile/preview?at=<UTC>` é privado e só permite simulação com capacidade vigente; GET público ignora qualquer tentativa de trocar o relógio por query.
+
+Projeções públicas e prévia compartilham `profileAt`: filtra itens fora da janela e remove configurações de agenda, IDs do botão principal inelegível e grupos vazios antes da serialização. A publicação interna preserva itens futuros, e F19 mantém a agenda nos snapshots/restaurações. Respostas públicas têm `serverNow/nextBoundary`, no-store e SSR dinâmico; a página aberta reconsulta a projeção ao atingir a próxima fronteira, bloqueando links antigos durante loading/erro. Não há job novo para uma página sem cache persistente.
+
+F11 já reserva `profile.scheduling` para planos pagos. Cobertura/estado/identificadores são conferidos no servidor pela mesma política de capacidades. Não inventar preço ou ativar vendas. Sem cobertura, agendas continuam guardadas e seus botões ficam ocultos; é permitido remover a agenda e publicar um botão comum. Restaurar histórico preserva dados em rascunho e não reativa cobrança nem concede capacidade. Botões e redirecionamentos permanentes continuam independentes.
+
+Migração aditiva `20261018020000_profile_schedules`: quatro colunas opcionais/default em ProfileItem, checks de intervalo e coerência do fuso. Snapshots antigos sem agenda continuam válidos. Não há índice novo: a consulta usa as relações/índices do perfil já existentes, com no máximo 500 itens. Casos de upgrade e restrições reais devem passar antes do fechamento S2.
+
+Caminhos reais: `backend/src/domain/profiles/profile-schedule*`, `profile.ts/profile-input.ts`, `repositories/profiles-repository.ts/profile-capability-coverage.ts`, `lib/profile-clock.ts`, rotas Profiles e `http/profile-schedules.pg.spec.ts`. Frontend em `features/profiles/profile-schedule*`, `components/profile-schedule-dialog*`, editor/grupos, `profile-preview-screen`, `profile-live*` e `e2e/profile-schedules.spec.ts`. Primitivas locais, CSS Modules, DatePicker/Select/OverlayDialog existentes; nenhuma biblioteca nova. Nomes de arquivos/rota propostos abaixo permanecem históricos; não significam que foram criadas abstrações paralelas.
 
 controlar a exibição de botões em eventos, inscrições e campanhas.
 

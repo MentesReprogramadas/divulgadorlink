@@ -107,6 +107,7 @@ async function signSession(reply: FastifyReply, user: { id: string; role: string
       role: user.role,
       tenantId: user.tenantId,
       typ: 'access',
+      sid: jti,
     },
     {
       sign: {
@@ -398,6 +399,7 @@ async function currentSession(request: FastifyRequest, reply: FastifyReply) {
       role: user.role,
       status: user.status,
       canSubmit: canSubmitLinkFromIdentifiers(user.status, identifiers),
+      ...(request.supportSession ? { support: { name: user.name, expiresAt: request.supportSession.expiresAt } } : {}),
       ...(banReason ? { banReason } : {}),
     })
   } catch (error) {

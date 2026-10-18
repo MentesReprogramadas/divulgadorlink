@@ -18,6 +18,8 @@ import { RedirectFields } from './components/redirect-fields'
 import { RedirectHistory } from './components/redirect-history'
 import { emptyRedirect, type RedirectFieldsValue, type RedirectPage, type RedirectDetail } from './redirect-contract'
 import { RedirectRequestError, redirectRequest } from './redirect-api'
+import { QrDialog } from '@/features/permanent-qr/qr-dialog'
+import { stableQrTarget, type StableQrTarget } from '@/features/permanent-qr/qr-target'
 import styles from './components/redirects.module.css'
 
 type Attempt = { id: string | null; fields: string; key: string; version: number }
@@ -29,6 +31,8 @@ export function RedirectScreen() {
   const [value, setValue] = useState<RedirectFieldsValue>(emptyRedirect), [phase, setPhase] = useState<'loading' | 'ready' | 'error'>('loading')
   const [pending, setPending] = useState(false), [error, setError] = useState(''), [notice, setNotice] = useState(''), [confirmDisable, setConfirmDisable] = useState(false)
   const [range, setRange] = useState({ from: '', to: '' }), [stableUrl, setStableUrl] = useState('')
+  const [qrTarget, setQrTarget] = useState<StableQrTarget | null>(null)
+  const qrTrigger = useRef<HTMLButtonElement | null>(null)
   const busy = useRef(false), attempt = useRef<Attempt | null>(null), status = useRef<HTMLParagraphElement>(null)
   useLayoutEffect(() => { if (notice) status.current?.focus() }, [notice])
   useLayoutEffect(() => {
@@ -75,7 +79,7 @@ export function RedirectScreen() {
     {detail.disabled ? <p className={styles.warning}>Endereço desativado definitivamente. Ele não encaminha mais visitantes.</p> : !active ? <p className={styles.warning}>{detail.revisions[0]?.review?.status === 'PENDING' ? 'Aguardando aprovação para liberar este convite.' : 'Ainda sem destino aprovado. Você pode corrigir o envio ou contestar uma recusa.'}</p> : null}
     <section className={styles.section} aria-label="Endereço permanente">
       <header className={styles.sectionHeader}><h3>Endereço para compartilhar</h3><Badge tone={detail.disabled ? 'muted' : active ? 'ok' : 'wait'}>{detail.disabled ? 'Desativado' : active ? 'Publicado' : 'Sem destino aprovado'}</Badge></header>
-      <div className={styles.shareRow}><Field label="Link permanente"><Input className={styles.inlineInput} readOnly value={stableUrl} onFocus={e => e.currentTarget.select()} /></Field><Button variant="secondary" onClick={() => void action(async () => { try { await navigator.clipboard.writeText(stableUrl); setNotice('Endereço copiado.') } catch { throw new Error('Selecione o endereço acima e copie manualmente.') } })} disabled={pending}><ActionIcon name="copy" />Copiar endereço</Button></div>
+      <div className={styles.shareRow}><Field label="Link permanente"><Input className={styles.inlineInput} readOnly value={stableUrl} onFocus={e => e.currentTarget.select()} /></Field><Button variant="secondary" onClick={() => void action(async () => { try { await navigator.clipboard.writeText(stableUrl); setNotice('Endereço copiado.') } catch { throw new Error('Selecione o endereço acima e copie manualmente.') } })} disabled={pending}><ActionIcon name="copy" />Copiar endereço</Button><Button disabled={pending || detail.disabled || !detail.activeRevisionId} onClick={event => { qrTrigger.current = event.currentTarget; void action(async () => { const current = await loadDetail(detail.id, true); if (current.disabled || !current.activeRevisionId) throw new Error('Este convite precisa estar ativo para gerar o QR Code.'); setQrTarget(stableQrTarget(window.location.origin, { kind: 'REDIRECT', path: current.stablePath })) }) }}><ActionIcon name="qr" />QR Code</Button></div>
       <a className={styles.publicLink} href={detail.stablePath}>Testar endereço público <ActionIcon name="external" /></a>
       {active ? <div className={styles.destination}><div><span className={styles.note}>Destino atual</span><h3>{active.label}</h3><p className={styles.url}>{active.destinationUrl}</p></div>{!detail.disabled ? <Button variant="secondary" disabled={pending} onClick={() => setEditing(true)}><ActionIcon name="edit" />Editar destino</Button> : null}</div> : !detail.disabled ? <div className={styles.actions}><Button variant="secondary" disabled={pending} onClick={() => setEditing(true)}><ActionIcon name="edit" />Editar destino</Button></div> : null}
     </section>
@@ -92,5 +96,6 @@ export function RedirectScreen() {
       <Tabs label="Detalhes do convite" value={tab} onChange={setTab} items={[{ id: 'address', label: 'Endereço', content: addressContent }, { id: 'history', label: 'Histórico e acessos', content: historyContent }]} />
     </> : <>{actions}{phase === 'loading' ? <RedirectListSkeleton /> : phase === 'error' ? <p>Atualize os dados para tentar novamente.</p> : <><RedirectGrid items={page.items} pending={pending} onOpen={id => { setTab('address'); setRange({ from: '', to: '' }); void action(async () => { await loadDetail(id) }) }} />{page.nextCursor ? <div className={styles.actions}><Button variant="secondary" disabled={pending} onClick={() => void action(async () => { const next = await redirectRequest<RedirectPage>('?cursor=' + page.nextCursor); setPage(previous => ({ items: [...previous.items, ...next.items.filter(item => !previous.items.some(p => p.id === item.id))], nextCursor: next.nextCursor })) })}><ActionIcon name="loadMore" />Mais endereços</Button></div> : null}</>}</>}
     {!detail?.disabled ? <OverlayDialog open={editing} title={detail ? 'Atualizar destino' : 'Criar endereço permanente'} onClose={() => { if (!pending) setEditing(false) }}><p className={styles.warning}>Todo novo destino passa por validação automática. Se precisar de revisão humana, a equipe decide. Você pode contestar uma recusa. O destino anterior continua ativo.</p><div className={styles.frame}><form className={styles.form} aria-label="Editar convite permanente" onSubmit={e => { e.preventDefault(); void action(save) }}><fieldset className={styles.controls} disabled={pending}><legend className={styles.legend}>Dados do convite</legend><RedirectFields value={value} onChange={setValue} /><div className={styles.actions}><Button type="submit" loading={pending}><ActionIcon name="save" />Validar e salvar destino</Button></div></fieldset></form></div>{error ? <p className={styles.error} role="alert">{error}</p> : null}</OverlayDialog> : null}
+    {qrTarget ? <QrDialog target={qrTarget} trigger={qrTrigger.current} onClose={() => setQrTarget(null)} /> : null}
   </section>
 }

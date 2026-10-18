@@ -1,7 +1,10 @@
 'use client'
 import { FavoriteButton } from '@/features/favorites/components/favorite-button'
 
-import { useEffect, useState } from 'react'
+import { DiscoveryFilters } from '@/features/catalog/discovery/discovery-filters'
+import { discoveryHref, discoveryParams, emptyDiscovery, readDiscovery, type DiscoveryValues } from '@/features/catalog/discovery/discovery-contract'
+import { InvalidDiscovery } from '@/features/catalog/discovery/invalid-discovery'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 import { AgePrompt, confirmAge } from '@/components/domain/age-gate'
@@ -26,9 +29,9 @@ type Card = {
   network?: Facet
 }
 type SearchTarget = { kind: 'niche' | 'network' | 'results'; slug: string | null; name?: string }
-type SearchBody = { target: SearchTarget; ageRequired?: boolean; showImpressions?: boolean; sponsored: Card[]; organic: Card[] }
+type SearchBody = { queryId?: string; target: SearchTarget; ageRequired?: boolean; showImpressions?: boolean; sponsored: Card[]; organic: Card[] }
 
-function SearchContext({ target }: { target: SearchTarget }) {
+function SearchContext({ target, filters }: { target: SearchTarget; filters: DiscoveryValues }) {
   if (target.kind === 'results' || !target.slug) return null
   const name = target.name?.trim() || null
   const href = target.kind === 'niche'
@@ -37,32 +40,50 @@ function SearchContext({ target }: { target: SearchTarget }) {
   return (
     <div className={styles.context}>
       <p className="search-context-label">{target.kind === 'niche' ? 'Nicho encontrado' : 'Rede encontrada'}</p>
-      <a href={href}>Explorar {name ?? target.slug} <span aria-hidden="true">→</span></a>
+      <a href={discoveryHref(href,filters)}>Explorar {name ?? target.slug} <span aria-hidden="true">→</span></a>
     </div>
   )
 }
 
-function rowHref(row: Card): string {
-  return `/link/${row.id}?surfaceToken=${encodeURIComponent(row.surfaceToken)}`
+function rowHref(row: Card, queryId?: string): string {
+  return `/link/${row.id}?surfaceToken=${encodeURIComponent(row.surfaceToken)}${queryId ? `&queryId=${encodeURIComponent(queryId)}` : ''}`
 }
 
 function SearchResults() {
   const params = useSearchParams()
   const q = params.get('q') ?? ''
+  const query = params.toString()
+  const discovery = useMemo(()=>{try{return {value:readDiscovery(new URLSearchParams(query)),valid:true}}catch{return {value:emptyDiscovery(),valid:false}}},[query])
+  const filterQuery = discoveryParams(discovery.value).toString()
+  const resultKey=JSON.stringify([q,filterQuery,discovery.valid])
+  const [loadedKey,setLoadedKey]=useState('')
+  const [filtering,setFiltering]=useState(false)
+  const [invalid,setInvalid] = useState(false)
   const [sponsored, setSponsored] = useState<Card[]>([])
   const [organic, setOrganic] = useState<Card[]>([])
+  const [queryId, setQueryId] = useState<string | undefined>()
   const [target, setTarget] = useState<SearchTarget | null>(null)
   const [ageRequired, setAgeRequired] = useState(false)
   const [showImpressions, setShowImpressions] = useState(true)
   const [state, setState] = useState<'loading' | 'error' | 'ready'>('loading')
+  const displayState=filtering || loadedKey!==resultKey ? 'loading' : state
 
+  const loadSequence = useRef(0)
   async function load() {
+    const sequence = ++loadSequence.current
     setState('loading')
-    const result = await api<SearchBody>(`/v1/search?q=${encodeURIComponent(q)}`)
+    setLoadedKey(resultKey)
+    setQueryId(undefined);setInvalid(!discovery.valid)
+    if (!discovery.valid) {setState('error');return}
+    let result: Awaited<ReturnType<typeof api<SearchBody>>>
+    try { result = await api<SearchBody>(`/v1/search?q=${encodeURIComponent(q)}${filterQuery ? `&${filterQuery}` : ''}`) } catch { if (sequence === loadSequence.current) setState('error'); return }
+    if (sequence !== loadSequence.current) return
     if (result.status !== 200) {
+      setInvalid(result.status === 400)
       setState('error')
       return
     }
+    setQueryId(result.body.queryId)
     setSponsored(result.body.sponsored ?? [])
     setOrganic(result.body.organic ?? [])
     setTarget(result.body.target ?? null)
@@ -80,9 +101,9 @@ function SearchResults() {
     if (await confirmAge('yes')) await load()
   }
 
-  useEffect(() => { void load() }, [q])
+  useEffect(() => { void load(); return () => { loadSequence.current++ } }, [q,filterQuery,discovery.valid])
 
-  const showEmpty = state === 'ready'
+  const showEmpty = displayState === 'ready'
     && !ageRequired
     && target?.kind === 'results'
     && sponsored.length === 0
@@ -94,29 +115,31 @@ function SearchResults() {
       <h1 className="entry-title">Buscar</h1>
       <p className={styles.summary}>{q.trim() ? `Resultados para “${q}”` : 'Encontre links ou explore por nicho e rede.'}</p>
       <form className="search-form" action="/busca">
-        <SearchBox id="search-query" label="Busca" initial={q} />
+        <SearchBox id="search-query" label="Busca" initial={q} discoveryQuery={filterQuery} />
+        {Array.from(discoveryParams(discovery.value)).map(([name,value])=><input key={name} type="hidden" name={name} value={value}/>)}
       </form>
-      {state === 'loading' ? <CatalogCardsSkeleton count={Math.max(organic.length + sponsored.length, 3)} /> : null}
-      {state === 'error' ? <ErrorState onRetry={() => void load()} /> : null}
+      {!invalid && discovery.valid ? <DiscoveryFilters initial={discovery.value} onPending={setFiltering}/> : null}
+      {displayState === 'loading' ? <CatalogCardsSkeleton count={Math.max(organic.length + sponsored.length, 3)} /> : null}
+      {displayState === 'error' ? invalid ? <InvalidDiscovery href={`/busca?q=${encodeURIComponent(q)}`}/> : <ErrorState onRetry={() => void load()} /> : null}
       {showEmpty ? <EmptyState>Nenhum link encontrado</EmptyState> : null}
-      {state === 'ready' && ageRequired ? <AgePrompt onYes={() => void answer('yes')} onNo={() => void answer('no')} /> : null}
-      {state === 'ready' && target ? <SearchContext target={target} /> : null}
-      {state === 'ready' && sponsored.length > 0 ? (
+      {displayState === 'ready' && ageRequired ? <AgePrompt onYes={() => void answer('yes')} onNo={() => void answer('no')} /> : null}
+      {displayState === 'ready' && target ? <SearchContext target={target} filters={discovery.value} /> : null}
+      {displayState === 'ready' && sponsored.length > 0 ? (
         <section className={`search-list ${styles.section}`} aria-labelledby="search-patrocinados">
           <h2 id="search-patrocinados">Patrocinados</h2>
           <CatalogGrid>
             {sponsored.map((row) => (
-              <LinkRow cornerAction={<FavoriteButton linkId={row.id} />} key={row.id} id={row.id} name={row.name} description={row.description} href={rowHref(row)} placement="sponsored" niche={row.niche} network={row.network} impressions={row.impressions} showImpressions={showImpressions} />
+              <LinkRow cornerAction={<FavoriteButton linkId={row.id} />} key={row.id} id={row.id} name={row.name} description={row.description} href={rowHref(row, queryId)} placement="sponsored" niche={row.niche} network={row.network} impressions={row.impressions} showImpressions={showImpressions} />
             ))}
           </CatalogGrid>
         </section>
       ) : null}
-      {state === 'ready' && organic.length > 0 ? (
+      {displayState === 'ready' && organic.length > 0 ? (
         <section className={`search-list ${styles.section}`} aria-labelledby="search-organicos">
           <h2 id="search-organicos">Links encontrados</h2>
           <CatalogGrid>
             {organic.map((row) => (
-              <LinkRow cornerAction={<FavoriteButton linkId={row.id} />} key={row.id} id={row.id} name={row.name} description={row.description} href={rowHref(row)} placement="organic" niche={row.niche} network={row.network} impressions={row.impressions} showImpressions={showImpressions} />
+              <LinkRow cornerAction={<FavoriteButton linkId={row.id} />} key={row.id} id={row.id} name={row.name} description={row.description} href={rowHref(row, queryId)} placement="organic" niche={row.niche} network={row.network} impressions={row.impressions} showImpressions={showImpressions} />
             ))}
           </CatalogGrid>
         </section>

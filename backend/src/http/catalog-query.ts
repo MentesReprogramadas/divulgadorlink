@@ -1,6 +1,7 @@
 import { newOrderSeed } from '@/domain/catalog/random-order'
 import type { PrismaClient } from '@prisma/client'
-import { encodeCursor, homePageSql, type CatalogCursor } from '@/http/catalog-page'
+import { encodeCursor, homePageSql, discoveryCursorContext, type CatalogCursor } from '@/http/catalog-page'
+import {parseDiscovery,type DiscoveryMetadata} from '@/domain/catalog/discovery-metadata'
 
 type Row = {
   id: string
@@ -24,8 +25,10 @@ export async function queryCatalogPage(
     networkSlug: string | null
     limit: number
     cursor: CatalogCursor | null
+    filters?:DiscoveryMetadata
   },
 ): Promise<{ rows: Row[]; nextCursor: string | null }> {
+  const filters=parseDiscovery(input.filters??{}),key=discoveryCursorContext(filters,[input.tenantId,input.age,input.surface,input.nicheSlug,input.networkSlug],input.cursor)
   const seed = input.cursor?.seed ?? newOrderSeed()
   const sql = homePageSql(input.surface)
   const sponsored: Row[] = !input.cursor || input.cursor.kind === 'sponsored'
@@ -38,6 +41,7 @@ export async function queryCatalogPage(
       input.cursor?.kind === 'sponsored' ? input.cursor.id : null,
       seed,
       input.limit + 1,
+      filters.cityId,filters.languageTag,filters.modality,
     )
     : []
   const takeSponsored = Math.min(sponsored.length, input.limit)
@@ -52,6 +56,7 @@ export async function queryCatalogPage(
       input.cursor?.kind === 'organic' ? input.cursor.id : null,
       remain + 1,
       seed,
+      filters.cityId,filters.languageTag,filters.modality,
     )
     : []
   const pageSponsored = sponsored.slice(0, takeSponsored)
@@ -67,6 +72,7 @@ export async function queryCatalogPage(
       null,
       1,
       seed,
+      filters.cityId,filters.languageTag,filters.modality,
     )).length > 0
     : false
   const more = sponsored.length > takeSponsored || organic.length > remain || organicPending
@@ -79,6 +85,7 @@ export async function queryCatalogPage(
         activatedAt: last.homeActivatedAt ? new Date(last.homeActivatedAt).toISOString() : null,
         id: last.id,
         seed,
+        ...(key?{filterKey:key}:{}),
       })
       : null,
   }

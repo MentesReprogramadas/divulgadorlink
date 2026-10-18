@@ -1,20 +1,22 @@
 import { ContentReviewRequired } from '@/domain/moderation/content-review'
 import type { Prisma } from '@prisma/client'
-import { assertPublicHttps } from '@/adapters/http/safe-fetch'
+import {normalizeProfileDestinations} from './publication-structure'
 import { canonicalUrl } from '@/domain/links/canonical-url'
 import { decideProposedText, type ModelVerdict } from '@/use-cases/@Links/proposed-text-decision'
 import { ProfileError, type ProfileContent } from '@/domain/profiles/profile'
+import { assertProfileExamplesReady, profileModerationContent } from '@/domain/profiles/template-content'
 import { profileHasNewBlockedSignals, profileModerationChanges, profileModerationSnapshot, profileModerationText } from '@/domain/profiles/profile-moderation'
 export { publicContentValidationPorts as profileValidationPorts } from '@/use-cases/public-content-validation-ports'
 import type { PublicContentValidationPorts as ProfileValidationPorts } from '@/use-cases/public-content-validation-ports'
 export type { PublicContentValidationPorts as ProfileValidationPorts } from '@/use-cases/public-content-validation-ports'
 export async function validateProfile(db: Prisma.TransactionClient, tenantId: string, content: ProfileContent, ports: ProfileValidationPorts, humanApproved = false, approved?: ProfileContent): Promise<ProfileContent> {
+  assertProfileExamplesReady(content)
   const [terms, banned, threshold] = await Promise.all([db.blocklistTerm.findMany({ where: { tenantId } }), db.link.findMany({ where: { tenantId, owner: { tenantId, status: 'BANNED' } }, select: { canonicalUrl: true } }), db.config.findUnique({ where: { tenantId_key: { tenantId, key: 'MODERATION_AUTO_APPROVE_THRESHOLD' } } })])
-  const result: ProfileContent = { ...content, items: content.items.map(i => ({ ...i })) }
+  const result = normalizeProfileDestinations(content)
   const destinations = new Set<string>()
   for (const item of result.items) {
+    if (item.templateExample) continue
     if (item.type === 'CATALOG') continue
-    try { assertPublicHttps(item.destination); item.destination = canonicalUrl(item.destination) } catch { throw new ProfileError(422, 'Use destinos HTTPS públicos, sem credenciais ou portas especiais. O rascunho foi mantido.') }
     if (banned.some(b => canonicalUrl(b.canonicalUrl) === item.destination)) throw new ProfileError(422, 'Um destino está bloqueado. Corrija o rascunho antes de publicar.')
     destinations.add(item.destination)
   }
@@ -30,19 +32,20 @@ export async function validateProfile(db: Prisma.TransactionClient, tenantId: st
     }
   }))
   if (humanApproved) return result
-  const changes = profileModerationChanges(result, approved)
+  const real=profileModerationContent(result),approvedReal=approved?profileModerationContent(approved):undefined
+  const changes = profileModerationChanges(real, approvedReal)
   if (!changes.changedFields.length) return result
-  const blocklisted = profileHasNewBlockedSignals(changes.text, terms.map(t => t.term), approved)
+  const blocklisted = profileHasNewBlockedSignals(changes.text, terms.map(t => t.term), approvedReal)
   if (blocklisted) throw new ContentReviewRequired()
   const limit = Number(threshold?.value)
   if (!Number.isFinite(limit) || limit < 0 || limit > 1 || !threshold) throw new ContentReviewRequired()
   let verdict: ModelVerdict
   try {
     verdict = await ports.judge({
-      name: result.name, description: profileModerationText(result), niche: 'Perfil público: conteúdo permitido e grupos pessoais, sem exigir correspondência com nicho do catálogo',
+      name: real.name, description: profileModerationText(real), niche: 'Perfil público: conteúdo permitido e grupos pessoais, sem exigir correspondência com nicho do catálogo',
       profileContext: {
-        ...(approved ? { approved: { name: approved.name, description: profileModerationText(approved), snapshot: profileModerationSnapshot(approved) } } : {}),
-        proposed: profileModerationSnapshot(result), changedFields: changes.changedFields, destinations: [...destinations],
+        ...(approvedReal ? { approved: { name: approvedReal.name, description: profileModerationText(approvedReal), snapshot: profileModerationSnapshot(approvedReal) } } : {}),
+        proposed: profileModerationSnapshot(real), changedFields: changes.changedFields, destinations: [...destinations],
       },
     })
   } catch { throw new ContentReviewRequired() }

@@ -14,7 +14,7 @@ export const loadCatalog = cache(async (path: string): Promise<CatalogResponse> 
     host: tenantHost(hostHeader.split(':')[0] || 'localhost'),
     cookie,
   })
-  if (result.status === 404) return { status: 404, body: null }
+  if (result.status === 404 || result.status === 400) return { status: result.status, body: null }
   if (result.status !== 200) throw new Error(`Catalog upstream returned ${result.status}`)
   return { status: 200, body: JSON.parse(result.body.toString()) }
 })

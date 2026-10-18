@@ -2,7 +2,7 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 18.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
+**Estado:** S0–S6 validadas localmente; S7 EM REVISÃO por regressão compartilhada/CI/liberação pendentes. [Execução F27](../execucao-f27.md).
 **Onda:** 3. **Ordem:** 18.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Filtros por cidade idioma e modalidade”.  
 **Plano:** [F27 implementação](../planos/f27-filtros-locais.md).  
@@ -44,7 +44,7 @@ Proposta de migração: avaliar mudanças de schema e adicionar somente campos/t
 
 Regra transversal: IDs de outro tenant não podem ser aceitos em relações. Projeções públicas são allowlists; rascunhos, contatos, tokens e dados privados não entram por serialização automática. Dinheiro em centavos e tempo armazenado em UTC; a agregação de analytics existente mantém America/Sao_Paulo. Índices devem ser baseados em consulta real, sem plataforma de dados nova por padrão.
 
-## Contratos propostos
+## Contratos reconciliados
 
 Rotas/operações: Estender GET /api/v1/search e catálogo com city/language/modality; edição autorizada desses campos.
 
@@ -52,7 +52,7 @@ Rotas/operações: Estender GET /api/v1/search e catálogo com city/language/mod
 
 **Saída específica:** `items,activeFilters,facets,nextCursor; metadados ausentes preservados quando sem filtro`.
 
-Todos os caminhos são propostas a reconciliar com rotas atuais em S0; não estão implementados. Quando a rota abreviada omite prefixo, o prefixo é /api/v1. PATCH/POST/DELETE com sessão preservam CSRF do app e enviam host pelo BFF; tenant não vem do corpo. GET público não exige autenticação indevida. Exportações, tokens e respostas privadas usam política de cache que impeça exposição.
+Rotas reconciliadas e implementadas em S0–S6; detalhes de entrada/saída e desvios explícitos dos nomes propostos constam da execução F27. Quando a rota abreviada omite prefixo, o prefixo é /api/v1. PATCH/POST/DELETE com sessão preservam CSRF do app e enviam host pelo BFF; tenant não vem do corpo. GET público não exige autenticação indevida. Exportações, tokens e respostas privadas usam política de cache que impeça exposição.
 
 Erros: aplicar o envelope existente code/message/request_id; 400 para entrada inválida, 401 sem sessão em recurso privado, 403 para contexto de tenant incompatível quando contrato atual exige, 404 para recurso alheio/ausente sem enumerar dados, 409 para conflito de versão/identidade, 429 para limite, 503 para indisponibilidade externa quando apropriado. Rotas existentes podem ter semântica específica; preservar testes de contrato e documentar divergência antes de mudar.
 
@@ -117,11 +117,11 @@ Criar um teste com ID Tnn para cada AC, com o seguinte protocolo específico da 
 
 ## Arquivos de teste propostos
 
-- U: `backend/src/domain/catalog/filtros-locais.spec.ts`.
-- C: `frontend/src/components/domain/filtros-locais.test.tsx`.
-- I: `backend/src/http/filtros-locais.http.spec.ts`.
-- PG: `backend/src/http/filtros-locais.pg.spec.ts`; registrar no comando/CI de PG.
-- E: `frontend/e2e/filtros-locais.spec.ts`; registrar no projeto features e features-mobile antes de executar.
+- U: `backend/src/domain/catalog/discovery-metadata.spec.ts`.
+- C: `frontend/src/features/catalog/discovery/discovery-controls.test.tsx`.
+- I: `backend/src/http/discovery-filters.pg.spec.ts`.
+- PG: `backend/src/http/discovery-filters.pg.spec.ts`; registrar no comando/CI de PG.
+- E: `frontend/e2e/discovery-filters.spec.ts`; registrar no projeto features e features-mobile antes de executar.
 - Consumidores e novos caminhos sugeridos estão no plano; todos devem ser reconciliados com a árvore existente em S0.
 
 ## Decisões e condições de liberação
@@ -142,3 +142,9 @@ Sem resolução das decisões bloqueantes e dependências concluídas, a feature
 
 **Indicadores:** uso dos filtros e proporção de consultas filtradas que geram clique.
 
+
+## Contrato reconciliado e comprovação local
+
+Ver execução D29: Link do catálogo recebe metadados opcionais; Minha Página/F09 continua permitida sem esses campos, sem duplicar metadados no Profile antes de haver descoberta F24. Preservados arrays sponsored/organic, target, facetas e cursor existentes; busca não ganha paginação artificial. Referência IBGE/IANA local. I/PG reunidos no teste real de PostgreSQL; caminhos acima reconciliados com os módulos entregues, sem criar arquivos vazios.
+
+S0–S6 e cinco ACs verificados localmente: domínio 4 U, componentes/contratos 5 C, 7 PG próprios incluídos em 246 PG/26 arquivos; 520 U backend e 311 U frontend nas suítes completas, lint/typecheck/build dos pacotes aprovados. Seis E2E finais desktop/mobile, 18 capturas inspecionadas, igualdade de dimensões do skeleton/formulário e Salvar visível após erro. Registros separados de rodadas amplas/falhas em execucao-f27.md. S7 não é encerrada por testes locais nem por aceitação parcial de regressões compartilhadas.
