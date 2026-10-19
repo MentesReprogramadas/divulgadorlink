@@ -6,9 +6,9 @@ import styles from './tabs.module.css'
 import { ActionIcon } from './action-icon'
 type TabIcon = React.ComponentProps<typeof ActionIcon>['name']
 
-export function TabNavigation<T extends string>({ value, onChange, label, items, idPrefix }: { value: T; onChange?: (value: T) => void; label: string; items: Array<{ id: T; label: string; icon?: TabIcon }>; idPrefix: string }) {
+export function TabNavigation<T extends string>({ value, onChange, label, items, idPrefix }: { value: T; onChange?: (value: T) => void; label: string; items: Array<{ id: T; label: string; icon?: TabIcon; compactLabel?: string; disabled?:boolean }>; idPrefix: string }) {
   return <BaseTabs.Root className={styles.root} value={value} onValueChange={next => { const item = items.find(item => item.id === next); if (item) onChange?.(item.id) }}>
-    <BaseTabs.List aria-label={label} className={styles.list}>{items.map(item => <BaseTabs.Tab key={item.id} value={item.id} data-value={item.id} id={`${idPrefix}-${item.id}`} aria-controls={`${idPrefix}-panel-${item.id}`} className={styles.tab}>{item.icon ? <ActionIcon name={item.icon} /> : null}{item.label}</BaseTabs.Tab>)}<BaseTabs.Indicator className={styles.indicator} /></BaseTabs.List>
+    <BaseTabs.List aria-label={label} className={styles.list}>{items.map(item => <BaseTabs.Tab key={item.id} value={item.id} disabled={item.disabled} data-value={item.id} id={`${idPrefix}-${item.id}`} aria-label={item.compactLabel ? item.label : undefined} aria-controls={`${idPrefix}-panel-${item.id}`} className={styles.tab}>{item.icon ? <ActionIcon name={item.icon} /> : null}{item.compactLabel ? <><span className={styles.fullLabel}>{item.label}</span><span className={styles.compactLabel} aria-hidden="true">{item.compactLabel}</span></> : item.label}</BaseTabs.Tab>)}<BaseTabs.Indicator className={styles.indicator} /></BaseTabs.List>
   </BaseTabs.Root>
 }
 

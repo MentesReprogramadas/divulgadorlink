@@ -5,7 +5,7 @@ export function applyProfileTemplate(content: ProfileContent, versionId: string,
   const template=profileTemplate(versionId),configured=content.categories.length>0||content.items.length>0
   if(configured&&!preserveContent&&!confirmedReplacement)throw new ProfileError(409,'A substituição dos seus grupos e links precisa de confirmação.')
   const result=structuredClone(content)
-  result.appearance=template.appearance
+  result.appearance={...template.appearance,...(content.appearance?.searchEnabled===undefined?{}:{searchEnabled:content.appearance.searchEnabled})}
   if(configured&&preserveContent)return result
   result.categories=[];result.items=[];result.primaryItemId=null
   for(const group of template.groups){

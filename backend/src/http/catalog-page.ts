@@ -91,7 +91,7 @@ export function pageRanked<T extends Ranked>(
 
 export function homePageSql(surface: 'HOME' | 'NICHE'): { sponsored: string; organic: string } {
   const sponsored = `
-    SELECT l."id", l."name", l."description", n."requiresAge",
+    SELECT l."id", l."name", l."description", l."cityId", l."languageTag", l."modality", n."requiresAge",
       n."name" AS "nicheName", n."slug" AS "nicheSlug",
       net."name" AS "networkName", net."slug" AS "networkSlug",
       pmin.activated AS "homeActivatedAt"
@@ -114,7 +114,7 @@ export function homePageSql(surface: 'HOME' | 'NICHE'): { sponsored: string; org
     LIMIT $7
   `
   const organic = `
-    SELECT l."id", l."name", l."description", n."requiresAge",
+    SELECT l."id", l."name", l."description", l."cityId", l."languageTag", l."modality", n."requiresAge",
       n."name" AS "nicheName", n."slug" AS "nicheSlug",
       net."name" AS "networkName", net."slug" AS "networkSlug",
       NULL::timestamp AS "homeActivatedAt"

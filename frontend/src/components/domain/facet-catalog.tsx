@@ -9,6 +9,7 @@ import {CatalogCardsSkeleton} from '@/features/catalog/components/catalog-skelet
 import { AgePrompt, confirmAge } from '@/components/domain/age-gate'
 import { FacetFilters } from '@/components/domain/facet-filters'
 import { LinkRow } from '@/components/domain/link-row'
+import type { LinkDiscovery } from '@/components/domain/link-meta'
 import { EmptyState } from '@/components/feedback/empty-state'
 import { jsonLdScript } from '@/domain/json-ld'
 import { TitleMark } from '@/components/ui/facet-badge'
@@ -23,6 +24,7 @@ type Card = {
   surfaceToken: string
   impressions?: number
   niche?: Facet
+  discovery?: LinkDiscovery
   network?: Facet
 }
 type FacetItem = { id: string; name: string; slug: string; requiresAge?: boolean }
@@ -90,6 +92,7 @@ function ResultList({
             placement={placement}
             niche={row.niche}
             network={row.network}
+            discovery={row.discovery}
             impressions={row.impressions}
             showImpressions={showImpressions}
           />

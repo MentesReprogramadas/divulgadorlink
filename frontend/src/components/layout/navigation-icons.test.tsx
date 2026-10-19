@@ -29,7 +29,7 @@ describe('significado exclusivo dos ícones', () => {
     for (const [first, second] of [
       ['star', 'promotion'], ['copy', 'external'], ['pix', 'payment'],
       ['orders', 'plans'], ['bell', 'clock'], ['availability', 'clock'],
-      ['shield', 'report'], ['account', 'settings'],
+      ['shield', 'report'], ['account', 'settings'], ['appearance', 'settings'], ['clearSearch', 'close'], ['clearSearch', 'resetFilters'],
       ['close', 'resetFilters'], ['close', 'reject'], ['close', 'disable'],
       ['up', 'moveUp'], ['down', 'moveDown'], ['down', 'loadMore'], ['eye', 'preview'],
     ] as const) expect(iconPaths[first]).not.toBe(iconPaths[second])

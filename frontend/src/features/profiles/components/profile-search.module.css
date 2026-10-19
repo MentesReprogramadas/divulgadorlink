@@ -1,7 +1,22 @@
-.controls { display: grid; gap: 16px; width: 100%; max-width: none; margin: 0; min-width: 0; padding: 20px; border: 1px solid color-mix(in srgb,var(--page-ink),transparent 75%); border-radius: 18px; --surface-raised: color-mix(in srgb,var(--page-bg),var(--page-shade) 6%); --color-control-bg: var(--surface-raised); --field-background: var(--surface-raised); --text-primary: var(--page-ink); --text-secondary: var(--page-ink); --color-ink: var(--page-ink); --color-muted: var(--page-ink); --field-border: color-mix(in srgb,var(--page-ink) 85%,var(--surface-raised)); --border-default: var(--field-border); --color-line: var(--field-border); --color-primary: var(--button-bg); --color-primary-hover: var(--button-bg); --color-primary-ink: var(--button-ink); --action-primary-bg: var(--button-bg); --action-primary-hover: var(--button-bg); }
+.controls { display: grid; gap: 16px; width: 100%; max-width: none; margin: 0; min-width: 0; padding: 0; border: 0; --surface-page: var(--surface-raised); --surface-raised: color-mix(in srgb,var(--page-bg),var(--page-shade) 6%); --color-control-bg: var(--surface-raised); --field-background: var(--surface-raised); --text-primary: var(--page-ink); --text-secondary: var(--page-ink); --color-ink: var(--page-ink); --color-muted: var(--page-ink); --field-border: color-mix(in srgb,var(--page-ink) 85%,var(--surface-raised)); --border-default: var(--field-border); --color-line: var(--field-border); --color-primary: var(--button-bg); --color-primary-hover: var(--button-bg); --color-primary-ink: var(--button-ink); --action-primary-bg: var(--button-bg); --action-primary-hover: var(--button-bg); }
 .fields { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit,minmax(min(220px,100%),1fr)); min-width: 0; }
 .actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-end; --color-primary: var(--button-bg); --color-primary-hover: var(--button-bg); --color-primary-ink: var(--button-ink); --action-primary-bg: var(--button-bg); --action-primary-hover: var(--button-bg); }
 .controls label { color: var(--page-ink); }
 .announcement { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 .notice { margin: 0; padding: 16px; border: 1px solid currentColor; border-radius: 12px; }
 .skeleton { --page-bg: #f5f0e8; --page-ink: #0c1b2c; --page-shade: #ffffff; --button-bg: #252b27; --button-ink: #ffffff; }
+
+.searchRow { display: flex; gap: var(--space-2); align-items: center; min-width: 0; }
+.inputShell { position: relative; flex: 1; min-width: 0; }
+.inputShell input { margin: 0; padding-inline: 42px 44px; min-height: 48px; font: inherit; }
+.inputShell input::-webkit-search-cancel-button { appearance: none; }
+.searchIcon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); display: flex; pointer-events: none; }
+.clearText { position: absolute; top: 4px; right: 4px; display: grid; place-items: center; min-width: 40px; min-height: 40px; border: 0; border-radius: var(--radius); background: transparent; color: var(--page-ink); cursor: pointer; }
+.clearText:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: -3px; }
+.clearText:hover { background: color-mix(in srgb,var(--page-ink),transparent 92%); }
+.searchRow > button { flex: none; min-height: 48px; }
+.filterCount { display: grid; place-items: center; min-width: 20px; min-height: 20px; font-size: var(--text-sm); border: 1px solid currentColor; border-radius: 50%; }
+.filterDialog { display: grid; gap: var(--space-4); }
+.filterHint { margin: 0; color: var(--text-secondary); font-size: var(--text-sm); }
+.filterActions { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-2); }
+@media (width < 30rem) { .searchRow > button { padding-inline: var(--space-3); } }

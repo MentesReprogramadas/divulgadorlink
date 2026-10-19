@@ -1,0 +1,24 @@
+{
+  "link": {
+    "id": "cmvebrmuu0004u44wmam8kh2q",
+    "name": "Fernando",
+    "createdAt": "2026-10-18T21:15:54.103Z"
+  },
+  "tenantId": "cmuplgz2o0000u4ac5vwcqtxl",
+  "prefix": "dev-performance-timeline-20261018:cmvebrmuu0004u44wmam8kh2q:",
+  "inserted": 18310,
+  "counts": [
+    {
+      "_count": 1977,
+      "kind": "CLICK"
+    },
+    {
+      "_count": 16333,
+      "kind": "IMPRESSION"
+    }
+  ],
+  "from": "2026-08-20",
+  "to": "2026-10-18",
+  "note": "Dados demonstrativos locais anteriores à criação do link para inspeção da timeline. Sessões isoladas para reversão; tipo REAL segue contrato do simulador local existente. Nenhuma promoção/pagamento modificado.",
+  "rollback": "node output/performance-timeline/seed.cjs --rollback"
+}

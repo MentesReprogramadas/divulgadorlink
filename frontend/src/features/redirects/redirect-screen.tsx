@@ -31,6 +31,21 @@ export function RedirectScreen() {
   const [value, setValue] = useState<RedirectFieldsValue>(emptyRedirect), [phase, setPhase] = useState<'loading' | 'ready' | 'error'>('loading')
   const [pending, setPending] = useState(false), [error, setError] = useState(''), [notice, setNotice] = useState(''), [confirmDisable, setConfirmDisable] = useState(false)
   const [range, setRange] = useState({ from: '', to: '' }), [stableUrl, setStableUrl] = useState('')
+  const accessQuery = useRef(''), accessSequence = useRef(0)
+  useEffect(() => {
+    if (!detail || tab !== 'history') return
+    const query = new URLSearchParams(); if (range.from) query.set('from',range.from); if (range.to) query.set('to',range.to)
+    const key = detail.id + ':' + query
+    if (key === accessQuery.current) return
+    if (!accessQuery.current.startsWith(detail.id + ':') && !query.size) { accessQuery.current = key; return }
+    const current = ++accessSequence.current
+    const timer = setTimeout(() => {
+      if (!pageRef.current?.querySelector<HTMLFormElement>('[aria-label="Filtrar acessos"]')?.checkValidity()) return
+      accessQuery.current = key
+      void redirectRequest<RedirectDetail>('/' + detail.id + '?' + query).then(result => { if (current === accessSequence.current) { setDetail(result); setError('') } }).catch(error => { if (current === accessSequence.current) setError(error instanceof Error ? error.message : 'Não foi possível filtrar os acessos.') })
+    },450)
+    return () => { clearTimeout(timer); accessSequence.current++ }
+  },[range.from,range.to,detail?.id,tab])
   const [qrTarget, setQrTarget] = useState<StableQrTarget | null>(null)
   const qrTrigger = useRef<HTMLButtonElement | null>(null)
   const busy = useRef(false), attempt = useRef<Attempt | null>(null), status = useRef<HTMLParagraphElement>(null)
@@ -86,7 +101,7 @@ export function RedirectScreen() {
     {!detail.disabled ? <details className={styles.management}><summary>Gerenciar endereço</summary><div className={styles.managementBody}><p className={styles.note}>A desativação é definitiva e interrompe o encaminhamento de visitantes.</p>{confirmDisable ? <div className={styles.warning} role="group" aria-label="Confirmar desativação"><p>Desativar este endereço definitivamente? Ele deixará de encaminhar visitantes.</p><div className={styles.actions}><Button variant="danger" disabled={pending} onClick={() => void action(async () => { await redirectRequest('/' + detail.id + '/disable', { method: 'POST', body: JSON.stringify({ expectedRevision: detail.version }) }); await loadDetail(detail.id, true); await loadList(); setNotice('Endereço desativado.') })}><ActionIcon name="disable" />Confirmar desativação</Button><Button variant="secondary" disabled={pending} onClick={() => setConfirmDisable(false)}><ActionIcon name="close" />Cancelar</Button></div></div> : <Button variant="danger" disabled={pending} onClick={() => setConfirmDisable(true)}><ActionIcon name="disable" />Desativar endereço</Button>}</div></details> : null}
   </> : null
   const historyContent = detail ? <>
-    <form className={styles.range} aria-label="Filtrar acessos" onSubmit={e => { e.preventDefault(); void action(async () => { const query = new URLSearchParams(); if (range.from) query.set('from', range.from); if (range.to) query.set('to', range.to); await loadDetail(detail.id, true, '?' + query); setNotice('Período atualizado.') }) }}><Field label="De"><DatePicker className={styles.inlineInput} value={range.from} onChange={e => setRange({ ...range, from: e.target.value })} /></Field><Field label="Até"><DatePicker className={styles.inlineInput} value={range.to} onChange={e => setRange({ ...range, to: e.target.value })} /></Field><Button disabled={pending}><ActionIcon name="filter" />Filtrar acessos</Button></form>
+    <form className={styles.range} aria-label="Filtrar acessos" onSubmit={e => { e.preventDefault(); void action(async () => { const query = new URLSearchParams(); if (range.from) query.set('from', range.from); if (range.to) query.set('to', range.to); await loadDetail(detail.id, true, '?' + query); setNotice('Período atualizado.') }) }}><Field label="De"><DatePicker className={styles.inlineInput} value={range.from} onChange={e => setRange({ ...range, from: e.target.value })} /></Field><Field label="Até"><DatePicker className={styles.inlineInput} value={range.to} onChange={e => setRange({ ...range, to: e.target.value })} /></Field></form>
     <RedirectHistory revisions={detail.revisions} activeId={detail.activeRevisionId} />
   </> : null
   return <section ref={pageRef} className={styles.page} aria-label="Links permanentes">

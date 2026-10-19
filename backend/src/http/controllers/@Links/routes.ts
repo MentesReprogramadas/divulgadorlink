@@ -419,6 +419,7 @@ async function getPublicLink(request: FastifyRequest, reply: FastifyReply) {
       available: true,
       name: link.name,
       description: link.description,
+      discovery:{city:cityById(link.cityId),languageTag:link.languageTag??null,modality:link.modality??null},
       network: { name: network?.name ?? '', slug: network?.slug ?? '' },
       niche: { name: niche?.name ?? '', slug: niche?.slug ?? '', requiresAge: niche?.requiresAge ?? false },
       surfaceToken,

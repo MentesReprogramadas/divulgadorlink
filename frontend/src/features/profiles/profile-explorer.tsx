@@ -21,10 +21,12 @@ function writePublicQuery(slug:string,query:ProfileSearchQuery,method:'pushState
 }
 export function ProfileExplorer({initial,source,pending=false,initialNotice=''}:{initial:Extract<ProfileSearchPage,{restricted:false}>;source:ProfileSearchSource;pending?:boolean;initialNotice?:string}){
  const [profile,setProfile]=useState<ProfileSearchPage>(initial),[query,setQuery]=useState(initial.search.filters),[loading,setLoading]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState(initialNotice),[announced,setAnnounced]=useState(false)
+ const debounce=useRef<ReturnType<typeof setTimeout>|null>(null)
  const current=useRef(initial.search.filters),sequence=useRef(0),active=useRef<{key:string;controller:AbortController}|null>(null),root=useRef<HTMLDivElement>(null),focusResults=useRef(false)
  const publicSlug=source.kind==='public'?source.slug:null,previewAt=source.kind==='preview'?source.at:undefined
  const origin=useMemo<ProfileSearchSource>(()=>publicSlug===null?{kind:'preview',at:previewAt}:{kind:'public',slug:publicSlug},[publicSlug,previewAt])
  const request=useCallback(async function fetchPage(next:ProfileSearchQuery,mode:Navigation='push',restarted=false):Promise<void>{
+  if(debounce.current){clearTimeout(debounce.current);debounce.current=null}
   const key=JSON.stringify(next);if(active.current?.key===key)return
   active.current?.controller.abort();const controller=new AbortController(),id=++sequence.current;active.current={key,controller};current.current=next
   setLoading(true);setError('');setNotice(restarted?'Os resultados mudaram. Mostrando a primeira página.':'')
@@ -48,7 +50,7 @@ export function ProfileExplorer({initial,source,pending=false,initialNotice=''}:
  const refresh=useCallback(async()=>{await request(current.current,'refresh')},[request])
  useProfileBoundary(profile,refresh)
  useProfileInteraction(root,profile.restricted?undefined:profile.measurement,origin.kind!=='public'||pending||loading||Boolean(error))
- useEffect(()=>()=>{sequence.current++;active.current?.controller.abort();active.current=null},[])
+ useEffect(()=>()=>{if(debounce.current)clearTimeout(debounce.current);sequence.current++;active.current?.controller.abort();active.current=null},[])
  useEffect(()=>{if(origin.kind==='public')writePublicQuery(origin.slug,initial.search.filters,'replaceState')},[origin,initial.search.filters])
  useEffect(()=>{
   if(origin.kind!=='public')return
@@ -57,8 +59,15 @@ export function ProfileExplorer({initial,source,pending=false,initialNotice=''}:
  },[origin,request])
  useLayoutEffect(()=>{if(!loading&&!error&&focusResults.current){focusResults.current=false;root.current?.querySelector<HTMLElement>('article a[href]')?.focus()}},[loading,error,profile])
  if(profile.restricted)return <ProfileAgeGate/>
+ function changeQuery(next:ProfileSearchQuery,immediate=false){
+  if(debounce.current)clearTimeout(debounce.current)
+  active.current?.controller.abort();active.current=null;sequence.current++;current.current=next
+  setQuery(next);setError('');setLoading(true)
+  if(immediate)void request(next)
+  else debounce.current=setTimeout(()=>void request(next),350)
+ }
  const blocked=pending||loading||Boolean(error),avatarUrl=profile.avatarAssetId?(origin.kind==='public'?'/bff/v1/profiles/'+encodeURIComponent(origin.slug)+'/avatar/':'/bff/v1/me/profile/avatar/')+profile.avatarAssetId:undefined
- const controls=<ProfileSearchControls query={query} groups={profile.search.groups} pending={pending||loading} onQuery={setQuery} onSubmit={()=>void request({...query,cursor:null})} onClear={()=>{const empty=emptyProfileQuery();setQuery(empty);void request(empty)}}/>
+ const controls=profile.appearance?.searchEnabled===true?<ProfileSearchControls query={query} groups={profile.search.groups} pending={pending} searching={loading} onQuery={changeQuery} onSubmit={()=>void request({...query,cursor:null})} onClear={()=>changeQuery(emptyProfileQuery(),true)}/>:undefined
  const navigation=<div className={styles.actions}>{profile.search.filters.cursor?<Button variant="secondary" disabled={pending||loading} onClick={()=>void request({...current.current,cursor:null},'page')}><ActionIcon name="back"/>Voltar ao início</Button>:null}{profile.search.nextCursor?<Button disabled={pending||loading} onClick={()=>void request({...current.current,cursor:profile.search.nextCursor},'page')}><ActionIcon name="next"/>Próximos links</Button>:null}</div>
  return <div ref={root}><ProfileView content={profile} pending={blocked} avatarUrl={avatarUrl} controls={controls} navigation={navigation} empty={<EmptyState>Nenhum link encontrado.</EmptyState>} notice={<>{error?<ErrorState message={error} onRetry={()=>void request(current.current,'refresh')}/>:null}{notice?<p className={styles.notice} role="status">{notice}</p>:null}</>}/><span className={styles.announcement} role="status" aria-label="Resultado da busca">{announced&&!loading&&!error?'Links atualizados.':''}</span></div>
 }

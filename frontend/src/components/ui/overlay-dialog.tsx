@@ -11,9 +11,10 @@ type OverlayDialogProps = {
   variant?: 'modal' | 'sidebar'
   returnFocusTo?: HTMLElement | null
   closeDisabled?: boolean
+  size?: 'default' | 'wide'
 }
 
-export function OverlayDialog({ open, title, onClose, children, variant = 'modal', returnFocusTo, closeDisabled = false }: OverlayDialogProps) {
+export function OverlayDialog({ open, title, onClose, children, variant = 'modal', returnFocusTo, closeDisabled = false, size = 'default' }: OverlayDialogProps) {
   const ref = useRef<HTMLDialogElement>(null)
   const titleId = useId()
   useLayoutEffect(() => {
@@ -29,7 +30,7 @@ export function OverlayDialog({ open, title, onClose, children, variant = 'modal
     }
   }, [open, returnFocusTo])
 
-  return <dialog ref={ref} className={styles.dialog} data-variant={variant} aria-labelledby={titleId} aria-hidden={!open || undefined}
+  return <dialog ref={ref} className={styles.dialog} data-variant={variant} data-size={size} aria-labelledby={titleId} aria-hidden={!open || undefined}
     onKeyDown={event => {
       if (event.key !== 'Tab' || event.defaultPrevented) return
       const dialog = event.currentTarget

@@ -1,20 +1,19 @@
 'use client'
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import { Button, ButtonLink } from '@/components/ui/button'
 import { ActionIcon } from '@/components/ui/action-icon'
 import { Badge } from '@/components/ui/badge'
 import { Field, Input, Select } from '@/components/ui/input'
 import { Pagination } from '@/components/ui/pagination'
-import { LinkMeta } from '@/components/domain/link-meta'
+import { LinkMeta, type LinkDiscovery } from '@/components/domain/link-meta'
 import { formatRate } from '@/domain/format'
 import { linkStatusLabel, linkStatusTone } from '@/domain/labels'
 import { api } from '@/lib/api'
 import styles from '@/components/layout/workspace-dashboard.module.css'
 import { WorkspaceActions, WorkspaceFilters } from '@/components/layout/workspace-controls'
 import { EmptyState } from '@/components/feedback/empty-state'
-import { Tabs } from '@/components/ui/tabs'
-import { LinkDiscoveryEditor } from '@/features/catalog/discovery/link-discovery-editor'
+import { LinkDiscoveryContent, useLinkDiscovery } from '@/features/catalog/discovery/link-discovery-editor'
 import { Skeleton } from '@/components/feedback/skeleton'
 
 export type PanelLink = {
@@ -25,6 +24,7 @@ export type PanelLink = {
   occupiesSlot?: boolean
   network?: { name?: string; slug?: string }
   niche?: { name?: string; slug?: string }
+  discovery?: LinkDiscovery
   pendingText?: { name: string; description: string } | null
 }
 
@@ -101,7 +101,6 @@ export function LinkList({
   banned: boolean
   stats: Record<string, Stats | null | undefined>
 }) {
-  const [editing, setEditing] = useState<string | null>(null)
   const [filter, setFilter] = useState<FilterId>('all')
   const [page, setPage] = useState(1)
   const [query, setQuery] = useState('')
@@ -113,7 +112,6 @@ export function LinkList({
   const pages = Math.max(1, Math.ceil(matched.length / PAGE_SIZE))
   const current = Math.min(page, pages)
   const visible = matched.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE)
-  const editingLink = links.find((link) => link.id === editing) ?? null
 
   function choose(next: FilterId) {
     setFilter(next)
@@ -140,6 +138,7 @@ export function LinkList({
               <h3>{link.name}</h3>
               {description ? <p className="panel-description">{description}</p> : null}
               <LinkMeta
+                discovery={link.discovery}
                 niche={link.niche}
                 network={link.network}
                 status={<Badge kind="status" tone={linkStatusTone(link.status)}>{linkStatusLabel(link.status)}</Badge>}
@@ -150,7 +149,7 @@ export function LinkList({
               <div className="link-card-actions">
                 {!banned ? <ButtonLink variant="ghost" href={`/painel/links/${link.id}/resultado`}><ActionIcon name="chart" />Ver resultado</ButtonLink> : null}
                 {editable ? (
-                  <Button className="action-edit" type="button" variant="secondary" onClick={() => setEditing(link.id)}><Glyph name="pencil" />Editar</Button>
+                  <ButtonLink className="action-edit" variant="secondary" href={`/painel/links/${link.id}/editar`}><Glyph name="pencil" />Editar</ButtonLink>
                 ) : null}
                 {link.status === 'PRE_REJECTED' ? <ButtonLink className="action-contest" variant="secondary" href={`/painel/links/${link.id}/contestar`}><ActionIcon name="appeal" width={14} height={14} />Contestar</ButtonLink> : null}
                 {link.status === 'PUBLISHED' && !banned ? <ButtonLink className="action-feature" variant="secondary" href={`/painel/links/${link.id}/destaque`}><ActionIcon name="promotion" width={14} height={14} />Destacar</ButtonLink> : null}
@@ -160,7 +159,6 @@ export function LinkList({
           )
         })}
       </div>
-      {editingLink ? <LinkEditDialog link={editingLink} banned={banned} onClose={() => setEditing(null)} /> : null}
       <Pagination page={current} pages={pages} onPage={setPage} />
     </div>
   )
@@ -177,22 +175,29 @@ export function LinkEditor({
   framed?: boolean
   onCancel?: () => void
 }) {
-  const [tab,setTab] = useState('text')
+  const discovery = useLinkDiscovery(link.id)
   const [note, setNote] = useState('')
   const [saving, setSaving] = useState(false)
   const editable = (link.status === 'PUBLISHED' || link.status === 'PENDING_MODERATION') && !banned
 
   async function save(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (saving || discovery.loading || discovery.conflict) return
     const data = new FormData(event.currentTarget)
     setSaving(true)
+    setNote('')
+    if (discovery.ready && !await discovery.save()) { setSaving(false); return }
+    if (data.get('name') === link.name && data.get('description') === (link.description ?? '')) { setSaving(false); return }
+    try {
     const result = await api<{ applied?: boolean; message?: string }>(`/v1/links/${link.id}`, {
       method: 'PATCH',
       body: JSON.stringify({ name: data.get('name'), description: data.get('description') }),
     })
     setSaving(false)
     if (result.status === 200) setNote(result.body.applied ? 'Texto publicado' : 'Proposta registrada')
-    else setNote(result.body.message ?? 'Não foi possível salvar.')
+    else setNote(result.body.message ?? 'Não foi possível salvar o texto.')
+    } catch { setNote('Não foi possível salvar o texto. Seus dados foram mantidos.') }
+    finally { setSaving(false) }
   }
 
   return (
@@ -208,59 +213,24 @@ export function LinkEditor({
         </>
       ) : null}
       {editable ? (
-        <Tabs value={tab} onChange={setTab} label="Dados do link" items={[{id:"text",label:"Texto",icon:"edit",content:<form className="editor-form" onSubmit={(event) => void save(event)}>
+        <form className="editor-form" aria-label="Editar dados do link" aria-busy={saving || discovery.loading} onSubmit={(event) => void save(event)}>
           <Field label="Título do link" hint="Nome do grupo, canal ou página. Não use seu nome pessoal.">
             <Input name="name" defaultValue={link.name} required />
           </Field>
           <Field label="Nova descrição">
             <Input name="description" aria-label="Nova descrição" defaultValue={link.description ?? ''} />
           </Field>
+          <LinkDiscoveryContent editor={discovery} disabled={saving}/>
           <div className="editor-actions">
             {onCancel ? <Button type="button" variant="secondary" onClick={onCancel}><ActionIcon name="close" />Cancelar</Button> : null}
-            <Button type="submit" disabled={saving}><ActionIcon name="save" />Salvar texto</Button>
+            <Button type="submit" loading={saving} disabled={discovery.loading || discovery.conflict}><ActionIcon name="save" />Salvar alterações</Button>
           </div>
           {note ? <p role="status">{note}</p> : null}
-        </form>},{id:"discovery",label:"Local e idioma",icon:"city",content:tab === "discovery" ? <LinkDiscoveryEditor linkId={link.id}/> : null}]} />
+        </form>
       ) : (
         <p className="panel-empty">Este link não pode ser editado agora.</p>
       )}
     </div>
-  )
-}
-
-function LinkEditDialog({ link, banned, onClose }: { link: PanelLink; banned: boolean; onClose: () => void }) {
-  const ref = useRef<HTMLDialogElement>(null)
-  const onCloseRef = useRef(onClose)
-  onCloseRef.current = onClose
-
-  useLayoutEffect(() => {
-    const dialog = ref.current
-    if (!dialog) return
-    if (!dialog.open) dialog.showModal()
-    function onCancel(event: Event) {
-      event.preventDefault()
-      onCloseRef.current()
-    }
-    dialog.addEventListener('cancel', onCancel)
-    return () => {
-      dialog.removeEventListener('cancel', onCancel)
-      if (dialog.open) dialog.close()
-    }
-  }, [])
-
-  return (
-    <dialog ref={ref} className="link-dialog" aria-labelledby="edit-link-title">
-      <div className="link-dialog-head">
-        <div>
-          <h2 id="edit-link-title">Editar link</h2>
-          <p className="panel-meta">{link.name}</p>
-        </div>
-        <button type="button" className="link-dialog-close" aria-label="Fechar" onClick={() => onCloseRef.current()}>
-          <Glyph name="close" />
-        </button>
-      </div>
-      <LinkEditor link={link} banned={banned} framed={false} onCancel={() => onCloseRef.current()} />
-    </dialog>
   )
 }
 

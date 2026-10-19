@@ -26,3 +26,10 @@ it('F16-U06 reapplying in preserve mode does not accumulate groups or change exi
   const first=applyProfileTemplate({...content(),categories:[],items:[]},'event-v1',true,false,ids()),second=applyProfileTemplate(first,'event-v1',true,false,()=>{throw new Error('Unexpected new identifier')})
   expect(second).toEqual(first);expect(second.categories).toHaveLength(2)
 })
+
+it('visual templates preserve the owner search preference in preserve and replacement modes',()=>{
+ for(const searchEnabled of [false,true]){
+  const appearance={background:'#ffffff',buttonColor:'#000000',backgroundStyle:'solid',buttonStyle:'filled',radius:'rounded',font:'modern',alignment:'center',searchEnabled} as const
+  for(const preserve of [false,true])expect(applyProfileTemplate({...content(),appearance},'shop-v1',preserve,!preserve,ids()).appearance?.searchEnabled).toBe(searchEnabled)
+ }
+})

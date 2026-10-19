@@ -73,6 +73,7 @@ it('F27-I02 private edits require verified active owner and tenant; version conf
  expect((await app.inject({method:'PATCH',url:'/api/v1/links/'+legacy+'/discovery',headers:{...auth(),host:foreign+'.test'},payload:body})).statusCode).toBe(403)
  expect((await patch({...body,ownerId:other})).statusCode).toBe(400)
  const first=await patch(body);expect(first.statusCode,first.body).toBe(200);expect(first.json()).toMatchObject({version:1,metadata:{cityId:'3550308',languageTag:'pt',modality:'ONLINE'}})
+ const mine=await app.inject({method:'GET',url:'/api/v1/links/mine',headers:auth()});expect(mine.statusCode,mine.body).toBe(200);expect(mine.json().links.find((row:{id:string})=>row.id===legacy).discovery).toMatchObject({city:{name:'São Paulo',state:'SP'},languageTag:'pt',modality:'ONLINE',version:1})
  expect((await patch({...body,cityId:'3543402'})).statusCode).toBe(409)
  await db.user.update({where:{id:owner},data:{status:'BANNED'}});expect((await patch({...body,expectedVersion:1})).statusCode).toBe(403)
  expect(await db.link.findUnique({where:{id:legacy}})).toMatchObject({cityId:'3550308',discoveryVersion:1,status:'PUBLISHED'})

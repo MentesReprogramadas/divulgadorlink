@@ -1,3 +1,4 @@
+import { profileEditorTool } from './profile-editor'
 import { selectOption } from './select-control'
 import AxeBuilder from '@axe-core/playwright'
 import { readFileSync } from 'node:fs'
@@ -22,7 +23,7 @@ async function editorSection(page: Page, label: string) {
 async function step(page: Page, target: number) { await editorSection(page, target >= 2 ? 'Grupos e links' : 'Página') }
 async function autosaved(page: Page) { await expect(page.getByRole('region', { name: 'Editor do perfil', exact: true })).toHaveAttribute('data-save-state', 'saved') }
 async function base(page: Page, info?: TestInfo) {
-  await page.goto(A + '/painel/perfil'); await page.getByLabel('Endereço da página').fill('ana-estudos'); await page.getByLabel('Nome da página').fill('Ana Estudos'); await page.getByLabel('Descrição', { exact: true }).fill('Projetos, materiais e conversas sobre leitura.')
+  await page.goto(A + '/painel/perfil'); await editorSection(page, 'Página'); await page.getByLabel('Endereço da página').fill('ana-estudos'); await page.getByLabel('Nome da página').fill('Ana Estudos'); await page.getByLabel('Descrição', { exact: true }).fill('Projetos, materiais e conversas sobre leitura.')
   if (info) { await page.evaluate(() => document.fonts.ready); await page.screenshot({ path: info.outputPath('creation-identity.png'), fullPage: true, animations: 'disabled' }) }
   await step(page, 2); await page.getByRole('button', { name: 'Adicionar grupo', exact: true }).click(); await page.getByLabel('Nome do grupo', { exact: true }).fill('Materiais'); await page.getByRole('button', { name: 'Concluir grupo', exact: true }).click()
 }
@@ -30,9 +31,8 @@ async function add(page: Page, group: number, index: number, label: string, visi
   await page.getByRole('button', { name: 'Adicionar link', exact: true }).click()
   const row = page.getByRole('dialog')
   await row.getByLabel('Título do link').fill(label); await row.getByLabel('Link de acesso', { exact: true }).fill('https://example.com/f09-' + group + '-' + index)
-  if (!visible) await row.getByLabel('Link visível', { exact: true }).uncheck()
   await page.getByRole('button', { name: 'Concluir link', exact: true }).click()
-  return page.locator('[data-profile-link]').filter({ has: page.getByText(label, { exact: true }) })
+  const card=page.locator('[data-profile-link]').filter({has:page.getByText(label,{exact:true})});if(!visible)await card.getByRole('button',{name:'Ocultar link '+label,exact:true}).click();return card
 }
 async function privateCall(page: Page, path = '') { return page.evaluate(async path => { const r = await fetch('/bff/v1/me/profile' + path); return { status: r.status, text: await r.text() } }, path) }
 
@@ -98,7 +98,7 @@ test('F09-E08 cabeçalho, endereço copiável e aprovação reutilizada em alter
   await login(page); await base(page); await add(page, 1, 1, 'Meu site')
   const publish = page.getByRole('button', { name: 'Publicar', exact: true })
   const preview = page.getByRole('button', { name: 'Ver prévia', exact: true })
-  await expect(preview).toHaveAttribute('data-variant', 'primary')
+  await expect(preview).toHaveAttribute('data-variant', 'secondary')
   await expect(page.getByRole('group', { name: 'Link da sua página', exact: true })).toHaveCount(0)
   if (!info.project.use.isMobile) {
     const tabsBox = (await page.getByRole('tablist', { name: 'Seções da minha página' }).boundingBox())!, previewBox = (await preview.boundingBox())!
@@ -107,7 +107,7 @@ test('F09-E08 cabeçalho, endereço copiável e aprovação reutilizada em alter
   }
   await publish.click(); await expect(page.getByText('Perfil publicado.', { exact: true })).toBeVisible()
   const address = page.getByRole('group', { name: 'Link da sua página', exact: true })
-  await expect(address.getByRole('link')).toHaveAttribute('href', A + '/p/ana-estudos')
+  await editorSection(page, 'Visão geral'); await expect(address.getByRole('link')).toHaveAttribute('href', A + '/p/ana-estudos')
   await page.context().grantPermissions(['clipboard-read', 'clipboard-write'], { origin: A })
   await page.getByRole('button', { name: 'Copiar link da página', exact: true }).click()
   await expect(page.getByText('Link da página copiado.', { exact: true })).toBeVisible()
@@ -168,13 +168,12 @@ test('F09-E07 selects nos modais não alteram dimensões nem acrescentam scroll'
   fixture(); await page.emulateMedia({ reducedMotion: 'reduce' }); await login(page); await base(page)
   await add(page, 1, 1, 'Meu site com nome longo para conferir a largura do seletor e do modal sem esticar o conteúdo')
   await page.getByRole('button', { name: 'Voltar aos grupos', exact: true }).click()
-  await page.getByRole('button', { name: 'Botão principal', exact: true }).click()
+  await profileEditorTool(page, 'Botão principal')
   await stableModalSelect(page, 'Botão principal', info, 'primary-select-open')
   await page.getByRole('dialog').getByRole('button', { name: 'Cancelar', exact: true }).click()
   await page.getByRole('button', { name: 'Materiais Abrir grupo', exact: true }).click()
   await page.getByRole('button', { name: 'Editar link', exact: true }).click()
-  await stableModalSelect(page, 'Tipo de link', info, 'link-type-select-open')
-  await selectOption(page.getByRole('combobox', { name: 'Tipo de link', exact: true }), 'CATALOG')
+  await page.getByRole('dialog').getByRole('tab',{name:'Meus links',exact:true}).click()
   await stableModalSelect(page, 'Link do catálogo', info, 'catalog-select-open')
   await page.getByRole('dialog').getByRole('button', { name: 'Cancelar', exact: true }).click()
 })
@@ -257,12 +256,12 @@ test('F09-E01/T03/T04/T05 grupos, ordem, redes, foto e botão principal; prévia
   const s = fixture(); await login(page); await base(page)
   await add(page, 1, 1, 'Site principal'); await add(page, 1, 2, 'Material de leitura'); await add(page, 1, 3, 'OcultoSentinela', false)
   await page.getByRole('button', { name: 'Voltar aos grupos', exact: true }).click(); await page.getByRole('button', { name: 'Adicionar grupo', exact: true }).click(); await page.getByLabel('Nome do grupo', { exact: true }).fill('Redes sociais'); await page.getByRole('button', { name: 'Concluir grupo', exact: true }).click()
-  const socialRow = await add(page, 2, 1, 'Vídeos'); await socialRow.getByRole('button', { name: 'Editar link', exact: true }).click(); const social = page.getByRole('dialog'); await selectOption(social.getByLabel('Tipo de link'), 'SOCIAL'); await social.getByLabel('Link de acesso', { exact: true }).fill('https://example.com/videos'); await page.getByRole('button', { name: 'Concluir link', exact: true }).click()
-  await page.getByRole('button', { name: 'Voltar aos grupos', exact: true }).click(); await page.getByRole('button', { name: 'Botão principal', exact: true }).click()
+  const socialRow = await add(page, 2, 1, 'Vídeos'); await socialRow.getByRole('button', { name: 'Editar link', exact: true }).click(); const social = page.getByRole('dialog'); await expect(social.getByRole('tab',{name:'Novo',exact:true})).toHaveAttribute('aria-selected','true');await expect(social.getByRole('option',{name:'Rede social',exact:true})).toHaveCount(0); await social.getByLabel('Link de acesso', { exact: true }).fill('https://example.com/videos'); await page.getByRole('button', { name: 'Concluir link', exact: true }).click()
+  await page.getByRole('button', { name: 'Voltar aos grupos', exact: true }).click(); await profileEditorTool(page, 'Botão principal')
   await selectOption(page.getByRole('combobox', { name: 'Botão principal', exact: true }), { label: 'Site principal' })
   await page.screenshot({ path: info.outputPath('primary-button-modal.png'), fullPage: true, animations: 'disabled' })
   await page.getByRole('dialog').getByRole('button', { name: 'Concluir', exact: true }).click()
-  await expect(page.getByRole('button', { name: 'Botão principal', exact: true })).toBeFocused()
+  await expect(page.getByLabel('Mais opções da página', { exact: true })).toBeFocused()
   await step(page, 1)
   for (const mime of ['image/png', 'image/jpeg', 'image/webp']) {
     const buffer = mime === 'image/png' ? readFileSync(path.join(__dirname, '../../backend/src/domain/profiles/avatar.fixture.png')) : Buffer.from(await page.evaluate(mime => {
@@ -302,6 +301,7 @@ test('F09-E01/T03/T04/T05 grupos, ordem, redes, foto e botão principal; prévia
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
   await expect.poll(async () => (await page.getByRole('region', { name: 'Modo de prévia' }).boundingBox())!.y).toBe(0)
   await page.getByRole('link', { name: 'Voltar à edição', exact: true }).click()
+  await editorSection(page, 'Página')
   await page.setViewportSize(size)
   await expect(page.getByLabel('Nome da página')).toHaveValue('Ana Estudos')
   await step(page, 3); await page.getByRole('button', { name: 'Publicar', exact: true }).click(); await expect(page.getByRole('status').filter({ hasText: 'Perfil publicado.' })).toBeVisible()
@@ -325,7 +325,7 @@ test('F09-E01/T03/T04/T05 grupos, ordem, redes, foto e botão principal; prévia
     await expect(guest.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/)
   } finally { await context.close() }
   expect(sql(`SELECT COUNT(*) FROM links WHERE "tenantId"='${s.tenantId}'`)).toBe('1')
-  await page.reload(); await expect(page.getByLabel('Nome da página')).toHaveValue('Ana Estudos')
+  await page.reload(); await editorSection(page, 'Página'); await expect(page.getByLabel('Nome da página')).toHaveValue('Ana Estudos')
 })
 test('F09-E04 restrição de idade não entrega conteúdo no HTML/API antes do aceite real', async ({ page, browser }, info) => {
   fixture(); await login(page); await base(page); await add(page, 1, 1, 'Meu site')
@@ -353,7 +353,7 @@ test('F09-E02/T02/T06 sessão real, admin não ganha dono, suspeita/provedor seg
     const live = await page.evaluate(async () => (await fetch('/bff/v1/profiles/ana-estudos')).text()); expect(live).not.toContain(text)
   }
   const context = await browser.newContext()
-  try { const other = await context.newPage(); await login(other, state().other); await other.goto(A + '/painel/perfil'); await expect(other.getByLabel('Nome da página')).toHaveValue(''); expect((await privateCall(other)).text).not.toContain('FalhaProvedorFixture'); expect((await privateCall(other, '/preview')).status).toBe(404) } finally { await context.close() }
+  try { const other = await context.newPage(); await login(other, state().other); await other.goto(A + '/painel/perfil?secao=pagina'); await expect(other.getByLabel('Nome da página')).toHaveValue(''); expect((await privateCall(other)).text).not.toContain('FalhaProvedorFixture'); expect((await privateCall(other, '/preview')).status).toBe(404) } finally { await context.close() }
   await page.getByLabel('Mais opções da página', { exact: true }).click(); await page.getByRole('button', { name: 'Retirar do ar', exact: true }).click(); await page.getByRole('button', { name: 'Confirmar retirada', exact: true }).click(); await expect(page.getByRole('status').filter({ hasText: 'Perfil retirado do ar.' })).toBeVisible()
   expect(await page.evaluate(async () => (await fetch('/bff/v1/profiles/ana-estudos')).status)).toBe(404)
 })
@@ -401,6 +401,7 @@ test('F09-E05 criação e gestão: cards, DnD, transferência, edição e remoç
   await step(page, 3); await autosaved(page)
   await expect(page.getByText('Salvo automaticamente', { exact: true })).toHaveCount(0)
   await page.reload()
+  await editorSection(page, 'Grupos e links')
   await expect(page.getByRole('list', { name: 'Etapas do formulário' })).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Materiais Abrir grupo', exact: true })).toBeVisible()
   if (!info.project.use.isMobile) await page.setViewportSize({ width: 1440, height: 900 })
@@ -448,7 +449,7 @@ test('F09-E05 criação e gestão: cards, DnD, transferência, edição e remoç
   const moved = page.locator('[data-profile-link]').filter({ hasText: 'Primeiro link' })
   await moved.getByRole('button', { name: 'Editar link', exact: true }).click(); await page.getByLabel('Título do link').fill('Link transferido'); await page.getByRole('button', { name: 'Concluir link', exact: true }).click()
   await autosaved(page); await expect(page.getByText('Salvo automaticamente', { exact: true })).toHaveCount(0)
-  await page.reload(); await page.getByRole('button', { name: 'Projetos Abrir grupo', exact: true }).click()
+  await page.reload(); await editorSection(page, 'Grupos e links'); await page.getByRole('button', { name: 'Projetos Abrir grupo', exact: true }).click()
   await expect(page.locator('[data-profile-link]').last()).toContainText('Link transferido')
   const removeLink = page.locator('[data-profile-link]').filter({ hasText: 'Projeto novo' })
   await removeLink.getByRole('button', { name: 'Remover link', exact: true }).click()
@@ -512,4 +513,88 @@ test('F09-E06 autosave, banner e campos não publicados; descartar restaura a pu
   await page.getByRole('button', { name: 'Publicar', exact: true }).click(); await expect(page.getByText('Perfil publicado.', { exact: true })).toBeVisible()
   await expect(page.locator('[data-unpublished]')).toHaveCount(0)
   expect((await page.evaluate(async () => (await fetch('/bff/v1/profiles/ana-estudos')).json())).bio).toBe('Agora publicar explicitamente')
+})
+
+
+test('F09-E11 visão geral, atalhos com ícones e barra adaptável preservam publicação e foco', async ({ page }, info) => {
+  fixture(); await login(page)
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  let release!: () => void
+  const held = new Promise<void>(resolve => { release = resolve })
+  await page.route('**/bff/v1/me/profile', async route => { await held; await route.continue() }, { times: 1 })
+  await page.goto(A + '/painel/perfil')
+  await expect(page.locator('[data-skeleton]:visible').first()).toBeVisible()
+  await page.screenshot({ path: info.outputPath('overview-loading.png'), fullPage: true, animations: 'disabled' })
+  release()
+  await expect(page.getByRole('tab', { name: 'Visão geral', exact: true })).toHaveAttribute('aria-selected', 'true')
+  await expect(page.getByRole('button', { name: 'Começar minha página', exact: true })).toBeVisible()
+  const shortcuts = page.getByRole('region', { name: 'O que você quer fazer?', exact: true })
+  await expect(shortcuts.getByRole('button', { name: /Importar links/ })).toBeDisabled()
+  await base(page); await add(page, 1, 1, 'Meu site')
+  await page.getByRole('button', { name: 'Publicar', exact: true }).click()
+  await expect(page.getByText('Perfil publicado.', { exact: true })).toBeVisible()
+  await editorSection(page, 'Visão geral')
+  await expect(page.getByRole('region', { name: 'Resumo do rascunho' })).toContainText('1')
+  await expect(page.getByRole('group', { name: 'Link da sua página' }).getByRole('link')).toHaveAttribute('href', A + '/p/ana-estudos')
+  for (const button of await shortcuts.getByRole('button').all()) expect(await button.locator('svg').count()).toBeGreaterThan(0)
+  await page.evaluate(() => document.fonts.ready)
+  const toolbar = page.getByLabel('Navegação e ações da minha página', { exact: true })
+  await page.screenshot({ path: info.outputPath('overview.png'), fullPage: true, animations: 'disabled' })
+  const trigger = toolbar.getByLabel('Mais opções da página', { exact: true })
+  await trigger.focus(); await page.keyboard.press('Enter')
+  await expect(toolbar.getByRole('button', { name: 'Retirar do ar', exact: true })).toBeVisible()
+  await expect(toolbar.getByRole('button', { name: 'Retirar do ar', exact: true }).locator('svg')).toHaveCount(1)
+  await page.screenshot({ path: info.outputPath('overview-overflow.png'), animations: 'disabled' })
+  await page.keyboard.press('Escape'); await expect(trigger).toBeFocused()
+  await expect(toolbar.getByRole('button', { name: 'Retirar do ar', exact: true })).not.toBeVisible()
+  expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()).violations.map(item => item.id)).toEqual([])
+  for (const width of [768, 1024, 1440]) {
+    await page.setViewportSize({ width, height: 1000 })
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1)
+  }
+  await page.setViewportSize({ width: 1920, height: 1000 })
+  await expect(toolbar.getByRole('button', { name: 'Importar links', exact: true })).toBeVisible()
+  const tabs = (await page.getByRole('tablist', { name: 'Seções da minha página' }).boundingBox())!
+  const preview = (await toolbar.getByRole('button', { name: 'Ver prévia', exact: true }).boundingBox())!
+  expect(Math.abs(tabs.y + tabs.height / 2 - preview.y - preview.height / 2)).toBeLessThan(3)
+  await page.setViewportSize({ width: 320, height: 844 })
+  await page.evaluate(() => { document.documentElement.style.fontSize = '200%' })
+  await expect(page.getByRole('tab', { name: 'Visão geral', exact: true })).toBeVisible()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(321)
+  await page.screenshot({ path: info.outputPath('overview-320-text-200.png'), fullPage: true, animations: 'disabled' })
+  await trigger.click()
+  for (const label of ['Importar links', 'Modelos', 'Histórico', 'Métricas', 'Checklist']) {
+    const tool = toolbar.getByRole('button', { name: label, exact: true })
+    await expect(tool).toBeVisible(); await expect(tool.locator('svg')).toHaveCount(1)
+  }
+  await page.keyboard.press('Escape'); await expect(trigger).toBeFocused()
+  await page.evaluate(() => { document.documentElement.style.fontSize = '' })
+  await page.setViewportSize(info.project.use.viewport ?? { width: 1280, height: 720 })
+  await shortcuts.getByRole('button', { name: /Histórico Consulte/ }).click()
+  await expect(page.getByRole('heading', { name: 'Histórico da minha página', exact: true })).toBeVisible()
+})
+
+
+test('F09-E12 grupos usam duas linhas no celular, ações secundárias mantêm ícones e foco',async({page},info)=>{
+ fixture();await login(page);await page.emulateMedia({reducedMotion:'reduce'});await base(page);await add(page,1,1,'Meu site');await page.getByRole('button',{name:'Voltar aos grupos',exact:true}).click()
+ const toolbar=page.getByLabel('Navegação e ações da minha página',{exact:true}),create=page.getByRole('button',{name:'Adicionar grupo',exact:true}),preview=page.getByRole('button',{name:'Ver prévia',exact:true})
+ await expect(create).toBeVisible();await expect(page.getByRole('button',{name:'Botão principal',exact:true})).not.toBeVisible()
+ await page.evaluate(()=>document.fonts.ready)
+ if(info.project.use.isMobile){
+  for(const width of [390,320]){
+   await page.setViewportSize({width,height:844})
+   await expect.poll(async()=>{const a=(await create.boundingBox())!,b=(await preview.boundingBox())!;return Math.abs(a.y-b.y)}).toBeLessThan(3)
+   const tabs=(await page.getByRole('tablist',{name:'Seções da minha página'}).boundingBox())!,bar=(await toolbar.boundingBox())!
+   expect(bar.height).toBeLessThanOrEqual(tabs.height+56+12)
+   expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width)
+  }
+  await page.setViewportSize({width:390,height:844})
+ }
+ await page.screenshot({path:info.outputPath('groups-compact.png'),fullPage:true,animations:'disabled'})
+ const more=page.getByLabel('Mais opções da página',{exact:true});await more.click()
+ await expect(toolbar.getByRole('button',{name:'Canais de acesso',exact:true})).toHaveCount(0)
+ for(const label of ['Botão principal'])await expect(toolbar.getByRole('button',{name:label,exact:true}).locator('svg')).toHaveCount(1)
+ await page.screenshot({path:info.outputPath('groups-options.png'),animations:'disabled'})
+ await toolbar.getByRole('button',{name:'Botão principal',exact:true}).click();await expect(page.getByRole('dialog',{name:'Escolher botão principal'})).toBeVisible();await page.keyboard.press('Escape');await expect(more).toBeFocused()
+ expect((await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa','wcag22aa']).analyze()).violations.map(row=>row.id)).toEqual([])
 })

@@ -17,3 +17,5 @@ it('automatic ink reaches 4.5:1 even for midtone custom colors', () => {
     expect(ratio).toBeGreaterThanOrEqual(4.5)
   }
 })
+
+it('search is off unless the owner explicitly enables it',()=>{expect(profileAppearance().searchEnabled).toBe(false);expect(profileAppearance({searchEnabled:true}).searchEnabled).toBe(true);expect(profileAppearance({searchEnabled:false}).searchEnabled).toBe(false)})

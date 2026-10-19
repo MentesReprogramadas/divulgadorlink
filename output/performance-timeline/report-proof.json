@@ -1,0 +1,39 @@
+{
+  "linkId": "cmvebrmuu0004u44wmam8kh2q",
+  "from": "2026-09-19",
+  "to": "2026-10-18",
+  "days": 30,
+  "totals": {
+    "impressions": 9287,
+    "clicks": 1189,
+    "ctr": 12.802842683320769,
+    "investmentCents": 0,
+    "cpcCents": null,
+    "paidClicks": 0
+  },
+  "coverage": {
+    "status": "COMPLETE",
+    "availableFrom": "2025-10-18",
+    "investment": "COMPLETE",
+    "currentDayPartial": true
+  },
+  "daysWithClicks": 30,
+  "surfaces": [
+    {
+      "surface": "ORGANIC",
+      "impressions": 6952,
+      "clicks": 526,
+      "ctr": 7.566168009205984,
+      "investmentCents": null,
+      "cpcCents": null
+    },
+    {
+      "surface": "RELATED",
+      "impressions": 2335,
+      "clicks": 663,
+      "ctr": 28.394004282655246,
+      "investmentCents": null,
+      "cpcCents": null
+    }
+  ]
+}

@@ -45,7 +45,7 @@ export function ChannelsScreen({entry,pendingOnly=false}:{entry?:ChannelScreenEn
  }
  async function save(value:ChannelGroupDraft){
   if(busy.current||!data)return;busy.current=true;setSaving(true);setError('')
-  try{await profileRequest('/channel-groups/'+value.id,{method:'PUT',body:JSON.stringify({expectedVersion:data.profileVersion,name:value.name,visible:value.visible,channels:value.channels.map(({id,label,networkId,destinationRevisionId,paused})=>({id,label,networkId,destinationRevisionId,paused}))})});router.push('/painel/perfil/canais')}
+  try{await profileRequest('/channel-groups/'+value.id,{method:'PUT',body:JSON.stringify({expectedVersion:data.profileVersion,name:value.name,visible:value.visible,channels:value.channels.map(({id,label,networkId,destinationRevisionId,paused,showLabel})=>({id,label,networkId,destinationRevisionId,paused,showLabel}))})});router.push('/painel/perfil/canais')}
   catch(reason){setError(reason instanceof Error?reason.message:'Não foi possível salvar. Seu rascunho foi mantido.');if(authError(reason))setData(null)}finally{busy.current=false;setSaving(false)}
  }
  async function remove(){

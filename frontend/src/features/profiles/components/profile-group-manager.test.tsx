@@ -23,6 +23,7 @@ function editor(content: ProfileContent) {
 it('canceling creation leaves no empty group; completing opens only the new group', () => {
   const changed = editor(emptyProfile())
   fireEvent.click(screen.getByRole('button', { name: 'Adicionar grupo' }))
+  expect(screen.queryByLabelText('Grupo visível')).toBeNull()
   fireEvent.change(screen.getByLabelText('Nome do grupo'), { target: { value: 'Meus projetos' } })
   fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }))
   expect(changed).not.toHaveBeenCalled()
@@ -33,9 +34,18 @@ it('canceling creation leaves no empty group; completing opens only the new grou
   expect(screen.getByRole('heading', { name: 'Leituras' })).toBe(document.activeElement)
   expect(screen.getByText('Adicione o primeiro link')).toBeTruthy()
   fireEvent.click(screen.getByRole('button', { name: 'Adicionar link' }))
+  expect(screen.queryByLabelText('Link visível')).toBeNull()
+  expect(screen.getByRole('tab',{name:'Novo'}).getAttribute('aria-selected')).toBe('true')
+  expect(screen.getByRole('tab',{name:'Meus links'})).toBeTruthy()
   fireEvent.change(screen.getByLabelText('Título do link'), { target: { value: 'Rascunho cancelado' } })
   fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }))
   expect(changed).toHaveBeenCalledTimes(1)
+})
+
+it('visibility actions toggle groups and ordinary links on their cards without a modal',()=>{
+ const changed=editor({...emptyProfile(),categories:[{id:'g',name:'Materiais',visible:true}],items:[{id:'one',categoryId:'g',type:'URL',label:'Guia',destination:'https://example.com',visible:true}]})
+ fireEvent.click(screen.getByRole('button',{name:'Ocultar grupo Materiais'}));expect(changed.mock.lastCall?.[0].categories[0].visible).toBe(false);expect(screen.queryByRole('dialog')).toBeNull();fireEvent.click(screen.getByRole('button',{name:'Mostrar grupo Materiais'}));expect(changed.mock.lastCall?.[0].categories[0].visible).toBe(true)
+ fireEvent.click(screen.getByRole('button',{name:'Materiais Abrir grupo'}));fireEvent.click(screen.getByRole('button',{name:'Ocultar link Guia'}));expect(changed.mock.lastCall?.[0].items[0].visible).toBe(false);expect(screen.queryByRole('dialog')).toBeNull();fireEvent.click(screen.getByRole('button',{name:'Mostrar link Guia'}));expect(changed.mock.lastCall?.[0].items[0].visible).toBe(true)
 })
 it('requires confirmation to remove a group and clears its primary link without changing another group', () => {
   const content = { ...emptyProfile(), primaryItemId: 'one', categories: [{ id: 'a', name: 'A', visible: true }, { id: 'b', name: 'B', visible: true }], items: [{ id: 'one', categoryId: 'a', type: 'URL' as const, label: 'One', destination: 'https://example.com', visible: true }] }

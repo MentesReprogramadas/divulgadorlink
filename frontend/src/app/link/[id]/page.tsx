@@ -11,12 +11,14 @@ import { metadataFromSeo } from '@/domain/crawler-policy'
 import { jsonLdScript } from '@/domain/json-ld'
 import { tenantHost, forward } from '@/lib/upstream'
 import { BackButton } from '@/components/ui/back-button'
-import { LinkMeta } from '@/components/domain/link-meta'
+import { LinkMeta, type LinkDiscovery } from '@/components/domain/link-meta'
+import styles from '@/features/catalog/components/link-detail.module.css'
 import { AgeWall } from '@/components/domain/age-gate'
 
 type FacetRef = { name?: string; slug?: string; requiresAge?: boolean }
 
 type PublicLink = {
+  discovery?: LinkDiscovery
   available: boolean
   name?: string
   description?: string
@@ -84,9 +86,9 @@ export default async function Page({
   const link = loaded.link
   if (!link.available) {
     return (
-      <main className="detail-page">
+      <main className={styles.page}>
         <BackButton />
-        <h1 className="entry-title">Link indisponível</h1>
+        <div className={styles.summary}><h1 className="entry-title">Link indisponível</h1></div>
       </main>
     )
   }
@@ -94,19 +96,23 @@ export default async function Page({
   const href = trackedGoPath(id, query.surfaceToken, link.surfaceToken, query.queryId)
   const description = usableDescription(link.name ?? '', link.description)
   return (
-    <main className="detail-page">
+    <main className={styles.page}>
       <AgeWall required={link.niche?.requiresAge === true}>
         {link.seo?.robots.startsWith('index') && link.seo.structuredData ? (
           <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(link.seo.structuredData) }} />
         ) : null}
         <BackButton />
-        <h1 className="entry-title">{link.name}</h1>
-        {description ? <p className="detail-description">{description}</p> : null}
-        <LinkMeta niche={link.niche} network={link.network} />
-        <Impression linkId={id} surfaceToken={token} />
-        <a className="detail-access" href={href}>Acessar</a>
-        <FavoriteButton linkId={id} />
-        <p><a href={'/painel/denunciar/' + encodeURIComponent(id)}>Denunciar um link</a></p>
+        <section className={styles.summary} aria-labelledby="link-title">
+          <h1 id="link-title" className={`entry-title ${styles.title}`}>{link.name}</h1>
+          {description ? <p className={styles.description}>{description}</p> : null}
+          <LinkMeta niche={link.niche} network={link.network} discovery={link.discovery} />
+          <Impression linkId={id} surfaceToken={token} />
+          <div className={styles.actions}>
+            <a className={styles.access} href={href}>Acessar</a>
+            <FavoriteButton linkId={id} />
+          </div>
+          <a className={styles.report} href={'/painel/denunciar/' + encodeURIComponent(id)}>Denunciar um link</a>
+        </section>
         <Suspense fallback={<RelatedSkeleton />}><RelatedLinksSection linkId={id} requiresAge={link.niche?.requiresAge === true} /></Suspense>
       </AgeWall>
     </main>

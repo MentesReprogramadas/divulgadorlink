@@ -20,6 +20,11 @@ export function matchesDiscovery(row:Partial<DiscoveryMetadata>,filters:Discover
 }
 export function cityById(id:string|null|undefined){return id?cities.get(id)??null:null}
 const normalize=(value:string)=>value.normalize('NFKD').replace(/\p{M}/gu,'').toLowerCase().replace(/\s+/g,' ').trim()
+export function exactCity(query:string){
+ const typed=normalize(query.replace(/[,/]/g,' '))
+ const matches=[...cities.values()].filter(city=>normalize(city.name)===typed||normalize(city.name+' '+city.state)===typed)
+ return matches.length===1?matches[0]:null
+}
 export function findCities(query:string){
  const words=normalize(query).split(' ').filter(Boolean);if(normalize(query).length<2)return []
  return [...cities.values()].filter(city=>words.every(word=>normalize(city.name+' '+city.state).includes(word))).slice(0,20)

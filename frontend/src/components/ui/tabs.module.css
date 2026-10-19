@@ -9,3 +9,8 @@
 @media (prefers-reduced-motion: reduce) { .indicator { transition: none; } .panel { animation: none; } }
 .tab { display: inline-flex; align-items: center; gap: var(--space-2); }
 .tab svg { flex: none; }
+
+.compactLabel { display: none; }
+@media (width < 40rem) { .fullLabel { display: none; } .compactLabel { display: inline; } }
+
+.tab:disabled { cursor: not-allowed; opacity: .5; }

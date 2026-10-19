@@ -126,8 +126,8 @@ test('F12-E05 cards, abas, foco e alertas separam endereço de histórico', asyn
   await page.keyboard.press('Enter')
   await expect(page.getByRole('region', { name: 'Histórico de destinos' })).toBeVisible()
   await expect(page.getByLabel('Link permanente', { exact: true })).toHaveCount(0)
-  await page.getByLabel('De', { exact: true }).fill('01/01/2026'); await page.getByRole('button', { name: 'Filtrar acessos', exact: true }).click()
-  await expect(page.getByRole('status').filter({ hasText: 'Período atualizado.' })).toBeFocused()
+  const filtered = page.waitForResponse(response => response.url().includes('from=2026-01-01')); await page.getByLabel('De', { exact: true }).fill('01/01/2026'); await filtered
+  await expect(page.getByLabel('De', { exact: true })).toBeFocused()
   await page.screenshot({ path: info.outputPath('invite-history.png'), fullPage: true, animations: 'disabled' })
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
   await page.getByRole('tab', { name: 'Endereço', exact: true }).click()

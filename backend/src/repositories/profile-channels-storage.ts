@@ -62,9 +62,10 @@ export async function projectStoredChannels(tx:Prisma.TransactionClient,profile:
 /** Owner-only labels for version comparison/reporting; no destination or token is serialized. */
 export async function channelSummary(tx:Prisma.TransactionClient,profile:ChannelProfile,content:ProfileContent,value:ChannelSettings):Promise<ChannelGroupSummary[]>{
  const ids=value.groups.flatMap(group=>group.channels.flatMap(channel=>channel.networkId?[channel.networkId]:[])),networks=ids.length?await tx.network.findMany({where:{tenantId:profile.tenantId,id:{in:ids}},select:{id:true,name:true}}):[]
- const revisionIds=value.groups.flatMap(group=>group.channels.map(channel=>channel.revisionId)),revisions=revisionIds.length?await tx.redirectDestination.findMany({where:{id:{in:revisionIds},tenantId:profile.tenantId,handle:{ownerId:profile.ownerId,tenantId:profile.tenantId}},select:{id:true,number:true}}):[]
+ const revisionIds=value.groups.flatMap(group=>group.channels.map(channel=>channel.revisionId)),revisions=revisionIds.length?await tx.redirectDestination.findMany({where:{id:{in:revisionIds},tenantId:profile.tenantId,handle:{ownerId:profile.ownerId,tenantId:profile.tenantId}},select:{id:true,number:true,status:true,handle:{select:{activeRevisionId:true,disabled:true}}}}):[]
  return scopedChannelSettings(value,content).groups.map(group=>({id:group.id,name:content.categories.find(category=>category.id===group.id)!.name,channels:group.channels.map(channel=>{
   const item=content.items.find(candidate=>candidate.id===channel.id&&candidate.categoryId===group.id)!
-  return{id:item.id,label:item.label,networkName:channel.networkId?networks.find(network=>network.id===channel.networkId)?.name??'Rede removida':'Site',paused:channel.paused||!item.visible,sourceRevisionId:channel.revisionId,sourceVersion:revisions.find(revision=>revision.id===channel.revisionId)?.number??null}
+  const revision=revisions.find(row=>row.id===channel.revisionId)
+  return{id:item.id,label:item.label,status:revision?.status,available:Boolean(revision?.status==='APPROVED'&&!revision.handle.disabled&&revision.handle.activeRevisionId===revision.id),showLabel:channel.showLabel,networkName:channel.networkId?networks.find(network=>network.id===channel.networkId)?.name??'Rede removida':'Site',paused:channel.paused||!item.visible,sourceRevisionId:channel.revisionId,sourceVersion:revisions.find(revision=>revision.id===channel.revisionId)?.number??null}
  })}))
 }

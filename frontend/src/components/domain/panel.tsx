@@ -20,8 +20,11 @@ import { Button } from "@/components/ui/button";
 import { WorkspaceActions, WorkspaceFilters } from "@/components/layout/workspace-controls";
 import { Field, Input, Select } from "@/components/ui/input";
 import { orderStatusLabel } from "@/domain/labels";
-import { WorkspaceSection, ComparisonBars } from "@/components/layout/workspace-section";
+import { WorkspaceSection } from "@/components/layout/workspace-section";
 import styles from "@/components/layout/workspace-dashboard.module.css";
+
+import { MetricChart } from '@/components/ui/metric-chart'
+import { ReportView } from '@/components/ui/report-view'
 
 function count(links: PanelLink[], status: string): number {
   return links.filter((link) => link.status === status).length;
@@ -84,7 +87,7 @@ export function UserDesk() {
   const unavailable = links.some(link => stats[link.id] === null);
   const impressions = known.reduce((sum, row) => sum + row.numbers.impressions, 0);
   const clicks = known.reduce((sum, row) => sum + row.numbers.clicks, 0);
-  const ranked = known.filter(row => row.numbers.clicks > 0).sort((a,b) => b.numbers.clicks-a.numbers.clicks).slice(0,5);
+  const ranked = known.filter(row => row.numbers.clicks > 0).sort((a,b) => b.numbers.clicks-a.numbers.clicks);
   const stuck = links.filter(needsWork);
   const paidCents = orders?.filter(order => order.status === "PAID" || order.status === "PAID_LATE").reduce((sum,order) => sum + order.amountCents,0);
   return <div className={styles.dashboard}>
@@ -100,9 +103,9 @@ export function UserDesk() {
         <WorkspaceSection title="Precisa de atenção" action={<a href="/painel/links">Ver todos</a>}>
           {stuck.length ? <ul className={styles.tasks}>{stuck.slice(0,4).map(link => <li key={link.id}><a href={`/painel/links/${link.id}/editar`}>{link.name}</a><span>{link.pendingText ? "Texto novo em revisão" : linkStatusLabel(link.status)}</span></li>)}</ul> : <p>Você está em dia. Nenhum link precisa de ajuste.</p>}
         </WorkspaceSection>
-        <WorkspaceSection title="Links mais clicados" description="Comparação entre seus links com contagem disponível.">
-          {ranked.length ? <ComparisonBars rows={ranked.map(row => ({ id: row.link.id, label: row.link.name, value: row.numbers.clicks }))} unit="cliques" /> : waiting ? <SkeletonRegion label="Carregando contagem"><Skeleton height={24} /><Skeleton width="80%" height={24} /></SkeletonRegion> : <p>{unavailable ? "Contagem indisponível para alguns links." : "Seus primeiros cliques aparecerão aqui."}</p>}
-        </WorkspaceSection>
+        <div>
+          {ranked.length ? <ReportView title="Links mais clicados" rows={ranked} rowKey={row=>row.link.id} columns={[{label:'Link',render:row=><a href={`/painel/links/${row.link.id}/resultado`}>{row.link.name}</a>},{label:'Cliques',render:row=>amount(row.numbers.clicks),numeric:true},{label:'Impressões',render:row=>amount(row.numbers.impressions),numeric:true},{label:'CTR',render:row=>rate(row.numbers.clicks,row.numbers.impressions),numeric:true}]} chart={<MetricChart kind="ranking" label="Cliques por link" rows={ranked.map(row=>({label:row.link.name,value:row.numbers.clicks}))}/>}/> : waiting || unavailable ? <WorkspaceSection title="Links mais clicados">{waiting ? <SkeletonRegion label="Carregando contagem"><Skeleton height={24}/><Skeleton width="80%" height={24}/></SkeletonRegion> : unavailable ? <p>Contagem indisponível para alguns links.</p> : null}</WorkspaceSection>:null}
+        </div>
       </div>
     </>}
     <DashboardShortcuts />

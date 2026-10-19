@@ -26,7 +26,7 @@ beforeEach(async()=>{
 afterEach(async()=>{setProfileClockForTest(null);setProfileBillingForTest(null,null);await cleanBillingFixture(db,tenant)})
 afterAll(async()=>{setProfilesForTest(null);await db.$disconnect()})
 function call(method:'GET'|'POST'|'PATCH',route:string,body?:unknown,actor:string|null=null,hostTenant=tenant,age=false){return app.inject({method,url:'/api/v1/'+route,headers:{host:hostTenant+'.test',...(age?{cookie:'age=yes'}:{}),...(actor?{authorization:'Bearer '+app.jwt.sign({sub:actor,tenantId:hostTenant,role:'ADMIN',typ:'access'})}:{})},...(body?{payload:body}:{})})}
-function content():ProfileContent{const g=randomUUID(),b=randomUUID();return{slug:'pagina-f18',name:'Página F18',bio:'Identidade fora da busca',avatarAssetId:null,requiresAge:false,primaryItemId:null,categories:[{id:g,name:'Educação',visible:true},{id:b,name:'Projetos',visible:true}],items:[{id:randomUUID(),categoryId:g,type:'URL',label:'Áudio de curso',destination:'https://example.com/curso',visible:true},{id:randomUUID(),categoryId:b,type:'URL',label:'Meu projeto',destination:'https://example.com/projeto',visible:true},{id:randomUUID(),categoryId:g,type:'URL',label:'F18-HIDDEN-SECRET',destination:'https://example.com/hidden-secret',visible:false},{id:randomUUID(),categoryId:g,type:'URL',label:'F18-FUTURE-SECRET',destination:'https://example.com/future-secret',visible:true,schedule:{startsAt:start,endsAt:end,timeZone:'UTC',paused:false}}]}}
+function content():ProfileContent{const g=randomUUID(),b=randomUUID();return{appearance:{background:'#f5f0e8',buttonColor:'#252b27',backgroundStyle:'solid',buttonStyle:'filled',radius:'rounded',font:'modern',alignment:'center',searchEnabled:true},slug:'pagina-f18',name:'Página F18',bio:'Identidade fora da busca',avatarAssetId:null,requiresAge:false,primaryItemId:null,categories:[{id:g,name:'Educação',visible:true},{id:b,name:'Projetos',visible:true}],items:[{id:randomUUID(),categoryId:g,type:'URL',label:'Áudio de curso',destination:'https://example.com/curso',visible:true},{id:randomUUID(),categoryId:b,type:'URL',label:'Meu projeto',destination:'https://example.com/projeto',visible:true},{id:randomUUID(),categoryId:g,type:'URL',label:'F18-HIDDEN-SECRET',destination:'https://example.com/hidden-secret',visible:false},{id:randomUUID(),categoryId:g,type:'URL',label:'F18-FUTURE-SECRET',destination:'https://example.com/future-secret',visible:true,schedule:{startsAt:start,endsAt:end,timeZone:'UTC',paused:false}}]}}
 async function save(value:ProfileContent,expectedVersion=0,actor=owner,host=tenant){const r=await call('PATCH','me/profile',{content:value,expectedVersion},actor,host);expect(r.statusCode,r.body).toBe(200);return r.json()}
 async function publish(expectedVersion=1,actor=owner,host=tenant){const r=await call('POST','me/profile/publish',{expectedVersion},actor,host);expect(r.statusCode,r.body).toBe(200)}
 async function initial(value=content()){await save(value);await publish();return value}
@@ -65,4 +65,17 @@ it('F18 preview is private, scoped to its owner and respects the existing tempor
  expect((await call('GET','me/profile/preview/items?q=privada')).statusCode).toBe(401);expect((await call('GET','me/profile/preview/items?q=privada',undefined,other)).statusCode).toBe(404)
  const mine=await call('GET','me/profile/preview/items?q=privada',undefined,owner);expect(mine.statusCode,mine.body).toBe(200);expect(mine.json().items).toHaveLength(1);expect((await search('q=privada')).json().items).toEqual([])
  const future=await call('GET','me/profile/preview/items?q=FUTURE&at='+encodeURIComponent(start),undefined,owner);expect(future.statusCode,future.body).toBe(200);expect(future.json().items).toHaveLength(1);expect((await search('q=FUTURE')).json().items).toEqual([])
+})
+
+it('owner search preference is private until publication and defaults off for legacy appearance',async()=>{
+ const value=await initial()
+ await save({...value,appearance:{...value.appearance!,searchEnabled:false}},1)
+ expect((await search('q=inexistente')).json().items).toHaveLength(0)
+ const preview=await call('GET','me/profile/preview/items?q=inexistente',undefined,owner)
+ expect(preview.statusCode,preview.body).toBe(200);expect(preview.json().appearance.searchEnabled).toBe(false);expect(preview.json().items).toHaveLength(2)
+ await publish(2)
+ const live=await search('q=inexistente&categoryId='+value.categories[0].id)
+ expect(live.statusCode,live.body).toBe(200);expect(live.json().appearance.searchEnabled).toBe(false);expect(live.json().items).toHaveLength(2);expect(live.json().search.filters).toMatchObject({q:'',categoryId:null});expect(live.body).not.toMatch(/HIDDEN-SECRET|FUTURE-SECRET/)
+ await save({...value,appearance:undefined},2);await publish(3)
+ expect((await search('q=inexistente')).json().items).toHaveLength(2)
 })

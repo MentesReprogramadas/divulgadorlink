@@ -93,7 +93,7 @@ async function projection(db: Prisma.TransactionClient, actor: Actor, content: P
   const adult = output.requiresAge || output.items.some(i => i.type === 'CATALOG' && eligible.some(l => l.id === i.destination && (l.niche.requiresAge || l.network.requiresAge)))||channels.some(group=>group.channels.some(channel=>channel.requiresAge))
   if (adult && !actor.age) return { restricted: true as const }
   for (const item of output.items) if (item.type !== 'CATALOG') { try { assertPublicHttps(item.destination); item.destination = canonicalUrl(item.destination) } catch { throw new ProfileError(422, 'Corrija os destinos antes de abrir a prévia.') } }
-  const channelGroups=channels.map(group=>({id:group.id,name:group.name,channels:group.channels.map(channel=>({id:channel.id,label:channel.label,network:channel.network,href:source==='DRAFT'?output.items.find(item=>item.id===channel.id)!.destination:'/p/'+encodeURIComponent(content.slug)+'/canais/'+channel.id+'?token='+encodeURIComponent(signProfileChannel({tenantId:actor.tenantId,profileId:profile.id,revisionId:publishedRevisionId,channelId:channel.id,destinationRevisionId:channel.revisionId},env.JWT_SECRET,now))}))}))
+  const channelGroups=channels.map(group=>({id:group.id,name:group.name,channels:group.channels.map(channel=>({id:channel.id,label:channel.label,network:channel.network,showLabel:channel.showLabel,href:source==='DRAFT'?output.items.find(item=>item.id===channel.id)!.destination:'/p/'+encodeURIComponent(content.slug)+'/canais/'+channel.id+'?token='+encodeURIComponent(signProfileChannel({tenantId:actor.tenantId,profileId:profile.id,revisionId:publishedRevisionId,channelId:channel.id,destinationRevisionId:channel.revisionId},env.JWT_SECRET,now))}))}))
   return { restricted: false as const, ...output, publishedRevisionId, serverNow: now.toISOString(), nextBoundary: at ? null : nextBoundary?.toISOString() ?? null, ...(at ? { previewAt: at.toISOString() } : {}),...(settings.groups.length?{channelGroups}:{}) }
 }
 export async function readProfile(db: PrismaClient, actor: Actor) {
@@ -166,7 +166,7 @@ export async function readProfileChannelGroups(db:PrismaClient,actor:Actor){
     let available=Boolean(source&&source.status==='APPROVED'&&!source.handle.disabled&&source.handle.activeRevisionId===source.id&&source.destinationUrl===item.destination)
     if(binding.networkId&&!network?.knownHosts.length)available=false
     if(available)try{channelNetwork(network?{...network,tenantId:actor.tenantId}:null,item.destination)}catch{available=false}
-    return{id:item.id,label:item.label,networkId:binding.networkId,destinationRevisionId:binding.revisionId,paused:binding.paused||!item.visible,available,destinationLabel:source?.label??'Convite indisponível',network:network?{name:network.name,slug:network.slug}:binding.networkId?null:{name:'Site',slug:'site'}}
+    return{id:item.id,label:item.label,networkId:binding.networkId,destinationRevisionId:binding.revisionId,paused:binding.paused||!item.visible,available,showLabel:binding.showLabel,destinationUrl:item.destination,handleId:source?.handleId,status:source?.status,destinationLabel:source?.label??'Convite indisponível',network:network?{name:network.name,slug:network.slug}:binding.networkId?null:{name:'Site',slug:'site'}}
    })}
   })}
  },{isolationLevel:'RepeatableRead'})
@@ -179,24 +179,35 @@ export async function profileChannelDestinations(db:PrismaClient,actor:Actor,cur
   return{items:page.flatMap(handle=>{const destination=destinations.find(row=>row.id===handle.activeRevisionId&&row.handleId===handle.id);return destination?[{...destination,networks:networks.flatMap(network=>{try{channelNetwork(network,destination.destinationUrl);return[{id:network.id,name:network.name,slug:network.slug}]}catch{return[]}})}]:[]}),nextCursor:handles.length>25?page[24].id:null}
  },{isolationLevel:'RepeatableRead'})
 }
+/** Owner-scoped source lookup also exposes pending states for the unified draft editor. */
+export async function profileChannelDestination(db:PrismaClient,actor:Actor,id:string){
+ return db.$transaction(async tx=>{
+  await owner(tx,actor)
+  const source=await tx.redirectDestination.findFirst({where:{id,tenantId:actor.tenantId,handle:{tenantId:actor.tenantId,ownerId:actor.ownerId,disabled:false}},include:{handle:{select:{activeRevisionId:true}}}})
+  if(!source)throw new ProfileError(404,'Este acesso não está disponível nesta conta.')
+  const networks=await tx.network.findMany({where:{tenantId:actor.tenantId,isPublicFacet:true,knownHosts:{isEmpty:false}},select:{id:true,tenantId:true,name:true,slug:true,knownHosts:true}})
+  return{id:source.id,handleId:source.handleId,label:source.label,destinationUrl:source.destinationUrl,requiresAge:source.requiresAge,status:source.status,available:source.status==='APPROVED'&&source.handle.activeRevisionId===source.id,networks:networks.flatMap(network=>{try{channelNetwork(network,source.destinationUrl);return[{id:network.id,name:network.name,slug:network.slug}]}catch{return[]}})}
+ },{isolationLevel:'RepeatableRead'})
+}
 export async function saveProfileChannelGroup(db:PrismaClient,actor:Actor,id:string,input:ChannelGroupInput){
  return locked(db,actor,async tx=>{
   const row=await read(tx,actor);if(!row)throw new ProfileError(404,'Crie e salve sua página antes de adicionar alternativas.')
   const content=draft(row),current=scopedChannelSettings(await readChannelDraft(tx,row),content)
-  if(content.categories.some(group=>group.id===id)&&!current.groups.some(group=>group.id===id))throw new ProfileError(409,'Este grupo já contém links comuns. Crie um novo grupo de alternativas.')
+  const previousIds=new Set(current.groups.find(group=>group.id===id)?.channels.map(channel=>channel.id)??[])
+  if(input.channels.some(channel=>content.items.some(item=>item.id===channel.id)&&!previousIds.has(channel.id)))throw new ProfileError(400,'Um novo acesso precisa de um identificador próprio. Os links existentes foram preservados.')
   const revisions=await tx.redirectDestination.findMany({where:{id:{in:input.channels.map(channel=>channel.destinationRevisionId)},tenantId:actor.tenantId,handle:{tenantId:actor.tenantId,ownerId:actor.ownerId,owner:{tenantId:actor.tenantId,status:'ACTIVE'}}},include:{handle:{select:{id:true,activeRevisionId:true,disabled:true}}}})
   const networks=await tx.network.findMany({where:{tenantId:actor.tenantId,isPublicFacet:true,id:{in:input.channels.flatMap(channel=>channel.networkId?[channel.networkId]:[])}}})
   const bindings:ChannelBinding[]=[],channels=input.channels.map(channel=>{
    const previous=current.groups.find(group=>group.id===id)?.channels.find(binding=>binding.id===channel.id&&binding.revisionId===channel.destinationRevisionId&&binding.networkId===channel.networkId),previousItem=content.items.find(item=>item.id===channel.id&&item.categoryId===id)
-   if((channel.paused||!input.visible)&&previous&&previousItem){bindings.push({...previous,paused:channel.paused});return{id:channel.id,label:channel.label,destination:previousItem.destination,paused:channel.paused}}
-   const source=revisions.find(revision=>revision.id===channel.destinationRevisionId&&revision.status==='APPROVED'&&!revision.handle.disabled&&revision.handle.activeRevisionId===revision.id)
+   if((channel.paused||!input.visible)&&previous&&previousItem){bindings.push({...previous,paused:channel.paused,showLabel:channel.showLabel});return{id:channel.id,label:channel.label,destination:previousItem.destination,paused:channel.paused}}
+   const source=revisions.find(revision=>revision.id===channel.destinationRevisionId&&!revision.handle.disabled&&(revision.status==='APPROVED'?revision.handle.activeRevisionId===revision.id:['PENDING','PENDING_REVIEW','REJECTED','BLOCKED','FAILED'].includes(revision.status)))
    if(!source)throw new ProfileError(404,'Escolha um convite próprio com uma versão aprovada e ativa.')
    const network=channel.networkId?networks.find(candidate=>candidate.id===channel.networkId):null
    if(channel.networkId&&!network)throw new ProfileError(404,'Rede não encontrada para esta página.')
-   channelNetwork(network??null,source.destinationUrl);bindings.push({id:channel.id,networkId:channel.networkId,handleId:source.handleId,revisionId:source.id,paused:channel.paused})
+   channelNetwork(network??null,source.destinationUrl);bindings.push({id:channel.id,networkId:channel.networkId,handleId:source.handleId,revisionId:source.id,paused:channel.paused,showLabel:channel.showLabel})
    return{id:channel.id,label:channel.label,destination:source.destinationUrl,paused:channel.paused}
   })
-  const nextContent=profileInput.parse(mergeChannelGroup(content,{id,name:input.name,visible:input.visible,channels},id)),group={id,channels:bindings},next:ChannelSettings={groups:current.groups.some(candidate=>candidate.id===id)?current.groups.map(candidate=>candidate.id===id?group:candidate):[...current.groups,group]}
+  const nextContent=profileInput.parse(mergeChannelGroup(content,{id,name:input.name,visible:input.visible,channels},id,current.groups.find(group=>group.id===id)?.channels.map(channel=>channel.id)??[])),group={id,channels:bindings},next:ChannelSettings={groups:current.groups.some(candidate=>candidate.id===id)?current.groups.map(candidate=>candidate.id===id?group:candidate):[...current.groups,group]}
   if(JSON.stringify(nextContent)===JSON.stringify(content)&&JSON.stringify(next)===JSON.stringify(current))return response(tx,actor,row)
   version(row,input.expectedVersion);await putChannelDraft(tx,row,next);const result=await writeDraft(tx,actor,row,nextContent)
   await tx.auditLog.create({data:{tenantId:actor.tenantId,actorId:actor.ownerId,action:'profile.channels.updated',entityType:'Profile',entityId:row.id,after:{groupId:id,channelCount:bindings.length,profileVersion:row.version+1}}})

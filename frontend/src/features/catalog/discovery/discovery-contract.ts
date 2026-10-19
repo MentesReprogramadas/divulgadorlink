@@ -1,6 +1,6 @@
 export type DiscoveryValues={cityId:string|null;languageTag:string|null;modality:'ONLINE'|'PRESENTIAL'|null}
 export type DiscoveryCity={id:string;name:string;state:string}
-export type DiscoveryOptions={cities:DiscoveryCity[];selectedCity:DiscoveryCity|null;languages:Array<{code:string;name:string}>;modalities:Array<{code:string;name:string}>}
+export type DiscoveryOptions={exactCity?:DiscoveryCity|null;cities:DiscoveryCity[];selectedCity:DiscoveryCity|null;languages:Array<{code:string;name:string}>;modalities:Array<{code:string;name:string}>}
 export const emptyDiscovery=():DiscoveryValues=>({cityId:null,languageTag:null,modality:null})
 export function discoveryParams(values:DiscoveryValues){const params=new URLSearchParams();for(const key of ['cityId','languageTag','modality'] as const)if(values[key])params.set(key,values[key]);return params}
 export function readDiscovery(params:URLSearchParams):DiscoveryValues{

@@ -28,3 +28,16 @@ it('F37-U04 editing or deleting a group preserves unrelated links and stable cha
  expect(changed.items.find(row=>row.id==='other-item')).toEqual(content.items[2]);expect(changed.items.find(row=>row.id==='tg')).toMatchObject({id:'tg',visible:false,label:'Avisos da comunidade'});expect(changed.items.some(row=>row.id==='wa')).toBe(false);expect(JSON.stringify(content)).toBe(before)
  const deleted=mergeChannelGroup(content,null,'g');expect(deleted.items).toEqual([content.items[2]]);expect(deleted.categories.map(row=>row.id)).toEqual(['other'])
 })
+it('unified group editing retains ordinary links, their positions and the primary button',()=>{
+ const ordinary={...content.items[2],categoryId:'g'}
+ const mixed={...content,primaryItemId:ordinary.id,items:[ordinary,...content.items.slice(0,2)]}
+ const next=mergeChannelGroup(mixed,{id:'g',name:'Comunidade',visible:true,channels:[{id:'tg',label:'Avisos',destination:content.items[1].destination,paused:false}]},'g',['wa','tg'])
+ expect(next.items.map(item=>item.id)).toEqual(['other-item','tg']);expect(next.items[0]).toEqual(ordinary);expect(next.primaryItemId).toBe(ordinary.id)
+ const empty=mergeChannelGroup(next,{id:'g',name:'Comunidade',visible:true,channels:[]},'g',['tg'])
+ expect(empty.items).toEqual([ordinary])
+})
+it('title visibility is projected only from channel metadata and defaults to legacy display',()=>{
+ const hidden=structuredClone(settings);hidden.groups[0].channels[1].showLabel=false
+ expect(projectChannelGroups(content,hidden,sources,[network],scope)[0].channels[1]).toMatchObject({label:'Canal de avisos',showLabel:false,network:{name:'Telegram'}})
+ expect(projectChannelGroups(content,settings,sources,[network],scope)[0].channels[1].showLabel).toBeUndefined()
+})

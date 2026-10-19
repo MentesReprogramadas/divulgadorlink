@@ -1,25 +1,56 @@
 .report { display: grid; gap: var(--space-6); min-width: 0; }
-.report h2, .report h3, .report p { margin: 0; }
+.report h2, .report h3, .report h4, .report p { margin: 0; }
 .report h2 { margin-block: var(--space-2); font-size: clamp(1.5rem, 3vw, 2rem); overflow-wrap: anywhere; }
+.report h3 { font-size: var(--text-lg); }
+.report h4 { font-size: 1rem; }
+.header, .sectionHeading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; }
+.header > div { min-width: 0; }
 .eyebrow { color: var(--text-secondary); font-size: .875rem; font-weight: 600; }
-.filters { display: grid; grid-template-columns: 1fr 1fr 2fr auto; align-items: end; gap: var(--space-4); min-width: 0; }
-.filters > * { min-width: 0; }
-.filters input, .filters select { width: 100%; min-width: 0; margin-bottom: 0; }
-.note, .caption { color: var(--text-secondary); font-size: .875rem; line-height: 1.6; }
+.back { margin-bottom: var(--space-4); }
+.detailCard { background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-6); min-width: 0; }
+.detailCard { display: grid; gap: var(--space-4); }
+.note { color: var(--text-secondary); font-size: .875rem; line-height: 1.6; }
 .warning { padding: var(--space-4); border: 1px solid var(--border-default); border-left: 4px solid var(--text-secondary); background: var(--surface-raised); line-height: 1.6; }
-.metrics { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr)); border-block: 1px solid var(--border-default); }
-.metrics > div { padding: var(--space-6) var(--space-4); min-width: 0; }
+.metrics { margin: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--space-4); }
+.metrics > div { padding: var(--space-6); min-width: 0; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg); grid-column: span 3; }
+.metrics > div[data-primary="true"] { grid-column: span 2; border-top: 3px solid var(--color-brand-navy); }
 .metrics dt { font-size: .875rem; color: var(--text-secondary); }
-.metrics dd { margin: var(--space-2) 0; font-size: 1.65rem; font-weight: 650; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.metrics dd { margin: var(--space-2) 0; font-family: var(--font-product); font-size: 1.75rem; font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.metrics > div[data-primary="true"] dd { font-size: clamp(1.75rem, 3vw, 2.5rem); }
 .metrics p { font-size: .8125rem; color: var(--text-secondary); }
-.section { display: grid; gap: var(--space-4); min-width: 0; }
+.metrics dd p { margin-top: var(--space-2); font-family: var(--font-sans); font-weight: 400; }
+.section, .details { display: grid; gap: var(--space-4); min-width: 0; }
+.details { gap: var(--space-8); }
 .tableWrap { overflow-x: auto; border: 1px solid var(--border-default); border-radius: var(--radius); }
-.tableWrap:focus-visible { outline: 2px solid var(--action-primary-bg); outline-offset: 3px; }
+.tableWrap:focus-visible, .method summary:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 3px; }
 .tableWrap table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
 .tableWrap th, .tableWrap td { padding: var(--space-3) var(--space-4); text-align: right; white-space: nowrap; border-bottom: 1px solid var(--border-default); }
 .tableWrap th:first-child { text-align: left; }
-.tableWrap thead { background: var(--surface-raised); }
+.tableWrap thead { background: var(--surface-subtle); }
 .tableWrap tbody th { font-weight: 500; }
-.caption { text-align: left; padding: var(--space-4); caption-side: bottom; white-space: normal; }
-@media (max-width: 800px) { .filters { grid-template-columns: 1fr 1fr; } .filters > :nth-child(3), .filters > button { grid-column: 1 / -1; } }
-@media (max-width: 360px) { .filters { grid-template-columns: 1fr; } }
+.tableWrap tbody tr:last-child > * { border-bottom: 0; }
+.tableWrap tbody tr:hover { background: var(--surface-subtle); }
+.badge, .activeBadge { display: inline-flex; align-items: center; padding: var(--space-1) var(--space-2); border-radius: var(--radius); font-size: .8125rem; background: var(--surface-subtle); color: var(--text-secondary); white-space: nowrap; }
+.activeBadge { color: var(--color-brand-navy); background: var(--surface-subtle); font-weight: 600; }
+.pagination, .pagination nav { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+.chartControls { display: flex; flex-wrap: wrap; gap: var(--space-2); padding: 0; border: 0; margin: 0; }
+.chartControls legend { margin-bottom: var(--space-2); color: var(--text-secondary); font-size: .875rem; }
+.method { border-top: 1px solid var(--border-default); padding-top: var(--space-4); }
+.method summary { cursor: pointer; font-weight: 600; min-height: 44px; align-content: center; }
+.method p { margin-top: var(--space-3); }
+.srOnly { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+@media (max-width: 700px) {
+  .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .metrics > div, .metrics > div[data-primary="true"] { grid-column: auto; padding: var(--space-4); }
+  .metrics > div:first-child { grid-column: 1 / -1; }
+  .detailCard { padding: var(--space-4); }
+}
+@media (max-width: 360px) {
+  .metrics { grid-template-columns: minmax(0, 1fr); }
+}
+.filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); padding: var(--space-6); width: 100%; max-width: none; margin: 0; border: 1px solid var(--border-default); border-radius: var(--radius-lg); background: var(--surface-raised); }
+.filters > * { min-width: 0; }
+.timeline { height: 340px; min-width: 0; }
+.surfaceChart { height: 240px; min-width: 0; }
+.timeline :global(.recharts-surface):focus-visible, .surfaceChart :global(.recharts-surface):focus-visible { outline: 3px solid var(--focus-ring); outline-offset: -3px; }
+@media (max-width: 700px) { .filters { grid-template-columns: minmax(0, 1fr); padding: var(--space-4); } .timeline { height: 300px; } }

@@ -19,6 +19,7 @@ for (const kind of ['profiles', 'redirects'] as const) test('Revisão e contesta
   const ownerPath = kind === 'profiles' ? '/painel/perfil' : '/painel/convites'
   await page.goto(origin + ownerPath)
   if (kind === 'profiles') {
+    await page.getByRole('tab', { name: 'Página', exact: true }).click()
     await page.getByLabel('Endereço da página').fill('meu-projeto'); await page.getByLabel('Nome da página').fill(title); await page.getByLabel('Descrição', { exact: true }).fill('Conteúdo educativo para a comunidade.')
     const areas = page.getByRole('combobox', { name: 'Editar minha página', exact: true }); if (await areas.isVisible()) { await areas.click(); await page.getByRole('option', { name: 'Grupos e links', exact: true }).click() } else await page.getByRole('tab', { name: 'Grupos e links', exact: true }).click()
     await page.getByRole('button', { name: 'Adicionar grupo', exact: true }).click(); await page.getByLabel('Nome do grupo', { exact: true }).fill('Projetos'); await page.getByRole('button', { name: 'Concluir grupo', exact: true }).click()

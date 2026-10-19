@@ -1,5 +1,5 @@
 import {ZodError} from 'zod'
-import {parseDiscovery,matchesDiscovery,type DiscoveryMetadata} from '@/domain/catalog/discovery-metadata'
+import {cityById,parseDiscovery,matchesDiscovery,type DiscoveryMetadata} from '@/domain/catalog/discovery-metadata'
 import {discoveryCursorContext,tagDiscoveryCursor} from '@/http/catalog-page'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { signSurface, type AnalyticsOrigin } from '@/domain/analytics/surface-token'
@@ -64,7 +64,7 @@ function ageFromCookie(request: FastifyRequest): 'yes' | 'no' | 'unknown' {
   return 'unknown'
 }
 
-type CardSource = {
+type CardSource = Partial<DiscoveryMetadata> & {
   id: string
   name: string
   description: string
@@ -79,6 +79,7 @@ function card(tenantId: string, row: CardSource, origin: AnalyticsOrigin) {
     id: row.id,
     name: row.name,
     description: row.description,
+    discovery: { city: cityById(row.cityId), languageTag: row.languageTag ?? null, modality: row.modality ?? null },
     surfaceToken: signSurface(tenantId, row.id, origin, env.JWT_SECRET),
     niche: row.nicheName ? { name: row.nicheName, slug: row.nicheSlug ?? '' } : null,
     network: row.networkName ? { name: row.networkName, slug: row.networkSlug ?? '' } : null,

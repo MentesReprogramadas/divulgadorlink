@@ -1,3 +1,4 @@
+vi.mock('next/dynamic', () => ({ default: () => () => null }))
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
 import { SearchOpportunitiesPanel, type SearchOpportunityReport } from './search-opportunities-panel'
@@ -7,7 +8,7 @@ afterEach(() => { cleanup(); vi.resetAllMocks() })
 const report: SearchOpportunityReport = { threshold: 10, retentionDays: 180, from: '2026-10-01', to: '2026-10-17', page: 1, total: 1, items: [{ term: 'aulas de violão', searches: 12, empty: 12, exits: 0, withResults: 0, exitRate: 0, opportunity: 'NO_RESULTS' }], networks: [], niches: [], coverage: [{ outcome: 'FAILED', count: null }] }
 it('F08-C01 presents demand and limitations without presenting failures as zero results', async () => {
   request.mockResolvedValue({ status: 200, body: report }); render(<SearchOpportunitiesPanel />)
-  expect(await screen.findByRole('article', { name: 'aulas de violão' })).toBeTruthy()
+  await screen.findByRole('heading',{name:'Oportunidades nesta página'});fireEvent.click(screen.getByRole('tab',{name:'Tabela'}));expect(screen.getByRole('rowheader',{name:'aulas de violão'})).toBeTruthy()
   expect(screen.getByText('Sem oferta')).toBeTruthy()
   expect(screen.getByText('Falhas técnicas: amostra insuficiente')).toBeTruthy()
   expect(screen.getByText(/Mínimo de 10/).textContent).toContain('180 dias')
@@ -19,10 +20,10 @@ it('F08-C02 applies explicit date filters, ignores a stale request and keeps loa
   expect(view.container.querySelectorAll('[data-skeleton] article')).toHaveLength(3)
   fireEvent.change(screen.getByLabelText('De'), { target: { value: '2026-10-01' } })
   fireEvent.submit(screen.getByRole('form', { name: 'Filtrar oportunidades' }))
-  await screen.findByRole('article', { name: 'aulas de violão' })
+  await screen.findByRole('heading',{name:'Oportunidades nesta página'});fireEvent.click(screen.getByRole('tab',{name:'Tabela'}))
   expect(request.mock.calls.at(-1)![0]).toContain('from=2026-10-01')
   finish({ status: 200, body: { ...report, items: [], total: 0 } })
-  await waitFor(() => expect(screen.getByRole('article', { name: 'aulas de violão' })).toBeTruthy())
+  await waitFor(() => expect(screen.getByRole('rowheader', { name: 'aulas de violão' })).toBeTruthy())
 })
 it('F08-C03 empty, unauthorized and offline/retry states never invent a report', async () => {
   request.mockResolvedValue({ status: 403 }); const denied = render(<SearchOpportunitiesPanel />)
@@ -36,5 +37,5 @@ it('F08-C04 keeps invalid period feedback and the supplied filters for correctio
   request.mockResolvedValue({ status: 400, body: { message: 'Escolha até 180 dias.' } })
   render(<SearchOpportunitiesPanel />)
   expect((await screen.findByRole('alert')).textContent).toContain('Escolha até 180 dias.')
-  expect(screen.getByRole('button', { name: 'Aplicar filtros' })).toBeTruthy()
+  expect(screen.getByRole('form',{name:'Filtrar oportunidades'})).toBeTruthy()
 })

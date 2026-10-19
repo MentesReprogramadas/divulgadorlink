@@ -3,7 +3,7 @@ import type { PrismaClient } from '@prisma/client'
 import { encodeCursor, homePageSql, discoveryCursorContext, type CatalogCursor } from '@/http/catalog-page'
 import {parseDiscovery,type DiscoveryMetadata} from '@/domain/catalog/discovery-metadata'
 
-type Row = {
+type Row = DiscoveryMetadata & {
   id: string
   name: string
   description: string

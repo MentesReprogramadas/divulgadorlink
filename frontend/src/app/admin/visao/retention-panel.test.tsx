@@ -17,7 +17,7 @@ describe('retenção na gestão', () => {
       .mockResolvedValueOnce({ status: 202, body: { queued: true } })
       .mockResolvedValueOnce({ status: 200, body: { before: '2025-10-10', pending: 2 } })
     render(<RetentionPanel />)
-    expect(await screen.findByText('além do prazo')).toBeTruthy()
+    expect(await screen.findByText('Eventos além do prazo')).toBeTruthy()
     expect(screen.getByText('2')).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: 'Pedir expurgo' }))
     expect(await screen.findByText('Pedido enviado ao worker. A contagem cai quando ele termina. Pedido e pagamento não entram.')).toBeTruthy()

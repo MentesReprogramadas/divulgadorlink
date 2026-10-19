@@ -1,5 +1,5 @@
 import {expect,it} from 'vitest'
-import {parseDiscovery,matchesDiscovery,discoveryLanguages} from './discovery-metadata'
+import {parseDiscovery,matchesDiscovery,discoveryLanguages,exactCity} from './discovery-metadata'
 it('F27-U01/T02 standardizes explicit language/format without deriving a city',()=>{
  expect(parseDiscovery({languageTag:' PT-br ',modality:'online'})).toEqual({cityId:null,languageTag:'pt',modality:'ONLINE'})
  expect(parseDiscovery({languageTag:'iw'}).languageTag).toBe('he')
@@ -23,4 +23,12 @@ it('F27-U04/T04 combines filters with AND; absent never pretends to be a match',
  expect(matchesDiscovery(row,row)).toBe(true)
  expect(matchesDiscovery(row,parseDiscovery({cityId:'3543402',modality:'ONLINE'}))).toBe(false)
  expect(matchesDiscovery(row,parseDiscovery({languageTag:'es'}))).toBe(false)
+})
+
+it('resolves only an exact unambiguous typed city, including accent and UF variants',()=>{
+ expect(exactCity('sao paulo')?.id).toBe('3550308')
+ expect(exactCity('São Paulo / SP')?.id).toBe('3550308')
+ expect(exactCity('São')).toBeNull()
+ expect(exactCity('Bom Jesus')).toBeNull()
+ expect(exactCity('Cidade inventada')).toBeNull()
 })

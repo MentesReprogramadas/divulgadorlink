@@ -9,6 +9,7 @@ import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 import { AgePrompt, confirmAge } from '@/components/domain/age-gate'
 import { LinkRow } from '@/components/domain/link-row'
+import type { LinkDiscovery } from '@/components/domain/link-meta'
 import { CatalogGrid } from '@/components/domain/catalog-grid'
 import { BackButton } from '@/components/ui/back-button'
 import { SearchBox } from '@/components/domain/search-box'
@@ -26,6 +27,7 @@ type Card = {
   surfaceToken: string
   impressions?: number
   niche?: Facet
+  discovery?: LinkDiscovery
   network?: Facet
 }
 type SearchTarget = { kind: 'niche' | 'network' | 'results'; slug: string | null; name?: string }
@@ -129,7 +131,7 @@ function SearchResults() {
           <h2 id="search-patrocinados">Patrocinados</h2>
           <CatalogGrid>
             {sponsored.map((row) => (
-              <LinkRow cornerAction={<FavoriteButton linkId={row.id} />} key={row.id} id={row.id} name={row.name} description={row.description} href={rowHref(row, queryId)} placement="sponsored" niche={row.niche} network={row.network} impressions={row.impressions} showImpressions={showImpressions} />
+              <LinkRow cornerAction={<FavoriteButton linkId={row.id} />} key={row.id} id={row.id} name={row.name} description={row.description} href={rowHref(row, queryId)} placement="sponsored" niche={row.niche} network={row.network} discovery={row.discovery} impressions={row.impressions} showImpressions={showImpressions} />
             ))}
           </CatalogGrid>
         </section>
@@ -139,7 +141,7 @@ function SearchResults() {
           <h2 id="search-organicos">Links encontrados</h2>
           <CatalogGrid>
             {organic.map((row) => (
-              <LinkRow cornerAction={<FavoriteButton linkId={row.id} />} key={row.id} id={row.id} name={row.name} description={row.description} href={rowHref(row, queryId)} placement="organic" niche={row.niche} network={row.network} impressions={row.impressions} showImpressions={showImpressions} />
+              <LinkRow cornerAction={<FavoriteButton linkId={row.id} />} key={row.id} id={row.id} name={row.name} description={row.description} href={rowHref(row, queryId)} placement="organic" niche={row.niche} network={row.network} discovery={row.discovery} impressions={row.impressions} showImpressions={showImpressions} />
             ))}
           </CatalogGrid>
         </section>

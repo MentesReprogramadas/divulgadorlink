@@ -43,3 +43,13 @@ it('mantém os badges informativos sem links próprios', () => {
   expect(screen.getByText('Discord')).toBeTruthy()
   expect(screen.queryByRole('link')).toBeNull()
 })
+
+it('shows declared discovery metadata on cards and omits empty values', () => {
+  const { rerender } = render(<LinkMeta discovery={{ city: { name: 'São Paulo', state: 'SP' }, languageTag: 'pt', modality: 'ONLINE' }} />)
+  expect(screen.getByText('São Paulo / SP')).toBeTruthy()
+  expect(screen.getByText('português')).toBeTruthy()
+  expect(screen.getByText('Online')).toBeTruthy()
+  rerender(<LinkMeta discovery={{ city: null, languageTag: null, modality: null }} />)
+  expect(screen.queryByText('Não informado')).toBeNull()
+  expect(document.querySelector('.link-meta')).toBeNull()
+})

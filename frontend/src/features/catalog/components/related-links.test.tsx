@@ -46,3 +46,9 @@ describe('F03 relacionados', () => {
     expect(screen.queryByRole('link', { name: 'Clube de livros' })).toBeNull()
   })
 })
+
+it('shows declared local, language and participation in related cards without changing the signed destination',()=>{
+ render(<RelatedLinks linkId="source" initial={{items:[{...item,discovery:{city:{name:'São Paulo',state:'SP'},languageTag:'pt',modality:'ONLINE'}}],nextCursor:null,showImpressions:false}}/>)
+ expect(screen.getByText('São Paulo / SP')).toBeTruthy();expect(screen.getByText('português')).toBeTruthy();expect(screen.getByText('Online')).toBeTruthy()
+ expect(screen.getByRole('link',{name:'Clube de livros'}).getAttribute('href')).toBe('/link/one?surfaceToken=related.token')
+})

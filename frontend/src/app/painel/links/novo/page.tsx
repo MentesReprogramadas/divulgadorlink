@@ -48,7 +48,7 @@ function describeSubmission(status: string | undefined): SubmissionResult {
   }
 }
 
-import { DiscoveryDraftButton } from '@/features/catalog/discovery/discovery-draft-button'
+import { DiscoveryFields } from '@/features/catalog/discovery/discovery-fields'
 import { emptyDiscovery, readDiscovery, type DiscoveryValues } from '@/features/catalog/discovery/discovery-contract'
 
 type Draft = { discovery?: DiscoveryValues; name: string; description: string; url: string; networkId: string; nicheId: string }
@@ -205,9 +205,9 @@ export default function Page() {
             </Select>
           </Field>
         </fieldset>
+        <DiscoveryFields value={draft.discovery ?? emptyDiscovery()} onChange={discovery => update({discovery})} disabled={pending} />
         </fieldset>
         {step === 2 ? <dl className={styles.review}><div><dt>Título do link</dt><dd>{draft.name}</dd></div><div><dt>Link de acesso</dt><dd>{draft.url}</dd></div><div><dt>Descrição</dt><dd>{draft.description}</dd></div><div><dt>Rede do link</dt><dd>{networks.find(row => row.id === draft.networkId)?.name}</dd></div><div><dt>Assunto do link</dt><dd>{niches.find(row => row.id === draft.nicheId)?.name}</dd></div></dl> : null}
-        {step === 2 ? <DiscoveryDraftButton value={draft.discovery ?? emptyDiscovery()} onChange={discovery => update({discovery})} /> : null}
         {error ? <p role="alert">{error}</p> : null}
         <div className={styles.stepActions}>{step > 0 ? <Button type="button" variant="secondary" disabled={pending} onClick={() => setStep(step - 1)}><ActionIcon name="back" />Voltar</Button> : null}<Button type="submit" loading={pending} disabled={result !== null || !confirmed || session?.status === 'BANNED'}><ActionIcon name={step === 2 ? 'save' : 'next'} />{step === 2 ? 'Enviar' : 'Continuar'}</Button></div>
       </form>

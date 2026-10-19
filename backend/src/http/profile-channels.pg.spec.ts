@@ -38,6 +38,27 @@ function call(method:'GET'|'POST'|'PATCH'|'PUT'|'DELETE',route:string,body?:unkn
 async function invite(destinationUrl:string,requiresAge=false,foreignSource=false){const result=await call('POST','me/redirects',{destinationUrl,label:'Convite validado',requiresAge,expectedRevision:0,requestKey:randomUUID()},foreignSource?{actor:foreignOwner,hostTenant:foreign,tokenTenant:foreign}:{});expect(result.statusCode,result.body).toBe(200);expect(result.json().destinationRevision.status).toBe('APPROVED');return result.json() as {id:string;version:number;destinationRevision:{id:string;status:string}}}
 async function group(){const network=await db.network.create({data:{tenantId:tenant,name:'Telegram',slug:'telegram',knownHosts:['t.me']}}),site=await invite('https://example.com/comunidade'),telegram=await invite('https://t.me/comunidade');const body:ChannelGroupInput={expectedVersion:1,name:'Escolha um canal',visible:true,channels:[{id:randomUUID(),label:'Entrar',networkId:null,destinationRevisionId:site.destinationRevision.id,paused:false},{id:randomUUID(),label:'Entrar',networkId:network.id,destinationRevisionId:telegram.destinationRevision.id,paused:false}]};return{id:randomUUID(),body,network,site,telegram}}
 const save=(value:Awaited<ReturnType<typeof group>>,patch:Partial<ChannelGroupInput>={})=>call('PUT','me/profile/channel-groups/'+value.id,{...value.body,...patch})
+it('unified groups retain ordinary links, persist title visibility across publication and restrict exact source lookups',async()=>{
+ const value=await group(),ordinaryId=randomUUID()
+ const original=(await call('GET','me/profile')).json().draft,{version,...content}=original
+ content.categories.push({id:value.id,name:'Comunidade',visible:true});content.items.push({id:ordinaryId,categoryId:value.id,type:'URL',label:'Meu guia',destination:'https://example.org/guia',visible:true});content.primaryItemId=ordinaryId
+ expect((await call('PATCH','me/profile',{expectedVersion:version,content})).statusCode).toBe(200)
+ const result=await save(value,{expectedVersion:2,channels:value.body.channels.map(channel=>({...channel,showLabel:false}))});expect(result.statusCode,result.body).toBe(200)
+ expect(result.json().draft.items.map((item:{id:string})=>item.id)).toContain(ordinaryId);expect(result.json().draft.primaryItemId).toBe(ordinaryId)
+ await publish(3);const publicPage=await live();expect(publicPage.items.map((item:{id:string})=>item.id)).toContain(ordinaryId);expect(publicPage.channelGroups[0].channels.every((channel:{showLabel:boolean})=>channel.showLabel===false)).toBe(true)
+ const sourcePath='me/profile/channel-destinations/'+value.telegram.destinationRevision.id
+ expect((await call('GET',sourcePath)).json()).toMatchObject({available:true,status:'APPROVED',networks:[{slug:'telegram'}]})
+ expect((await call('GET',sourcePath,undefined,{actor:other})).statusCode).toBe(404);expect((await call('GET',sourcePath,undefined,{actor:null})).statusCode).toBe(401)
+ expect((await save(value,{expectedVersion:3,channels:[]})).statusCode).toBe(200);expect((await call('GET','me/profile')).json().draft.items).toHaveLength(1)
+})
+it('pending destinations are recoverable drafts and never eligible for publication',async()=>{
+ const value=await group(),revisionId=value.telegram.destinationRevision.id
+ await db.redirectDestination.update({where:{id:revisionId},data:{status:'PENDING_REVIEW'}});await db.redirectHandle.update({where:{id:value.telegram.id},data:{activeRevisionId:null}})
+ expect((await call('GET','me/profile/channel-destinations/'+revisionId)).json()).toMatchObject({available:false,status:'PENDING_REVIEW'})
+ const result=await save(value);expect(result.statusCode,result.body).toBe(200)
+ expect((await call('GET','me/profile/channel-groups')).json().groups[0].channels[1]).toMatchObject({status:'PENDING_REVIEW',available:false,destinationUrl:'https://t.me/comunidade'})
+ expect((await call('POST','me/profile/publish',{expectedVersion:2})).statusCode).toBe(422);expect((await live()).channelGroups).toBeUndefined()
+})
 async function publish(expectedVersion:number){const result=await call('POST','me/profile/publish',{expectedVersion});expect(result.statusCode,result.body).toBe(200);return result.json() as {publishedRevisionId:number;review?:{id:string;status:string}}}
 async function live(age=false){const result=await call('GET','profiles/pagina-f37',undefined,{actor:null,headers:age?{cookie:'age=yes'}:{}});expect(result.statusCode,result.body).toBe(200);return result.json()}
 function resolve(href:string,headers:Record<string,string>={}){const url=new URL(href,'https://fixture.test'),id=url.pathname.split('/').at(-1);return call('GET','profiles/pagina-f37/channels/'+id+'/resolve'+url.search,undefined,{actor:null,headers})}

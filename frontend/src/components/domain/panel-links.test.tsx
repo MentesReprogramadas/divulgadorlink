@@ -1,30 +1,50 @@
-import { chooseSelect } from '@/test-select'
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { afterEach, expect, it } from 'vitest'
-import { LinkList, type PanelLink } from './panel-links'
+import {afterEach,expect,it,vi} from 'vitest'
+import {cleanup,render,screen,waitFor} from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import {chooseSelect} from '@/test-select'
+import {api} from '@/lib/api'
+import {LinkEditor} from './panel-links'
 
-afterEach(cleanup)
-const links: PanelLink[] = [
-  { id: 'a', name: 'Estudos', description: 'Livros e leitura', status: 'PUBLISHED', network: { name: 'WhatsApp' } },
-  { id: 'b', name: 'Notícias', status: 'DRAFT', network: { name: 'Telegram' } },
-]
-it('combina busca, rede e situação e permite recuperar a lista ao limpar filtros', async () => {
-  render(<LinkList links={links} stats={{}} banned={false} />)
-  fireEvent.change(screen.getByLabelText('Buscar nos meus links'), { target: { value: 'leitura' } })
-  expect(screen.getByRole('heading', { name: 'Estudos' })).toBeTruthy()
-  expect(screen.queryByRole('heading', { name: 'Notícias' })).toBeNull()
-  await chooseSelect(screen.getByLabelText('Rede'), 'Telegram')
-  expect(screen.getByText('Nenhum link neste filtro')).toBeTruthy()
-  fireEvent.click(screen.getByRole('button', { name: 'Limpar filtros' }))
-  expect(screen.getAllByRole('article')).toHaveLength(2)
-  await chooseSelect(screen.getByLabelText('Situação do link'), 'draft')
-  expect(screen.getByRole('heading', { name: 'Notícias' })).toBeTruthy()
-  expect(screen.queryByRole('heading', { name: 'Estudos' })).toBeNull()
+vi.mock('@/lib/api',()=>({api:vi.fn()}))
+afterEach(()=>{cleanup();vi.resetAllMocks()})
+it('keeps text unsent when optional data fails and saves both through one action on retry',async()=>{
+ let fail=true
+ const patches:string[]=[]
+ vi.mocked(api).mockImplementation(async(path,init)=>{
+  if(String(path).includes('discovery-options'))return {status:200,body:{languages:[],cities:[],selectedCity:null}}
+  if(init?.method==='PATCH'){
+   patches.push(String(path))
+   if(String(path).endsWith('/discovery')){
+    if(fail)throw Error('offline')
+    return {status:200,body:{metadata:{cityId:null,languageTag:null,modality:'ONLINE'},version:1}}
+   }
+   return {status:200,body:{applied:false}}
+  }
+  return {status:200,body:{metadata:{cityId:null,languageTag:null,modality:null},version:0}}
+ })
+ const user=userEvent.setup();render(<LinkEditor link={{id:'own',name:'Leitura',description:'Livros',status:'PUBLISHED'}} banned={false}/>)
+ const save=screen.getByRole('button',{name:'Salvar alterações'})
+ await waitFor(()=>expect((save as HTMLButtonElement).disabled).toBe(false))
+ await user.type(screen.getByLabelText('Nova descrição'),' e conversas')
+ await chooseSelect(screen.getByLabelText('Forma de participação (Opcional)'),'ONLINE')
+ await user.click(save);await screen.findByRole('alert')
+ expect(patches).toEqual(['/v1/links/own/discovery'])
+ fail=false;await user.click(save);await screen.findByText('Proposta registrada')
+ expect(patches).toEqual(['/v1/links/own/discovery','/v1/links/own/discovery','/v1/links/own'])
+ expect((screen.getByLabelText('Nova descrição') as HTMLInputElement).value).toBe('Livros e conversas')
+ expect(screen.queryByRole('dialog')).toBeNull()
 })
-it('ordena por cliques reais e não oferece edição ou destaque para conta suspensa', async () => {
-  render(<LinkList links={links} stats={{ a: { impressions: 4, clicks: 1, ctr: 25 }, b: { impressions: 5, clicks: 3, ctr: 60 } }} banned />)
-  await chooseSelect(screen.getByLabelText('Ordenar por'), 'clicks')
-  expect(screen.getAllByRole('article')[0]?.textContent).toContain('Notícias')
-  expect(screen.queryByRole('button', { name: 'Editar' })).toBeNull()
-  expect(screen.queryByRole('link', { name: 'Destacar' })).toBeNull()
+
+it('allows editing text when optional metadata cannot load, without submitting empty metadata',async()=>{
+ vi.mocked(api).mockImplementation(async(path)=>{
+  if(String(path).includes('discovery-options'))return {status:200,body:{languages:[],cities:[]}}
+  if(String(path).endsWith('/discovery'))return {status:503,body:{message:'Dados indisponíveis.'}}
+  return {status:200,body:{applied:false}}
+ })
+ const user=userEvent.setup();render(<LinkEditor link={{id:'own',name:'Leitura',description:'Livros',status:'PUBLISHED'}} banned={false}/>)
+ await screen.findByRole('alert')
+ await user.type(screen.getByLabelText('Nova descrição'),' e conversas')
+ await user.click(screen.getByRole('button',{name:'Salvar alterações'}));await screen.findByText('Proposta registrada')
+ const writes=vi.mocked(api).mock.calls.filter(([,init])=>init?.method==='PATCH')
+ expect(writes.map(([path])=>path)).toEqual(['/v1/links/own'])
 })

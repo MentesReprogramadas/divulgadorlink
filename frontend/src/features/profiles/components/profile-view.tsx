@@ -28,7 +28,7 @@ export function ProfileView({ content, avatarUrl, heading: Heading = 'h1', embed
     {!items.length&&!channelGroups.length ? empty ?? <p className={styles.note}>Nenhum link visível.</p> : groups.map(group => {
       const shown = items.filter(i => i.categoryId === group.id && i.id !== primary?.id)
       const alternatives=channelGroups.find(candidate=>candidate.id===group.id)
-      if(alternatives){const channels=alternatives.channels.filter(channel=>channel.id!==primary?.id);return channels.length||!alternatives.channels.length?<ChannelChoices key={group.id} group={{...alternatives,channels}} pending={pending} heading={GroupHeading}/>:null}
+      if(alternatives&&!shown.length&&!alternatives.channels.length)return <ChannelChoices key={group.id} group={alternatives} pending={pending} heading={GroupHeading}/>
       return shown.length ? <section key={group.id} aria-label={group.name} className={styles.group}><GroupHeading>{group.name}</GroupHeading><ul>{shown.map(item => <li key={item.id}>{link(item)}</li>)}</ul></section> : null
     })}
     {navigation}

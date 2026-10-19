@@ -1,4 +1,5 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+vi.mock('next/dynamic', () => ({ default: () => () => null }))
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { TrafficPanel } from './traffic-panel'
 
@@ -35,14 +36,17 @@ describe('tráfego na gestão', () => {
     expect(screen.queryByText('Cadastros')).toBeNull()
 
     fireEvent.click(screen.getByRole('tab', { name: 'Funil' }))
+    fireEvent.click(within(screen.getByRole('region',{name:'Etapas do funil'})).getByRole('tab',{name:'Tabela'}))
     expect(screen.getByText('Cadastros')).toBeTruthy()
-    expect(screen.getByText('2 · 20%')).toBeTruthy()
+    expect(screen.getByText('20%')).toBeTruthy()
 
     fireEvent.click(screen.getByRole('tab', { name: 'Páginas' }))
+    fireEvent.click(within(screen.getByRole('region',{name:'Páginas mais vistas'})).getByRole('tab',{name:'Tabela'}))
     expect(screen.getByText('/divulgar')).toBeTruthy()
 
     fireEvent.click(screen.getByRole('tab', { name: 'Campanhas' }))
+    fireEvent.click(within(screen.getByRole('region',{name:'Entradas por campanha'})).getByRole('tab',{name:'Tabela'}))
     expect(screen.getByText('outubro')).toBeTruthy()
-    expect(screen.getByText('3 entradas · 1 cadastros com aceite')).toBeTruthy()
+    expect(screen.getByRole('cell',{name:'3'})).toBeTruthy();expect(screen.getByRole('cell',{name:'1'})).toBeTruthy()
   })
 })

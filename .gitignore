@@ -33,3 +33,13 @@ yarn.lock
 /output/roadmap-f31/
 /output/roadmap-f34/
 /output/roadmap-f37/
+
+# Disposable UI validation copies and Playwright runtime artifacts
+/output/group-access-unified/
+/output/history-preview-e2e/
+/output/history-preview-final/
+/output/link-detail-layout/
+/output/link-local-inline/
+/output/link-modal-tabs/
+/output/profile-overview-validation/
+/output/profile-search-layout/

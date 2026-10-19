@@ -1,5 +1,13 @@
 # Ícones e navegação
 
+## Grupos e busca — 18/10/2026
+
+Adicionar grupo usa plus e rótulo visual Grupo na barra, com nome acessível Adicionar grupo. Canais de acesso e Botão principal mantêm channels/primaryLink no dropdown. Prévia mantém preview e Atualizar dados mantém refresh. A busca usa search no campo e filter para abrir o modal; resetFilters limpa o conjunto de filtros. `clearSearch`, um X circulado, limpa somente o texto e difere de close, reservado a fechar superfícies. Compactar o rótulo visual da aba para Links não muda seu nome acessível Grupos e links. [Implementação e evidências](evidencias/grupos-busca-2026-10-18/README.md).
+
+## Minha página — visão geral de 18/10/2026
+
+Os atalhos reutilizam o inventário `profileEditorActions`: importar, modelos, histórico, métricas e checklist mantêm nomes e desenhos na barra, no dropdown e nos cards. `preview` e `refresh` permanecem visíveis. Abrir página usa `external`; retirar do ar usa `disable`; copiar e QR Code preservam os símbolos existentes. `appearance` (paleta) identifica personalização visual, inclusive a etapa de apresentação do checklist, sem reutilizar `settings`, reservado à configuração. O resumo de conteúdo usa `link`, e a identificação da página usa `profile`. Os três pontos continuam significando opções adicionais. A navegação entre seções preserva os rótulos das abas existentes e adiciona Visão geral como padrão.
+
 ## Minha página — simplificação de 17/10/2026
 
 O editor usa `preview` (janela com olho) para Ver prévia e o `RefreshButton` compartilhado (`refresh`) para Atualizar dados, fora do menu de três pontos. Ambos preservam seus significados existentes; o botão de atualização mantém nome acessível e tooltip mesmo sem texto visível. O seletor do botão principal fica em modal e usa rótulo textual, sem atribuir a ele um símbolo já reservado a outro contexto. Evidências em [Minha página: rascunho automático](evidencias/minha-pagina-autosave-2026-10-17/README.md).

@@ -1,5 +1,6 @@
+vi.mock('next/dynamic', () => ({ default: () => () => null }))
 import { chooseSelect } from '@/test-select'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { duration, FinancePanel, financeQuery } from './finance-panel'
 
@@ -42,7 +43,8 @@ describe('financeiro na gestão', () => {
     expect(screen.queryByText('ana@example.com')).toBeNull()
     expect(screen.getByText(/poucos para tirar padrão/)).toBeTruthy()
     fireEvent.click(screen.getByRole('tab', { name: 'Pagantes' }))
-    expect(await screen.findByText('ana@example.com')).toBeTruthy()
+    fireEvent.click(within(screen.getByRole('region', {name:'Pagantes no período'})).getByRole('tab', {name:'Tabela'}))
+    expect(await screen.findByRole('rowheader',{name:/ana@example.com/})).toBeTruthy()
     expect(screen.getByText(/Pix \+ Cartão/)).toBeTruthy()
     const csv = screen.getByRole('link', { name: 'Baixar pagantes (CSV)' }).getAttribute('href') ?? ''
     expect(csv).toContain('/bff/v1/admin/finance/export?')
@@ -50,7 +52,7 @@ describe('financeiro na gestão', () => {
 
     fireEvent.click(screen.getByRole('tab', { name: 'Resumo' }))
     await chooseSelect(screen.getByLabelText('Método'), 'PIX')
-    fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }))
+
     await waitFor(() => expect(String(api.mock.calls.at(-1)?.[0])).toContain('method=PIX'))
   })
 

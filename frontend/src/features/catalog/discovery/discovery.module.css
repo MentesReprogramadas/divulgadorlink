@@ -6,5 +6,15 @@
 .feedback { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; font-size: var(--text-sm); color: var(--text-secondary); }
 .form { display: grid; gap: var(--space-6); width: 100%; max-width: none; margin: 0; }
 .editorForm { gap: var(--space-4); }
-.filtersForm { margin-block: var(--space-6); }
-.filtersForm :global([data-workspace-filters]) { align-items: start; }
+.filtersForm { display: grid; gap: var(--space-2); width: 100%; max-width: none; margin: var(--space-2) 0; padding: 0; position: relative; }
+.filterFields { display: grid; grid-template-columns: minmax(0, 1.4fr) repeat(2, minmax(0, 1fr)); align-items: start; gap: var(--space-3); min-width: 0; }
+.filterFields > * { min-width: 0; }
+.filterFields :global([data-select-control]), .filterFields input { margin: var(--space-2) 0 0; }
+.clearFilters { justify-self: end; min-height: 44px; }
+.filterStatus { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+@media (width < 48rem) {
+ .filterFields { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2) var(--space-3); }
+ .filterFields > :first-child { grid-column: 1 / -1; }
+}
+@media (width < 23rem) { .filterFields { grid-template-columns: minmax(0, 1fr); } }
+

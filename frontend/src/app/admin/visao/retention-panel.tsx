@@ -5,6 +5,8 @@ import { InsightSkeleton } from '@/features/administration/components/insight-sk
 import { ActionIcon } from '@/components/ui/action-icon'
 
 import { useEffect, useState } from 'react'
+import { MetricCards } from '@/components/ui/metric-cards'
+import styles from '@/components/layout/workspace-dashboard.module.css'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
 
@@ -56,16 +58,13 @@ export function RetentionPanel() {
   if (!view) return <InsightSkeleton kind="retention" />
 
   return (
-    <section aria-label="Retenção de analytics">
+    <section aria-label="Retenção de analytics" className={styles.dashboard}>
       <h2>Retenção</h2>
       <p>
         Impressão e clique anteriores a {showDay(view.before)} saem no processo diário do worker.
         Este botão só enfileira o mesmo corte, no máximo 100 mil eventos. Pedido e pagamento não entram.
       </p>
-      <p className="metric">
-        <span className="metric-value">{view.pending.toLocaleString('pt-BR')}</span>
-        <span className="metric-label">{view.pending === 0 ? 'nada além do prazo' : 'além do prazo'}</span>
-      </p>
+      <MetricCards items={[{label:"Eventos além do prazo",value:view.pending.toLocaleString("pt-BR"),primary:true},{label:"Corte da retenção",value:showDay(view.before)}]}/>
       {notice ? <p role="status">{notice}</p> : null}
       <Button type="button" variant="danger" disabled={busy || view.pending === 0} onClick={() => void purge()}><ActionIcon name="trash" />
         Pedir expurgo

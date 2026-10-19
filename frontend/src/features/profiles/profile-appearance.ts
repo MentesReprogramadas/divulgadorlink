@@ -1,4 +1,5 @@
 export type ProfileAppearance = {
+  searchEnabled?: boolean
   background: string; buttonColor: string
   backgroundStyle: 'solid' | 'gradient'
   buttonStyle: 'filled' | 'outline' | 'shadow'
@@ -6,7 +7,7 @@ export type ProfileAppearance = {
   font: 'modern' | 'classic' | 'clean'
   alignment: 'center' | 'left'
 }
-export const defaultAppearance: ProfileAppearance = { background: '#f5f0e8', buttonColor: '#252b27', backgroundStyle: 'solid', buttonStyle: 'filled', radius: 'rounded', font: 'modern', alignment: 'center' }
+export const defaultAppearance: ProfileAppearance = { searchEnabled: false, background: '#f5f0e8', buttonColor: '#252b27', backgroundStyle: 'solid', buttonStyle: 'filled', radius: 'rounded', font: 'modern', alignment: 'center' }
 export const appearanceThemes: Array<{ name: string; appearance: ProfileAppearance }> = [
   { name: 'Areia', appearance: defaultAppearance },
   { name: 'Botânico', appearance: { ...defaultAppearance, background: '#173c32', buttonColor: '#d9efb6', radius: 'pill' } },
@@ -24,6 +25,7 @@ export function readableInk(hex: string): '#000000' | '#ffffff' {
 /** Allowlisted values only, including for older publications with no appearance. */
 export function profileAppearance(value?: Partial<ProfileAppearance>): ProfileAppearance {
   const result = { ...defaultAppearance }
+  if (typeof value?.searchEnabled === 'boolean') result.searchEnabled = value.searchEnabled
   for (const key of ['background', 'buttonColor'] as const) if (/^#[0-9a-f]{6}$/i.test(value?.[key] ?? '')) result[key] = value![key]!
   for (const key of ['backgroundStyle', 'buttonStyle', 'radius', 'font', 'alignment'] as const) {
     const allowed = { backgroundStyle: ['solid', 'gradient'], buttonStyle: ['filled', 'outline', 'shadow'], radius: ['square', 'rounded', 'pill'], font: ['modern', 'classic', 'clean'], alignment: ['center', 'left'] }

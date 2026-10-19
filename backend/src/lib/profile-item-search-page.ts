@@ -18,7 +18,7 @@ function readCursor(raw:string,secret:string){
 /** Only accepts the already-filtered server projection; metadata never contains raw snapshot/draft fields. */
 export function profileItemSearchPage(projected:ProjectedProfile,context:string,filters:ProfileItemFilters,cursor:string|null,secret:string){
  if(projected.restricted)return projected
- const active={q:filters.q.trim().replace(/\s+/gu,' '),categoryId:filters.categoryId}
+ const active=projected.appearance?.searchEnabled===true?{q:filters.q.trim().replace(/\s+/gu,' '),categoryId:filters.categoryId}:{q:'',categoryId:null}
  const fingerprint=createHash('sha256').update(JSON.stringify([context,projected.publishedRevisionId,active,projected.categories,projected.items])).digest('hex')
  const page=cursor?readCursor(cursor,secret):null
  if(page&&page.fingerprint!==fingerprint)throw new ProfileError(409,'Os resultados mudaram. Reinicie a busca mantendo seus filtros.')

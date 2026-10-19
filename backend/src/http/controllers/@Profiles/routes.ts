@@ -62,6 +62,7 @@ export async function profilesRoutes(app: FastifyInstance) {
   app.get('/me/profile', (q, r) => run(q, r, true, (db, actor) => profiles.readProfile(db, actor)))
   app.get('/me/profile/channel-groups',(q,r)=>run(q,r,true,(db,actor)=>{z.object({}).strict().parse(q.query);return profiles.readProfileChannelGroups(db,actor)}))
   app.get('/me/profile/channel-destinations',(q,r)=>run(q,r,true,(db,actor)=>profiles.profileChannelDestinations(db,actor,z.object({cursor:z.string().uuid().optional()}).strict().parse(q.query).cursor)))
+  app.get('/me/profile/channel-destinations/:id',(q,r)=>run(q,r,true,(db,actor)=>profiles.profileChannelDestination(db,actor,z.object({id:z.string().uuid()}).strict().parse(q.params).id)))
   app.put('/me/profile/channel-groups/:id',(q,r)=>run(q,r,true,(db,actor)=>profiles.saveProfileChannelGroup(db,actor,z.object({id:z.string().uuid()}).strict().parse(q.params).id,channelGroupInput.parse(q.body))))
   app.delete('/me/profile/channel-groups/:id',(q,r)=>run(q,r,true,(db,actor)=>profiles.removeProfileChannelGroup(db,actor,z.object({id:z.string().uuid()}).strict().parse(q.params).id,expected.parse(q.body).expectedVersion)))
   app.get('/profiles/:slug/channels/:id/resolve',(q,r)=>run(q,r,false,async(db,actor)=>{

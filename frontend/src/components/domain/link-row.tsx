@@ -46,6 +46,7 @@ export function LinkRow({
   placement,
   niche,
   network,
+  discovery,
   impressions = 0,
   showImpressions = true,
   actions,
@@ -58,7 +59,7 @@ export function LinkRow({
       {placement === 'sponsored' ? <SponsoredKicker icon="diamond" /> : null}
       <a className={`link-name ${styles.name} ${cornerAction ? styles.withCorner : ''}`} href={href}><CardTitle text={name} /></a>
       <CardDescription text={description} className={`link-row-description ${styles.description}`} />
-      <LinkMeta niche={niche} network={network} />
+      <LinkMeta niche={niche} network={network} discovery={discovery} />
       {actions ? <div className={styles.cardActions}>{actions}</div> : null}
       <div className={styles.footer}>
         {show ? <ImpressionMark value={impressions} /> : null}

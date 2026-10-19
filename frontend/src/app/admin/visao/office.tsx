@@ -10,7 +10,7 @@ import { ErrorState } from '@/components/feedback/error-state'
 import { Button } from '@/components/ui/button'
 import { Field, Input, Select } from '@/components/ui/input'
 import { ResponsiveTabs } from '@/components/ui/responsive-tabs'
-import { WorkspaceSection, ComparisonBars } from '@/components/layout/workspace-section'
+import { WorkspaceSection } from '@/components/layout/workspace-section'
 import { WorkspaceActions, WorkspaceFilters } from '@/components/layout/workspace-controls'
 import { RefreshButton } from '@/components/layout/workspace-actions'
 import { EmptyState } from '@/components/feedback/empty-state'
@@ -18,6 +18,8 @@ import styles from '@/components/layout/workspace-dashboard.module.css'
 import { formatCents } from '@/domain/money'
 import { api } from '@/lib/api'
 import { LINK_STATUSES, AdminLinksBoard, type AdminLinkFilter, type AdminLinkRow, type AdminLinkStatus } from '@/features/administration/components/admin-links-board'
+import { MetricChart } from '@/components/ui/metric-chart'
+import { ReportView } from '@/components/ui/report-view'
 import { FinancePanel } from './finance-panel'
 import { RetentionPanel } from './retention-panel'
 import { TrafficPanel } from './traffic-panel'
@@ -226,9 +228,9 @@ export function OfficeBoard() {
                 <div><dt>Receita confirmada</dt><dd>{formatCents(office.metrics.paidCents)}<small>{count(office.metrics.paidOrders)} pedidos pagos</small></dd></div>
               </dl>
               <div className={styles.columns}>
-                <WorkspaceSection title="Publicação no catálogo" description="Quantidade de links por situação.">
-                  <ComparisonBars rows={Object.entries(office.linkStatusCounts).map(([id,value]) => ({id,label:LINK_STATUS[id] ?? id,value}))} unit="links" />
-                </WorkspaceSection>
+                <div>
+                  <ReportView title="Publicação no catálogo" rows={Object.entries(office.linkStatusCounts).map(([id,value])=>({id,value}))} rowKey={row=>row.id} columns={[{label:"Situação",render:row=>LINK_STATUS[row.id]??row.id},{label:"Links",render:row=>count(row.value),numeric:true}]} chart={<MetricChart kind="ranking" label="Links por situação" rows={Object.entries(office.linkStatusCounts).map(([id,value])=>({label:LINK_STATUS[id]??id,value}))}/>}/>
+                </div>
                 <WorkspaceSection title="Próximas ações">
                   <ul className={styles.tasks}><li><a href="/admin/moderacao">Revisar envios →</a><span>{count(office.metrics.pendingLinks)} links aguardando revisão</span></li><li><a href="/admin/denuncias">Conferir denúncias →</a><span>Analise os relatos recebidos.</span></li><li><a href="/admin/disponibilidade">Ver correções →</a><span>Convites atualizados pelos responsáveis.</span></li><li><a href="/admin/estornos">Acompanhar estornos →</a><span>Devoluções e tentativas de pagamento.</span></li></ul>
                 </WorkspaceSection>
@@ -236,40 +238,8 @@ export function OfficeBoard() {
             </div>
           ) : null}
 
-          {section === 'cliques' ? (
-            <section aria-label="Links mais clicados">
-              <h2>Links mais clicados</h2>
-              {office.topLinks.length === 0 ? <EmptyState /> : (
-                <div className="moderation-grid">
-                  {office.topLinks.map((row) => (
-                    <article key={row.id} className="summary-card moderation-card">
-                      <h2>{row.name}</h2>
-                      <p className="moderation-kicker">{LINK_STATUS[row.status] ?? row.status}</p>
-                      <p>{count(row.clicks)} cliques · {count(row.impressions)} impressões · {percent(row.ctr)}</p>
-                    </article>
-                  ))}
-                </div>
-              )}
-            </section>
-          ) : null}
-
-          {section === 'pagadores' ? (
-            <section aria-label="Quem mais pagou">
-              <h2>Quem mais pagou</h2>
-              {office.topPayers.length === 0 ? <EmptyState /> : (
-                <div className="refund-grid">
-                  {office.topPayers.map((row) => (
-                    <article key={row.userId} className="summary-card">
-                      <h2>{row.name || 'Sem nome'}</h2>
-                      <p>{row.email || row.userId}</p>
-                      <p>{formatCents(row.paidCents)} · {count(row.orders)} pedidos · {USER_STATUS[row.status] ?? row.status}</p>
-                    </article>
-                  ))}
-                </div>
-              )}
-            </section>
-          ) : null}
-
+          {section === 'cliques' ? <ReportView title="Links mais clicados" rows={office.topLinks} rowKey={row=>row.id} columns={[{label:'Link',render:row=>row.name},{label:'Situação',render:row=>LINK_STATUS[row.status]??row.status},{label:'Cliques',render:row=>count(row.clicks),numeric:true},{label:'Impressões',render:row=>count(row.impressions),numeric:true},{label:'CTR',render:row=>percent(row.ctr),numeric:true}]} chart={<MetricChart kind="ranking" label="Cliques por link no catálogo" rows={office.topLinks.map(row=>({label:row.name,value:row.clicks}))}/>}/>:null}
+          {section === 'pagadores' ? <ReportView title="Quem mais pagou" rows={office.topPayers} rowKey={row=>row.userId} columns={[{label:'Nome',render:row=>row.name||'Sem nome'},{label:'E-mail',render:row=>row.email||row.userId},{label:'Total pago',render:row=>formatCents(row.paidCents),numeric:true},{label:'Pedidos',render:row=>count(row.orders),numeric:true},{label:'Situação',render:row=>USER_STATUS[row.status]??row.status}]} chart={<MetricChart kind="ranking" format="money" label="Total por pagador" rows={office.topPayers.map(row=>({label:row.name||'Sem nome',value:row.paidCents}))}/>}/>:null}
           {notice && (section === 'contas' || section === 'links') ? <p role="status">{notice}</p> : null}
 
           {section === 'contas' ? (

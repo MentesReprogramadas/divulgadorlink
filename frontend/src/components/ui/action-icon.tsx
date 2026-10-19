@@ -1,6 +1,8 @@
 import type { SVGProps } from 'react'
 
 export const iconPaths = {
+  clearSearch: 'M9 9l6 6M15 9l-6 6M22 12a10 10 0 1 0-20 0 10 10 0 0 0 20 0',
+  appearance: 'M12 3a9 9 0 1 0 0 18h1a2 2 0 0 0 1-3.7 1.5 1.5 0 0 1 1-2.8h2a4 4 0 0 0 4-4C21 6.4 17 3 12 3ZM7 11h.01M9 7h.01M14 6h.01M18 9h.01',
   primaryLink: 'M3 3h18v7H3ZM6 14h12M6 19h12',
   channels: 'M3 4h5v5H3ZM3 15h5v5H3ZM13 6h8m-3-3 3 3-3 3M13 18h8m-3-3 3 3-3 3',
   checklist: 'M9 5h12M9 12h12M9 19h12M2 5l2 2 3-4M2 12l2 2 3-4M2 19l2 2 3-4',

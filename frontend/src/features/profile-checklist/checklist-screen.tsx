@@ -11,7 +11,7 @@ import {profileRequest} from '@/features/profiles/profile-api'
 import type {ProfileChecklist,ChecklistStep,ChecklistState} from './checklist-contract'
 import styles from './checklist.module.css'
 const status:Record<ChecklistState,{label:string;tone:'ok'|'neutral'|'wait'|'warn'}>={COMPLETE:{label:'Concluído',tone:'ok'},PENDING:{label:'Pendente',tone:'neutral'},SUGGESTED:{label:'Opcional',tone:'neutral'},REQUESTED:{label:'Solicitada',tone:'neutral'},IN_REVIEW:{label:'Em análise',tone:'wait'},REJECTED:{label:'Rever decisão',tone:'warn'}}
-const icons:Record<ChecklistStep['id'],ActionIconName>={account:'account',identity:'edit',links:'link',publication:'publish',presentation:'settings',preview:'preview',share:'copy'}
+const icons:Record<ChecklistStep['id'],ActionIconName>={account:'account',identity:'edit',links:'link',publication:'publish',presentation:'appearance',preview:'preview',share:'copy'}
 const stepIcon=(step:ChecklistStep):ActionIconName=>step.id==='publication'&&step.actionKind==='NAVIGATE'?(step.state==='COMPLETE'?'profile':step.state==='IN_REVIEW'?'reviews':'edit'):icons[step.id]
 const placeholder:ProfileChecklist={profileVersion:0,canPublish:false,requiresFinalValidation:true,reasons:[],publicPath:null,progress:{completed:0,total:4},steps:['account','identity','links','publication','presentation','preview','share'].map((id,index)=>({id:id as ChecklistStep['id'],required:index<4,state:'PENDING',title:'Preparar sua página',description:'Confira os dados desta etapa da sua página.',actionLabel:'Continuar etapa',actionKind:'NAVIGATE',actionPath:null}))}
 function Text({value,pending}:{value:string;pending:boolean}){return pending?<span data-skeleton-block className={styles.ghost}>{value}</span>:value}

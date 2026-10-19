@@ -61,7 +61,7 @@ it('F03-I01/PG01/T01 eligibility, stable keysets and canonical URL deduplication
   expect((await get()).json()).toEqual(a)
   await db.link.update({ where: { id: ids[5] }, data: { status: 'UNAVAILABLE' } })
   const b = (await get(source, a.nextCursor)).json(); expect(b.items.map((r: { id: string }) => r.id)).toEqual(ids.slice(6)); expect(b.nextCursor).toBeNull()
-  expect(Object.keys(a.items[0]).sort()).toEqual(['description', 'id', 'impressions', 'name', 'network', 'niche', 'sponsored', 'surfaceToken'].sort())
+  expect(Object.keys(a.items[0]).sort()).toEqual(['description', 'discovery', 'id', 'impressions', 'name', 'network', 'niche', 'sponsored', 'surfaceToken'].sort())
   expect(await db.analyticsEvent.count({ where: { tenantId: tenant } })).toBe(0)
   expect(await db.promotion.count({ where: { tenantId: tenant } })).toBe(0)
 })
@@ -151,4 +151,17 @@ it('F03-I01/PG05/T04 related impression and exit are separate, deduplicated, sig
   expect(report?.totals.paidClicks).toBe(0)
   await db.link.update({ where: { id }, data: { status: 'UNAVAILABLE' } })
   expect((await impression()).statusCode).toBe(404)
+})
+
+it('F03-PG08 shows only declared discovery metadata on the detail and recommended cards',async()=>{
+ const id='declared-'+tenant;await seed(id)
+ await db.link.updateMany({where:{id:{in:[source,id]}},data:{cityId:'3550308',languageTag:'pt',modality:'ONLINE'}})
+ const expected={city:{id:'3550308',name:'São Paulo',state:'SP'},languageTag:'pt',modality:'ONLINE'}
+ const detail=await app.inject({method:'GET',url:'/api/v1/links/'+source,headers:{host}})
+ expect(detail.statusCode).toBe(200);expect(detail.json().discovery).toEqual(expected)
+ expect((await get()).json().items[0].discovery).toEqual(expected)
+ await db.link.update({where:{id:source},data:{status:'UNAVAILABLE'}})
+ const hidden=await app.inject({method:'GET',url:'/api/v1/links/'+source,headers:{host}})
+ expect(hidden.json().available).toBe(false);expect(hidden.json()).not.toHaveProperty('discovery')
+ expect(hidden.body).not.toContain('São Paulo')
 })

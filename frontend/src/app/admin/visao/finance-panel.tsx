@@ -7,8 +7,11 @@ import { ActionIcon } from '@/components/ui/action-icon'
 import { WorkspaceActions, WorkspaceFilters } from '@/components/layout/workspace-controls'
 import { Field, Select } from '@/components/ui/input'
 
-import { useEffect, useState } from 'react'
-import { EmptyState } from '@/components/feedback/empty-state'
+import { useEffect, useRef, useState } from 'react'
+import { MetricCards } from '@/components/ui/metric-cards'
+import { MetricChart } from '@/components/ui/metric-chart'
+import { ReportView } from '@/components/ui/report-view'
+import styles from '@/components/layout/workspace-dashboard.module.css'
 import { ErrorState } from '@/components/feedback/error-state'
 import { Button } from '@/components/ui/button'
 import { formatCents } from '@/domain/money'
@@ -125,15 +128,22 @@ export function FinancePanel() {
   const [filters, setFilters] = useState<Filters>({ from: today(-29), to: today(), method: '', product: '', durationDays: '', renewal: '' })
   const [applied, setApplied] = useState(filters)
   const [view, setView] = useState<Finance | null>(null)
+  const [loading, setLoading] = useState(true)
   const [failed, setFailed] = useState('')
   const [fees, setFees] = useState({ pix: '', pixFixed: '', card: '', fixed: '' })
   const [notice, setNotice] = useState('')
   const [tab, setTab] = useState<Tab>('resumo')
 
   async function load(current: Filters) {
+    const sequence = ++requestSequence.current
+    setLoading(true)
     setFailed('')
-    const response = await api<Finance & { message?: string }>(`/v1/admin/finance?${financeQuery(current)}`)
+    const response = await api<Finance & { message?: string }>(`/v1/admin/finance?${financeQuery(current)}`).catch(() => null)
+    if (sequence !== requestSequence.current) return
+    setLoading(false)
+    if (!response) { setView(null); setFailed('Não foi possível ler o financeiro.'); return }
     if (response.status !== 200) {
+      setView(null)
       setFailed(response.body.message ?? 'Não foi possível ler o financeiro.')
       return
     }
@@ -146,9 +156,16 @@ export function FinancePanel() {
     })
   }
 
+  const filterContainer = useRef<HTMLElement>(null)
+  const requestSequence = useRef(0)
   useEffect(() => {
-    void load(applied)
+    void load(applied).catch(() => { setView(null); setFailed('Não foi possível ler o financeiro.') })
+    return () => { requestSequence.current++ }
   }, [applied])
+  useEffect(() => {
+    const timer = setTimeout(() => { if (filterContainer.current?.querySelector<HTMLFormElement>('#finance-filters')?.checkValidity()) setApplied(filters) }, 450)
+    return () => clearTimeout(timer)
+  }, [filters])
 
   async function saveFees() {
     setNotice('')
@@ -168,211 +185,55 @@ export function FinancePanel() {
   }
 
   const update = (patch: Partial<Filters>) => setFilters((current) => ({ ...current, ...patch }))
-  const dayPeak = Math.max(1, ...(view?.daily.map((row) => row.revenueCents) ?? [1]))
-  const payPeak = Math.max(1, ...(view?.timeToPay.map((row) => row.orders) ?? [1]))
-  const weekdays = WEEKDAYS.map((label, weekday) => {
-    const cells = view?.heatmap.filter((cell) => cell.weekday === weekday) ?? []
-    return {
-      label,
-      orders: cells.reduce((total, cell) => total + cell.orders, 0),
-      revenueCents: cells.reduce((total, cell) => total + cell.revenueCents, 0),
-    }
-  })
-  const weekdayPeak = Math.max(1, ...weekdays.map((row) => row.orders))
-  const slots = [...(view?.heatmap ?? [])].sort((a, b) => b.orders - a.orders || b.revenueCents - a.revenueCents)
-
-  return (
-    <section aria-label="Financeiro" className="finance">
-      <WorkspaceActions><Button form="finance-filters" type="submit"><ActionIcon name="filter" />Aplicar</Button></WorkspaceActions><WorkspaceFilters id="finance-filters" label="Filtrar financeiro" onSubmit={(event) => { event.preventDefault(); setApplied(filters) }}>
-        <Field label="De"><DatePicker value={filters.from} onChange={(event) => update({ from: event.target.value })} /></Field>
-        <Field label="Até"><DatePicker value={filters.to} onChange={(event) => update({ to: event.target.value })} /></Field>
-        <label className="field-block">
-          <span className="field-label">Método</span>
-          <Select value={filters.method} onChange={(event) => update({ method: event.target.value })}>
-            <option value="">Todos</option><option value="PIX">Pix</option><option value="CARD">Cartão</option>
-          </Select>
-        </label>
-        <label className="field-block">
-          <span className="field-label">Produto</span>
-          <Select value={filters.product} onChange={(event) => update({ product: event.target.value })}>
-            <option value="">Todos</option>
-            {Object.entries(PRODUCTS).map(([code, label]) => <option key={code} value={code}>{label}</option>)}
-          </Select>
-        </label>
-        <label className="field-block">
-          <span className="field-label">Duração</span>
-          <Select value={filters.durationDays} onChange={(event) => update({ durationDays: event.target.value })}>
-            <option value="">Todas</option><option value="7">7 dias</option><option value="14">14 dias</option><option value="28">28 dias</option>
-          </Select>
-        </label>
-        <label className="field-block">
-          <span className="field-label">Compra</span>
-          <Select value={filters.renewal} onChange={(event) => update({ renewal: event.target.value })}>
-            <option value="">Todas</option><option value="new">Primeira</option><option value="renewal">Renovação</option>
-          </Select>
-        </label>
-      </WorkspaceFilters>
-
-      {failed ? <ErrorState onRetry={() => load(applied)} /> : null}
-      {!view && !failed ? <InsightSkeleton kind="finance" /> : null}
-      {view ? (
-        <>
-          <p className="office-note">
-            {showDay(view.filters.from)} a {showDay(view.filters.to)}, horário de São Paulo. {count(view.sample.paidOrders)} pagamentos e {count(view.sample.checkouts)} checkouts na amostra
-            {view.sample.paidOrders < 30 ? ': poucos para tirar padrão de hora ou produto.' : '.'}
-            {view.truncated ? ' O período passou de 20 mil pedidos e foi cortado; reduza o intervalo.' : ''}
-          </p>
-
-          <InsightTabs name="financeiro" label="Financeiro" tabs={TABS} current={tab} onChange={setTab} />
-
-          {tab === 'resumo' ? (
-            <div {...panelProps('financeiro', 'resumo')}>
-              <dl className="insight-metrics">
-                <div><dt>Receita</dt><dd>{formatCents(view.summary.revenueCents)} · {count(view.summary.paidOrders)} pedidos</dd></div>
-                <div><dt>Líquido estimado</dt><dd>{formatCents(view.summary.netCents)} · taxa {formatCents(view.summary.feesCents)}</dd></div>
-                <div><dt>Ticket médio</dt><dd>{formatCents(view.summary.avgTicketCents)} · desconto {formatCents(view.summary.savingsCents)}</dd></div>
-                <div><dt>Pagantes</dt><dd>{count(view.summary.buyers)} · {count(view.summary.newBuyers)} novos · {count(view.summary.renewalOrders)} renovações</dd></div>
-              </dl>
-              <h2>Pix e cartão</h2>
-              <ul className="insight-rows">
-                {view.methods.map((row) => (
-                  <li key={row.method}>
-                    <strong>{METHOD_LABEL[row.method]} · {formatCents(row.revenueCents)}</strong>
-                    <span>Taxa {formatCents(row.feesCents)} · mediana até pagar {duration(row.medianSecondsToPay)}</span>
-                    <span>{count(row.paid)} de {count(row.checkouts)} checkouts pagos · {percent(row.conversion)}</span>
-                    <span>{count(row.expired)} expirados · {count(row.pending)} pendentes · {count(row.paidLate)} pagos fora do prazo</span>
-                  </li>
-                ))}
-              </ul>
-              <h2>Receita por dia</h2>
-              {view.daily.length === 0 ? <EmptyState /> : (
-                <ul className="traffic-bars insight-bars">
-                  {view.daily.map((row) => (
-                    <li key={row.day}>
-                      <span>{showDay(row.day).slice(0, 5)}</span>
-                      <span className="traffic-bar" style={{ width: `${(row.revenueCents / dayPeak) * 100}%` }} />
-                      <span>{formatCents(row.revenueCents)}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          ) : null}
-
-          {tab === 'horarios' ? (
-            <div {...panelProps('financeiro', 'horarios')}>
-              <h2>Dia da semana</h2>
-              <ul className="traffic-bars insight-bars">
-                {weekdays.map((row) => (
-                  <li key={row.label}>
-                    <span>{row.label}</span>
-                    <span className="traffic-bar" style={{ width: `${(row.orders / weekdayPeak) * 100}%` }} />
-                    <span>{count(row.orders)}</span>
-                  </li>
-                ))}
-              </ul>
-              <h2>Horários com pagamento</h2>
-              {slots.length === 0 ? <EmptyState /> : (
-                <ul className="insight-rows">
-                  {slots.map((cell) => (
-                    <li key={`${cell.weekday}-${cell.hour}`}>
-                      <strong>{WEEKDAYS[cell.weekday]} {cell.hour}h</strong>
-                      <span>{count(cell.orders)} pagamentos · {formatCents(cell.revenueCents)}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <h2>Tempo até pagar</h2>
-              <ul className="traffic-bars insight-bars">
-                {view.timeToPay.map((row) => (
-                  <li key={row.label}>
-                    <span>{row.label}</span>
-                    <span className="traffic-bar" style={{ width: `${(row.orders / payPeak) * 100}%` }} />
-                    <span>{count(row.orders)}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
-
-          {tab === 'vendas' ? (
-            <div {...panelProps('financeiro', 'vendas')}>
-              <h2>Produtos</h2>
-              {view.products.length === 0 ? <EmptyState /> : (
-                <ul className="insight-rows">
-                  {view.products.map((row) => (
-                    <li key={`${row.productCode}-${row.durationDays}`}>
-                      <strong>{PRODUCTS[row.productCode] ?? row.productCode} · {row.durationDays} dias</strong>
-                      <span>{count(row.orders)} pedidos · {formatCents(row.revenueCents)}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <h2>Estornos</h2>
-              <p className="office-note">Recebido no período: {formatCents(view.summary.receivedCents)}. Já devolvido: {formatCents(view.summary.refundedCents)}. Ainda a devolver: {formatCents(view.summary.refundOwedCents)}.</p>
-              {view.refunds.length === 0 ? <EmptyState /> : (
-                <ul className="insight-rows">
-                  {view.refunds.map((row) => (
-                    <li key={row.status}>
-                      <strong>{REFUND_LABEL[row.status] ?? row.status}</strong>
-                      <span>{count(row.orders)} pedidos · {formatCents(row.amountCents)}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <h2>Campanhas</h2>
-              <p className="office-note">Só links de quem aceitou cookies carregam a campanha. O restante não aparece aqui.</p>
-              {view.campaigns.length === 0 ? <EmptyState /> : (
-                <ul className="insight-rows">
-                  {view.campaigns.map((row) => (
-                    <li key={`${row.source}|${row.medium}|${row.campaign}`}>
-                      <strong>{row.campaign}</strong>
-                      <span>{row.source || '—'} / {row.medium || '—'}</span>
-                      <span>{count(row.orders)} pedidos · {formatCents(row.revenueCents)}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          ) : null}
-
-          {tab === 'pagantes' ? (
-            <div {...panelProps('financeiro', 'pagantes')}>
-              <p className="office-note">
-                {count(view.buyersTotal)} pagantes no filtro{view.buyersTotal > view.buyers.length ? `, mostrando ${view.buyers.length}` : ''}.{' '}
-                <a href={`/bff/v1/admin/finance/export?${financeQuery(applied, { kind: 'buyers' })}`}>Baixar pagantes (CSV)</a>{' · '}
-                <a href={`/bff/v1/admin/finance/export?${financeQuery(applied, { kind: 'orders' })}`}>Baixar pedidos (CSV)</a>
-              </p>
-              {view.buyers.length === 0 ? <p>Ninguém pagou no período.</p> : (
-                <ul className="insight-rows">
-                  {view.buyers.map((row) => (
-                    <li key={row.userId}>
-                      <strong>{row.name || 'Sem nome'}{row.isNew ? ' · novo' : ''}</strong>
-                      <span>{row.email}</span>
-                      <span>{formatCents(row.revenueCents)} em {count(row.orders)} pedidos · {row.methods.map((item) => METHOD_LABEL[item]).join(' + ')}</span>
-                      <span>Primeiro {showDay(row.firstPaidAt)} · último {showDay(row.lastPaidAt)}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          ) : null}
-
-          {tab === 'taxas' ? (
-            <div {...panelProps('financeiro', 'taxas')}>
-              <p className="office-note">Pix é um valor por pagamento confirmado. No cartão, 3,99% + R$ 0,39</p>
-              <form className="finance-filters" onSubmit={(event) => { event.preventDefault(); void saveFees() }}>
-                <label className="field-block"><span className="field-label">Pix (%)</span><input className="field" inputMode="decimal" value={fees.pix} onChange={(event) => setFees({ ...fees, pix: event.target.value })} /></label>
-                <label className="field-block"><span className="field-label">Pix por pagamento (R$)</span><input className="field" inputMode="decimal" value={fees.pixFixed} onChange={(event) => setFees({ ...fees, pixFixed: event.target.value })} /></label>
-                <label className="field-block"><span className="field-label">Cartão (%)</span><input className="field" inputMode="decimal" value={fees.card} onChange={(event) => setFees({ ...fees, card: event.target.value })} /></label>
-                <label className="field-block"><span className="field-label">Cartão fixo (R$)</span><input className="field" inputMode="decimal" value={fees.fixed} onChange={(event) => setFees({ ...fees, fixed: event.target.value })} /></label>
-                <Button type="submit" variant="secondary"><ActionIcon name="save" />Salvar taxas</Button>
-              </form>
-              {notice ? <p role="status">{notice}</p> : null}
-            </div>
-          ) : null}
-        </>
-      ) : null}
-    </section>
-  )
+  const weekdays = WEEKDAYS.map((label, weekday) => ({ label, orders: (view?.heatmap ?? []).filter(cell => cell.weekday === weekday).reduce((sum, cell) => sum + cell.orders, 0) }))
+  const slots = [...(view?.heatmap ?? [])].sort((a,b) => b.orders - a.orders || b.revenueCents - a.revenueCents)
+  return <section ref={filterContainer} aria-label="Financeiro" className={styles.dashboard} aria-busy={loading}>
+    <WorkspaceFilters id="finance-filters" label="Filtrar financeiro" onSubmit={event => { event.preventDefault(); setApplied(filters) }}>
+      <Field label="De"><DatePicker value={filters.from} onChange={event => update({ from: event.target.value })}/></Field>
+      <Field label="Até"><DatePicker value={filters.to} onChange={event => update({ to: event.target.value })}/></Field>
+      <Field label="Método"><Select value={filters.method} onChange={event => update({ method: event.target.value })}><option value="">Todos</option><option value="PIX">Pix</option><option value="CARD">Cartão</option></Select></Field>
+      <Field label="Produto"><Select value={filters.product} onChange={event => update({ product: event.target.value })}><option value="">Todos</option>{Object.entries(PRODUCTS).map(([code,label]) => <option key={code} value={code}>{label}</option>)}</Select></Field>
+      <Field label="Duração"><Select value={filters.durationDays} onChange={event => update({ durationDays: event.target.value })}><option value="">Todas</option><option value="7">7 dias</option><option value="14">14 dias</option><option value="28">28 dias</option></Select></Field>
+      <Field label="Compra"><Select value={filters.renewal} onChange={event => update({ renewal: event.target.value })}><option value="">Todas</option><option value="new">Primeira</option><option value="renewal">Renovação</option></Select></Field>
+    </WorkspaceFilters>
+    {failed ? <ErrorState message={failed} onRetry={() => load(applied)}/> : null}
+    {!view && !failed ? <InsightSkeleton kind="finance"/> : null}
+    {view ? <>
+      <p className={styles.result}>{showDay(view.filters.from)} a {showDay(view.filters.to)} · São Paulo</p>
+      {view.truncated ? <p role="status">O período passou de 20 mil pedidos e foi cortado; reduza o intervalo.</p> : null}
+      <MetricCards items={[{label:'Receita',value:formatCents(view.summary.revenueCents),note:`${count(view.summary.paidOrders)} pedidos pagos`,primary:true},{label:'Líquido estimado',value:formatCents(view.summary.netCents),note:`Taxas: ${formatCents(view.summary.feesCents)}`,primary:true},{label:'Ticket médio',value:formatCents(view.summary.avgTicketCents),note:`Desconto: ${formatCents(view.summary.savingsCents)}`,primary:true},{label:'Pagantes',value:count(view.summary.buyers),note:`${count(view.summary.newBuyers)} novos · ${count(view.summary.renewalOrders)} renovações`}]} />
+      <InsightTabs name="financeiro" label="Financeiro" tabs={TABS} current={tab} onChange={setTab}/>
+      {tab === 'resumo' ? <div {...panelProps('financeiro','resumo')} className={styles.dashboard}>
+        <ReportView title="Receita por dia" rows={view.daily} rowKey={row=>row.day} columns={[{label:'Dia',render:row=>showDay(row.day)},{label:'Pedidos',render:row=>count(row.orders),numeric:true},{label:'Receita',render:row=>formatCents(row.revenueCents),numeric:true}]} chart={<MetricChart kind="timeline" format="money" label="Receita por dia" rows={view.daily.map(row=>({label:row.day,value:row.revenueCents}))}/>}/>
+        <h2>Pix e cartão</h2><MetricCards items={view.methods.map(row=>({label:METHOD_LABEL[row.method],value:formatCents(row.revenueCents),note:<><span>Taxa {formatCents(row.feesCents)} · mediana até pagar {duration(row.medianSecondsToPay)}</span><br/><span>{count(row.paid)} de {count(row.checkouts)} checkouts pagos · {percent(row.conversion)}</span><br/><span>{count(row.expired)} expirados · {count(row.pending)} pendentes · {count(row.paidLate)} pagos fora do prazo</span></>}))}/>
+      </div> : null}
+      {tab === 'horarios' ? <div {...panelProps('financeiro','horarios')} className={styles.dashboard}>
+        <ReportView title="Dia da semana" rows={weekdays} rowKey={row=>row.label} columns={[{label:'Dia',render:row=>row.label},{label:'Pagamentos',render:row=>count(row.orders),numeric:true}]} chart={<MetricChart kind="ranking" label="Pagamentos por dia da semana" rows={weekdays.map(row=>({label:row.label,value:row.orders}))}/>}/>
+        <ReportView title="Horários com pagamento" rows={slots} rowKey={row=>`${row.weekday}-${row.hour}`} columns={[{label:'Horário',render:row=>`${WEEKDAYS[row.weekday]} ${row.hour}h`},{label:'Pagamentos',render:row=>count(row.orders),numeric:true},{label:'Receita',render:row=>formatCents(row.revenueCents),numeric:true}]} chart={<MetricChart kind="ranking" label="Horários com pagamento" rows={slots.map(row=>({label:`${WEEKDAYS[row.weekday]} ${row.hour}h`,value:row.orders}))}/>}/>
+        <ReportView title="Tempo até pagar" rows={view.timeToPay} rowKey={row=>row.label} columns={[{label:'Intervalo',render:row=>row.label},{label:'Pedidos',render:row=>count(row.orders),numeric:true}]} chart={<MetricChart kind="ranking" label="Tempo até pagar" rows={view.timeToPay.map(row=>({label:row.label,value:row.orders}))}/>}/>
+      </div> : null}
+      {tab === 'vendas' ? <div {...panelProps('financeiro','vendas')} className={styles.dashboard}>
+        <ReportView title="Produtos" rows={view.products} rowKey={row=>`${row.productCode}-${row.durationDays}`} columns={[{label:'Produto',render:row=>PRODUCTS[row.productCode]??row.productCode},{label:'Duração',render:row=>`${row.durationDays} dias`},{label:'Pedidos',render:row=>count(row.orders),numeric:true},{label:'Receita',render:row=>formatCents(row.revenueCents),numeric:true}]} chart={<MetricChart kind="ranking" format="money" label="Receita por produto" rows={view.products.map(row=>({label:`${PRODUCTS[row.productCode]??row.productCode} · ${row.durationDays} dias`,value:row.revenueCents}))}/>}/>
+        <MetricCards label="Estornos do período" items={[{label:'Recebido no período',value:formatCents(view.summary.receivedCents)},{label:'Já devolvido',value:formatCents(view.summary.refundedCents)},{label:'Ainda a devolver',value:formatCents(view.summary.refundOwedCents)}]}/>
+        <ReportView title="Estornos" rows={view.refunds} rowKey={row=>row.status} columns={[{label:'Situação',render:row=>REFUND_LABEL[row.status]??row.status},{label:'Pedidos',render:row=>count(row.orders),numeric:true},{label:'Valor',render:row=>formatCents(row.amountCents),numeric:true}]} chart={<MetricChart kind="ranking" format="money" label="Valores por situação do estorno" rows={view.refunds.map(row=>({label:REFUND_LABEL[row.status]??row.status,value:row.amountCents}))}/>}/>
+        <ReportView title="Campanhas" rows={view.campaigns} rowKey={row=>JSON.stringify([row.source,row.medium,row.campaign])} columns={[{label:'Campanha',render:row=>row.campaign},{label:'Origem / mídia',render:row=>`${row.source||'—'} / ${row.medium||'—'}`},{label:'Pedidos',render:row=>count(row.orders),numeric:true},{label:'Receita',render:row=>formatCents(row.revenueCents),numeric:true}]} chart={<MetricChart kind="ranking" format="money" label="Receita por campanha" rows={view.campaigns.map(row=>({label:row.campaign,value:row.revenueCents}))}/>}><p className={styles.result}>Só links de quem aceitou cookies carregam a campanha. O restante não aparece aqui.</p></ReportView>
+      </div> : null}
+      {tab === 'pagantes' ? <div {...panelProps('financeiro','pagantes')} className={styles.dashboard}>
+        <WorkspaceActions><a className="button button-secondary" href={`/bff/v1/admin/finance/export?${financeQuery(applied,{kind:'buyers'})}`}><ActionIcon name="download"/>Baixar pagantes (CSV)</a><a className="button button-secondary" href={`/bff/v1/admin/finance/export?${financeQuery(applied,{kind:'orders'})}`}><ActionIcon name="download"/>Baixar pedidos (CSV)</a></WorkspaceActions>
+        <p className={styles.result}>{count(view.buyersTotal)} pagantes no filtro{view.buyersTotal>view.buyers.length?`, mostrando ${view.buyers.length}`:''}.</p>
+        <ReportView title="Pagantes no período" rows={view.buyers} rowKey={row=>row.userId} columns={[{label:'Nome',render:row=><>{row.name||'Sem nome'}{row.isNew?' · novo':''}<br/>{row.email}</>},{label:'Pedidos',render:row=>count(row.orders),numeric:true},{label:'Receita',render:row=>formatCents(row.revenueCents),numeric:true},{label:'Métodos',render:row=>row.methods.map(item=>METHOD_LABEL[item]).join(' + ')},{label:'Primeiro / último',render:row=>`${showDay(row.firstPaidAt)} / ${showDay(row.lastPaidAt)}`}]} chart={<MetricChart kind="ranking" format="money" label="Receita por pagante" rows={view.buyers.map(row=>({label:row.name||'Sem nome',value:row.revenueCents}))}/>}/>
+      </div> : null}
+      {tab === 'taxas' ? <div {...panelProps('financeiro','taxas')} className={styles.dashboard}>
+        <p className={styles.result}>Pix é um valor por pagamento confirmado. No cartão, 3,99% + R$ 0,39</p>
+        <form className="finance-filters" onSubmit={event=>{event.preventDefault();void saveFees()}}>
+          <Field label="Pix (%)"><input className="field" inputMode="decimal" value={fees.pix} onChange={event=>setFees({...fees,pix:event.target.value})}/></Field>
+          <Field label="Pix por pagamento (R$)"><input className="field" inputMode="decimal" value={fees.pixFixed} onChange={event=>setFees({...fees,pixFixed:event.target.value})}/></Field>
+          <Field label="Cartão (%)"><input className="field" inputMode="decimal" value={fees.card} onChange={event=>setFees({...fees,card:event.target.value})}/></Field>
+          <Field label="Cartão fixo (R$)"><input className="field" inputMode="decimal" value={fees.fixed} onChange={event=>setFees({...fees,fixed:event.target.value})}/></Field>
+          <Button type="submit" variant="secondary"><ActionIcon name="save"/>Salvar taxas</Button>
+        </form>{notice?<p role="status">{notice}</p>:null}
+      </div> : null}
+      <details><summary>Sobre a amostra e os cálculos</summary><p className={styles.result}>{count(view.sample.paidOrders)} pagamentos e {count(view.sample.checkouts)} checkouts na amostra{view.sample.paidOrders<30?': poucos para tirar padrão de hora ou produto.':'.'}</p></details>
+    </> : null}
+  </section>
 }

@@ -6,6 +6,7 @@
 .groupIdentity { flex: 1; }
 .groupIdentity h2 { margin: 0; font-size: var(--text-lg); overflow-wrap: anywhere; }
 .actions { justify-content: flex-end; }
+.groupOptions { display: flex; gap: var(--space-2); flex-wrap: wrap; }
 .hint { color: var(--text-secondary); line-height: 1.55; margin: 0; }
 .sectionHeading h2 { margin-bottom: var(--space-2); }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr)); gap: var(--space-6); margin: 0; padding: 0; list-style: none; }

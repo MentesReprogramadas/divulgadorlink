@@ -1,7 +1,7 @@
 import type {FastifyInstance} from 'fastify'
 import type {PrismaClient} from '@prisma/client'
 import {z,ZodError} from 'zod'
-import {cityById,discoveryFields,discoveryLanguages,findCities} from '@/domain/catalog/discovery-metadata'
+import {cityById,discoveryFields,discoveryLanguages,findCities,exactCity} from '@/domain/catalog/discovery-metadata'
 import {editDiscoveryMetadata,readDiscoveryMetadata,DiscoveryError} from '@/use-cases/@Links/edit-discovery-metadata'
 import {prisma} from '@/lib/prisma'
 import {verifyJWT} from '@/http/middlewares/verify-jwt'
@@ -17,7 +17,7 @@ export async function discoveryRoutes(app:FastifyInstance){
    await resolveTenant(normalizeTenantHost(q.headers.host??''))
    const query=z.object({q:z.string().trim().max(80).optional(),cityId:z.string().regex(/^\d{7}$/).optional()}).strict().parse(q.query)
    if(query.cityId&&!cityById(query.cityId))return r.code(400).send(buildError({code:'validation',message:'Escolha uma cidade da lista.',request_id:q.id}))
-   return {cities:findCities(query.q??''),selectedCity:cityById(query.cityId),languages:discoveryLanguages,modalities:[{code:'ONLINE',name:'Online'},{code:'PRESENTIAL',name:'Presencial'}]}
+   return {cities:findCities(query.q??''),exactCity:exactCity(query.q??''),selectedCity:cityById(query.cityId),languages:discoveryLanguages,modalities:[{code:'ONLINE',name:'Online'},{code:'PRESENTIAL',name:'Presencial'}]}
   }catch(error){
    if(error instanceof ZodError)return r.code(400).send(buildError({code:'validation',message:'Confira o nome da cidade.',request_id:q.id}))
    if(error instanceof ResourceNotFoundError)return r.code(404).send(buildError({code:'not_found',message:'Recurso não encontrado.',request_id:q.id}))

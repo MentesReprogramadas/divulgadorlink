@@ -5,7 +5,7 @@ import {useState} from 'react'
 import {Field} from '@/components/ui/input'
 import {CityPicker} from './city-picker'
 import {LinkDiscoveryEditor} from './link-discovery-editor'
-import {DiscoveryDraftButton} from './discovery-draft-button'
+import {DiscoveryFields} from './discovery-fields'
 import {emptyDiscovery} from './discovery-contract'
 import {api} from '@/lib/api'
 vi.mock('@/lib/api',()=>({api:vi.fn()}))
@@ -33,15 +33,27 @@ it('F27-C03 owner edit keeps the submitted draft on connection failure and repla
   return {status:200,body:{metadata:empty,version:0}}
  })
  const user=userEvent.setup();render(<LinkDiscoveryEditor linkId="own-link"/>);await waitFor(()=>expect((screen.getByRole('button',{name:'Salvar dados'}) as HTMLButtonElement).disabled).toBe(false))
- await user.click(screen.getByRole('combobox',{name:'Forma de participação'}));await user.click(screen.getByRole('option',{name:'Online'}));await user.click(screen.getByRole('button',{name:'Salvar dados'}));await screen.findByRole('alert')
+ await user.click(screen.getByRole('combobox',{name:'Forma de participação (Opcional)'}));await user.click(screen.getByRole('option',{name:'Online'}));await user.click(screen.getByRole('button',{name:'Salvar dados'}));await screen.findByRole('alert')
  await user.click(screen.getByRole('button',{name:'Salvar dados'}));await screen.findByText('Dados salvos.')
  const requests=mocked.mock.calls.filter(([,init])=>init?.method==='PATCH');expect(requests).toHaveLength(2);expect(requests[0][1]?.body).toBe(requests[1][1]?.body)
 })
-it('F27-C05 optional metadata modal cancels without changing draft and applies without submitting the enclosing creation form',async()=>{
+it('F27-C05 optional fields stay inline and update the creation draft without submitting it',async()=>{
  const user=userEvent.setup(),submit=vi.fn(),change=vi.fn()
- render(<form onSubmit={event=>{event.preventDefault();submit()}}><DiscoveryDraftButton value={emptyDiscovery()} onChange={change}/></form>)
- const trigger=screen.getByRole('button',{name:'Local e idioma (opcional)'})
- async function pick(){await user.type(screen.getByRole('combobox',{name:'Cidade no Brasil'}),'sao paulo');await screen.findByRole('option',{name:'São Paulo / SP'});await user.keyboard('{ArrowDown}{Enter}')}
- await user.click(trigger);await pick();await user.click(screen.getByRole('button',{name:'Fechar janela'}));expect(change).not.toHaveBeenCalled();expect(document.activeElement).toBe(trigger)
- await user.click(trigger);expect((screen.getByRole('combobox',{name:'Cidade no Brasil'}) as HTMLInputElement).value).toBe('');await pick();await user.click(screen.getByRole('button',{name:'Usar estes dados'}));expect(change).toHaveBeenCalledWith({...emptyDiscovery(),cityId:'3550308'});expect(submit).not.toHaveBeenCalled();expect(screen.queryByRole('dialog')).toBeNull()
+ function DraftForm(){const [value,setValue]=useState(emptyDiscovery);return <form onSubmit={event=>{event.preventDefault();submit()}}><DiscoveryFields value={value} onChange={next=>{setValue(next);change(next)}}/></form>}
+ render(<DraftForm/>);expect(screen.queryByRole('dialog')).toBeNull()
+ const cityInput=screen.getByRole('combobox',{name:'Cidade no Brasil (Opcional)'}) as HTMLInputElement
+ expect(cityInput.required).toBe(false)
+ await user.type(cityInput,'sao paulo');await screen.findByRole('option',{name:'São Paulo / SP'});await user.keyboard('{ArrowDown}{Enter}')
+ expect(change).toHaveBeenLastCalledWith({...emptyDiscovery(),cityId:'3550308'});expect(submit).not.toHaveBeenCalled()
+ expect(screen.getByRole('combobox',{name:'Idioma principal (Opcional)'})).toBeTruthy()
+ expect(screen.queryByText(/Local da comunidade/)).toBeNull()
+})
+
+it('automatically resolves an exact typed city only in catalog-filter mode',async()=>{
+ mocked.mockResolvedValue({status:200,body:{...options,exactCity:city}})
+ const user=userEvent.setup(),change=vi.fn();render(<CityPicker autoSelectExact value={null} onChange={change}/>)
+ await user.type(screen.getByRole('combobox'),'sao paulo')
+ await waitFor(()=>expect(change).toHaveBeenLastCalledWith('3550308'))
+ expect((screen.getByRole('combobox') as HTMLInputElement).value).toBe('São Paulo / SP')
+ expect(screen.queryByRole('option')).toBeNull()
 })

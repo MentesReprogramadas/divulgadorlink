@@ -1,5 +1,5 @@
 import {ZodError} from 'zod'
-import {parseDiscovery,matchesDiscovery,discoverySql,type DiscoveryMetadata} from '@/domain/catalog/discovery-metadata'
+import {cityById,parseDiscovery,matchesDiscovery,discoverySql,type DiscoveryMetadata} from '@/domain/catalog/discovery-metadata'
 import { searchOutcome } from '@/domain/search/search-observation'
 import { observeSearch } from '@/http/search-observation'
 import { newOrderSeed, randomOrder } from '@/domain/catalog/random-order'
@@ -163,6 +163,7 @@ function toDto(tenantId: string, row: SearchCandidate, threshold: number) {
     id: row.id,
     name: row.name,
     description: row.description,
+    discovery: { city: cityById(row.cityId), languageTag: row.languageTag ?? null, modality: row.modality ?? null },
     surfaceToken: signSurface(tenantId, row.id, 'search', env.JWT_SECRET),
     textScore: row.textScore,
     semanticScore: row.semanticScore,
@@ -345,6 +346,7 @@ export async function getSuggest(request: FastifyRequest, reply: FastifyReply) {
       return {
         id,
         name: row?.name ?? '',
+        discovery: { city: cityById(row?.cityId), languageTag: row?.languageTag ?? null, modality: row?.modality ?? null },
         surfaceToken: signSurface(tenant.id, id, 'search', env.JWT_SECRET),
         impressions: counts.get(id) ?? 0,
         niche: row?.nicheName ? { name: row.nicheName, slug: row.nicheSlug ?? '' } : null,

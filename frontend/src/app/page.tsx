@@ -7,5 +7,5 @@ export const generateMetadata = generateHomeMetadata
 
 export default async function Page({ searchParams }: { searchParams: Promise<Record<string,string|string[]|undefined>> }) {
   const query=await searchParams
-  return <Suspense key={JSON.stringify(query)} fallback={<HomeSkeleton />}><HomeContent searchParams={Promise.resolve(query)} /></Suspense>
+  return <Suspense fallback={<HomeSkeleton />}><HomeContent searchParams={Promise.resolve(query)} /></Suspense>
 }

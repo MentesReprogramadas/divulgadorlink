@@ -6,7 +6,7 @@ import {ActionIcon} from '@/components/ui/action-icon'
 import {api} from '@/lib/api'
 import type {DiscoveryCity,DiscoveryOptions} from './discovery-contract'
 import styles from './discovery.module.css'
-export function CityPicker({id,value,onChange,disabled=false,invalid,'aria-describedby':describedBy}:{id?:string;value:string|null;onChange:(value:string|null)=>void;disabled?:boolean;invalid?:boolean;'aria-describedby'?:string}){
+export function CityPicker({id,value,onChange,autoSelectExact=false,disabled=false,invalid,'aria-describedby':describedBy}:{id?:string;value:string|null;onChange:(value:string|null)=>void;autoSelectExact?:boolean;disabled?:boolean;invalid?:boolean;'aria-describedby'?:string}){
  const list=useId(),box=useRef<HTMLDivElement>(null),known=useRef<string|null|undefined>(undefined),generation=useRef(0)
  const [query,setQuery]=useState(''),[options,setOptions]=useState<DiscoveryCity[]>([]),[open,setOpen]=useState(false),[active,setActive]=useState(-1),[loading,setLoading]=useState(false),[error,setError]=useState(''),[attempt,setAttempt]=useState(0)
  const input=useRef<HTMLInputElement>(null)
@@ -20,10 +20,13 @@ export function CityPicker({id,value,onChange,disabled=false,invalid,'aria-descr
  useEffect(()=>{
   if(!open||query.trim().length<2){setOptions([]);setLoading(false);return}
   const sequence=++generation.current;setLoading(true);setError('')
-  const timer=setTimeout(()=>{void api<DiscoveryOptions>('/v1/catalog/discovery-options?q='+encodeURIComponent(query.trim())).then(result=>{if(sequence!==generation.current)return;if(result.status!==200)throw Error();setOptions(result.body.cities);setActive(-1);setLoading(false)}).catch(()=>{if(sequence===generation.current){setError('Não foi possível buscar cidades.');setLoading(false)}})},200)
+  const timer=setTimeout(()=>{void api<DiscoveryOptions>('/v1/catalog/discovery-options?q='+encodeURIComponent(query.trim())).then(result=>{if(sequence!==generation.current)return;if(result.status!==200)throw Error();if(autoSelectExact&&result.body.exactCity){choose(result.body.exactCity);setLoading(false);return}setOptions(result.body.cities);setActive(-1);setLoading(false)}).catch(()=>{if(sequence===generation.current){setError('Não foi possível buscar cidades.');setLoading(false)}})},autoSelectExact?350:200)
   return()=>{clearTimeout(timer);generation.current++}
- },[query,open,attempt])
- function choose(city:DiscoveryCity){known.current=city.id;onChange(city.id);setQuery(city.name+' / '+city.state);setOpen(false);setOptions([]);setError('')}
+ },[query,open,attempt,autoSelectExact])
+ function choose(city:DiscoveryCity){
+  const field=input.current
+  if(field){field.setCustomValidity('');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value')?.set?.call(field,city.name+' / '+city.state);field.dispatchEvent(new Event('input',{bubbles:true}))}
+  known.current=city.id;onChange(city.id);setQuery(city.name+' / '+city.state);setOpen(false);setOptions([]);setError('')}
  return <div ref={box} className={styles.city} onBlur={event=>{if(!event.currentTarget.contains(event.relatedTarget))setOpen(false)}}>
   <Input ref={input} id={id} role="combobox" autoComplete="off" maxLength={80} value={query} disabled={disabled} invalid={invalid} aria-describedby={describedBy} aria-expanded={open&&options.length>0} aria-controls={open&&options.length>0?list:undefined} aria-autocomplete="list" aria-activedescendant={open&&options[active]?list+'-'+active:undefined} placeholder="Digite a cidade e escolha na lista" onChange={event=>{known.current=null;onChange(null);setQuery(event.target.value);setOpen(true);setActive(-1);setOptions([])}} onKeyDown={event=>{
    if(event.key==='Escape'){event.preventDefault();event.stopPropagation();setOpen(false)}

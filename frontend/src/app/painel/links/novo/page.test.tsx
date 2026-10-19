@@ -23,6 +23,7 @@ beforeEach(() => {
   api.mockReset()
   trackGoogleAdsLinkSubmission.mockReset()
   api.mockImplementation((path: string) => {
+    if (path === '/v1/catalog/discovery-options') return Promise.resolve({ status: 200, body: { languages: [], cities: [], selectedCity: null, modalities: [] } })
     if (path === '/v1/home') {
       return Promise.resolve({
         status: 200,
@@ -54,7 +55,8 @@ describe('envio de link', () => {
       if (path === '/v1/links' && init?.method === 'POST') {
         return Promise.resolve({ status: 201, body: { id: 'link-1', status: 'PENDING_MODERATION' } })
       }
-      if (path === '/v1/home') {
+      if (path === '/v1/catalog/discovery-options') return Promise.resolve({ status: 200, body: { languages: [], cities: [], selectedCity: null, modalities: [] } })
+    if (path === '/v1/home') {
         return Promise.resolve({
           status: 200,
           body: {
@@ -78,7 +80,8 @@ describe('envio de link', () => {
       if (path === '/v1/links' && init?.method === 'POST') {
         return Promise.resolve({ status: 201, body: { id: 'link-2', status: 'PRE_REJECTED', message: 'Envio não aceito.' } })
       }
-      if (path === '/v1/home') {
+      if (path === '/v1/catalog/discovery-options') return Promise.resolve({ status: 200, body: { languages: [], cities: [], selectedCity: null, modalities: [] } })
+    if (path === '/v1/home') {
         return Promise.resolve({
           status: 200,
           body: {
@@ -103,7 +106,8 @@ describe('envio de link', () => {
       if (path === '/v1/links' && init?.method === 'POST') {
         return Promise.resolve({ status: 409, body: { message: 'Esse link já está no catálogo.' } })
       }
-      if (path === '/v1/home') {
+      if (path === '/v1/catalog/discovery-options') return Promise.resolve({ status: 200, body: { languages: [], cities: [], selectedCity: null, modalities: [] } })
+    if (path === '/v1/home') {
         return Promise.resolve({
           status: 200,
           body: {
