@@ -1,3 +1,4 @@
+import {personalHostTarget} from '@/features/profile-hosts/host-routing'
 import type { MetadataRoute } from 'next'
 import { headers } from 'next/headers'
 import { requestHost, sitemapUrls } from '@/domain/crawler-policy'
@@ -7,6 +8,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const headerStore = await headers()
+  if(personalHostTarget(headerStore.get('host')??''))return []
   const host = requestHost(headerStore.get('x-forwarded-host'), headerStore.get('host'))
   const result = await forward({
     method: 'GET',

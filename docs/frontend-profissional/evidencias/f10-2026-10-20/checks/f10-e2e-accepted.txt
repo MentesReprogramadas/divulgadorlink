@@ -1,0 +1,237 @@
+npm notice run divulgador-links-web@0.1.0 npx
+npm notice run playwright test e2e/profile-hosts.spec.ts e2e/profile-channels.spec.ts e2e/profiles.spec.ts e2e/public-collections.spec.ts --grep F10-E|F37-E05|F37-E07|F09-E05|F33-E|sessão da Bia --project=features --project=features-mobile
+1dd9311c047861bca9ee3089dd96333a016199427a7df34d08efdfc2dfa5537a
+c42e33985dd3c756832700526dec09a426f34f69d0ba6fa327718157ada9906e
+(node:60704) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run prisma migrate deploy
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": PostgreSQL database "divulgador", schema "public" at "127.0.0.1:5933"
+
+61 migrations found in prisma/migrations
+
+Applying migration `20260929191730_tenant_user_identifiers`
+Applying migration `20260929200000_verification_code_binds_identifier`
+Applying migration `20260929210000_prices_networks_niches_config`
+Applying migration `20260929220000_links_and_blocklist`
+Applying migration `20260929230000_moderation_cases`
+Applying migration `20260929231000_link_ever_published`
+Applying migration `20260929232000_link_embedding`
+Applying migration `20260929233000_submission_outbox_ban`
+Applying migration `20260929234000_orders_payments`
+Applying migration `20260929235000_analytics_events`
+Applying migration `20260930140000_order_br_code_and_catalog_indexes`
+Applying migration `20260930180000_analytics_link_totals_index`
+Applying migration `20261002140000_promotion_offers`
+Applying migration `20261002153000_adult_networks`
+Applying migration `20261005193000_one_open_moderation_case`
+Applying migration `20261006120000_facet_summary`
+Applying migration `20261009120000_acquisition_funnel`
+Applying migration `20261010120000_site_traffic`
+Applying migration `20261010150000_order_finance`
+Applying migration `20261015140000_evolution_operations`
+Applying migration `20261015153000_evolution_quoted_review`
+Applying migration `20261015180000_admin_promotions`
+Applying migration `20261016090000_promotion_investments`
+Applying migration `20261016090100_performance_query_index`
+Applying migration `20261016100000_link_reports`
+Applying migration `20261016100100_report_key_comparison`
+Applying migration `20261016110000_availability_paid_pause`
+Applying migration `20261016120000_renewal_reminders`
+Applying migration `20261016130000_related_link_indexes`
+Applying migration `20261016140000_favorites_collections`
+Applying migration `20261016160000_public_profiles`
+Applying migration `20261016190000_permanent_redirects`
+Applying migration `20261017180000_profile_appearance`
+Applying migration `20261017190000_content_reviews`
+Applying migration `20261017200000_profile_published_draft`
+Applying migration `20261017200001_profile_published_primary`
+Applying migration `20261017210000_synthetic_analytics`
+Applying migration `20261017230000_profile_revisions`
+Applying migration `20261017233000_search_observations`
+Applying migration `20261018010000_profile_billing`
+Applying migration `20261018013000_profile_billing_reconciliation_indexes`
+Applying migration `20261018020000_profile_schedules`
+Applying migration `20261018030000_profile_template_examples`
+Applying migration `20261018130000_link_discovery_metadata`
+Applying migration `20261018140000_profile_interaction`
+Applying migration `20261018160000_profile_channels`
+Applying migration `20261018161000_profile_channel_revision_immutability`
+Applying migration `20261019080000_niche_digests`
+Applying migration `20261019081000_reuse_digest_niche_index`
+Applying migration `20261019090000_campaign_pages`
+Applying migration `20261019100000_profile_team`
+Applying migration `20261019110000_media_kits`
+Applying migration `20261019111000_media_kit_identity`
+Applying migration `20261019120000_workspace_team`
+Applying migration `20261019130000_contact_forms`
+Applying migration `20261019140000_destination_pools`
+Applying migration `20261019150000_profile_suggestions`
+Applying migration `20261020080000_ownership_challenges`
+Applying migration `20261020090000_profile_events`
+Applying migration `20261020100000_public_collections`
+Applying migration `20261020110000_profile_hosts`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20260929191730_tenant_user_identifiers/
+    └─ migration.sql
+  └─ 20260929200000_verification_code_binds_identifier/
+    └─ migration.sql
+  └─ 20260929210000_prices_networks_niches_config/
+    └─ migration.sql
+  └─ 20260929220000_links_and_blocklist/
+    └─ migration.sql
+  └─ 20260929230000_moderation_cases/
+    └─ migration.sql
+  └─ 20260929231000_link_ever_published/
+    └─ migration.sql
+  └─ 20260929232000_link_embedding/
+    └─ migration.sql
+  └─ 20260929233000_submission_outbox_ban/
+    └─ migration.sql
+  └─ 20260929234000_orders_payments/
+    └─ migration.sql
+  └─ 20260929235000_analytics_events/
+    └─ migration.sql
+  └─ 20260930140000_order_br_code_and_catalog_indexes/
+    └─ migration.sql
+  └─ 20260930180000_analytics_link_totals_index/
+    └─ migration.sql
+  └─ 20261002140000_promotion_offers/
+    └─ migration.sql
+  └─ 20261002153000_adult_networks/
+    └─ migration.sql
+  └─ 20261005193000_one_open_moderation_case/
+    └─ migration.sql
+  └─ 20261006120000_facet_summary/
+    └─ migration.sql
+  └─ 20261009120000_acquisition_funnel/
+    └─ migration.sql
+  └─ 20261010120000_site_traffic/
+    └─ migration.sql
+  └─ 20261010150000_order_finance/
+    └─ migration.sql
+  └─ 20261015140000_evolution_operations/
+    └─ migration.sql
+  └─ 20261015153000_evolution_quoted_review/
+    └─ migration.sql
+  └─ 20261015180000_admin_promotions/
+    └─ migration.sql
+  └─ 20261016090000_promotion_investments/
+    └─ migration.sql
+  └─ 20261016090100_performance_query_index/
+    └─ migration.sql
+  └─ 20261016100000_link_reports/
+    └─ migration.sql
+  └─ 20261016100100_report_key_comparison/
+    └─ migration.sql
+  └─ 20261016110000_availability_paid_pause/
+    └─ migration.sql
+  └─ 20261016120000_renewal_reminders/
+    └─ migration.sql
+  └─ 20261016130000_related_link_indexes/
+    └─ migration.sql
+  └─ 20261016140000_favorites_collections/
+    └─ migration.sql
+  └─ 20261016160000_public_profiles/
+    └─ migration.sql
+  └─ 20261016190000_permanent_redirects/
+    └─ migration.sql
+  └─ 20261017180000_profile_appearance/
+    └─ migration.sql
+  └─ 20261017190000_content_reviews/
+    └─ migration.sql
+  └─ 20261017200000_profile_published_draft/
+    └─ migration.sql
+  └─ 20261017200001_profile_published_primary/
+    └─ migration.sql
+  └─ 20261017210000_synthetic_analytics/
+    └─ migration.sql
+  └─ 20261017230000_profile_revisions/
+    └─ migration.sql
+  └─ 20261017233000_search_observations/
+    └─ migration.sql
+  └─ 20261018010000_profile_billing/
+    └─ migration.sql
+  └─ 20261018013000_profile_billing_reconciliation_indexes/
+    └─ migration.sql
+  └─ 20261018020000_profile_schedules/
+    └─ migration.sql
+  └─ 20261018030000_profile_template_examples/
+    └─ migration.sql
+  └─ 20261018130000_link_discovery_metadata/
+    └─ migration.sql
+  └─ 20261018140000_profile_interaction/
+    └─ migration.sql
+  └─ 20261018160000_profile_channels/
+    └─ migration.sql
+  └─ 20261018161000_profile_channel_revision_immutability/
+    └─ migration.sql
+  └─ 20261019080000_niche_digests/
+    └─ migration.sql
+  └─ 20261019081000_reuse_digest_niche_index/
+    └─ migration.sql
+  └─ 20261019090000_campaign_pages/
+    └─ migration.sql
+  └─ 20261019100000_profile_team/
+    └─ migration.sql
+  └─ 20261019110000_media_kits/
+    └─ migration.sql
+  └─ 20261019111000_media_kit_identity/
+    └─ migration.sql
+  └─ 20261019120000_workspace_team/
+    └─ migration.sql
+  └─ 20261019130000_contact_forms/
+    └─ migration.sql
+  └─ 20261019140000_destination_pools/
+    └─ migration.sql
+  └─ 20261019150000_profile_suggestions/
+    └─ migration.sql
+  └─ 20261020080000_ownership_challenges/
+    └─ migration.sql
+  └─ 20261020090000_profile_events/
+    └─ migration.sql
+  └─ 20261020100000_public_collections/
+    └─ migration.sql
+  └─ 20261020110000_profile_hosts/
+    └─ migration.sql
+      
+All migrations have been successfully applied.
+npm notice run divulgador-links-api@0.1.0 npx
+npm notice run tsx scripts/e2e-seed.ts
+
+Running 21 tests using 1 worker
+
+(node:75204) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [setup] › e2e\auth.setup.ts:8:6 › sessão da Bia para os testes do painel (446ms)
+(node:79416) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  2 [features] › e2e\profile-channels.spec.ts:49:5 › F37-E05 unified group creates direct access without prior invitation, retries safely and toggles only channel titles (10.3s)
+  ok  3 [features] › e2e\profile-channels.spec.ts:73:5 › F37-E07 compact link tabs, inline invitation refresh and quick visibility and pause actions persist (9.7s)
+  ok  4 [features] › e2e\profile-hosts.spec.ts:17:5 › F10-E01/T01/T02/T04/T05/T06 endereço público isolado, prévia existente, publicação e perda de cobertura (4.0s)
+  ok  5 [features] › e2e\profile-hosts.spec.ts:18:5 › F10-E02/I02/T02 cookies host-only, auth bloqueada, outra página/dono e dados privados ausentes (2.5s)
+  ok  6 [features] › e2e\profile-hosts.spec.ts:19:5 › F10-E03/T03/T04/T05 rede/HTTPS pendente recupera sem perder nome, idade, formulário e 320px (2.3s)
+  ok  7 [features] › e2e\profile-hosts.spec.ts:21:5 › F10-E04/T06 troca mantém anterior até ativar, desativa e recusar idade volta ao catálogo central (3.4s)
+  ok  8 [features] › e2e\profiles.spec.ts:386:5 › F09-E05 criação e gestão: cards, DnD, transferência, edição e remoção com persistência (11.0s)
+  ok  9 [features] › e2e\public-collections.spec.ts:8:5 › F33-E01/T01/T02/T03/T04/T05/T06 publica seleção e revoga, autoria distinta e elegibilidade viva (3.9s)
+  ok 10 [features] › e2e\public-collections.spec.ts:9:5 › F33-E02/I02 sem sessão/outro dono e rascunho secreto fora do público (2.8s)
+  ok 11 [features] › e2e\public-collections.spec.ts:10:5 › F33-E03/C01 falha real de rede mantém formulário; teclado, idade e reflow (3.2s)
+(node:46252) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 12 [features-mobile] › e2e\profile-channels.spec.ts:49:5 › F37-E05 unified group creates direct access without prior invitation, retries safely and toggles only channel titles (9.8s)
+  ok 13 [features-mobile] › e2e\profile-channels.spec.ts:73:5 › F37-E07 compact link tabs, inline invitation refresh and quick visibility and pause actions persist (9.6s)
+  ok 14 [features-mobile] › e2e\profile-hosts.spec.ts:17:5 › F10-E01/T01/T02/T04/T05/T06 endereço público isolado, prévia existente, publicação e perda de cobertura (3.8s)
+  ok 15 [features-mobile] › e2e\profile-hosts.spec.ts:18:5 › F10-E02/I02/T02 cookies host-only, auth bloqueada, outra página/dono e dados privados ausentes (2.3s)
+  ok 16 [features-mobile] › e2e\profile-hosts.spec.ts:19:5 › F10-E03/T03/T04/T05 rede/HTTPS pendente recupera sem perder nome, idade, formulário e 320px (2.7s)
+  ok 17 [features-mobile] › e2e\profile-hosts.spec.ts:21:5 › F10-E04/T06 troca mantém anterior até ativar, desativa e recusar idade volta ao catálogo central (3.3s)
+  ok 18 [features-mobile] › e2e\profiles.spec.ts:386:5 › F09-E05 criação e gestão: cards, DnD, transferência, edição e remoção com persistência (10.5s)
+  ok 19 [features-mobile] › e2e\public-collections.spec.ts:8:5 › F33-E01/T01/T02/T03/T04/T05/T06 publica seleção e revoga, autoria distinta e elegibilidade viva (3.9s)
+  ok 20 [features-mobile] › e2e\public-collections.spec.ts:9:5 › F33-E02/I02 sem sessão/outro dono e rascunho secreto fora do público (2.8s)
+  ok 21 [features-mobile] › e2e\public-collections.spec.ts:10:5 › F33-E03/C01 falha real de rede mantém formulário; teclado, idade e reflow (3.1s)
+
+  21 passed (2.7m)

@@ -2,7 +2,7 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 34.
 
-**Estado:** NÃO INICIADO. Somente planejamento autorizado.  
+**Estado:** IMPLEMENTADO LOCALMENTE; S7 remoto em revisão.
 **Spec vinculante:** [F10](../specs/f10-pagina-premium-subdominio.md).  
 **Dependências:** G00, [F09](../specs/f09-perfil-publico.md), [F11](../specs/f11-planos-perfis.md), [F19](../specs/f19-historico-versoes.md), [F16](../specs/f16-templates.md).  
 **Onda:** 5. Etapas rastreadas no [roadmap](../roadmap-auditavel.md) e na [matriz](../matriz-aceitacao.csv).
@@ -160,3 +160,10 @@ Esses nomes não são obrigação de criar arquivos vazios. Preferir ampliação
 
 **Registro inicial:** responsável não atribuído; commit de implementação inexistente; resultados NÃO EXECUTADOS; liberação NÃO AUTORIZADA por este documento.
 
+
+
+## Execução autorizada — 20/10/2026
+
+[Contrato reconciliado, decisões, ACs, testes e reversão](../execucao-f10.md). O registro de execução prevalece sobre caminhos/contratos apenas propostos neste planejamento. S7 remoto permanece pendente.
+
+Fechamento local: testes e contratos reconciliados na execução F10; a lista original permanece como planejamento histórico. Não marcar o check global de ACs/manual como aprovado: AC03 depende de F10-M01 real em staging, ainda pendente. Componentes testados após a composição, sem red prévio registrado; desvio de sequência S1 explícito. Parada após F10 solicitada pelo usuário.

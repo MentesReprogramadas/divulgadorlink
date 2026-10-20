@@ -1,3 +1,4 @@
+import {profileHostBases} from '@/domain/profiles/profile-host'
 import 'dotenv/config'
 import { z } from 'zod'
 import { parsePixExpiration } from '@/domain/payments/pix-expiration'
@@ -34,6 +35,7 @@ const schema = z.object({
   OPENAI_API_KEY: optionalText,
   PIX_EXPIRATION_SECONDS: z.preprocess(blankAsUnset, z.string().optional()),
 
+  PROFILE_HOST_BASES:z.string().default('{}'),
   TENANT_HOST: textOr('localhost'),
   TENANT_NAME: textOr('Localhost'),
 
@@ -60,6 +62,7 @@ if (!parsed.success) {
 parsePixExpiration(parsed.data.PIX_EXPIRATION_SECONDS, parsed.data.NODE_ENV)
 monitorPolicy(process.env)
 
+profileHostBases(parsed.data.PROFILE_HOST_BASES,parsed.data.NODE_ENV==='production')
 export const env = parsed.data
 
 renewalReminderPolicy(process.env)

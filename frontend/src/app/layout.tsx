@@ -1,3 +1,5 @@
+import {headers} from 'next/headers'
+import {personalHostTarget,personalHostOrigin} from '@/features/profile-hosts/host-routing'
 import type { Metadata } from 'next'
 import { cookies } from 'next/headers'
 import { Source_Sans_3, Outfit } from 'next/font/google'
@@ -24,6 +26,8 @@ export const metadata: Metadata = {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const requestHeaders=await headers(),hostHeader=requestHeaders.get('host')??'',personal=personalHostTarget(hostHeader),personalHost=Boolean(personal)
+  const personalOrigin=personal?personalHostOrigin(personal.tenantHost,hostHeader.split(':')[1]??''):undefined
   const jar = await cookies()
   const role = jar.get('catalogo_role')?.value
   const support = jar.has('supportSession')
@@ -31,10 +35,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const pending = stored !== 'marketing' && stored !== 'denied'
   return (
     <html lang="pt-BR" className={`${sourceSans.variable} ${outfit.variable}`}>
-      <body data-support={support ? 'true' : undefined}>
-        <SiteShell role={role} support={support}>{children}</SiteShell>
+      <body data-personal-origin={personalOrigin} data-personal-host={personalHost?'true':undefined} data-support={!personalHost&&support?'true':undefined}>
+        <SiteShell personalHost={personalHost} role={personalHost?undefined:role} support={!personalHost&&support}>{children}</SiteShell>
         <Consent pending={pending} />
-        <SiteVisits />
+        {personalHost?null:<SiteVisits />}
       </body>
     </html>
   )

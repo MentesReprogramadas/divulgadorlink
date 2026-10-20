@@ -1,0 +1,3 @@
+import {resolvePersonalHost} from '@/features/profile-hosts/server/resolve-host'
+export const dynamic='force-dynamic'
+export async function GET(request:Request,{params}:{params:Promise<{challenge:string}>}){const {challenge}=await params;if(!/^[a-f0-9]{64}$/.test(challenge))return new Response(null,{status:404});const proof=await resolvePersonalHost(request.headers.get('host')??'',challenge);if(!proof||!('proof' in proof))return new Response(null,{status:404});return new Response(proof.proof,{headers:{'content-type':'text/plain; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'}})}

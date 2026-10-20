@@ -2,7 +2,7 @@
 
 Data da análise inicial: 14 de outubro de 2026. Atualização de prioridade: 15 de outubro de 2026.
 
-**Situação atual — 20/10/2026:** 33/42 implementações registradas. F33 validada localmente; próxima sequência F10; parar após F10. F39 não iniciada, corrigida a divergência do índice. S7/CI/liberação remotas pendentes. Commits na branch codex/roadmap-f37-testes; sem push/deploy. [Execução F33](execucao-f33.md).
+**Situação atual — 20/10/2026:** 34/42 implementações registradas. F10 implementada e testada localmente; AC03/TLS real e S7 pendentes; parada solicitada após F10. Features futuras, ainda não iniciadas: F24 → F30 → F35 → F39 → F26 → F36 → F40 → F41. F39 não iniciada, corrigida a divergência do índice. S7/CI/liberação remotas pendentes. Commits na branch codex/roadmap-f37-testes; sem push/deploy. [Execução F10](execucao-f10.md).
 
 Refinamento solicitado após F21: [importação, resumos, navegação, campanhas, equipe global e apresentação](refinamento-f05-f15-f20-f21-f38.md). Ampliação anterior implementada e validada localmente. Pedido posterior implementou F22 → F23 → F25, conforme situação atual acima.
 
@@ -60,7 +60,7 @@ As decisões não resolvidas são propostas de desenho, nunca fatos aprovados. N
 | 31 | F29 | 4 | [Página de evento](specs/f29-evento.md) | [Implementação](planos/f29-evento.md) | F42 (prioridade); F09, F14 | S0–S6 LOCAL; S7 EM REVISÃO |
 | 32 | F32 | 4 | [Kit de divulgação](specs/f32-kit-divulgacao.md) | [Implementação](planos/f32-kit-divulgacao.md) | F42 (prioridade); F09, F13 | S0–S6 LOCAL; S7 EM REVISÃO |
 | 33 | F33 | 4 | [Coleções públicas compartilháveis](specs/f33-colecoes-publicas.md) | [Implementação](planos/f33-colecoes-publicas.md) | F42 (prioridade); F04 | S0–S6 LOCAL; S7 EM REVISÃO |
-| 34 | F10 | 5 | [Página premium com subdomínio](specs/f10-pagina-premium-subdominio.md) | [Implementação](planos/f10-pagina-premium-subdominio.md) | F42 (prioridade); F09, F11, F19, F16 | NÃO INICIADA |
+| 34 | F10 | 5 | [Página premium com subdomínio](specs/f10-pagina-premium-subdominio.md) | [Implementação](planos/f10-pagina-premium-subdominio.md) | F42 (prioridade); F09, F11, F19, F16 | S0–S6 LOCAL; TLS/S7 PENDENTES |
 | 35 | F24 | 5 | [Descoberta de perfis](specs/f24-descoberta-perfis.md) | [Implementação](planos/f24-descoberta-perfis.md) | F42 (prioridade); F09, F03 | NÃO INICIADA |
 | 36 | F30 | 5 | [Integrações e avisos automáticos](specs/f30-integracoes-webhooks.md) | [Implementação](planos/f30-integracoes-webhooks.md) | F42 (prioridade); F22, F02 | NÃO INICIADA |
 | 37 | F35 | 5 | [Central de contatos recebidos](specs/f35-central-contatos.md) | [Implementação](planos/f35-central-contatos.md) | F42 (prioridade); F22, F20 | NÃO INICIADA |

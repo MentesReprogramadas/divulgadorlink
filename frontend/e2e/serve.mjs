@@ -203,6 +203,7 @@ const apiEnv = {
   HDX_API_KEY: '',
   CONFIRMATION_INBOX: '1',
   EMAIL_OUTBOX: '1',
+  PROFILE_HOST_BASES:JSON.stringify({'pages.localhost':'checklist.localhost'}),
   TENANT_HOST: 'evolution.localhost',
   EVOLUTION_ENABLED: '1',
   EVOLUTION_ACTIONS_ENABLED: '1',
@@ -254,6 +255,7 @@ const webEnv = {
   TEMLINK_E2E_BUILD: '1',
   NODE_ENV: 'production',
   API_ORIGIN: (e2eRuntime.apiOrigin),
+  PROFILE_HOST_BASES:JSON.stringify({'pages.localhost':'checklist.localhost'}),
   TENANT_HOST: '',
 }
 const build = spawnSync(process.execPath, [next, 'build'], { cwd: frontend, env: webEnv, stdio: 'inherit', shell: false })

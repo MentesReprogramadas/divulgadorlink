@@ -179,3 +179,25 @@ Não inicia uma nova feature da sequência: mantém 26/42 implementações e F22
 ## 20/10/2026 — F33 validada localmente
 
 [Coleções públicas compartilháveis: contrato, ACs, decisões e provas](execucao-f33.md). 33/42 implementações registradas. Próxima sequência F10; parar após F10; autorização de parar após F10 preservada. S7 remoto em revisão; commits na mesma branch, sem push/deploy.
+
+
+## 20/10/2026 — F10 validada localmente
+
+[Página premium com subdomínio: contrato, ACs, decisões e provas](execucao-f10.md). 34/42 implementações registradas. Próxima sequência parada solicitada após F10; próximas futuras F24 → F30 → F35 → F39 → F26 → F36 → F40 → F41; autorização de parar após F10 preservada. S7 remoto em revisão; commits na mesma branch, sem push/deploy.
+
+
+### Fechamento F10 — limite da validação
+
+Implementação/automação locais concluídas, AC03 parcial e F10-M01 (TLS/DNS real em staging) pendente. CI/deploy não executados. Parada solicitada após F10: não iniciar F24. [Operação e reversão](operacao-f10.md).
+
+
+## Entrega solicitada em 20/10/2026 — parada após F10
+
+- 0d0a32b: snapshot de todas as alterações locais não ignoradas existentes, preservando ajustes do usuário.
+- df41371: F28, comprovação de controle de domínio de destino.
+- b100747: F29, eventos e calendário na página.
+- dc859a9: F32, kit de divulgação com prévia e QR real.
+- e2d5b8a: F33, coleções públicas com elegibilidade viva.
+- F10: endereço próprio, gate TLS e isolamento; hash vinculado após commit em evidencias-f10.json.
+
+F39 tinha somente indicação indevida no índice; foi reconciliada para não iniciada, sem implementação fictícia. O roteiro posterior permanece F24, F30, F35, F39, F26, F36, F40 e F41; nenhum foi iniciado nesta autorização. F10-M01 real e S7 continuam pendentes. Nenhum push/deploy realizado.

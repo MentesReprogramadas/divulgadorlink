@@ -548,14 +548,14 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 
 | Etapa | Estado | Pré-requisito imediato | Entregável a verificar |
 | --- | --- | --- | --- |
-| F10-S0 | NÃO INICIADA | F42 (prioridade), F09, F11, F19, F16 | [Escopo contratos e reuso](planos/f10-pagina-premium-subdominio.md#f10-s0-escopo-contratos-e-revisão-de-reutilização) |
-| F10-S1 | NÃO INICIADA | F10-S0 | [Testes U e C](planos/f10-pagina-premium-subdominio.md#f10-s1-testes-unitários-e-componentes-antes-da-regra) |
-| F10-S2 | NÃO INICIADA | F10-S1 | [Dados e migração](planos/f10-pagina-premium-subdominio.md#f10-s2-dados-invariantes-e-migração) |
-| F10-S3 | NÃO INICIADA | F10-S2 | [Domínio API e jobs](planos/f10-pagina-premium-subdominio.md#f10-s3-regra-de-negócio-api-e-jobs) |
-| F10-S4 | NÃO INICIADA | F10-S3 | [Interface](planos/f10-pagina-premium-subdominio.md#f10-s4-interface-composição-e-estados) |
-| F10-S5 | NÃO INICIADA | F10-S4 | [Integração e ACs](planos/f10-pagina-premium-subdominio.md#f10-s5-integração-contrato-persistência-e-falhas) |
-| F10-S6 | NÃO INICIADA | F10-S5 | [Playwright e QA](planos/f10-pagina-premium-subdominio.md#f10-s6-e2e-playwright-e-revisão-visual) |
-| F10-S7 | NÃO INICIADA | F10-S6 | [Regressão e liberação](planos/f10-pagina-premium-subdominio.md#f10-s7-regressão-rollout-e-fechamento-auditável) |
+| F10-S0 | CONCLUÍDA LOCALMENTE | F42 (prioridade), F09, F11, F19, F16 | [Escopo contratos e reuso](planos/f10-pagina-premium-subdominio.md#f10-s0-escopo-contratos-e-revisão-de-reutilização) |
+| F10-S1 | CONCLUÍDA LOCALMENTE | F10-S0 | [Testes U e C](planos/f10-pagina-premium-subdominio.md#f10-s1-testes-unitários-e-componentes-antes-da-regra) |
+| F10-S2 | CONCLUÍDA LOCALMENTE | F10-S1 | [Dados e migração](planos/f10-pagina-premium-subdominio.md#f10-s2-dados-invariantes-e-migração) |
+| F10-S3 | CONCLUÍDA LOCALMENTE | F10-S2 | [Domínio API e jobs](planos/f10-pagina-premium-subdominio.md#f10-s3-regra-de-negócio-api-e-jobs) |
+| F10-S4 | CONCLUÍDA LOCALMENTE | F10-S3 | [Interface](planos/f10-pagina-premium-subdominio.md#f10-s4-interface-composição-e-estados) |
+| F10-S5 | CONCLUÍDA LOCALMENTE | F10-S4 | [Integração e ACs](planos/f10-pagina-premium-subdominio.md#f10-s5-integração-contrato-persistência-e-falhas) |
+| F10-S6 | CONCLUÍDA LOCALMENTE | F10-S5 | [Playwright e QA](planos/f10-pagina-premium-subdominio.md#f10-s6-e2e-playwright-e-revisão-visual) |
+| F10-S7 | EM REVISÃO | F10-S6 | [Regressão e liberação](planos/f10-pagina-premium-subdominio.md#f10-s7-regressão-rollout-e-fechamento-auditável) |
 
 ### 35 F24 Descoberta de perfis
 
@@ -756,3 +756,13 @@ Não inicia uma nova feature da sequência: mantém 26/42 implementações e F22
 ## 20/10/2026 — F33 validada localmente
 
 [Coleções públicas compartilháveis: contrato, ACs, decisões e provas](execucao-f33.md). 33/42 implementações registradas. Próxima sequência F10; parar após F10; autorização de parar após F10 preservada. S7 remoto em revisão; commits na mesma branch, sem push/deploy.
+
+
+## 20/10/2026 — F10 validada localmente
+
+[Página premium com subdomínio: contrato, ACs, decisões e provas](execucao-f10.md). 34/42 implementações registradas. Próxima sequência parada solicitada após F10; próximas futuras F24 → F30 → F35 → F39 → F26 → F36 → F40 → F41; autorização de parar após F10 preservada. S7 remoto em revisão; commits na mesma branch, sem push/deploy.
+
+
+### Fechamento F10 — limite da validação
+
+Implementação/automação locais concluídas, AC03 parcial e F10-M01 (TLS/DNS real em staging) pendente. CI/deploy não executados. Parada solicitada após F10: não iniciar F24. [Operação e reversão](operacao-f10.md).

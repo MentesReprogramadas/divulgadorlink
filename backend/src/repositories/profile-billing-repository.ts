@@ -1,3 +1,4 @@
+import {profileHostBases} from '@/domain/profiles/profile-host'
 import { createHash } from 'node:crypto'
 import { Prisma, type PrismaClient, type ProfilePlanVersion } from '@prisma/client'
 import { BillingError, type billingCheckoutInput, type billingPlanInput, type billingSettingsInput } from '@/domain/billing/billing-input'
@@ -40,7 +41,13 @@ export async function withBillingActor<T>(db: PrismaClient, actor: BillingActor,
     return work(tx)
   })
 }
+async function tenantBillingRuntime(db:Prisma.TransactionClient,tenantId:string,runtime:BillingRuntime):Promise<BillingRuntime>{
+ if(!runtime.delivered.has('profile.subdomain'))return runtime
+ const tenant=await db.tenant.findUnique({where:{id:tenantId}}),configured=tenant&&Object.values(profileHostBases(process.env.PROFILE_HOST_BASES,runtime.production)).includes(tenant.host)
+ return configured?runtime:{...runtime,delivered:new Set([...runtime.delivered].filter(key=>key!=='profile.subdomain'))}
+}
 export async function billingCatalog(db: Prisma.TransactionClient, tenantId: string, runtime: BillingRuntime) {
+  runtime=await tenantBillingRuntime(db,tenantId,runtime)
   const [settings, plans] = await Promise.all([
     db.profileBillingSettings.findUnique({ where: { tenantId } }),
     db.profilePlan.findMany({ where: { tenantId }, include: { versions: { orderBy: { version: 'desc' }, take: 1 } } }),
@@ -87,6 +94,7 @@ function checkoutUrl(row: { status: string; checkoutUrl: string | null; checkout
   try { return hostedBillingUrl(row.checkoutUrl) } catch { return null }
 }
 export async function readBillingAdmin(db: PrismaClient, actor: BillingActor, runtime: BillingRuntime) {
+  runtime=await tenantBillingRuntime(db,actor.tenantId,runtime)
   await requireBillingActor(db, actor, 'ADMIN')
   const tenant = await db.tenant.findUniqueOrThrow({ where: { id: actor.tenantId } })
   return {
@@ -121,6 +129,7 @@ export async function saveBillingSettings(db: PrismaClient, actor: BillingActor,
   })
 }
 export async function saveProfilePlan(db: PrismaClient, actor: BillingActor, input: z.infer<typeof billingPlanInput>, runtime: BillingRuntime) {
+  runtime=await tenantBillingRuntime(db,actor.tenantId,runtime)
   await requireBillingActor(db, actor, 'ADMIN')
   if (!runtime.gateway) throw new BillingError(503, 'Configure o provedor de assinaturas antes de cadastrar um preço.')
   const price = await runtime.gateway.price(input.providerPriceId)

@@ -6,14 +6,14 @@ import home from '@/app/home.module.css'
 import styles from './catalog-skeleton.module.css'
 import {DiscoveryFieldsSkeleton} from '@/features/catalog/discovery/discovery-skeleton'
 
-export function CatalogCardSkeleton({ actions, withFavorite = true }: { actions?: ReactNode; withFavorite?: boolean }) {
+export function CatalogCardSkeleton({ actions, withFavorite = true,withImpressions=true }: { actions?: ReactNode; withFavorite?: boolean;withImpressions?:boolean }) {
   return <div className={card.card}>
     {withFavorite ? <div className={card.cornerAction}><Skeleton width={24} height={24} /></div> : null}
     <div className={`${card.name} ${withFavorite ? card.withCorner : ''}`}><Skeleton width="70%" height={28} /></div>
     <div className={card.description}><Skeleton height={21} /><Skeleton width="85%" height={21} /></div>
     <div className="link-meta"><Skeleton width={90} height={26} /><Skeleton width={80} height={26} /></div>
     {actions ? <div className={card.cardActions}>{actions}</div> : null}
-    <div className={card.footer}><Skeleton width={60} height={20} /><span className={card.action}><Skeleton width={80} height={20} /></span></div>
+    <div className={card.footer}>{withImpressions?<Skeleton width={60} height={20} />:null}<span className={card.action}><Skeleton width={80} height={20} /></span></div>
   </div>
 }
 export function CatalogCardsSkeleton({ count = 6, withFavorite = true }: { count?: number; withFavorite?: boolean }) {

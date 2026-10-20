@@ -2,7 +2,7 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 34.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
+**Estado:** IMPLEMENTADA LOCALMENTE; AC03/TLS REAL E S7 PENDENTES.
 **Onda:** 5. **Ordem:** 34.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Página premium com subdomínio”.  
 **Plano:** [F10 implementação](../planos/f10-pagina-premium-subdominio.md).  
@@ -147,3 +147,10 @@ Sem resolução das decisões bloqueantes e dependências concluídas, a feature
 
 **Indicadores:** conversão para plano pago, uso da personalização, renovação e cancelamentos.
 
+
+
+## Execução autorizada — 20/10/2026
+
+[Contrato reconciliado, decisões, ACs, testes e reversão](../execucao-f10.md). O registro de execução prevalece sobre caminhos/contratos apenas propostos neste planejamento. S7 remoto permanece pendente.
+
+F10-M01 obrigatório: certificado/DNS/HTTPS reais em staging não executados. A matriz mantém AC03 parcial; a composição HTTP descartável não é aceite desse gate. [Roteiro operacional](../operacao-f10.md).

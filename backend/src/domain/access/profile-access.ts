@@ -9,6 +9,7 @@ export const invitationToken=()=>randomBytes(32).toString('base64url')
 export const tokenDigest=(token:string)=>createHash('sha256').update(token).digest('hex')
 export const recipientDigest=(email:string,secret:string)=>createHmac('sha256',secret).update('profile-invitation-email.v1\0'+email.trim().toLowerCase()).digest('hex')
 export function profilePermission(method:string,path:string):ProfilePermission{
+ if(path==='/me/profile/hosts'||path==='/me/profile/hosts/verify')return method==='GET'?'READ':'PUBLISH'
  if(method==='GET'&&['/me/profile','/me/profile/preview','/me/profile/preview/items','/me/profile/catalog','/me/profile/channel-groups'].includes(path))return 'READ'
  if(method==='GET'&&/^\/me\/profile\/(avatar\/[a-f0-9]{64})$/.test(path))return 'READ'
  if(method==='GET'&&/^\/me\/profile\/channel-destinations(?:\/[^/]+)?$/.test(path))return 'EDIT'

@@ -38,3 +38,7 @@
 
 .brand a:hover, .brand a:focus-visible { opacity: 1; }
 .page[data-ink="light"] .brand img { filter: brightness(0) invert(1); }
+
+.cover { width:100%; height:clamp(112px,28vw,176px); margin-bottom:-68px; border-radius:var(--radius-lg,20px) var(--radius-lg,20px) 8px 8px; background:radial-gradient(circle at 18% 28%,color-mix(in srgb,var(--button-bg),#ffffff 50%),transparent 55%),linear-gradient(125deg,var(--button-bg),color-mix(in srgb,var(--button-bg),var(--page-bg) 65%)); }
+.cover + .identity { position:relative; }
+.cover + .identity .initial,.cover + .identity .avatar { background-color:var(--page-bg); }

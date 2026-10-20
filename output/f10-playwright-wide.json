@@ -1,0 +1,3029 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\VSCODE\\divulgadorlinks\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "e2e/profile-hosts.spec.ts",
+      "e2e/profile-billing.spec.ts",
+      "e2e/profiles.spec.ts",
+      "e2e/contact-forms.spec.ts",
+      "e2e/profile-channels.spec.ts",
+      "e2e/profile-events.spec.ts",
+      "--project=features",
+      "--project=features-mobile"
+    ],
+    "configFile": "C:\\VSCODE\\divulgadorlinks\\frontend\\playwright.config.ts",
+    "rootDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\global-setup.ts",
+    "globalTeardown": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\global-teardown.ts",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "setup",
+        "name": "setup",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/auth\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features",
+        "name": "features",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/profile-hosts\\.spec\\.ts|public-collections\\.spec\\.ts|share-kit\\.spec\\.ts|profile-events\\.spec\\.ts|ownership\\.spec\\.ts|profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features-mobile",
+        "name": "features-mobile",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/profile-hosts\\.spec\\.ts|public-collections\\.spec\\.ts|share-kit\\.spec\\.ts|profile-events\\.spec\\.ts|ownership\\.spec\\.ts|profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "catalog",
+        "name": "catalog",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/catalog\\.spec\\.ts|mail\\.spec\\.ts|advertise\\.spec\\.ts|legal\\.spec\\.ts|funnel\\.spec\\.ts|signup\\.spec\\.ts|submit-link\\.spec\\.ts|security-headers\\.spec\\.ts|google-ads-submission\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "auth.setup.ts",
+      "file": "auth.setup.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "sessão da Bia para os testes do painel",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "setup",
+              "projectName": "setup",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 411,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:26:27.322Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "17e3fe6f4d9d8bd79c6b-40367c7f5b2a9e9ad033",
+          "file": "auth.setup.ts",
+          "line": 8,
+          "column": 6
+        }
+      ]
+    },
+    {
+      "title": "contact-forms.spec.ts",
+      "file": "contact-forms.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F22-E01/T01/T03/T04/T05 configura formulário, recebe contato privado, exporta CSV e exclui",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4075,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:26:28.221Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-7019657f9e91ca561718",
+          "file": "contact-forms.spec.ts",
+          "line": 10,
+          "column": 5
+        },
+        {
+          "title": "F22-E02/T01 outro dono e visitante não leem contatos; prévia não envia",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1490,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:26:32.407Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-091cc8eef136a562166e",
+          "file": "contact-forms.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "F22-E03/T02 falha mantém dados, teclado permite recuperar, duplicação é evitada e 320px não transborda",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1036,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:26:33.904Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-8c7c7eb3731aaaf90185",
+          "file": "contact-forms.spec.ts",
+          "line": 20,
+          "column": 5
+        },
+        {
+          "title": "F22-G01 cria manualmente e configura contato junto aos dados sem publicar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4544,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:26:34.945Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-f88687e754c0de180c3e",
+          "file": "contact-forms.spec.ts",
+          "line": 25,
+          "column": 5
+        },
+        {
+          "title": "F09-G02 prévia acompanha os dados nas quatro abas sem alterar a publicação",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7162,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:26:39.495Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-9ac156865fd805b0f96b",
+          "file": "contact-forms.spec.ts",
+          "line": 33,
+          "column": 5
+        },
+        {
+          "title": "F22-G03 formulário segue os seis temas e valida campos antes de enviar; prévia reaproveita o mesmo bloco",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5825,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:26:46.662Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-c416d7dfb2aa3cfe875e",
+          "file": "contact-forms.spec.ts",
+          "line": 41,
+          "column": 5
+        },
+        {
+          "title": "F22-E01/T01/T03/T04/T05 configura formulário, recebe contato privado, exporta CSV e exclui",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3742,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:30:57.117Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-25bd04d53e18f047255d",
+          "file": "contact-forms.spec.ts",
+          "line": 10,
+          "column": 5
+        },
+        {
+          "title": "F22-E02/T01 outro dono e visitante não leem contatos; prévia não envia",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1374,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:31:00.971Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-45513f7390e0de7e266c",
+          "file": "contact-forms.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "F22-E03/T02 falha mantém dados, teclado permite recuperar, duplicação é evitada e 320px não transborda",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 960,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:31:02.351Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-20202ef7572b47378ed8",
+          "file": "contact-forms.spec.ts",
+          "line": 20,
+          "column": 5
+        },
+        {
+          "title": "F22-G01 cria manualmente e configura contato junto aos dados sem publicar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4395,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:31:03.317Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-fd809a7f0a0c578c3398",
+          "file": "contact-forms.spec.ts",
+          "line": 25,
+          "column": 5
+        },
+        {
+          "title": "F09-G02 prévia acompanha os dados nas quatro abas sem alterar a publicação",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6911,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:31:07.717Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-22fc13d81ba88b4e6cf9",
+          "file": "contact-forms.spec.ts",
+          "line": 33,
+          "column": 5
+        },
+        {
+          "title": "F22-G03 formulário segue os seis temas e valida campos antes de enviar; prévia reaproveita o mesmo bloco",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5597,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:31:14.635Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-873fabf67266d961829e",
+          "file": "contact-forms.spec.ts",
+          "line": 41,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "profile-billing.spec.ts",
+      "file": "profile-billing.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F11-E01 free remains usable, signed confirmation activates, change waits for next cycle and cancellation preserves the paid balance",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 15265,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:26:52.499Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1db9d3aea5dd6821a740-a20895f6056d35989319",
+          "file": "profile-billing.spec.ts",
+          "line": 27,
+          "column": 5
+        },
+        {
+          "title": "F11-E02 admin forms, fiscal gate, immutable editions, access control and layout-preserving refresh",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3468,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:27:07.770Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1db9d3aea5dd6821a740-ef7111997406e5438817",
+          "file": "profile-billing.spec.ts",
+          "line": 59,
+          "column": 5
+        },
+        {
+          "title": "F11-E03 provider outage keeps checkout pending, recovers idempotently and never gives premature access",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10575,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:27:11.244Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1db9d3aea5dd6821a740-7a9507de2530fa6d2b68",
+          "file": "profile-billing.spec.ts",
+          "line": 72,
+          "column": 5
+        },
+        {
+          "title": "F11-E04 failed renewal removes uncovered paid access, preserves the free page and allows cancellation without another invoice",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10041,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:27:21.825Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1db9d3aea5dd6821a740-757062b3c4bdd01a2c21",
+          "file": "profile-billing.spec.ts",
+          "line": 86,
+          "column": 5
+        },
+        {
+          "title": "F11-E05 existing account deletion automatically stops a paid renewal and keeps contact data removed",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8721,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:27:31.870Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1db9d3aea5dd6821a740-03e7ebc1d0a5658e7629",
+          "file": "profile-billing.spec.ts",
+          "line": 98,
+          "column": 5
+        },
+        {
+          "title": "F11-E01 free remains usable, signed confirmation activates, change waits for next cycle and cancellation preserves the paid balance",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 15001,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:31:20.244Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1db9d3aea5dd6821a740-58592f8a079dd1d6215a",
+          "file": "profile-billing.spec.ts",
+          "line": 27,
+          "column": 5
+        },
+        {
+          "title": "F11-E02 admin forms, fiscal gate, immutable editions, access control and layout-preserving refresh",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3361,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:31:35.251Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1db9d3aea5dd6821a740-15bb65657d75d3183d73",
+          "file": "profile-billing.spec.ts",
+          "line": 59,
+          "column": 5
+        },
+        {
+          "title": "F11-E03 provider outage keeps checkout pending, recovers idempotently and never gives premature access",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8195,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:31:38.618Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1db9d3aea5dd6821a740-b0ae36786e6c549d633e",
+          "file": "profile-billing.spec.ts",
+          "line": 72,
+          "column": 5
+        },
+        {
+          "title": "F11-E04 failed renewal removes uncovered paid access, preserves the free page and allows cancellation without another invoice",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10028,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:31:46.818Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1db9d3aea5dd6821a740-7ad463ad07b88ea76c53",
+          "file": "profile-billing.spec.ts",
+          "line": 86,
+          "column": 5
+        },
+        {
+          "title": "F11-E05 existing account deletion automatically stops a paid renewal and keeps contact data removed",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8632,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:31:56.851Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1db9d3aea5dd6821a740-4483374d1620013961f6",
+          "file": "profile-billing.spec.ts",
+          "line": 98,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "profile-channels.spec.ts",
+      "file": "profile-channels.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F37-E01/T01/T02/T03/T04/T06 create labelled choices, private preview, keyboard choice, pause and unavailable recovery",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8416,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:27:40.607Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "184ed9701b54d977af05-d791b285dba17b97ff42",
+          "file": "profile-channels.spec.ts",
+          "line": 23,
+          "column": 5
+        },
+        {
+          "title": "F37-E02 hidden choices and private groups never leak to anonymous, another admin or tenant; forged choices fail",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1944,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:27:49.035Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "184ed9701b54d977af05-ac1760720f6144f21a8d",
+          "file": "profile-channels.spec.ts",
+          "line": 34,
+          "column": 5
+        },
+        {
+          "title": "F37-E03 exact refresh skeleton, recoverable error, keyboard, mobile filters, conflict and 200% text",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2802,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:27:50.985Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "184ed9701b54d977af05-de4da433f44fd446d305",
+          "file": "profile-channels.spec.ts",
+          "line": 38,
+          "column": 5
+        },
+        {
+          "title": "F37-E04 metadata-only changes appear in F19 comparison, restore stays draft and preview reuses the personal page",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3500,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:27:53.792Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "184ed9701b54d977af05-a009f43b86beaced4db5",
+          "file": "profile-channels.spec.ts",
+          "line": 44,
+          "column": 5
+        },
+        {
+          "title": "F37-E05 unified group creates direct access without prior invitation, retries safely and toggles only channel titles",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 3253,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Guia da comunidade', { exact: true })\nExpected: visible\nError: strict mode violation: getByText('Guia da comunidade', { exact: true }) resolved to 2 elements:\n    1) <strong>Guia da comunidade</strong> aka getByRole('form', { name: 'Editar perfil' }).getByText('Guia da comunidade')\n    2) <span>Guia da comunidade</span> aka getByRole('link', { name: 'Guia da comunidade' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('Guia da comunidade', { exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Guia da comunidade', { exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Guia da comunidade', { exact: true })\nExpected: visible\nError: strict mode violation: getByText('Guia da comunidade', { exact: true }) resolved to 2 elements:\n    1) <strong>Guia da comunidade</strong> aka getByRole('form', { name: 'Editar perfil' }).getByText('Guia da comunidade')\n    2) <span>Guia da comunidade</span> aka getByRole('link', { name: 'Guia da comunidade' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('Guia da comunidade', { exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Guia da comunidade', { exact: true })\u001b[22m\n\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-channels.spec.ts:56:657",
+                    "location": {
+                      "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-channels.spec.ts",
+                      "column": 657,
+                      "line": 56
+                    },
+                    "snippet": "  54 |  const add=page.getByRole('button',{name:'Adicionar link',exact:true});await add.click();await page.getByRole('tab',{name:'Convite',exact:true}).click();let dialog=page.getByRole('dialog',{name:'Adicionar link',exact:true});await expect(dialog.getByRole('switch',{name:'Mostrar título'})).not.toBeChecked();await expect(dialog.getByLabel('Título',{exact:true})).toHaveCount(0);await expect(dialog.getByLabel('Pausar convite')).toHaveCount(0);await dialog.getByRole('switch',{name:'Mostrar título'}).check();await dialog.getByLabel('Título',{exact:true}).fill('Receber avisos');await dialog.getByRole('switch',{name:'Mostrar título'}).uncheck();await dialog.getByRole('textbox',{name:'Link',exact:true}).fill('https://t.me/unified-community')\n  55 |  let created=0;page.on('request',request=>{if(request.method()==='POST'&&request.url().endsWith('/bff/v1/me/redirects'))created++})\n> 56 |  await page.route('**/bff/v1/me/profile/channel-groups/*',route=>route.abort('failed'));await dialog.getByRole('button',{name:'Salvar convite'}).click();await expect(dialog.getByRole('alert')).toBeVisible();await expect(dialog.getByRole('textbox',{name:'Link',exact:true})).toHaveValue('https://t.me/unified-community');await capturePage(page,info.outputPath('unified-access-retry.png'),false);await page.unrouteAll({behavior:'wait'});await dialog.getByRole('button',{name:'Salvar convite'}).click();await expect(dialog).toHaveCount(0);expect(created).toBe(1);await expect(add).toBeFocused();await expect(page.getByText('Guia da comunidade',{exact:true})).toBeVisible();await expect(page.getByText('Receber avisos',{exact:true})).toBeVisible();await expect(page.getByText('Validado',{exact:true})).toBeVisible();await accessible(page);await capturePage(page,info.outputPath('unified-group-desktop-mobile.png'))\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^\n  57 |  const groups=(await read(page)).body;expect(groups.groups[0].channels[0].showLabel).toBe(false);const stableId=groups.groups[0].channels[0].id\n  58 |  await publish(page);const guest=await browser.newContext({viewport:page.viewportSize(),isMobile:info.project.name.includes('mobile'),hasTouch:info.project.name.includes('mobile')}),visitor=await guest.newPage()\n  59 |  try{"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-channels.spec.ts",
+                        "column": 657,
+                        "line": 56
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Guia da comunidade', { exact: true })\nExpected: visible\nError: strict mode violation: getByText('Guia da comunidade', { exact: true }) resolved to 2 elements:\n    1) <strong>Guia da comunidade</strong> aka getByRole('form', { name: 'Editar perfil' }).getByText('Guia da comunidade')\n    2) <span>Guia da comunidade</span> aka getByRole('link', { name: 'Guia da comunidade' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('Guia da comunidade', { exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Guia da comunidade', { exact: true })\u001b[22m\n\n\n  54 |  const add=page.getByRole('button',{name:'Adicionar link',exact:true});await add.click();await page.getByRole('tab',{name:'Convite',exact:true}).click();let dialog=page.getByRole('dialog',{name:'Adicionar link',exact:true});await expect(dialog.getByRole('switch',{name:'Mostrar título'})).not.toBeChecked();await expect(dialog.getByLabel('Título',{exact:true})).toHaveCount(0);await expect(dialog.getByLabel('Pausar convite')).toHaveCount(0);await dialog.getByRole('switch',{name:'Mostrar título'}).check();await dialog.getByLabel('Título',{exact:true}).fill('Receber avisos');await dialog.getByRole('switch',{name:'Mostrar título'}).uncheck();await dialog.getByRole('textbox',{name:'Link',exact:true}).fill('https://t.me/unified-community')\n  55 |  let created=0;page.on('request',request=>{if(request.method()==='POST'&&request.url().endsWith('/bff/v1/me/redirects'))created++})\n> 56 |  await page.route('**/bff/v1/me/profile/channel-groups/*',route=>route.abort('failed'));await dialog.getByRole('button',{name:'Salvar convite'}).click();await expect(dialog.getByRole('alert')).toBeVisible();await expect(dialog.getByRole('textbox',{name:'Link',exact:true})).toHaveValue('https://t.me/unified-community');await capturePage(page,info.outputPath('unified-access-retry.png'),false);await page.unrouteAll({behavior:'wait'});await dialog.getByRole('button',{name:'Salvar convite'}).click();await expect(dialog).toHaveCount(0);expect(created).toBe(1);await expect(add).toBeFocused();await expect(page.getByText('Guia da comunidade',{exact:true})).toBeVisible();await expect(page.getByText('Receber avisos',{exact:true})).toBeVisible();await expect(page.getByText('Validado',{exact:true})).toBeVisible();await accessible(page);await capturePage(page,info.outputPath('unified-group-desktop-mobile.png'))\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^\n  57 |  const groups=(await read(page)).body;expect(groups.groups[0].channels[0].showLabel).toBe(false);const stableId=groups.groups[0].channels[0].id\n  58 |  await publish(page);const guest=await browser.newContext({viewport:page.viewportSize(),isMobile:info.project.name.includes('mobile'),hasTouch:info.project.name.includes('mobile')}),visitor=await guest.newPage()\n  59 |  try{\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-channels.spec.ts:56:657"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:27:57.297Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-channels-F37-E05-u-3999e-toggles-only-channel-titles-features\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-channels-F37-E05-u-3999e-toggles-only-channel-titles-features\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-channels-F37-E05-u-3999e-toggles-only-channel-titles-features\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-channels.spec.ts",
+                    "column": 657,
+                    "line": 56
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "184ed9701b54d977af05-9ac11ca325c0fdfcf919",
+          "file": "profile-channels.spec.ts",
+          "line": 49,
+          "column": 5
+        },
+        {
+          "title": "F37-E06 pending direct destinations stay in the group draft after reload and cannot be published",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4066,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:28:01.474Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "184ed9701b54d977af05-b9ea7116f6f9fc53bdb0",
+          "file": "profile-channels.spec.ts",
+          "line": 69,
+          "column": 5
+        },
+        {
+          "title": "F37-E07 compact link tabs, inline invitation refresh and quick visibility and pause actions persist",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 22088,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Adicionar link', exact: true }).getByRole('tablist', { name: 'Tipo de conteúdo' }).getByRole('tab')\nTimeout: 20000ms\n\u001b[32m- Expected  - 0\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[2m  Array [\u001b[22m\n\u001b[2m    \"Link\",\u001b[22m\n\u001b[31m+   \"Evento\",\u001b[39m\n\u001b[2m    \"Convite\",\u001b[22m\n\u001b[2m  ]\u001b[22m\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByRole('dialog', { name: 'Adicionar link', exact: true }).getByRole('tablist', { name: 'Tipo de conteúdo' }).getByRole('tab') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Adicionar link', exact: true }).getByRole('tablist', { name: 'Tipo de conteúdo' }).getByRole('tab')\u001b[22m\n\u001b[2m    43 × locator resolved to 3 elements\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Adicionar link', exact: true }).getByRole('tablist', { name: 'Tipo de conteúdo' }).getByRole('tab')\nTimeout: 20000ms\n\u001b[32m- Expected  - 0\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[2m  Array [\u001b[22m\n\u001b[2m    \"Link\",\u001b[22m\n\u001b[31m+   \"Evento\",\u001b[39m\n\u001b[2m    \"Convite\",\u001b[22m\n\u001b[2m  ]\u001b[22m\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByRole('dialog', { name: 'Adicionar link', exact: true }).getByRole('tablist', { name: 'Tipo de conteúdo' }).getByRole('tab') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Adicionar link', exact: true }).getByRole('tablist', { name: 'Tipo de conteúdo' }).getByRole('tab')\u001b[22m\n\u001b[2m    43 × locator resolved to 3 elements\u001b[22m\n\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-channels.spec.ts:75:232",
+                    "location": {
+                      "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-channels.spec.ts",
+                      "column": 232,
+                      "line": 75
+                    },
+                    "snippet": "  73 | test('F37-E07 compact link tabs, inline invitation refresh and quick visibility and pause actions persist',async({page},info)=>{\n  74 |  await prepare(page,false);await page.goto(origin+'/painel/perfil?secao=links');await page.getByRole('button',{name:'Adicionar grupo',exact:true}).click();await expect(page.getByLabel('Grupo visível',{exact:true})).toHaveCount(0);await page.getByLabel('Nome do grupo').fill('Links e convites');await page.getByRole('button',{name:'Concluir grupo'}).click()\n> 75 |  await page.getByRole('button',{name:'Adicionar link',exact:true}).click();let dialog=page.getByRole('dialog',{name:'Adicionar link',exact:true});await expect(dialog.getByRole('tablist',{name:'Tipo de conteúdo'}).getByRole('tab')).toHaveText(['Link','Convite']);await expect(dialog.getByLabel('Link visível',{exact:true})).toHaveCount(0);await expect(dialog.getByRole('tablist',{name:'Tipo de link'}).getByRole('tab')).toHaveText(['Novo','Meus links']);await dialog.getByLabel('Título do link').fill('Meu site');await dialog.getByLabel('Link de acesso',{exact:true}).fill('https://example.com/site');await dialog.getByRole('button',{name:'Concluir link'}).click()\n     |                                                                                                                                                                                                                                        ^\n  76 |  await page.getByRole('button',{name:'Ocultar link Meu site',exact:true}).click();await expect(page.getByRole('region',{name:'Editor do perfil'})).toHaveAttribute('data-save-state','saved');await page.getByRole('button',{name:'Editar link',exact:true}).click();dialog=page.getByRole('dialog',{name:'Editar link',exact:true});await expect(dialog.getByRole('tablist',{name:'Tipo de conteúdo'}).getByRole('tab')).toHaveText(['Link']);await expect(dialog.getByLabel('Link visível',{exact:true})).not.toBeChecked();await dialog.getByRole('button',{name:'Cancelar',exact:true}).click();await page.getByRole('button',{name:'Mostrar link Meu site',exact:true}).click()\n  77 |  await page.getByRole('button',{name:'Adicionar link',exact:true}).click();dialog=page.getByRole('dialog',{name:'Adicionar link',exact:true});await dialog.getByRole('tab',{name:'Convite',exact:true}).click();await expect(dialog.getByRole('switch',{name:'Mostrar título'})).not.toBeChecked();await expect(dialog.getByLabel('Título',{exact:true})).toHaveCount(0);await expect(dialog.getByLabel('Pausar convite',{exact:true})).toHaveCount(0);await expect(dialog.getByRole('form',{name:'Configurar convite'}).locator('p')).toHaveCount(0);await dialog.getByRole('textbox',{name:'Link',exact:true}).fill('https://t.me/compact-invite');await accessible(page);await capturePage(page,info.outputPath('compact-new-invite.png'),false);await dialog.getByRole('button',{name:'Salvar convite'}).click();await expect(dialog).toHaveCount(0)\n  78 |  const first=(await read(page)).body.groups[0].channels[0];expect(first).toMatchObject({label:'Telegram',showLabel:false});await page.getByRole('button',{name:'Pausar convite Telegram',exact:true}).click();await expect(page.getByRole('button',{name:'Retomar convite Telegram',exact:true})).toBeEnabled();expect((await read(page)).body.groups[0].channels[0].paused).toBe(true);await expect(page.getByRole('dialog')).toHaveCount(0);await page.getByRole('button',{name:'Retomar convite Telegram',exact:true}).click();await expect(page.getByRole('button',{name:'Pausar convite Telegram',exact:true})).toBeEnabled();expect((await read(page)).body.groups[0].channels[0]).toMatchObject({id:first.id,paused:false})"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-channels.spec.ts",
+                        "column": 232,
+                        "line": 75
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Adicionar link', exact: true }).getByRole('tablist', { name: 'Tipo de conteúdo' }).getByRole('tab')\nTimeout: 20000ms\n\u001b[32m- Expected  - 0\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[2m  Array [\u001b[22m\n\u001b[2m    \"Link\",\u001b[22m\n\u001b[31m+   \"Evento\",\u001b[39m\n\u001b[2m    \"Convite\",\u001b[22m\n\u001b[2m  ]\u001b[22m\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByRole('dialog', { name: 'Adicionar link', exact: true }).getByRole('tablist', { name: 'Tipo de conteúdo' }).getByRole('tab') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Adicionar link', exact: true }).getByRole('tablist', { name: 'Tipo de conteúdo' }).getByRole('tab')\u001b[22m\n\u001b[2m    43 × locator resolved to 3 elements\u001b[22m\n\n\n  73 | test('F37-E07 compact link tabs, inline invitation refresh and quick visibility and pause actions persist',async({page},info)=>{\n  74 |  await prepare(page,false);await page.goto(origin+'/painel/perfil?secao=links');await page.getByRole('button',{name:'Adicionar grupo',exact:true}).click();await expect(page.getByLabel('Grupo visível',{exact:true})).toHaveCount(0);await page.getByLabel('Nome do grupo').fill('Links e convites');await page.getByRole('button',{name:'Concluir grupo'}).click()\n> 75 |  await page.getByRole('button',{name:'Adicionar link',exact:true}).click();let dialog=page.getByRole('dialog',{name:'Adicionar link',exact:true});await expect(dialog.getByRole('tablist',{name:'Tipo de conteúdo'}).getByRole('tab')).toHaveText(['Link','Convite']);await expect(dialog.getByLabel('Link visível',{exact:true})).toHaveCount(0);await expect(dialog.getByRole('tablist',{name:'Tipo de link'}).getByRole('tab')).toHaveText(['Novo','Meus links']);await dialog.getByLabel('Título do link').fill('Meu site');await dialog.getByLabel('Link de acesso',{exact:true}).fill('https://example.com/site');await dialog.getByRole('button',{name:'Concluir link'}).click()\n     |                                                                                                                                                                                                                                        ^\n  76 |  await page.getByRole('button',{name:'Ocultar link Meu site',exact:true}).click();await expect(page.getByRole('region',{name:'Editor do perfil'})).toHaveAttribute('data-save-state','saved');await page.getByRole('button',{name:'Editar link',exact:true}).click();dialog=page.getByRole('dialog',{name:'Editar link',exact:true});await expect(dialog.getByRole('tablist',{name:'Tipo de conteúdo'}).getByRole('tab')).toHaveText(['Link']);await expect(dialog.getByLabel('Link visível',{exact:true})).not.toBeChecked();await dialog.getByRole('button',{name:'Cancelar',exact:true}).click();await page.getByRole('button',{name:'Mostrar link Meu site',exact:true}).click()\n  77 |  await page.getByRole('button',{name:'Adicionar link',exact:true}).click();dialog=page.getByRole('dialog',{name:'Adicionar link',exact:true});await dialog.getByRole('tab',{name:'Convite',exact:true}).click();await expect(dialog.getByRole('switch',{name:'Mostrar título'})).not.toBeChecked();await expect(dialog.getByLabel('Título',{exact:true})).toHaveCount(0);await expect(dialog.getByLabel('Pausar convite',{exact:true})).toHaveCount(0);await expect(dialog.getByRole('form',{name:'Configurar convite'}).locator('p')).toHaveCount(0);await dialog.getByRole('textbox',{name:'Link',exact:true}).fill('https://t.me/compact-invite');await accessible(page);await capturePage(page,info.outputPath('compact-new-invite.png'),false);await dialog.getByRole('button',{name:'Salvar convite'}).click();await expect(dialog).toHaveCount(0)\n  78 |  const first=(await read(page)).body.groups[0].channels[0];expect(first).toMatchObject({label:'Telegram',showLabel:false});await page.getByRole('button',{name:'Pausar convite Telegram',exact:true}).click();await expect(page.getByRole('button',{name:'Retomar convite Telegram',exact:true})).toBeEnabled();expect((await read(page)).body.groups[0].channels[0].paused).toBe(true);await expect(page.getByRole('dialog')).toHaveCount(0);await page.getByRole('button',{name:'Retomar convite Telegram',exact:true}).click();await expect(page.getByRole('button',{name:'Pausar convite Telegram',exact:true})).toBeEnabled();expect((await read(page)).body.groups[0].channels[0]).toMatchObject({id:first.id,paused:false})\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-channels.spec.ts:75:232"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:28:05.654Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-channels-F37-E07-c-60ea7-y-and-pause-actions-persist-features\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-channels-F37-E07-c-60ea7-y-and-pause-actions-persist-features\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-channels-F37-E07-c-60ea7-y-and-pause-actions-persist-features\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-channels.spec.ts",
+                    "column": 232,
+                    "line": 75
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "184ed9701b54d977af05-afde0fb625d5236dc969",
+          "file": "profile-channels.spec.ts",
+          "line": 73,
+          "column": 5
+        },
+        {
+          "title": "F37-E01/T01/T02/T03/T04/T06 create labelled choices, private preview, keyboard choice, pause and unavailable recovery",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8182,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:32:05.496Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "184ed9701b54d977af05-3e5fb3a55dab562b2909",
+          "file": "profile-channels.spec.ts",
+          "line": 23,
+          "column": 5
+        },
+        {
+          "title": "F37-E02 hidden choices and private groups never leak to anonymous, another admin or tenant; forged choices fail",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1859,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:32:13.685Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "184ed9701b54d977af05-7bb1c507cfc4475f6696",
+          "file": "profile-channels.spec.ts",
+          "line": 34,
+          "column": 5
+        },
+        {
+          "title": "F37-E03 exact refresh skeleton, recoverable error, keyboard, mobile filters, conflict and 200% text",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2909,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:32:15.550Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "184ed9701b54d977af05-445ba4a8de09ce65d15d",
+          "file": "profile-channels.spec.ts",
+          "line": 38,
+          "column": 5
+        },
+        {
+          "title": "F37-E04 metadata-only changes appear in F19 comparison, restore stays draft and preview reuses the personal page",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3429,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:32:18.463Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "184ed9701b54d977af05-5344e3285116d7e21a19",
+          "file": "profile-channels.spec.ts",
+          "line": 44,
+          "column": 5
+        },
+        {
+          "title": "F37-E05 unified group creates direct access without prior invitation, retries safely and toggles only channel titles",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 3150,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Guia da comunidade', { exact: true })\nExpected: visible\nError: strict mode violation: getByText('Guia da comunidade', { exact: true }) resolved to 2 elements:\n    1) <strong>Guia da comunidade</strong> aka getByRole('form', { name: 'Editar perfil' }).getByText('Guia da comunidade')\n    2) <span>Guia da comunidade</span> aka getByRole('complementary', { name: 'Prévia ao vivo da página' }).getByText('Guia da comunidade')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('Guia da comunidade', { exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Guia da comunidade', { exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Guia da comunidade', { exact: true })\nExpected: visible\nError: strict mode violation: getByText('Guia da comunidade', { exact: true }) resolved to 2 elements:\n    1) <strong>Guia da comunidade</strong> aka getByRole('form', { name: 'Editar perfil' }).getByText('Guia da comunidade')\n    2) <span>Guia da comunidade</span> aka getByRole('complementary', { name: 'Prévia ao vivo da página' }).getByText('Guia da comunidade')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('Guia da comunidade', { exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Guia da comunidade', { exact: true })\u001b[22m\n\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-channels.spec.ts:56:657",
+                    "location": {
+                      "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-channels.spec.ts",
+                      "column": 657,
+                      "line": 56
+                    },
+                    "snippet": "  54 |  const add=page.getByRole('button',{name:'Adicionar link',exact:true});await add.click();await page.getByRole('tab',{name:'Convite',exact:true}).click();let dialog=page.getByRole('dialog',{name:'Adicionar link',exact:true});await expect(dialog.getByRole('switch',{name:'Mostrar título'})).not.toBeChecked();await expect(dialog.getByLabel('Título',{exact:true})).toHaveCount(0);await expect(dialog.getByLabel('Pausar convite')).toHaveCount(0);await dialog.getByRole('switch',{name:'Mostrar título'}).check();await dialog.getByLabel('Título',{exact:true}).fill('Receber avisos');await dialog.getByRole('switch',{name:'Mostrar título'}).uncheck();await dialog.getByRole('textbox',{name:'Link',exact:true}).fill('https://t.me/unified-community')\n  55 |  let created=0;page.on('request',request=>{if(request.method()==='POST'&&request.url().endsWith('/bff/v1/me/redirects'))created++})\n> 56 |  await page.route('**/bff/v1/me/profile/channel-groups/*',route=>route.abort('failed'));await dialog.getByRole('button',{name:'Salvar convite'}).click();await expect(dialog.getByRole('alert')).toBeVisible();await expect(dialog.getByRole('textbox',{name:'Link',exact:true})).toHaveValue('https://t.me/unified-community');await capturePage(page,info.outputPath('unified-access-retry.png'),false);await page.unrouteAll({behavior:'wait'});await dialog.getByRole('button',{name:'Salvar convite'}).click();await expect(dialog).toHaveCount(0);expect(created).toBe(1);await expect(add).toBeFocused();await expect(page.getByText('Guia da comunidade',{exact:true})).toBeVisible();await expect(page.getByText('Receber avisos',{exact:true})).toBeVisible();await expect(page.getByText('Validado',{exact:true})).toBeVisible();await accessible(page);await capturePage(page,info.outputPath('unified-group-desktop-mobile.png'))\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^\n  57 |  const groups=(await read(page)).body;expect(groups.groups[0].channels[0].showLabel).toBe(false);const stableId=groups.groups[0].channels[0].id\n  58 |  await publish(page);const guest=await browser.newContext({viewport:page.viewportSize(),isMobile:info.project.name.includes('mobile'),hasTouch:info.project.name.includes('mobile')}),visitor=await guest.newPage()\n  59 |  try{"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-channels.spec.ts",
+                        "column": 657,
+                        "line": 56
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Guia da comunidade', { exact: true })\nExpected: visible\nError: strict mode violation: getByText('Guia da comunidade', { exact: true }) resolved to 2 elements:\n    1) <strong>Guia da comunidade</strong> aka getByRole('form', { name: 'Editar perfil' }).getByText('Guia da comunidade')\n    2) <span>Guia da comunidade</span> aka getByRole('complementary', { name: 'Prévia ao vivo da página' }).getByText('Guia da comunidade')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('Guia da comunidade', { exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Guia da comunidade', { exact: true })\u001b[22m\n\n\n  54 |  const add=page.getByRole('button',{name:'Adicionar link',exact:true});await add.click();await page.getByRole('tab',{name:'Convite',exact:true}).click();let dialog=page.getByRole('dialog',{name:'Adicionar link',exact:true});await expect(dialog.getByRole('switch',{name:'Mostrar título'})).not.toBeChecked();await expect(dialog.getByLabel('Título',{exact:true})).toHaveCount(0);await expect(dialog.getByLabel('Pausar convite')).toHaveCount(0);await dialog.getByRole('switch',{name:'Mostrar título'}).check();await dialog.getByLabel('Título',{exact:true}).fill('Receber avisos');await dialog.getByRole('switch',{name:'Mostrar título'}).uncheck();await dialog.getByRole('textbox',{name:'Link',exact:true}).fill('https://t.me/unified-community')\n  55 |  let created=0;page.on('request',request=>{if(request.method()==='POST'&&request.url().endsWith('/bff/v1/me/redirects'))created++})\n> 56 |  await page.route('**/bff/v1/me/profile/channel-groups/*',route=>route.abort('failed'));await dialog.getByRole('button',{name:'Salvar convite'}).click();await expect(dialog.getByRole('alert')).toBeVisible();await expect(dialog.getByRole('textbox',{name:'Link',exact:true})).toHaveValue('https://t.me/unified-community');await capturePage(page,info.outputPath('unified-access-retry.png'),false);await page.unrouteAll({behavior:'wait'});await dialog.getByRole('button',{name:'Salvar convite'}).click();await expect(dialog).toHaveCount(0);expect(created).toBe(1);await expect(add).toBeFocused();await expect(page.getByText('Guia da comunidade',{exact:true})).toBeVisible();await expect(page.getByText('Receber avisos',{exact:true})).toBeVisible();await expect(page.getByText('Validado',{exact:true})).toBeVisible();await accessible(page);await capturePage(page,info.outputPath('unified-group-desktop-mobile.png'))\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^\n  57 |  const groups=(await read(page)).body;expect(groups.groups[0].channels[0].showLabel).toBe(false);const stableId=groups.groups[0].channels[0].id\n  58 |  await publish(page);const guest=await browser.newContext({viewport:page.viewportSize(),isMobile:info.project.name.includes('mobile'),hasTouch:info.project.name.includes('mobile')}),visitor=await guest.newPage()\n  59 |  try{\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-channels.spec.ts:56:657"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:32:21.897Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-channels-F37-E05-u-3999e-toggles-only-channel-titles-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-channels-F37-E05-u-3999e-toggles-only-channel-titles-features-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-channels-F37-E05-u-3999e-toggles-only-channel-titles-features-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-channels.spec.ts",
+                    "column": 657,
+                    "line": 56
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "184ed9701b54d977af05-ae6ef014bf00b7a4f0c1",
+          "file": "profile-channels.spec.ts",
+          "line": 49,
+          "column": 5
+        },
+        {
+          "title": "F37-E06 pending direct destinations stay in the group draft after reload and cannot be published",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4046,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:32:25.928Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "184ed9701b54d977af05-b9360f32aaf4f01f7741",
+          "file": "profile-channels.spec.ts",
+          "line": 69,
+          "column": 5
+        },
+        {
+          "title": "F37-E07 compact link tabs, inline invitation refresh and quick visibility and pause actions persist",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 22068,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Adicionar link', exact: true }).getByRole('tablist', { name: 'Tipo de conteúdo' }).getByRole('tab')\nTimeout: 20000ms\n\u001b[32m- Expected  - 0\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[2m  Array [\u001b[22m\n\u001b[2m    \"Link\",\u001b[22m\n\u001b[31m+   \"Evento\",\u001b[39m\n\u001b[2m    \"Convite\",\u001b[22m\n\u001b[2m  ]\u001b[22m\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByRole('dialog', { name: 'Adicionar link', exact: true }).getByRole('tablist', { name: 'Tipo de conteúdo' }).getByRole('tab') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Adicionar link', exact: true }).getByRole('tablist', { name: 'Tipo de conteúdo' }).getByRole('tab')\u001b[22m\n\u001b[2m    43 × locator resolved to 3 elements\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Adicionar link', exact: true }).getByRole('tablist', { name: 'Tipo de conteúdo' }).getByRole('tab')\nTimeout: 20000ms\n\u001b[32m- Expected  - 0\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[2m  Array [\u001b[22m\n\u001b[2m    \"Link\",\u001b[22m\n\u001b[31m+   \"Evento\",\u001b[39m\n\u001b[2m    \"Convite\",\u001b[22m\n\u001b[2m  ]\u001b[22m\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByRole('dialog', { name: 'Adicionar link', exact: true }).getByRole('tablist', { name: 'Tipo de conteúdo' }).getByRole('tab') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Adicionar link', exact: true }).getByRole('tablist', { name: 'Tipo de conteúdo' }).getByRole('tab')\u001b[22m\n\u001b[2m    43 × locator resolved to 3 elements\u001b[22m\n\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-channels.spec.ts:75:232",
+                    "location": {
+                      "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-channels.spec.ts",
+                      "column": 232,
+                      "line": 75
+                    },
+                    "snippet": "  73 | test('F37-E07 compact link tabs, inline invitation refresh and quick visibility and pause actions persist',async({page},info)=>{\n  74 |  await prepare(page,false);await page.goto(origin+'/painel/perfil?secao=links');await page.getByRole('button',{name:'Adicionar grupo',exact:true}).click();await expect(page.getByLabel('Grupo visível',{exact:true})).toHaveCount(0);await page.getByLabel('Nome do grupo').fill('Links e convites');await page.getByRole('button',{name:'Concluir grupo'}).click()\n> 75 |  await page.getByRole('button',{name:'Adicionar link',exact:true}).click();let dialog=page.getByRole('dialog',{name:'Adicionar link',exact:true});await expect(dialog.getByRole('tablist',{name:'Tipo de conteúdo'}).getByRole('tab')).toHaveText(['Link','Convite']);await expect(dialog.getByLabel('Link visível',{exact:true})).toHaveCount(0);await expect(dialog.getByRole('tablist',{name:'Tipo de link'}).getByRole('tab')).toHaveText(['Novo','Meus links']);await dialog.getByLabel('Título do link').fill('Meu site');await dialog.getByLabel('Link de acesso',{exact:true}).fill('https://example.com/site');await dialog.getByRole('button',{name:'Concluir link'}).click()\n     |                                                                                                                                                                                                                                        ^\n  76 |  await page.getByRole('button',{name:'Ocultar link Meu site',exact:true}).click();await expect(page.getByRole('region',{name:'Editor do perfil'})).toHaveAttribute('data-save-state','saved');await page.getByRole('button',{name:'Editar link',exact:true}).click();dialog=page.getByRole('dialog',{name:'Editar link',exact:true});await expect(dialog.getByRole('tablist',{name:'Tipo de conteúdo'}).getByRole('tab')).toHaveText(['Link']);await expect(dialog.getByLabel('Link visível',{exact:true})).not.toBeChecked();await dialog.getByRole('button',{name:'Cancelar',exact:true}).click();await page.getByRole('button',{name:'Mostrar link Meu site',exact:true}).click()\n  77 |  await page.getByRole('button',{name:'Adicionar link',exact:true}).click();dialog=page.getByRole('dialog',{name:'Adicionar link',exact:true});await dialog.getByRole('tab',{name:'Convite',exact:true}).click();await expect(dialog.getByRole('switch',{name:'Mostrar título'})).not.toBeChecked();await expect(dialog.getByLabel('Título',{exact:true})).toHaveCount(0);await expect(dialog.getByLabel('Pausar convite',{exact:true})).toHaveCount(0);await expect(dialog.getByRole('form',{name:'Configurar convite'}).locator('p')).toHaveCount(0);await dialog.getByRole('textbox',{name:'Link',exact:true}).fill('https://t.me/compact-invite');await accessible(page);await capturePage(page,info.outputPath('compact-new-invite.png'),false);await dialog.getByRole('button',{name:'Salvar convite'}).click();await expect(dialog).toHaveCount(0)\n  78 |  const first=(await read(page)).body.groups[0].channels[0];expect(first).toMatchObject({label:'Telegram',showLabel:false});await page.getByRole('button',{name:'Pausar convite Telegram',exact:true}).click();await expect(page.getByRole('button',{name:'Retomar convite Telegram',exact:true})).toBeEnabled();expect((await read(page)).body.groups[0].channels[0].paused).toBe(true);await expect(page.getByRole('dialog')).toHaveCount(0);await page.getByRole('button',{name:'Retomar convite Telegram',exact:true}).click();await expect(page.getByRole('button',{name:'Pausar convite Telegram',exact:true})).toBeEnabled();expect((await read(page)).body.groups[0].channels[0]).toMatchObject({id:first.id,paused:false})"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-channels.spec.ts",
+                        "column": 232,
+                        "line": 75
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Adicionar link', exact: true }).getByRole('tablist', { name: 'Tipo de conteúdo' }).getByRole('tab')\nTimeout: 20000ms\n\u001b[32m- Expected  - 0\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[2m  Array [\u001b[22m\n\u001b[2m    \"Link\",\u001b[22m\n\u001b[31m+   \"Evento\",\u001b[39m\n\u001b[2m    \"Convite\",\u001b[22m\n\u001b[2m  ]\u001b[22m\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByRole('dialog', { name: 'Adicionar link', exact: true }).getByRole('tablist', { name: 'Tipo de conteúdo' }).getByRole('tab') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Adicionar link', exact: true }).getByRole('tablist', { name: 'Tipo de conteúdo' }).getByRole('tab')\u001b[22m\n\u001b[2m    43 × locator resolved to 3 elements\u001b[22m\n\n\n  73 | test('F37-E07 compact link tabs, inline invitation refresh and quick visibility and pause actions persist',async({page},info)=>{\n  74 |  await prepare(page,false);await page.goto(origin+'/painel/perfil?secao=links');await page.getByRole('button',{name:'Adicionar grupo',exact:true}).click();await expect(page.getByLabel('Grupo visível',{exact:true})).toHaveCount(0);await page.getByLabel('Nome do grupo').fill('Links e convites');await page.getByRole('button',{name:'Concluir grupo'}).click()\n> 75 |  await page.getByRole('button',{name:'Adicionar link',exact:true}).click();let dialog=page.getByRole('dialog',{name:'Adicionar link',exact:true});await expect(dialog.getByRole('tablist',{name:'Tipo de conteúdo'}).getByRole('tab')).toHaveText(['Link','Convite']);await expect(dialog.getByLabel('Link visível',{exact:true})).toHaveCount(0);await expect(dialog.getByRole('tablist',{name:'Tipo de link'}).getByRole('tab')).toHaveText(['Novo','Meus links']);await dialog.getByLabel('Título do link').fill('Meu site');await dialog.getByLabel('Link de acesso',{exact:true}).fill('https://example.com/site');await dialog.getByRole('button',{name:'Concluir link'}).click()\n     |                                                                                                                                                                                                                                        ^\n  76 |  await page.getByRole('button',{name:'Ocultar link Meu site',exact:true}).click();await expect(page.getByRole('region',{name:'Editor do perfil'})).toHaveAttribute('data-save-state','saved');await page.getByRole('button',{name:'Editar link',exact:true}).click();dialog=page.getByRole('dialog',{name:'Editar link',exact:true});await expect(dialog.getByRole('tablist',{name:'Tipo de conteúdo'}).getByRole('tab')).toHaveText(['Link']);await expect(dialog.getByLabel('Link visível',{exact:true})).not.toBeChecked();await dialog.getByRole('button',{name:'Cancelar',exact:true}).click();await page.getByRole('button',{name:'Mostrar link Meu site',exact:true}).click()\n  77 |  await page.getByRole('button',{name:'Adicionar link',exact:true}).click();dialog=page.getByRole('dialog',{name:'Adicionar link',exact:true});await dialog.getByRole('tab',{name:'Convite',exact:true}).click();await expect(dialog.getByRole('switch',{name:'Mostrar título'})).not.toBeChecked();await expect(dialog.getByLabel('Título',{exact:true})).toHaveCount(0);await expect(dialog.getByLabel('Pausar convite',{exact:true})).toHaveCount(0);await expect(dialog.getByRole('form',{name:'Configurar convite'}).locator('p')).toHaveCount(0);await dialog.getByRole('textbox',{name:'Link',exact:true}).fill('https://t.me/compact-invite');await accessible(page);await capturePage(page,info.outputPath('compact-new-invite.png'),false);await dialog.getByRole('button',{name:'Salvar convite'}).click();await expect(dialog).toHaveCount(0)\n  78 |  const first=(await read(page)).body.groups[0].channels[0];expect(first).toMatchObject({label:'Telegram',showLabel:false});await page.getByRole('button',{name:'Pausar convite Telegram',exact:true}).click();await expect(page.getByRole('button',{name:'Retomar convite Telegram',exact:true})).toBeEnabled();expect((await read(page)).body.groups[0].channels[0].paused).toBe(true);await expect(page.getByRole('dialog')).toHaveCount(0);await page.getByRole('button',{name:'Retomar convite Telegram',exact:true}).click();await expect(page.getByRole('button',{name:'Pausar convite Telegram',exact:true})).toBeEnabled();expect((await read(page)).body.groups[0].channels[0]).toMatchObject({id:first.id,paused:false})\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-channels.spec.ts:75:232"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:32:30.083Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-channels-F37-E07-c-60ea7-y-and-pause-actions-persist-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-channels-F37-E07-c-60ea7-y-and-pause-actions-persist-features-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-channels-F37-E07-c-60ea7-y-and-pause-actions-persist-features-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-channels.spec.ts",
+                    "column": 232,
+                    "line": 75
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "184ed9701b54d977af05-197b9ab2d932ac2f6638",
+          "file": "profile-channels.spec.ts",
+          "line": 73,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "profile-events.spec.ts",
+      "file": "profile-events.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F29-E01/T01/T02/T04 cria evento em etapas, publica, baixa ICS e mantém UID ao remarcar/cancelar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4194,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:28:28.245Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "89b4ee11f09eadeef6b2-cef56e2f86ee918cddd7",
+          "file": "profile-events.spec.ts",
+          "line": 11,
+          "column": 5
+        },
+        {
+          "title": "F29-E02 rascunho e evento oculto não fornecem ICS; visitante e outro dono não alteram agenda",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3484,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:28:32.548Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "89b4ee11f09eadeef6b2-a6a438df5f30848a6bd2",
+          "file": "profile-events.spec.ts",
+          "line": 13,
+          "column": 5
+        },
+        {
+          "title": "F29-E03/C01 teclado valida datas, erro de autosave mantém evento e prévia; 320px não transborda",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3745,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:28:36.038Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "89b4ee11f09eadeef6b2-ec4c882f034c3c22b7a1",
+          "file": "profile-events.spec.ts",
+          "line": 14,
+          "column": 5
+        },
+        {
+          "title": "F29-E01/T01/T02/T04 cria evento em etapas, publica, baixa ICS e mantém UID ao remarcar/cancelar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4183,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:32:52.762Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "89b4ee11f09eadeef6b2-adecf2272a8940babd0d",
+          "file": "profile-events.spec.ts",
+          "line": 11,
+          "column": 5
+        },
+        {
+          "title": "F29-E02 rascunho e evento oculto não fornecem ICS; visitante e outro dono não alteram agenda",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3332,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:32:57.056Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "89b4ee11f09eadeef6b2-f3f3320efabbd1439605",
+          "file": "profile-events.spec.ts",
+          "line": 13,
+          "column": 5
+        },
+        {
+          "title": "F29-E03/C01 teclado valida datas, erro de autosave mantém evento e prévia; 320px não transborda",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3711,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:33:00.398Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "89b4ee11f09eadeef6b2-8bd51d22f0fa1c9fd3ef",
+          "file": "profile-events.spec.ts",
+          "line": 14,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "profile-hosts.spec.ts",
+      "file": "profile-hosts.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F10-E01/T01/T02/T04/T05/T06 endereço público isolado, prévia existente, publicação e perda de cobertura",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3475,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:28:39.795Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6a03999e9b24e560ae61-ffbf4901f3948d9137c0",
+          "file": "profile-hosts.spec.ts",
+          "line": 17,
+          "column": 5
+        },
+        {
+          "title": "F10-E02/I02/T02 cookies host-only, auth bloqueada, outra página/dono e dados privados ausentes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2424,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:28:43.275Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6a03999e9b24e560ae61-09774b563392acdf8874",
+          "file": "profile-hosts.spec.ts",
+          "line": 18,
+          "column": 5
+        },
+        {
+          "title": "F10-E03/T03/T04/T05 rede/HTTPS pendente recupera sem perder nome, idade, formulário e 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2232,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:28:45.705Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6a03999e9b24e560ae61-6c892c88009cee80187e",
+          "file": "profile-hosts.spec.ts",
+          "line": 19,
+          "column": 5
+        },
+        {
+          "title": "F10-E04/T06 troca mantém anterior até ativar, desativa e recusar idade volta ao catálogo central",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3267,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:28:47.942Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6a03999e9b24e560ae61-e3e12c3bff9702ed33d3",
+          "file": "profile-hosts.spec.ts",
+          "line": 21,
+          "column": 5
+        },
+        {
+          "title": "F10-E01/T01/T02/T04/T05/T06 endereço público isolado, prévia existente, publicação e perda de cobertura",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3343,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:33:04.120Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6a03999e9b24e560ae61-a2e4cee54f6a664f4ad2",
+          "file": "profile-hosts.spec.ts",
+          "line": 17,
+          "column": 5
+        },
+        {
+          "title": "F10-E02/I02/T02 cookies host-only, auth bloqueada, outra página/dono e dados privados ausentes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2372,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:33:07.469Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6a03999e9b24e560ae61-885bc6aa7644c62209aa",
+          "file": "profile-hosts.spec.ts",
+          "line": 18,
+          "column": 5
+        },
+        {
+          "title": "F10-E03/T03/T04/T05 rede/HTTPS pendente recupera sem perder nome, idade, formulário e 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2148,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:33:09.847Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6a03999e9b24e560ae61-b98b394e042670fe96bb",
+          "file": "profile-hosts.spec.ts",
+          "line": 19,
+          "column": 5
+        },
+        {
+          "title": "F10-E04/T06 troca mantém anterior até ativar, desativa e recusar idade volta ao catálogo central",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3209,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:33:12.000Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6a03999e9b24e560ae61-2f7886fdf65257de7918",
+          "file": "profile-hosts.spec.ts",
+          "line": 21,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "profiles.spec.ts",
+      "file": "profiles.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F09-E09 textos dos botões compartilham o centro da apresentação na prévia e página pública",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6597,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:28:51.226Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-f14f886955ba3a1476f8",
+          "file": "profiles.spec.ts",
+          "line": 38,
+          "column": 5
+        },
+        {
+          "title": "F09-E10 renomear grupo sem conteúdo novo não repete revisão; edição recebe contexto completo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5071,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:28:57.827Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-247664e9df3b3dd2cb6c",
+          "file": "profiles.spec.ts",
+          "line": 66,
+          "column": 5
+        },
+        {
+          "title": "F09-E08 cabeçalho, endereço copiável e aprovação reutilizada em alterações básicas",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8947,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:29:02.903Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-3258c85ea8a34e704163",
+          "file": "profiles.spec.ts",
+          "line": 94,
+          "column": 5
+        },
+        {
+          "title": "F09-E07 selects nos modais não alteram dimensões nem acrescentam scroll",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4274,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:29:11.854Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-1343dc161de9de214299",
+          "file": "profiles.spec.ts",
+          "line": 162,
+          "column": 5
+        },
+        {
+          "title": "F09 seis temas legíveis, página inteira e movimento reduzido",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 18818,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:29:16.133Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-c5d2cb30401120856829",
+          "file": "profiles.spec.ts",
+          "line": 176,
+          "column": 5
+        },
+        {
+          "title": "F09 aparência personalizada persiste e só chega ao público após publicar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10663,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:29:34.957Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-74a3cec210adbda7cd92",
+          "file": "profiles.spec.ts",
+          "line": 196,
+          "column": 5
+        },
+        {
+          "title": "F09-E01/T03/T04/T05 grupos, ordem, redes, foto e botão principal; prévia e público reais sem ocultos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 17718,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:29:45.625Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-36fa52b16a2e25f97903",
+          "file": "profiles.spec.ts",
+          "line": 251,
+          "column": 5
+        },
+        {
+          "title": "F09-E04 restrição de idade não entrega conteúdo no HTML/API antes do aceite real",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8109,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:30:03.348Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-e7f3b8c59d52f199c731",
+          "file": "profiles.spec.ts",
+          "line": 326,
+          "column": 5
+        },
+        {
+          "title": "F09-E02/T02/T06 sessão real, admin não ganha dono, suspeita/provedor seguem para humano e preservam página anterior",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12446,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:30:11.462Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-12d377917821c880f126",
+          "file": "profiles.spec.ts",
+          "line": 341,
+          "column": 5
+        },
+        {
+          "title": "F09-E03 autosave offline mantém dados, retoma online, 320px e conflito não sobrescreve",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10319,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:30:23.914Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-781fa340383e0896f390",
+          "file": "profiles.spec.ts",
+          "line": 356,
+          "column": 5
+        },
+        {
+          "title": "F09-E05 criação e gestão: cards, DnD, transferência, edição e remoção com persistência",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7541,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m2\u001b[39m\nReceived:   \u001b[31m243.796875\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m2\u001b[39m\nReceived:   \u001b[31m243.796875\u001b[39m\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profiles.spec.ts:424:50",
+                    "location": {
+                      "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profiles.spec.ts",
+                      "column": 50,
+                      "line": 424
+                    },
+                    "snippet": "  422 |   const firstBox = await cards.nth(0).boundingBox(), secondBox = await cards.nth(1).boundingBox()\n  423 |   if (!info.project.use.isMobile) {\n> 424 |     expect(Math.abs(firstBox!.y - secondBox!.y)).toBeLessThan(2)\n      |                                                  ^\n  425 |     expect(secondBox!.x).toBeGreaterThan(firstBox!.x + firstBox!.width)\n  426 |   }\n  427 |   const linkHandles = page.getByRole('button', { name: /^Arrastar link / })"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profiles.spec.ts",
+                        "column": 50,
+                        "line": 424
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m2\u001b[39m\nReceived:   \u001b[31m243.796875\u001b[39m\n\n  422 |   const firstBox = await cards.nth(0).boundingBox(), secondBox = await cards.nth(1).boundingBox()\n  423 |   if (!info.project.use.isMobile) {\n> 424 |     expect(Math.abs(firstBox!.y - secondBox!.y)).toBeLessThan(2)\n      |                                                  ^\n  425 |     expect(secondBox!.x).toBeGreaterThan(firstBox!.x + firstBox!.width)\n  426 |   }\n  427 |   const linkHandles = page.getByRole('button', { name: /^Arrastar link / })\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profiles.spec.ts:424:50"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:30:34.238Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profiles-F09-E05-criação-e-cbbab--e-remoção-com-persistência-features\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profiles-F09-E05-criação-e-cbbab--e-remoção-com-persistência-features\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profiles-F09-E05-criação-e-cbbab--e-remoção-com-persistência-features\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profiles.spec.ts",
+                    "column": 50,
+                    "line": 424
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-3b54bba6582cc61c50e2",
+          "file": "profiles.spec.ts",
+          "line": 386,
+          "column": 5
+        },
+        {
+          "title": "F09-E06 autosave, banner e campos não publicados; descartar restaura a publicação",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10469,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:30:42.909Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-d67487d263cc088d6ff3",
+          "file": "profiles.spec.ts",
+          "line": 467,
+          "column": 5
+        },
+        {
+          "title": "F09-E11 Minha página tem subseções expansíveis e escolha inicial de criação",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3193,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:30:53.501Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-7df8d44bc6ac50dfe222",
+          "file": "profiles.spec.ts",
+          "line": 515,
+          "column": 5
+        },
+        {
+          "title": "F09-E09 textos dos botões compartilham o centro da apresentação na prévia e página pública",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6530,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:33:15.227Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-367c5f06ac6aea3e1ac5",
+          "file": "profiles.spec.ts",
+          "line": 38,
+          "column": 5
+        },
+        {
+          "title": "F09-E10 renomear grupo sem conteúdo novo não repete revisão; edição recebe contexto completo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4948,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:33:21.763Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-c7c7303d030e56b31426",
+          "file": "profiles.spec.ts",
+          "line": 66,
+          "column": 5
+        },
+        {
+          "title": "F09-E08 cabeçalho, endereço copiável e aprovação reutilizada em alterações básicas",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8827,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:33:26.716Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-b84590709a469fad14e7",
+          "file": "profiles.spec.ts",
+          "line": 94,
+          "column": 5
+        },
+        {
+          "title": "F09-E07 selects nos modais não alteram dimensões nem acrescentam scroll",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4162,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:33:35.548Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-d1434d6538d765dc87bf",
+          "file": "profiles.spec.ts",
+          "line": 162,
+          "column": 5
+        },
+        {
+          "title": "F09 seis temas legíveis, página inteira e movimento reduzido",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 18978,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:33:39.715Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-37ba53751c54de33854a",
+          "file": "profiles.spec.ts",
+          "line": 176,
+          "column": 5
+        },
+        {
+          "title": "F09 aparência personalizada persiste e só chega ao público após publicar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10541,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:33:58.697Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-1ac70d59bb2c9c2332a5",
+          "file": "profiles.spec.ts",
+          "line": 196,
+          "column": 5
+        },
+        {
+          "title": "F09-E01/T03/T04/T05 grupos, ordem, redes, foto e botão principal; prévia e público reais sem ocultos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 18116,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:34:09.244Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-3a57e1259e431d658dbc",
+          "file": "profiles.spec.ts",
+          "line": 251,
+          "column": 5
+        },
+        {
+          "title": "F09-E04 restrição de idade não entrega conteúdo no HTML/API antes do aceite real",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8054,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:34:27.365Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-12b1344e822d69999376",
+          "file": "profiles.spec.ts",
+          "line": 326,
+          "column": 5
+        },
+        {
+          "title": "F09-E02/T02/T06 sessão real, admin não ganha dono, suspeita/provedor seguem para humano e preservam página anterior",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12363,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:34:35.425Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-51fa491aae3e25f476b1",
+          "file": "profiles.spec.ts",
+          "line": 341,
+          "column": 5
+        },
+        {
+          "title": "F09-E03 autosave offline mantém dados, retoma online, 320px e conflito não sobrescreve",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10209,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:34:47.794Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-15903e4263710918f03c",
+          "file": "profiles.spec.ts",
+          "line": 356,
+          "column": 5
+        },
+        {
+          "title": "F09-E05 criação e gestão: cards, DnD, transferência, edição e remoção com persistência",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10612,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:34:58.010Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-c8d3b064ccf78acbbc8d",
+          "file": "profiles.spec.ts",
+          "line": 386,
+          "column": 5
+        },
+        {
+          "title": "F09-E06 autosave, banner e campos não publicados; descartar restaura a publicação",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10078,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:35:08.627Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-c23306c5f5880f9fa0db",
+          "file": "profiles.spec.ts",
+          "line": 467,
+          "column": 5
+        },
+        {
+          "title": "F09-E11 Minha página tem subseções expansíveis e escolha inicial de criação",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3477,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:35:18.709Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-1cd64163ed6938cd5f59",
+          "file": "profiles.spec.ts",
+          "line": 515,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-20T11:25:31.513Z",
+    "duration": 592867.508,
+    "expected": 72,
+    "skipped": 0,
+    "unexpected": 5,
+    "flaky": 0
+  }
+}

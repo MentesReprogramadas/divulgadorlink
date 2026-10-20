@@ -1,0 +1,46 @@
+F33 lookup tenant/slug
+                                              QUERY PLAN                                              
+------------------------------------------------------------------------------------------------------
+ Seq Scan on collections  (cost=0.00..2.52 rows=1 width=37) (actual time=0.017..0.017 rows=0 loops=1)
+   Filter: (("tenantId" = 'fixture-absent'::text) AND (slug = 'fixture-absent'::text))
+   Rows Removed by Filter: 35
+   Buffers: shared hit=2
+ Planning:
+   Buffers: shared hit=131
+ Planning Time: 0.258 ms
+ Execution Time: 0.079 ms
+(8 rows)
+
+
+F10 exact hostname
+                                               QUERY PLAN                                               
+--------------------------------------------------------------------------------------------------------
+ Seq Scan on profile_hosts  (cost=0.00..2.44 rows=1 width=97) (actual time=0.010..0.010 rows=0 loops=1)
+   Filter: (hostname = 'fixture-absent.pages.test'::text)
+   Rows Removed by Filter: 35
+   Buffers: shared hit=2
+ Planning:
+   Buffers: shared hit=115
+ Planning Time: 0.224 ms
+ Execution Time: 0.030 ms
+(8 rows)
+
+
+F10 owned hosts
+                                                  QUERY PLAN                                                  
+--------------------------------------------------------------------------------------------------------------
+ Sort  (cost=2.53..2.54 rows=1 width=56) (actual time=0.023..0.023 rows=0 loops=1)
+   Sort Key: version DESC
+   Sort Method: quicksort  Memory: 25kB
+   Buffers: shared hit=5
+   ->  Seq Scan on profile_hosts  (cost=0.00..2.52 rows=1 width=56) (actual time=0.012..0.013 rows=0 loops=1)
+         Filter: (("tenantId" = 'fixture-absent'::text) AND ("profileId" = 'fixture-absent'::text))
+         Rows Removed by Filter: 35
+         Buffers: shared hit=2
+ Planning:
+   Buffers: shared hit=129
+ Planning Time: 0.234 ms
+ Execution Time: 0.043 ms
+(12 rows)
+
+

@@ -1,6 +1,9 @@
 import type { SVGProps } from 'react'
 
 export const iconPaths = {
+  createPage:'M4 3h12l4 4v14H4ZM15 3v5h5M8 14h8M12 10v8',
+  profileHost:'M3 3h18v18H3ZM3 8h18M6 5h.01M9 5h.01M6 13h5v5H6ZM14 12h4M14 16h4',
+  verifyHost:'M3 3h18v10H3ZM3 7h18M6 5h.01M9 5h.01M8 17l4 4 9-8',
   publicCollection:'M3 3h7v7H3ZM3 14h7v7H3ZM15 3h6v6h-6ZM17 13v8m-3-4 3 4 4-4M10 6h5M10 17h4',
   collectionPrivate:'M3 5h5l2 2h11v14H3ZM12 13h6v6h-6ZM13 13v-2a2 2 0 0 1 4 0v2',
   shareArtwork:'M3 3h12v18H3ZM6 7h6M6 11h4M6 16h6M18 4h4v4M22 4l-6 6M18 14h4v7h-4Z',

@@ -47,3 +47,5 @@
 .status:empty { display: none; }
 .status:focus { outline: 2px solid var(--color-brand-navy); outline-offset: 4px; }
 @media (max-width: 480px) { .actions > button { flex: 1 1 auto; } .collection { padding: var(--space-4); } }
+
+.publicPage { padding-block:var(--space-8); }

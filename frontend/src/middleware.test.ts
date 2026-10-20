@@ -7,56 +7,56 @@ function run(path: string, cookie?: string) {
   return middleware(new NextRequest(`http://localhost${path}`, { headers }))
 }
 
-afterEach(() => vi.unstubAllEnvs())
+afterEach(() => {vi.unstubAllEnvs();vi.unstubAllGlobals()})
 
 describe('middleware', () => {
-  it('inicializa a sessão operacional antes dos pedidos paralelos de analytics', () => {
-    const response = run('/link/publico')
+  it('inicializa a sessão operacional antes dos pedidos paralelos de analytics', async () => {
+    const response = (await run('/link/publico'))
     const cookie = response.cookies.get('analyticsSession')
     expect(cookie?.value).toMatch(/^[0-9a-f-]{36}$/i)
     expect(cookie).toMatchObject({ httpOnly: true, sameSite: 'lax', path: '/' })
     expect(response.cookies.get('tla_touch')).toBeUndefined()
   })
-  it('conserva a sessão existente, protege HTTPS e não cria sessão em mutações', () => {
+  it('conserva a sessão existente, protege HTTPS e não cria sessão em mutações', async () => {
     const existing = '11111111-1111-1111-1111-111111111111'
-    expect(run('/link/publico', 'analyticsSession=' + existing).cookies.get('analyticsSession')).toBeUndefined()
-    const https = middleware(new NextRequest('https://temlink.test/link/publico'))
+    expect((await run('/link/publico', 'analyticsSession=' + existing)).cookies.get('analyticsSession')).toBeUndefined()
+    const https = await middleware(new NextRequest('https://temlink.test/link/publico'))
     expect(https.cookies.get('analyticsSession')?.secure).toBe(true)
-    const mutation = middleware(new NextRequest('http://localhost/link/publico', { method: 'POST' }))
+    const mutation = await middleware(new NextRequest('http://localhost/link/publico', { method: 'POST' }))
     expect(mutation.cookies.get('analyticsSession')).toBeUndefined()
-    expect(run('/link/publico', 'analyticsSession=invalid').cookies.get('analyticsSession')?.value).toMatch(/^[0-9a-f-]{36}$/i)
+    expect((await run('/link/publico', 'analyticsSession=invalid')).cookies.get('analyticsSession')?.value).toMatch(/^[0-9a-f-]{36}$/i)
   })
-  it('não intercepta a ficha: o 404 fica na página', () => {
+  it('não intercepta a ficha: o 404 fica na página', async () => {
     expect(config.matcher).toEqual(['/((?!_next|bff|.*\\..*).*)'])
-    expect(run('/link/nao-existe').headers.get('x-middleware-rewrite')).toBeNull()
-    expect(run('/').headers.get('content-security-policy')).toContain("frame-ancestors 'none'")
-    expect(run('/').headers.get('content-security-policy')).toContain("'nonce-")
+    expect((await run('/link/nao-existe')).headers.get('x-middleware-rewrite')).toBeNull()
+    expect((await run('/')).headers.get('content-security-policy')).toContain("frame-ancestors 'none'")
+    expect((await run('/')).headers.get('content-security-policy')).toContain("'nonce-")
   })
 
-  it('a landing do anúncio não abre uma sessão diferente', () => {
-    expect(run('/divulgar').headers.get('set-cookie') ?? '').not.toContain('tla_shell')
+  it('a landing do anúncio não abre uma sessão diferente', async () => {
+    expect((await run('/divulgar')).headers.get('set-cookie') ?? '').not.toContain('tla_shell')
   })
 
-  it('só grava o toque de campanha depois do aceite', () => {
+  it('só grava o toque de campanha depois do aceite', async () => {
     const campaign = '/divulgar?utm_source=meta&utm_medium=cpc&utm_campaign=maio'
-    expect(run(campaign).headers.get('set-cookie') ?? '').not.toContain('tla_touch')
-    const accepted = run(campaign, 'tla_consent=marketing').headers.get('set-cookie') ?? ''
+    expect((await run(campaign)).headers.get('set-cookie') ?? '').not.toContain('tla_touch')
+    const accepted = (await run(campaign, 'tla_consent=marketing')).headers.get('set-cookie') ?? ''
     expect(accepted).toContain('tla_touch=')
-    const revoked = run('/', 'tla_consent=denied; tla_touch=antigo').headers.get('set-cookie') ?? ''
+    const revoked = (await run('/', 'tla_consent=denied; tla_touch=antigo')).headers.get('set-cookie') ?? ''
     expect(revoked).toContain('tla_touch=')
     expect(revoked).toMatch(/Max-Age=0|tla_touch=;/i)
   })
 
-  it('só libera eval no servidor de desenvolvimento', () => {
+  it('só libera eval no servidor de desenvolvimento', async () => {
     vi.stubEnv('NODE_ENV', 'development')
-    expect(run('/').headers.get('content-security-policy')).toContain("'unsafe-eval'")
+    expect((await run('/')).headers.get('content-security-policy')).toContain("'unsafe-eval'")
     vi.stubEnv('NODE_ENV', 'production')
-    expect(run('/').headers.get('content-security-policy') ?? '').not.toContain('unsafe-eval')
+    expect((await run('/')).headers.get('content-security-policy') ?? '').not.toContain('unsafe-eval')
   })
 
-  it('permite as origens da tag e das medições Google Ads sem liberar scripts inline', () => {
+  it('permite as origens da tag e das medições Google Ads sem liberar scripts inline', async () => {
     vi.stubEnv('NODE_ENV', 'production')
-    const policy = run('/').headers.get('content-security-policy') ?? ''
+    const policy = (await run('/')).headers.get('content-security-policy') ?? ''
     const directives = new Map(policy.split('; ').map(directive => {
       const [name, ...sources] = directive.split(' ')
       return [name, sources]
@@ -69,14 +69,18 @@ describe('middleware', () => {
     expect(directives.get('frame-src')).toContain('https://www.googletagmanager.com')
   })
 
-  it('admin sem papel continua na página escondida', () => {
-    const hidden = run('/admin/moderacao')
+  it('admin sem papel continua na página escondida', async () => {
+    const hidden = (await run('/admin/moderacao'))
     expect(hidden.status).toBe(404)
     expect(hidden.headers.get('x-middleware-rewrite')).toContain('/nao-encontrado')
-    expect(run('/admin/moderacao', 'catalogo_role=ADMIN').headers.get('x-middleware-rewrite')).toBeNull()
+    expect((await run('/admin/moderacao', 'catalogo_role=ADMIN')).headers.get('x-middleware-rewrite')).toBeNull()
   })
-  it('delega a validação do contexto compartilhado à sessão e à API, preservando o cargo original',()=>{
-    expect(run('/admin/assinaturas','catalogo_role=USER; workspaceOwner=owner').headers.get('x-middleware-rewrite')).toBeNull()
-    expect(run('/admin/assinaturas','catalogo_role=USER').status).toBe(404)
+  it('delega a validação do contexto compartilhado à sessão e à API, preservando o cargo original',async()=>{
+    expect((await run('/admin/assinaturas','catalogo_role=USER; workspaceOwner=owner')).headers.get('x-middleware-rewrite')).toBeNull()
+    expect((await run('/admin/assinaturas','catalogo_role=USER')).status).toBe(404)
   })
 })
+
+it('F10-I01 host pessoal reescreve só a página mapeada e elimina contexto forjado',async()=>{vi.stubEnv('PROFILE_HOST_BASES','{"pages.test":"tenant.test"}');vi.stubGlobal('fetch',vi.fn().mockImplementation(async()=>Response.json({mode:'PAGE',slug:'ana',tenantHost:'tenant.test'})));const response=await middleware(new NextRequest('https://ana.pages.test/',{headers:{host:'ana.pages.test','x-profile-tenant-host':'evil.test','x-profile-hostname':'evil.test'}}));expect(response.headers.get('x-middleware-rewrite')).toBe('https://ana.pages.test/p/ana');expect(response.headers.get('x-middleware-request-x-profile-tenant-host')).toBe('tenant.test');expect(response.headers.get('x-middleware-request-x-profile-hostname')).toBe('ana.pages.test');expect(response.headers.get('set-cookie')).not.toMatch(/accessToken|refreshToken|Domain=/i);expect((await middleware(new NextRequest('https://ana.pages.test/p/bia',{headers:{host:'ana.pages.test'}}))).status).toBe(404);expect((await middleware(new NextRequest('https://ana.pages.test/login',{headers:{host:'ana.pages.test'}}))).status).toBe(404)})
+it('F10-T06 host sem cobertura redireciona para básico sem destino arbitrário',async()=>{vi.stubEnv('PROFILE_HOST_BASES','{"pages.test":"tenant.test"}');vi.stubGlobal('fetch',vi.fn().mockResolvedValue(Response.json({mode:'FALLBACK',slug:'ana',tenantHost:'tenant.test'})));const response=await middleware(new NextRequest('https://ana.pages.test/',{headers:{host:'ana.pages.test'}}));expect(response.status).toBe(307);expect(response.headers.get('location')).toBe('https://tenant.test/p/ana')})
+it('F10-I02 host desconhecido fecha em 404; falha externa não cai no catálogo',async()=>{vi.stubEnv('PROFILE_HOST_BASES','{"pages.test":"tenant.test"}');vi.stubGlobal('fetch',vi.fn().mockResolvedValue(new Response(null,{status:404})));expect((await middleware(new NextRequest('https://unknown.pages.test/',{headers:{host:'unknown.pages.test'}}))).status).toBe(404);vi.stubGlobal('fetch',vi.fn().mockRejectedValue(new Error('offline')));expect((await middleware(new NextRequest('https://unknown.pages.test/',{headers:{host:'unknown.pages.test'}}))).status).toBe(503)})

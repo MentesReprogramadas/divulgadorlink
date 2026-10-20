@@ -1,0 +1,154 @@
+[
+  {
+    "file": "desktop-collection-public.png",
+    "sha256": "ef282c78d597991cf581286de8e467f4505b2dc2f34074db0f78ea8fee3cfbbc"
+  },
+  {
+    "file": "desktop-collection-reflow.png",
+    "sha256": "34cdc9380c640bdb0fa165ca4ca9ae91be656d8e100ed3aea0b40098fcf0e6be"
+  },
+  {
+    "file": "desktop-compact-existing-invite.png",
+    "sha256": "7fbe52fb7daf892fe3011d2f2af5f3e33d21d1c8e6206624a6b6b63fc0afd771"
+  },
+  {
+    "file": "desktop-compact-new-invite.png",
+    "sha256": "6990b4d35b92ad0e7586f63962300060beae0fb2699b483ef6b91adcd26376e6"
+  },
+  {
+    "file": "desktop-creation-identity.png",
+    "sha256": "5e601fb879c0b6cb2c3cc725cf00fb00297f67bbc1875b91d17858da22ae5009"
+  },
+  {
+    "file": "desktop-group-links.png",
+    "sha256": "5cdf5aa3515a850f6063e5bfc28a21072c461ae56d835a9c1b583207f420e02d"
+  },
+  {
+    "file": "desktop-group-select-open.png",
+    "sha256": "14d66bec56d90bb0ac6358a09b432c47a0dffb0599161bd3b3f238e00724d904"
+  },
+  {
+    "file": "desktop-groups-overview.png",
+    "sha256": "05b5bed64a70bfc8f85b537bc053bdb6ef71af2be7386d10fb83904a6deafcb7"
+  },
+  {
+    "file": "desktop-host-active.png",
+    "sha256": "cab5c56b08aa9319d18194b2195d76034dc0d25665dc9ada976b995428e4d009"
+  },
+  {
+    "file": "desktop-host-pending.png",
+    "sha256": "59164693e3f240c453f8bd489b32f05aaeb1edd9faed24c1508cac4d2692aadf"
+  },
+  {
+    "file": "desktop-host-personal-page.png",
+    "sha256": "8306c85e8a35937903005092037e9ec45f637a0630c1a4f707c062cea94c05ad"
+  },
+  {
+    "file": "desktop-host-reflow.png",
+    "sha256": "8b92f904a5aa8a08528d2acc58f445f1d491f333ec4660d43dd3905d00b32628"
+  },
+  {
+    "file": "desktop-quick-card-actions.png",
+    "sha256": "536274261a17b1655b21cfa005ff2a54cf0889cf66bbc867a6d704a0468b3acb"
+  },
+  {
+    "file": "desktop-unified-access-retry.png",
+    "sha256": "938af70b2f3aa04bec036d1662f39d3c89b683f42d516a7a29468389ece9c984"
+  },
+  {
+    "file": "desktop-unified-access-title-on.png",
+    "sha256": "17e4b8677a2a7a5e4766e323427b0a505aaf587704757503fcd48714614c9c1d"
+  },
+  {
+    "file": "desktop-unified-access-zoom.png",
+    "sha256": "a335f85335733939b0c153170547a6f01d9c530cd90349a83d7bc897354094bb"
+  },
+  {
+    "file": "desktop-unified-group-desktop-mobile.png",
+    "sha256": "98cc4ce6759630d736d74a62a8b8c4725b01d5174e19be6d977757af7525aeea"
+  },
+  {
+    "file": "desktop-unified-public-title-off.png",
+    "sha256": "a35311ff317ad499463faf83c997b4539eda21bca5b3618d7a50f1b8aa67d7a9"
+  },
+  {
+    "file": "desktop-unified-public-title-on.png",
+    "sha256": "1d3534b89847e296abc1ee2776e24fe6fdf7e188ef9d23e31edc2bbac41363d2"
+  },
+  {
+    "file": "mobile-collection-public.png",
+    "sha256": "c8bcf14c2265798bae4fd6d694de50294a5694a29aed94ad60ec42e7e9217c1f"
+  },
+  {
+    "file": "mobile-collection-reflow.png",
+    "sha256": "81d2ddbe4227c0e9588aa5175f8a59e44d5d4b5571bc4f32cf556eda0aa74735"
+  },
+  {
+    "file": "mobile-compact-existing-invite.png",
+    "sha256": "1fd8322ee505240b79f07b2ab7013fcd865f5d42df8c58027eae1aa0d84f6dda"
+  },
+  {
+    "file": "mobile-compact-new-invite.png",
+    "sha256": "1a1afe270797be6d179775d74137651fe67ccf986047fb621e00e58db08367f6"
+  },
+  {
+    "file": "mobile-creation-identity.png",
+    "sha256": "6eb101274f8dd4a6d1a3186e5d060f304374beea6eb72f2c4b2551efb351a864"
+  },
+  {
+    "file": "mobile-group-links.png",
+    "sha256": "b3767c29768ffbde09515ed118b6d0c984e04dd48d2c01e3f09133ebdac8afdb"
+  },
+  {
+    "file": "mobile-group-select-open.png",
+    "sha256": "53269f7e07fdb836d04fb4d7d56e466e31931747ab997ab35763de9f89462186"
+  },
+  {
+    "file": "mobile-groups-overview.png",
+    "sha256": "a016a3e7ddd8882ca2b4e608768b5301917c69bf338ae7597a30f1c1f68fa7b4"
+  },
+  {
+    "file": "mobile-host-active.png",
+    "sha256": "d6e2df058b869816024581919df9d2da6fac26b1ee87872de10a4a15cb4700c5"
+  },
+  {
+    "file": "mobile-host-pending.png",
+    "sha256": "91a585e1154909ace5f6484a78deab32560112352014cfccfa5542f5fe828e7c"
+  },
+  {
+    "file": "mobile-host-personal-page.png",
+    "sha256": "700b17e3e620544d61556336e0f1e400fdc07de41a1df9d568f2fd402d555650"
+  },
+  {
+    "file": "mobile-host-reflow.png",
+    "sha256": "4daa491de907158fd74a868ed02021ea53d25e626fb9514c62ca4c8017725b78"
+  },
+  {
+    "file": "mobile-quick-card-actions.png",
+    "sha256": "6411c67e1da80ec6ed5c5d2cc0dfb28c120b5ddb4e98cd0db9035f32e6974fc2"
+  },
+  {
+    "file": "mobile-unified-access-retry.png",
+    "sha256": "6ecc5752e05e632f1b61dffd5637875038bea44bc1adcc09d5f99ed464039b71"
+  },
+  {
+    "file": "mobile-unified-access-title-on.png",
+    "sha256": "323609d90601a206e60d2d9d31bdd4d2905dc282d8cb765eaf5e6b926353329e"
+  },
+  {
+    "file": "mobile-unified-access-zoom.png",
+    "sha256": "8e5920b44986742d8e6d8722013b944a2ec921148bf5d619ad7fc03a1663423b"
+  },
+  {
+    "file": "mobile-unified-group-desktop-mobile.png",
+    "sha256": "7efb2aa1512014725d918d865f7d04a601605b81a89bc3fac2327463a7ea06ce"
+  },
+  {
+    "file": "mobile-unified-public-title-off.png",
+    "sha256": "f8f2d5d081b20d9062a9398c7f54cba0433084226d4feb13798398611391555b"
+  },
+  {
+    "file": "mobile-unified-public-title-on.png",
+    "sha256": "0e496780c2c6f4c42f733d25ab233453e6d114aa88e7003766edf52eb64af123"
+  }
+]

@@ -6,9 +6,10 @@ import { CookieSettings } from '@/components/domain/consent'
 import styles from './site-shell.module.css'
 import { SupportBanner } from '@/features/support/support-banner'
 
-export function SiteShell({ role, support = false, children }: { role?: string; support?: boolean; children: ReactNode }) {
+export function SiteShell({ role, support = false, personalHost=false, children }: { role?: string; support?: boolean; personalHost?:boolean; children: ReactNode }) {
   const pathname = usePathname()
   const workspace = /^\/(painel|admin)(\/|$)/.test(pathname)
+  if (personalHost)return <>{children}</>
   if (/^\/p\/[^/]+(?:\/canais\/estado|\/midia-kit|\/c\/[^/]+)?\/?$/.test(pathname) || /^\/painel\/equipe\/[^/]+\/previa$/.test(pathname) || pathname === '/painel/perfil/midia-kit/previa' || pathname === '/painel/perfil/previa' || /^\/painel\/perfil\/campanhas\/[^/]+\/previa$/.test(pathname)) return <>{support ? <SupportBanner /> : null}{children}</>
   return (
     <>

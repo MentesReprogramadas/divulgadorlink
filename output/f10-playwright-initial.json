@@ -1,0 +1,1017 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\VSCODE\\divulgadorlinks\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "e2e/profile-hosts.spec.ts",
+      "e2e/profile-billing.spec.ts",
+      "--project=features",
+      "--project=features-mobile"
+    ],
+    "configFile": "C:\\VSCODE\\divulgadorlinks\\frontend\\playwright.config.ts",
+    "rootDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\global-setup.ts",
+    "globalTeardown": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\global-teardown.ts",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "setup",
+        "name": "setup",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/auth\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features",
+        "name": "features",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/profile-hosts\\.spec\\.ts|public-collections\\.spec\\.ts|share-kit\\.spec\\.ts|profile-events\\.spec\\.ts|ownership\\.spec\\.ts|profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features-mobile",
+        "name": "features-mobile",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/profile-hosts\\.spec\\.ts|public-collections\\.spec\\.ts|share-kit\\.spec\\.ts|profile-events\\.spec\\.ts|ownership\\.spec\\.ts|profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "catalog",
+        "name": "catalog",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/catalog\\.spec\\.ts|mail\\.spec\\.ts|advertise\\.spec\\.ts|legal\\.spec\\.ts|funnel\\.spec\\.ts|signup\\.spec\\.ts|submit-link\\.spec\\.ts|security-headers\\.spec\\.ts|google-ads-submission\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "auth.setup.ts",
+      "file": "auth.setup.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "sessão da Bia para os testes do painel",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "setup",
+              "projectName": "setup",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 431,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:16:14.186Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "17e3fe6f4d9d8bd79c6b-40367c7f5b2a9e9ad033",
+          "file": "auth.setup.ts",
+          "line": 8,
+          "column": 6
+        }
+      ]
+    },
+    {
+      "title": "profile-billing.spec.ts",
+      "file": "profile-billing.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F11-E01 free remains usable, signed confirmation activates, change waits for next cycle and cancellation preserves the paid balance",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 15874,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:16:15.101Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1db9d3aea5dd6821a740-a20895f6056d35989319",
+          "file": "profile-billing.spec.ts",
+          "line": 27,
+          "column": 5
+        },
+        {
+          "title": "F11-E02 admin forms, fiscal gate, immutable editions, access control and layout-preserving refresh",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3430,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:16:31.084Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1db9d3aea5dd6821a740-ef7111997406e5438817",
+          "file": "profile-billing.spec.ts",
+          "line": 59,
+          "column": 5
+        },
+        {
+          "title": "F11-E03 provider outage keeps checkout pending, recovers idempotently and never gives premature access",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10692,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:16:34.521Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1db9d3aea5dd6821a740-7a9507de2530fa6d2b68",
+          "file": "profile-billing.spec.ts",
+          "line": 72,
+          "column": 5
+        },
+        {
+          "title": "F11-E04 failed renewal removes uncovered paid access, preserves the free page and allows cancellation without another invoice",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10171,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:16:45.218Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1db9d3aea5dd6821a740-757062b3c4bdd01a2c21",
+          "file": "profile-billing.spec.ts",
+          "line": 86,
+          "column": 5
+        },
+        {
+          "title": "F11-E05 existing account deletion automatically stops a paid renewal and keeps contact data removed",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8705,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:16:55.396Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1db9d3aea5dd6821a740-03e7ebc1d0a5658e7629",
+          "file": "profile-billing.spec.ts",
+          "line": 98,
+          "column": 5
+        },
+        {
+          "title": "F11-E01 free remains usable, signed confirmation activates, change waits for next cycle and cancellation preserves the paid balance",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 14401,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:17:08.741Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1db9d3aea5dd6821a740-58592f8a079dd1d6215a",
+          "file": "profile-billing.spec.ts",
+          "line": 27,
+          "column": 5
+        },
+        {
+          "title": "F11-E02 admin forms, fiscal gate, immutable editions, access control and layout-preserving refresh",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3257,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:17:23.255Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1db9d3aea5dd6821a740-15bb65657d75d3183d73",
+          "file": "profile-billing.spec.ts",
+          "line": 59,
+          "column": 5
+        },
+        {
+          "title": "F11-E03 provider outage keeps checkout pending, recovers idempotently and never gives premature access",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8728,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:17:26.518Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1db9d3aea5dd6821a740-b0ae36786e6c549d633e",
+          "file": "profile-billing.spec.ts",
+          "line": 72,
+          "column": 5
+        },
+        {
+          "title": "F11-E04 failed renewal removes uncovered paid access, preserves the free page and allows cancellation without another invoice",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10067,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:17:35.251Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1db9d3aea5dd6821a740-7ad463ad07b88ea76c53",
+          "file": "profile-billing.spec.ts",
+          "line": 86,
+          "column": 5
+        },
+        {
+          "title": "F11-E05 existing account deletion automatically stops a paid renewal and keeps contact data removed",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8671,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:17:45.323Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1db9d3aea5dd6821a740-4483374d1620013961f6",
+          "file": "profile-billing.spec.ts",
+          "line": 98,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "profile-hosts.spec.ts",
+      "file": "profile-hosts.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F10-E01/T01/T02/T04/T05/T06 endereço público isolado, prévia existente, publicação e perda de cobertura",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1016,
+                  "error": {
+                    "message": "Error: Command failed: docker exec -i divulgador-e2e-pg-roadmap-f10 psql -U divulgador -d divulgador -t -A -c INSERT INTO profile_plans(id,\"tenantId\",tier,title,\"updatedAt\") VALUES('f10-plan','cmvgl7cci00bzu4r01y10gaa5','PREMIUM','Fixture Premium',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_plan_versions(id,\"tenantId\",\"planId\",version,\"amountCents\",capabilities) VALUES('f10-plan-v1','cmvgl7cci00bzu4r01y10gaa5','f10-plan',1,1000,ARRAY['profile.page','profile.categories','profile.appearance','profile.history','profile.subdomain']) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_billing_accounts(id,\"tenantId\",\"ownerId\",\"updatedAt\") VALUES('f10-account','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_subscriptions(id,\"tenantId\",\"ownerId\",\"accountId\",\"planVersionId\",status,\"periodStart\",\"periodEnd\",\"paidThrough\",\"updatedAt\") VALUES('f10-sub','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-account','f10-plan-v1','ACTIVE',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days',NOW()+INTERVAL '30 days',NOW()) ON CONFLICT(id) DO UPDATE SET status='ACTIVE',\"paidThrough\"=NOW()+INTERVAL '30 days',\"periodEnd\"=NOW()+INTERVAL '30 days'; INSERT INTO profile_entitlements(id,\"tenantId\",\"ownerId\",\"subscriptionId\",capability,\"validFrom\",\"validUntil\") VALUES('f10-entitlement','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-sub','profile.subdomain',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days') ON CONFLICT(id) DO UPDATE SET \"revokedAt\"=NULL,\"validUntil\"=NOW()+INTERVAL '30 days'\nERROR:  new row for relation \"profile_plan_versions\" violates check constraint \"profile_plan_versions_money_check\"\nDETAIL:  Failing row contains (f10-plan-v1, cmvgl7cci00bzu4r01y10gaa5, f10-plan, 1, 1000, BRL, month, {profile.page,profile.categories,profile.appearance,profile.hist..., null, null, f, 2026-10-20 11:17:04.951).\n",
+                    "stack": "Error: Command failed: docker exec -i divulgador-e2e-pg-roadmap-f10 psql -U divulgador -d divulgador -t -A -c INSERT INTO profile_plans(id,\"tenantId\",tier,title,\"updatedAt\") VALUES('f10-plan','cmvgl7cci00bzu4r01y10gaa5','PREMIUM','Fixture Premium',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_plan_versions(id,\"tenantId\",\"planId\",version,\"amountCents\",capabilities) VALUES('f10-plan-v1','cmvgl7cci00bzu4r01y10gaa5','f10-plan',1,1000,ARRAY['profile.page','profile.categories','profile.appearance','profile.history','profile.subdomain']) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_billing_accounts(id,\"tenantId\",\"ownerId\",\"updatedAt\") VALUES('f10-account','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_subscriptions(id,\"tenantId\",\"ownerId\",\"accountId\",\"planVersionId\",status,\"periodStart\",\"periodEnd\",\"paidThrough\",\"updatedAt\") VALUES('f10-sub','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-account','f10-plan-v1','ACTIVE',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days',NOW()+INTERVAL '30 days',NOW()) ON CONFLICT(id) DO UPDATE SET status='ACTIVE',\"paidThrough\"=NOW()+INTERVAL '30 days',\"periodEnd\"=NOW()+INTERVAL '30 days'; INSERT INTO profile_entitlements(id,\"tenantId\",\"ownerId\",\"subscriptionId\",capability,\"validFrom\",\"validUntil\") VALUES('f10-entitlement','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-sub','profile.subdomain',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days') ON CONFLICT(id) DO UPDATE SET \"revokedAt\"=NULL,\"validUntil\"=NOW()+INTERVAL '30 days'\nERROR:  new row for relation \"profile_plan_versions\" violates check constraint \"profile_plan_versions_money_check\"\nDETAIL:  Failing row contains (f10-plan-v1, cmvgl7cci00bzu4r01y10gaa5, f10-plan, 1, 1000, BRL, month, {profile.page,profile.categories,profile.appearance,profile.hist..., null, null, f, 2026-10-20 11:17:04.951).\n\n    at sql (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts:7:22)\n    at paid (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:13:145)\n    at prepare (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:14:429)\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:17:155",
+                    "location": {
+                      "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts",
+                      "column": 22,
+                      "line": 7
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39mdb.ts:7\n\n   5 |\n   6 | export function sql(statement: string): string {\n>  7 |   return execFileSync('docker', [\n     |                      ^\n   8 |     'exec', '-i', e2eRuntime.pgContainer,\n   9 |     'psql', '-U', 'divulgador', '-d', 'divulgador', '-t', '-A', '-c', statement,\n  10 |   ], { encoding: 'utf8' }).trim()"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts",
+                        "column": 22,
+                        "line": 7
+                      },
+                      "message": "Error: Command failed: docker exec -i divulgador-e2e-pg-roadmap-f10 psql -U divulgador -d divulgador -t -A -c INSERT INTO profile_plans(id,\"tenantId\",tier,title,\"updatedAt\") VALUES('f10-plan','cmvgl7cci00bzu4r01y10gaa5','PREMIUM','Fixture Premium',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_plan_versions(id,\"tenantId\",\"planId\",version,\"amountCents\",capabilities) VALUES('f10-plan-v1','cmvgl7cci00bzu4r01y10gaa5','f10-plan',1,1000,ARRAY['profile.page','profile.categories','profile.appearance','profile.history','profile.subdomain']) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_billing_accounts(id,\"tenantId\",\"ownerId\",\"updatedAt\") VALUES('f10-account','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_subscriptions(id,\"tenantId\",\"ownerId\",\"accountId\",\"planVersionId\",status,\"periodStart\",\"periodEnd\",\"paidThrough\",\"updatedAt\") VALUES('f10-sub','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-account','f10-plan-v1','ACTIVE',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days',NOW()+INTERVAL '30 days',NOW()) ON CONFLICT(id) DO UPDATE SET status='ACTIVE',\"paidThrough\"=NOW()+INTERVAL '30 days',\"periodEnd\"=NOW()+INTERVAL '30 days'; INSERT INTO profile_entitlements(id,\"tenantId\",\"ownerId\",\"subscriptionId\",capability,\"validFrom\",\"validUntil\") VALUES('f10-entitlement','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-sub','profile.subdomain',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days') ON CONFLICT(id) DO UPDATE SET \"revokedAt\"=NULL,\"validUntil\"=NOW()+INTERVAL '30 days'\nERROR:  new row for relation \"profile_plan_versions\" violates check constraint \"profile_plan_versions_money_check\"\nDETAIL:  Failing row contains (f10-plan-v1, cmvgl7cci00bzu4r01y10gaa5, f10-plan, 1, 1000, BRL, month, {profile.page,profile.categories,profile.appearance,profile.hist..., null, null, f, 2026-10-20 11:17:04.951).\n\n\n   at db.ts:7\n\n   5 |\n   6 | export function sql(statement: string): string {\n>  7 |   return execFileSync('docker', [\n     |                      ^\n   8 |     'exec', '-i', e2eRuntime.pgContainer,\n   9 |     'psql', '-U', 'divulgador', '-d', 'divulgador', '-t', '-A', '-c', statement,\n  10 |   ], { encoding: 'utf8' }).trim()\n    at sql (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts:7:22)\n    at paid (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:13:145)\n    at prepare (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:14:429)\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:17:155"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "ERROR:  new row for relation \"profile_plan_versions\" violates check constraint \"profile_plan_versions_money_check\"\nDETAIL:  Failing row contains (f10-plan-v1, cmvgl7cci00bzu4r01y10gaa5, f10-plan, 1, 1000, BRL, month, {profile.page,profile.categories,profile.appearance,profile.hist..., null, null, f, 2026-10-20 11:17:04.951).\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:17:04.117Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-hosts-F10-E01-T01--cc2bb-icação-e-perda-de-cobertura-features\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-hosts-F10-E01-T01--cc2bb-icação-e-perda-de-cobertura-features\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-hosts-F10-E01-T01--cc2bb-icação-e-perda-de-cobertura-features\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts",
+                    "column": 22,
+                    "line": 7
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "6a03999e9b24e560ae61-ffbf4901f3948d9137c0",
+          "file": "profile-hosts.spec.ts",
+          "line": 17,
+          "column": 5
+        },
+        {
+          "title": "F10-E02/I02/T02 cookies host-only, auth bloqueada, outra página/dono e dados privados ausentes",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1052,
+                  "error": {
+                    "message": "Error: Command failed: docker exec -i divulgador-e2e-pg-roadmap-f10 psql -U divulgador -d divulgador -t -A -c INSERT INTO profile_plans(id,\"tenantId\",tier,title,\"updatedAt\") VALUES('f10-plan','cmvgl7cci00bzu4r01y10gaa5','PREMIUM','Fixture Premium',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_plan_versions(id,\"tenantId\",\"planId\",version,\"amountCents\",capabilities) VALUES('f10-plan-v1','cmvgl7cci00bzu4r01y10gaa5','f10-plan',1,1000,ARRAY['profile.page','profile.categories','profile.appearance','profile.history','profile.subdomain']) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_billing_accounts(id,\"tenantId\",\"ownerId\",\"updatedAt\") VALUES('f10-account','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_subscriptions(id,\"tenantId\",\"ownerId\",\"accountId\",\"planVersionId\",status,\"periodStart\",\"periodEnd\",\"paidThrough\",\"updatedAt\") VALUES('f10-sub','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-account','f10-plan-v1','ACTIVE',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days',NOW()+INTERVAL '30 days',NOW()) ON CONFLICT(id) DO UPDATE SET status='ACTIVE',\"paidThrough\"=NOW()+INTERVAL '30 days',\"periodEnd\"=NOW()+INTERVAL '30 days'; INSERT INTO profile_entitlements(id,\"tenantId\",\"ownerId\",\"subscriptionId\",capability,\"validFrom\",\"validUntil\") VALUES('f10-entitlement','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-sub','profile.subdomain',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days') ON CONFLICT(id) DO UPDATE SET \"revokedAt\"=NULL,\"validUntil\"=NOW()+INTERVAL '30 days'\nERROR:  new row for relation \"profile_plan_versions\" violates check constraint \"profile_plan_versions_money_check\"\nDETAIL:  Failing row contains (f10-plan-v1, cmvgl7cci00bzu4r01y10gaa5, f10-plan, 1, 1000, BRL, month, {profile.page,profile.categories,profile.appearance,profile.hist..., null, null, f, 2026-10-20 11:17:06.602).\n",
+                    "stack": "Error: Command failed: docker exec -i divulgador-e2e-pg-roadmap-f10 psql -U divulgador -d divulgador -t -A -c INSERT INTO profile_plans(id,\"tenantId\",tier,title,\"updatedAt\") VALUES('f10-plan','cmvgl7cci00bzu4r01y10gaa5','PREMIUM','Fixture Premium',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_plan_versions(id,\"tenantId\",\"planId\",version,\"amountCents\",capabilities) VALUES('f10-plan-v1','cmvgl7cci00bzu4r01y10gaa5','f10-plan',1,1000,ARRAY['profile.page','profile.categories','profile.appearance','profile.history','profile.subdomain']) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_billing_accounts(id,\"tenantId\",\"ownerId\",\"updatedAt\") VALUES('f10-account','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_subscriptions(id,\"tenantId\",\"ownerId\",\"accountId\",\"planVersionId\",status,\"periodStart\",\"periodEnd\",\"paidThrough\",\"updatedAt\") VALUES('f10-sub','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-account','f10-plan-v1','ACTIVE',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days',NOW()+INTERVAL '30 days',NOW()) ON CONFLICT(id) DO UPDATE SET status='ACTIVE',\"paidThrough\"=NOW()+INTERVAL '30 days',\"periodEnd\"=NOW()+INTERVAL '30 days'; INSERT INTO profile_entitlements(id,\"tenantId\",\"ownerId\",\"subscriptionId\",capability,\"validFrom\",\"validUntil\") VALUES('f10-entitlement','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-sub','profile.subdomain',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days') ON CONFLICT(id) DO UPDATE SET \"revokedAt\"=NULL,\"validUntil\"=NOW()+INTERVAL '30 days'\nERROR:  new row for relation \"profile_plan_versions\" violates check constraint \"profile_plan_versions_money_check\"\nDETAIL:  Failing row contains (f10-plan-v1, cmvgl7cci00bzu4r01y10gaa5, f10-plan, 1, 1000, BRL, month, {profile.page,profile.categories,profile.appearance,profile.hist..., null, null, f, 2026-10-20 11:17:06.602).\n\n    at sql (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts:7:22)\n    at paid (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:13:145)\n    at prepare (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:14:429)\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:18:132",
+                    "location": {
+                      "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts",
+                      "column": 22,
+                      "line": 7
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39mdb.ts:7\n\n   5 |\n   6 | export function sql(statement: string): string {\n>  7 |   return execFileSync('docker', [\n     |                      ^\n   8 |     'exec', '-i', e2eRuntime.pgContainer,\n   9 |     'psql', '-U', 'divulgador', '-d', 'divulgador', '-t', '-A', '-c', statement,\n  10 |   ], { encoding: 'utf8' }).trim()"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts",
+                        "column": 22,
+                        "line": 7
+                      },
+                      "message": "Error: Command failed: docker exec -i divulgador-e2e-pg-roadmap-f10 psql -U divulgador -d divulgador -t -A -c INSERT INTO profile_plans(id,\"tenantId\",tier,title,\"updatedAt\") VALUES('f10-plan','cmvgl7cci00bzu4r01y10gaa5','PREMIUM','Fixture Premium',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_plan_versions(id,\"tenantId\",\"planId\",version,\"amountCents\",capabilities) VALUES('f10-plan-v1','cmvgl7cci00bzu4r01y10gaa5','f10-plan',1,1000,ARRAY['profile.page','profile.categories','profile.appearance','profile.history','profile.subdomain']) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_billing_accounts(id,\"tenantId\",\"ownerId\",\"updatedAt\") VALUES('f10-account','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_subscriptions(id,\"tenantId\",\"ownerId\",\"accountId\",\"planVersionId\",status,\"periodStart\",\"periodEnd\",\"paidThrough\",\"updatedAt\") VALUES('f10-sub','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-account','f10-plan-v1','ACTIVE',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days',NOW()+INTERVAL '30 days',NOW()) ON CONFLICT(id) DO UPDATE SET status='ACTIVE',\"paidThrough\"=NOW()+INTERVAL '30 days',\"periodEnd\"=NOW()+INTERVAL '30 days'; INSERT INTO profile_entitlements(id,\"tenantId\",\"ownerId\",\"subscriptionId\",capability,\"validFrom\",\"validUntil\") VALUES('f10-entitlement','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-sub','profile.subdomain',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days') ON CONFLICT(id) DO UPDATE SET \"revokedAt\"=NULL,\"validUntil\"=NOW()+INTERVAL '30 days'\nERROR:  new row for relation \"profile_plan_versions\" violates check constraint \"profile_plan_versions_money_check\"\nDETAIL:  Failing row contains (f10-plan-v1, cmvgl7cci00bzu4r01y10gaa5, f10-plan, 1, 1000, BRL, month, {profile.page,profile.categories,profile.appearance,profile.hist..., null, null, f, 2026-10-20 11:17:06.602).\n\n\n   at db.ts:7\n\n   5 |\n   6 | export function sql(statement: string): string {\n>  7 |   return execFileSync('docker', [\n     |                      ^\n   8 |     'exec', '-i', e2eRuntime.pgContainer,\n   9 |     'psql', '-U', 'divulgador', '-d', 'divulgador', '-t', '-A', '-c', statement,\n  10 |   ], { encoding: 'utf8' }).trim()\n    at sql (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts:7:22)\n    at paid (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:13:145)\n    at prepare (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:14:429)\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:18:132"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "ERROR:  new row for relation \"profile_plan_versions\" violates check constraint \"profile_plan_versions_money_check\"\nDETAIL:  Failing row contains (f10-plan-v1, cmvgl7cci00bzu4r01y10gaa5, f10-plan, 1, 1000, BRL, month, {profile.page,profile.categories,profile.appearance,profile.hist..., null, null, f, 2026-10-20 11:17:06.602).\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:17:05.649Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-hosts-F10-E02-I02--e27aa-o-e-dados-privados-ausentes-features\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-hosts-F10-E02-I02--e27aa-o-e-dados-privados-ausentes-features\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-hosts-F10-E02-I02--e27aa-o-e-dados-privados-ausentes-features\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts",
+                    "column": 22,
+                    "line": 7
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "6a03999e9b24e560ae61-09774b563392acdf8874",
+          "file": "profile-hosts.spec.ts",
+          "line": 18,
+          "column": 5
+        },
+        {
+          "title": "F10-E03/T03/T04/T05 rede/HTTPS pendente recupera sem perder nome, idade, formulário e 320px",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1020,
+                  "error": {
+                    "message": "Error: Command failed: docker exec -i divulgador-e2e-pg-roadmap-f10 psql -U divulgador -d divulgador -t -A -c INSERT INTO profile_plans(id,\"tenantId\",tier,title,\"updatedAt\") VALUES('f10-plan','cmvgl7cci00bzu4r01y10gaa5','PREMIUM','Fixture Premium',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_plan_versions(id,\"tenantId\",\"planId\",version,\"amountCents\",capabilities) VALUES('f10-plan-v1','cmvgl7cci00bzu4r01y10gaa5','f10-plan',1,1000,ARRAY['profile.page','profile.categories','profile.appearance','profile.history','profile.subdomain']) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_billing_accounts(id,\"tenantId\",\"ownerId\",\"updatedAt\") VALUES('f10-account','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_subscriptions(id,\"tenantId\",\"ownerId\",\"accountId\",\"planVersionId\",status,\"periodStart\",\"periodEnd\",\"paidThrough\",\"updatedAt\") VALUES('f10-sub','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-account','f10-plan-v1','ACTIVE',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days',NOW()+INTERVAL '30 days',NOW()) ON CONFLICT(id) DO UPDATE SET status='ACTIVE',\"paidThrough\"=NOW()+INTERVAL '30 days',\"periodEnd\"=NOW()+INTERVAL '30 days'; INSERT INTO profile_entitlements(id,\"tenantId\",\"ownerId\",\"subscriptionId\",capability,\"validFrom\",\"validUntil\") VALUES('f10-entitlement','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-sub','profile.subdomain',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days') ON CONFLICT(id) DO UPDATE SET \"revokedAt\"=NULL,\"validUntil\"=NOW()+INTERVAL '30 days'\nERROR:  new row for relation \"profile_plan_versions\" violates check constraint \"profile_plan_versions_money_check\"\nDETAIL:  Failing row contains (f10-plan-v1, cmvgl7cci00bzu4r01y10gaa5, f10-plan, 1, 1000, BRL, month, {profile.page,profile.categories,profile.appearance,profile.hist..., null, null, f, 2026-10-20 11:17:08.13).\n",
+                    "stack": "Error: Command failed: docker exec -i divulgador-e2e-pg-roadmap-f10 psql -U divulgador -d divulgador -t -A -c INSERT INTO profile_plans(id,\"tenantId\",tier,title,\"updatedAt\") VALUES('f10-plan','cmvgl7cci00bzu4r01y10gaa5','PREMIUM','Fixture Premium',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_plan_versions(id,\"tenantId\",\"planId\",version,\"amountCents\",capabilities) VALUES('f10-plan-v1','cmvgl7cci00bzu4r01y10gaa5','f10-plan',1,1000,ARRAY['profile.page','profile.categories','profile.appearance','profile.history','profile.subdomain']) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_billing_accounts(id,\"tenantId\",\"ownerId\",\"updatedAt\") VALUES('f10-account','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_subscriptions(id,\"tenantId\",\"ownerId\",\"accountId\",\"planVersionId\",status,\"periodStart\",\"periodEnd\",\"paidThrough\",\"updatedAt\") VALUES('f10-sub','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-account','f10-plan-v1','ACTIVE',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days',NOW()+INTERVAL '30 days',NOW()) ON CONFLICT(id) DO UPDATE SET status='ACTIVE',\"paidThrough\"=NOW()+INTERVAL '30 days',\"periodEnd\"=NOW()+INTERVAL '30 days'; INSERT INTO profile_entitlements(id,\"tenantId\",\"ownerId\",\"subscriptionId\",capability,\"validFrom\",\"validUntil\") VALUES('f10-entitlement','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-sub','profile.subdomain',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days') ON CONFLICT(id) DO UPDATE SET \"revokedAt\"=NULL,\"validUntil\"=NOW()+INTERVAL '30 days'\nERROR:  new row for relation \"profile_plan_versions\" violates check constraint \"profile_plan_versions_money_check\"\nDETAIL:  Failing row contains (f10-plan-v1, cmvgl7cci00bzu4r01y10gaa5, f10-plan, 1, 1000, BRL, month, {profile.page,profile.categories,profile.appearance,profile.hist..., null, null, f, 2026-10-20 11:17:08.13).\n\n    at sql (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts:7:22)\n    at paid (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:13:145)\n    at prepare (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:14:429)\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:19:135",
+                    "location": {
+                      "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts",
+                      "column": 22,
+                      "line": 7
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39mdb.ts:7\n\n   5 |\n   6 | export function sql(statement: string): string {\n>  7 |   return execFileSync('docker', [\n     |                      ^\n   8 |     'exec', '-i', e2eRuntime.pgContainer,\n   9 |     'psql', '-U', 'divulgador', '-d', 'divulgador', '-t', '-A', '-c', statement,\n  10 |   ], { encoding: 'utf8' }).trim()"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts",
+                        "column": 22,
+                        "line": 7
+                      },
+                      "message": "Error: Command failed: docker exec -i divulgador-e2e-pg-roadmap-f10 psql -U divulgador -d divulgador -t -A -c INSERT INTO profile_plans(id,\"tenantId\",tier,title,\"updatedAt\") VALUES('f10-plan','cmvgl7cci00bzu4r01y10gaa5','PREMIUM','Fixture Premium',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_plan_versions(id,\"tenantId\",\"planId\",version,\"amountCents\",capabilities) VALUES('f10-plan-v1','cmvgl7cci00bzu4r01y10gaa5','f10-plan',1,1000,ARRAY['profile.page','profile.categories','profile.appearance','profile.history','profile.subdomain']) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_billing_accounts(id,\"tenantId\",\"ownerId\",\"updatedAt\") VALUES('f10-account','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_subscriptions(id,\"tenantId\",\"ownerId\",\"accountId\",\"planVersionId\",status,\"periodStart\",\"periodEnd\",\"paidThrough\",\"updatedAt\") VALUES('f10-sub','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-account','f10-plan-v1','ACTIVE',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days',NOW()+INTERVAL '30 days',NOW()) ON CONFLICT(id) DO UPDATE SET status='ACTIVE',\"paidThrough\"=NOW()+INTERVAL '30 days',\"periodEnd\"=NOW()+INTERVAL '30 days'; INSERT INTO profile_entitlements(id,\"tenantId\",\"ownerId\",\"subscriptionId\",capability,\"validFrom\",\"validUntil\") VALUES('f10-entitlement','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-sub','profile.subdomain',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days') ON CONFLICT(id) DO UPDATE SET \"revokedAt\"=NULL,\"validUntil\"=NOW()+INTERVAL '30 days'\nERROR:  new row for relation \"profile_plan_versions\" violates check constraint \"profile_plan_versions_money_check\"\nDETAIL:  Failing row contains (f10-plan-v1, cmvgl7cci00bzu4r01y10gaa5, f10-plan, 1, 1000, BRL, month, {profile.page,profile.categories,profile.appearance,profile.hist..., null, null, f, 2026-10-20 11:17:08.13).\n\n\n   at db.ts:7\n\n   5 |\n   6 | export function sql(statement: string): string {\n>  7 |   return execFileSync('docker', [\n     |                      ^\n   8 |     'exec', '-i', e2eRuntime.pgContainer,\n   9 |     'psql', '-U', 'divulgador', '-d', 'divulgador', '-t', '-A', '-c', statement,\n  10 |   ], { encoding: 'utf8' }).trim()\n    at sql (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts:7:22)\n    at paid (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:13:145)\n    at prepare (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:14:429)\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:19:135"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "ERROR:  new row for relation \"profile_plan_versions\" violates check constraint \"profile_plan_versions_money_check\"\nDETAIL:  Failing row contains (f10-plan-v1, cmvgl7cci00bzu4r01y10gaa5, f10-plan, 1, 1000, BRL, month, {profile.page,profile.categories,profile.appearance,profile.hist..., null, null, f, 2026-10-20 11:17:08.13).\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:17:07.208Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-hosts-F10-E03-T03--a6291-me-idade-formulário-e-320px-features\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-hosts-F10-E03-T03--a6291-me-idade-formulário-e-320px-features\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-hosts-F10-E03-T03--a6291-me-idade-formulário-e-320px-features\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts",
+                    "column": 22,
+                    "line": 7
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "6a03999e9b24e560ae61-6c892c88009cee80187e",
+          "file": "profile-hosts.spec.ts",
+          "line": 19,
+          "column": 5
+        },
+        {
+          "title": "F10-E01/T01/T02/T04/T05/T06 endereço público isolado, prévia existente, publicação e perda de cobertura",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 968,
+                  "error": {
+                    "message": "Error: Command failed: docker exec -i divulgador-e2e-pg-roadmap-f10 psql -U divulgador -d divulgador -t -A -c INSERT INTO profile_plans(id,\"tenantId\",tier,title,\"updatedAt\") VALUES('f10-plan','cmvgl7cci00bzu4r01y10gaa5','PREMIUM','Fixture Premium',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_plan_versions(id,\"tenantId\",\"planId\",version,\"amountCents\",capabilities) VALUES('f10-plan-v1','cmvgl7cci00bzu4r01y10gaa5','f10-plan',1,1000,ARRAY['profile.page','profile.categories','profile.appearance','profile.history','profile.subdomain']) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_billing_accounts(id,\"tenantId\",\"ownerId\",\"updatedAt\") VALUES('f10-account','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_subscriptions(id,\"tenantId\",\"ownerId\",\"accountId\",\"planVersionId\",status,\"periodStart\",\"periodEnd\",\"paidThrough\",\"updatedAt\") VALUES('f10-sub','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-account','f10-plan-v1','ACTIVE',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days',NOW()+INTERVAL '30 days',NOW()) ON CONFLICT(id) DO UPDATE SET status='ACTIVE',\"paidThrough\"=NOW()+INTERVAL '30 days',\"periodEnd\"=NOW()+INTERVAL '30 days'; INSERT INTO profile_entitlements(id,\"tenantId\",\"ownerId\",\"subscriptionId\",capability,\"validFrom\",\"validUntil\") VALUES('f10-entitlement','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-sub','profile.subdomain',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days') ON CONFLICT(id) DO UPDATE SET \"revokedAt\"=NULL,\"validUntil\"=NOW()+INTERVAL '30 days'\nERROR:  new row for relation \"profile_plan_versions\" violates check constraint \"profile_plan_versions_money_check\"\nDETAIL:  Failing row contains (f10-plan-v1, cmvgl7cci00bzu4r01y10gaa5, f10-plan, 1, 1000, BRL, month, {profile.page,profile.categories,profile.appearance,profile.hist..., null, null, f, 2026-10-20 11:17:54.787).\n",
+                    "stack": "Error: Command failed: docker exec -i divulgador-e2e-pg-roadmap-f10 psql -U divulgador -d divulgador -t -A -c INSERT INTO profile_plans(id,\"tenantId\",tier,title,\"updatedAt\") VALUES('f10-plan','cmvgl7cci00bzu4r01y10gaa5','PREMIUM','Fixture Premium',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_plan_versions(id,\"tenantId\",\"planId\",version,\"amountCents\",capabilities) VALUES('f10-plan-v1','cmvgl7cci00bzu4r01y10gaa5','f10-plan',1,1000,ARRAY['profile.page','profile.categories','profile.appearance','profile.history','profile.subdomain']) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_billing_accounts(id,\"tenantId\",\"ownerId\",\"updatedAt\") VALUES('f10-account','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_subscriptions(id,\"tenantId\",\"ownerId\",\"accountId\",\"planVersionId\",status,\"periodStart\",\"periodEnd\",\"paidThrough\",\"updatedAt\") VALUES('f10-sub','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-account','f10-plan-v1','ACTIVE',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days',NOW()+INTERVAL '30 days',NOW()) ON CONFLICT(id) DO UPDATE SET status='ACTIVE',\"paidThrough\"=NOW()+INTERVAL '30 days',\"periodEnd\"=NOW()+INTERVAL '30 days'; INSERT INTO profile_entitlements(id,\"tenantId\",\"ownerId\",\"subscriptionId\",capability,\"validFrom\",\"validUntil\") VALUES('f10-entitlement','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-sub','profile.subdomain',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days') ON CONFLICT(id) DO UPDATE SET \"revokedAt\"=NULL,\"validUntil\"=NOW()+INTERVAL '30 days'\nERROR:  new row for relation \"profile_plan_versions\" violates check constraint \"profile_plan_versions_money_check\"\nDETAIL:  Failing row contains (f10-plan-v1, cmvgl7cci00bzu4r01y10gaa5, f10-plan, 1, 1000, BRL, month, {profile.page,profile.categories,profile.appearance,profile.hist..., null, null, f, 2026-10-20 11:17:54.787).\n\n    at sql (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts:7:22)\n    at paid (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:13:145)\n    at prepare (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:14:429)\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:17:155",
+                    "location": {
+                      "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts",
+                      "column": 22,
+                      "line": 7
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39mdb.ts:7\n\n   5 |\n   6 | export function sql(statement: string): string {\n>  7 |   return execFileSync('docker', [\n     |                      ^\n   8 |     'exec', '-i', e2eRuntime.pgContainer,\n   9 |     'psql', '-U', 'divulgador', '-d', 'divulgador', '-t', '-A', '-c', statement,\n  10 |   ], { encoding: 'utf8' }).trim()"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts",
+                        "column": 22,
+                        "line": 7
+                      },
+                      "message": "Error: Command failed: docker exec -i divulgador-e2e-pg-roadmap-f10 psql -U divulgador -d divulgador -t -A -c INSERT INTO profile_plans(id,\"tenantId\",tier,title,\"updatedAt\") VALUES('f10-plan','cmvgl7cci00bzu4r01y10gaa5','PREMIUM','Fixture Premium',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_plan_versions(id,\"tenantId\",\"planId\",version,\"amountCents\",capabilities) VALUES('f10-plan-v1','cmvgl7cci00bzu4r01y10gaa5','f10-plan',1,1000,ARRAY['profile.page','profile.categories','profile.appearance','profile.history','profile.subdomain']) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_billing_accounts(id,\"tenantId\",\"ownerId\",\"updatedAt\") VALUES('f10-account','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_subscriptions(id,\"tenantId\",\"ownerId\",\"accountId\",\"planVersionId\",status,\"periodStart\",\"periodEnd\",\"paidThrough\",\"updatedAt\") VALUES('f10-sub','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-account','f10-plan-v1','ACTIVE',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days',NOW()+INTERVAL '30 days',NOW()) ON CONFLICT(id) DO UPDATE SET status='ACTIVE',\"paidThrough\"=NOW()+INTERVAL '30 days',\"periodEnd\"=NOW()+INTERVAL '30 days'; INSERT INTO profile_entitlements(id,\"tenantId\",\"ownerId\",\"subscriptionId\",capability,\"validFrom\",\"validUntil\") VALUES('f10-entitlement','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-sub','profile.subdomain',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days') ON CONFLICT(id) DO UPDATE SET \"revokedAt\"=NULL,\"validUntil\"=NOW()+INTERVAL '30 days'\nERROR:  new row for relation \"profile_plan_versions\" violates check constraint \"profile_plan_versions_money_check\"\nDETAIL:  Failing row contains (f10-plan-v1, cmvgl7cci00bzu4r01y10gaa5, f10-plan, 1, 1000, BRL, month, {profile.page,profile.categories,profile.appearance,profile.hist..., null, null, f, 2026-10-20 11:17:54.787).\n\n\n   at db.ts:7\n\n   5 |\n   6 | export function sql(statement: string): string {\n>  7 |   return execFileSync('docker', [\n     |                      ^\n   8 |     'exec', '-i', e2eRuntime.pgContainer,\n   9 |     'psql', '-U', 'divulgador', '-d', 'divulgador', '-t', '-A', '-c', statement,\n  10 |   ], { encoding: 'utf8' }).trim()\n    at sql (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts:7:22)\n    at paid (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:13:145)\n    at prepare (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:14:429)\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:17:155"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "ERROR:  new row for relation \"profile_plan_versions\" violates check constraint \"profile_plan_versions_money_check\"\nDETAIL:  Failing row contains (f10-plan-v1, cmvgl7cci00bzu4r01y10gaa5, f10-plan, 1, 1000, BRL, month, {profile.page,profile.categories,profile.appearance,profile.hist..., null, null, f, 2026-10-20 11:17:54.787).\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:17:54.007Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-hosts-F10-E01-T01--cc2bb-icação-e-perda-de-cobertura-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-hosts-F10-E01-T01--cc2bb-icação-e-perda-de-cobertura-features-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-hosts-F10-E01-T01--cc2bb-icação-e-perda-de-cobertura-features-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts",
+                    "column": 22,
+                    "line": 7
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "6a03999e9b24e560ae61-a2e4cee54f6a664f4ad2",
+          "file": "profile-hosts.spec.ts",
+          "line": 17,
+          "column": 5
+        },
+        {
+          "title": "F10-E02/I02/T02 cookies host-only, auth bloqueada, outra página/dono e dados privados ausentes",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1034,
+                  "error": {
+                    "message": "Error: Command failed: docker exec -i divulgador-e2e-pg-roadmap-f10 psql -U divulgador -d divulgador -t -A -c INSERT INTO profile_plans(id,\"tenantId\",tier,title,\"updatedAt\") VALUES('f10-plan','cmvgl7cci00bzu4r01y10gaa5','PREMIUM','Fixture Premium',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_plan_versions(id,\"tenantId\",\"planId\",version,\"amountCents\",capabilities) VALUES('f10-plan-v1','cmvgl7cci00bzu4r01y10gaa5','f10-plan',1,1000,ARRAY['profile.page','profile.categories','profile.appearance','profile.history','profile.subdomain']) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_billing_accounts(id,\"tenantId\",\"ownerId\",\"updatedAt\") VALUES('f10-account','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_subscriptions(id,\"tenantId\",\"ownerId\",\"accountId\",\"planVersionId\",status,\"periodStart\",\"periodEnd\",\"paidThrough\",\"updatedAt\") VALUES('f10-sub','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-account','f10-plan-v1','ACTIVE',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days',NOW()+INTERVAL '30 days',NOW()) ON CONFLICT(id) DO UPDATE SET status='ACTIVE',\"paidThrough\"=NOW()+INTERVAL '30 days',\"periodEnd\"=NOW()+INTERVAL '30 days'; INSERT INTO profile_entitlements(id,\"tenantId\",\"ownerId\",\"subscriptionId\",capability,\"validFrom\",\"validUntil\") VALUES('f10-entitlement','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-sub','profile.subdomain',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days') ON CONFLICT(id) DO UPDATE SET \"revokedAt\"=NULL,\"validUntil\"=NOW()+INTERVAL '30 days'\nERROR:  new row for relation \"profile_plan_versions\" violates check constraint \"profile_plan_versions_money_check\"\nDETAIL:  Failing row contains (f10-plan-v1, cmvgl7cci00bzu4r01y10gaa5, f10-plan, 1, 1000, BRL, month, {profile.page,profile.categories,profile.appearance,profile.hist..., null, null, f, 2026-10-20 11:17:56.443).\n",
+                    "stack": "Error: Command failed: docker exec -i divulgador-e2e-pg-roadmap-f10 psql -U divulgador -d divulgador -t -A -c INSERT INTO profile_plans(id,\"tenantId\",tier,title,\"updatedAt\") VALUES('f10-plan','cmvgl7cci00bzu4r01y10gaa5','PREMIUM','Fixture Premium',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_plan_versions(id,\"tenantId\",\"planId\",version,\"amountCents\",capabilities) VALUES('f10-plan-v1','cmvgl7cci00bzu4r01y10gaa5','f10-plan',1,1000,ARRAY['profile.page','profile.categories','profile.appearance','profile.history','profile.subdomain']) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_billing_accounts(id,\"tenantId\",\"ownerId\",\"updatedAt\") VALUES('f10-account','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_subscriptions(id,\"tenantId\",\"ownerId\",\"accountId\",\"planVersionId\",status,\"periodStart\",\"periodEnd\",\"paidThrough\",\"updatedAt\") VALUES('f10-sub','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-account','f10-plan-v1','ACTIVE',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days',NOW()+INTERVAL '30 days',NOW()) ON CONFLICT(id) DO UPDATE SET status='ACTIVE',\"paidThrough\"=NOW()+INTERVAL '30 days',\"periodEnd\"=NOW()+INTERVAL '30 days'; INSERT INTO profile_entitlements(id,\"tenantId\",\"ownerId\",\"subscriptionId\",capability,\"validFrom\",\"validUntil\") VALUES('f10-entitlement','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-sub','profile.subdomain',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days') ON CONFLICT(id) DO UPDATE SET \"revokedAt\"=NULL,\"validUntil\"=NOW()+INTERVAL '30 days'\nERROR:  new row for relation \"profile_plan_versions\" violates check constraint \"profile_plan_versions_money_check\"\nDETAIL:  Failing row contains (f10-plan-v1, cmvgl7cci00bzu4r01y10gaa5, f10-plan, 1, 1000, BRL, month, {profile.page,profile.categories,profile.appearance,profile.hist..., null, null, f, 2026-10-20 11:17:56.443).\n\n    at sql (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts:7:22)\n    at paid (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:13:145)\n    at prepare (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:14:429)\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:18:132",
+                    "location": {
+                      "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts",
+                      "column": 22,
+                      "line": 7
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39mdb.ts:7\n\n   5 |\n   6 | export function sql(statement: string): string {\n>  7 |   return execFileSync('docker', [\n     |                      ^\n   8 |     'exec', '-i', e2eRuntime.pgContainer,\n   9 |     'psql', '-U', 'divulgador', '-d', 'divulgador', '-t', '-A', '-c', statement,\n  10 |   ], { encoding: 'utf8' }).trim()"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts",
+                        "column": 22,
+                        "line": 7
+                      },
+                      "message": "Error: Command failed: docker exec -i divulgador-e2e-pg-roadmap-f10 psql -U divulgador -d divulgador -t -A -c INSERT INTO profile_plans(id,\"tenantId\",tier,title,\"updatedAt\") VALUES('f10-plan','cmvgl7cci00bzu4r01y10gaa5','PREMIUM','Fixture Premium',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_plan_versions(id,\"tenantId\",\"planId\",version,\"amountCents\",capabilities) VALUES('f10-plan-v1','cmvgl7cci00bzu4r01y10gaa5','f10-plan',1,1000,ARRAY['profile.page','profile.categories','profile.appearance','profile.history','profile.subdomain']) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_billing_accounts(id,\"tenantId\",\"ownerId\",\"updatedAt\") VALUES('f10-account','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_subscriptions(id,\"tenantId\",\"ownerId\",\"accountId\",\"planVersionId\",status,\"periodStart\",\"periodEnd\",\"paidThrough\",\"updatedAt\") VALUES('f10-sub','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-account','f10-plan-v1','ACTIVE',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days',NOW()+INTERVAL '30 days',NOW()) ON CONFLICT(id) DO UPDATE SET status='ACTIVE',\"paidThrough\"=NOW()+INTERVAL '30 days',\"periodEnd\"=NOW()+INTERVAL '30 days'; INSERT INTO profile_entitlements(id,\"tenantId\",\"ownerId\",\"subscriptionId\",capability,\"validFrom\",\"validUntil\") VALUES('f10-entitlement','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-sub','profile.subdomain',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days') ON CONFLICT(id) DO UPDATE SET \"revokedAt\"=NULL,\"validUntil\"=NOW()+INTERVAL '30 days'\nERROR:  new row for relation \"profile_plan_versions\" violates check constraint \"profile_plan_versions_money_check\"\nDETAIL:  Failing row contains (f10-plan-v1, cmvgl7cci00bzu4r01y10gaa5, f10-plan, 1, 1000, BRL, month, {profile.page,profile.categories,profile.appearance,profile.hist..., null, null, f, 2026-10-20 11:17:56.443).\n\n\n   at db.ts:7\n\n   5 |\n   6 | export function sql(statement: string): string {\n>  7 |   return execFileSync('docker', [\n     |                      ^\n   8 |     'exec', '-i', e2eRuntime.pgContainer,\n   9 |     'psql', '-U', 'divulgador', '-d', 'divulgador', '-t', '-A', '-c', statement,\n  10 |   ], { encoding: 'utf8' }).trim()\n    at sql (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts:7:22)\n    at paid (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:13:145)\n    at prepare (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:14:429)\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:18:132"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "ERROR:  new row for relation \"profile_plan_versions\" violates check constraint \"profile_plan_versions_money_check\"\nDETAIL:  Failing row contains (f10-plan-v1, cmvgl7cci00bzu4r01y10gaa5, f10-plan, 1, 1000, BRL, month, {profile.page,profile.categories,profile.appearance,profile.hist..., null, null, f, 2026-10-20 11:17:56.443).\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:17:55.490Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-hosts-F10-E02-I02--e27aa-o-e-dados-privados-ausentes-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-hosts-F10-E02-I02--e27aa-o-e-dados-privados-ausentes-features-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-hosts-F10-E02-I02--e27aa-o-e-dados-privados-ausentes-features-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts",
+                    "column": 22,
+                    "line": 7
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "6a03999e9b24e560ae61-885bc6aa7644c62209aa",
+          "file": "profile-hosts.spec.ts",
+          "line": 18,
+          "column": 5
+        },
+        {
+          "title": "F10-E03/T03/T04/T05 rede/HTTPS pendente recupera sem perder nome, idade, formulário e 320px",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1025,
+                  "error": {
+                    "message": "Error: Command failed: docker exec -i divulgador-e2e-pg-roadmap-f10 psql -U divulgador -d divulgador -t -A -c INSERT INTO profile_plans(id,\"tenantId\",tier,title,\"updatedAt\") VALUES('f10-plan','cmvgl7cci00bzu4r01y10gaa5','PREMIUM','Fixture Premium',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_plan_versions(id,\"tenantId\",\"planId\",version,\"amountCents\",capabilities) VALUES('f10-plan-v1','cmvgl7cci00bzu4r01y10gaa5','f10-plan',1,1000,ARRAY['profile.page','profile.categories','profile.appearance','profile.history','profile.subdomain']) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_billing_accounts(id,\"tenantId\",\"ownerId\",\"updatedAt\") VALUES('f10-account','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_subscriptions(id,\"tenantId\",\"ownerId\",\"accountId\",\"planVersionId\",status,\"periodStart\",\"periodEnd\",\"paidThrough\",\"updatedAt\") VALUES('f10-sub','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-account','f10-plan-v1','ACTIVE',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days',NOW()+INTERVAL '30 days',NOW()) ON CONFLICT(id) DO UPDATE SET status='ACTIVE',\"paidThrough\"=NOW()+INTERVAL '30 days',\"periodEnd\"=NOW()+INTERVAL '30 days'; INSERT INTO profile_entitlements(id,\"tenantId\",\"ownerId\",\"subscriptionId\",capability,\"validFrom\",\"validUntil\") VALUES('f10-entitlement','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-sub','profile.subdomain',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days') ON CONFLICT(id) DO UPDATE SET \"revokedAt\"=NULL,\"validUntil\"=NOW()+INTERVAL '30 days'\nERROR:  new row for relation \"profile_plan_versions\" violates check constraint \"profile_plan_versions_money_check\"\nDETAIL:  Failing row contains (f10-plan-v1, cmvgl7cci00bzu4r01y10gaa5, f10-plan, 1, 1000, BRL, month, {profile.page,profile.categories,profile.appearance,profile.hist..., null, null, f, 2026-10-20 11:17:57.97).\n",
+                    "stack": "Error: Command failed: docker exec -i divulgador-e2e-pg-roadmap-f10 psql -U divulgador -d divulgador -t -A -c INSERT INTO profile_plans(id,\"tenantId\",tier,title,\"updatedAt\") VALUES('f10-plan','cmvgl7cci00bzu4r01y10gaa5','PREMIUM','Fixture Premium',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_plan_versions(id,\"tenantId\",\"planId\",version,\"amountCents\",capabilities) VALUES('f10-plan-v1','cmvgl7cci00bzu4r01y10gaa5','f10-plan',1,1000,ARRAY['profile.page','profile.categories','profile.appearance','profile.history','profile.subdomain']) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_billing_accounts(id,\"tenantId\",\"ownerId\",\"updatedAt\") VALUES('f10-account','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_subscriptions(id,\"tenantId\",\"ownerId\",\"accountId\",\"planVersionId\",status,\"periodStart\",\"periodEnd\",\"paidThrough\",\"updatedAt\") VALUES('f10-sub','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-account','f10-plan-v1','ACTIVE',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days',NOW()+INTERVAL '30 days',NOW()) ON CONFLICT(id) DO UPDATE SET status='ACTIVE',\"paidThrough\"=NOW()+INTERVAL '30 days',\"periodEnd\"=NOW()+INTERVAL '30 days'; INSERT INTO profile_entitlements(id,\"tenantId\",\"ownerId\",\"subscriptionId\",capability,\"validFrom\",\"validUntil\") VALUES('f10-entitlement','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-sub','profile.subdomain',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days') ON CONFLICT(id) DO UPDATE SET \"revokedAt\"=NULL,\"validUntil\"=NOW()+INTERVAL '30 days'\nERROR:  new row for relation \"profile_plan_versions\" violates check constraint \"profile_plan_versions_money_check\"\nDETAIL:  Failing row contains (f10-plan-v1, cmvgl7cci00bzu4r01y10gaa5, f10-plan, 1, 1000, BRL, month, {profile.page,profile.categories,profile.appearance,profile.hist..., null, null, f, 2026-10-20 11:17:57.97).\n\n    at sql (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts:7:22)\n    at paid (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:13:145)\n    at prepare (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:14:429)\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:19:135",
+                    "location": {
+                      "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts",
+                      "column": 22,
+                      "line": 7
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39mdb.ts:7\n\n   5 |\n   6 | export function sql(statement: string): string {\n>  7 |   return execFileSync('docker', [\n     |                      ^\n   8 |     'exec', '-i', e2eRuntime.pgContainer,\n   9 |     'psql', '-U', 'divulgador', '-d', 'divulgador', '-t', '-A', '-c', statement,\n  10 |   ], { encoding: 'utf8' }).trim()"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts",
+                        "column": 22,
+                        "line": 7
+                      },
+                      "message": "Error: Command failed: docker exec -i divulgador-e2e-pg-roadmap-f10 psql -U divulgador -d divulgador -t -A -c INSERT INTO profile_plans(id,\"tenantId\",tier,title,\"updatedAt\") VALUES('f10-plan','cmvgl7cci00bzu4r01y10gaa5','PREMIUM','Fixture Premium',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_plan_versions(id,\"tenantId\",\"planId\",version,\"amountCents\",capabilities) VALUES('f10-plan-v1','cmvgl7cci00bzu4r01y10gaa5','f10-plan',1,1000,ARRAY['profile.page','profile.categories','profile.appearance','profile.history','profile.subdomain']) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_billing_accounts(id,\"tenantId\",\"ownerId\",\"updatedAt\") VALUES('f10-account','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn',NOW()) ON CONFLICT(id) DO NOTHING; INSERT INTO profile_subscriptions(id,\"tenantId\",\"ownerId\",\"accountId\",\"planVersionId\",status,\"periodStart\",\"periodEnd\",\"paidThrough\",\"updatedAt\") VALUES('f10-sub','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-account','f10-plan-v1','ACTIVE',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days',NOW()+INTERVAL '30 days',NOW()) ON CONFLICT(id) DO UPDATE SET status='ACTIVE',\"paidThrough\"=NOW()+INTERVAL '30 days',\"periodEnd\"=NOW()+INTERVAL '30 days'; INSERT INTO profile_entitlements(id,\"tenantId\",\"ownerId\",\"subscriptionId\",capability,\"validFrom\",\"validUntil\") VALUES('f10-entitlement','cmvgl7cci00bzu4r01y10gaa5','cmvgl7cct00chu4r0zjahobfn','f10-sub','profile.subdomain',NOW()-INTERVAL '1 day',NOW()+INTERVAL '30 days') ON CONFLICT(id) DO UPDATE SET \"revokedAt\"=NULL,\"validUntil\"=NOW()+INTERVAL '30 days'\nERROR:  new row for relation \"profile_plan_versions\" violates check constraint \"profile_plan_versions_money_check\"\nDETAIL:  Failing row contains (f10-plan-v1, cmvgl7cci00bzu4r01y10gaa5, f10-plan, 1, 1000, BRL, month, {profile.page,profile.categories,profile.appearance,profile.hist..., null, null, f, 2026-10-20 11:17:57.97).\n\n\n   at db.ts:7\n\n   5 |\n   6 | export function sql(statement: string): string {\n>  7 |   return execFileSync('docker', [\n     |                      ^\n   8 |     'exec', '-i', e2eRuntime.pgContainer,\n   9 |     'psql', '-U', 'divulgador', '-d', 'divulgador', '-t', '-A', '-c', statement,\n  10 |   ], { encoding: 'utf8' }).trim()\n    at sql (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts:7:22)\n    at paid (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:13:145)\n    at prepare (C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:14:429)\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-hosts.spec.ts:19:135"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "ERROR:  new row for relation \"profile_plan_versions\" violates check constraint \"profile_plan_versions_money_check\"\nDETAIL:  Failing row contains (f10-plan-v1, cmvgl7cci00bzu4r01y10gaa5, f10-plan, 1, 1000, BRL, month, {profile.page,profile.categories,profile.appearance,profile.hist..., null, null, f, 2026-10-20 11:17:57.97).\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-20T11:17:57.034Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-hosts-F10-E03-T03--a6291-me-idade-formulário-e-320px-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-hosts-F10-E03-T03--a6291-me-idade-formulário-e-320px-features-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-hosts-F10-E03-T03--a6291-me-idade-formulário-e-320px-features-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\db.ts",
+                    "column": 22,
+                    "line": 7
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "6a03999e9b24e560ae61-b98b394e042670fe96bb",
+          "file": "profile-hosts.spec.ts",
+          "line": 19,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-20T11:15:28.409Z",
+    "duration": 151281.538,
+    "expected": 11,
+    "skipped": 0,
+    "unexpected": 6,
+    "flaky": 0
+  }
+}

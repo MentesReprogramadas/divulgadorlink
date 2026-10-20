@@ -36,3 +36,5 @@ Nenhuma env ou dependência nova; usar provedor de moderação já configurado. 
 S0–S6 locais; S7/CI/liberação remota pendentes. Próxima e última desta autorização: F10.
 
 Commit de implementação: e2d5b8a68dcb758dd09219cabecc3bfa831b4702.
+
+Revisão de fechamento da F10: o negativo de FK passou a exigir P2003 com favorito realmente pertencente a outro tenant, sem depender de colisão de chave primária; F33 cinco PG e seis jornadas E2E desktop/mobile passaram novamente. Skeleton público usa o card orgânico sem ações privadas/contador, com CSS Module. Provas e hash do delta vinculados à execução F10.

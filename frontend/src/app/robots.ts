@@ -1,3 +1,4 @@
+import {personalHostTarget} from '@/features/profile-hosts/host-routing'
 import type { MetadataRoute } from 'next'
 import { headers } from 'next/headers'
 import { PRIVATE_PATHS, requestHost } from '@/domain/crawler-policy'
@@ -6,6 +7,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function robots(): Promise<MetadataRoute.Robots> {
   const headerStore = await headers()
+  if(personalHostTarget(headerStore.get('host')??''))return {rules:{userAgent:'*',disallow:'/'}}
   const host = requestHost(headerStore.get('x-forwarded-host'), headerStore.get('host'))
   return {
     rules: {

@@ -15,7 +15,7 @@ import styles from './components/profile-search.module.css'
 import {useProfileInteraction} from '@/features/profile-interaction/use-profile-interaction'
 type Navigation='push'|'replace'|'refresh'|'page'|'history'
 function writePublicQuery(slug:string,query:ProfileSearchQuery,method:'pushState'|'replaceState'){
- const url=new URL(window.location.href);url.pathname='/p/'+encodeURIComponent(slug)
+ const url=new URL(window.location.href);url.pathname=document.body.dataset.personalHost==='true'?'/':'/p/'+encodeURIComponent(slug)
  for(const name of ['q','categoryId','cursor'])url.searchParams.delete(name)
  profileSearchParams(query).forEach((value,name)=>url.searchParams.set(name,value))
  window.history[method](null,'',url.pathname+url.search+url.hash)

@@ -23,7 +23,7 @@ export async function workspaceGuard(q:FastifyRequest,r:FastifyReply){
  if(publicWorkspaceAction(q.method,path))return
  const section=workspaceRoute(path)
  // Public browsing is independent of team identity; never rewrite its actor.
- if(!section){if(path==='/age'&&q.method==='POST')return;if(/^\/(?:profiles\/|collections\/|r\/|catalog(?:\/|$)|search(?:\/|$)|discovery(?:\/|$)|profile-plans$|profile-templates$|networks(?:\/|$)|niches(?:\/|$)|home$|sitemap$|actuator\/)/.test(path)&&q.method==='GET')return;return deny(r,'Esta ação é exclusiva da sua conta. Volte ao seu espaço.')}
+ if(!section){if(path==='/age'&&q.method==='POST')return;if(/^\/(?:profile-hosts\/|profiles\/|collections\/|r\/|catalog(?:\/|$)|search(?:\/|$)|discovery(?:\/|$)|profile-plans$|profile-templates$|networks(?:\/|$)|niches(?:\/|$)|home$|sitemap$|actuator\/)/.test(path)&&q.method==='GET')return;return deny(r,'Esta ação é exclusiva da sua conta. Volte ao seu espaço.')}
  if(q.supportSession||q.headers['x-profile-id'])return deny(r,'Saia do outro contexto antes de abrir o espaço compartilhado.')
  r.header('cache-control','private, no-store')
  const actual=await readAccessUser(q)

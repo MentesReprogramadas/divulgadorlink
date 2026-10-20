@@ -1,0 +1,14 @@
+import {WorkspaceIdentity} from '@/features/workspace-team/workspace-access'
+import '@testing-library/jest-dom/vitest'
+import {render,screen,within,cleanup,waitFor} from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import {afterEach,expect,it,vi} from 'vitest'
+import {ProfileHostScreen} from './profile-host-screen'
+const request=vi.hoisted(()=>vi.fn());vi.mock('@/features/profiles/profile-api',()=>({profileRequest:request}))
+afterEach(()=>{cleanup();request.mockReset()})
+const state={hosts:[],version:0,bases:['pages.test'],allowed:true,published:true,hasPage:true}
+it('F10-C01 reserva explícita e falha recuperável conservam endereço digitado',async()=>{const user=userEvent.setup();request.mockImplementation(async(_path:string,init?:RequestInit)=>{if(init)throw new Error('DNS indisponível');return state});render(<ProfileHostScreen/>);await waitFor(()=>expect(screen.getByRole('button',{name:'Escolher endereço'})).toBeEnabled());await user.click(screen.getByRole('button',{name:'Escolher endereço'}));const dialog=screen.getByRole('dialog',{name:'Escolher endereço'});await user.type(within(dialog).getByLabelText('Nome do seu endereço'),'ana');await user.click(within(dialog).getByRole('button',{name:'Reservar endereço'}));expect(await within(dialog).findByRole('alert')).toHaveTextContent('DNS indisponível');expect(within(dialog).getByLabelText('Nome do seu endereço')).toHaveValue('ana');expect(request).toHaveBeenLastCalledWith('/hosts',{method:'POST',body:JSON.stringify({name:'ana',base:'pages.test',expectedVersion:0})})})
+it('F10-C02 sem capacidade bloqueia edição; prévia reutiliza rota existente',async()=>{request.mockResolvedValue({...state,allowed:false});render(<ProfileHostScreen/>);await screen.findByText('Plano com endereço próprio necessário');expect(screen.getByRole('button',{name:'Escolher endereço'})).toBeDisabled();expect(screen.getByRole('link',{name:'Ver prévia da página'})).toHaveAttribute('href','/painel/perfil/previa');expect(screen.queryByRole('dialog')).not.toBeInTheDocument()})
+it('F10-C01 carregamento usa composição igual e não chama transporte do skeleton de rota',()=>{render(<ProfileHostScreen pendingOnly/>);expect(screen.getByRole('article',{name:'Seu endereço'})).toHaveAttribute('aria-busy','true');expect(screen.getByRole('button',{name:'Escolher endereço'})).toBeDisabled();expect(request).not.toHaveBeenCalled()})
+
+it('F10-C02 colaborador sem billing.read não recebe ação de assinatura',async()=>{request.mockResolvedValue({...state,allowed:false});render(<WorkspaceIdentity.Provider value={{ownerId:'workspace-owner',grants:{page:{read:true,write:false}}}}><ProfileHostScreen/></WorkspaceIdentity.Provider>);await screen.findByText('O responsável pelo espaço precisa liberar este recurso.');expect(screen.queryByRole('link',{name:'Ver assinatura'})).not.toBeInTheDocument();expect(screen.getByRole('link',{name:'Ver prévia da página'})).toBeVisible()})

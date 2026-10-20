@@ -420,10 +420,10 @@ test('F09-E05 criação e gestão: cards, DnD, transferência, edição e remoç
   await expect(page.getByText('Mover e remover', { exact: true })).toHaveCount(0)
   const cards = page.locator('[data-profile-link]')
   const firstBox = await cards.nth(0).boundingBox(), secondBox = await cards.nth(1).boundingBox()
-  if (!info.project.use.isMobile) {
-    expect(Math.abs(firstBox!.y - secondBox!.y)).toBeLessThan(2)
-    expect(secondBox!.x).toBeGreaterThan(firstBox!.x + firstBox!.width)
-  }
+  const columns=await cards.first().locator('..').evaluate(element=>getComputedStyle(element).gridTemplateColumns.split(' ').filter(Boolean).length)
+  if(columns>1){expect(Math.abs(firstBox!.y-secondBox!.y)).toBeLessThan(2);expect(secondBox!.x).toBeGreaterThan(firstBox!.x+firstBox!.width)}
+  else{expect(secondBox!.y).toBeGreaterThanOrEqual(firstBox!.y+firstBox!.height);expect(Math.abs(firstBox!.x-secondBox!.x)).toBeLessThan(2)}
+  const container=await cards.first().locator('..').boundingBox();for(const box of [firstBox!,secondBox!]){expect(box.x).toBeGreaterThanOrEqual(container!.x-1);expect(box.x+box.width).toBeLessThanOrEqual(container!.x+container!.width+1)}
   const linkHandles = page.getByRole('button', { name: /^Arrastar link / })
   const linkFrom = page.getByRole('button', { name: 'Arrastar link Primeiro link', exact: true })
   await dragOrder(page, linkFrom, page.getByRole('button', { name: 'Arrastar link Segundo link', exact: true }), Boolean(info.project.use.isMobile))

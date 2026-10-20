@@ -97,3 +97,13 @@ Não inicia uma nova feature da sequência: mantém 26/42 implementações e F22
 ## 20/10/2026 — F33 validada localmente
 
 [Coleções públicas compartilháveis: contrato, ACs, decisões e provas](execucao-f33.md). 33/42 implementações registradas. Próxima sequência F10; parar após F10; autorização de parar após F10 preservada. S7 remoto em revisão; commits na mesma branch, sem push/deploy.
+
+
+## 20/10/2026 — F10 validada localmente
+
+[Página premium com subdomínio: contrato, ACs, decisões e provas](execucao-f10.md). 34/42 implementações registradas. Próxima sequência parada solicitada após F10; próximas futuras F24 → F30 → F35 → F39 → F26 → F36 → F40 → F41; autorização de parar após F10 preservada. S7 remoto em revisão; commits na mesma branch, sem push/deploy.
+
+
+### Fechamento F10 — limite da validação
+
+Implementação/automação locais concluídas, AC03 parcial e F10-M01 (TLS/DNS real em staging) pendente. CI/deploy não executados. Parada solicitada após F10: não iniciar F24. [Operação e reversão](operacao-f10.md).

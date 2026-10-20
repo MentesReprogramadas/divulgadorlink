@@ -1,3 +1,4 @@
-import {FavoriteCardsSkeleton} from '@/features/favorites/components/favorites-skeleton'
-import {Skeleton} from '@/components/feedback/skeleton'
-export default function Loading(){return <main className="container" aria-label="Carregando coleção" aria-busy="true" style={{display:'grid',gap:'var(--space-6)',paddingBlock:'var(--space-8)'}}><div style={{padding:'var(--space-6)',display:'grid',gap:'var(--space-4)',border:'1px solid var(--border-default)',borderRadius:'var(--radius)'}}><Skeleton height={36} width="60%"/><Skeleton height={24} width="80%"/><Skeleton height={24} width="40%"/></div><FavoriteCardsSkeleton/></main>}
+import {CatalogCardSkeleton} from '@/features/catalog/components/catalog-skeleton'
+import {Skeleton,SkeletonRegion} from '@/components/feedback/skeleton'
+import styles from '@/features/favorites/components/favorites.module.css'
+export default function Loading(){return <main className={'container '+styles.publicPage}><SkeletonRegion label="Carregando coleção"><div className={styles.page}><header className={styles.collection}><Skeleton height={38} width="60%"/><Skeleton height={24} width="80%"/><Skeleton height={24} width="40%"/></header><ul className={styles.list}>{[0,1,2].map(index=><li key={index} className={styles.item}><CatalogCardSkeleton withFavorite={false} withImpressions={false}/><Skeleton height={17} width="65%"/></li>)}</ul></div></SkeletonRegion></main>}

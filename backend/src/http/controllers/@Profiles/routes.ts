@@ -1,3 +1,4 @@
+import * as hosts from '@/repositories/profile-hosts'
 import * as mediaKits from '@/repositories/media-kits'
 import {readProfileBackup} from '@/domain/profiles/profile-backup'
 import {mediaKitContent} from '@/domain/profiles/media-kit'
@@ -52,6 +53,16 @@ const slugParams = z.object({ slug: z.string().regex(/^[a-z0-9-]{3,40}$/) })
 const asset = z.string().regex(/^[a-f0-9]{64}$/)
 const itemSearchQuery=z.object({q:z.string().trim().max(100).default(''),categoryId:z.string().uuid().optional(),cursor:z.string().max(2048).optional()}).strict()
 export async function profilesRoutes(app: FastifyInstance) {
+  app.get('/me/profile/hosts',(q,r)=>run(q,r,true,(db,a)=>hosts.readProfileHosts(db,a)))
+  app.post('/me/profile/hosts',(q,r)=>run(q,r,true,(db,a)=>hosts.reserveProfileHost(db,{...a,auditActorId:q.workspaceActor?.id},z.object({name:z.string().max(80),base:z.string().max(253),expectedVersion:profileVersion}).strict().parse(q.body))))
+  app.post('/me/profile/hosts/verify',(q,r)=>run(q,r,true,(db,a)=>{const input=z.object({hostname:z.string().max(253),expectedVersion:profileVersion}).strict().parse(q.body);return hosts.verifyProfileHost(db,{...a,auditActorId:q.workspaceActor?.id},input.hostname,input.expectedVersion)}))
+  app.delete('/me/profile/hosts',(q,r)=>run(q,r,true,(db,a)=>{const input=z.object({hostname:z.string().max(253),expectedVersion:profileVersion}).strict().parse(q.body);return hosts.disableProfileHost(db,{...a,auditActorId:q.workspaceActor?.id},input.hostname,input.expectedVersion)}))
+  app.get('/profile-hosts/resolve',async(q,r)=>{
+    r.header('cache-control','private, no-store').header('x-content-type-options','nosniff')
+    try{const input=z.object({hostname:z.string().regex(/^[a-z0-9.-]{3,253}$/),challenge:z.string().regex(/^[a-f0-9]{64}$/).optional()}).strict().parse(q.query);return await hosts.resolveConfiguredProfileHost(testDb??prisma,input.hostname,input.challenge)}
+    catch(error){if(error instanceof ZodError)return r.code(400).send(buildError({code:'validation',message:'Endereço inválido.',request_id:q.id}));if(error instanceof ProfileError)return r.code(error.status).send(buildError({code:'not_found',message:'Endereço não encontrado.',request_id:q.id}));throw new Error('Não foi possível resolver o endereço da página.')}
+  })
+
   app.post('/me/profile/backup/preview',(q,r)=>run(q,r,true,async(db,a)=>{const input=z.object({backup:z.unknown()}).strict().parse(q.body);const state=await profiles.readProfile(db,a);return {content:readProfileBackup(input.backup,state.draft?.slug),expectedVersion:state.draft?.version??0}}))
   app.post('/me/profile/backup/import',(q,r)=>run(q,r,true,async(db,a)=>{const input=z.object({backup:z.unknown(),expectedVersion:profileVersion}).strict().parse(q.body);const state=await profiles.readProfile(db,a);return profiles.saveProfile(db,a,readProfileBackup(input.backup,state.draft?.slug),input.expectedVersion)}))
   app.get('/me/profile/media-kit',(q,r)=>run(q,r,true,(db,a)=>mediaKits.readMediaKit(db,a)))

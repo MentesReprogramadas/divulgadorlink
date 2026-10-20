@@ -822,7 +822,28 @@ model CollectionItem {
   @@index([favoriteId], map: "collection_items_favorite_idx")
   @@map("collection_items")
 }
+model ProfileHostName {
+ hostname String @id
+ profileKey String
+ @@map("profile_host_names")
+}
+model ProfileHost {
+ hostname String @id
+ tenantId String
+ ownerId String
+ profileId String
+ profile Profile @relation(fields:[profileId,tenantId,ownerId],references:[id,tenantId,ownerId],onDelete:Cascade,onUpdate:NoAction)
+ status String @default("PENDING")
+ challenge String
+ tlsVerifiedAt DateTime?
+ version Int
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ @@index([tenantId,profileId])
+ @@map("profile_hosts")
+}
 model Profile {
+ hosts ProfileHost[]
  contactForm ContactForm?
  mediaKit MediaKitConfig?
  memberships ProfileMembership[]

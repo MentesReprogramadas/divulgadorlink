@@ -1,3 +1,4 @@
+import {profileHostBases} from '@/domain/profiles/profile-host'
 import Stripe from 'stripe-billing'
 import type { PrismaClient } from '@prisma/client'
 import { env } from '@/env'
@@ -17,7 +18,7 @@ export function profileBillingRuntime(): BillingRuntime {
   configured = {
     enabled: env.PROFILE_BILLING_SALES_ENABLED === '1', production: env.NODE_ENV === 'production',
     gateway: client ? new StripeBillingGateway(client, env.STRIPE_BILLING_WEBHOOK_SECRET ?? '', Boolean(key?.startsWith('sk_live_') || key?.startsWith('rk_live_'))) : null,
-    webhookReady: Boolean(env.STRIPE_BILLING_WEBHOOK_SECRET), delivered: DELIVERED_PROFILE_CAPABILITIES,
+    webhookReady: Boolean(env.STRIPE_BILLING_WEBHOOK_SECRET), delivered:Object.keys(profileHostBases(process.env.PROFILE_HOST_BASES,env.NODE_ENV==='production')).length?DELIVERED_PROFILE_CAPABILITIES:new Set([...DELIVERED_PROFILE_CAPABILITIES].filter(key=>key!=='profile.subdomain')),
   }
   return configured
 }

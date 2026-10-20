@@ -16,7 +16,8 @@ export const dynamic = 'force-dynamic'
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params, content = await loadPublicProfile(slug)
   if (!content) notFound()
-  return { title: content.restricted ? 'Conteúdo para maiores de 18 anos' : content.name + ' | Tem Link Aqui', description: content.restricted ? undefined : content.bio, robots: { index: false, follow: !content.restricted }, alternates: { canonical: 'https://' + tenantHost((await headers()).get('host') ?? 'localhost') + '/p/' + encodeURIComponent(slug) } }
+  const requestHeaders=await headers(),personal=requestHeaders.get('x-profile-hostname')
+  return { title: content.restricted ? 'Conteúdo para maiores de 18 anos' : content.name + ' | Tem Link Aqui', description: content.restricted ? undefined : content.bio, robots: { index: false, follow: !content.restricted }, alternates: { canonical:personal?'https://'+personal+'/':'https://'+tenantHost(requestHeaders.get('host')??'localhost')+'/p/'+encodeURIComponent(slug) } }
 }
 async function invalidSearch(slug:string,message:string){
   const original=await loadPublicProfile(slug);if(!original)notFound()

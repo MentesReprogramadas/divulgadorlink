@@ -1,0 +1,5 @@
+CREATE TABLE profile_host_names (hostname TEXT PRIMARY KEY,"profileKey" TEXT NOT NULL);
+CREATE TABLE profile_hosts (hostname TEXT PRIMARY KEY,"tenantId" TEXT NOT NULL,"ownerId" TEXT NOT NULL,"profileId" TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'PENDING',challenge TEXT NOT NULL,"tlsVerifiedAt" TIMESTAMP(3),version INTEGER NOT NULL,"createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,"updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,CONSTRAINT profile_hosts_identity_fk FOREIGN KEY("profileId","tenantId","ownerId") REFERENCES profiles(id,"tenantId","ownerId") ON DELETE CASCADE ON UPDATE NO ACTION,CONSTRAINT profile_hosts_state_check CHECK(status IN ('PENDING','ACTIVE','RETIRED','DISABLED') AND version>0 AND (status<>'ACTIVE' OR "tlsVerifiedAt" IS NOT NULL)));
+CREATE INDEX profile_hosts_profile_idx ON profile_hosts("tenantId","profileId");
+CREATE UNIQUE INDEX profile_hosts_one_active_key ON profile_hosts("profileId") WHERE status='ACTIVE';
+CREATE UNIQUE INDEX profile_hosts_one_pending_key ON profile_hosts("profileId") WHERE status='PENDING';
