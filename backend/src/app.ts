@@ -1,3 +1,7 @@
+import {suggestionRoutes} from '@/http/controllers/@Profiles/suggestion-routes'
+import {contactRoutes} from '@/http/controllers/@Profiles/contact-routes'
+import {nicheFollowRoutes} from '@/http/controllers/@Notifications/niche-follows'
+import {workspaceGuard,workspaceRoutes,workspaceDatabase} from '@/http/workspace-access'
 import { contentReviewRoutes } from '@/http/controllers/@Moderation/content-reviews'
 import { favoritesRoutes } from '@/http/controllers/@Collections/routes'
 import { profilesRoutes } from '@/http/controllers/@Profiles/routes'
@@ -119,10 +123,22 @@ app.addHook('onRequest', (request, reply, done) => {
   void supportGuard(request, reply).then(() => {
     if (reply.sent) return
     if (request.supportSession) supportReadContext.run(true, done)
-    else done()
+    else void workspaceGuard(request,reply).then(()=>{if(!reply.sent)done()},done)
   }, done)
 })
 app.addHook('onSend', supportResponse)
+app.addHook('onSend',async(request,reply,payload)=>{
+ if(!request.workspaceActor||typeof payload!=='string'||!String(reply.getHeader('content-type')).includes('application/json'))return payload
+ if(request.workspaceActor.canWrite)return payload
+ const capabilities=new Set(['checkoutUrl','resumeCheckoutUrl','portalUrl','clientSecret','accessToken','refreshToken','brCode','qrCodeBase64'])
+ return JSON.stringify(JSON.parse(payload,(key:string,value:unknown)=>capabilities.has(key)?null:value))
+})
+app.addHook('onSend',async(request,reply,payload)=>{
+ const actor=request.workspaceActor
+ if(!actor||['GET','HEAD','OPTIONS'].includes(request.method)||reply.statusCode>=400)return payload
+ try{await workspaceDatabase().auditLog.create({data:{tenantId:actor.tenantId,actorId:actor.id,entityType:'Workspace',entityId:actor.ownerId,action:'workspace.collaborator.changed',requestId:request.id,after:{method:request.method,route:request.routeOptions.url??'',ownerId:actor.ownerId}}})}catch{logDomainEvent('workspace.audit.failed',{request_id:request.id})}
+ return payload
+})
 
 app.register(
   async (instance) => {
@@ -131,6 +147,7 @@ app.register(
     instance.get('/actuator/ready', ready)
     await instance.register(authRoutes, { prefix: '/auth' })
     await instance.register(supportRoutes)
+    await instance.register(workspaceRoutes)
     await instance.register(linksRoutes, { prefix: '/links' })
     await instance.register(searchRoutes)
     await instance.register(catalogRoutes)
@@ -139,6 +156,8 @@ app.register(
     await instance.register(favoritesRoutes)
     await instance.register(contentReviewRoutes)
     await instance.register(profilesRoutes)
+    await instance.register(contactRoutes)
+    await instance.register(suggestionRoutes)
     await instance.register(profileInteractionRoutes)
     await instance.register(profileBillingRoutes)
     await instance.register(redirectsRoutes)
@@ -151,6 +170,7 @@ app.register(
     await instance.register(linkReportRoutes)
     await instance.register(availabilityRoutes)
     await instance.register(renewalReminderRoutes)
+    await instance.register(nicheFollowRoutes)
   },
   { prefix },
 )

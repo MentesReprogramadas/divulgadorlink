@@ -1,0 +1,889 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\VSCODE\\divulgadorlinks\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "destination-pools.spec.ts",
+      "redirects.spec.ts",
+      "--project=features",
+      "--project=features-mobile"
+    ],
+    "configFile": "C:\\VSCODE\\divulgadorlinks\\frontend\\playwright.config.ts",
+    "rootDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\global-setup.ts",
+    "globalTeardown": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\global-teardown.ts",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "setup",
+        "name": "setup",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/auth\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features",
+        "name": "features",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features-mobile",
+        "name": "features-mobile",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "catalog",
+        "name": "catalog",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/catalog\\.spec\\.ts|mail\\.spec\\.ts|advertise\\.spec\\.ts|legal\\.spec\\.ts|funnel\\.spec\\.ts|signup\\.spec\\.ts|submit-link\\.spec\\.ts|security-headers\\.spec\\.ts|google-ads-submission\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "auth.setup.ts",
+      "file": "auth.setup.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "sessão da Bia para os testes do painel",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "setup",
+              "projectName": "setup",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 545,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:05:05.208Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "17e3fe6f4d9d8bd79c6b-40367c7f5b2a9e9ad033",
+          "file": "auth.setup.ts",
+          "line": 8,
+          "column": 6
+        }
+      ]
+    },
+    {
+      "title": "destination-pools.spec.ts",
+      "file": "destination-pools.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F23-E01/T02/T03/T04/T05 configura 1/3, encaminha ao stub real, pausa destinos e conserva endereço",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5337,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:05:06.418Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-e692f6b0c33ed1f70a8b",
+          "file": "destination-pools.spec.ts",
+          "line": 12,
+          "column": 5
+        },
+        {
+          "title": "F23-E02/T01 privado nega visitante e outro dono; alvo inválido não altera distribuição",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1820,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:05:11.890Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-e2b4d2bedadc0d667135",
+          "file": "destination-pools.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "F23-E03 erro mantém peso, teclado recupera sem duplicar, layout cabe em 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2103,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:05:13.717Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-a0d63d4791adce42845e",
+          "file": "destination-pools.spec.ts",
+          "line": 19,
+          "column": 5
+        },
+        {
+          "title": "F23-G05 começa sem convites, cadastra entrada e um destino no fluxo, confirma divisão igual e testa URL real",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3410,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:05:15.831Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-868e6a8294bb503d96d9",
+          "file": "destination-pools.spec.ts",
+          "line": 23,
+          "column": 5
+        },
+        {
+          "title": "F23-G06 cadastro em revisão não entra como destino e mantém seleção anterior; cancelar retorna ao formulário",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2707,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:05:19.248Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-aeae256dfe0f8f78145a",
+          "file": "destination-pools.spec.ts",
+          "line": 27,
+          "column": 5
+        },
+        {
+          "title": "F23-E01/T02/T03/T04/T05 configura 1/3, encaminha ao stub real, pausa destinos e conserva endereço",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5388,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:05:36.836Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-5728a34e410abe9a9096",
+          "file": "destination-pools.spec.ts",
+          "line": 12,
+          "column": 5
+        },
+        {
+          "title": "F23-E02/T01 privado nega visitante e outro dono; alvo inválido não altera distribuição",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1976,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:05:42.381Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-7a973f620ef26840c05e",
+          "file": "destination-pools.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "F23-E03 erro mantém peso, teclado recupera sem duplicar, layout cabe em 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2955,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:05:44.368Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-e737362e1c36c8f24f38",
+          "file": "destination-pools.spec.ts",
+          "line": 19,
+          "column": 5
+        },
+        {
+          "title": "F23-G05 começa sem convites, cadastra entrada e um destino no fluxo, confirma divisão igual e testa URL real",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4979,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:05:47.332Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-e8dd084a142100e36ef6",
+          "file": "destination-pools.spec.ts",
+          "line": 23,
+          "column": 5
+        },
+        {
+          "title": "F23-G06 cadastro em revisão não entra como destino e mantém seleção anterior; cancelar retorna ao formulário",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3727,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:05:52.317Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-9566d840abe1f22406d9",
+          "file": "destination-pools.spec.ts",
+          "line": 27,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "redirects.spec.ts",
+      "file": "redirects.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F12-E01/T01/T03/T04/T05 endereço fixo, cópia, destino A/B, validação pendente e indisponibilidade",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4027,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:05:21.967Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-b2f613899c676b55152a",
+          "file": "redirects.spec.ts",
+          "line": 31,
+          "column": 5
+        },
+        {
+          "title": "F12-E02/T02 sessão e outro ADMIN não liberam acesso; conteúdo suspeito e provedor mantêm destino anterior",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2969,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:05:26.000Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-fa381e1201e431d07029",
+          "file": "redirects.spec.ts",
+          "line": 60,
+          "column": 5
+        },
+        {
+          "title": "F12-E03 offline mantém campos, teclado confirma, conflito entre abas e reflow 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2531,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:05:28.976Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-b3e0f1483cd1a64fdaac",
+          "file": "redirects.spec.ts",
+          "line": 78,
+          "column": 5
+        },
+        {
+          "title": "F12-E04 restrição de idade oculta destino no HTML e API até o aceite",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1667,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:05:31.515Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-774497cc715390533be7",
+          "file": "redirects.spec.ts",
+          "line": 97,
+          "column": 5
+        },
+        {
+          "title": "F12-E05 cards, abas, foco e alertas separam endereço de histórico",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2920,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:05:33.187Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-5edb480dea5980f63135",
+          "file": "redirects.spec.ts",
+          "line": 109,
+          "column": 5
+        },
+        {
+          "title": "F12-E01/T01/T03/T04/T05 endereço fixo, cópia, destino A/B, validação pendente e indisponibilidade",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4405,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:05:56.056Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-a46542e44f4829162d36",
+          "file": "redirects.spec.ts",
+          "line": 31,
+          "column": 5
+        },
+        {
+          "title": "F12-E02/T02 sessão e outro ADMIN não liberam acesso; conteúdo suspeito e provedor mantêm destino anterior",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3060,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:06:00.465Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-04f6b9bf241069d4ac36",
+          "file": "redirects.spec.ts",
+          "line": 60,
+          "column": 5
+        },
+        {
+          "title": "F12-E03 offline mantém campos, teclado confirma, conflito entre abas e reflow 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2426,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:06:03.531Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-f7da661aef84093e8cd2",
+          "file": "redirects.spec.ts",
+          "line": 78,
+          "column": 5
+        },
+        {
+          "title": "F12-E04 restrição de idade oculta destino no HTML e API até o aceite",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1645,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:06:05.962Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-86961d02627f9bb0f658",
+          "file": "redirects.spec.ts",
+          "line": 97,
+          "column": 5
+        },
+        {
+          "title": "F12-E05 cards, abas, foco e alertas separam endereço de histórico",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2727,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:06:07.613Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-42b1ce8719277d2cda2d",
+          "file": "redirects.spec.ts",
+          "line": 109,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-19T21:04:19.718Z",
+    "duration": 112030.053,
+    "expected": 21,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

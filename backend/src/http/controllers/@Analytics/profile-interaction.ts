@@ -22,14 +22,17 @@ async function run(q:FastifyRequest,r:FastifyReply,work:(db:PrismaClient,tenantI
  }
 }
 async function actor(q:FastifyRequest,tenantId:string){const u=await readAccessUser(q);if(!u||u.typ!=='access')throw new ProfileError(401,'Entre para ver as métricas.');if(u.tenantId!==tenantId)throw new ProfileError(403,'Acesso negado.');return {tenantId,ownerId:u.sub,age:q.cookies.age==='yes'}}
+async function collectEvent(q:FastifyRequest,r:FastifyReply,db:PrismaClient,tenantId:string,campaignId?:string){
+ const body=profileInteractionInput.parse(q.body),user=await readAccessUser(q)
+ const excluded=(ownerId:string)=>!canMeasureProfile({consent:q.cookies.tla_profile_measure,dnt:q.headers.dnt as string|undefined,gpc:q.headers['sec-gpc'] as string|undefined,userAgent:q.headers['user-agent'],testTraffic:q.headers['x-test-traffic'] as string|undefined,owner:user?.tenantId===tenantId&&user.sub===ownerId,admin:user?.tenantId===tenantId&&user.role==='ADMIN',support:Boolean(q.supportSession)})
+ if(excluded(''))return {counted:false}
+ const result=await collectProfileInteraction(db,tenantId,body,analyticsSession(q,r),excluded,q.cookies.age==='yes',campaignId)
+ r.code(result.counted?201:200);return result
+}
 export async function profileInteractionRoutes(app:FastifyInstance){
- app.post('/analytics/profiles/events',(q,r)=>run(q,r,async(db,tenantId)=>{
-  const body=profileInteractionInput.parse(q.body),user=await readAccessUser(q)
-  const excluded=(ownerId:string)=>!canMeasureProfile({consent:q.cookies.tla_profile_measure,dnt:q.headers.dnt as string|undefined,gpc:q.headers['sec-gpc'] as string|undefined,userAgent:q.headers['user-agent'],testTraffic:q.headers['x-test-traffic'] as string|undefined,owner:user?.tenantId===tenantId&&user.sub===ownerId,admin:user?.tenantId===tenantId&&user.role==='ADMIN',support:Boolean(q.supportSession)})
-  if(excluded(''))return {counted:false}
-  const result=await collectProfileInteraction(db,tenantId,body,analyticsSession(q,r),excluded,q.cookies.age==='yes')
-  r.code(result.counted?201:200);return result
- }))
+ app.post('/analytics/profiles/events',(q,r)=>run(q,r,(db,tenantId)=>collectEvent(q,r,db,tenantId)))
+ app.post('/analytics/profiles/campaigns/:campaignId/events',(q,r)=>run(q,r,(db,tenantId)=>collectEvent(q,r,db,tenantId,z.object({campaignId:z.string().uuid()}).strict().parse(q.params).campaignId)))
+ app.get('/me/profile/campaigns/:campaignId/interaction',(q,r)=>run(q,r,async(db,tenantId)=>readProfileInteractionReport(db,await actor(q,tenantId),interactionQuery.parse(q.query),z.object({campaignId:z.string().uuid()}).strict().parse(q.params).campaignId)))
  app.get('/me/profile/measurement',(q,r)=>run(q,r,async(db,tenantId)=>profileMeasurementPreference(db,await actor(q,tenantId))))
  app.patch('/me/profile/measurement',(q,r)=>run(q,r,async(db,tenantId)=>profileMeasurementPreference(db,await actor(q,tenantId),z.object({enabled:z.boolean(),expectedVersion:z.number().int().min(0).max(2147483646)}).strict().parse(q.body))))
  app.get('/me/profile/interaction',(q,r)=>run(q,r,async(db,tenantId)=>readProfileInteractionReport(db,await actor(q,tenantId),interactionQuery.parse(q.query))))

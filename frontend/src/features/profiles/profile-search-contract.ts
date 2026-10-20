@@ -1,7 +1,7 @@
 import type {PublicProfile,ProfileContent} from './profile-contract'
 export type ProfileSearchQuery={q:string;categoryId:string|null;cursor:string|null}
 export type ProfileSearchPage={restricted:true}|(Extract<PublicProfile,{restricted:false}>&{search:{filters:ProfileSearchQuery;groups:ProfileContent['categories'];total:number;nextCursor:string|null}})
-export type ProfileSearchSource={kind:'public';slug:string}|{kind:'preview';at?:string}
+export type ProfileSearchSource={kind:'public';slug:string}|{kind:'preview';at?:string;profileId?:string}
 export const emptyProfileQuery=():ProfileSearchQuery=>({q:'',categoryId:null,cursor:null})
 export function readProfileSearch(params:URLSearchParams):ProfileSearchQuery{
  for(const key of ['q','categoryId','cursor'])if(params.getAll(key).length>1)throw new Error('Use apenas um valor por filtro.')

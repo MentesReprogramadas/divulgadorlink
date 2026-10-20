@@ -1,3 +1,4 @@
+import {profileEditorTool} from './profile-editor'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { randomUUID } from 'node:crypto'
@@ -16,6 +17,7 @@ async function mutate(page: Page, route: string, body: unknown, method = 'POST')
   return page.evaluate(async ({ route, body, method }) => { const csrf = document.cookie.split('; ').find(value => value.startsWith('csrf='))?.slice(5) ?? ''; const response = await fetch('/bff/v1/me/profile' + route, { method, headers: { 'content-type': 'application/json', 'x-csrf-token': decodeURIComponent(csrf) }, body: JSON.stringify(body) }); return { status: response.status, body: await response.json() } }, { route, body, method })
 }
 async function editorAction(page: Page, name: string) {
+  if(name==='Histórico'){await profileEditorTool(page,name);return}
   const button = page.getByRole('button', { name, exact: true })
   if (!await button.isVisible()) await page.getByLabel('Mais opções da página', { exact: true }).click()
   await button.click()
@@ -35,7 +37,7 @@ function deterministicDates() {
 }
 test('F19-E01/E03 compare, explicit restore, existing preview and republish preserve public content until publication', async ({ page, browser }, info) => {
   await prepare(page)
-  await page.goto(origin + '/painel/perfil'); await page.getByRole('tab', { name: 'Página', exact: true }).click(); await page.getByLabel('Nome da página').fill('Página atualizada')
+  await page.goto(origin + '/painel/perfil'); await page.getByRole('region',{name:'Editor do perfil'}).getAttribute('data-save-state');await page.goto(new URL('/painel/perfil/dados',page.url()).href); await page.getByLabel('Nome da página').fill('Página atualizada')
   await expect(page.getByRole('region', { name: 'Editor do perfil' })).toHaveAttribute('data-save-state', 'saved')
   await editorAction(page, 'Publicar'); await expect(page.getByRole('status').filter({ hasText: 'Perfil publicado.' })).toBeVisible()
   const guest = await browser.newContext(), publicPage = await guest.newPage()
@@ -55,6 +57,8 @@ test('F19-E01/E03 compare, explicit restore, existing preview and republish pres
     const currentPreview = dialog.getByRole('region', { name: 'Prévia do rascunho atual', exact: true })
     await expect(oldPreview).toContainText('Página inicial'); await expect(currentPreview).toContainText('Página atualizada')
     await expect(oldPreview.locator('[inert]')).toHaveCount(1); await expect(currentPreview.locator('[inert]')).toHaveCount(1)
+    await page.evaluate(() => document.fonts.ready)
+    await expect(dialog).toHaveCSS('opacity', '1')
     const oldBounds = await oldPreview.boundingBox(), currentBounds = await currentPreview.boundingBox()
     if (info.project.name.includes('mobile')) expect(currentBounds!.y).toBeGreaterThan(oldBounds!.y + oldBounds!.height)
     else expect(Math.abs(currentBounds!.y - oldBounds!.y)).toBeLessThan(2)

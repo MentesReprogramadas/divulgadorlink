@@ -75,4 +75,8 @@ describe('middleware', () => {
     expect(hidden.headers.get('x-middleware-rewrite')).toContain('/nao-encontrado')
     expect(run('/admin/moderacao', 'catalogo_role=ADMIN').headers.get('x-middleware-rewrite')).toBeNull()
   })
+  it('delega a validação do contexto compartilhado à sessão e à API, preservando o cargo original',()=>{
+    expect(run('/admin/assinaturas','catalogo_role=USER; workspaceOwner=owner').headers.get('x-middleware-rewrite')).toBeNull()
+    expect(run('/admin/assinaturas','catalogo_role=USER').status).toBe(404)
+  })
 })

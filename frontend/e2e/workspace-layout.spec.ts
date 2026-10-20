@@ -23,6 +23,69 @@ async function checkLayout(page: Page) {
   expect(result.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) }))).toEqual([])
 }
 
+test('W09 painel e admin aproveitam a largura da tela como o catálogo', async ({ page }, info) => {
+  await login(page, true)
+  for (const width of [320, 768, 1280, 1440, 1920]) {
+    await page.setViewportSize({ width, height: 900 })
+    for (const route of ['/painel', '/admin/visao']) {
+      await page.goto(origin + route)
+      await expect(page.locator('main > aside')).toHaveCount(1)
+      await expect(page.locator('[data-skeleton]:visible')).toHaveCount(0)
+      const main = await page.locator('main').boundingBox()
+      const available = await page.locator('#main-content').evaluate(element => element.getBoundingClientRect().width)
+      expect(main!.x).toBe(0)
+      expect(Math.round(main!.width)).toBe(available)
+      const logo = await page.getByRole('link', { name: 'Home', exact: true }).boundingBox()
+      expect(logo!.x).toBeCloseTo(width < 1024 ? 16 : Math.min(width * .025, 48), 0)
+      await checkLayout(page)
+      if ([320, 1440, 1920].includes(width)) await page.screenshot({ path: info.outputPath(route.slice(1).replace('/', '-') + '-' + width + '.png'), fullPage: true, animations: 'disabled' })
+    }
+  }
+  await page.setViewportSize({ width: 320, height: 844 })
+  await page.evaluate(() => { document.documentElement.style.fontSize = '200%' })
+  await checkLayout(page)
+  const menu = page.getByRole('button', { name: 'Menu', exact: true })
+  await menu.focus()
+  await page.keyboard.press('Enter')
+  await expect(page.getByRole('dialog')).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(menu).toBeFocused()
+})
+
+test('W10 Minha página mantém submenus espaçosos e acessíveis', async ({ page }, info) => {
+  await login(page)
+  for (const width of [1024, 1440, 1920, 390, 320]) {
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto(origin + '/painel')
+    const mobile = width < 1024
+    if (mobile) await page.getByRole('button', { name: 'Menu', exact: true }).click()
+    const nav = page.getByRole('navigation', { name: 'Áreas do painel', exact: true }).filter({ visible: true })
+    const profile = nav.locator('details').filter({ has: page.locator('summary > span', { hasText: /^Minha página$/ }) })
+    await profile.locator(':scope > summary').focus()
+    await page.keyboard.press('Enter')
+    for (const label of ['Edição', 'Ferramentas', 'Resultados e divulgação']) {
+      await profile.getByText(label, { exact: true }).click()
+    }
+    const exportLink = profile.getByRole('link', { name: 'Importar e exportar', exact: true })
+    const mediaLink = profile.getByRole('link', { name: 'Apresentação para parceiros', exact: true })
+    for (const link of [exportLink, mediaLink]) {
+      await link.scrollIntoViewIfNeeded()
+      await expect(link).toBeVisible()
+      const box = await link.boundingBox()
+      expect(box!.width).toBeGreaterThanOrEqual(175)
+      expect(box!.height).toBeGreaterThanOrEqual(48)
+      expect(await link.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true)
+    }
+    await checkLayout(page)
+    await exportLink.scrollIntoViewIfNeeded()
+    await page.screenshot({ path: info.outputPath('sidebar-expanded-' + width + '.png'), animations: 'disabled', fullPage: true })
+    await mediaLink.focus()
+    await page.keyboard.press('Enter')
+    await expect(page).toHaveURL(origin + '/painel/perfil/midia-kit')
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  }
+})
+
 test('W05 ícones distinguem destinos e grupos no painel e admin', async ({ page }, info) => {
   await login(page, true)
   for (const area of ['panel', 'admin'] as const) {

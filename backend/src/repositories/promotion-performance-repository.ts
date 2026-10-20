@@ -1,10 +1,10 @@
-import type { PrismaClient } from '@prisma/client'
+import type { Prisma, PrismaClient } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { PrismaAnalyticsRepository } from './analytics-repository'
 import type { PerformanceQuery, PromotionPerformanceRepository } from '@/use-cases/@Analytics/promotion-performance'
 
 export class PrismaPromotionPerformanceRepository implements PromotionPerformanceRepository {
-  constructor(private readonly db: PrismaClient) {}
+  constructor(private readonly db: PrismaClient | Prisma.TransactionClient) {}
   async authorizedLink(tenantId: string, linkId: string, actorId: string) {
     const actor = await this.db.user.findFirst({ where: { id: actorId, tenantId, status: 'ACTIVE' }, select: { role: true } })
     if (!actor) return null

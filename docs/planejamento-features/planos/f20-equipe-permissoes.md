@@ -1,8 +1,11 @@
 # Plano de implementação F20 Equipe e permissões
 
+> Atualização autorizada em 19/10/2026: o [refinamento de escopo e UX](../refinamento-f05-f15-f20-f21-f38.md) prevalece sobre as fronteiras anteriores em caso de divergência. Inclui importação de JSON, consentimento no modal, navegação por contexto, prévia de campanha, equipe global e apresentação para parceiros. Estado da ampliação: implementada e validada localmente; S7/CI/liberação remotas continuam em revisão.
+
+
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 25.
 
-**Estado:** NÃO INICIADO. Somente planejamento autorizado.  
+**Estado:** S0–S6 VALIDADAS LOCALMENTE; S7/CI/liberação EM REVISÃO.
 **Spec vinculante:** [F20](../specs/f20-equipe-permissoes.md).  
 **Dependências:** G00, [F09](../specs/f09-perfil-publico.md).  
 **Onda:** 4. Etapas rastreadas no [roadmap](../roadmap-auditavel.md) e na [matriz](../matriz-aceitacao.csv).
@@ -11,9 +14,9 @@
 
 permitir que colaboradores mantenham páginas e links.
 
-Contrato a entregar: POST /api/v1/me/profile/invitations; POST /invitations/accept; GET/DELETE /me/profile/members/:id.
+Contrato ampliado implementado: /api/v1/team e subrotas de convite/aceite, membros, contexto e seleção descritas na spec. Guard global aplica registro de recursos por rota e leitura/escrita; rotas privadas não registradas são negadas no espaço compartilhado.
 
-Dados: ProfileMembership e Invitation com escopo de recurso, papel e token hash expirável; autorização atual dono/admin não basta e deve ser ampliada por política específica, não mudar ADMIN global.
+Dados da ampliação: WorkspaceMembership e WorkspaceInvitation com tenant, proprietário, grants, versão e token hash expirável. ProfileMembership/Invitation anteriores mantêm escopo de página. Nunca alterar o cargo global do colaborador.
 
 Todos os itens abaixo são tarefas futuras. Não executar comandos, criar migration ou escrever aplicação só porque este plano existe. Não acionar implantação automática via push na main: o projeto publica a main pelo Coolify.
 
@@ -159,3 +162,10 @@ Esses nomes não são obrigação de criar arquivos vazios. Preferir ampliação
 
 **Registro inicial:** responsável não atribuído; commit de implementação inexistente; resultados NÃO EXECUTADOS; liberação NÃO AUTORIZADA por este documento.
 
+
+
+## Execução reconciliada — 19/10/2026
+
+D22: papéis por recurso, convite de sete dias, revogação incluindo convites antigos; sem transferência de dono. Reuso do editor/renderer, scopes e limites F12 descritos na execução.
+
+Caminhos, decisões, alternativas, migrações, retenção, testes e divergências do planejamento proposto estão no [registro de execução](../execucao-f20.md). Este fechamento substitui a condição histórica de somente planejamento. Não marcar os nomes propostos ou passos remotos como executados sem prova. Todos os ACs têm oráculos locais aprovados na matriz; CI/liberação continuam pendentes.

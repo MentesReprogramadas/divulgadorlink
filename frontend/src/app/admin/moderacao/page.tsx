@@ -5,7 +5,7 @@ import { ModerationWorkspace } from '@/features/content-review/moderation-worksp
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ link?: string | string[] }> }) {
   const role = (await cookies()).get('catalogo_role')?.value
-  if (role !== 'ADMIN') notFound()
+  if (role !== 'ADMIN' && !(await cookies()).get('workspaceOwner')?.value) notFound()
   const params = await searchParams
   const linkId = typeof params.link === 'string' ? params.link : undefined
   return <><ModerationWorkspace links={<ModerationQueue linkId={linkId} />} /></>

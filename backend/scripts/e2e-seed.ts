@@ -168,6 +168,31 @@ async function main() {
       await prisma.network.upsert({where:{tenantId_slug:{tenantId:p.tenant.id,slug:'whatsapp'}},create:{tenantId:p.tenant.id,name:'WhatsApp',slug:'whatsapp',knownHosts:['chat.whatsapp.com','wa.me']},update:{knownHosts:['chat.whatsapp.com','wa.me']}})
       return {tenantId:p.tenant.id,ownerId:owner.id,owner:'owner@channels.test',other:'other@channels.test',password:'Senha-e2e-1'}
     })(),
+    mediaKit: await (async()=>{
+      const p=await tenantBundle('mediakit.localhost','Mídia kit fixture')
+      const owner=await user({tenantId:p.tenant.id,name:'Ana Mídia',email:'owner@mediakit.test',phone:'5511911250001',confirmed:true})
+      await user({tenantId:p.tenant.id,name:'Outro autor',email:'other@mediakit.test',phone:'5511911250002',confirmed:true,role:'ADMIN'})
+      const entry=await link({tenantId:p.tenant.id,ownerId:owner.id,networkId:p.network.id,nicheId:p.niche.id,name:'Projeto Mídia',description:'Projeto educativo',url:'https://t.me/mediakit_fixture',status:'PUBLISHED'})
+      return {tenantId:p.tenant.id,ownerId:owner.id,linkId:entry.id,owner:'owner@mediakit.test',other:'other@mediakit.test',password:'Senha-e2e-1'}
+    })(),
+    team: await (async()=>{
+      const p=await tenantBundle('teams.localhost','Equipe fixture')
+      const owner=await user({tenantId:p.tenant.id,name:'Ana Equipe',email:'owner@teams.test',phone:'5511911240001',confirmed:true})
+      await user({tenantId:p.tenant.id,name:'Outro autor',email:'other@teams.test',phone:'5511911240002',confirmed:true,role:'ADMIN'})
+      return {tenantId:p.tenant.id,ownerId:owner.id,owner:'owner@teams.test',other:'other@teams.test',password:'Senha-e2e-1'}
+    })(),
+    campaigns: await (async()=>{
+      const p=await tenantBundle('campaigns.localhost','Campanhas fixture')
+      const owner=await user({tenantId:p.tenant.id,name:'Ana Campanhas',email:'owner@campaigns.test',phone:'5511911230001',confirmed:true})
+      await user({tenantId:p.tenant.id,name:'Outro autor',email:'other@campaigns.test',phone:'5511911230002',confirmed:true,role:'ADMIN'})
+      return {tenantId:p.tenant.id,ownerId:owner.id,owner:'owner@campaigns.test',other:'other@campaigns.test',password:'Senha-e2e-1'}
+    })(),
+    nicheFollows: await (async()=>{
+      const p=await tenantBundle('follows.localhost','Categorias fixture')
+      const owner=await user({tenantId:p.tenant.id,name:'Ana Descobertas',email:'owner@follows.test',phone:'5511911220001',confirmed:true})
+      await user({tenantId:p.tenant.id,name:'Outro leitor',email:'other@follows.test',phone:'5511911220002',confirmed:true,role:'ADMIN'})
+      return {tenantId:p.tenant.id,ownerId:owner.id,nicheId:p.niche.id,networkId:p.network.id,owner:'owner@follows.test',other:'other@follows.test',password:'Senha-e2e-1'}
+    })(),
     checklist: await (async()=>{
       const p=await tenantBundle('checklist.localhost','Checklist fixture')
       const owner=await user({tenantId:p.tenant.id,name:'Ana Checklist',email:'owner@checklist.test',phone:'5511911210001',confirmed:true})

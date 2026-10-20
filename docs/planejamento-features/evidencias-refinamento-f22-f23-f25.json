@@ -1,0 +1,141 @@
+{
+  "date": "2026-10-19",
+  "scope": [
+    "F22",
+    "F23",
+    "F25",
+    "live preview and public contact form refinements"
+  ],
+  "branch": "codex/roadmap-f37-testes",
+  "baseHead": "ae480a5343775f170e5577ab8c929c1e91494729",
+  "worktree": "dirty; preexisting user changes preserved; no commit, push or deploy",
+  "checks": {
+    "frontendUnits": {
+      "passed": 436,
+      "files": 129,
+      "log": "output/f22-f25-guided-full-unit.log"
+    },
+    "lint": "output/f22-f25-guided-lint.log",
+    "typecheck": "output/f22-f25-guided-typecheck.log",
+    "runnerLease": {
+      "passed": 3,
+      "log": "output/f22-e2e-lease-unit.log",
+      "concurrencyProbe": "output/f22-e2e-concurrency-guard.log"
+    },
+    "f23": {
+      "passed": 21,
+      "report": "output/f23-guided-playwright-final.json"
+    },
+    "broadRegression": {
+      "passed": 55,
+      "failedThenFixed": 2,
+      "log": "output/f22-f25-guided-e2e-final.log",
+      "reportPreserved": false,
+      "cause": "G03 queried raw preview without contact descriptor; fixed by reusing preview/items"
+    },
+    "finalContacts": {
+      "stats": {
+        "startTime": "2026-10-19T22:00:48.441Z",
+        "duration": 108388.857,
+        "expected": 13,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "report": "output/f22-f25-guided-playwright-centered.json",
+      "log": "output/f22-f25-guided-e2e-centered-final.log",
+      "build": "production build .next-e2e in same harness"
+    }
+  },
+  "captureManifest": "docs/frontend-profissional/evidencias/f22-f25-guiado-2026-10-19/final/capturas.json",
+  "f23CaptureManifest": "docs/frontend-profissional/evidencias/f23-guiado-2026-10-19/final/capturas.json",
+  "matrixRows": {
+    "roadmap-etapas.csv": 336,
+    "matriz-aceitacao.csv": 226
+  },
+  "limits": [
+    "No real provider or production validation",
+    "No physical device validation",
+    "S7 remote pending",
+    "No backend, dependency, migration or personal environment changes in refinement",
+    "Collision report is diagnostic only, not an acceptance result"
+  ],
+  "sourceHashes": [
+    {
+      "path": "frontend/src/features/contact-forms/contact-form.tsx",
+      "sha256": "a0d803810440f96cdcfc70b2b13bbd68e5fc9513fc257d8094752c517e768700"
+    },
+    {
+      "path": "frontend/src/features/contact-forms/contact-validation.ts",
+      "sha256": "95418753dd2a40ca87c6114663970d49b04b4eb32f3f8888aac7508e4277fe80"
+    },
+    {
+      "path": "frontend/src/features/contact-forms/contact.module.css",
+      "sha256": "37b3c73a8925bfa87291c9df203e07ab6e147e1ddf0863c79be9192ea01048d8"
+    },
+    {
+      "path": "frontend/src/features/contact-forms/contact-settings-form.tsx",
+      "sha256": "898b7a0b35c0ec510fa9f770f98db890808a70537b452e95d6073ed458acf4aa"
+    },
+    {
+      "path": "frontend/src/features/contact-forms/contact-settings-panel.tsx",
+      "sha256": "92f7fdd36cdb911d1c5d607808c6dc16ba163f8e40356c03fced5405543de863"
+    },
+    {
+      "path": "frontend/src/features/profiles/profile-editor.tsx",
+      "sha256": "e24b2bbaf0d8683be0a89848007f47d20adef30c6198fff810d38e80de083efb"
+    },
+    {
+      "path": "frontend/src/features/profiles/components/profile-editing-layout.tsx",
+      "sha256": "142f593b074cc2f4f33a2ec1ff8fe1d4a2525bbc15d3e85cdf830cba8435966b"
+    },
+    {
+      "path": "frontend/src/features/profiles/components/profile-device-preview.tsx",
+      "sha256": "662674414497f5e3eb613d45b52b84b14d33ec3ddab9ba7cfdb13cd486bc09ad"
+    },
+    {
+      "path": "frontend/src/features/profiles/components/profile-creation-choice.tsx",
+      "sha256": "80673ccc584d6de2aefde22a640e0121287bb578c2680f791e615d97d64cd424"
+    },
+    {
+      "path": "frontend/src/features/profiles/components/profile-fields.tsx",
+      "sha256": "3bffcf958acb6cfa4fc930b58520fb01e4da8b743b22c71caca620b0537ea64c"
+    },
+    {
+      "path": "frontend/src/components/ui/checkbox.tsx",
+      "sha256": "cd9ea892f3658c059e771fd8bb8e0611e19a607f9ba9ab657a2bd3100feec3c0"
+    },
+    {
+      "path": "frontend/src/components/ui/checkbox.module.css",
+      "sha256": "15a6c2aeb4c6c9f6f30bd39b3f8eb8e40c64a8116873bd4ea17f482cf89af36a"
+    },
+    {
+      "path": "frontend/src/components/ui/input.tsx",
+      "sha256": "6adb5336a3b520cd6ca0008c0cbf94be7e6b2a32c69917164d6df9fef3385be4"
+    },
+    {
+      "path": "frontend/src/components/ui/input.module.css",
+      "sha256": "522eb1a1418eaaaa3a096d798bc1f2b68cda5ce7e7607b7c415c0bc6bfb22ecc"
+    },
+    {
+      "path": "frontend/e2e/contact-forms.spec.ts",
+      "sha256": "0b3fdd98828305e7844a048296237d6e387a7fc7e41e6f8325600dcfe847b172"
+    },
+    {
+      "path": "frontend/e2e/run-lease.cjs",
+      "sha256": "a13f751cb67f7e643a7c2b8b4e5f0d6aa885512c57e101bc2f173de7bf822438"
+    },
+    {
+      "path": "frontend/e2e/run-lease.test.cjs",
+      "sha256": "cb38840b3835684100f72a84085a62b6f7dd1980060e739a64651da4a834e49c"
+    },
+    {
+      "path": "frontend/e2e/global-teardown.ts",
+      "sha256": "ed009459397076d08446afea56d6b5801cc437d3c5f906967c7ce344e7cb04de"
+    },
+    {
+      "path": "frontend/playwright.config.ts",
+      "sha256": "4c68fc8f63a4e5a32eaab68c191ff0cbbac30286eaeb93ebefd06c08ca78e3fb"
+    }
+  ]
+}

@@ -1,0 +1,127 @@
+{
+  "feature": "F22",
+  "date": "2026-10-19",
+  "status": "S0-S6 VERIFIED LOCAL; S7 REMOTE PENDING",
+  "git": "existing branch codex/roadmap-f37-testes; no new commit/push/deploy",
+  "environment": "Windows; isolated PG 5835/Redis 6835; E2E offset 500; Next production; Chromium",
+  "tests": {
+    "backendFull": {
+      "passed": 598,
+      "log": "output/f22-f25-backend-unit-correct-env.log",
+      "note": "Full unit run before final audit attribution correction; subsequent affected real PG suite validates that correction."
+    },
+    "frontendFull": {
+      "passed": 413,
+      "log": "output/f22-f25-frontend-unit-final.log"
+    },
+    "postgresOwn": {
+      "passed": 19,
+      "featureCases": 5,
+      "log": "output/f22-f25-pg-audit-green.log"
+    },
+    "postgresRegression": {
+      "passed": 78,
+      "log": "output/f22-f25-pg-regression.log"
+    },
+    "playwrightFinal": {
+      "passed": 37,
+      "ownFeatureCases": 6,
+      "setupIncluded": true,
+      "report": "output/f22-f25-playwright-final.json",
+      "log": "output/f22-f25-e2e-green.log"
+    },
+    "playwrightBroader": {
+      "passed": 80,
+      "failed": 5,
+      "report": "output/f22-f25-playwright-regression.json",
+      "note": "F19 measured an animating dialog; F20 counts predated the two new permission sections. Corrected assertions/waiting, without relaxing tolerance or changing product rules; all affected cases pass in final 37-case run."
+    },
+    "lintTypecheck": "Both packages exit 0; logs output/f22-f25-{backend,frontend}-{lint,typecheck}-final.log",
+    "build": "Backend npm run build; frontend Next production build enforced by e2e/serve.mjs."
+  },
+  "migrationProof": "evidencias-migracoes-f22-f25.json",
+  "queryPlans": "output/f22-f25-query-plans.log",
+  "viewports": [
+    "1280x720",
+    "1440x900",
+    "768x1024",
+    "390x844",
+    "320x844 with 200% root font"
+  ],
+  "review": "Native screenshot inspection desktop/mobile; keyboard/focus and Axe A/AA scoped to modified regions; no accessibility certification or physical-device claim. Fixtures are isolated; generated IDs and operational dates remain real, so these are review captures, not new approved visual baselines.",
+  "captures": [
+    {
+      "file": "docs/frontend-profissional/evidencias/f22-2026-10-19/final/desktop-contact-config.png",
+      "sha256": "b0cb9062b34bb554ed246716755db3dd04271a909cf1b8e9d193419f13fdc54f"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f22-2026-10-19/final/desktop-contact-inbox-1440.png",
+      "sha256": "ceb21b38be3ee536f70d9aa5a6ab94eb08d011da885a37811adaa843fbbc34a4"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f22-2026-10-19/final/desktop-contact-inbox-768.png",
+      "sha256": "428a8225b94ac947f63c57fe5f27730047ee96ce5b14abe549b55cdcd12249d3"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f22-2026-10-19/final/desktop-contact-inbox.png",
+      "sha256": "bfca2e5fa9c71ae057a89adc6579d42d28a4fecb1d0be5e8c8c883b16ffb4c95"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f22-2026-10-19/final/desktop-contact-public.png",
+      "sha256": "65428c279f3ca4bd75a7e70ec24bd51e650ebe4098ce105be4c0f7abb30d97c6"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f22-2026-10-19/final/mobile-contact-config.png",
+      "sha256": "7a9e5209d85a5a9758a46f3b01f3b8267ef292c56c9d0ea23d20c9c3ab45a33e"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f22-2026-10-19/final/mobile-contact-inbox.png",
+      "sha256": "ccab1eebae9d116accc6770d9bc855bdfbd52e627674402d66d7ff3fdf80a629"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f22-2026-10-19/final/mobile-contact-public.png",
+      "sha256": "30bd8cd6e10d25b7b48cfc74f6e197058e63eb3fe9c03b23119f26efb7b976d2"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f22-2026-10-19/final/desktop-contact-error.png",
+      "sha256": "daf7191313e585ba682b8050bc31eb3c8be8ea59ceb5ee248e866ca5f51c38d9"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f22-2026-10-19/final/desktop-contact-zoom.png",
+      "sha256": "280ff0d2193ec78e6a0596b28e61a5b5604e42ba2331353ee2c97ca34f469a54"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f22-2026-10-19/final/mobile-contact-error.png",
+      "sha256": "01c91df06206b2f2e3386495314ef3702ccbbaf9b9eef35f58cb50a933d3b0dc"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f22-2026-10-19/final/mobile-contact-zoom.png",
+      "sha256": "65b52ac7acf7f7550d2cf237be0da6cb9e162bcb522c4ace3494e727fc46a906"
+    }
+  ],
+  "sourceHashes": {
+    "backend/src/domain/access/profile-access.ts": "2b327b42418ff1cae2ef4f801107bb3d5076f16deb0dcb5066c1b7dee1c8123c",
+    "backend/src/domain/access/workspace-permissions.ts": "80766a082decb2f59671a44460575255778e1f0f199c8d2064063748e85fc46a",
+    "backend/src/repositories/profiles-repository.ts": "89e201293cf592cb6e046cbb980d666d4e2cc5525fcbab2540d34000ef612f5d",
+    "backend/src/http/workspace-access.ts": "7b9f7f6ffcdb586eedd05564ca514cd06da61243928a55fee59021a8ab88f47a",
+    "backend/prisma/schema.prisma": "3fbf9a4d5b78da308df836ea27a3aa8fe727b7b9353fad012e8299c4acb5fbc8",
+    "frontend/e2e/serve.mjs": "c0ca39ce34454f4d3dbd7d3bf39cf5340927a01cbbdf161216469f77c058de64",
+    "frontend/playwright.config.ts": "8a0e8aa3e3d124fcfeaaecfea1b7d92de8b51f06f5aed34600081f8bf9c32dbf",
+    "backend/src/domain/leads/contact-form.ts": "f14648789cecd0ec8c3df88c394d35586dadebe1a3d0301226ebc9908c882c29",
+    "backend/src/repositories/contact-forms.ts": "4d84f428ded69a582ef8cca5c7b300d37278e184a603c18b28f1ecb20cdaedf9",
+    "backend/src/http/controllers/@Profiles/contact-routes.ts": "512c326ab2cebbd8991ee76e8f9d02f5ff56bc04dc0aed1f7174dc274157ecbc",
+    "frontend/src/features/contact-forms/contact-api.ts": "65f786ad6ee5d5c72c0e3484f05d454704b43dfaebf4162ddc1408a493f52bfe",
+    "frontend/src/features/contact-forms/contact-contract.ts": "88c3afc58962d33dce1f5094662ae7fd5bcfe0d897cee2e0d25a57bafc67c3db",
+    "frontend/src/features/contact-forms/contact-form.test.tsx": "85489d03969ca5b0c6ed223fb3f0f166a1f03b0da2138341f7c7ba713a3c04ab",
+    "frontend/src/features/contact-forms/contact-form.tsx": "e509f20d34704099161120e023c452738c88767a60580aaa2879a851d4f45725",
+    "frontend/src/features/contact-forms/contact-screen.tsx": "fafd4b3ad4fe4de4e92fa7697c102b4c6c7bc6bbac6d72d37d7a8546972e30fa",
+    "frontend/src/features/contact-forms/contact.module.css": "65afc86b351ba31ddab78372f2f5083c5a24786fee8ecaa1697a7d0583059782"
+  },
+  "limitations": [
+    "CI and deployment not run",
+    "Personal and external databases unchanged; apply migrations only to authorized target",
+    "No paid provider request or account model entitlement verified",
+    "Other historical roadmap blockers remain recorded"
+  ],
+  "stop": "F25; F28 not started"
+}

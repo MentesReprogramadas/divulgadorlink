@@ -4,6 +4,12 @@ import path from 'node:path'
 import { spawnSync } from 'node:child_process'
 
 function killTree(pid: string): void {
+  if (!/^\d+$/.test(pid)) return
+  // serve.pid can be replaced by a concurrent runner. Never stop its server.
+  const parent = process.platform === 'win32'
+    ? spawnSync('powershell.exe', ['-NoProfile', '-Command', `(Get-CimInstance Win32_Process -Filter 'ProcessId = ${pid}').ParentProcessId`], { encoding: 'utf8' })
+    : spawnSync('ps', ['-o', 'ppid=', '-p', pid], { encoding: 'utf8' })
+  if (parent.status !== 0 || Number(parent.stdout?.trim()) !== process.pid) return
   if (process.platform === 'win32') {
     spawnSync('taskkill', ['/pid', pid, '/t', '/f'], { stdio: 'ignore', shell: true })
     return

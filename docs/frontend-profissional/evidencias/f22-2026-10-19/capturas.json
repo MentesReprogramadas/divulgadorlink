@@ -1,0 +1,42 @@
+[
+  {
+    "file": "desktop-contact-config.png",
+    "sha256": "3dd8296d3fd053f5a2bc3c50f4fc3b5927586325dceba6ea37d14ba4ea31f560"
+  },
+  {
+    "file": "desktop-contact-inbox.png",
+    "sha256": "508e9381b95ca6be86c41710ddb8089ecfd89e309c4f87986ac63e8013508438"
+  },
+  {
+    "file": "desktop-contact-public.png",
+    "sha256": "a876a8e028feea57981e5934a6256cbf3e01c7fc53df71f3bf84d6e5bd93e566"
+  },
+  {
+    "file": "mobile-contact-config.png",
+    "sha256": "86f646005d580cf7a900b0233f75cd0b89fcf0bdcff38ad1fffb2004efe70524"
+  },
+  {
+    "file": "mobile-contact-inbox.png",
+    "sha256": "ec5327f013b17f4441caf7e74f8a0b2522b02bf343369b961ccdfd3ac968a968"
+  },
+  {
+    "file": "mobile-contact-public.png",
+    "sha256": "1a2b2d2d42e3b9f9d2916f6cbdb7fa01d13fc1bc3ab267cbf061884025fd65b9"
+  },
+  {
+    "file": "desktop-contact-error.png",
+    "sha256": "82828d318a82111e36e5db579e4fb7a6482f0eedea94ff2281eab11254cd2449"
+  },
+  {
+    "file": "desktop-contact-zoom.png",
+    "sha256": "280ff0d2193ec78e6a0596b28e61a5b5604e42ba2331353ee2c97ca34f469a54"
+  },
+  {
+    "file": "mobile-contact-error.png",
+    "sha256": "1ce145cc57f2ad851780b200344eabc0a034f169bfc2013e0b84fcb5b75df229"
+  },
+  {
+    "file": "mobile-contact-zoom.png",
+    "sha256": "65b52ac7acf7f7550d2cf237be0da6cb9e162bcb522c4ace3494e727fc46a906"
+  }
+]

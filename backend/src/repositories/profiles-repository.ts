@@ -1,3 +1,7 @@
+import {compileSuggestion,type SuggestionSource,type SuggestionPlan,type SuggestionApplyInput} from '@/domain/profiles/profile-suggestion'
+import {assertMembership} from './profile-team'
+import type {ProfileActor} from '@/domain/access/profile-access'
+import {buildProfileExport,type ExportRevision} from '@/domain/profiles/profile-export'
 import { ContentReviewRequired, reviewSummary } from '@/domain/moderation/content-review'
 import { queueContentReview } from '@/use-cases/@Notifications/content-review-events'
 import { Prisma, type PrismaClient } from '@prisma/client'
@@ -26,13 +30,14 @@ import {env} from '@/env'
 import {signProfileChannel,readProfileChannel,PROFILE_CHANNEL_TOKEN_MS} from '@/lib/profile-channel-token'
 import {resolveRedirect} from './redirects-repository'
 
-type Actor = { tenantId: string; ownerId: string; age: boolean }
+type Actor = ProfileActor
 const include = { reviews: { orderBy: { version: 'desc' as const }, take: 1 }, categories: { orderBy: { position: 'asc' as const } }, items: { orderBy: { position: 'asc' as const } } }
 type Stored = Prisma.ProfileGetPayload<{ include: typeof include }>
 function draft(row: Stored): ProfileContent {
   return profileInput.parse({ ...(row.appearance ? { appearance: row.appearance } : {}), slug: row.slug, name: row.name, bio: row.bio, avatarAssetId: row.avatarAssetId, requiresAge: row.requiresAge, primaryItemId: row.items.some(i => i.id === row.primaryItemId) ? row.primaryItemId : null, categories: row.categories.map(c => ({ id: c.id, name: c.name, visible: c.visible })), items: row.items.map(i => ({ id: i.id, categoryId: i.categoryId, type: i.type, label: i.label, destination: i.destination, visible: i.visible, ...(i.templateExample ? { templateExample: true } : {}), ...(i.timeZone ? { schedule: { startsAt: i.startsAt?.toISOString() ?? null, endsAt: i.endsAt?.toISOString() ?? null, timeZone: i.timeZone, paused: i.paused } } : {}) })) })
 }
 async function owner(db: Prisma.TransactionClient, actor: Actor, publishing = false) {
+  await assertMembership(db,actor,publishing?'PUBLISH':actor.permission??'READ')
   const user = await db.user.findFirst({ where: { id: actor.ownerId, tenantId: actor.tenantId }, include: { identifiers: true } })
   const canSubmit=Boolean(user&&canSubmitLinkFromIdentifiers(user.status,user.identifiers))
   if (!user || user.status !== 'ACTIVE' || (publishing && !canSubmit)) throw new ProfileError(403, 'Esta conta não pode alterar ou publicar o perfil. Confirme seu e-mail e verifique o estado da conta.')
@@ -42,8 +47,10 @@ export {owner as assertProfileOwner}
 async function locked<T>(db: PrismaClient, actor: Actor, work: (tx: Prisma.TransactionClient) => Promise<T>) {
   return db.$transaction(async tx => {
     await tx.$queryRaw`SELECT id FROM users WHERE id=${actor.ownerId} AND "tenantId"=${actor.tenantId} FOR UPDATE`
-    await owner(tx, actor)
-    return work(tx)
+    await owner(tx, {...actor,permission:actor.permission==='OWNER'?'OWNER':actor.permission==='PUBLISH'?'PUBLISH':'EDIT'})
+    const result=await work(tx)
+    if(actor.actorId&&actor.actorId!==actor.ownerId)await tx.auditLog.create({data:{tenantId:actor.tenantId,actorId:actor.actorId,action:'profile.collaborator.changed',entityType:'Profile',entityId:actor.profileId!,after:{operation:actor.permission??'EDIT'}}})
+    return result
   })
 }
 async function read(db: Prisma.TransactionClient, actor: Actor) { return db.profile.findUnique({ where: { tenantId_ownerId: { tenantId: actor.tenantId, ownerId: actor.ownerId } }, include }) }
@@ -51,7 +58,9 @@ function version(row: Stored | null, expected: number) { if ((row?.version ?? 0)
 async function response(db: Prisma.TransactionClient, actor: Actor, row: Stored | null) {
   const now = profileNow(), coverage = await profileSchedulingCoverage(db, actor, profileBillingRuntime().delivered, now)
   const channels=row?scopedChannelSettings(await readChannelDraft(db,row),draft(row)):{groups:[]},publishedChannels=row?.publishedVersion!==null&&row?.publishedVersion!==undefined?await readChannelRevision(db,row,row.publishedVersion):{groups:[]}
-  return { draft: row ? { ...draft(row), version: row.version } : null, publishedVersion: row?.publishedVersion ?? null, publishedContent: row?.publication ? profileInput.parse(row.publishedDraft ?? row.publication) : null, review: reviewSummary(row?.reviews[0]), scheduling: { allowed: coverage.enabled, serverNow: now.toISOString() },...(row&&(channels.groups.length||publishedChannels.groups.length)?{channelGroups:await channelSummary(db,row,draft(row),channels),channelChanges:JSON.stringify(channels)!==JSON.stringify(publishedChannels)}:{}) }
+  const access=actor.actorId&&actor.actorId!==actor.ownerId?await db.profileMembership.findUnique({where:{profileId_userId:{profileId:actor.profileId!,userId:actor.actorId}},select:{role:true}}):null
+  const review=reviewSummary(row?.reviews[0])
+  return { ...(access?{access:{role:access.role}}:{}),draft: row ? { ...draft(row), version: row.version } : null, publishedVersion: row?.publishedVersion ?? null, publishedContent: row?.publication ? profileInput.parse(row.publishedDraft ?? row.publication) : null, review:access&&review?{...review,canAppeal:false}:review, scheduling: { allowed: coverage.enabled, serverNow: now.toISOString() },...(row&&(channels.groups.length||publishedChannels.groups.length)?{channelGroups:await channelSummary(db,row,draft(row),channels),channelChanges:JSON.stringify(channels)!==JSON.stringify(publishedChannels)}:{}) }
 }
 async function checkAvatar(db: Prisma.TransactionClient, actor: Actor, content: ProfileContent) {
   if (content.avatarAssetId && !await new PrismaProfileMedia(db).get({ tenantId: actor.tenantId, ownerId: actor.ownerId, id: content.avatarAssetId })) throw new ProfileError(422, 'A foto não está disponível para esta conta. Envie a imagem novamente.')
@@ -76,14 +85,14 @@ async function writeProfileItems(tx: Prisma.TransactionClient, actor: Actor, pro
   await synchronizeChannelDraft(tx,{id:profileId,tenantId:actor.tenantId,ownerId:actor.ownerId},content)
 }
 /** One projection for owner preview and public reads. Live catalog eligibility is never frozen into a snapshot. */
-async function projection(db: Prisma.TransactionClient, actor: Actor, content: ProfileContent, publishedRevisionId: number,profile:ChannelProfile,source:'DRAFT'|'PUBLISHED', at?: Date) {
+async function projection(db: Prisma.TransactionClient, actor: Actor, content: ProfileContent, publishedRevisionId: number,profile:ChannelProfile,source:'DRAFT'|'PUBLISHED', at?: Date, channelOverride?:ChannelSettings) {
   const refs = content.items.filter(i => i.type === 'CATALOG').map(i => i.destination)
   const links = await db.link.findMany({ where: { tenantId: actor.tenantId, id: { in: refs }, status: 'PUBLISHED', OR: [{ ownerId: null }, { owner: { status: 'ACTIVE', tenantId: actor.tenantId } }] }, include: { niche: true, network: true } })
   const eligible = links.filter(l => l.niche.tenantId === actor.tenantId && l.network.tenantId === actor.tenantId)
   const now = profileNow(), coverage = await profileSchedulingCoverage(db, actor, profileBillingRuntime().delivered, now)
   if (at && !coverage.enabled) throw new ProfileError(403, 'Agendamento indisponível no seu plano atual.')
   const projected = profileAt(content, new Set(eligible.map(l => l.id)), at ?? now, coverage.enabled)
-  const settings=scopedChannelSettings(source==='DRAFT'?await readChannelDraft(db,profile):await readChannelRevision(db,profile,publishedRevisionId),content),channelIds=new Set(settings.groups.flatMap(group=>group.channels.map(channel=>channel.id))),groupIds=new Set(settings.groups.map(group=>group.id))
+  const settings=scopedChannelSettings(channelOverride??(source==='DRAFT'?await readChannelDraft(db,profile):await readChannelRevision(db,profile,publishedRevisionId)),content),channelIds=new Set(settings.groups.flatMap(group=>group.channels.map(channel=>channel.id))),groupIds=new Set(settings.groups.map(group=>group.id))
   const channels=await projectStoredChannels(db,profile,{...projected.content,categories:content.categories.filter(category=>category.visible&&(groupIds.has(category.id)||projected.content.categories.some(row=>row.id===category.id)))},settings),activeIds=new Set(channels.flatMap(group=>group.channels.map(channel=>channel.id)))
   const items=projected.content.items.filter(item=>!channelIds.has(item.id)||activeIds.has(item.id))
   const output={...projected.content,items,categories:content.categories.filter(category=>category.visible&&(channels.some(group=>group.id===category.id)||items.some(item=>item.categoryId===category.id))),primaryItemId:items.some(item=>item.id===content.primaryItemId)?content.primaryItemId:null}
@@ -109,7 +118,7 @@ async function checklist(tx:Prisma.TransactionClient,actor:Actor){
  const {canSubmit}=await owner(tx,actor),row=await read(tx,actor),content=row?draft(row):null
  let publicationIssue:string|null=null
  if(content)try{assertProfilePublicationPresence(content);await assertPublishedProfileReferences(tx,actor,normalizeProfileDestinations(content));await assertChannelPublication(tx,row!,content)}catch(error){if(error instanceof ProfileError&&error.status===422)publicationIssue=error.message;else throw error}
- const scope=row?{tenantId:actor.tenantId,actorId:actor.ownerId,entityType:'Profile',entityId:row.id}:null
+ const scope=row?{tenantId:actor.tenantId,actorId:actor.actorId??actor.ownerId,entityType:'Profile',entityId:row.id}:null
  const [preview,copied]=scope&&row?await Promise.all([
   tx.auditLog.findFirst({where:{...scope,action:checklistActions.PREVIEW_REQUESTED,after:{path:['profileVersion'],equals:row.version}},select:{id:true}}),
   row.publishedVersion===null?null:tx.auditLog.findFirst({where:{...scope,action:checklistActions.LINK_COPIED,after:{path:['publishedVersion'],equals:row.publishedVersion}},select:{id:true}}),
@@ -121,7 +130,7 @@ export async function recordProfileChecklistAction(db:PrismaClient,actor:Actor,i
  return locked(db,actor,async tx=>{
   const row=await read(tx,actor);if(!row)throw new ProfileError(404,'Salve sua página antes de continuar.');version(row,input.expectedVersion)
   if(input.action==='LINK_COPIED'&&row.publishedVersion===null)throw new ProfileError(409,'Publique sua página antes de copiar o endereço.')
-  const action=checklistActions[input.action],where={tenantId:actor.tenantId,actorId:actor.ownerId,entityType:'Profile',entityId:row.id,action}
+  const action=checklistActions[input.action],where={tenantId:actor.tenantId,actorId:actor.actorId??actor.ownerId,entityType:'Profile',entityId:row.id,action}
   if(!await tx.auditLog.findFirst({where:{...where,after:{path:[input.action==='LINK_COPIED'?'publishedVersion':'profileVersion'],equals:input.action==='LINK_COPIED'?row.publishedVersion!:row.version}},select:{id:true}}))await tx.auditLog.create({data:{...where,after:{profileVersion:row.version,publishedVersion:row.publishedVersion}}})
   return checklist(tx,actor)
  })
@@ -173,7 +182,7 @@ export async function readProfileChannelGroups(db:PrismaClient,actor:Actor){
 }
 export async function profileChannelDestinations(db:PrismaClient,actor:Actor,cursor?:string){
  return db.$transaction(async tx=>{
-  await owner(tx,actor)
+  await owner(tx,{...actor,permission:actor.permission==='OWNER'?'OWNER':'EDIT'})
   const handles=await tx.redirectHandle.findMany({where:{tenantId:actor.tenantId,ownerId:actor.ownerId,disabled:false,activeRevisionId:{not:null},...(cursor?{id:{gt:cursor}}:{})},orderBy:{id:'asc'},take:26,select:{id:true,activeRevisionId:true}}),page=handles.slice(0,25)
   const destinations=await tx.redirectDestination.findMany({where:{tenantId:actor.tenantId,status:'APPROVED',id:{in:page.flatMap(handle=>handle.activeRevisionId?[handle.activeRevisionId]:[])},handle:{tenantId:actor.tenantId,ownerId:actor.ownerId,disabled:false}},select:{id:true,handleId:true,label:true,destinationUrl:true,requiresAge:true}}),networks=await tx.network.findMany({where:{tenantId:actor.tenantId,isPublicFacet:true,knownHosts:{isEmpty:false}},select:{id:true,tenantId:true,name:true,slug:true,knownHosts:true}})
   return{items:page.flatMap(handle=>{const destination=destinations.find(row=>row.id===handle.activeRevisionId&&row.handleId===handle.id);return destination?[{...destination,networks:networks.flatMap(network=>{try{channelNetwork(network,destination.destinationUrl);return[{id:network.id,name:network.name,slug:network.slug}]}catch{return[]}})}]:[]}),nextCursor:handles.length>25?page[24].id:null}
@@ -182,9 +191,10 @@ export async function profileChannelDestinations(db:PrismaClient,actor:Actor,cur
 /** Owner-scoped source lookup also exposes pending states for the unified draft editor. */
 export async function profileChannelDestination(db:PrismaClient,actor:Actor,id:string){
  return db.$transaction(async tx=>{
-  await owner(tx,actor)
+  await owner(tx,{...actor,permission:actor.permission==='OWNER'?'OWNER':'EDIT'})
   const source=await tx.redirectDestination.findFirst({where:{id,tenantId:actor.tenantId,handle:{tenantId:actor.tenantId,ownerId:actor.ownerId,disabled:false}},include:{handle:{select:{activeRevisionId:true}}}})
   if(!source)throw new ProfileError(404,'Este acesso não está disponível nesta conta.')
+  if(actor.actorId&&actor.actorId!==actor.ownerId&&(source.status!=='APPROVED'||source.handle.activeRevisionId!==source.id)){const profile=await read(tx,actor),settings=profile?await readChannelDraft(tx,profile):{groups:[]};if(!settings.groups.some(group=>group.channels.some(channel=>channel.revisionId===source.id)))throw new ProfileError(404,'Este acesso não está disponível nesta página.')}
   const networks=await tx.network.findMany({where:{tenantId:actor.tenantId,isPublicFacet:true,knownHosts:{isEmpty:false}},select:{id:true,tenantId:true,name:true,slug:true,knownHosts:true}})
   return{id:source.id,handleId:source.handleId,label:source.label,destinationUrl:source.destinationUrl,requiresAge:source.requiresAge,status:source.status,available:source.status==='APPROVED'&&source.handle.activeRevisionId===source.id,networks:networks.flatMap(network=>{try{channelNetwork(network,source.destinationUrl);return[{id:network.id,name:network.name,slug:network.slug}]}catch{return[]}})}
  },{isolationLevel:'RepeatableRead'})
@@ -202,6 +212,7 @@ export async function saveProfileChannelGroup(db:PrismaClient,actor:Actor,id:str
    if((channel.paused||!input.visible)&&previous&&previousItem){bindings.push({...previous,paused:channel.paused,showLabel:channel.showLabel});return{id:channel.id,label:channel.label,destination:previousItem.destination,paused:channel.paused}}
    const source=revisions.find(revision=>revision.id===channel.destinationRevisionId&&!revision.handle.disabled&&(revision.status==='APPROVED'?revision.handle.activeRevisionId===revision.id:['PENDING','PENDING_REVIEW','REJECTED','BLOCKED','FAILED'].includes(revision.status)))
    if(!source)throw new ProfileError(404,'Escolha um convite próprio com uma versão aprovada e ativa.')
+   if(actor.actorId&&actor.actorId!==actor.ownerId&&source.status!=='APPROVED'&&!current.groups.some(group=>group.channels.some(binding=>binding.revisionId===source.id)))throw new ProfileError(404,'Peça ao proprietário para aprovar este convite antes de adicioná-lo à página.')
    const network=channel.networkId?networks.find(candidate=>candidate.id===channel.networkId):null
    if(channel.networkId&&!network)throw new ProfileError(404,'Rede não encontrada para esta página.')
    channelNetwork(network??null,source.destinationUrl);bindings.push({id:channel.id,networkId:channel.networkId,handleId:source.handleId,revisionId:source.id,paused:channel.paused,showLabel:channel.showLabel})
@@ -210,7 +221,7 @@ export async function saveProfileChannelGroup(db:PrismaClient,actor:Actor,id:str
   const nextContent=profileInput.parse(mergeChannelGroup(content,{id,name:input.name,visible:input.visible,channels},id,current.groups.find(group=>group.id===id)?.channels.map(channel=>channel.id)??[])),group={id,channels:bindings},next:ChannelSettings={groups:current.groups.some(candidate=>candidate.id===id)?current.groups.map(candidate=>candidate.id===id?group:candidate):[...current.groups,group]}
   if(JSON.stringify(nextContent)===JSON.stringify(content)&&JSON.stringify(next)===JSON.stringify(current))return response(tx,actor,row)
   version(row,input.expectedVersion);await putChannelDraft(tx,row,next);const result=await writeDraft(tx,actor,row,nextContent)
-  await tx.auditLog.create({data:{tenantId:actor.tenantId,actorId:actor.ownerId,action:'profile.channels.updated',entityType:'Profile',entityId:row.id,after:{groupId:id,channelCount:bindings.length,profileVersion:row.version+1}}})
+  await tx.auditLog.create({data:{tenantId:actor.tenantId,actorId:actor.actorId??actor.ownerId,action:'profile.channels.updated',entityType:'Profile',entityId:row.id,after:{groupId:id,channelCount:bindings.length,profileVersion:row.version+1}}})
   return result
  })
 }
@@ -220,7 +231,7 @@ export async function removeProfileChannelGroup(db:PrismaClient,actor:Actor,id:s
   const content=draft(row),current=scopedChannelSettings(await readChannelDraft(tx,row),content)
   if(!current.groups.some(group=>group.id===id))throw new ProfileError(404,'Grupo de alternativas não encontrado.')
   version(row,expectedVersion);await putChannelDraft(tx,row,{groups:current.groups.filter(group=>group.id!==id)});const result=await writeDraft(tx,actor,row,profileInput.parse(mergeChannelGroup(content,null,id)))
-  await tx.auditLog.create({data:{tenantId:actor.tenantId,actorId:actor.ownerId,action:'profile.channels.removed',entityType:'Profile',entityId:row.id,after:{groupId:id,profileVersion:row.version+1}}});return result
+  await tx.auditLog.create({data:{tenantId:actor.tenantId,actorId:actor.actorId??actor.ownerId,action:'profile.channels.removed',entityType:'Profile',entityId:row.id,after:{groupId:id,profileVersion:row.version+1}}});return result
  })
 }
 export async function applyTemplateToProfile(db: PrismaClient, actor: Actor, input: { templateVersionId: string; preserveContent: boolean; expectedVersion: number; confirmedReplacement: boolean }) {
@@ -234,7 +245,7 @@ export async function applyTemplateToProfile(db: PrismaClient, actor: Actor, inp
     await tx.profile.update({where:{id:row.id},data:{appearance:content.appearance??Prisma.DbNull,primaryItemId:content.primaryItemId,version:{increment:1}}})
     await writeProfileItems(tx,actor,row.id,content)
     await tx.contentReview.updateMany({where:{profileId:row.id,status:{in:['PENDING','REJECTED']}},data:{status:'SUPERSEDED',resolvedAt:new Date()}})
-    await tx.auditLog.create({data:{tenantId:actor.tenantId,actorId:actor.ownerId,action:'profile.template.applied',entityType:'Profile',entityId:row.id,after:{templateVersionId:input.templateVersionId,preserveContent:input.preserveContent,draftVersion:row.version+1}}})
+    await tx.auditLog.create({data:{tenantId:actor.tenantId,actorId:actor.actorId??actor.ownerId,action:'profile.template.applied',entityType:'Profile',entityId:row.id,after:{templateVersionId:input.templateVersionId,preserveContent:input.preserveContent,draftVersion:row.version+1}}})
     return response(tx,actor,await read(tx,actor))
   })
 }
@@ -265,7 +276,7 @@ export async function confirmImportProfile(db:PrismaClient,actor:Actor,input:{pr
     await checkProfileReferences(tx,actor,content)
     await tx.profile.update({where:{id:row.id},data:{version:{increment:1}}});await writeProfileItems(tx,actor,row.id,content)
     await tx.contentReview.updateMany({where:{profileId:row.id,status:{in:['PENDING','REJECTED']}},data:{status:'SUPERSEDED',resolvedAt:profileNow()}})
-    await tx.auditLog.create({data:{id:receiptId,tenantId:actor.tenantId,actorId:actor.ownerId,entityType:'Profile',entityId:row.id,action:'profile.import.confirmed',after:{hash,createdIds:planned.createdIds,draftVersion:row.version+1}}})
+    await tx.auditLog.create({data:{id:receiptId,tenantId:actor.tenantId,actorId:actor.actorId??actor.ownerId,entityType:'Profile',entityId:row.id,action:'profile.import.confirmed',after:{hash,createdIds:planned.createdIds,draftVersion:row.version+1}}})
     return {createdIds:planned.createdIds,alreadyApplied:false,profile:await response(tx,actor,await read(tx,actor))}
   })
 }
@@ -306,7 +317,7 @@ export async function publishProfile(db: PrismaClient, actor: Actor, expectedVer
     if (needsReview) {
       const review = await tx.contentReview.create({ data: { tenantId: actor.tenantId, ownerId: actor.ownerId, kind: 'PROFILE', profileId: current.id, version: current.version, snapshot: validated } })
       await queueContentReview(tx, review.id)
-      await tx.auditLog.create({ data: { tenantId: actor.tenantId, actorId: actor.ownerId, action: 'content.review.submitted', entityType: 'ContentReview', entityId: review.id, after: { kind: 'PROFILE', version: current.version } } })
+      await tx.auditLog.create({ data: { tenantId: actor.tenantId, actorId: actor.actorId??actor.ownerId, action: 'content.review.submitted', entityType: 'ContentReview', entityId: review.id, after: { kind: 'PROFILE', version: current.version } } })
       return { publishedRevisionId: current.publishedVersion, review: reviewSummary(review) }
     }
     const refs = validated.items.filter(i => i.type === 'CATALOG')
@@ -420,7 +431,7 @@ export async function restoreProfileRevision(db: PrismaClient, actor: Actor, id:
     await restoreChannelDraft(tx,row,source.version,content)
     await writeProfileItems(tx, actor, row.id, content)
     await tx.contentReview.updateMany({ where: { profileId: row.id, status: { in: ['PENDING', 'REJECTED'] } }, data: { status: 'SUPERSEDED', resolvedAt: now } })
-    await tx.auditLog.create({ data: { tenantId: actor.tenantId, actorId: actor.ownerId, action: 'profile.revision.restored', entityType: 'Profile', entityId: row.id, after: { revisionId: id, sourceVersion: source.version, draftVersion: row.version + 1 } } })
+    await tx.auditLog.create({ data: { tenantId: actor.tenantId, actorId: actor.actorId??actor.ownerId, action: 'profile.revision.restored', entityType: 'Profile', entityId: row.id, after: { revisionId: id, sourceVersion: source.version, draftVersion: row.version + 1 } } })
     await pruneMedia(tx, actor)
     return { ...await response(tx, actor, await read(tx, actor)), warnings: photoMissing ? ['A foto desta versão não está mais disponível. A página foi restaurada sem foto; você pode enviar outra.'] : [] }
   })
@@ -437,4 +448,28 @@ export async function purgeProfileHistory(db: PrismaClient, now = new Date()) {
     })
     cursor = rows.at(-1)!.id
   }
+}
+
+export async function exportProfile(db:PrismaClient,actor:Actor,revision:ExportRevision){
+ return db.$transaction(async tx=>{
+  await owner(tx,actor);const row=await read(tx,actor)
+  if(!row)throw new ProfileError(404,'Crie e salve sua página antes de exportar.')
+  if(revision==='published'&&!row.publication)throw new ProfileError(404,'Sua página ainda não tem uma publicação.')
+  const content=revision==='draft'?draft(row):profileInput.parse(row.publishedDraft??row.publication)
+  const channels=scopedChannelSettings(revision==='draft'?await readChannelDraft(tx,row):await readChannelRevision(tx,row,row.publishedVersion!),content)
+  return buildProfileExport(content,revision,profileNow(),channels)
+ },{isolationLevel:'RepeatableRead'})
+}
+
+/** Campaigns copy ordinary authoring links; their own publication does not use the main F37 sidecar. */
+export function projectCampaignSnapshot(tx:Prisma.TransactionClient,actor:Actor,content:ProfileContent,version:number,profile:ChannelProfile){
+ return projection(tx,actor,content,version,profile,'PUBLISHED',undefined,{groups:[]})
+}
+
+/** Applies only selected assistant fields inside the existing draft transaction; never publishes. */
+export async function applyProfileSuggestion(db:PrismaClient,actor:Actor,id:string,input:SuggestionApplyInput,now=new Date()){
+ return locked(db,actor,async tx=>{await owner(tx,actor,true);const row=(await tx.$queryRaw<{id:string;status:string;baseVersion:number;source:SuggestionSource|null;plan:SuggestionPlan|null;appliedVersion:number|null}[]>`SELECT id,status,"baseVersion",source,plan,"appliedVersion" FROM profile_suggestions WHERE id=${id} AND "tenantId"=${actor.tenantId} AND "ownerId"=${actor.ownerId} AND "expiresAt">${now} FOR UPDATE`)[0];if(!row)throw new ProfileError(404,'Sugestão não encontrada ou expirada.');const current=await read(tx,actor);if(row.status==='APPLIED')return{...await response(tx,actor,current),appliedVersion:row.appliedVersion};if(row.status!=='READY'||!row.source||!row.plan)throw new ProfileError(409,'Esta sugestão não pode ser aplicada.');if(input.expectedVersion!==row.baseVersion)throw new ProfileError(409,'Sua página mudou. Gere uma nova sugestão.');version(current,input.expectedVersion)
+ const content=protectTemplateExamples(current?draft(current):null,compileSuggestion(current?draft(current):null,row.source,row.plan,input,randomUUID)),result=current&&JSON.stringify(draft(current))===JSON.stringify(content)?await response(tx,actor,current):await writeDraft(tx,actor,current,content),appliedVersion=result.draft?.version??0
+ await tx.$executeRaw`UPDATE profile_suggestions SET status='APPLIED',"appliedVersion"=${appliedVersion},source=NULL,plan=NULL WHERE id=${id}`;await tx.auditLog.create({data:{tenantId:actor.tenantId,actorId:actor.auditActorId??actor.actorId??actor.ownerId,action:'profile.suggestion.applied',entityType:'ProfileSuggestion',entityId:id,after:{fields:input.selectedFields,manualBio:input.bioOverride!==undefined,appliedVersion}}});return{...result,appliedVersion}
+ })
 }

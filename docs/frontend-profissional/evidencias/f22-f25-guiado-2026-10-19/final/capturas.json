@@ -1,0 +1,218 @@
+[
+  {
+    "file": "desktop-contact-checkbox-aligned.png",
+    "sha256": "54394771c42305d85d52cbbc61e84a3523a3716453fc37254cbc8b2f5fb9c5ab"
+  },
+  {
+    "file": "desktop-contact-checkbox-theme-0.png",
+    "sha256": "dd62be1e46586768180518a6bd569d73596e8a36bb2c78f92c42091738e73c19"
+  },
+  {
+    "file": "desktop-contact-checkbox-theme-1.png",
+    "sha256": "8170d05d746f80a2acd312f30b7763ea6c16b420067f4e29766d935332e44d18"
+  },
+  {
+    "file": "desktop-contact-checkbox-theme-2.png",
+    "sha256": "5e4c42072c4c831b2420fbbead2598bb534846fb39ea6780961248a531579437"
+  },
+  {
+    "file": "desktop-contact-checkbox-theme-3.png",
+    "sha256": "f60838ef95d920e8b2033cae1675ef0d51415fef54e5bf422e66b6a1d17f8bf0"
+  },
+  {
+    "file": "desktop-contact-checkbox-theme-4.png",
+    "sha256": "cf5adbe4c2a3ef342e498a9be2519cf7a7f400d6fdccf71a0028fedb35a4d3b3"
+  },
+  {
+    "file": "desktop-contact-checkbox-theme-5.png",
+    "sha256": "4ac6560fe79448e8cdcc084ef9c79e86e3e9fb80d06dc70f4dca9c34d3152e8a"
+  },
+  {
+    "file": "desktop-contact-config.png",
+    "sha256": "d499a413c31a95e0921c1826f7fa919ce5550f38b18287998fb88f575b90fa08"
+  },
+  {
+    "file": "desktop-contact-error.png",
+    "sha256": "98ca88626f2f5230fa816cd56f7c863b53fb6718eeddb9db7f592f07737cdeca"
+  },
+  {
+    "file": "desktop-contact-fields-aligned.png",
+    "sha256": "8e4143ba7bf0206d0d0a910f477d44cee6ab085aa96a1033ed5d9dcd6694da95"
+  },
+  {
+    "file": "desktop-contact-fields-zoom.png",
+    "sha256": "10ef2a16ecfdc5bfdb612d6475d1e085373fae8472c19cbfc6888ffe95becd40"
+  },
+  {
+    "file": "desktop-contact-in-phone.png",
+    "sha256": "1265cf7e9728e6d7204f690eba6adacde4397f78b509f35767fb69127f893c26"
+  },
+  {
+    "file": "desktop-contact-inbox-1440.png",
+    "sha256": "84293eeff6f2d400ba9436cdedf6b2508af2f4c9c3f86997ec849d4428fbb0ca"
+  },
+  {
+    "file": "desktop-contact-inbox-768.png",
+    "sha256": "87858a58d0d4050890780153ef55dc26e859799c66ee14f4f39f78bfa509e6b6"
+  },
+  {
+    "file": "desktop-contact-inbox.png",
+    "sha256": "3cbcc955ae1ddb2ae36e1eab4c7cb35857ac8d29a993249985898f5a3b231234"
+  },
+  {
+    "file": "desktop-contact-public.png",
+    "sha256": "19e3392169c756bbdbd13faf21b947ddd0f7d4592fadf476f4ab667625f68634"
+  },
+  {
+    "file": "desktop-contact-settings-zoom.png",
+    "sha256": "55e9567512ceae1a37b5e7bacc122fa7533267caa7e2ef7d7fe27f20af3826e5"
+  },
+  {
+    "file": "desktop-contact-theme-0.png",
+    "sha256": "60dffeb3a9565a7040ca0693d49509db2a720e0a15d1a5f477a5dfb1cd982af0"
+  },
+  {
+    "file": "desktop-contact-theme-1.png",
+    "sha256": "4325181f2d677cc70a6fbf797128ac5d13f29d8a8831f13207f6b2688f803216"
+  },
+  {
+    "file": "desktop-contact-theme-2.png",
+    "sha256": "25f7186e94f441debc55e18817072f6f88fd50bcd163a6ce5627a2345c853367"
+  },
+  {
+    "file": "desktop-contact-theme-3.png",
+    "sha256": "90fa91f60f16fdc1a84219edec8489b41c46ef776e5efc4b56fe20a576a83942"
+  },
+  {
+    "file": "desktop-contact-theme-4.png",
+    "sha256": "f94f4d524edf81d2484e7196a7f055fb69a5e4124405525bc99d32c4b7b7327d"
+  },
+  {
+    "file": "desktop-contact-theme-5.png",
+    "sha256": "73fc72d30dad11526ecdd9779ba60b8f32b6100f2fd1be5a3c68623d91ec52f5"
+  },
+  {
+    "file": "desktop-contact-validation.png",
+    "sha256": "60dffeb3a9565a7040ca0693d49509db2a720e0a15d1a5f477a5dfb1cd982af0"
+  },
+  {
+    "file": "desktop-contact-zoom.png",
+    "sha256": "98f9ae55a99b78d43881b5956b645673278d11944ede4e4693b9858e41878c81"
+  },
+  {
+    "file": "desktop-page-contact-settings.png",
+    "sha256": "38040bf342d29a0aa91970ce6a57f406c693cff50543e9ea0d7062ced6671f59"
+  },
+  {
+    "file": "desktop-page-creation-choice.png",
+    "sha256": "f8bc6163116c36b1bd5604644b28791cb5aad6cb1bc6fb791efd6184914b7b6f"
+  },
+  {
+    "file": "desktop-page-live-preview.png",
+    "sha256": "4ca3e435b3deea4e246a315de36210bc6ac5bd33dc94f790612ec9d10fdea373"
+  },
+  {
+    "file": "mobile-contact-checkbox-aligned.png",
+    "sha256": "b0ef1852043ec3010115a917541733769016ffcccf83fe4ae1dedf8fc9f2f25c"
+  },
+  {
+    "file": "mobile-contact-checkbox-theme-0.png",
+    "sha256": "55d5636b0e7a7f3526a32708f1c974184dc33b1408207f18e1e9c2aedcbd6c94"
+  },
+  {
+    "file": "mobile-contact-checkbox-theme-1.png",
+    "sha256": "c7b6862068f615ab895d322b86f2199bef81f74f03c9ee1ef359a5b5e42fb948"
+  },
+  {
+    "file": "mobile-contact-checkbox-theme-2.png",
+    "sha256": "baecad875780e8d14346026d90edaf8bbbc3014121188ea6046ed12fe65785e2"
+  },
+  {
+    "file": "mobile-contact-checkbox-theme-3.png",
+    "sha256": "c76f1a46d6c9633de925d505906ff746a4b2a6aee7211a9d5ec4737ab65ae781"
+  },
+  {
+    "file": "mobile-contact-checkbox-theme-4.png",
+    "sha256": "b7c4bf47256f09b9b30d2162f5802f54a8da9568a81426e26e299fec6a65293e"
+  },
+  {
+    "file": "mobile-contact-checkbox-theme-5.png",
+    "sha256": "7baa6f734cd3f65542a0a97deb730e0a087eb47b0b8e1d5cd3e536d2a0b4e84a"
+  },
+  {
+    "file": "mobile-contact-config.png",
+    "sha256": "85aa152c32e7d5043ad0f7108cc4143f92b43e58646eed7e491a59dc0b582f33"
+  },
+  {
+    "file": "mobile-contact-error.png",
+    "sha256": "75e74742707807bb2fc8fba498df6dccc8008a03e09c3dd37bd1ecb18e5201f8"
+  },
+  {
+    "file": "mobile-contact-fields-aligned.png",
+    "sha256": "0cb23e87adad7e6fddf042e9a148314b8cbf0de07ee292af175a19282c9643a1"
+  },
+  {
+    "file": "mobile-contact-fields-zoom.png",
+    "sha256": "cd30d78a96f980f9bca7067a58ab5719c52160b97310bd4ab930f028cb1187b9"
+  },
+  {
+    "file": "mobile-contact-in-phone.png",
+    "sha256": "3643e55b829a16b4c9dad6e26f5a015feac41f5ce299f82f4fcff46ba2b16fd2"
+  },
+  {
+    "file": "mobile-contact-inbox.png",
+    "sha256": "adf830a70d78f9c10c1ee75282c511d45b678855e1487134f692276dff91d08a"
+  },
+  {
+    "file": "mobile-contact-public.png",
+    "sha256": "ddb18a2c96beb33cadb27704aec40a65e18ee6fab76578b89aec2317bfa703bc"
+  },
+  {
+    "file": "mobile-contact-settings-zoom.png",
+    "sha256": "b969be54d4c271702ca1e1cc8260bd257963b976657a9d1ea95da8fbdaa7535d"
+  },
+  {
+    "file": "mobile-contact-theme-0.png",
+    "sha256": "9a1276173eae20f41b2759d444cba6816db4fecabc87537020fc6fcc5a2797da"
+  },
+  {
+    "file": "mobile-contact-theme-1.png",
+    "sha256": "6cc441bc103a025c4d7bc13ffbc2ca677167972b12134fc79add21bbe63b59e8"
+  },
+  {
+    "file": "mobile-contact-theme-2.png",
+    "sha256": "83ef10f521c8ce93a0c85cc1f44b3de830200e0cbced3aada2067a83795c5185"
+  },
+  {
+    "file": "mobile-contact-theme-3.png",
+    "sha256": "8defe31625d4c715582bdcb68da178422221a7b1b705bc156c2581931ff269f2"
+  },
+  {
+    "file": "mobile-contact-theme-4.png",
+    "sha256": "1092314287bc347d478da985a8715928165cbd72d0786401fd8032ba52ad58db"
+  },
+  {
+    "file": "mobile-contact-theme-5.png",
+    "sha256": "085758b3de286e05de36a54b6f7bb396b8482c38d24dd193d43009e0f230691f"
+  },
+  {
+    "file": "mobile-contact-validation.png",
+    "sha256": "9a1276173eae20f41b2759d444cba6816db4fecabc87537020fc6fcc5a2797da"
+  },
+  {
+    "file": "mobile-contact-zoom.png",
+    "sha256": "735e25470b1c6b0f8b6c2dc5344029e51e6b444fb7b8e2f8ffa1c0e0096cd80b"
+  },
+  {
+    "file": "mobile-page-contact-settings.png",
+    "sha256": "e4c261df1ca153a8c61f0e63854da54471986e210248a34bc9582b556440c483"
+  },
+  {
+    "file": "mobile-page-creation-choice.png",
+    "sha256": "c522da9f7af22bf88f325615061287917e4f023ea43a9e43d00f968de09e98e0"
+  },
+  {
+    "file": "mobile-page-live-preview.png",
+    "sha256": "7644d437514dd4ab48413132baf3bbadef4968a8f172a46bef3cba10f03622fc"
+  }
+]

@@ -2,16 +2,19 @@ export function Pagination({
   page,
   pages,
   onPage,
+  variant = 'full',
 }: {
   page: number
   pages: number
   onPage: (page: number) => void
+  variant?: 'full' | 'compact'
 }) {
   if (pages <= 1) return null
-  const items = Array.from({ length: pages }, (_, index) => index + 1)
+  const items = variant === 'full' ? Array.from({ length: pages }, (_, index) => index + 1) : []
   return (
-    <nav className="pager" aria-label="Paginação">
-      <button className={styles.action} type="button" disabled={page <= 1} onClick={() => onPage(page - 1)}><ActionIcon name="back" />Anterior</button>
+    <nav className={variant==='compact'?`pager ${styles.compact}`:'pager'} aria-label="Paginação">
+      <button className={styles.action} type="button" aria-label="Anterior" disabled={page <= 1} onClick={() => onPage(page - 1)}><ActionIcon name="back" /><span className={variant==='compact'?styles.compactLabel:undefined}>Anterior</span></button>
+      {variant === 'compact' ? <span aria-live="polite">Página {page} de {pages}</span> : null}
       {items.map((item) => (
         <button
           key={item}
@@ -22,7 +25,7 @@ export function Pagination({
           {item}
         </button>
       ))}
-      <button className={styles.action} type="button" disabled={page >= pages} onClick={() => onPage(page + 1)}><ActionIcon name="next" />Próxima</button>
+      <button className={styles.action} type="button" aria-label="Próxima" disabled={page >= pages} onClick={() => onPage(page + 1)}><ActionIcon name="next" /><span className={variant==='compact'?styles.compactLabel:undefined}>Próxima</span></button>
     </nav>
   )
 }

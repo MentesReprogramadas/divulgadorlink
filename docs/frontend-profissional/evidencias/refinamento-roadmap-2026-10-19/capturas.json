@@ -1,0 +1,142 @@
+[
+  {
+    "file": "desktop-campaign-source-preview.png",
+    "sha256": "fd6f9cefd09676242993016b68bd168f79cb9779207311fb5adab605b3bce62b",
+    "source": "campaign-pages-F15-E01-T01-4f48c-pendent-editing-and-archive-features"
+  },
+  {
+    "file": "mobile-campaign-source-preview.png",
+    "sha256": "ba3bd0adc671f65f05560d109e0260c16236a5775a03e1ef7fc6acbae43ca41b",
+    "source": "campaign-pages-F15-E01-T01-4f48c-pendent-editing-and-archive-features-mobile"
+  },
+  {
+    "file": "desktop-kit-management.png",
+    "sha256": "416dedb5cc4f2dc072aff5af1793372730e0f26f06da64d70e55589141a4cba1",
+    "source": "media-kit-F21-E01-T01-T02--cf2d9-mmediate-privacy-withdrawal-features"
+  },
+  {
+    "file": "desktop-kit-public.png",
+    "sha256": "981edebd157d8f23c9ec96a4aa37d5c07fa224b3dead2d869e3e20f5e52e8e14",
+    "source": "media-kit-F21-E01-T01-T02--cf2d9-mmediate-privacy-withdrawal-features"
+  },
+  {
+    "file": "desktop-delegated-admin-readonly.png",
+    "sha256": "6844eb782123d71a3cb6b31c25bff1939ba57f9b94f225a30093bbb17e82f547",
+    "source": "workspace-team-administrat-6f17f-he-collaborator-global-role-features"
+  },
+  {
+    "file": "desktop-granular-permissions.png",
+    "sha256": "3c1040db84f40ad9749fff3e5807632e40774ef356d21f66fb056c88e4daebaf",
+    "source": "workspace-team-global-team-36aeb--and-revokes-a-live-session-features"
+  },
+  {
+    "file": "desktop-workspace-editor.png",
+    "sha256": "7455a45bea30f68a3a59fa66c684a78513fd25837f500c0b69b61e9bd3ebcd89",
+    "source": "workspace-team-global-team-36aeb--and-revokes-a-live-session-features"
+  },
+  {
+    "file": "desktop-global-team-empty.png",
+    "sha256": "58d1e81b1de2a29882711ef2b9a4a4e5826dc21d615a266cfaa8bbe9294b7796",
+    "source": "workspace-team-team-dialog-277d8-ithout-profile-prerequisite-features"
+  },
+  {
+    "file": "mobile-kit-management.png",
+    "sha256": "e3be139dde3715a6639a82bbd03e96290eded728f2cf78e39c01220f43dc7259",
+    "source": "media-kit-F21-E01-T01-T02--cf2d9-mmediate-privacy-withdrawal-features-mobile"
+  },
+  {
+    "file": "mobile-kit-public.png",
+    "sha256": "89f9fbcd2367cecdbb09989d477f12ff146076fc0d1c330289ee5d9d48157996",
+    "source": "media-kit-F21-E01-T01-T02--cf2d9-mmediate-privacy-withdrawal-features-mobile"
+  },
+  {
+    "file": "mobile-delegated-admin-readonly.png",
+    "sha256": "74f24d686141182d88c9b3b779f980002ce60a085732c54814b808d491c5b9de",
+    "source": "workspace-team-administrat-6f17f-he-collaborator-global-role-features-mobile"
+  },
+  {
+    "file": "mobile-granular-permissions.png",
+    "sha256": "289875b8e8d28a32a36e7e2ee93f27e723f70225674d3b001046ee78c5e3d185",
+    "source": "workspace-team-global-team-36aeb--and-revokes-a-live-session-features-mobile"
+  },
+  {
+    "file": "mobile-workspace-editor.png",
+    "sha256": "ae2f47115230bc5e6a4b4fefa5306e7cac485d963a1768da432798df66349594",
+    "source": "workspace-team-global-team-36aeb--and-revokes-a-live-session-features-mobile"
+  },
+  {
+    "file": "mobile-global-team-empty.png",
+    "sha256": "ad3b025651ff9bebc8ed4aeff3f1e7d518a8c1febdb8600375a3d7fff77a6997",
+    "source": "workspace-team-team-dialog-277d8-ithout-profile-prerequisite-features-mobile"
+  },
+  {
+    "file": "desktop-painel-perfil-links-loading.png",
+    "sha256": "385f272f7d9e3dd5adbf21fcf84abc440d8cdd24d6d82ccdc405c9d8f320e8c7",
+    "source": "loading-layout-L01-painel--a464c-beçalho-largura-e-controles-features"
+  },
+  {
+    "file": "desktop-painel-perfil-links-ready.png",
+    "sha256": "2008f46f17033c21bee370f4708aae5e4c4f30713dc33d15bcbfed29dec43682",
+    "source": "loading-layout-L01-painel--a464c-beçalho-largura-e-controles-features"
+  },
+  {
+    "file": "desktop-painel-perfil-loading.png",
+    "sha256": "b8bca19dbf85697901c966e7f85d40bb390faf57a34cad283aa6cffa9857081e",
+    "source": "loading-layout-L01-painel--a464c-beçalho-largura-e-controles-features"
+  },
+  {
+    "file": "desktop-painel-perfil-ready.png",
+    "sha256": "f82931fce9068a61f2c63f8f30aa12c20b78f0a0250e1be0a27bb4526b0f246f",
+    "source": "loading-layout-L01-painel--a464c-beçalho-largura-e-controles-features"
+  },
+  {
+    "file": "mobile-painel-perfil-links-loading.png",
+    "sha256": "bc2ff58555d271cdd8dbc3f7731d9e6b11ecc0ab420d3379894ccaabddfd9344",
+    "source": "loading-layout-L01-painel--a464c-beçalho-largura-e-controles-features-mobile"
+  },
+  {
+    "file": "mobile-painel-perfil-links-ready.png",
+    "sha256": "9ea8be597652d7dffc0b1de8470e4fc3e306d04f4a18b38346f5c0ccf4097864",
+    "source": "loading-layout-L01-painel--a464c-beçalho-largura-e-controles-features-mobile"
+  },
+  {
+    "file": "mobile-painel-perfil-loading.png",
+    "sha256": "a95de780c530025b7d3e9607daebac3db8cbae442eff3c2033d9aa4aa3f1ebd4",
+    "source": "loading-layout-L01-painel--a464c-beçalho-largura-e-controles-features-mobile"
+  },
+  {
+    "file": "mobile-painel-perfil-ready.png",
+    "sha256": "bae3a1b8e994aef9f627813503707e8c707ed6e198abf10808a2800262c2480a",
+    "source": "loading-layout-L01-painel--a464c-beçalho-largura-e-controles-features-mobile"
+  },
+  {
+    "file": "desktop-digest-active-card.png",
+    "sha256": "843d6da0983e20f6b058f05fc080569ea0444b341390f0437ec0c3c8bd2b8f0f",
+    "source": "niche-follows-F05-E04-quic-02bf3-ects-consent-without-saving-features"
+  },
+  {
+    "file": "desktop-digest-disabled-card.png",
+    "sha256": "c2eb87508617931575ce38efacb21be0c5192d1aa3c4a8dd35c3757b1d80ad4f",
+    "source": "niche-follows-F05-E04-quic-02bf3-ects-consent-without-saving-features"
+  },
+  {
+    "file": "desktop-import-confirmation.png",
+    "sha256": "5e19e8c8bbf101e2a8492ad952db7c5e38f0fa976b986fa651d6205ba785b816",
+    "source": "profile-export-F38-E04-exp-6506f--losing-the-current-address-features"
+  },
+  {
+    "file": "mobile-digest-active-card.png",
+    "sha256": "51edf80b8cfaea98532221b69cafb621a14f1008fb2bd3c294acef41e14612e1",
+    "source": "niche-follows-F05-E04-quic-02bf3-ects-consent-without-saving-features-mobile"
+  },
+  {
+    "file": "mobile-digest-disabled-card.png",
+    "sha256": "75239ef7bb51e5ea46c2beb9954544287370af47f111f189f5c453f65fabe830",
+    "source": "niche-follows-F05-E04-quic-02bf3-ects-consent-without-saving-features-mobile"
+  },
+  {
+    "file": "mobile-import-confirmation.png",
+    "sha256": "447db79dfc028c220c7e5d17a1440c54db476db364347f89b49ab31b077b9039",
+    "source": "profile-export-F38-E04-exp-6506f--losing-the-current-address-features-mobile"
+  }
+]

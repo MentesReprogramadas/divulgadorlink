@@ -1,0 +1,118 @@
+{
+  "feature": "F23",
+  "date": "2026-10-19",
+  "status": "S0-S6 VERIFIED LOCAL; S7 REMOTE PENDING",
+  "git": "existing branch codex/roadmap-f37-testes; no new commit/push/deploy",
+  "environment": "Windows; isolated PG 5835/Redis 6835; E2E offset 500; Next production; Chromium",
+  "tests": {
+    "backendFull": {
+      "passed": 598,
+      "log": "output/f22-f25-backend-unit-correct-env.log",
+      "note": "Full unit run before final audit attribution correction; subsequent affected real PG suite validates that correction."
+    },
+    "frontendFull": {
+      "passed": 413,
+      "log": "output/f22-f25-frontend-unit-final.log"
+    },
+    "postgresOwn": {
+      "passed": 19,
+      "featureCases": 6,
+      "log": "output/f22-f25-pg-audit-green.log"
+    },
+    "postgresRegression": {
+      "passed": 78,
+      "log": "output/f22-f25-pg-regression.log"
+    },
+    "playwrightFinal": {
+      "passed": 37,
+      "ownFeatureCases": 6,
+      "setupIncluded": true,
+      "report": "output/f22-f25-playwright-final.json",
+      "log": "output/f22-f25-e2e-green.log"
+    },
+    "playwrightBroader": {
+      "passed": 80,
+      "failed": 5,
+      "report": "output/f22-f25-playwright-regression.json",
+      "note": "F19 measured an animating dialog; F20 counts predated the two new permission sections. Corrected assertions/waiting, without relaxing tolerance or changing product rules; all affected cases pass in final 37-case run."
+    },
+    "lintTypecheck": "Both packages exit 0; logs output/f22-f25-{backend,frontend}-{lint,typecheck}-final.log",
+    "build": "Backend npm run build; frontend Next production build enforced by e2e/serve.mjs."
+  },
+  "migrationProof": "evidencias-migracoes-f22-f25.json",
+  "queryPlans": "output/f22-f25-query-plans.log",
+  "viewports": [
+    "1280x720",
+    "1440x900",
+    "768x1024",
+    "390x844",
+    "320x844 with 200% root font"
+  ],
+  "review": "Native screenshot inspection desktop/mobile; keyboard/focus and Axe A/AA scoped to modified regions; no accessibility certification or physical-device claim. Fixtures are isolated; generated IDs and operational dates remain real, so these are review captures, not new approved visual baselines.",
+  "captures": [
+    {
+      "file": "docs/frontend-profissional/evidencias/f23-2026-10-19/final/desktop-pool-config.png",
+      "sha256": "0f4d6b68b646a6f86509859880f5bfb6f719c5cf28551c28fc8ed28bf5ff28f7"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f23-2026-10-19/final/desktop-pool-management-1440.png",
+      "sha256": "d834cb556f5ac856415e1b44b667d5269e8661ce1e0c9b6a533547508520d297"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f23-2026-10-19/final/desktop-pool-management-768.png",
+      "sha256": "3b8ea1631ba08c6c2bb0c9ea6d2da76a6d334a3f05698177d606038b6f9436c8"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f23-2026-10-19/final/desktop-pool-management.png",
+      "sha256": "491c804d3eeb3e2becdb9582649522ee3cf9e203c4e27fe40b14da2b372b664d"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f23-2026-10-19/final/desktop-pool-unavailable.png",
+      "sha256": "1ce9471da6d7a1c878de70026fbdad0111c770bfb2d5f5cdbd10fac734f76d63"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f23-2026-10-19/final/mobile-pool-config.png",
+      "sha256": "b65a2aa308a9f24e42efe453116c05177c6d22f9c9fb85d15ab8464d8bb5c49c"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f23-2026-10-19/final/mobile-pool-management.png",
+      "sha256": "05d77a05e40f13cdf3bbda392aabf644d02f8dbd1e2ae4552a481e7312fba3fc"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f23-2026-10-19/final/mobile-pool-unavailable.png",
+      "sha256": "99489f57f283d50093b9c1ba9103f12463b07fb9a2f66b74ea637ed60a6eada9"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f23-2026-10-19/final/desktop-pool-zoom.png",
+      "sha256": "52d4561e73185074bbcd30262ae83f45bf721e10fc5aa2befd8ac99e9f84960a"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f23-2026-10-19/final/mobile-pool-zoom.png",
+      "sha256": "0d033859ad96761126ace1d00b7ad720ff4ca9f2f443bd6df0e7cb3d14febe80"
+    }
+  ],
+  "sourceHashes": {
+    "backend/src/domain/access/profile-access.ts": "2b327b42418ff1cae2ef4f801107bb3d5076f16deb0dcb5066c1b7dee1c8123c",
+    "backend/src/domain/access/workspace-permissions.ts": "80766a082decb2f59671a44460575255778e1f0f199c8d2064063748e85fc46a",
+    "backend/src/repositories/profiles-repository.ts": "89e201293cf592cb6e046cbb980d666d4e2cc5525fcbab2540d34000ef612f5d",
+    "backend/src/http/workspace-access.ts": "7b9f7f6ffcdb586eedd05564ca514cd06da61243928a55fee59021a8ab88f47a",
+    "backend/prisma/schema.prisma": "3fbf9a4d5b78da308df836ea27a3aa8fe727b7b9353fad012e8299c4acb5fbc8",
+    "frontend/e2e/serve.mjs": "c0ca39ce34454f4d3dbd7d3bf39cf5340927a01cbbdf161216469f77c058de64",
+    "frontend/playwright.config.ts": "8a0e8aa3e3d124fcfeaaecfea1b7d92de8b51f06f5aed34600081f8bf9c32dbf",
+    "backend/src/domain/redirects/destination-pool.ts": "fe0fcc68872e2585483dbecb21e67b089504ae226101fdf7035d7022635c84f8",
+    "backend/src/repositories/destination-pools.ts": "f9d20f6e5fdb20cb4e1f0127336502b7d96a3a99bab5220be5c04693ef69296d",
+    "backend/src/repositories/redirects-repository.ts": "3e8efc3ce4ffd86c5f901ae781ec6ca8c5d772670e02f23164d1753d84ee436c",
+    "backend/src/http/controllers/@Redirects/routes.ts": "6cedfac7d8f9cef13bf4823f1dc18c5d46f0f0d1596321ac659a8021198bc452",
+    "frontend/src/features/redirect-pools/pool-contract.ts": "6bd0c19570dcff58bcc5ec5c2e8493d74e63c502853699c82ce1a4cb524a614f",
+    "frontend/src/features/redirect-pools/pool-screen.test.tsx": "4a9a05bfdd9ce271a2141c67332a4522a8516492291e04ff6b8690e3a048e0bc",
+    "frontend/src/features/redirect-pools/pool-screen.tsx": "8725dc06330af893c942924752c1068974fb5d7d87582bb010d131ed90a0cf69",
+    "frontend/src/features/redirect-pools/pool.module.css": "106105f8a8c0039d517e69001016b99bdce1152f8cac1ef5e1485d2c3087240e"
+  },
+  "limitations": [
+    "CI and deployment not run",
+    "Personal and external databases unchanged; apply migrations only to authorized target",
+    "No paid provider request or account model entitlement verified",
+    "Other historical roadmap blockers remain recorded"
+  ],
+  "stop": "F25; F28 not started"
+}

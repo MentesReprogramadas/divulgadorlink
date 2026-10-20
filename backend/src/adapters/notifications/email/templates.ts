@@ -7,6 +7,10 @@ const EMAIL_LOGO_ON_NAVY = 'https://pub-852b31d202de4f9bb4000007a99abaf1.r2.dev/
 
 export type RenderedEmail = { subject: string; html: string; text: string }
 
+export function nicheDigestEmail(input:{brand:EmailBrand;links:Array<{name:string;url:string}>;unsubscribeUrl:string;preferencesUrl:string}):RenderedEmail{
+ return {subject:'Novidades nas categorias que você segue',...document({brand:input.brand,preheader:'Novos links para conhecer.',title:'Seu resumo de novidades',blocks:[...input.links.map(link=>action(link.url,link.name)),action(input.preferencesUrl,'Escolher categorias'),action(input.unsubscribeUrl,'Parar de receber resumos')],footnote:'Você ativou este resumo. Nenhum resultado é garantido.'})}
+}
+
 export function renewalReminderEmail(input: { brand: EmailBrand; linkName: string; surface: string; expiresAt: Date; summary: { from: string; to: string; impressions: number; clicks: number; dataState: string; coverage: string } | null; url: string; preferencesUrl: string }): RenderedEmail {
   const date = new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo', dateStyle: 'short', timeStyle: 'short' }).format(input.expiresAt)
   const surface = { SEARCH: 'Busca', NICHE: 'Categoria', HOME: 'Página inicial' }[input.surface] ?? input.surface

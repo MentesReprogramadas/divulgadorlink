@@ -1,5 +1,6 @@
 .editor { display: grid; gap: var(--space-6); min-width: 0; }
-.editor h2, .editor h3, .profile h1, .profile h2, .profile h3 { margin: 0; font-family: var(--font-product); }
+:where(.editor) :where(h2,h3) { margin: 0; }
+.profile h1, .profile h2, .profile h3 { margin: 0; font-family: var(--font-product); }
 .note { color: var(--text-secondary); margin: 0; line-height: 1.55; }
 .formFrame { width: 100%; min-width: 0; padding: var(--space-6); border: 1px solid var(--border-default); border-radius: var(--radius-lg); background: var(--surface-raised); }
 .toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-4); }
@@ -90,3 +91,5 @@
 @media (width < 48rem) { .desktopSections { display: none; } .mobileSections { display: block; } .saveActions > button { flex: 1 1 10rem; } }
 
 @media (width < 40rem) { .editorTools { display:flex; } .editorTools>.toolsActions { width:100%; } .editorTools>.simpleNavigation { width:100%; } .editorTools>button { margin-left:auto; } }
+
+.pageOption{grid-column:1 / -1;display:grid;gap:var(--space-3);padding:var(--space-4);background:var(--surface-subtle);border:1px solid var(--border-default);border-radius:var(--radius-lg)}.pageOption h2{display:flex;gap:var(--space-2);align-items:center;font-size:var(--text-lg)}.pageOption p{margin:0;color:var(--text-secondary);font-size:var(--text-sm)}

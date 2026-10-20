@@ -1,0 +1,34 @@
+[
+  {
+    "file": "docs/frontend-profissional/evidencias/f23-2026-10-19/regressao-1/desktop-pool-config.png",
+    "sha256": "0f4d6b68b646a6f86509859880f5bfb6f719c5cf28551c28fc8ed28bf5ff28f7"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f23-2026-10-19/regressao-1/desktop-pool-management.png",
+    "sha256": "12beb31df27ad201ad6fff954585a354011d55129f7eb40330181562110d45fe"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f23-2026-10-19/regressao-1/desktop-pool-unavailable.png",
+    "sha256": "1ce9471da6d7a1c878de70026fbdad0111c770bfb2d5f5cdbd10fac734f76d63"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f23-2026-10-19/regressao-1/mobile-pool-config.png",
+    "sha256": "b65a2aa308a9f24e42efe453116c05177c6d22f9c9fb85d15ab8464d8bb5c49c"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f23-2026-10-19/regressao-1/mobile-pool-management.png",
+    "sha256": "8d7b1871db7622d07df55351064a99b5b3f206823ea72ad4ceae08b9e4694d37"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f23-2026-10-19/regressao-1/mobile-pool-unavailable.png",
+    "sha256": "99489f57f283d50093b9c1ba9103f12463b07fb9a2f66b74ea637ed60a6eada9"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f23-2026-10-19/regressao-1/desktop-pool-zoom.png",
+    "sha256": "52d4561e73185074bbcd30262ae83f45bf721e10fc5aa2befd8ac99e9f84960a"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f23-2026-10-19/regressao-1/mobile-pool-zoom.png",
+    "sha256": "0d033859ad96761126ace1d00b7ad720ff4ca9f2f443bd6df0e7cb3d14febe80"
+  }
+]

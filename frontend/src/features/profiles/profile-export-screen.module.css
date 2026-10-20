@@ -1,0 +1,19 @@
+.page { display: grid; gap: var(--space-6); min-width: 0; }
+.actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--space-6); align-items: start; }
+.card { display: grid; gap: var(--space-6); min-width: 0; padding: var(--space-6); border: 1px solid var(--border-default); border-radius: var(--radius-lg); background: var(--surface-raised); }
+.card header { display: grid; grid-template-columns: auto minmax(0,1fr); align-items: center; gap: var(--space-2) var(--space-3); }
+.card h2 { margin: 0; font-size: var(--text-lg); }
+.card header > p { grid-column: 1 / -1; }
+.card p { margin: 0; color: var(--text-secondary); }
+.card > button { justify-self: start; }
+.confirmation { display: grid; gap: var(--space-4); min-width: 0; }
+.confirmation > strong { font-size: var(--text-lg); overflow-wrap: anywhere; }
+.confirmation p, .confirmation ul { margin: 0; }
+.confirmation ul { padding-left: var(--space-6); display: grid; gap: var(--space-2); color: var(--text-secondary); }
+.summary { display: flex; flex-wrap: wrap; gap: var(--space-6); margin: 0; }
+.summary div { display: flex; gap: var(--space-2); }
+.summary dt { color: var(--text-secondary); }
+.summary dd { margin: 0; font-weight: 600; }
+@media (width < 72rem) { .grid { grid-template-columns: minmax(0,1fr); } }
+@media (width < 40rem) { .card { padding: var(--space-4); } }

@@ -1,0 +1,15 @@
+'use client'
+import {useState} from 'react'
+import {Button} from '@/components/ui/button'
+import {Field,Select} from '@/components/ui/input'
+import {Checkbox} from '@/components/ui/checkbox'
+import {ActionIcon} from '@/components/ui/action-icon'
+import {FormSteps} from '@/components/ui/form-steps'
+import {WorkspaceActions} from '@/components/layout/workspace-controls'
+import {contactFields,contactTitles,type ContactDefinition} from './contact-contract'
+import styles from './contact.module.css'
+
+export function ContactSettingsForm({value,onChange,onSave,pending,error}:{value:ContactDefinition;onChange:(value:ContactDefinition)=>void;onSave:()=>void;pending:boolean;error:string}){
+ const [step,setStep]=useState(0)
+ return <form className={styles.form} aria-label="Configurar formulário de contato" onSubmit={e=>{e.preventDefault();if(step===0)setStep(1);else onSave()}}><FormSteps current={step} labels={['Ativação e privacidade','Campos do formulário']} onBack={pending?undefined:setStep}/>{step===0?<><label className={styles.check}><Checkbox checked={value.enabled} disabled={pending} onChange={e=>onChange({...value,enabled:e.target.checked})}/>Mostrar formulário na página publicada</label><Field label="O que você quer receber?"><Select value={value.purpose} disabled={pending} onChange={e=>onChange({...value,purpose:e.target.value as ContactDefinition['purpose']})}>{Object.entries(contactTitles).map(([key,title])=><option key={key} value={key}>{title}</option>)}</Select></Field><label className={styles.check}><Checkbox checked={value.marketingAllowed} disabled={pending} onChange={e=>onChange({...value,marketingAllowed:e.target.checked})}/>Oferecer aceite opcional para novidades</label><p className={styles.hint}>Em páginas publicadas, salvar atualiza o formulário imediatamente. Contatos privados por até 180 dias; nenhum envio ou inscrição automática.</p></>:<div className={styles.fields}>{Object.entries(contactFields).map(([key,label])=>{const field=value.fields.find(f=>f.key===key);return <div key={key} className={styles.fieldRow}><label className={styles.check}><Checkbox aria-label={'Pedir '+label} checked={Boolean(field)} disabled={pending} onChange={e=>onChange({...value,fields:e.target.checked?[...value.fields,{key:key as keyof typeof contactFields,required:false}]:value.fields.filter(f=>f.key!==key)})}/>{label}</label><label className={styles.check}><Checkbox aria-label={label+' obrigatório'} checked={field?.required??false} disabled={pending||!field} onChange={e=>onChange({...value,fields:value.fields.map(f=>f.key===key?{...f,required:e.target.checked}:f)})}/>Obrigatório</label></div>})}<p className={styles.hint}>Mantenha e-mail ou telefone obrigatório.</p></div>}{error?<p role="alert">{error}</p>:null}<WorkspaceActions>{step>0?<Button type="button" variant="secondary" disabled={pending} onClick={()=>setStep(0)}><ActionIcon name="back"/>Voltar</Button>:null}<Button type="submit" disabled={pending} loading={pending}><ActionIcon name={step===0?'next':'save'}/>{step===0?'Escolher campos':'Salvar formulário'}</Button></WorkspaceActions></form>
+}

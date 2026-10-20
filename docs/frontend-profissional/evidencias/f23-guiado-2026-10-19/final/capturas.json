@@ -1,0 +1,74 @@
+[
+  {
+    "file": "docs/frontend-profissional/evidencias/f23-guiado-2026-10-19/final/desktop-pool-config.png",
+    "sha256": "4c6a51b9c8718395bf7c48391fc2e540185263a15aaffdcb4355040d5dbc2fbe"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f23-guiado-2026-10-19/final/desktop-pool-entry.png",
+    "sha256": "81c228b696a2c1c51f109fa6e31a01606b8661e25e18a509fcae477739acb6fd"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f23-guiado-2026-10-19/final/desktop-pool-management-1440.png",
+    "sha256": "6432cf488cc19277957b3ddca5bc0a5e94b75607b602d32f11ece2807e0f0801"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f23-guiado-2026-10-19/final/desktop-pool-management-768.png",
+    "sha256": "6d63afd4a1750c839536c0cf1ea25e8276a0551314278f88b6db4d5b25861bac"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f23-guiado-2026-10-19/final/desktop-pool-management.png",
+    "sha256": "6c1a67c01b9d7e634e2aef865304c6961a9f37cf6c868947776a5464406435ac"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f23-guiado-2026-10-19/final/desktop-pool-review.png",
+    "sha256": "e25d855ee3faba8dbe83df56fb0099bbaa0288379ab4585605845bf97f949918"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f23-guiado-2026-10-19/final/desktop-pool-unavailable.png",
+    "sha256": "1ce9471da6d7a1c878de70026fbdad0111c770bfb2d5f5cdbd10fac734f76d63"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f23-guiado-2026-10-19/final/mobile-pool-config.png",
+    "sha256": "80186ec6ae978bbacc8f11928e2037f18771152dafa3cd1bbc56f6daa1168fa1"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f23-guiado-2026-10-19/final/mobile-pool-entry.png",
+    "sha256": "ebc6ead3099102b9409f369174e2e99dca241224992fcf6b5781059ca4f04a68"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f23-guiado-2026-10-19/final/mobile-pool-management.png",
+    "sha256": "b5ac9f7ba4550e22967beb99dfd3a7ad0adcbdfe23e6c8250b7fdc61fbd488b4"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f23-guiado-2026-10-19/final/mobile-pool-review.png",
+    "sha256": "3322c330bc65107c08f2fa918d523864fb6270e1f1f9ab6a21b8a13d7c75d632"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f23-guiado-2026-10-19/final/mobile-pool-unavailable.png",
+    "sha256": "99489f57f283d50093b9c1ba9103f12463b07fb9a2f66b74ea637ed60a6eada9"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f23-guiado-2026-10-19/final/desktop-pool-zoom.png",
+    "sha256": "f7056718da59805f8cdac17020296b92ce30c37851ea93b551d16e040145accd"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f23-guiado-2026-10-19/final/mobile-pool-zoom.png",
+    "sha256": "48e086080641c52eabe9b36221bee108ca8bbf16430ce1a6f661d79640ae7293"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f23-guiado-2026-10-19/final/desktop-pool-single-review.png",
+    "sha256": "3d0622dfdc5c5e76f0e995ace312afaa9530a104a87e2353997597fcbfdbb1be"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f23-guiado-2026-10-19/final/mobile-pool-single-review.png",
+    "sha256": "fd74ff856f3659fca28d252005de5905fca8c49e9f9e0b87ff6953becc7a7c84"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f23-guiado-2026-10-19/final/desktop-pool-pending-review.png",
+    "sha256": "b106f9b63b17e43198045fb64dea98d2d918a85ff6551f1f26cfb256272bfce7"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f23-guiado-2026-10-19/final/mobile-pool-pending-review.png",
+    "sha256": "9c48a74a4536576746c6fa5b984673d179a0e2a4f366526a2281a3fcc9d62eb8"
+  }
+]

@@ -18,7 +18,7 @@ export function useProfileInteraction(root:RefObject<HTMLDivElement|null>,descri
    if(!alive||document.visibilityState!=='visible'||!profileMeasurementConsent()||performance.now()>=expires)return
    const viewportBucket=interactionViewport(innerWidth),key=JSON.stringify([kind,blockId,scrollBucket,viewportBucket]);if(sent.has(key))return;sent.add(key)
    const body=JSON.stringify({eventId:crypto.randomUUID(),profileId:descriptor!.profileId,revisionId:descriptor!.revisionId,surfaceToken:descriptor!.surfaceToken,kind,blockId,viewportBucket,scrollBucket})
-   const dispatch=async()=>{if(!profileMeasurementConsent())return false;try{const result=await api('/v1/analytics/profiles/events',{method:'POST',keepalive:true,body});if(result.status>=500)sent.delete(key);return result.status>=200&&result.status<300}catch{sent.delete(key);return false}}
+   const dispatch=async()=>{if(!profileMeasurementConsent())return false;try{const result=await api(descriptor!.campaignId?'/v1/analytics/profiles/campaigns/'+encodeURIComponent(descriptor!.campaignId)+'/events':'/v1/analytics/profiles/events',{method:'POST',keepalive:true,body});if(result.status>=500)sent.delete(key);return result.status>=200&&result.status<300}catch{sent.delete(key);return false}}
    // Establish the session once; later clicks dispatch synchronously with keepalive before navigation.
    if(kind==='PAGE'&&!sessionReady)opening=dispatch().then(ok=>{sessionReady=ok})
    else if(sessionReady)void dispatch()

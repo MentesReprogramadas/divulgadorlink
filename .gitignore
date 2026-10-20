@@ -43,3 +43,12 @@ yarn.lock
 /output/link-modal-tabs/
 /output/profile-overview-validation/
 /output/profile-search-layout/
+
+# Disposable feature validation
+output/roadmap-f38/
+output/roadmap-f05/
+output/roadmap-f15/
+
+/output/roadmap-f20/
+
+/output/roadmap-f21/

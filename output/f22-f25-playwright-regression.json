@@ -1,0 +1,3333 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\VSCODE\\divulgadorlinks\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "profile-assistant.spec.ts",
+      "contact-forms.spec.ts",
+      "destination-pools.spec.ts",
+      "profiles.spec.ts",
+      "profile-history.spec.ts",
+      "profile-templates.spec.ts",
+      "profile-import.spec.ts",
+      "redirects.spec.ts",
+      "workspace-team.spec.ts",
+      "--project=features",
+      "--project=features-mobile"
+    ],
+    "configFile": "C:\\VSCODE\\divulgadorlinks\\frontend\\playwright.config.ts",
+    "rootDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\global-setup.ts",
+    "globalTeardown": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\global-teardown.ts",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "setup",
+        "name": "setup",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/auth\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features",
+        "name": "features",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features-mobile",
+        "name": "features-mobile",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "catalog",
+        "name": "catalog",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/catalog\\.spec\\.ts|mail\\.spec\\.ts|advertise\\.spec\\.ts|legal\\.spec\\.ts|funnel\\.spec\\.ts|signup\\.spec\\.ts|submit-link\\.spec\\.ts|security-headers\\.spec\\.ts|google-ads-submission\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "auth.setup.ts",
+      "file": "auth.setup.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "sessão da Bia para os testes do painel",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "setup",
+              "projectName": "setup",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 456,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:55:48.601Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "17e3fe6f4d9d8bd79c6b-40367c7f5b2a9e9ad033",
+          "file": "auth.setup.ts",
+          "line": 8,
+          "column": 6
+        }
+      ]
+    },
+    {
+      "title": "contact-forms.spec.ts",
+      "file": "contact-forms.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F22-E01/T01/T03/T04/T05 configura formulário, recebe contato privado, exporta CSV e exclui",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3274,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:55:49.624Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-7019657f9e91ca561718",
+          "file": "contact-forms.spec.ts",
+          "line": 9,
+          "column": 5
+        },
+        {
+          "title": "F22-E02/T01 outro dono e visitante não leem contatos; prévia não envia",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1584,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:55:53.029Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-091cc8eef136a562166e",
+          "file": "contact-forms.spec.ts",
+          "line": 15,
+          "column": 5
+        },
+        {
+          "title": "F22-E03/T02 falha mantém dados, teclado permite recuperar, duplicação é evitada e 320px não transborda",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1085,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:55:54.621Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-8c7c7eb3731aaaf90185",
+          "file": "contact-forms.spec.ts",
+          "line": 19,
+          "column": 5
+        },
+        {
+          "title": "F22-E01/T01/T03/T04/T05 configura formulário, recebe contato privado, exporta CSV e exclui",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2811,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:59:20.147Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-25bd04d53e18f047255d",
+          "file": "contact-forms.spec.ts",
+          "line": 9,
+          "column": 5
+        },
+        {
+          "title": "F22-E02/T01 outro dono e visitante não leem contatos; prévia não envia",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1473,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:59:23.091Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-45513f7390e0de7e266c",
+          "file": "contact-forms.spec.ts",
+          "line": 15,
+          "column": 5
+        },
+        {
+          "title": "F22-E03/T02 falha mantém dados, teclado permite recuperar, duplicação é evitada e 320px não transborda",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1010,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:59:24.570Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-20202ef7572b47378ed8",
+          "file": "contact-forms.spec.ts",
+          "line": 19,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "destination-pools.spec.ts",
+      "file": "destination-pools.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F23-E01/T02/T03/T04/T05 configura 1/3, encaminha ao stub real, pausa destinos e conserva endereço",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4720,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:55:55.716Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-e692f6b0c33ed1f70a8b",
+          "file": "destination-pools.spec.ts",
+          "line": 12,
+          "column": 5
+        },
+        {
+          "title": "F23-E02/T01 privado nega visitante e outro dono; alvo inválido não altera distribuição",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1363,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:56:00.445Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-e2b4d2bedadc0d667135",
+          "file": "destination-pools.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "F23-E03 erro mantém peso, teclado recupera sem duplicar, layout cabe em 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2072,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:56:01.818Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-a0d63d4791adce42845e",
+          "file": "destination-pools.spec.ts",
+          "line": 19,
+          "column": 5
+        },
+        {
+          "title": "F23-E01/T02/T03/T04/T05 configura 1/3, encaminha ao stub real, pausa destinos e conserva endereço",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4002,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:59:25.590Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-5728a34e410abe9a9096",
+          "file": "destination-pools.spec.ts",
+          "line": 12,
+          "column": 5
+        },
+        {
+          "title": "F23-E02/T01 privado nega visitante e outro dono; alvo inválido não altera distribuição",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1239,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:59:29.597Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-7a973f620ef26840c05e",
+          "file": "destination-pools.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "F23-E03 erro mantém peso, teclado recupera sem duplicar, layout cabe em 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1822,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:59:30.842Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-e737362e1c36c8f24f38",
+          "file": "destination-pools.spec.ts",
+          "line": 19,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "profile-assistant.spec.ts",
+      "file": "profile-assistant.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F25-E01 revisão seletiva e prévia reutilizada alteram só o rascunho; descarte preserva publicação",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2463,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:56:03.902Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "89db073b230187dada43-e080e05fde4956d6e84f",
+          "file": "profile-assistant.spec.ts",
+          "line": 11,
+          "column": 5
+        },
+        {
+          "title": "F25-E02 sem página geração não salva; outro dono não acessa e aplicação detecta versão desatualizada",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1908,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:56:06.372Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "89db073b230187dada43-bcc0c5a55ad1f865b271",
+          "file": "profile-assistant.spec.ts",
+          "line": 20,
+          "column": 5
+        },
+        {
+          "title": "F25-E03 erro recuperável mantém entrada e teclado; limite diário e 320px com zoom",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1819,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:56:08.288Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "89db073b230187dada43-868ec1f408e392e4fe64",
+          "file": "profile-assistant.spec.ts",
+          "line": 26,
+          "column": 5
+        },
+        {
+          "title": "F25-E04 grants próprios controlam consulta, aplicação e revogação sem liberar publicação",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3061,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:56:10.114Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "89db073b230187dada43-41659c27f851e95b82cb",
+          "file": "profile-assistant.spec.ts",
+          "line": 31,
+          "column": 5
+        },
+        {
+          "title": "F25-E01 revisão seletiva e prévia reutilizada alteram só o rascunho; descarte preserva publicação",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2194,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:59:32.672Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "89db073b230187dada43-e07968dbedfe49e7988b",
+          "file": "profile-assistant.spec.ts",
+          "line": 11,
+          "column": 5
+        },
+        {
+          "title": "F25-E02 sem página geração não salva; outro dono não acessa e aplicação detecta versão desatualizada",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1681,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:59:34.871Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "89db073b230187dada43-9563c6ca0fb77dc983b3",
+          "file": "profile-assistant.spec.ts",
+          "line": 20,
+          "column": 5
+        },
+        {
+          "title": "F25-E03 erro recuperável mantém entrada e teclado; limite diário e 320px com zoom",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1607,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:59:36.557Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "89db073b230187dada43-38ff562ad1639b64e74e",
+          "file": "profile-assistant.spec.ts",
+          "line": 26,
+          "column": 5
+        },
+        {
+          "title": "F25-E04 grants próprios controlam consulta, aplicação e revogação sem liberar publicação",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2928,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:59:38.170Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "89db073b230187dada43-30a170f0d98c79e31901",
+          "file": "profile-assistant.spec.ts",
+          "line": 31,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "profile-history.spec.ts",
+      "file": "profile-history.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F19-E01/E03 compare, explicit restore, existing preview and republish preserve public content until publication",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 3743,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m2\u001b[39m\nReceived:   \u001b[31m3.0054931640625\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m2\u001b[39m\nReceived:   \u001b[31m3.0054931640625\u001b[39m\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-history.spec.ts:62:60",
+                    "location": {
+                      "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-history.spec.ts",
+                      "column": 60,
+                      "line": 62
+                    },
+                    "snippet": "  60 |     const oldBounds = await oldPreview.boundingBox(), currentBounds = await currentPreview.boundingBox()\n  61 |     if (info.project.name.includes('mobile')) expect(currentBounds!.y).toBeGreaterThan(oldBounds!.y + oldBounds!.height)\n> 62 |     else expect(Math.abs(currentBounds!.y - oldBounds!.y)).toBeLessThan(2)\n     |                                                            ^\n  63 |     expect(await dialog.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true)\n  64 |     await page.evaluate(() => document.fonts.ready)\n  65 |     await expect(dialog).toHaveCSS('opacity', '1')"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-history.spec.ts",
+                        "column": 60,
+                        "line": 62
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m2\u001b[39m\nReceived:   \u001b[31m3.0054931640625\u001b[39m\n\n  60 |     const oldBounds = await oldPreview.boundingBox(), currentBounds = await currentPreview.boundingBox()\n  61 |     if (info.project.name.includes('mobile')) expect(currentBounds!.y).toBeGreaterThan(oldBounds!.y + oldBounds!.height)\n> 62 |     else expect(Math.abs(currentBounds!.y - oldBounds!.y)).toBeLessThan(2)\n     |                                                            ^\n  63 |     expect(await dialog.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true)\n  64 |     await page.evaluate(() => document.fonts.ready)\n  65 |     await expect(dialog).toHaveCSS('opacity', '1')\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-history.spec.ts:62:60"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:56:13.188Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-history-F19-E01-E0-b299d-c-content-until-publication-features\\test-failed-1.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-history-F19-E01-E0-b299d-c-content-until-publication-features\\test-failed-2.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-history-F19-E01-E0-b299d-c-content-until-publication-features\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-history-F19-E01-E0-b299d-c-content-until-publication-features\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-history.spec.ts",
+                    "column": 60,
+                    "line": 62
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "cbcee65742cbab86bec9-45bae2f5d289619555ad",
+          "file": "profile-history.spec.ts",
+          "line": 38,
+          "column": 5
+        },
+        {
+          "title": "F19-E02 private history rejects other owners, handles offline retry, and protects a concurrently updated draft",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2343,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:56:17.688Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "cbcee65742cbab86bec9-20cd6bd2da8028a362a5",
+          "file": "profile-history.spec.ts",
+          "line": 87,
+          "column": 5
+        },
+        {
+          "title": "F19-E01/E03 compare, explicit restore, existing preview and republish preserve public content until publication",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5888,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:59:41.110Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "cbcee65742cbab86bec9-323c9b2563fa2a459772",
+          "file": "profile-history.spec.ts",
+          "line": 38,
+          "column": 5
+        },
+        {
+          "title": "F19-E02 private history rejects other owners, handles offline retry, and protects a concurrently updated draft",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2029,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:59:47.004Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "cbcee65742cbab86bec9-fcaa91acd38aae763bdc",
+          "file": "profile-history.spec.ts",
+          "line": 87,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "profile-import.spec.ts",
+      "file": "profile-import.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F17-E01/T01/T02/T03/T04/T05 mixed input is corrected, reviewed by title/group, saved only as draft and published through the existing flow",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7063,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:56:20.180Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d331c022c4f2c6773d57-ece6e4c13f0623ebb5db",
+          "file": "profile-import.spec.ts",
+          "line": 22,
+          "column": 5
+        },
+        {
+          "title": "F17-E02 direct access, another ADMIN, forged ownership and stale draft are rejected without exposing private imported content",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2359,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:56:27.251Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d331c022c4f2c6773d57-3ef2194db5c0b3fdb890",
+          "file": "profile-import.spec.ts",
+          "line": 32,
+          "column": 5
+        },
+        {
+          "title": "F17-E03 matching skeleton, lost response after real commit, durable retry, keyboard and 320px zoom preserve the exact selection",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2274,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:56:29.616Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d331c022c4f2c6773d57-8f9ae17304e33450d715",
+          "file": "profile-import.spec.ts",
+          "line": 37,
+          "column": 5
+        },
+        {
+          "title": "F17-E01/T01/T02/T03/T04/T05 mixed input is corrected, reviewed by title/group, saved only as draft and published through the existing flow",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6972,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:59:49.043Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d331c022c4f2c6773d57-eb9edf3ab5b367d1c322",
+          "file": "profile-import.spec.ts",
+          "line": 22,
+          "column": 5
+        },
+        {
+          "title": "F17-E02 direct access, another ADMIN, forged ownership and stale draft are rejected without exposing private imported content",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2142,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:59:56.020Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d331c022c4f2c6773d57-c8bfc69446ab84ccd21e",
+          "file": "profile-import.spec.ts",
+          "line": 32,
+          "column": 5
+        },
+        {
+          "title": "F17-E03 matching skeleton, lost response after real commit, durable retry, keyboard and 320px zoom preserve the exact selection",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2055,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:59:58.168Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d331c022c4f2c6773d57-4b41130af2972b543406",
+          "file": "profile-import.spec.ts",
+          "line": 37,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "profile-templates.spec.ts",
+      "file": "profile-templates.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F16-E01/T01/T02 five real renderer previews, cancellation, default preserve and explicit draft confirmation never change the public page",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8526,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:56:31.898Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d56c55399d469de6354f-4558117846693048c955",
+          "file": "profile-templates.spec.ts",
+          "line": 22,
+          "column": 5
+        },
+        {
+          "title": "F16-E02/T03/T04 replacement needs confirmation, examples need real destinations and public SSR/API/history never expose fictional content",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7687,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:56:40.430Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d56c55399d469de6354f-cf0948a0898e271f129f",
+          "file": "profile-templates.spec.ts",
+          "line": 30,
+          "column": 5
+        },
+        {
+          "title": "F16-E03 loading/refresh preserve layout, real network failure retries, stale version is rejected and 320px zoom keeps confirmation reachable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5059,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:56:48.124Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d56c55399d469de6354f-3f2ea500a0899d060865",
+          "file": "profile-templates.spec.ts",
+          "line": 40,
+          "column": 5
+        },
+        {
+          "title": "F16-E01/T01/T02 five real renderer previews, cancellation, default preserve and explicit draft confirmation never change the public page",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8351,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:00:00.233Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d56c55399d469de6354f-e823666ed63bb2acaa6b",
+          "file": "profile-templates.spec.ts",
+          "line": 22,
+          "column": 5
+        },
+        {
+          "title": "F16-E02/T03/T04 replacement needs confirmation, examples need real destinations and public SSR/API/history never expose fictional content",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8211,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:00:08.589Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d56c55399d469de6354f-530ee8d5f445a8f38efe",
+          "file": "profile-templates.spec.ts",
+          "line": 30,
+          "column": 5
+        },
+        {
+          "title": "F16-E03 loading/refresh preserve layout, real network failure retries, stale version is rejected and 320px zoom keeps confirmation reachable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4524,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:00:16.806Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d56c55399d469de6354f-c85ce6d4e295c218fe6c",
+          "file": "profile-templates.spec.ts",
+          "line": 40,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "profiles.spec.ts",
+      "file": "profiles.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F09-E09 textos dos botões compartilham o centro da apresentação na prévia e página pública",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4455,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:56:53.202Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-f14f886955ba3a1476f8",
+          "file": "profiles.spec.ts",
+          "line": 37,
+          "column": 5
+        },
+        {
+          "title": "F09-E10 renomear grupo sem conteúdo novo não repete revisão; edição recebe contexto completo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3551,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:56:57.665Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-247664e9df3b3dd2cb6c",
+          "file": "profiles.spec.ts",
+          "line": 65,
+          "column": 5
+        },
+        {
+          "title": "F09-E08 cabeçalho, endereço copiável e aprovação reutilizada em alterações básicas",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4614,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:57:01.221Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-3258c85ea8a34e704163",
+          "file": "profiles.spec.ts",
+          "line": 93,
+          "column": 5
+        },
+        {
+          "title": "F09-E07 selects nos modais não alteram dimensões nem acrescentam scroll",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2659,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:57:05.841Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-1343dc161de9de214299",
+          "file": "profiles.spec.ts",
+          "line": 161,
+          "column": 5
+        },
+        {
+          "title": "F09 seis temas legíveis, página inteira e movimento reduzido",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7774,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:57:08.506Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-c5d2cb30401120856829",
+          "file": "profiles.spec.ts",
+          "line": 175,
+          "column": 5
+        },
+        {
+          "title": "F09 aparência personalizada persiste e só chega ao público após publicar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6690,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:57:16.286Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-74a3cec210adbda7cd92",
+          "file": "profiles.spec.ts",
+          "line": 195,
+          "column": 5
+        },
+        {
+          "title": "F09-E01/T03/T04/T05 grupos, ordem, redes, foto e botão principal; prévia e público reais sem ocultos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11962,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:57:22.982Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-36fa52b16a2e25f97903",
+          "file": "profiles.spec.ts",
+          "line": 249,
+          "column": 5
+        },
+        {
+          "title": "F09-E04 restrição de idade não entrega conteúdo no HTML/API antes do aceite real",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5026,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:57:34.951Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-e7f3b8c59d52f199c731",
+          "file": "profiles.spec.ts",
+          "line": 324,
+          "column": 5
+        },
+        {
+          "title": "F09-E02/T02/T06 sessão real, admin não ganha dono, suspeita/provedor seguem para humano e preservam página anterior",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7263,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:57:39.983Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-12d377917821c880f126",
+          "file": "profiles.spec.ts",
+          "line": 339,
+          "column": 5
+        },
+        {
+          "title": "F09-E03 autosave offline mantém dados, retoma online, 320px e conflito não sobrescreve",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8201,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:57:47.252Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-781fa340383e0896f390",
+          "file": "profiles.spec.ts",
+          "line": 354,
+          "column": 5
+        },
+        {
+          "title": "F09-E05 criação e gestão: cards, DnD, transferência, edição e remoção com persistência",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7046,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:57:55.458Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-3b54bba6582cc61c50e2",
+          "file": "profiles.spec.ts",
+          "line": 384,
+          "column": 5
+        },
+        {
+          "title": "F09-E06 autosave, banner e campos não publicados; descartar restaura a publicação",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6157,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:58:02.509Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-d67487d263cc088d6ff3",
+          "file": "profiles.spec.ts",
+          "line": 465,
+          "column": 5
+        },
+        {
+          "title": "F09-E11 Minha página tem subseções expansíveis e visão geral com ações e abas",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1622,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:58:08.671Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-69b08d5bf907487096e0",
+          "file": "profiles.spec.ts",
+          "line": 513,
+          "column": 5
+        },
+        {
+          "title": "F09-E09 textos dos botões compartilham o centro da apresentação na prévia e página pública",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4317,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:00:21.346Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-367c5f06ac6aea3e1ac5",
+          "file": "profiles.spec.ts",
+          "line": 37,
+          "column": 5
+        },
+        {
+          "title": "F09-E10 renomear grupo sem conteúdo novo não repete revisão; edição recebe contexto completo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3465,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:00:25.668Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-c7c7303d030e56b31426",
+          "file": "profiles.spec.ts",
+          "line": 65,
+          "column": 5
+        },
+        {
+          "title": "F09-E08 cabeçalho, endereço copiável e aprovação reutilizada em alterações básicas",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4012,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:00:29.137Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-b84590709a469fad14e7",
+          "file": "profiles.spec.ts",
+          "line": 93,
+          "column": 5
+        },
+        {
+          "title": "F09-E07 selects nos modais não alteram dimensões nem acrescentam scroll",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2662,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:00:33.154Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-d1434d6538d765dc87bf",
+          "file": "profiles.spec.ts",
+          "line": 161,
+          "column": 5
+        },
+        {
+          "title": "F09 seis temas legíveis, página inteira e movimento reduzido",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7727,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:00:35.821Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-37ba53751c54de33854a",
+          "file": "profiles.spec.ts",
+          "line": 175,
+          "column": 5
+        },
+        {
+          "title": "F09 aparência personalizada persiste e só chega ao público após publicar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6925,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:00:43.553Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-1ac70d59bb2c9c2332a5",
+          "file": "profiles.spec.ts",
+          "line": 195,
+          "column": 5
+        },
+        {
+          "title": "F09-E01/T03/T04/T05 grupos, ordem, redes, foto e botão principal; prévia e público reais sem ocultos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12047,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:00:50.483Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-3a57e1259e431d658dbc",
+          "file": "profiles.spec.ts",
+          "line": 249,
+          "column": 5
+        },
+        {
+          "title": "F09-E04 restrição de idade não entrega conteúdo no HTML/API antes do aceite real",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4893,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:01:02.535Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-12b1344e822d69999376",
+          "file": "profiles.spec.ts",
+          "line": 324,
+          "column": 5
+        },
+        {
+          "title": "F09-E02/T02/T06 sessão real, admin não ganha dono, suspeita/provedor seguem para humano e preservam página anterior",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6845,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:01:07.432Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-51fa491aae3e25f476b1",
+          "file": "profiles.spec.ts",
+          "line": 339,
+          "column": 5
+        },
+        {
+          "title": "F09-E03 autosave offline mantém dados, retoma online, 320px e conflito não sobrescreve",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7108,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:01:14.283Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-15903e4263710918f03c",
+          "file": "profiles.spec.ts",
+          "line": 354,
+          "column": 5
+        },
+        {
+          "title": "F09-E05 criação e gestão: cards, DnD, transferência, edição e remoção com persistência",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6599,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:01:21.396Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-c8d3b064ccf78acbbc8d",
+          "file": "profiles.spec.ts",
+          "line": 384,
+          "column": 5
+        },
+        {
+          "title": "F09-E06 autosave, banner e campos não publicados; descartar restaura a publicação",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5979,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:01:27.999Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-c23306c5f5880f9fa0db",
+          "file": "profiles.spec.ts",
+          "line": 465,
+          "column": 5
+        },
+        {
+          "title": "F09-E11 Minha página tem subseções expansíveis e visão geral com ações e abas",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1962,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:01:33.983Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-6d31bda8ddd3a12a2429",
+          "file": "profiles.spec.ts",
+          "line": 513,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "redirects.spec.ts",
+      "file": "redirects.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F12-E01/T01/T03/T04/T05 endereço fixo, cópia, destino A/B, validação pendente e indisponibilidade",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3777,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:58:10.304Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-b2f613899c676b55152a",
+          "file": "redirects.spec.ts",
+          "line": 31,
+          "column": 5
+        },
+        {
+          "title": "F12-E02/T02 sessão e outro ADMIN não liberam acesso; conteúdo suspeito e provedor mantêm destino anterior",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2841,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:58:14.085Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-fa381e1201e431d07029",
+          "file": "redirects.spec.ts",
+          "line": 60,
+          "column": 5
+        },
+        {
+          "title": "F12-E03 offline mantém campos, teclado confirma, conflito entre abas e reflow 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2336,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:58:16.932Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-b3e0f1483cd1a64fdaac",
+          "file": "redirects.spec.ts",
+          "line": 78,
+          "column": 5
+        },
+        {
+          "title": "F12-E04 restrição de idade oculta destino no HTML e API até o aceite",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1603,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:58:19.274Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-774497cc715390533be7",
+          "file": "redirects.spec.ts",
+          "line": 97,
+          "column": 5
+        },
+        {
+          "title": "F12-E05 cards, abas, foco e alertas separam endereço de histórico",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2737,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:58:20.882Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-5edb480dea5980f63135",
+          "file": "redirects.spec.ts",
+          "line": 109,
+          "column": 5
+        },
+        {
+          "title": "F12-E01/T01/T03/T04/T05 endereço fixo, cópia, destino A/B, validação pendente e indisponibilidade",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3849,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:01:35.954Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-a46542e44f4829162d36",
+          "file": "redirects.spec.ts",
+          "line": 31,
+          "column": 5
+        },
+        {
+          "title": "F12-E02/T02 sessão e outro ADMIN não liberam acesso; conteúdo suspeito e provedor mantêm destino anterior",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2953,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:01:39.808Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-04f6b9bf241069d4ac36",
+          "file": "redirects.spec.ts",
+          "line": 60,
+          "column": 5
+        },
+        {
+          "title": "F12-E03 offline mantém campos, teclado confirma, conflito entre abas e reflow 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2377,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:01:42.767Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-f7da661aef84093e8cd2",
+          "file": "redirects.spec.ts",
+          "line": 78,
+          "column": 5
+        },
+        {
+          "title": "F12-E04 restrição de idade oculta destino no HTML e API até o aceite",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1645,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:01:45.150Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-86961d02627f9bb0f658",
+          "file": "redirects.spec.ts",
+          "line": 97,
+          "column": 5
+        },
+        {
+          "title": "F12-E05 cards, abas, foco e alertas separam endereço de histórico",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2745,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:01:46.800Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-42b1ce8719277d2cda2d",
+          "file": "redirects.spec.ts",
+          "line": 109,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "workspace-team.spec.ts",
+      "file": "workspace-team.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "global team configures granular access, shares an account space, enforces API/UI and revokes a live session",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5601,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:58:23.629Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "61278cb204f6e5223844-7c635b730159c33786b0",
+          "file": "workspace-team.spec.ts",
+          "line": 13,
+          "column": 5
+        },
+        {
+          "title": "team dialog supports keyboard, empty state and mobile layout without profile prerequisite",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1297,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:58:29.236Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "61278cb204f6e5223844-44fa07298790948258cf",
+          "file": "workspace-team.spec.ts",
+          "line": 23,
+          "column": 5
+        },
+        {
+          "title": "administrative delegation is granular and never changes the collaborator global role",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2318,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:58:30.539Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "61278cb204f6e5223844-54fa9b4ae76649e5aaa7",
+          "file": "workspace-team.spec.ts",
+          "line": 27,
+          "column": 5
+        },
+        {
+          "title": "guided profiles, category customization and review are clear across team tabs",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 21588,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'Resumo das permissões' })\nExpected substring: \u001b[32m\"5 de 14 seções com acesso\"\u001b[39m\nReceived string:    \u001b[31m\"Editor de conteúdo6 de 14 seções com acessoLinks do catálogoVer e editarContatos recebidos e formulárioVer e editarMinha páginaVer e editarCampanhasVer e editarApresentação para parceirosVer e editarConvites permanentesVer e editarSeções que não aparecem nesta lista ficam sem acesso. Editar inclui visualizar e realizar as ações disponíveis na seção. Configurações da conta e gestão da equipe continuam exclusivas do titular.\"\u001b[39m\nTimeout: 20000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('region', { name: 'Resumo das permissões' }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'Resumo das permissões' })\u001b[22m\n\u001b[2m    43 × locator resolved to <section aria-label=\"Resumo das permissões\" class=\"workspace-team_accessSummary__HaL2H\">…</section>\u001b[22m\n\u001b[2m       - unexpected value \"Editor de conteúdo6 de 14 seções com acessoLinks do catálogoVer e editarContatos recebidos e formulárioVer e editarMinha páginaVer e editarCampanhasVer e editarApresentação para parceirosVer e editarConvites permanentesVer e editarSeções que não aparecem nesta lista ficam sem acesso. Editar inclui visualizar e realizar as ações disponíveis na seção. Configurações da conta e gestão da equipe continuam exclusivas do titular.\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'Resumo das permissões' })\nExpected substring: \u001b[32m\"5 de 14 seções com acesso\"\u001b[39m\nReceived string:    \u001b[31m\"Editor de conteúdo6 de 14 seções com acessoLinks do catálogoVer e editarContatos recebidos e formulárioVer e editarMinha páginaVer e editarCampanhasVer e editarApresentação para parceirosVer e editarConvites permanentesVer e editarSeções que não aparecem nesta lista ficam sem acesso. Editar inclui visualizar e realizar as ações disponíveis na seção. Configurações da conta e gestão da equipe continuam exclusivas do titular.\"\u001b[39m\nTimeout: 20000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('region', { name: 'Resumo das permissões' }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'Resumo das permissões' })\u001b[22m\n\u001b[2m    43 × locator resolved to <section aria-label=\"Resumo das permissões\" class=\"workspace-team_accessSummary__HaL2H\">…</section>\u001b[22m\n\u001b[2m       - unexpected value \"Editor de conteúdo6 de 14 seções com acessoLinks do catálogoVer e editarContatos recebidos e formulárioVer e editarMinha páginaVer e editarCampanhasVer e editarApresentação para parceirosVer e editarConvites permanentesVer e editarSeções que não aparecem nesta lista ficam sem acesso. Editar inclui visualizar e realizar as ações disponíveis na seção. Configurações da conta e gestão da equipe continuam exclusivas do titular.\"\u001b[22m\n\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\workspace-team.spec.ts:49:24",
+                    "location": {
+                      "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\workspace-team.spec.ts",
+                      "column": 24,
+                      "line": 49
+                    },
+                    "snippet": "  47 |  await page.getByRole('button',{name:'Revisar acesso'}).click()\n  48 |  const summary=page.getByRole('region',{name:'Resumo das permissões'})\n> 49 |  await expect(summary).toContainText('6 de 14 seções com acesso')\n     |                        ^\n  50 |  await expect(summary).not.toContainText('Pedidos e assinatura')\n  51 |  await capturePage(page,info.outputPath('guided-review.png'))\n  52 |  await page.getByRole('button',{name:'Voltar',exact:true}).click()"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\workspace-team.spec.ts",
+                        "column": 24,
+                        "line": 49
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'Resumo das permissões' })\nExpected substring: \u001b[32m\"5 de 14 seções com acesso\"\u001b[39m\nReceived string:    \u001b[31m\"Editor de conteúdo6 de 14 seções com acessoLinks do catálogoVer e editarContatos recebidos e formulárioVer e editarMinha páginaVer e editarCampanhasVer e editarApresentação para parceirosVer e editarConvites permanentesVer e editarSeções que não aparecem nesta lista ficam sem acesso. Editar inclui visualizar e realizar as ações disponíveis na seção. Configurações da conta e gestão da equipe continuam exclusivas do titular.\"\u001b[39m\nTimeout: 20000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('region', { name: 'Resumo das permissões' }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'Resumo das permissões' })\u001b[22m\n\u001b[2m    43 × locator resolved to <section aria-label=\"Resumo das permissões\" class=\"workspace-team_accessSummary__HaL2H\">…</section>\u001b[22m\n\u001b[2m       - unexpected value \"Editor de conteúdo6 de 14 seções com acessoLinks do catálogoVer e editarContatos recebidos e formulárioVer e editarMinha páginaVer e editarCampanhasVer e editarApresentação para parceirosVer e editarConvites permanentesVer e editarSeções que não aparecem nesta lista ficam sem acesso. Editar inclui visualizar e realizar as ações disponíveis na seção. Configurações da conta e gestão da equipe continuam exclusivas do titular.\"\u001b[22m\n\n\n  47 |  await page.getByRole('button',{name:'Revisar acesso'}).click()\n  48 |  const summary=page.getByRole('region',{name:'Resumo das permissões'})\n> 49 |  await expect(summary).toContainText('6 de 14 seções com acesso')\n     |                        ^\n  50 |  await expect(summary).not.toContainText('Pedidos e assinatura')\n  51 |  await capturePage(page,info.outputPath('guided-review.png'))\n  52 |  await page.getByRole('button',{name:'Voltar',exact:true}).click()\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\workspace-team.spec.ts:49:24"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:58:32.864Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\workspace-team-guided-prof-9da9f--are-clear-across-team-tabs-features\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\workspace-team-guided-prof-9da9f--are-clear-across-team-tabs-features\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\workspace-team-guided-prof-9da9f--are-clear-across-team-tabs-features\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\workspace-team.spec.ts",
+                    "column": 24,
+                    "line": 49
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "61278cb204f6e5223844-fff7107db3e95bf48341",
+          "file": "workspace-team.spec.ts",
+          "line": 33,
+          "column": 5
+        },
+        {
+          "title": "standard roles expose daily, financial and administrative access with an exact review",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 21440,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'Resumo das permissões' })\nExpected substring: \u001b[32m\"11 de 12 seções com acesso\"\u001b[39m\nReceived string:    \u001b[31m\"Operador13 de 14 seções com acessoLinks do catálogoVer e editarContatos recebidos e formulárioVer e editarMinha páginaVer e editarCampanhasVer e editarApresentação para parceirosVer e editarConvites permanentesVer e editarAssistente: ler e alterar o rascunhoVer e editarHistórico de publicaçõesVer e editarImportação e exportaçãoVer e editarMétricas e resultadosVer e editarFavoritos e coleçõesVer e editarCategorias e resumosVer e editarLembretesVer e editarSeções que não aparecem nesta lista ficam sem acesso. Editar inclui visualizar e realizar as ações disponíveis na seção. Configurações da conta e gestão da equipe continuam exclusivas do titular.\"\u001b[39m\nTimeout: 20000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('region', { name: 'Resumo das permissões' }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'Resumo das permissões' })\u001b[22m\n\u001b[2m    43 × locator resolved to <section aria-label=\"Resumo das permissões\" class=\"workspace-team_accessSummary__HaL2H\">…</section>\u001b[22m\n\u001b[2m       - unexpected value \"Operador13 de 14 seções com acessoLinks do catálogoVer e editarContatos recebidos e formulárioVer e editarMinha páginaVer e editarCampanhasVer e editarApresentação para parceirosVer e editarConvites permanentesVer e editarAssistente: ler e alterar o rascunhoVer e editarHistórico de publicaçõesVer e editarImportação e exportaçãoVer e editarMétricas e resultadosVer e editarFavoritos e coleçõesVer e editarCategorias e resumosVer e editarLembretesVer e editarSeções que não aparecem nesta lista ficam sem acesso. Editar inclui visualizar e realizar as ações disponíveis na seção. Configurações da conta e gestão da equipe continuam exclusivas do titular.\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'Resumo das permissões' })\nExpected substring: \u001b[32m\"11 de 12 seções com acesso\"\u001b[39m\nReceived string:    \u001b[31m\"Operador13 de 14 seções com acessoLinks do catálogoVer e editarContatos recebidos e formulárioVer e editarMinha páginaVer e editarCampanhasVer e editarApresentação para parceirosVer e editarConvites permanentesVer e editarAssistente: ler e alterar o rascunhoVer e editarHistórico de publicaçõesVer e editarImportação e exportaçãoVer e editarMétricas e resultadosVer e editarFavoritos e coleçõesVer e editarCategorias e resumosVer e editarLembretesVer e editarSeções que não aparecem nesta lista ficam sem acesso. Editar inclui visualizar e realizar as ações disponíveis na seção. Configurações da conta e gestão da equipe continuam exclusivas do titular.\"\u001b[39m\nTimeout: 20000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('region', { name: 'Resumo das permissões' }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'Resumo das permissões' })\u001b[22m\n\u001b[2m    43 × locator resolved to <section aria-label=\"Resumo das permissões\" class=\"workspace-team_accessSummary__HaL2H\">…</section>\u001b[22m\n\u001b[2m       - unexpected value \"Operador13 de 14 seções com acessoLinks do catálogoVer e editarContatos recebidos e formulárioVer e editarMinha páginaVer e editarCampanhasVer e editarApresentação para parceirosVer e editarConvites permanentesVer e editarAssistente: ler e alterar o rascunhoVer e editarHistórico de publicaçõesVer e editarImportação e exportaçãoVer e editarMétricas e resultadosVer e editarFavoritos e coleçõesVer e editarCategorias e resumosVer e editarLembretesVer e editarSeções que não aparecem nesta lista ficam sem acesso. Editar inclui visualizar e realizar as ações disponíveis na seção. Configurações da conta e gestão da equipe continuam exclusivas do titular.\"\u001b[22m\n\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\workspace-team.spec.ts:81:72",
+                    "location": {
+                      "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\workspace-team.spec.ts",
+                      "column": 72,
+                      "line": 81
+                    },
+                    "snippet": "  79 |  await page.getByRole('radio',{name:/^Operador /}).check()\n  80 |  await page.getByRole('button',{name:'Revisar acesso'}).click()\n> 81 |  await expect(page.getByRole('region',{name:'Resumo das permissões'})).toContainText('11 de 12 seções com acesso')\n     |                                                                        ^\n  82 |  await expect(page.getByRole('region',{name:'Resumo das permissões'})).not.toContainText('Pedidos e assinatura')\n  83 |  await page.getByRole('button',{name:'Voltar',exact:true}).click()\n  84 |  await page.getByRole('radio',{name:/^Financeiro /}).check()"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\workspace-team.spec.ts",
+                        "column": 72,
+                        "line": 81
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'Resumo das permissões' })\nExpected substring: \u001b[32m\"11 de 12 seções com acesso\"\u001b[39m\nReceived string:    \u001b[31m\"Operador13 de 14 seções com acessoLinks do catálogoVer e editarContatos recebidos e formulárioVer e editarMinha páginaVer e editarCampanhasVer e editarApresentação para parceirosVer e editarConvites permanentesVer e editarAssistente: ler e alterar o rascunhoVer e editarHistórico de publicaçõesVer e editarImportação e exportaçãoVer e editarMétricas e resultadosVer e editarFavoritos e coleçõesVer e editarCategorias e resumosVer e editarLembretesVer e editarSeções que não aparecem nesta lista ficam sem acesso. Editar inclui visualizar e realizar as ações disponíveis na seção. Configurações da conta e gestão da equipe continuam exclusivas do titular.\"\u001b[39m\nTimeout: 20000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('region', { name: 'Resumo das permissões' }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'Resumo das permissões' })\u001b[22m\n\u001b[2m    43 × locator resolved to <section aria-label=\"Resumo das permissões\" class=\"workspace-team_accessSummary__HaL2H\">…</section>\u001b[22m\n\u001b[2m       - unexpected value \"Operador13 de 14 seções com acessoLinks do catálogoVer e editarContatos recebidos e formulárioVer e editarMinha páginaVer e editarCampanhasVer e editarApresentação para parceirosVer e editarConvites permanentesVer e editarAssistente: ler e alterar o rascunhoVer e editarHistórico de publicaçõesVer e editarImportação e exportaçãoVer e editarMétricas e resultadosVer e editarFavoritos e coleçõesVer e editarCategorias e resumosVer e editarLembretesVer e editarSeções que não aparecem nesta lista ficam sem acesso. Editar inclui visualizar e realizar as ações disponíveis na seção. Configurações da conta e gestão da equipe continuam exclusivas do titular.\"\u001b[22m\n\n\n  79 |  await page.getByRole('radio',{name:/^Operador /}).check()\n  80 |  await page.getByRole('button',{name:'Revisar acesso'}).click()\n> 81 |  await expect(page.getByRole('region',{name:'Resumo das permissões'})).toContainText('11 de 12 seções com acesso')\n     |                                                                        ^\n  82 |  await expect(page.getByRole('region',{name:'Resumo das permissões'})).not.toContainText('Pedidos e assinatura')\n  83 |  await page.getByRole('button',{name:'Voltar',exact:true}).click()\n  84 |  await page.getByRole('radio',{name:/^Financeiro /}).check()\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\workspace-team.spec.ts:81:72"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:58:56.086Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\workspace-team-standard-ro-a4684-access-with-an-exact-review-features\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\workspace-team-standard-ro-a4684-access-with-an-exact-review-features\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\workspace-team-standard-ro-a4684-access-with-an-exact-review-features\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\workspace-team.spec.ts",
+                    "column": 72,
+                    "line": 81
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "61278cb204f6e5223844-1200efcea0b6283e4693",
+          "file": "workspace-team.spec.ts",
+          "line": 73,
+          "column": 5
+        },
+        {
+          "title": "team and page access headings share a row with actions on desktop and explain their scope",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1570,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:59:18.075Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "61278cb204f6e5223844-68b1dbab701f9df05d8f",
+          "file": "workspace-team.spec.ts",
+          "line": 116,
+          "column": 5
+        },
+        {
+          "title": "global team configures granular access, shares an account space, enforces API/UI and revokes a live session",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6056,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:01:49.555Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "61278cb204f6e5223844-fa351626bc8f0bc7ee9c",
+          "file": "workspace-team.spec.ts",
+          "line": 13,
+          "column": 5
+        },
+        {
+          "title": "team dialog supports keyboard, empty state and mobile layout without profile prerequisite",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1309,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:01:55.616Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "61278cb204f6e5223844-ab49bb49ac45fd3fcb98",
+          "file": "workspace-team.spec.ts",
+          "line": 23,
+          "column": 5
+        },
+        {
+          "title": "administrative delegation is granular and never changes the collaborator global role",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2283,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:01:56.931Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "61278cb204f6e5223844-7dbce40f2bb3d79dfdf8",
+          "file": "workspace-team.spec.ts",
+          "line": 27,
+          "column": 5
+        },
+        {
+          "title": "guided profiles, category customization and review are clear across team tabs",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 21511,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'Resumo das permissões' })\nExpected substring: \u001b[32m\"5 de 14 seções com acesso\"\u001b[39m\nReceived string:    \u001b[31m\"Editor de conteúdo6 de 14 seções com acessoLinks do catálogoVer e editarContatos recebidos e formulárioVer e editarMinha páginaVer e editarCampanhasVer e editarApresentação para parceirosVer e editarConvites permanentesVer e editarSeções que não aparecem nesta lista ficam sem acesso. Editar inclui visualizar e realizar as ações disponíveis na seção. Configurações da conta e gestão da equipe continuam exclusivas do titular.\"\u001b[39m\nTimeout: 20000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('region', { name: 'Resumo das permissões' }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'Resumo das permissões' })\u001b[22m\n\u001b[2m    43 × locator resolved to <section aria-label=\"Resumo das permissões\" class=\"workspace-team_accessSummary__HaL2H\">…</section>\u001b[22m\n\u001b[2m       - unexpected value \"Editor de conteúdo6 de 14 seções com acessoLinks do catálogoVer e editarContatos recebidos e formulárioVer e editarMinha páginaVer e editarCampanhasVer e editarApresentação para parceirosVer e editarConvites permanentesVer e editarSeções que não aparecem nesta lista ficam sem acesso. Editar inclui visualizar e realizar as ações disponíveis na seção. Configurações da conta e gestão da equipe continuam exclusivas do titular.\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'Resumo das permissões' })\nExpected substring: \u001b[32m\"5 de 14 seções com acesso\"\u001b[39m\nReceived string:    \u001b[31m\"Editor de conteúdo6 de 14 seções com acessoLinks do catálogoVer e editarContatos recebidos e formulárioVer e editarMinha páginaVer e editarCampanhasVer e editarApresentação para parceirosVer e editarConvites permanentesVer e editarSeções que não aparecem nesta lista ficam sem acesso. Editar inclui visualizar e realizar as ações disponíveis na seção. Configurações da conta e gestão da equipe continuam exclusivas do titular.\"\u001b[39m\nTimeout: 20000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('region', { name: 'Resumo das permissões' }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'Resumo das permissões' })\u001b[22m\n\u001b[2m    43 × locator resolved to <section aria-label=\"Resumo das permissões\" class=\"workspace-team_accessSummary__HaL2H\">…</section>\u001b[22m\n\u001b[2m       - unexpected value \"Editor de conteúdo6 de 14 seções com acessoLinks do catálogoVer e editarContatos recebidos e formulárioVer e editarMinha páginaVer e editarCampanhasVer e editarApresentação para parceirosVer e editarConvites permanentesVer e editarSeções que não aparecem nesta lista ficam sem acesso. Editar inclui visualizar e realizar as ações disponíveis na seção. Configurações da conta e gestão da equipe continuam exclusivas do titular.\"\u001b[22m\n\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\workspace-team.spec.ts:49:24",
+                    "location": {
+                      "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\workspace-team.spec.ts",
+                      "column": 24,
+                      "line": 49
+                    },
+                    "snippet": "  47 |  await page.getByRole('button',{name:'Revisar acesso'}).click()\n  48 |  const summary=page.getByRole('region',{name:'Resumo das permissões'})\n> 49 |  await expect(summary).toContainText('6 de 14 seções com acesso')\n     |                        ^\n  50 |  await expect(summary).not.toContainText('Pedidos e assinatura')\n  51 |  await capturePage(page,info.outputPath('guided-review.png'))\n  52 |  await page.getByRole('button',{name:'Voltar',exact:true}).click()"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\workspace-team.spec.ts",
+                        "column": 24,
+                        "line": 49
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'Resumo das permissões' })\nExpected substring: \u001b[32m\"5 de 14 seções com acesso\"\u001b[39m\nReceived string:    \u001b[31m\"Editor de conteúdo6 de 14 seções com acessoLinks do catálogoVer e editarContatos recebidos e formulárioVer e editarMinha páginaVer e editarCampanhasVer e editarApresentação para parceirosVer e editarConvites permanentesVer e editarSeções que não aparecem nesta lista ficam sem acesso. Editar inclui visualizar e realizar as ações disponíveis na seção. Configurações da conta e gestão da equipe continuam exclusivas do titular.\"\u001b[39m\nTimeout: 20000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('region', { name: 'Resumo das permissões' }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'Resumo das permissões' })\u001b[22m\n\u001b[2m    43 × locator resolved to <section aria-label=\"Resumo das permissões\" class=\"workspace-team_accessSummary__HaL2H\">…</section>\u001b[22m\n\u001b[2m       - unexpected value \"Editor de conteúdo6 de 14 seções com acessoLinks do catálogoVer e editarContatos recebidos e formulárioVer e editarMinha páginaVer e editarCampanhasVer e editarApresentação para parceirosVer e editarConvites permanentesVer e editarSeções que não aparecem nesta lista ficam sem acesso. Editar inclui visualizar e realizar as ações disponíveis na seção. Configurações da conta e gestão da equipe continuam exclusivas do titular.\"\u001b[22m\n\n\n  47 |  await page.getByRole('button',{name:'Revisar acesso'}).click()\n  48 |  const summary=page.getByRole('region',{name:'Resumo das permissões'})\n> 49 |  await expect(summary).toContainText('6 de 14 seções com acesso')\n     |                        ^\n  50 |  await expect(summary).not.toContainText('Pedidos e assinatura')\n  51 |  await capturePage(page,info.outputPath('guided-review.png'))\n  52 |  await page.getByRole('button',{name:'Voltar',exact:true}).click()\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\workspace-team.spec.ts:49:24"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:01:59.219Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\workspace-team-guided-prof-9da9f--are-clear-across-team-tabs-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\workspace-team-guided-prof-9da9f--are-clear-across-team-tabs-features-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\workspace-team-guided-prof-9da9f--are-clear-across-team-tabs-features-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\workspace-team.spec.ts",
+                    "column": 24,
+                    "line": 49
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "61278cb204f6e5223844-772d4d5bde050a1e7794",
+          "file": "workspace-team.spec.ts",
+          "line": 33,
+          "column": 5
+        },
+        {
+          "title": "standard roles expose daily, financial and administrative access with an exact review",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 21772,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'Resumo das permissões' })\nExpected substring: \u001b[32m\"11 de 12 seções com acesso\"\u001b[39m\nReceived string:    \u001b[31m\"Operador13 de 14 seções com acessoLinks do catálogoVer e editarContatos recebidos e formulárioVer e editarMinha páginaVer e editarCampanhasVer e editarApresentação para parceirosVer e editarConvites permanentesVer e editarAssistente: ler e alterar o rascunhoVer e editarHistórico de publicaçõesVer e editarImportação e exportaçãoVer e editarMétricas e resultadosVer e editarFavoritos e coleçõesVer e editarCategorias e resumosVer e editarLembretesVer e editarSeções que não aparecem nesta lista ficam sem acesso. Editar inclui visualizar e realizar as ações disponíveis na seção. Configurações da conta e gestão da equipe continuam exclusivas do titular.\"\u001b[39m\nTimeout: 20000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('region', { name: 'Resumo das permissões' }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'Resumo das permissões' })\u001b[22m\n\u001b[2m    43 × locator resolved to <section aria-label=\"Resumo das permissões\" class=\"workspace-team_accessSummary__HaL2H\">…</section>\u001b[22m\n\u001b[2m       - unexpected value \"Operador13 de 14 seções com acessoLinks do catálogoVer e editarContatos recebidos e formulárioVer e editarMinha páginaVer e editarCampanhasVer e editarApresentação para parceirosVer e editarConvites permanentesVer e editarAssistente: ler e alterar o rascunhoVer e editarHistórico de publicaçõesVer e editarImportação e exportaçãoVer e editarMétricas e resultadosVer e editarFavoritos e coleçõesVer e editarCategorias e resumosVer e editarLembretesVer e editarSeções que não aparecem nesta lista ficam sem acesso. Editar inclui visualizar e realizar as ações disponíveis na seção. Configurações da conta e gestão da equipe continuam exclusivas do titular.\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'Resumo das permissões' })\nExpected substring: \u001b[32m\"11 de 12 seções com acesso\"\u001b[39m\nReceived string:    \u001b[31m\"Operador13 de 14 seções com acessoLinks do catálogoVer e editarContatos recebidos e formulárioVer e editarMinha páginaVer e editarCampanhasVer e editarApresentação para parceirosVer e editarConvites permanentesVer e editarAssistente: ler e alterar o rascunhoVer e editarHistórico de publicaçõesVer e editarImportação e exportaçãoVer e editarMétricas e resultadosVer e editarFavoritos e coleçõesVer e editarCategorias e resumosVer e editarLembretesVer e editarSeções que não aparecem nesta lista ficam sem acesso. Editar inclui visualizar e realizar as ações disponíveis na seção. Configurações da conta e gestão da equipe continuam exclusivas do titular.\"\u001b[39m\nTimeout: 20000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('region', { name: 'Resumo das permissões' }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'Resumo das permissões' })\u001b[22m\n\u001b[2m    43 × locator resolved to <section aria-label=\"Resumo das permissões\" class=\"workspace-team_accessSummary__HaL2H\">…</section>\u001b[22m\n\u001b[2m       - unexpected value \"Operador13 de 14 seções com acessoLinks do catálogoVer e editarContatos recebidos e formulárioVer e editarMinha páginaVer e editarCampanhasVer e editarApresentação para parceirosVer e editarConvites permanentesVer e editarAssistente: ler e alterar o rascunhoVer e editarHistórico de publicaçõesVer e editarImportação e exportaçãoVer e editarMétricas e resultadosVer e editarFavoritos e coleçõesVer e editarCategorias e resumosVer e editarLembretesVer e editarSeções que não aparecem nesta lista ficam sem acesso. Editar inclui visualizar e realizar as ações disponíveis na seção. Configurações da conta e gestão da equipe continuam exclusivas do titular.\"\u001b[22m\n\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\workspace-team.spec.ts:81:72",
+                    "location": {
+                      "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\workspace-team.spec.ts",
+                      "column": 72,
+                      "line": 81
+                    },
+                    "snippet": "  79 |  await page.getByRole('radio',{name:/^Operador /}).check()\n  80 |  await page.getByRole('button',{name:'Revisar acesso'}).click()\n> 81 |  await expect(page.getByRole('region',{name:'Resumo das permissões'})).toContainText('11 de 12 seções com acesso')\n     |                                                                        ^\n  82 |  await expect(page.getByRole('region',{name:'Resumo das permissões'})).not.toContainText('Pedidos e assinatura')\n  83 |  await page.getByRole('button',{name:'Voltar',exact:true}).click()\n  84 |  await page.getByRole('radio',{name:/^Financeiro /}).check()"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\workspace-team.spec.ts",
+                        "column": 72,
+                        "line": 81
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'Resumo das permissões' })\nExpected substring: \u001b[32m\"11 de 12 seções com acesso\"\u001b[39m\nReceived string:    \u001b[31m\"Operador13 de 14 seções com acessoLinks do catálogoVer e editarContatos recebidos e formulárioVer e editarMinha páginaVer e editarCampanhasVer e editarApresentação para parceirosVer e editarConvites permanentesVer e editarAssistente: ler e alterar o rascunhoVer e editarHistórico de publicaçõesVer e editarImportação e exportaçãoVer e editarMétricas e resultadosVer e editarFavoritos e coleçõesVer e editarCategorias e resumosVer e editarLembretesVer e editarSeções que não aparecem nesta lista ficam sem acesso. Editar inclui visualizar e realizar as ações disponíveis na seção. Configurações da conta e gestão da equipe continuam exclusivas do titular.\"\u001b[39m\nTimeout: 20000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('region', { name: 'Resumo das permissões' }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'Resumo das permissões' })\u001b[22m\n\u001b[2m    43 × locator resolved to <section aria-label=\"Resumo das permissões\" class=\"workspace-team_accessSummary__HaL2H\">…</section>\u001b[22m\n\u001b[2m       - unexpected value \"Operador13 de 14 seções com acessoLinks do catálogoVer e editarContatos recebidos e formulárioVer e editarMinha páginaVer e editarCampanhasVer e editarApresentação para parceirosVer e editarConvites permanentesVer e editarAssistente: ler e alterar o rascunhoVer e editarHistórico de publicaçõesVer e editarImportação e exportaçãoVer e editarMétricas e resultadosVer e editarFavoritos e coleçõesVer e editarCategorias e resumosVer e editarLembretesVer e editarSeções que não aparecem nesta lista ficam sem acesso. Editar inclui visualizar e realizar as ações disponíveis na seção. Configurações da conta e gestão da equipe continuam exclusivas do titular.\"\u001b[22m\n\n\n  79 |  await page.getByRole('radio',{name:/^Operador /}).check()\n  80 |  await page.getByRole('button',{name:'Revisar acesso'}).click()\n> 81 |  await expect(page.getByRole('region',{name:'Resumo das permissões'})).toContainText('11 de 12 seções com acesso')\n     |                                                                        ^\n  82 |  await expect(page.getByRole('region',{name:'Resumo das permissões'})).not.toContainText('Pedidos e assinatura')\n  83 |  await page.getByRole('button',{name:'Voltar',exact:true}).click()\n  84 |  await page.getByRole('radio',{name:/^Financeiro /}).check()\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\workspace-team.spec.ts:81:72"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:02:22.545Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\workspace-team-standard-ro-a4684-access-with-an-exact-review-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\workspace-team-standard-ro-a4684-access-with-an-exact-review-features-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\workspace-team-standard-ro-a4684-access-with-an-exact-review-features-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\workspace-team.spec.ts",
+                    "column": 72,
+                    "line": 81
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "61278cb204f6e5223844-751a5da34c816e95c70f",
+          "file": "workspace-team.spec.ts",
+          "line": 73,
+          "column": 5
+        },
+        {
+          "title": "team and page access headings share a row with actions on desktop and explain their scope",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2118,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:02:45.297Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "61278cb204f6e5223844-5e6b1cb25b3f7302a1bd",
+          "file": "workspace-team.spec.ts",
+          "line": 116,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-19T19:55:04.366Z",
+    "duration": 464829.72699999996,
+    "expected": 80,
+    "skipped": 0,
+    "unexpected": 5,
+    "flaky": 0
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "feature": "F25",
+  "date": "2026-10-19",
+  "status": "S0-S6 VERIFIED LOCAL; S7 REMOTE PENDING",
+  "git": "existing branch codex/roadmap-f37-testes; no new commit/push/deploy",
+  "environment": "Windows; isolated PG 5835/Redis 6835; E2E offset 500; Next production; Chromium",
+  "tests": {
+    "backendFull": {
+      "passed": 598,
+      "log": "output/f22-f25-backend-unit-correct-env.log",
+      "note": "Full unit run before final audit attribution correction; subsequent affected real PG suite validates that correction."
+    },
+    "frontendFull": {
+      "passed": 413,
+      "log": "output/f22-f25-frontend-unit-final.log"
+    },
+    "postgresOwn": {
+      "passed": 19,
+      "featureCases": 8,
+      "log": "output/f22-f25-pg-audit-green.log"
+    },
+    "postgresRegression": {
+      "passed": 78,
+      "log": "output/f22-f25-pg-regression.log"
+    },
+    "playwrightFinal": {
+      "passed": 37,
+      "ownFeatureCases": 8,
+      "setupIncluded": true,
+      "report": "output/f22-f25-playwright-final.json",
+      "log": "output/f22-f25-e2e-green.log"
+    },
+    "playwrightBroader": {
+      "passed": 80,
+      "failed": 5,
+      "report": "output/f22-f25-playwright-regression.json",
+      "note": "F19 measured an animating dialog; F20 counts predated the two new permission sections. Corrected assertions/waiting, without relaxing tolerance or changing product rules; all affected cases pass in final 37-case run."
+    },
+    "lintTypecheck": "Both packages exit 0; logs output/f22-f25-{backend,frontend}-{lint,typecheck}-final.log",
+    "build": "Backend npm run build; frontend Next production build enforced by e2e/serve.mjs."
+  },
+  "migrationProof": "evidencias-migracoes-f22-f25.json",
+  "queryPlans": "output/f22-f25-query-plans.log",
+  "viewports": [
+    "1280x720",
+    "1440x900",
+    "768x1024",
+    "390x844",
+    "320x844 with 200% root font"
+  ],
+  "review": "Native screenshot inspection desktop/mobile; keyboard/focus and Axe A/AA scoped to modified regions; no accessibility certification or physical-device claim. Fixtures are isolated; generated IDs and operational dates remain real, so these are review captures, not new approved visual baselines.",
+  "captures": [
+    {
+      "file": "docs/frontend-profissional/evidencias/f25-2026-10-19/final/desktop-assistant-input.png",
+      "sha256": "50c8b391695d631518aec161263aac101bdceff9cb508b8314acc8b7f5ffac02"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f25-2026-10-19/final/desktop-assistant-review-1440.png",
+      "sha256": "b8d089ca242466688106714675e8b5d19be292ac1335fb0c06bbafca62196a16"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f25-2026-10-19/final/desktop-assistant-review-768.png",
+      "sha256": "86ddea3945861d73266e887f94862d1a22fd84f0a615a9635c9b4bc06f849f5d"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f25-2026-10-19/final/desktop-assistant-review.png",
+      "sha256": "4810dbd955bb60aef7effafd89a32b4d5ce92010e5006c3a538de2502893a534"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f25-2026-10-19/final/mobile-assistant-input.png",
+      "sha256": "e676613278fee70d5a77911602e1a84eea17e59c0c2a58e6d61f91478d1076b4"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f25-2026-10-19/final/mobile-assistant-review.png",
+      "sha256": "607cd840c6e0981ed4317a1b71ec4b05b3fdef902f8da2d6312e3df62853c8f5"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f25-2026-10-19/final/desktop-assistant-conflict.png",
+      "sha256": "1074b3904076946bf5b3e79137cb40a230767db32c5d86217aac02e5f7a43190"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f25-2026-10-19/final/mobile-assistant-conflict.png",
+      "sha256": "cc26cffb7e589b58e10a318050d4ff90e617c05e2ea8ca3d5c67b856d1d02942"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f25-2026-10-19/final/desktop-assistant-error.png",
+      "sha256": "0f901dc2a85510ccb4038671c9b2d8f621e8b7fb39080e37ec5c6dd9a8c2ea06"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f25-2026-10-19/final/desktop-assistant-zoom.png",
+      "sha256": "160182f988160e79adbe0d4c2abd7c815c4442a743697cd38da5657a0db8f358"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f25-2026-10-19/final/mobile-assistant-error.png",
+      "sha256": "ca46e833ef0485d9e6199b3e47502b035fa74b5ff0c536151afb1ea06e3d9851"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f25-2026-10-19/final/mobile-assistant-zoom.png",
+      "sha256": "0c29c973973cc40c97900826e81abf02d3ada47c81e4ab7cce63fe55cad86c1c"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f25-2026-10-19/final/desktop-assistant-readonly.png",
+      "sha256": "aa0496411f61cef7c3aff24ef5ab01fb5da4add04fd1be18bda733599457ae18"
+    },
+    {
+      "file": "docs/frontend-profissional/evidencias/f25-2026-10-19/final/mobile-assistant-readonly.png",
+      "sha256": "adf538cd16a08b7a83c1b6f47a7b0d1e3400aaad72850f0b511be91aaa626850"
+    }
+  ],
+  "sourceHashes": {
+    "backend/src/domain/access/profile-access.ts": "2b327b42418ff1cae2ef4f801107bb3d5076f16deb0dcb5066c1b7dee1c8123c",
+    "backend/src/domain/access/workspace-permissions.ts": "80766a082decb2f59671a44460575255778e1f0f199c8d2064063748e85fc46a",
+    "backend/src/repositories/profiles-repository.ts": "89e201293cf592cb6e046cbb980d666d4e2cc5525fcbab2540d34000ef612f5d",
+    "backend/src/http/workspace-access.ts": "7b9f7f6ffcdb586eedd05564ca514cd06da61243928a55fee59021a8ab88f47a",
+    "backend/prisma/schema.prisma": "3fbf9a4d5b78da308df836ea27a3aa8fe727b7b9353fad012e8299c4acb5fbc8",
+    "frontend/e2e/serve.mjs": "c0ca39ce34454f4d3dbd7d3bf39cf5340927a01cbbdf161216469f77c058de64",
+    "frontend/playwright.config.ts": "8a0e8aa3e3d124fcfeaaecfea1b7d92de8b51f06f5aed34600081f8bf9c32dbf",
+    "backend/src/domain/profiles/profile-suggestion.ts": "a9f7bfc69431a6202c33ca1fd5d7fba802d1c484dac398a3fc817f432ce0087c",
+    "backend/src/repositories/profile-suggestions.ts": "d29c8dac45fc3ad5b6fc9327b4dc7cd52a7bb4a5662bfa8e89c93044632961c8",
+    "backend/src/adapters/profiles/openai-profile-suggestion.ts": "a2191ab2acc6d97bdc827f440040b4820a273189229b79dbb0202d0c11771f4a",
+    "backend/src/http/controllers/@Profiles/suggestion-routes.ts": "4002530440fd46b78a9d7411ffbf3de48394cb3c498a50dd1fe85270c4bd6590",
+    "backend/src/use-cases/@Profiles/profile-suggestion-runtime.ts": "7b4536182a93a64652275c98ac0074a6fefb66c36fcda4fd0adfb16e01a8275c",
+    "frontend/src/features/profile-assistant/assistant-api.ts": "c9ba8511bb473da32c1c8cfa0079c67dddbdde031ee5d37af2e9cf8c0f2967f9",
+    "frontend/src/features/profile-assistant/assistant-contract.ts": "ed8f96f35d3d8c6cb20d0ae61d6ceda830d2d98987746a9b54dd791704b34bf1",
+    "frontend/src/features/profile-assistant/assistant-input.tsx": "eff7862028c783d4c63baeda79d9dbd4f1d2e4fe4c8469f10b02377357d38e9c",
+    "frontend/src/features/profile-assistant/assistant-review.test.tsx": "2e2a931bf2d565f85d67636aabb755cfeecf098e54da725f8bf455372bc53ac0",
+    "frontend/src/features/profile-assistant/assistant-review.tsx": "7ab64cd942f863b4c71bcc116a22afda5c7f171e9946b8be38173e570a950ad2",
+    "frontend/src/features/profile-assistant/assistant-screen.tsx": "4adfb1e7f7810630ebeae4aa28a7bcaf86419dfcf299cfaae399bfb3f4e54fb4",
+    "frontend/src/features/profile-assistant/assistant.module.css": "17acf4ad547be0e652174dd047d43a95275584903727cf49d4a67acfac2aad61"
+  },
+  "limitations": [
+    "CI and deployment not run",
+    "Personal and external databases unchanged; apply migrations only to authorized target",
+    "No paid provider request or account model entitlement verified",
+    "Other historical roadmap blockers remain recorded"
+  ],
+  "stop": "F25; F28 not started"
+}

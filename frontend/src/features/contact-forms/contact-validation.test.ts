@@ -1,0 +1,5 @@
+import {expect,it} from 'vitest'
+import {contactFieldError,contactLimits} from './contact-validation'
+it('rejeita obrigatórios vazios ou com espaços e permite opcionais vazios',()=>{for(const key of Object.keys(contactLimits) as Array<keyof typeof contactLimits>){expect(contactFieldError({key,required:true},'  ')).toBe('Preencha este campo.');expect(contactFieldError({key,required:false},'')).toBeUndefined()}})
+it('valida e-mail e telefone antes do envio sem retirar caracteres válidos',()=>{expect(contactFieldError({key:'email',required:true},'ana@')).toBe('Digite um e-mail válido.');expect(contactFieldError({key:'email',required:true},' ana+contato@example.com ')).toBeUndefined();expect(contactFieldError({key:'phone',required:true},'abcdefgh')).toContain('DDD');expect(contactFieldError({key:'phone',required:true},'+55 (16) 99999-9999')).toBeUndefined()})
+it('mantém os limites do contrato F22 para todos os campos',()=>{for(const [key,max] of Object.entries(contactLimits)){expect(contactFieldError({key:key as keyof typeof contactLimits,required:false},'a'.repeat(max+1))).toContain(String(max))}})

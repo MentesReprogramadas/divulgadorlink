@@ -31,3 +31,7 @@ it('409 bloqueia retentativa automática e mantém o rascunho local', async () =
   await act(async () => { await vi.advanceTimersByTimeAsync(2000) })
   expect(request).toHaveBeenCalledTimes(1); expect(result.current.draft.bio).toBe('Local preservado')
 })
+it('F20 autosave on leaving a shared page keeps its original resource selector',async()=>{
+ vi.useFakeTimers();request.mockImplementation(async(_path,init)=>({draft:{...JSON.parse(init.body).content,version:2},publishedVersion:null}));const {result,unmount}=renderHook(()=>useProfileDraft('original-resource'))
+ act(()=>{result.current.replace({draft:original,publishedVersion:null});result.current.change({...original,bio:'Alteração pendente'})});window.history.replaceState(null,'','/painel/equipe/another-resource/editar');unmount();await act(async()=>{await Promise.resolve()});expect(request.mock.calls[0][1].headers['x-profile-id']).toBe('original-resource');window.history.replaceState(null,'','/')
+})

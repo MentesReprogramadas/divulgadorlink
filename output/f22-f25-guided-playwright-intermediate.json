@@ -1,0 +1,2313 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\VSCODE\\divulgadorlinks\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "e2e/contact-forms.spec.ts",
+      "e2e/profile-assistant.spec.ts",
+      "e2e/profiles.spec.ts",
+      "e2e/profile-search.spec.ts",
+      "--project=features",
+      "--project=features-mobile"
+    ],
+    "configFile": "C:\\VSCODE\\divulgadorlinks\\frontend\\playwright.config.ts",
+    "rootDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\global-setup.ts",
+    "globalTeardown": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\global-teardown.ts",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "setup",
+        "name": "setup",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/auth\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features",
+        "name": "features",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features-mobile",
+        "name": "features-mobile",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "catalog",
+        "name": "catalog",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/catalog\\.spec\\.ts|mail\\.spec\\.ts|advertise\\.spec\\.ts|legal\\.spec\\.ts|funnel\\.spec\\.ts|signup\\.spec\\.ts|submit-link\\.spec\\.ts|security-headers\\.spec\\.ts|google-ads-submission\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "auth.setup.ts",
+      "file": "auth.setup.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "sessão da Bia para os testes do painel",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "setup",
+              "projectName": "setup",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 495,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:17:32.196Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "17e3fe6f4d9d8bd79c6b-40367c7f5b2a9e9ad033",
+          "file": "auth.setup.ts",
+          "line": 8,
+          "column": 6
+        }
+      ]
+    },
+    {
+      "title": "contact-forms.spec.ts",
+      "file": "contact-forms.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F22-E01/T01/T03/T04/T05 configura formulário, recebe contato privado, exporta CSV e exclui",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4351,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:17:33.366Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-7019657f9e91ca561718",
+          "file": "contact-forms.spec.ts",
+          "line": 9,
+          "column": 5
+        },
+        {
+          "title": "F22-E02/T01 outro dono e visitante não leem contatos; prévia não envia",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1878,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:17:37.861Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-091cc8eef136a562166e",
+          "file": "contact-forms.spec.ts",
+          "line": 15,
+          "column": 5
+        },
+        {
+          "title": "F22-E03/T02 falha mantém dados, teclado permite recuperar, duplicação é evitada e 320px não transborda",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1211,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:17:39.746Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-8c7c7eb3731aaaf90185",
+          "file": "contact-forms.spec.ts",
+          "line": 19,
+          "column": 5
+        },
+        {
+          "title": "F22-G01 cria manualmente e configura contato junto aos dados sem publicar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4680,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:17:40.963Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-f88687e754c0de180c3e",
+          "file": "contact-forms.spec.ts",
+          "line": 24,
+          "column": 5
+        },
+        {
+          "title": "F09-G02 prévia acompanha os dados nas quatro abas sem alterar a publicação",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7031,
+                  "error": {
+                    "message": "Error: frame.evaluate: Error: No elements found for include in page Context\n    at validateContext (eval at evaluate (:311:30), <anonymous>:23741:15)\n    at new Context (eval at evaluate (:311:30), <anonymous>:23722:7)\n    at Object._getFrameContexts (eval at evaluate (:311:30), <anonymous>:23763:22)\n    at eval (eval at evaluate (:311:30), <anonymous>:4:27)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+                    "stack": "Error: frame.evaluate: Error: No elements found for include in page Context\n    at validateContext (eval at evaluate (:311:30), <anonymous>:23741:15)\n    at new Context (eval at evaluate (:311:30), <anonymous>:23722:7)\n    at Object._getFrameContexts (eval at evaluate (:311:30), <anonymous>:23763:22)\n    at eval (eval at evaluate (:311:30), <anonymous>:4:27)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at validateContext (eval at evaluate (:311:30), <anonymous>:23741:15)\n    at Context (eval at evaluate (:311:30), <anonymous>:23722:7)\n    at Object._getFrameContexts (eval at evaluate (:311:30), <anonymous>:23763:22)\n    at eval (eval at evaluate (:311:30), <anonymous>:4:27)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at AxeBuilder.runPartialRecursive (C:\\VSCODE\\divulgadorlinks\\frontend\\node_modules\\@axe-core\\playwright\\dist\\index.js:317:39)\n    at AxeBuilder.analyze (C:\\VSCODE\\divulgadorlinks\\frontend\\node_modules\\@axe-core\\playwright\\dist\\index.js:246:39)\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\contact-forms.spec.ts:36:718",
+                    "location": {
+                      "file": "eval at evaluate (:311:30), <anonymous>",
+                      "column": 15,
+                      "line": 23741
+                    }
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "eval at evaluate (:311:30), <anonymous>",
+                        "column": 15,
+                        "line": 23741
+                      },
+                      "message": "Error: frame.evaluate: Error: No elements found for include in page Context\n    at validateContext (eval at evaluate (:311:30), <anonymous>:23741:15)\n    at new Context (eval at evaluate (:311:30), <anonymous>:23722:7)\n    at Object._getFrameContexts (eval at evaluate (:311:30), <anonymous>:23763:22)\n    at eval (eval at evaluate (:311:30), <anonymous>:4:27)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at validateContext (eval at evaluate (:311:30), <anonymous>:23741:15)\n    at Context (eval at evaluate (:311:30), <anonymous>:23722:7)\n    at Object._getFrameContexts (eval at evaluate (:311:30), <anonymous>:23763:22)\n    at eval (eval at evaluate (:311:30), <anonymous>:4:27)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at AxeBuilder.runPartialRecursive (C:\\VSCODE\\divulgadorlinks\\frontend\\node_modules\\@axe-core\\playwright\\dist\\index.js:317:39)\n    at AxeBuilder.analyze (C:\\VSCODE\\divulgadorlinks\\frontend\\node_modules\\@axe-core\\playwright\\dist\\index.js:246:39)\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\contact-forms.spec.ts:36:718"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:17:45.649Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\contact-forms-F09-G02-prév-bd42a-as-sem-alterar-a-publicação-features\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\contact-forms-F09-G02-prév-bd42a-as-sem-alterar-a-publicação-features\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\contact-forms-F09-G02-prév-bd42a-as-sem-alterar-a-publicação-features\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "eval at evaluate (:311:30), <anonymous>",
+                    "column": 15,
+                    "line": 23741
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-9ac156865fd805b0f96b",
+          "file": "contact-forms.spec.ts",
+          "line": 32,
+          "column": 5
+        },
+        {
+          "title": "F22-E01/T01/T03/T04/T05 configura formulário, recebe contato privado, exporta CSV e exclui",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3899,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:21:14.924Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-25bd04d53e18f047255d",
+          "file": "contact-forms.spec.ts",
+          "line": 9,
+          "column": 5
+        },
+        {
+          "title": "F22-E02/T01 outro dono e visitante não leem contatos; prévia não envia",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1578,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:21:18.962Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-45513f7390e0de7e266c",
+          "file": "contact-forms.spec.ts",
+          "line": 15,
+          "column": 5
+        },
+        {
+          "title": "F22-E03/T02 falha mantém dados, teclado permite recuperar, duplicação é evitada e 320px não transborda",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1087,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:21:20.547Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-20202ef7572b47378ed8",
+          "file": "contact-forms.spec.ts",
+          "line": 19,
+          "column": 5
+        },
+        {
+          "title": "F22-G01 cria manualmente e configura contato junto aos dados sem publicar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4429,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:21:21.639Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-fd809a7f0a0c578c3398",
+          "file": "contact-forms.spec.ts",
+          "line": 24,
+          "column": 5
+        },
+        {
+          "title": "F09-G02 prévia acompanha os dados nas quatro abas sem alterar a publicação",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7128,
+                  "error": {
+                    "message": "Error: frame.evaluate: Error: No elements found for include in page Context\n    at validateContext (eval at evaluate (:311:30), <anonymous>:23741:15)\n    at new Context (eval at evaluate (:311:30), <anonymous>:23722:7)\n    at Object._getFrameContexts (eval at evaluate (:311:30), <anonymous>:23763:22)\n    at eval (eval at evaluate (:311:30), <anonymous>:4:27)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+                    "stack": "Error: frame.evaluate: Error: No elements found for include in page Context\n    at validateContext (eval at evaluate (:311:30), <anonymous>:23741:15)\n    at new Context (eval at evaluate (:311:30), <anonymous>:23722:7)\n    at Object._getFrameContexts (eval at evaluate (:311:30), <anonymous>:23763:22)\n    at eval (eval at evaluate (:311:30), <anonymous>:4:27)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at validateContext (eval at evaluate (:311:30), <anonymous>:23741:15)\n    at Context (eval at evaluate (:311:30), <anonymous>:23722:7)\n    at Object._getFrameContexts (eval at evaluate (:311:30), <anonymous>:23763:22)\n    at eval (eval at evaluate (:311:30), <anonymous>:4:27)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at AxeBuilder.runPartialRecursive (C:\\VSCODE\\divulgadorlinks\\frontend\\node_modules\\@axe-core\\playwright\\dist\\index.js:317:39)\n    at AxeBuilder.analyze (C:\\VSCODE\\divulgadorlinks\\frontend\\node_modules\\@axe-core\\playwright\\dist\\index.js:246:39)\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\contact-forms.spec.ts:36:718",
+                    "location": {
+                      "file": "eval at evaluate (:311:30), <anonymous>",
+                      "column": 15,
+                      "line": 23741
+                    }
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "eval at evaluate (:311:30), <anonymous>",
+                        "column": 15,
+                        "line": 23741
+                      },
+                      "message": "Error: frame.evaluate: Error: No elements found for include in page Context\n    at validateContext (eval at evaluate (:311:30), <anonymous>:23741:15)\n    at new Context (eval at evaluate (:311:30), <anonymous>:23722:7)\n    at Object._getFrameContexts (eval at evaluate (:311:30), <anonymous>:23763:22)\n    at eval (eval at evaluate (:311:30), <anonymous>:4:27)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at validateContext (eval at evaluate (:311:30), <anonymous>:23741:15)\n    at Context (eval at evaluate (:311:30), <anonymous>:23722:7)\n    at Object._getFrameContexts (eval at evaluate (:311:30), <anonymous>:23763:22)\n    at eval (eval at evaluate (:311:30), <anonymous>:4:27)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at AxeBuilder.runPartialRecursive (C:\\VSCODE\\divulgadorlinks\\frontend\\node_modules\\@axe-core\\playwright\\dist\\index.js:317:39)\n    at AxeBuilder.analyze (C:\\VSCODE\\divulgadorlinks\\frontend\\node_modules\\@axe-core\\playwright\\dist\\index.js:246:39)\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\contact-forms.spec.ts:36:718"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:21:26.075Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\contact-forms-F09-G02-prév-bd42a-as-sem-alterar-a-publicação-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\contact-forms-F09-G02-prév-bd42a-as-sem-alterar-a-publicação-features-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\contact-forms-F09-G02-prév-bd42a-as-sem-alterar-a-publicação-features-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "eval at evaluate (:311:30), <anonymous>",
+                    "column": 15,
+                    "line": 23741
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-22fc13d81ba88b4e6cf9",
+          "file": "contact-forms.spec.ts",
+          "line": 32,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "profile-assistant.spec.ts",
+      "file": "profile-assistant.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F25-E01 revisão seletiva e prévia reutilizada alteram só o rascunho; descarte preserva publicação",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2622,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:17:53.400Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "89db073b230187dada43-e080e05fde4956d6e84f",
+          "file": "profile-assistant.spec.ts",
+          "line": 11,
+          "column": 5
+        },
+        {
+          "title": "F25-E02 sem página geração não salva; outro dono não acessa e aplicação detecta versão desatualizada",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2673,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:17:56.158Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "89db073b230187dada43-bcc0c5a55ad1f865b271",
+          "file": "profile-assistant.spec.ts",
+          "line": 20,
+          "column": 5
+        },
+        {
+          "title": "F25-E03 erro recuperável mantém entrada e teclado; limite diário e 320px com zoom",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1654,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:17:58.841Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "89db073b230187dada43-868ec1f408e392e4fe64",
+          "file": "profile-assistant.spec.ts",
+          "line": 26,
+          "column": 5
+        },
+        {
+          "title": "F25-E04 grants próprios controlam consulta, aplicação e revogação sem liberar publicação",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3186,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:18:00.500Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "89db073b230187dada43-41659c27f851e95b82cb",
+          "file": "profile-assistant.spec.ts",
+          "line": 31,
+          "column": 5
+        },
+        {
+          "title": "F25-E01 revisão seletiva e prévia reutilizada alteram só o rascunho; descarte preserva publicação",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2304,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:21:33.900Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "89db073b230187dada43-e07968dbedfe49e7988b",
+          "file": "profile-assistant.spec.ts",
+          "line": 11,
+          "column": 5
+        },
+        {
+          "title": "F25-E02 sem página geração não salva; outro dono não acessa e aplicação detecta versão desatualizada",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2609,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:21:36.376Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "89db073b230187dada43-9563c6ca0fb77dc983b3",
+          "file": "profile-assistant.spec.ts",
+          "line": 20,
+          "column": 5
+        },
+        {
+          "title": "F25-E03 erro recuperável mantém entrada e teclado; limite diário e 320px com zoom",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1594,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:21:38.991Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "89db073b230187dada43-38ff562ad1639b64e74e",
+          "file": "profile-assistant.spec.ts",
+          "line": 26,
+          "column": 5
+        },
+        {
+          "title": "F25-E04 grants próprios controlam consulta, aplicação e revogação sem liberar publicação",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3363,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:21:40.590Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "89db073b230187dada43-30a170f0d98c79e31901",
+          "file": "profile-assistant.spec.ts",
+          "line": 31,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "profile-search.spec.ts",
+      "file": "profile-search.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F18-E01/T01/T03/T04 SSR, normalized title/group filters, cursor, URL navigation and the existing private preview use real scoped results",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8577,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:18:03.705Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "18ee80c46e2cf0cc53e5-3e84493eb771f0495c86",
+          "file": "profile-search.spec.ts",
+          "line": 42,
+          "column": 5
+        },
+        {
+          "title": "F18-E02/T01/T02 server boundaries, foreign tenant, owner-only preview, age and suspension guard both HTML and search metadata",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3295,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:18:12.289Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "18ee80c46e2cf0cc53e5-aae4d6abad7603593f8c",
+          "file": "profile-search.spec.ts",
+          "line": 53,
+          "column": 5
+        },
+        {
+          "title": "F18-E03 pending/error geometry, retry, stale-cursor recovery, browser back, invalid URL and 320px keyboard flow remain usable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4805,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:18:15.590Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "18ee80c46e2cf0cc53e5-fee17c34dd55bfb0f6d4",
+          "file": "profile-search.spec.ts",
+          "line": 60,
+          "column": 5
+        },
+        {
+          "title": "F18-E04 busca começa desativada, aparece nas duas prévias e só muda a página pública ao publicar",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 24358,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeChecked\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('checkbox', { name: 'Exibir busca na minha página', exact: true })\nExpected: checked\nReceived: unchecked\nTimeout:  20000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeChecked\" getByRole('checkbox', { name: 'Exibir busca na minha página', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('checkbox', { name: 'Exibir busca na minha página', exact: true })\u001b[22m\n\u001b[2m    38 × locator resolved to <input type=\"checkbox\" class=\"checkbox_checkbox__vaqOd\"/>\u001b[22m\n\u001b[2m       - unexpected value \"unchecked\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeChecked\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('checkbox', { name: 'Exibir busca na minha página', exact: true })\nExpected: checked\nReceived: unchecked\nTimeout:  20000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeChecked\" getByRole('checkbox', { name: 'Exibir busca na minha página', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('checkbox', { name: 'Exibir busca na minha página', exact: true })\u001b[22m\n\u001b[2m    38 × locator resolved to <input type=\"checkbox\" class=\"checkbox_checkbox__vaqOd\"/>\u001b[22m\n\u001b[2m       - unexpected value \"unchecked\"\u001b[22m\n\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-search.spec.ts:78:344",
+                    "location": {
+                      "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-search.spec.ts",
+                      "column": 344,
+                      "line": 78
+                    },
+                    "snippet": "  76 |  await expect(enabled).not.toBeChecked();await expect(simulation.locator('input[type=\"search\"]')).toHaveCount(0)\n  77 |  await enabled.check();await expect(simulation.locator('input[type=\"search\"]')).toBeVisible()\n> 78 |  await page.goto(origin+'/painel/perfil/aparencia');await expect(enabled).toHaveCount(0);await page.getByRole('button',{name:'Oceano',exact:true}).click();await expect(page.getByRole('region',{name:'Editor do perfil',exact:true})).toHaveAttribute('data-save-state','saved');await page.goto(origin+'/painel/perfil/dados');await expect(enabled).toBeChecked()\n     |                                                                                                                                                                                                                                                                                                                                                        ^\n  79 |  await expect(page.getByRole('region',{name:'Editor do perfil',exact:true})).toHaveAttribute('data-save-state','saved')\n  80 |  await capturePage(page,info.outputPath('search-option-enabled.png'))\n  81 |  const guest=await browser.newContext({viewport:page.viewportSize(),isMobile:info.project.name.includes('mobile'),hasTouch:info.project.name.includes('mobile')}),visitor=await guest.newPage()"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-search.spec.ts",
+                        "column": 344,
+                        "line": 78
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeChecked\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('checkbox', { name: 'Exibir busca na minha página', exact: true })\nExpected: checked\nReceived: unchecked\nTimeout:  20000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeChecked\" getByRole('checkbox', { name: 'Exibir busca na minha página', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('checkbox', { name: 'Exibir busca na minha página', exact: true })\u001b[22m\n\u001b[2m    38 × locator resolved to <input type=\"checkbox\" class=\"checkbox_checkbox__vaqOd\"/>\u001b[22m\n\u001b[2m       - unexpected value \"unchecked\"\u001b[22m\n\n\n  76 |  await expect(enabled).not.toBeChecked();await expect(simulation.locator('input[type=\"search\"]')).toHaveCount(0)\n  77 |  await enabled.check();await expect(simulation.locator('input[type=\"search\"]')).toBeVisible()\n> 78 |  await page.goto(origin+'/painel/perfil/aparencia');await expect(enabled).toHaveCount(0);await page.getByRole('button',{name:'Oceano',exact:true}).click();await expect(page.getByRole('region',{name:'Editor do perfil',exact:true})).toHaveAttribute('data-save-state','saved');await page.goto(origin+'/painel/perfil/dados');await expect(enabled).toBeChecked()\n     |                                                                                                                                                                                                                                                                                                                                                        ^\n  79 |  await expect(page.getByRole('region',{name:'Editor do perfil',exact:true})).toHaveAttribute('data-save-state','saved')\n  80 |  await capturePage(page,info.outputPath('search-option-enabled.png'))\n  81 |  const guest=await browser.newContext({viewport:page.viewportSize(),isMobile:info.project.name.includes('mobile'),hasTouch:info.project.name.includes('mobile')}),visitor=await guest.newPage()\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-search.spec.ts:78:344"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:18:20.401Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-search-F18-E04-bus-557dc--página-pública-ao-publicar-features\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-search-F18-E04-bus-557dc--página-pública-ao-publicar-features\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-search-F18-E04-bus-557dc--página-pública-ao-publicar-features\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-search.spec.ts",
+                    "column": 344,
+                    "line": 78
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "18ee80c46e2cf0cc53e5-38316e7f8ce8c1828ba6",
+          "file": "profile-search.spec.ts",
+          "line": 68,
+          "column": 5
+        },
+        {
+          "title": "F18-E01/T01/T03/T04 SSR, normalized title/group filters, cursor, URL navigation and the existing private preview use real scoped results",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8768,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:21:43.967Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "18ee80c46e2cf0cc53e5-6911adf97f328cd489ca",
+          "file": "profile-search.spec.ts",
+          "line": 42,
+          "column": 5
+        },
+        {
+          "title": "F18-E02/T01/T02 server boundaries, foreign tenant, owner-only preview, age and suspension guard both HTML and search metadata",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3045,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:21:52.742Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "18ee80c46e2cf0cc53e5-b8baf3abf69ab62522b6",
+          "file": "profile-search.spec.ts",
+          "line": 53,
+          "column": 5
+        },
+        {
+          "title": "F18-E03 pending/error geometry, retry, stale-cursor recovery, browser back, invalid URL and 320px keyboard flow remain usable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4525,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:21:55.793Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "18ee80c46e2cf0cc53e5-97381e0815d085d84563",
+          "file": "profile-search.spec.ts",
+          "line": 60,
+          "column": 5
+        },
+        {
+          "title": "F18-E04 busca começa desativada, aparece nas duas prévias e só muda a página pública ao publicar",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 22098,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('complementary', { name: 'Prévia ao vivo da página' }).locator('input[type=\"search\"]')\nExpected: visible\nReceived: hidden\nTimeout:  20000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('complementary', { name: 'Prévia ao vivo da página' }).locator('input[type=\"search\"]') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('complementary', { name: 'Prévia ao vivo da página' }).locator('input[type=\"search\"]')\u001b[22m\n\u001b[2m    43 × locator resolved to <input value=\"\" id=\"_r_1a_\" type=\"search\" maxlength=\"100\" class=\"field input_control__Nfi04\" placeholder=\"Buscar links ou grupos\"/>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('complementary', { name: 'Prévia ao vivo da página' }).locator('input[type=\"search\"]')\nExpected: visible\nReceived: hidden\nTimeout:  20000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('complementary', { name: 'Prévia ao vivo da página' }).locator('input[type=\"search\"]') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('complementary', { name: 'Prévia ao vivo da página' }).locator('input[type=\"search\"]')\u001b[22m\n\u001b[2m    43 × locator resolved to <input value=\"\" id=\"_r_1a_\" type=\"search\" maxlength=\"100\" class=\"field input_control__Nfi04\" placeholder=\"Buscar links ou grupos\"/>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-search.spec.ts:77:81",
+                    "location": {
+                      "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-search.spec.ts",
+                      "column": 81,
+                      "line": 77
+                    },
+                    "snippet": "  75 |  const toggle=simulation.getByRole('button',{name:'Ver prévia ao vivo'});if(await toggle.isVisible())await toggle.click();\n  76 |  await expect(enabled).not.toBeChecked();await expect(simulation.locator('input[type=\"search\"]')).toHaveCount(0)\n> 77 |  await enabled.check();await expect(simulation.locator('input[type=\"search\"]')).toBeVisible();await expect(page.getByRole('region',{name:'Editor do perfil',exact:true})).toHaveAttribute('data-save-state','saved')\n     |                                                                                 ^\n  78 |  await page.goto(origin+'/painel/perfil/aparencia');await expect(enabled).toHaveCount(0);await page.getByRole('button',{name:'Oceano',exact:true}).click();await expect(page.getByRole('region',{name:'Editor do perfil',exact:true})).toHaveAttribute('data-save-state','saved');await page.goto(origin+'/painel/perfil/dados');await expect(enabled).toBeChecked()\n  79 |  await expect(page.getByRole('region',{name:'Editor do perfil',exact:true})).toHaveAttribute('data-save-state','saved')\n  80 |  await capturePage(page,info.outputPath('search-option-enabled.png'))"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-search.spec.ts",
+                        "column": 81,
+                        "line": 77
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('complementary', { name: 'Prévia ao vivo da página' }).locator('input[type=\"search\"]')\nExpected: visible\nReceived: hidden\nTimeout:  20000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('complementary', { name: 'Prévia ao vivo da página' }).locator('input[type=\"search\"]') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('complementary', { name: 'Prévia ao vivo da página' }).locator('input[type=\"search\"]')\u001b[22m\n\u001b[2m    43 × locator resolved to <input value=\"\" id=\"_r_1a_\" type=\"search\" maxlength=\"100\" class=\"field input_control__Nfi04\" placeholder=\"Buscar links ou grupos\"/>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  75 |  const toggle=simulation.getByRole('button',{name:'Ver prévia ao vivo'});if(await toggle.isVisible())await toggle.click();\n  76 |  await expect(enabled).not.toBeChecked();await expect(simulation.locator('input[type=\"search\"]')).toHaveCount(0)\n> 77 |  await enabled.check();await expect(simulation.locator('input[type=\"search\"]')).toBeVisible();await expect(page.getByRole('region',{name:'Editor do perfil',exact:true})).toHaveAttribute('data-save-state','saved')\n     |                                                                                 ^\n  78 |  await page.goto(origin+'/painel/perfil/aparencia');await expect(enabled).toHaveCount(0);await page.getByRole('button',{name:'Oceano',exact:true}).click();await expect(page.getByRole('region',{name:'Editor do perfil',exact:true})).toHaveAttribute('data-save-state','saved');await page.goto(origin+'/painel/perfil/dados');await expect(enabled).toBeChecked()\n  79 |  await expect(page.getByRole('region',{name:'Editor do perfil',exact:true})).toHaveAttribute('data-save-state','saved')\n  80 |  await capturePage(page,info.outputPath('search-option-enabled.png'))\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-search.spec.ts:77:81"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:22:00.324Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-search-F18-E04-bus-557dc--página-pública-ao-publicar-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-search-F18-E04-bus-557dc--página-pública-ao-publicar-features-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-search-F18-E04-bus-557dc--página-pública-ao-publicar-features-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-search.spec.ts",
+                    "column": 81,
+                    "line": 77
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "18ee80c46e2cf0cc53e5-d0693b6aa23b63e0c8b8",
+          "file": "profile-search.spec.ts",
+          "line": 68,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "profiles.spec.ts",
+      "file": "profiles.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F09-E09 textos dos botões compartilham o centro da apresentação na prévia e página pública",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6942,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:18:45.547Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-f14f886955ba3a1476f8",
+          "file": "profiles.spec.ts",
+          "line": 37,
+          "column": 5
+        },
+        {
+          "title": "F09-E10 renomear grupo sem conteúdo novo não repete revisão; edição recebe contexto completo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5202,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:18:52.619Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-247664e9df3b3dd2cb6c",
+          "file": "profiles.spec.ts",
+          "line": 65,
+          "column": 5
+        },
+        {
+          "title": "F09-E08 cabeçalho, endereço copiável e aprovação reutilizada em alterações básicas",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9016,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:18:57.826Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-3258c85ea8a34e704163",
+          "file": "profiles.spec.ts",
+          "line": 93,
+          "column": 5
+        },
+        {
+          "title": "F09-E07 selects nos modais não alteram dimensões nem acrescentam scroll",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4491,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:19:06.846Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-1343dc161de9de214299",
+          "file": "profiles.spec.ts",
+          "line": 161,
+          "column": 5
+        },
+        {
+          "title": "F09 seis temas legíveis, página inteira e movimento reduzido",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 19775,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:19:11.342Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-c5d2cb30401120856829",
+          "file": "profiles.spec.ts",
+          "line": 175,
+          "column": 5
+        },
+        {
+          "title": "F09 aparência personalizada persiste e só chega ao público após publicar",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 9408,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"scrollable-region-focusable\",\u001b[39m\n\u001b[31m+ ]\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"scrollable-region-focusable\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profiles.spec.ts:217:57",
+                    "location": {
+                      "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profiles.spec.ts",
+                      "column": 57,
+                      "line": 217
+                    },
+                    "snippet": "  215 |   await expect(color).toHaveValue('#173c32')\n  216 |   const accessibility = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze()\n> 217 |   expect(accessibility.violations.map(item => item.id)).toEqual([])\n      |                                                         ^\n  218 |   await page.screenshot({ path: info.outputPath('appearance-editor.png'), fullPage: true })\n  219 |   if (process.env.E2E_PROFILE_VISUAL === '1') await expect(page).toHaveScreenshot('appearance-editor.png', { fullPage: true, animations: 'disabled' })\n  220 |   const originalViewport = page.viewportSize()!"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profiles.spec.ts",
+                        "column": 57,
+                        "line": 217
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"scrollable-region-focusable\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n  215 |   await expect(color).toHaveValue('#173c32')\n  216 |   const accessibility = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze()\n> 217 |   expect(accessibility.violations.map(item => item.id)).toEqual([])\n      |                                                         ^\n  218 |   await page.screenshot({ path: info.outputPath('appearance-editor.png'), fullPage: true })\n  219 |   if (process.env.E2E_PROFILE_VISUAL === '1') await expect(page).toHaveScreenshot('appearance-editor.png', { fullPage: true, animations: 'disabled' })\n  220 |   const originalViewport = page.viewportSize()!\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profiles.spec.ts:217:57"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:19:31.124Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profiles-F09-aparência-per-e4a1c-ga-ao-público-após-publicar-features\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profiles-F09-aparência-per-e4a1c-ga-ao-público-após-publicar-features\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profiles-F09-aparência-per-e4a1c-ga-ao-público-após-publicar-features\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profiles.spec.ts",
+                    "column": 57,
+                    "line": 217
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-74a3cec210adbda7cd92",
+          "file": "profiles.spec.ts",
+          "line": 195,
+          "column": 5
+        },
+        {
+          "title": "F09-E01/T03/T04/T05 grupos, ordem, redes, foto e botão principal; prévia e público reais sem ocultos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 18361,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:19:41.465Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-36fa52b16a2e25f97903",
+          "file": "profiles.spec.ts",
+          "line": 249,
+          "column": 5
+        },
+        {
+          "title": "F09-E04 restrição de idade não entrega conteúdo no HTML/API antes do aceite real",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8193,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:19:59.955Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-e7f3b8c59d52f199c731",
+          "file": "profiles.spec.ts",
+          "line": 324,
+          "column": 5
+        },
+        {
+          "title": "F09-E02/T02/T06 sessão real, admin não ganha dono, suspeita/provedor seguem para humano e preservam página anterior",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12592,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:20:08.156Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-12d377917821c880f126",
+          "file": "profiles.spec.ts",
+          "line": 339,
+          "column": 5
+        },
+        {
+          "title": "F09-E03 autosave offline mantém dados, retoma online, 320px e conflito não sobrescreve",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10482,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:20:20.755Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-781fa340383e0896f390",
+          "file": "profiles.spec.ts",
+          "line": 354,
+          "column": 5
+        },
+        {
+          "title": "F09-E05 criação e gestão: cards, DnD, transferência, edição e remoção com persistência",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 27998,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAccessibleName\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('button', { name: /^Arrastar grupo / }).first()\nExpected: \u001b[32m\"Arrastar grupo \u001b[7mProjeto\u001b[27ms\"\u001b[39m\nReceived: \u001b[31m\"Arrastar grupo \u001b[7mMateriai\u001b[27ms\"\u001b[39m\nTimeout:  20000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAccessibleName\" getByRole('button', { name: /^Arrastar grupo / }).first() with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /^Arrastar grupo / }).first()\u001b[22m\n\u001b[2m    43 × locator resolved to <button type=\"button\" aria-describedby=\"_r_t_\" class=\"profile-groups_handle__ydOmY\" aria-label=\"Arrastar grupo Materiais\">…</button>\u001b[22m\n\u001b[2m       - unexpected value \"Arrastar grupo Materiais\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAccessibleName\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('button', { name: /^Arrastar grupo / }).first()\nExpected: \u001b[32m\"Arrastar grupo \u001b[7mProjeto\u001b[27ms\"\u001b[39m\nReceived: \u001b[31m\"Arrastar grupo \u001b[7mMateriai\u001b[27ms\"\u001b[39m\nTimeout:  20000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAccessibleName\" getByRole('button', { name: /^Arrastar grupo / }).first() with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /^Arrastar grupo / }).first()\u001b[22m\n\u001b[2m    43 × locator resolved to <button type=\"button\" aria-describedby=\"_r_t_\" class=\"profile-groups_handle__ydOmY\" aria-label=\"Arrastar grupo Materiais\">…</button>\u001b[22m\n\u001b[2m       - unexpected value \"Arrastar grupo Materiais\"\u001b[22m\n\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profiles.spec.ts:406:33",
+                    "location": {
+                      "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profiles.spec.ts",
+                      "column": 33,
+                      "line": 406
+                    },
+                    "snippet": "  404 |   await page.screenshot({ path: info.outputPath('groups-overview.png'), fullPage: true, animations: 'disabled' })\n  405 |   const handles = page.getByRole('button', { name: /^Arrastar grupo / })\n> 406 |   await dragOrder(page, page.getByRole('button', { name: 'Arrastar grupo Materiais', exact: true }), page.getByRole('button', { name: 'Arrastar grupo Projetos', exact: true }), Boolean(info.project.use.isMobile))\n      |                                 ^\n  407 |   await expect(handles.first()).toHaveAccessibleName('Arrastar grupo Projetos')\n  408 |   await page.getByRole('button', { name: 'Arrastar grupo Materiais', exact: true }).focus(); await page.keyboard.press('ArrowUp')\n  409 |   await expect(handles.first()).toHaveAccessibleName('Arrastar grupo Materiais')"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profiles.spec.ts",
+                        "column": 33,
+                        "line": 406
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAccessibleName\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('button', { name: /^Arrastar grupo / }).first()\nExpected: \u001b[32m\"Arrastar grupo \u001b[7mProjeto\u001b[27ms\"\u001b[39m\nReceived: \u001b[31m\"Arrastar grupo \u001b[7mMateriai\u001b[27ms\"\u001b[39m\nTimeout:  20000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAccessibleName\" getByRole('button', { name: /^Arrastar grupo / }).first() with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /^Arrastar grupo / }).first()\u001b[22m\n\u001b[2m    43 × locator resolved to <button type=\"button\" aria-describedby=\"_r_t_\" class=\"profile-groups_handle__ydOmY\" aria-label=\"Arrastar grupo Materiais\">…</button>\u001b[22m\n\u001b[2m       - unexpected value \"Arrastar grupo Materiais\"\u001b[22m\n\n\n  404 |   await page.screenshot({ path: info.outputPath('groups-overview.png'), fullPage: true, animations: 'disabled' })\n  405 |   const handles = page.getByRole('button', { name: /^Arrastar grupo / })\n> 406 |   await dragOrder(page, page.getByRole('button', { name: 'Arrastar grupo Materiais', exact: true }), page.getByRole('button', { name: 'Arrastar grupo Projetos', exact: true }), Boolean(info.project.use.isMobile))\n      |                                 ^\n  407 |   await expect(handles.first()).toHaveAccessibleName('Arrastar grupo Projetos')\n  408 |   await page.getByRole('button', { name: 'Arrastar grupo Materiais', exact: true }).focus(); await page.keyboard.press('ArrowUp')\n  409 |   await expect(handles.first()).toHaveAccessibleName('Arrastar grupo Materiais')\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profiles.spec.ts:406:33"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:20:31.243Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profiles-F09-E05-criação-e-cbbab--e-remoção-com-persistência-features\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profiles-F09-E05-criação-e-cbbab--e-remoção-com-persistência-features\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profiles-F09-E05-criação-e-cbbab--e-remoção-com-persistência-features\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profiles.spec.ts",
+                    "column": 33,
+                    "line": 406
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-3b54bba6582cc61c50e2",
+          "file": "profiles.spec.ts",
+          "line": 384,
+          "column": 5
+        },
+        {
+          "title": "F09-E06 autosave, banner e campos não publicados; descartar restaura a publicação",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10500,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:21:00.097Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-d67487d263cc088d6ff3",
+          "file": "profiles.spec.ts",
+          "line": 465,
+          "column": 5
+        },
+        {
+          "title": "F09-E11 Minha página tem subseções expansíveis e escolha inicial de criação",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3754,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:21:10.724Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-7df8d44bc6ac50dfe222",
+          "file": "profiles.spec.ts",
+          "line": 513,
+          "column": 5
+        },
+        {
+          "title": "F09-E09 textos dos botões compartilham o centro da apresentação na prévia e página pública",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 8,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6783,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:22:23.282Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-367c5f06ac6aea3e1ac5",
+          "file": "profiles.spec.ts",
+          "line": 37,
+          "column": 5
+        },
+        {
+          "title": "F09-E10 renomear grupo sem conteúdo novo não repete revisão; edição recebe contexto completo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 8,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5181,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:22:30.205Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-c7c7303d030e56b31426",
+          "file": "profiles.spec.ts",
+          "line": 65,
+          "column": 5
+        },
+        {
+          "title": "F09-E08 cabeçalho, endereço copiável e aprovação reutilizada em alterações básicas",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 8,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8976,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:22:35.391Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-b84590709a469fad14e7",
+          "file": "profiles.spec.ts",
+          "line": 93,
+          "column": 5
+        },
+        {
+          "title": "F09-E07 selects nos modais não alteram dimensões nem acrescentam scroll",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 8,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3828,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:22:44.372Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-d1434d6538d765dc87bf",
+          "file": "profiles.spec.ts",
+          "line": 161,
+          "column": 5
+        },
+        {
+          "title": "F09 seis temas legíveis, página inteira e movimento reduzido",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 8,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 19160,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:22:48.207Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-37ba53751c54de33854a",
+          "file": "profiles.spec.ts",
+          "line": 175,
+          "column": 5
+        },
+        {
+          "title": "F09 aparência personalizada persiste e só chega ao público após publicar",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 8,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 28617,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[data-style=\"shadow\"]')\nExpected: visible\nReceived: hidden\nTimeout:  20000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('[data-style=\"shadow\"]') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-style=\"shadow\"]')\u001b[22m\n\u001b[2m    43 × locator resolved to <div data-ink=\"light\" data-style=\"shadow\" data-align=\"center\" data-background=\"solid\" class=\"personal-page_page__gpUQV personal-page_embedded__CoB6t\">…</div>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[data-style=\"shadow\"]')\nExpected: visible\nReceived: hidden\nTimeout:  20000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('[data-style=\"shadow\"]') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-style=\"shadow\"]')\u001b[22m\n\u001b[2m    43 × locator resolved to <div data-ink=\"light\" data-style=\"shadow\" data-align=\"center\" data-background=\"solid\" class=\"personal-page_page__gpUQV personal-page_embedded__CoB6t\">…</div>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profiles.spec.ts:212:55",
+                    "location": {
+                      "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profiles.spec.ts",
+                      "column": 55,
+                      "line": 212
+                    },
+                    "snippet": "  210 |   await expect(page.getByText('Salvo automaticamente', { exact: true })).toHaveCount(0)\n  211 |   await page.reload(); await editorSection(page, 'Aparência')\n> 212 |   const inlinePreview=page.getByRole('button',{name:'Ver prévia ao vivo',exact:true});if(await inlinePreview.isVisible())await inlinePreview.click()\n      |                                                       ^\n  213 |   await expect(page.locator('[data-style=\"shadow\"]')).toBeVisible()\n  214 |   await page.getByRole('tab', { name: 'Cores', exact: true }).click()\n  215 |   await page.getByText('Cor do fundo', { exact: true }).click()"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profiles.spec.ts",
+                        "column": 55,
+                        "line": 212
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[data-style=\"shadow\"]')\nExpected: visible\nReceived: hidden\nTimeout:  20000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('[data-style=\"shadow\"]') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-style=\"shadow\"]')\u001b[22m\n\u001b[2m    43 × locator resolved to <div data-ink=\"light\" data-style=\"shadow\" data-align=\"center\" data-background=\"solid\" class=\"personal-page_page__gpUQV personal-page_embedded__CoB6t\">…</div>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  210 |   await expect(page.getByText('Salvo automaticamente', { exact: true })).toHaveCount(0)\n  211 |   await page.reload(); await editorSection(page, 'Aparência')\n> 212 |   const inlinePreview=page.getByRole('button',{name:'Ver prévia ao vivo',exact:true});if(await inlinePreview.isVisible())await inlinePreview.click()\n      |                                                       ^\n  213 |   await expect(page.locator('[data-style=\"shadow\"]')).toBeVisible()\n  214 |   await page.getByRole('tab', { name: 'Cores', exact: true }).click()\n  215 |   await page.getByText('Cor do fundo', { exact: true }).click()\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profiles.spec.ts:212:55"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:23:07.372Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profiles-F09-aparência-per-e4a1c-ga-ao-público-após-publicar-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profiles-F09-aparência-per-e4a1c-ga-ao-público-após-publicar-features-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profiles-F09-aparência-per-e4a1c-ga-ao-público-após-publicar-features-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profiles.spec.ts",
+                    "column": 55,
+                    "line": 212
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-1ac70d59bb2c9c2332a5",
+          "file": "profiles.spec.ts",
+          "line": 195,
+          "column": 5
+        },
+        {
+          "title": "F09-E01/T03/T04/T05 grupos, ordem, redes, foto e botão principal; prévia e público reais sem ocultos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 9,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 19107,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:23:36.810Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-3a57e1259e431d658dbc",
+          "file": "profiles.spec.ts",
+          "line": 249,
+          "column": 5
+        },
+        {
+          "title": "F09-E04 restrição de idade não entrega conteúdo no HTML/API antes do aceite real",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 9,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9305,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:23:56.042Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-12b1344e822d69999376",
+          "file": "profiles.spec.ts",
+          "line": 324,
+          "column": 5
+        },
+        {
+          "title": "F09-E02/T02/T06 sessão real, admin não ganha dono, suspeita/provedor seguem para humano e preservam página anterior",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 9,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 13741,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:24:05.354Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-51fa491aae3e25f476b1",
+          "file": "profiles.spec.ts",
+          "line": 339,
+          "column": 5
+        },
+        {
+          "title": "F09-E03 autosave offline mantém dados, retoma online, 320px e conflito não sobrescreve",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 9,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10246,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:24:19.101Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-15903e4263710918f03c",
+          "file": "profiles.spec.ts",
+          "line": 354,
+          "column": 5
+        },
+        {
+          "title": "F09-E05 criação e gestão: cards, DnD, transferência, edição e remoção com persistência",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 9,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 27421,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAccessibleName\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('button', { name: /^Arrastar grupo / }).first()\nExpected: \u001b[32m\"Arrastar grupo \u001b[7mProjeto\u001b[27ms\"\u001b[39m\nReceived: \u001b[31m\"Arrastar grupo \u001b[7mMateriai\u001b[27ms\"\u001b[39m\nTimeout:  20000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAccessibleName\" getByRole('button', { name: /^Arrastar grupo / }).first() with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /^Arrastar grupo / }).first()\u001b[22m\n\u001b[2m    43 × locator resolved to <button type=\"button\" aria-describedby=\"_r_12_\" class=\"profile-groups_handle__ydOmY\" aria-label=\"Arrastar grupo Materiais\">…</button>\u001b[22m\n\u001b[2m       - unexpected value \"Arrastar grupo Materiais\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAccessibleName\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('button', { name: /^Arrastar grupo / }).first()\nExpected: \u001b[32m\"Arrastar grupo \u001b[7mProjeto\u001b[27ms\"\u001b[39m\nReceived: \u001b[31m\"Arrastar grupo \u001b[7mMateriai\u001b[27ms\"\u001b[39m\nTimeout:  20000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAccessibleName\" getByRole('button', { name: /^Arrastar grupo / }).first() with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /^Arrastar grupo / }).first()\u001b[22m\n\u001b[2m    43 × locator resolved to <button type=\"button\" aria-describedby=\"_r_12_\" class=\"profile-groups_handle__ydOmY\" aria-label=\"Arrastar grupo Materiais\">…</button>\u001b[22m\n\u001b[2m       - unexpected value \"Arrastar grupo Materiais\"\u001b[22m\n\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profiles.spec.ts:406:33",
+                    "location": {
+                      "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profiles.spec.ts",
+                      "column": 33,
+                      "line": 406
+                    },
+                    "snippet": "  404 |   await page.screenshot({ path: info.outputPath('groups-overview.png'), fullPage: true, animations: 'disabled' })\n  405 |   const handles = page.getByRole('button', { name: /^Arrastar grupo / })\n> 406 |   await dragOrder(page, page.getByRole('button', { name: 'Arrastar grupo Materiais', exact: true }), page.getByRole('button', { name: 'Arrastar grupo Projetos', exact: true }), Boolean(info.project.use.isMobile))\n      |                                 ^\n  407 |   await expect(handles.first()).toHaveAccessibleName('Arrastar grupo Projetos')\n  408 |   await page.getByRole('button', { name: 'Arrastar grupo Materiais', exact: true }).focus(); await page.keyboard.press('ArrowUp')\n  409 |   await expect(handles.first()).toHaveAccessibleName('Arrastar grupo Materiais')"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profiles.spec.ts",
+                        "column": 33,
+                        "line": 406
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAccessibleName\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('button', { name: /^Arrastar grupo / }).first()\nExpected: \u001b[32m\"Arrastar grupo \u001b[7mProjeto\u001b[27ms\"\u001b[39m\nReceived: \u001b[31m\"Arrastar grupo \u001b[7mMateriai\u001b[27ms\"\u001b[39m\nTimeout:  20000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAccessibleName\" getByRole('button', { name: /^Arrastar grupo / }).first() with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /^Arrastar grupo / }).first()\u001b[22m\n\u001b[2m    43 × locator resolved to <button type=\"button\" aria-describedby=\"_r_12_\" class=\"profile-groups_handle__ydOmY\" aria-label=\"Arrastar grupo Materiais\">…</button>\u001b[22m\n\u001b[2m       - unexpected value \"Arrastar grupo Materiais\"\u001b[22m\n\n\n  404 |   await page.screenshot({ path: info.outputPath('groups-overview.png'), fullPage: true, animations: 'disabled' })\n  405 |   const handles = page.getByRole('button', { name: /^Arrastar grupo / })\n> 406 |   await dragOrder(page, page.getByRole('button', { name: 'Arrastar grupo Materiais', exact: true }), page.getByRole('button', { name: 'Arrastar grupo Projetos', exact: true }), Boolean(info.project.use.isMobile))\n      |                                 ^\n  407 |   await expect(handles.first()).toHaveAccessibleName('Arrastar grupo Projetos')\n  408 |   await page.getByRole('button', { name: 'Arrastar grupo Materiais', exact: true }).focus(); await page.keyboard.press('ArrowUp')\n  409 |   await expect(handles.first()).toHaveAccessibleName('Arrastar grupo Materiais')\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profiles.spec.ts:406:33"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:24:29.353Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profiles-F09-E05-criação-e-cbbab--e-remoção-com-persistência-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profiles-F09-E05-criação-e-cbbab--e-remoção-com-persistência-features-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profiles-F09-E05-criação-e-cbbab--e-remoção-com-persistência-features-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profiles.spec.ts",
+                    "column": 33,
+                    "line": 406
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-c8d3b064ccf78acbbc8d",
+          "file": "profiles.spec.ts",
+          "line": 384,
+          "column": 5
+        },
+        {
+          "title": "F09-E06 autosave, banner e campos não publicados; descartar restaura a publicação",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 10,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10084,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:24:57.523Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-c23306c5f5880f9fa0db",
+          "file": "profiles.spec.ts",
+          "line": 465,
+          "column": 5
+        },
+        {
+          "title": "F09-E11 Minha página tem subseções expansíveis e escolha inicial de criação",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 10,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3979,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:25:07.750Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1fd97f6a16028267a2f6-1cd64163ed6938cd5f59",
+          "file": "profiles.spec.ts",
+          "line": 513,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-19T21:16:20.109Z",
+    "duration": 532713.196,
+    "expected": 45,
+    "skipped": 0,
+    "unexpected": 8,
+    "flaky": 0
+  }
+}

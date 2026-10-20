@@ -4,6 +4,6 @@ import { PlanEditor } from './editor'
 
 export default async function Page() {
   const role = (await cookies()).get('catalogo_role')?.value
-  if (role !== 'ADMIN') notFound()
+  if (role !== 'ADMIN' && !(await cookies()).get('workspaceOwner')?.value) notFound()
   return <><PlanEditor /></>
 }

@@ -1,11 +1,12 @@
 'use client'
+import {PoolEntryDialog} from '@/features/redirect-pools/pool-entry-dialog'
 import { DatePicker } from '@/components/ui/date-picker'
 import { ReviewStatus } from '@/features/content-review/components/review-status'
 import { sendContentAppeal } from '@/features/content-review/review-api'
 
 import { RedirectListSkeleton } from './components/redirect-skeleton'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { Button } from '@/components/ui/button'
+import { Button,ButtonLink } from '@/components/ui/button'
 import { ActionIcon } from '@/components/ui/action-icon'
 import { OverlayDialog } from '@/components/ui/overlay-dialog'
 import { RefreshButton } from '@/components/layout/workspace-actions'
@@ -25,6 +26,7 @@ import styles from './components/redirects.module.css'
 type Attempt = { id: string | null; fields: string; key: string; version: number }
 export function RedirectScreen() {
   const [editing, setEditing] = useState(false)
+  const [distributing,setDistributing]=useState(false),distributionTrigger=useRef<HTMLButtonElement>(null)
   const [tab, setTab] = useState('address')
   const pageRef = useRef<HTMLElement>(null), heading = useRef<HTMLHeadingElement>(null), returnId = useRef<string | null>(null)
   const [page, setPage] = useState<RedirectPage>({ items: [], nextCursor: null }), [detail, setDetail] = useState<RedirectDetail | null>(null)
@@ -87,8 +89,9 @@ export function RedirectScreen() {
     setTab('address')
     setNotice(result.destinationRevision.status === 'APPROVED' ? 'Destino validado. O endereço permanente está pronto para compartilhar.' : result.destinationRevision.status === 'PENDING_REVIEW' ? 'Convite enviado para revisão humana.' : 'Tentativa registrada. Confira o estado no histórico.')
   }
+  async function loadMore(){await action(async()=>{const next=await redirectRequest<RedirectPage>('?cursor='+page.nextCursor);setPage(previous=>({items:[...previous.items,...next.items.filter(item=>!previous.items.some(p=>p.id===item.id))],nextCursor:next.nextCursor}))})}
   const active = detail?.revisions.find(row => row.id === detail.activeRevisionId)
-  const actions = <WorkspaceActions><Button disabled={pending || phase !== 'ready'} onClick={() => { setDetail(null); setStableUrl(''); setValue(emptyRedirect()); attempt.current = null; setError(''); setNotice(''); setConfirmDisable(false); setEditing(true) }}><ActionIcon name="plus" />Novo link permanente</Button><RefreshButton disabled={pending} onClick={() => void action(async () => { await loadList(); if (detail) await loadDetail(detail.id, true); setNotice('Dados atualizados. Os campos foram mantidos.') })} /></WorkspaceActions>
+  const actions = <WorkspaceActions><Button ref={distributionTrigger} variant="secondary" disabled={pending || phase !== 'ready'} onClick={()=>setDistributing(true)}><ActionIcon name="inviteDistributor"/>Distribuir convites</Button><Button disabled={pending || phase !== 'ready'} onClick={() => { setDetail(null); setStableUrl(''); setValue(emptyRedirect()); attempt.current = null; setError(''); setNotice(''); setConfirmDisable(false); setEditing(true) }}><ActionIcon name="plus" />Novo link permanente</Button><RefreshButton disabled={pending} onClick={() => void action(async () => { await loadList(); if (detail) await loadDetail(detail.id, true); setNotice('Dados atualizados. Os campos foram mantidos.') })} /></WorkspaceActions>
   const addressContent = detail ? <>
     <ReviewStatus review={detail.revisions[0]?.review} pending={pending} onAppeal={async text => { const review = detail.revisions[0]?.review; if (!review || busy.current) throw new Error('Aguarde e tente novamente.'); busy.current = true; setPending(true); try { await sendContentAppeal(review.id, text); await loadDetail(detail.id, true); await loadList(); setNotice('Contestação enviada para revisão humana.') } finally { busy.current = false; setPending(false) } }} />
     {detail.disabled ? <p className={styles.warning}>Endereço desativado definitivamente. Ele não encaminha mais visitantes.</p> : !active ? <p className={styles.warning}>{detail.revisions[0]?.review?.status === 'PENDING' ? 'Aguardando aprovação para liberar este convite.' : 'Ainda sem destino aprovado. Você pode corrigir o envio ou contestar uma recusa.'}</p> : null}
@@ -108,9 +111,11 @@ export function RedirectScreen() {
     {error && !editing ? <p className={styles.error} role="alert">{error}</p> : null}<p className={styles.status} ref={status} role="status" tabIndex={-1}>{notice}</p>
     {detail ? <>
       <header className={styles.detailHeader}><div className={styles.heading}><Button variant="secondary" disabled={pending} onClick={() => { returnId.current = detail.id; setDetail(null); setError(''); setNotice(''); setConfirmDisable(false) }}><ActionIcon name="back" />Voltar</Button><h2 ref={heading} tabIndex={-1}>{detail.revisions[0]?.label ?? 'Convite sem histórico'}</h2></div><RefreshButton disabled={pending} onClick={() => void action(async () => { await loadList(); await loadDetail(detail.id, true); setNotice('Dados atualizados. Os campos foram mantidos.') })} /></header>
+      {!detail.disabled?<WorkspaceActions><ButtonLink href={'/painel/convites/'+detail.id+'/distribuicao'}><ActionIcon name="inviteDistributor"/>Distribuir convites</ButtonLink></WorkspaceActions>:null}
       <Tabs label="Detalhes do convite" value={tab} onChange={setTab} items={[{ id: 'address', label: 'Endereço', content: addressContent }, { id: 'history', label: 'Histórico e acessos', content: historyContent }]} />
     </> : <>{actions}{phase === 'loading' ? <RedirectListSkeleton /> : phase === 'error' ? <p>Atualize os dados para tentar novamente.</p> : <><RedirectGrid items={page.items} pending={pending} onOpen={id => { setTab('address'); setRange({ from: '', to: '' }); void action(async () => { await loadDetail(id) }) }} />{page.nextCursor ? <div className={styles.actions}><Button variant="secondary" disabled={pending} onClick={() => void action(async () => { const next = await redirectRequest<RedirectPage>('?cursor=' + page.nextCursor); setPage(previous => ({ items: [...previous.items, ...next.items.filter(item => !previous.items.some(p => p.id === item.id))], nextCursor: next.nextCursor })) })}><ActionIcon name="loadMore" />Mais endereços</Button></div> : null}</>}</>}
     {!detail?.disabled ? <OverlayDialog open={editing} title={detail ? 'Atualizar destino' : 'Criar endereço permanente'} onClose={() => { if (!pending) setEditing(false) }}><p className={styles.warning}>Todo novo destino passa por validação automática. Se precisar de revisão humana, a equipe decide. Você pode contestar uma recusa. O destino anterior continua ativo.</p><div className={styles.frame}><form className={styles.form} aria-label="Editar convite permanente" onSubmit={e => { e.preventDefault(); void action(save) }}><fieldset className={styles.controls} disabled={pending}><legend className={styles.legend}>Dados do convite</legend><RedirectFields value={value} onChange={setValue} /><div className={styles.actions}><Button type="submit" loading={pending}><ActionIcon name="save" />Validar e salvar destino</Button></div></fieldset></form></div>{error ? <p className={styles.error} role="alert">{error}</p> : null}</OverlayDialog> : null}
+    {distributing?<PoolEntryDialog items={page.items} hasMore={Boolean(page.nextCursor)} pending={pending} trigger={distributionTrigger.current} onMore={()=>void loadMore()} onClose={()=>setDistributing(false)} onCreated={item=>setPage(old=>({...old,items:[item,...old.items.filter(row=>row.id!==item.id)]}))}/>:null}
     {qrTarget ? <QrDialog target={qrTarget} trigger={qrTrigger.current} onClose={() => setQrTarget(null)} /> : null}
   </section>
 }

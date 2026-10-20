@@ -1,3 +1,4 @@
+import {ContactForm} from '@/features/contact-forms/contact-form'
 import type { CSSProperties, ReactNode } from 'react'
 import { profileAppearance, readableInk } from '../profile-appearance'
 import type { ProfilePresentation } from '../profile-contract'
@@ -6,7 +7,7 @@ import {PersonalPageBrand} from './personal-page-brand'
 import {ChannelChoices,ChannelLink} from '@/features/profile-channels/channel-choices'
 import styles from './personal-page.module.css'
 import { Skeleton } from '@/components/feedback/skeleton'
-export function ProfileView({ content, avatarUrl, heading: Heading = 'h1', embedded = false, pending = false, notice, controls, navigation, empty }: { content: ProfilePresentation; avatarUrl?: string; heading?: 'h1' | 'h3'; embedded?: boolean; pending?: boolean; notice?: ReactNode; controls?: ReactNode; navigation?: ReactNode; empty?: ReactNode }) {
+export function ProfileView({ content, avatarUrl, heading: Heading = 'h1', embedded = false, pending = false, notice, controls, navigation, empty, contactPreview=false }: { content: ProfilePresentation; avatarUrl?: string; heading?: 'h1' | 'h3'; embedded?: boolean; pending?: boolean; notice?: ReactNode; controls?: ReactNode; navigation?: ReactNode; empty?: ReactNode;contactPreview?:boolean }) {
   const appearance = profileAppearance(content.appearance)
   const ink = readableInk(appearance.background)
   const variables = { '--page-bg': appearance.background, '--page-ink': ink, '--page-shade': ink === '#ffffff' ? '#000000' : '#ffffff', '--button-bg': appearance.buttonColor, '--button-ink': readableInk(appearance.buttonColor), '--page-radius': { square: '4px', rounded: '18px', pill: '999px' }[appearance.radius], '--page-font': { modern: 'var(--font-outfit), sans-serif', clean: 'var(--font-source-sans), sans-serif', classic: 'Georgia, serif' }[appearance.font] } as CSSProperties
@@ -32,6 +33,7 @@ export function ProfileView({ content, avatarUrl, heading: Heading = 'h1', embed
       return shown.length ? <section key={group.id} aria-label={group.name} className={styles.group}><GroupHeading>{group.name}</GroupHeading><ul>{shown.map(item => <li key={item.id}>{link(item)}</li>)}</ul></section> : null
     })}
     {navigation}
+    {content.contactForm?<ContactForm key={content.contactForm.revisionId} form={content.contactForm} slug={content.slug} preview={embedded||contactPreview}/>:null}
   </article><PersonalPageBrand/></div>
 }
 

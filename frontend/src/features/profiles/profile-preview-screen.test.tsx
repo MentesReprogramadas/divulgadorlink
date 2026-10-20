@@ -3,7 +3,7 @@ import { afterEach, expect, it, vi } from 'vitest'
 import { ProfilePreviewScreen } from './profile-preview-screen'
 import { emptyProfile } from './profile-contract'
 const { request } = vi.hoisted(() => ({ request: vi.fn() }))
-vi.mock('./profile-api', () => ({ profileRequest: request }))
+vi.mock('./profile-api', async importOriginal => ({...await importOriginal<typeof import('./profile-api')>(), profileRequest: request }))
 afterEach(() => { cleanup(); vi.resetAllMocks() })
 
 it('carrega somente a prévia da sessão e mantém o aviso e o retorno visíveis', async () => {

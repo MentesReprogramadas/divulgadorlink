@@ -65,6 +65,9 @@ export function middleware(request: NextRequest) {
   const { headers, csp } = withPath(request)
   const hidden = request.nextUrl.pathname.startsWith('/admin')
     && request.cookies.get('catalogo_role')?.value !== 'ADMIN'
+    // This only permits rendering the shell. AreaFrame and every API request
+    // validate the selected membership; a cookie never grants admin rights.
+    && !request.cookies.get('workspaceOwner')?.value
   if (hidden) {
     return finish(request, NextResponse.rewrite(new URL('/nao-encontrado', request.url), {
       status: 404,

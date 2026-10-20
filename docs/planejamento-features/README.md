@@ -2,7 +2,9 @@
 
 Data da análise inicial: 14 de outubro de 2026. Atualização de prioridade: 15 de outubro de 2026.
 
-**Situação atual — 18/10/2026:** 21/42 implementações nos ambientes declarados. F27/F31/F34/F37 verificadas localmente nesta retomada; execução encerrada na F37 por pedido mais recente. Próxima F38, não iniciada. CI/liberação remotos e a pendência global REG-F03-001 permanecem separados. [Fechamento F37](execucao-f37.md).
+**Situação atual — 19/10/2026:** 29/42 implementações nos ambientes declarados. F22, F23 e F25 verificadas localmente nesta sequência; parada atendida após o assistente. Restam 13 implementações; próxima F28, não iniciada. S7/CI/liberação remotas em revisão. Sem nova branch, commit, push ou deploy. [F22](execucao-f22.md) · [F23](execucao-f23.md) · [F25](execucao-f25.md).
+
+Refinamento solicitado após F21: [importação, resumos, navegação, campanhas, equipe global e apresentação](refinamento-f05-f15-f20-f21-f38.md). Ampliação anterior implementada e validada localmente. Pedido posterior implementou F22 → F23 → F25, conforme situação atual acima.
 
 Este conjunto transforma as 42 features de [features propostas](../features-propostas.md) em uma sequência de entrega, 42 especificações e 42 planos de implementação independentes. **F42 foi concluída em produção. Em 15/10/2026 o usuário autorizou continuar todas as features, com testes e commits em codex/roadmap-features, sem publicar na main. F01 concluída na branch; F06 concluída na branch e F07 concluída na branch, com CI aprovado. Em 16/10/2026 o usuário autorizou somente a próxima feature: F02 concluída na branch com CI aprovado. Nova autorização limitada à F03: concluída na branch com CI aprovado. Autorização posterior incluiu aleatoriedade na F03 e execução da F04, concluídas na branch com CI aprovado. Nova autorização em 16/10/2026 concluiu F09 na branch, com D10 resolvida, critérios/evidências e CI aprovado. Em 16/10/2026 nova autorização retomou a execução contínua: F12 concluída na branch com CI aprovado, aprovação automática e retenção de 50 versões/180 dias. A autorização posterior retomou a execução contínua: F19 validada localmente; F08 validada localmente; F11/F13/F14/F16/F17/F18 também validadas localmente. Execução encerrada após F18 conforme pedido de 18/10; CI/liberação remotos pendentes. As decisões técnicas são registradas com alternativas, conforme pedido mais recente. O AGENTS atual exige autorização específica antes de novos commits, push ou deploy.** Evidências, decisões concretizadas e operação estão em [execução F42](execucao-f42.md).
 
@@ -19,7 +21,7 @@ A fonte foi ampliada por solicitação do usuário com F42; as seções anterior
 7. Specs e planos individuais na tabela abaixo.
 8. [Auditoria documental realizada](auditoria-documental.md).
 
-As decisões não resolvidas são propostas de desenho, nunca fatos aprovados. Não há preços, SLAs ou estimativas de calendário inventados. Ordem de dependência é obrigatória; prioridade de negócio pode ser revista com registro. O pedido atual determina parar após concluir F37. F38 e posteriores não iniciar. F09 e F12 concluídas na branch, com decisões registradas em [execução F12](execucao-f12.md). Ver também [execução F09](execucao-f09.md). Evidências e decisões ficam em [execução contínua](execucao-roadmap.md). Deploy e cobrança reais não são consequência automática dos commits nessa branch.
+As decisões não resolvidas são propostas de desenho, nunca fatos aprovados. Não há preços, SLAs ou estimativas de calendário inventados. Ordem de dependência é obrigatória; prioridade de negócio pode ser revista com registro. A implementação atual parou após F25. As notas datadas anteriores preservam o histórico de autorizações e paradas. F09 e F12 concluídas na branch, com decisões registradas em [execução F12](execucao-f12.md). Ver também [execução F09](execucao-f09.md). Evidências e decisões ficam em [execução contínua](execucao-roadmap.md). Deploy e cobrança reais não são consequência automática dos commits nessa branch.
 
 ## Índice e sequência única
 
@@ -46,14 +48,14 @@ As decisões não resolvidas são propostas de desenho, nunca fatos aprovados. N
 | 19 | F31 | 3 | [Mapa de interação da página](specs/f31-interacao-pagina.md) | [Implementação](planos/f31-interacao-pagina.md) | F42 (prioridade); F09, F19 | S0–S6 LOCAL; S7 EM REVISÃO |
 | 20 | F34 | 3 | [Checklist de publicação](specs/f34-checklist-publicacao.md) | [Implementação](planos/f34-checklist-publicacao.md) | F42 (prioridade); F09 | S0–S6 LOCAL; S7 EM REVISÃO |
 | 21 | F37 | 3 | [Botão com alternativas de acesso](specs/f37-alternativas-acesso.md) | [Implementação](planos/f37-alternativas-acesso.md) | F42 (prioridade); F09, F12, F19 | S0–S6 LOCAL; S7 EM REVISÃO |
-| 22 | F38 | 3 | [Exportação do perfil](specs/f38-exportacao-perfil.md) | [Implementação](planos/f38-exportacao-perfil.md) | F42 (prioridade); F09, F19 | NÃO INICIADA |
-| 23 | F05 | 4 | [Seguir nichos](specs/f05-seguir-nichos.md) | [Implementação](planos/f05-seguir-nichos.md) | F42 (prioridade); F02 | NÃO INICIADA |
-| 24 | F15 | 4 | [Página por campanha](specs/f15-pagina-campanha.md) | [Implementação](planos/f15-pagina-campanha.md) | F42 (prioridade); F09, F19 | NÃO INICIADA |
-| 25 | F20 | 4 | [Equipe e permissões](specs/f20-equipe-permissoes.md) | [Implementação](planos/f20-equipe-permissoes.md) | F42 (prioridade); F09 | NÃO INICIADA |
-| 26 | F21 | 4 | [Mídia kit do divulgador](specs/f21-midia-kit.md) | [Implementação](planos/f21-midia-kit.md) | F42 (prioridade); F09, F01 | NÃO INICIADA |
-| 27 | F22 | 4 | [Formulário de contato na página](specs/f22-formulario-contato.md) | [Implementação](planos/f22-formulario-contato.md) | F42 (prioridade); F09, F20 | NÃO INICIADA |
-| 28 | F23 | 4 | [Distribuidor de convites](specs/f23-distribuidor-convites.md) | [Implementação](planos/f23-distribuidor-convites.md) | F42 (prioridade); F12 | NÃO INICIADA |
-| 29 | F25 | 4 | [Assistente de criação de perfil](specs/f25-assistente-perfil.md) | [Implementação](planos/f25-assistente-perfil.md) | F42 (prioridade); F09, F16, F17 | NÃO INICIADA |
+| 22 | F38 | 3 | [Exportação do perfil](specs/f38-exportacao-perfil.md) | [Implementação](planos/f38-exportacao-perfil.md) | F42 (prioridade); F09, F19 | S0–S6 LOCAIS; S7 EM REVISÃO |
+| 23 | F05 | 4 | [Seguir nichos](specs/f05-seguir-nichos.md) | [Implementação](planos/f05-seguir-nichos.md) | F42 (prioridade); F02 | S0–S6 LOCAIS; S7 EM REVISÃO |
+| 24 | F15 | 4 | [Página por campanha](specs/f15-pagina-campanha.md) | [Implementação](planos/f15-pagina-campanha.md) | F42 (prioridade); F09, F19 | S0–S6 LOCAIS; S7 EM REVISÃO |
+| 25 | F20 | 4 | [Equipe e permissões](specs/f20-equipe-permissoes.md) | [Implementação](planos/f20-equipe-permissoes.md) | F42 (prioridade); F09 | S0–S6 LOCAIS; S7 EM REVISÃO |
+| 26 | F21 | 4 | [Mídia kit do divulgador](specs/f21-midia-kit.md) | [Implementação](planos/f21-midia-kit.md) | F42 (prioridade); F09, F01 | S0–S6 LOCAIS; S7 EM REVISÃO |
+| 27 | F22 | 4 | [Formulário de contato na página](specs/f22-formulario-contato.md) | [Implementação](planos/f22-formulario-contato.md) | F42 (prioridade); F09, F20 | S0–S6 LOCAIS; S7 EM REVISÃO |
+| 28 | F23 | 4 | [Distribuidor de convites](specs/f23-distribuidor-convites.md) | [Implementação](planos/f23-distribuidor-convites.md) | F42 (prioridade); F12 | S0–S6 LOCAIS; S7 EM REVISÃO |
+| 29 | F25 | 4 | [Assistente de criação de perfil](specs/f25-assistente-perfil.md) | [Implementação](planos/f25-assistente-perfil.md) | F42 (prioridade); F09, F16, F17 | S0–S6 LOCAIS; S7 EM REVISÃO |
 | 30 | F28 | 4 | [Comprovação de propriedade](specs/f28-comprovacao-propriedade.md) | [Implementação](planos/f28-comprovacao-propriedade.md) | F42 (prioridade); F12 | NÃO INICIADA |
 | 31 | F29 | 4 | [Página de evento](specs/f29-evento.md) | [Implementação](planos/f29-evento.md) | F42 (prioridade); F09, F14 | NÃO INICIADA |
 | 32 | F32 | 4 | [Kit de divulgação](specs/f32-kit-divulgacao.md) | [Implementação](planos/f32-kit-divulgacao.md) | F42 (prioridade); F09, F13 | NÃO INICIADA |
@@ -62,7 +64,7 @@ As decisões não resolvidas são propostas de desenho, nunca fatos aprovados. N
 | 35 | F24 | 5 | [Descoberta de perfis](specs/f24-descoberta-perfis.md) | [Implementação](planos/f24-descoberta-perfis.md) | F42 (prioridade); F09, F03 | NÃO INICIADA |
 | 36 | F30 | 5 | [Integrações e avisos automáticos](specs/f30-integracoes-webhooks.md) | [Implementação](planos/f30-integracoes-webhooks.md) | F42 (prioridade); F22, F02 | NÃO INICIADA |
 | 37 | F35 | 5 | [Central de contatos recebidos](specs/f35-central-contatos.md) | [Implementação](planos/f35-central-contatos.md) | F42 (prioridade); F22, F20 | NÃO INICIADA |
-| 38 | F39 | 5 | [Página em vários idiomas](specs/f39-multilingue.md) | [Implementação](planos/f39-multilingue.md) | F42 (prioridade); F09, F19 | NÃO INICIADA |
+| 38 | F39 | 5 | [Página em vários idiomas](specs/f39-multilingue.md) | [Implementação](planos/f39-multilingue.md) | F42 (prioridade); F09, F19 | S0–S6 LOCAIS; S7 EM REVISÃO |
 | 39 | F26 | 6 | [Teste de versões de botões](specs/f26-teste-botoes.md) | [Implementação](planos/f26-teste-botoes.md) | F42 (prioridade); F09, F31 | NÃO INICIADA |
 | 40 | F36 | 6 | [Pacotes para agências](specs/f36-agencias.md) | [Implementação](planos/f36-agencias.md) | F42 (prioridade); F20, F11, F21 | NÃO INICIADA |
 | 41 | F40 | 6 | [Diagnóstico da página](specs/f40-diagnostico.md) | [Implementação](planos/f40-diagnostico.md) | F42 (prioridade); F09, F07, F31 | NÃO INICIADA |
@@ -91,3 +93,8 @@ Checkpoint F31: 19 das 42 features têm implementação concluída no seu ambien
 Checkpoint histórico F34: 20/42 implementações concluídas nos ambientes declarados, incluindo [F34](execucao-f34.md) localmente; S7 global/remoto em revisão. Naquele checkpoint, próxima F37; continuação até F23 posteriormente revogada pelo pedido de parar na F37. Não equivale a vinte features em produção.
 
 Checkpoint F37: 21/42 implementações nos ambientes declarados, incluindo [F37](execucao-f37.md) localmente; não equivale a 21 publicadas em produção. Parada atendida após F37. Restam 21 features, a partir de F38; F25 continua não iniciada.
+
+
+## Refinamento de entrada e edição — 19/10/2026
+
+[Fluxos guiados F22/F23/F25, decisões, alternativas e provas](refinamento-f22-f23-f25.md). Distribuição orientada na lista de Convites; contato na criação/edição e na visão geral; escolha manual/assistida antes da primeira página. Checkbox corrigido, busca movida para Página e prévia do rascunho nas quatro abas de edição. Mantém 29/42; F28 não iniciada e S7 remoto pendente. Sem commit/push/deploy novos. O registro vinculado complementa as provas históricas, sem reescrever os resultados anteriores.

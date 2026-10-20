@@ -1,0 +1,2 @@
+import {api} from '@/lib/api'
+export async function contactRequest<T>(path:string,init?:RequestInit):Promise<T>{const response=await api<T&{message?:string}>(path,init).catch(()=>{throw new Error('Sem conexão. Seus dados foram mantidos; tente novamente.')});if(response.status<200||response.status>=300)throw new Error(response.body.message??'Não foi possível carregar os contatos.');return response.body}

@@ -15,6 +15,7 @@
 .footerBrand { font-family: var(--font-product); font-weight: 500; }
 .footer nav { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); }
 .footer a, .footer button { color: var(--text-secondary); font-size: var(--text-sm); }
+.headerInner[data-workspace], .footer[data-workspace] { width: 100%; max-width: none; padding-inline: clamp(16px, 2.5vw, 48px); }
 .skip { position: fixed; z-index: 100; top: var(--space-2); left: var(--space-2); padding: var(--space-3) var(--space-4); transform: translateY(-200%); border-radius: var(--radius); background: var(--color-brand-navy); color: white; }
 .skip:focus { transform: translateY(0); }
 
@@ -31,6 +32,7 @@
   .nav { display: none; width: 100%; flex-direction: column; align-items: stretch; gap: var(--space-2); padding-top: var(--space-3); border-top: 1px solid var(--border-default); }
   .nav a { justify-content: flex-start; width: 100%; }
   .footer { padding: var(--space-6) var(--space-4); }
+  .headerInner[data-workspace], .footer[data-workspace] { padding-inline: var(--space-4); }
 }
 
 .menuToggle:disabled { cursor: progress; }

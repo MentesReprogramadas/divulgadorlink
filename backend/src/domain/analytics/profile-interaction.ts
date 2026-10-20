@@ -6,7 +6,7 @@ export const PROFILE_INTERACTION_RETENTION_DAYS=180
 export const PROFILE_INTERACTION_MIN_SAMPLE=10
 export type ProfileViewport='MOBILE'|'TABLET'|'DESKTOP'
 export type ProfileInteractionKind='PAGE'|'IMPRESSION'|'CLICK'|'SCROLL'
-export type InteractionEvent={eventId:string;tenantId:string;profileId:string;revisionId:number;blockId:string|null;kind:ProfileInteractionKind;viewportBucket:ProfileViewport;scrollBucket:number|null;sessionKey:string;day:string}
+export type InteractionEvent={campaignId?:string|null;eventId:string;tenantId:string;profileId:string;revisionId:number;blockId:string|null;kind:ProfileInteractionKind;viewportBucket:ProfileViewport;scrollBucket:number|null;sessionKey:string;day:string}
 export type InteractionBlock={id:string;label:string}
 export type InteractionSummary={available:boolean;sessions:number;pageViews:number|null;blocks:Array<InteractionBlock&{impressions:number|null;clicks:number|null;ctr:number|null}>;scrollBuckets:Array<{threshold:number;label:string;reached:number|null}>}
 export type InteractionFacts={sessions:number;pageViews:number;blocks:Array<{id:string;impressions:number;clicks:number}>;reach:ReadonlyMap<number,number>}
@@ -28,7 +28,7 @@ export const profileInteractionInput=z.object({
  if((event.kind==='SCROLL')!==(event.scrollBucket!==null))ctx.addIssue({code:z.ZodIssueCode.custom,path:['scrollBucket'],message:'Marco de rolagem inválido.'})
 })
 export function interactionIdentity(event:InteractionEvent):string{
- return createHash('sha256').update(JSON.stringify([event.tenantId,event.profileId,event.revisionId,event.day,event.sessionKey,event.viewportBucket,event.kind,event.blockId,event.scrollBucket])).digest('hex')
+ return createHash('sha256').update(JSON.stringify([event.tenantId,event.profileId,event.revisionId,event.day,event.sessionKey,event.viewportBucket,event.kind,event.blockId,event.scrollBucket,...(event.campaignId?[event.campaignId]:[])])).digest('hex')
 }
 export function summarizeProfileInteraction(events:readonly InteractionEvent[],blocks:readonly InteractionBlock[],context:{revisionId:number;viewportBucket:ProfileViewport|'ALL';minimumSample?:number}):InteractionSummary{
  const seenIds=new Set<string>(),seenInteractions=new Set<string>()

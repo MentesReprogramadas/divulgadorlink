@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
+if (process.env.PIX_PROOF_DATABASE_URL && !['localhost', '127.0.0.1'].includes(new URL(process.env.PIX_PROOF_DATABASE_URL).hostname)) throw new Error('Pix proof requires a local database')
 
 describe('expiração do Pix por HTTP, API e worker reais, TTL de teste', () => {
   it('checkout Pix fica pendente, expira, libera o hold e não ativa promoção', async () => {
@@ -10,8 +11,8 @@ describe('expiração do Pix por HTTP, API e worker reais, TTL de teste', () => 
         shell: true,
         env: {
           NODE_ENV: 'dev',
-          REDIS_URL: 'redis://127.0.0.1:6380',
-          DATABASE_URL: 'postgresql://divulgador:divulgador@127.0.0.1:5433/divulgador?schema=public',
+          REDIS_URL: process.env.PIX_PROOF_REDIS_URL ?? 'redis://127.0.0.1:6380',
+          DATABASE_URL: process.env.PIX_PROOF_DATABASE_URL ?? 'postgresql://divulgador:divulgador@127.0.0.1:5433/divulgador?schema=public',
           JWT_SECRET: 'test-jwt-secret-min-16',
           PATH: process.env.PATH,
           SystemRoot: process.env.SystemRoot,

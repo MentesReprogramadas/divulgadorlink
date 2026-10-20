@@ -20,3 +20,11 @@ describe('BFF de destaque administrativo', () => {
     expect(mockedForward).toHaveBeenCalledWith(expect.objectContaining({ method, path: '/api/v1/admin/links/link-1/promotions', host: 'tenant-a.localhost', cookie: 'accessToken=fixture', csrf: 'csrf-fixture', body: body ? Buffer.from(body) : undefined }))
   })
 })
+
+it('F38 preserves private JSON attachment headers across the BFF',async()=>{
+ mockedForward.mockResolvedValue({status:200,headers:{'cache-control':'private, no-store','content-disposition':'attachment; filename="minha-pagina-draft.json"'},body:Buffer.from('{"schemaVersion":1}')})
+ const response=await GET(new Request('http://tenant-a.localhost/bff/v1/me/profile/export?revision=draft'),{params:Promise.resolve({path:['v1','me','profile','export']})})
+ expect(response.headers.get('cache-control')).toBe('private, no-store');expect(response.headers.get('content-disposition')).toContain('attachment;');expect(await response.json()).toEqual({schemaVersion:1})
+})
+
+it('F20 resource selector is forwarded as untrusted context; avatar selector is removed from upstream URL',async()=>{await GET(new Request('http://tenant.localhost/bff/v1/me/profile/avatar/'+ 'a'.repeat(64)+'?profileId=profile-a'),{params:Promise.resolve({path:['v1','me','profile','avatar','a'.repeat(64)]})});expect(mockedForward).toHaveBeenCalledWith(expect.objectContaining({path:'/api/v1/me/profile/avatar/'+'a'.repeat(64),profileTarget:'profile-a'}));mockedForward.mockClear();await GET(new Request('http://tenant.localhost/bff/v1/me/profile',{headers:{'x-profile-id':'profile-b'}}),{params:Promise.resolve({path:['v1','me','profile']})});expect(mockedForward).toHaveBeenCalledWith(expect.objectContaining({profileTarget:'profile-b'}))})

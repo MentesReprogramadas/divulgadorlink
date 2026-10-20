@@ -9,9 +9,9 @@ export type ProfileContent = {
   items: Array<{ id: string; categoryId: string; type: 'URL' | 'CATALOG' | 'SOCIAL'; label: string; destination: string; visible: boolean; schedule?: ProfileSchedule | null; templateExample?: boolean }>
 }
 export type ProfileDraft = ProfileContent & { version: number }
-export type ProfilePresentation=ProfileContent&{channelGroups?:PublicChannelGroup[]}
+export type ProfilePresentation=ProfileContent&{contactForm?:import('@/features/contact-forms/contact-contract').ContactFormDescriptor|null;channelGroups?:PublicChannelGroup[]}
 export type ProfileRevision = { id: string; version: number; createdAt: string; current: boolean; imported: boolean; summary: { name: string; groups: number; links: number } }
 export type ProfileRevisionDetail = { id: string; version: number; content: ProfileContent; photoAvailable: boolean;channelGroups?:ChannelGroupSummary[] }
-export type ProfileState = { scheduling?: { allowed: boolean; serverNow: string }; review?: ContentReview | null; draft: ProfileDraft | null; publishedVersion: number | null; publishedContent?: ProfileContent | null;channelGroups?:ChannelGroupSummary[];channelChanges?:boolean }
+export type ProfileState = { access?:{role:'EDITOR'|'VIEWER'}; scheduling?: { allowed: boolean; serverNow: string }; review?: ContentReview | null; draft: ProfileDraft | null; publishedVersion: number | null; publishedContent?: ProfileContent | null;channelGroups?:ChannelGroupSummary[];channelChanges?:boolean }
 export type PublicProfile = { restricted: true } | (ProfilePresentation & { restricted: false; measurement?:import('@/features/profile-interaction/interaction-contract').MeasurementDescriptor; publishedRevisionId: number; serverNow?: string; nextBoundary?: string | null; previewAt?: string; previewBounds?: { before: string | null; after: string | null } })
 export const emptyProfile = (): ProfileDraft => ({ slug: '', name: '', bio: '', avatarAssetId: null, requiresAge: false, primaryItemId: null, categories: [], items: [], version: 0 })

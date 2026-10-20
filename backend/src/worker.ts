@@ -1,3 +1,8 @@
+import {purgeSuggestions} from '@/repositories/profile-suggestions'
+import {purgeDestinationPools} from '@/repositories/destination-pools'
+import {purgeContacts} from '@/repositories/contact-forms'
+import {runNicheDigestCycle,type DigestCycleInput} from '@/use-cases/@Notifications/niche-digests'
+import {enqueueNicheDigestCycle,NICHE_DIGEST_QUEUE} from '@/adapters/queues/enqueue-niche-digests'
 import { purgeSearchObservations } from '@/repositories/search-observations'
 import { purgeProfileInteractions } from '@/repositories/profile-interactions'
 import { startProfileBillingDrain } from '@/use-cases/@Billing/billing-drain'
@@ -170,6 +175,7 @@ export type WorkerDeps = {
   db?: PrismaClient
   availability?: AvailabilityCycleInput
   renewalReminders?: RenewalCycleInput
+  nicheDigests?:DigestCycleInput
 }
 
 export function createWorker(connection: Redis, deps: WorkerDeps, queueName = QUEUE_NAME): Worker {
@@ -180,6 +186,7 @@ export function createWorker(connection: Redis, deps: WorkerDeps, queueName = QU
       try {
       const result = await (async () => {
       if (job.name === 'evolution-cycle') return runEvolutionCycle(deps.db ?? prisma)
+      if(job.name==='niche-digest-cycle')return runNicheDigestCycle(deps.db??prisma,deps.nicheDigests)
       if (job.name === 'renewal-reminder-cycle') return runRenewalReminderCycle(deps.db ?? prisma, deps.renewalReminders)
       if (job.name === 'availability-cycle') return runAvailabilityCycle(deps.db ?? prisma, deps.availability)
       if (job.name === 'moderate-link') {
@@ -341,9 +348,12 @@ export async function startWorker(): Promise<void> {
   await enqueuePendingEmbeddingJobs()
   await enqueueEvolutionCycle()
   await enqueueAvailabilityCycle()
+  createWorker(connection,{textJudge:null},NICHE_DIGEST_QUEUE)
+  await enqueueNicheDigestCycle()
   await enqueueRenewalReminderCycle()
   const drain = setInterval(() => {
     void enqueueEvolutionCycle().catch(() => logDomainEvent('evolution.drain.failed', { result: 'queue_unavailable' }))
+    void enqueueNicheDigestCycle().catch(()=>logDomainEvent('niche.digest.drain.failed',{result:'queue_unavailable'}))
     void enqueueRenewalReminderCycle().catch(() => logDomainEvent('renewal.reminder.drain.failed', { result: 'queue_unavailable' }))
     void enqueueAvailabilityCycle().catch(() => logDomainEvent('availability.drain.failed', { result: 'queue_unavailable' }))
     void enqueuePendingEmbeddingJobs().catch((error) => {
@@ -356,6 +366,9 @@ export async function startWorker(): Promise<void> {
   drain.unref()
   const day = 24 * 60 * 60 * 1000
   const purge = async () => {
+    await purgeSuggestions(prisma)
+    await purgeDestinationPools(prisma)
+    await purgeContacts(prisma)
     await purgeRedirectHistory(prisma)
     await purgeProfileHistory(prisma)
     await purgeSearchObservations(prisma)

@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { SuspendedAccount } from './panel'
 import { SiteNavigation } from '@/components/layout/site-navigation'
 
-vi.mock('@/lib/api', () => ({ api: vi.fn() }))
+vi.mock('@/lib/api', () => ({ api: vi.fn(async()=>({status:403,body:{message:'Conta suspensa'}})),bindApiWorkspace:vi.fn() }))
 vi.mock('next/navigation', () => ({ usePathname: () => '/painel' }))
 
 afterEach(cleanup)

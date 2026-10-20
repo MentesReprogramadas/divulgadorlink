@@ -15,6 +15,8 @@ export function forward(input: {
   authorization?: string
   body?: Buffer
   idempotencyKey?: string
+  profileTarget?: string
+  workspaceTarget?: string
   csrf?: string
   userAgent?: string
   dnt?: string
@@ -44,6 +46,8 @@ export function forward(input: {
         ...(input.cookie ? { cookie: input.cookie } : {}),
         ...(input.authorization ? { authorization: input.authorization } : {}),
         ...(input.idempotencyKey ? { 'idempotency-key': input.idempotencyKey } : {}),
+        ...(input.profileTarget ? {'x-profile-id':input.profileTarget} : {}),
+        ...(input.workspaceTarget ? {'x-workspace-owner':input.workspaceTarget} : {}),
         ...(input.csrf ? { 'x-csrf-token': input.csrf } : {}),
         ...(input.dnt === '1' ? { dnt: '1' } : {}),
         ...(input.gpc === '1' ? { 'sec-gpc': '1' } : {}),

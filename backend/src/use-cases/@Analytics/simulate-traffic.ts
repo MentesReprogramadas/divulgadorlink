@@ -1,5 +1,5 @@
 import { Prisma, type PrismaClient } from '@prisma/client'
-import { planTraffic, simulationConfig, simulationHash, trafficConfigForLink, type SimulationConfig } from '@/domain/analytics/traffic-simulation'
+import { planTraffic, planGrowthTraffic, simulationConfig, simulationHash, trafficConfigForLink, type SimulationConfig } from '@/domain/analytics/traffic-simulation'
 
 export type SimulationInput = {
   tenantId: string; run: string; config: SimulationConfig; through: Date
@@ -35,15 +35,24 @@ export async function simulateTraffic(db: PrismaClient, input: SimulationInput, 
     if (previous && (previous.after as { identity?: string })?.identity !== identity) throw new Error('Run existente com outra configuração; reutilize a original ou escolha outro run')
     if (previous?.action === 'DEV_METRICS_ROLLED_BACK' && !input.rollback) throw new Error('Run revertido; use outro identificador')
     if (!previous && input.rollback) throw new Error('Run não encontrado')
+    if (!previous && config.growth && !input.rollback) {
+      const runs = await tx.auditLog.findMany({ where: { tenantId: input.tenantId, entityType: 'AnalyticsSimulation', action: 'DEV_METRICS_STARTED' }, select: { after: true, entityId: true } })
+      for (const run of runs) {
+        const identity = (run.after as { identity?: string } | null)?.identity
+        if (!identity) continue
+        const old = JSON.parse(identity) as { config?: { until?: string; growth?: { since: string } } }
+        if (old.config?.growth && old.config.until && Date.parse(old.config.growth.since) < Date.parse(config.until) && Date.parse(config.growth.since) < Date.parse(old.config.until)) throw new Error(`Intervalo de crescimento sobreposto ao lote ${run.entityId}; retome esse lote ou use since >= seu until`)
+      }
+    }
     const savedIds = (previous?.after as { sponsoredIds?: string[] } | null)?.sponsoredIds
     let sponsoredIds = savedIds ?? []
-    if (!previous && config.sponsoredMinViews !== undefined && !input.rollback) {
+    if (!previous && (config.sponsoredMinViews !== undefined || config.growth) && !input.rollback) {
       const hasPauses = await tx.$queryRaw<Array<{ present: boolean }>>`SELECT to_regclass('promotion_pauses') IS NOT NULL AS present`
       const pauses = hasPauses[0].present ? Prisma.sql`AND NOT EXISTS (SELECT 1 FROM promotion_pauses gap WHERE gap."promotionId"=p.id AND gap."tenantId"=p."tenantId" AND gap."startsAt"<=${new Date(config.until)} AND (gap."endsAt" IS NULL OR gap."endsAt">${new Date(config.until)}))` : Prisma.empty
       const promotions = await tx.$queryRaw<Array<{ linkId: string }>>`SELECT DISTINCT p."linkId" FROM promotions p WHERE p."tenantId"=${input.tenantId} AND p.status='ACTIVE' AND p."activatedAt"<=${new Date(config.until)} AND (p."expiresAt" IS NULL OR p."expiresAt">${new Date(config.until)}) ${pauses}`
       sponsoredIds = promotions.map(row => row.linkId).sort()
     }
-    if (!previous && !input.dryRun) await tx.auditLog.create({ data: { id: manifestId, tenantId: input.tenantId, action: 'DEV_METRICS_STARTED', entityType: 'AnalyticsSimulation', entityId: input.run, after: { identity, ...(config.sponsoredMinViews !== undefined ? { sponsoredIds } : {}) } } })
+    if (!previous && !input.dryRun) await tx.auditLog.create({ data: { id: manifestId, tenantId: input.tenantId, action: 'DEV_METRICS_STARTED', entityType: 'AnalyticsSimulation', entityId: input.run, after: { identity, ...(config.sponsoredMinViews !== undefined || config.growth ? { sponsoredIds } : {}) } } })
     return sponsoredIds
   })
   if (input.rollback) {
@@ -72,12 +81,12 @@ export async function simulateTraffic(db: PrismaClient, input: SimulationInput, 
     return totals
   }
   for (;;) {
-    const links = await db.link.findMany({ where: { tenantId: input.tenantId, ...(input.linkId ? { id: input.linkId } : {}), createdAt: { lt: new Date(config.until) } }, orderBy: { id: 'asc' }, take: input.batchSize, ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}), select: { id: true, tenantId: true, createdAt: true } })
+    const links = await db.link.findMany({ where: { tenantId: input.tenantId, ...(input.linkId ? { id: input.linkId } : {}), ...(config.growth ? { status: 'PUBLISHED' } : {}), createdAt: { lt: new Date(config.until) } }, orderBy: { id: 'asc' }, take: input.batchSize, ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}), select: { id: true, tenantId: true, createdAt: true } })
     if (!links.length) break
     for (const link of links) {
       const sponsored = sponsoredIds.includes(link.id)
-      const linkConfig = trafficConfigForLink(config, sponsored)
-      const visits = planTraffic(link, linkConfig, prefix).filter(visit => visit.at <= input.through)
+      const linkConfig = trafficConfigForLink(config, sponsored, link)
+      const visits = (config.growth ? planGrowthTraffic(link, linkConfig, prefix, sponsored) : planTraffic(link, linkConfig, prefix)).filter(visit => visit.at <= input.through)
       const result = await db.$transaction(async tx => {
         if (input.dryRun) await tx.$executeRaw`SET TRANSACTION READ ONLY`
         if (!input.dryRun) await lock(tx)

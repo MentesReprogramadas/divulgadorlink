@@ -1,7 +1,7 @@
 import { configuredResend, deliverEmail, emailOutboxEnabled } from './outbound-mail'
 import type { OutboundEmail } from './resend-mailer'
 
-export async function deliverRenewalReminder(email: OutboundEmail): Promise<void> {
+export async function deliverQueuedEmail(email: OutboundEmail): Promise<void> {
   // External provider fixture, restricted to local non-production harnesses.
   const fixture = process.env.E2E_RENEWAL_MAIL_URL
   if (process.env.NODE_ENV !== 'production' && fixture) {
@@ -14,3 +14,5 @@ export async function deliverRenewalReminder(email: OutboundEmail): Promise<void
   if (!configuredResend() && !emailOutboxEnabled()) throw new Error('provedor de e-mail não configurado')
   await deliverEmail(email, AbortSignal.timeout(5000))
 }
+
+export {deliverQueuedEmail as deliverRenewalReminder}

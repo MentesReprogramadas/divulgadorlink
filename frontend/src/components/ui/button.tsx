@@ -1,4 +1,6 @@
+'use client'
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes, Ref } from 'react'
+import {useReadOnly} from './interaction-policy'
 import styles from './button.module.css'
 
 type Variant = 'primary' | 'secondary' | 'ghost' | 'danger'
@@ -15,11 +17,13 @@ export function Button({
   className,
   loading = false,
   disabled,
+  readOnlyAllowed=false,
   children,
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; loading?: boolean; ref?: Ref<HTMLButtonElement> }) {
+}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; loading?: boolean; ref?: Ref<HTMLButtonElement>;readOnlyAllowed?:boolean }) {
+  const readOnly=useReadOnly()
   return (
-    <button data-variant={variant} className={[CLASS[variant], styles.root, className].filter(Boolean).join(' ')} disabled={disabled || loading} aria-busy={loading || undefined} {...props}>
+    <button data-variant={variant} className={[CLASS[variant], styles.root, className].filter(Boolean).join(' ')} disabled={disabled || loading || readOnly&&!readOnlyAllowed} aria-busy={loading || undefined} {...props}>
       {loading ? <span className={`button-spinner ${styles.spinner}`} aria-hidden="true" /> : null}
       <span className={styles.content} data-loading={loading || undefined}>{children}</span>
     </button>

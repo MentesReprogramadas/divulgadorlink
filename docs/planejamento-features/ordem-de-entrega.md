@@ -52,3 +52,28 @@ Registrar data, motivo, evidência de demanda, custo de dependências, IDs afeta
 ## Reconciliação F37 e parada atual
 
 18/10/2026: F37 associa metadata às revisões F19 e reutiliza sua imutabilidade/retenção; por isso F19 passou a ser dependência técnica explícita, além de F09/F12. F31 é condicional para medição conforme capacidade/consentimento. A ordem das 42 features não mudou. Execução encerrada após F37 por pedido mais recente; próxima F38, sem iniciar outras etapas. [Decisão D39 e fechamento](execucao-f37.md).
+
+## 19/10/2026 — Continuidade até F21
+
+Pedido vigente substitui a parada histórica após F37. F38 e F05 validadas localmente, conforme seus registros; seguir F15 → F20 → F21 e parar. Sem autorização nova de commit/push/deploy. S7/CI/liberação não presumidos.
+
+
+## 19/10/2026 — Encerramento na F21
+
+Sequência F38 → F05 → F15 → F20 → F21 concluída localmente, com specs/planos/matriz/evidências atualizados. Parada atendida após F21, sem iniciar F22. Próxima implementação planejada é F22, dependente de nova continuação do usuário. S7/CI/liberação remotas não executadas. Sem novos commits, push ou deploy. [F20](execucao-f20.md) · [F21](execucao-f21.md).
+
+
+## Refinamento solicitado após F21 — 19/10/2026
+
+Implementação e decisões: [refinamento F05/F15/F20/F21/F38](refinamento-f05-f15-f20-f21-f38.md). Inclui importação JSON confirmada para rascunho, resumos com frequência no modal e desligamento direto, sidebar por contexto, prévia de campanha preservando o formulário, equipe global com leitura/escrita por recurso e apresentação para parceiros com métricas objetivas.
+
+Não inicia uma nova feature da sequência: mantém 26/42 implementações e F22 não iniciada. Gates locais e evidências da ampliação estão no registro vinculado; S7/CI/liberação remotas continuam EM REVISÃO. Sem nova branch, commit, push ou deploy; alterações existentes preservadas.
+
+## 19/10/2026 — sequência F22 → F23 → F25 encerrada
+
+29/42 implementações nos ambientes declarados; 13 restantes. F22 (contatos), F23 (distribuição) e F25 (assistente) verificadas localmente até S6. Parada após F25 conforme pedido, sem iniciar F28. [F22](execucao-f22.md) · [F23](execucao-f23.md) · [F25](execucao-f25.md). S7/CI/liberação remota em revisão; não apagar pendências históricas. Sem branch, commit, push ou deploy novos; banco pessoal e ambiente externo preservados. Migrations prontas e verificadas em bancos descartáveis, ainda dependem de aplicação no ambiente alvo autorizado.
+
+
+## Refinamento de entrada e edição — 19/10/2026
+
+[Fluxos guiados F22/F23/F25, decisões, alternativas e provas](refinamento-f22-f23-f25.md). Distribuição orientada na lista de Convites; contato na criação/edição e na visão geral; escolha manual/assistida antes da primeira página. Checkbox corrigido, busca movida para Página e prévia do rascunho nas quatro abas de edição. Mantém 29/42; F28 não iniciada e S7 remoto pendente. Sem commit/push/deploy novos. O registro vinculado complementa as provas históricas, sem reescrever os resultados anteriores.

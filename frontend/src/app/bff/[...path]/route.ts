@@ -3,6 +3,8 @@ import { tenantHost, forward } from '@/lib/upstream'
 async function handle(request: Request, context: { params: Promise<{ path: string[] }> }) {
   const params = await context.params
   const url = new URL(request.url)
+  const avatarTarget=/^v1\/me\/profile\/avatar\/[a-f0-9]{64}$/.test(params.path.join('/'))?url.searchParams.get('profileId'):null
+  if(avatarTarget)url.searchParams.delete('profileId')
   const hostHeader = request.headers.get('host') ?? 'localhost'
   const raw = request.method === 'GET' || request.method === 'HEAD'
     ? undefined
@@ -15,6 +17,8 @@ async function handle(request: Request, context: { params: Promise<{ path: strin
     cookie: request.headers.get('cookie') ?? '',
     authorization: request.headers.get('authorization') ?? '',
     idempotencyKey: request.headers.get('idempotency-key') ?? '',
+    profileTarget:request.headers.get('x-profile-id')??avatarTarget??'',
+    workspaceTarget:request.headers.get('x-workspace-owner')??'',
     csrf: request.headers.get('x-csrf-token') ?? '',
     userAgent: request.headers.get('user-agent') ?? '',
     dnt: request.headers.get('dnt') ?? '',
@@ -25,6 +29,8 @@ async function handle(request: Request, context: { params: Promise<{ path: strin
   const headers = new Headers()
   const cacheControl = result.headers['cache-control']
   if (typeof cacheControl === 'string') headers.set('cache-control', cacheControl)
+  const disposition = result.headers['content-disposition']
+  if (typeof disposition === 'string') headers.set('content-disposition', disposition)
   const setCookie = result.headers['set-cookie']
   if (Array.isArray(setCookie)) setCookie.forEach((cookie) => headers.append('set-cookie', cookie))
   else if (typeof setCookie === 'string') headers.set('set-cookie', setCookie)

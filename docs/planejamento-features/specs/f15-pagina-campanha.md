@@ -1,8 +1,11 @@
 # F15 Página por campanha
 
+> Atualização autorizada em 19/10/2026: o [refinamento de escopo e UX](../refinamento-f05-f15-f20-f21-f38.md) prevalece sobre as fronteiras anteriores em caso de divergência. Inclui importação de JSON, consentimento no modal, navegação por contexto, prévia de campanha, equipe global e apresentação para parceiros. Estado da ampliação: implementada e validada localmente; S7/CI/liberação remotas continuam em revisão.
+
+
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 24.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
+**Estado:** S0–S6 VALIDADAS LOCALMENTE; S7/CI/liberação EM REVISÃO.
 **Onda:** 4. **Ordem:** 24.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Página por campanha”.  
 **Plano:** [F15 implementação](../planos/f15-pagina-campanha.md).  
@@ -139,3 +142,10 @@ Sem resolução das decisões bloqueantes e dependências concluídas, a feature
 
 **Indicadores:** campanhas criadas e cliques por campanha.
 
+
+
+## Contrato reconciliado e evidências — 19/10/2026
+
+D17 resolvida em [execução F15](../execucao-f15.md): versão aprovada própria como origem, seleção/copiar destinos privados sem nova edição textual pública; catálogo mantém referência elegível; URL /p/:slug/c/:campaignSlug; arquivar invalida acesso/eventos e preserva rascunho/relatórios. Nome da campanha é privado; alterar nome privado não cria nova publicação. Renderer/prévia F09 compartilhados e métricas F31 segregadas por campaignId. Histórico/canais/idade e foto obedecem ao registro de execução. Contratos reais: /me/profile/campaigns e /profiles/:slug/campaigns/:campaignSlug; arquivos feature profile-campaigns, repositories/campaign-pages, domain/profiles/campaign-page; testes campaign-page.spec, campaign-screen.test, campaign-pages.pg.spec e campaign-pages.spec.
+
+S0–S6 concluídas com os comandos e limites descritos na execução, que prevalece sobre nomes/caminhos propostos acima. S7 remoto permanece pendente, sem inventar commit ou liberação.

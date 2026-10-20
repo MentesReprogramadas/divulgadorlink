@@ -1,0 +1,238 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: contact-forms.spec.ts >> F09-G02 prévia acompanha os dados nas quatro abas sem alterar a publicação
+- Location: e2e\contact-forms.spec.ts:32:5
+
+# Error details
+
+```
+Error: frame.evaluate: Error: No elements found for include in page Context
+    at validateContext (eval at evaluate (:311:30), <anonymous>:23741:15)
+    at new Context (eval at evaluate (:311:30), <anonymous>:23722:7)
+    at Object._getFrameContexts (eval at evaluate (:311:30), <anonymous>:23763:22)
+    at eval (eval at evaluate (:311:30), <anonymous>:4:27)
+    at UtilityScript.evaluate (<anonymous>:313:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+```
+
+# Page snapshot
+
+```yaml
+- generic [ref=f7e1]:
+  - link "Ir para o conteúdo" [ref=f7e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner [ref=f7e3]:
+    - generic [ref=f7e4]:
+      - link "Home" [ref=f7e5] [cursor=pointer]:
+        - /url: /
+      - navigation "Navegação principal" [ref=f7e7]:
+        - link "Busca" [ref=f7e8] [cursor=pointer]:
+          - /url: /busca
+        - link "Painel" [ref=f7e12] [cursor=pointer]:
+          - /url: /painel
+        - button "Sair" [ref=f7e17] [cursor=pointer]
+  - main [ref=f7e21]:
+    - complementary [ref=f7e22]:
+      - paragraph [ref=f7e23]:
+        - text: Meu espaço
+        - generic [ref=f7e24]: Tem Link Aqui
+      - navigation "Áreas do painel" [ref=f7e26]:
+        - generic [ref=f7e27]:
+          - paragraph [ref=f7e28]: Seu espaço
+          - link "Visão geral" [ref=f7e29] [cursor=pointer]:
+            - /url: /painel
+          - link "Convites" [ref=f7e32] [cursor=pointer]:
+            - /url: /painel/convites
+          - link "Equipe" [ref=f7e35] [cursor=pointer]:
+            - /url: /painel/equipe
+        - generic [ref=f7e38]:
+          - paragraph [ref=f7e39]: Catálogo
+          - link "Meus links" [ref=f7e40] [cursor=pointer]:
+            - /url: /painel/links
+          - link "Criar link" [ref=f7e43] [cursor=pointer]:
+            - /url: /painel/links/novo
+        - group [ref=f7e47]:
+          - generic "Minha página" [ref=f7e48] [cursor=pointer]
+          - generic [ref=f7e54]:
+            - link "Visão geral" [ref=f7e55] [cursor=pointer]:
+              - /url: /painel/perfil
+            - group [ref=f7e58]:
+              - generic "Edição" [ref=f7e59] [cursor=pointer]
+              - generic [ref=f7e63]:
+                - link "Dados da página" [ref=f7e64] [cursor=pointer]:
+                  - /url: /painel/perfil/dados
+                - link "Grupos e links" [ref=f7e67] [cursor=pointer]:
+                  - /url: /painel/perfil/links
+                - link "Aparência" [ref=f7e70] [cursor=pointer]:
+                  - /url: /painel/perfil/aparencia
+                - link "Modelos" [ref=f7e73] [cursor=pointer]:
+                  - /url: /painel/perfil/modelos
+            - group [ref=f7e76]:
+              - generic "Ferramentas" [ref=f7e77] [cursor=pointer]
+            - group [ref=f7e81]:
+              - generic "Resultados e divulgação" [ref=f7e82] [cursor=pointer]
+        - generic [ref=f7e86]:
+          - paragraph [ref=f7e87]: Acompanhar
+          - link "Pedidos" [ref=f7e88] [cursor=pointer]:
+            - /url: /painel/pedidos
+          - link "Lembretes" [ref=f7e91] [cursor=pointer]:
+            - /url: /painel/lembretes
+          - link "Favoritos" [ref=f7e94] [cursor=pointer]:
+            - /url: /painel/favoritos
+          - link "Categorias seguidas" [ref=f7e97] [cursor=pointer]:
+            - /url: /painel/interesses
+        - generic [ref=f7e100]:
+          - paragraph [ref=f7e101]: Preferências
+          - link "Assinatura" [ref=f7e102] [cursor=pointer]:
+            - /url: /painel/assinatura
+          - link "Conta" [ref=f7e105] [cursor=pointer]:
+            - /url: /painel/conta
+    - generic [ref=f7e108]:
+      - heading "Dados da página" [level=1] [ref=f7e111]
+      - region "Editor do perfil" [ref=f7e113]:
+        - region "Alterações não publicadas" [ref=f7e114]:
+          - strong [ref=f7e115]: Tem alterações não publicadas
+          - generic [ref=f7e116]:
+            - button "Descartar" [ref=f7e118] [cursor=pointer]
+            - button "Publicar" [ref=f7e122] [cursor=pointer]
+        - generic "Navegação e ações da minha página" [ref=f7e126]:
+          - tablist "Seções da minha página" [ref=f7e129]:
+            - tab "Visão geral" [ref=f7e130] [cursor=pointer]
+            - tab "Grupos e links" [ref=f7e131] [cursor=pointer]
+            - tab "Página" [selected] [ref=f7e133] [cursor=pointer]
+            - tab "Aparência" [ref=f7e134] [cursor=pointer]
+          - generic [ref=f7e135]:
+            - button "Importar links" [ref=f7e136] [cursor=pointer]
+            - button "Modelos" [ref=f7e140] [cursor=pointer]
+            - generic [ref=f7e144]:
+              - button "Ver prévia" [ref=f7e145] [cursor=pointer]
+              - button "Atualizar dados" [ref=f7e149] [cursor=pointer]
+              - group [ref=f7e153]:
+                - generic "Mais opções da página" [ref=f7e154] [cursor=pointer]
+        - generic [ref=f7e159]:
+          - generic [ref=f7e160]:
+            - form "Editar perfil" [ref=f7e161]:
+              - tabpanel "Página" [ref=f7e162]:
+                - group "Dados da página" [ref=f7e163]:
+                  - group "Página" [ref=f7e165]:
+                    - generic "Alteração não publicada" [ref=f7e167]:
+                      - generic [ref=f7e168]:
+                        - generic [ref=f7e169]:
+                          - generic [ref=f7e170]: Nome da página
+                          - generic [aria-hidden] [ref=f7e171]: "*"
+                        - textbox "Nome da página" [ref=f7e172]:
+                          - /placeholder: "Ex.: Receitas da Ana"
+                          - text: Novo nome no rascunho
+                    - generic [ref=f7e174]:
+                      - generic [ref=f7e175]:
+                        - generic [ref=f7e176]: Endereço da página
+                        - generic [aria-hidden] [ref=f7e177]: "*"
+                      - textbox "Endereço da página" [ref=f7e178]:
+                        - /placeholder: receitas-da-ana
+                        - text: preview-live
+                      - generic [ref=f7e179]: Retire a página do ar para mudar o endereço.
+                    - generic [ref=f7e181]:
+                      - generic [ref=f7e182]: Descrição
+                      - textbox "Descrição" [ref=f7e184]: Criação e projetos
+                    - generic [ref=f7e187]:
+                      - generic [ref=f7e188]: Foto do perfil
+                      - generic [ref=f7e189] [cursor=pointer]:
+                        - generic [ref=f7e193]:
+                          - strong [ref=f7e194]: Escolher foto
+                          - generic [ref=f7e195]: Toque para escolher ou arraste uma imagem.
+                        - button "Foto do perfil" [ref=f7e196]
+                      - paragraph [ref=f7e197]: PNG, JPG ou WebP até 5 MB. Comprimida automaticamente em WebP. Vai ao ar após publicar.
+                    - generic [ref=f7e199]:
+                      - checkbox "Conteúdo para maiores de 18 anos" [ref=f7e200] [cursor=pointer]
+                      - text: Conteúdo para maiores de 18 anos
+                    - region "Busca da página" [ref=f7e201]:
+                      - heading "Busca e filtros" [level=2] [ref=f7e202]
+                      - generic "Alteração não publicada" [ref=f7e205]:
+                        - generic [ref=f7e206]:
+                          - checkbox "Exibir busca na minha página" [checked] [ref=f7e207] [cursor=pointer]
+                          - text: Exibir busca na minha página
+                      - paragraph [ref=f7e208]: Ajude visitantes a encontrar links e filtrar por grupo. Publique para aplicar.
+            - region "Formulário da minha página" [ref=f7e209]:
+              - generic [ref=f7e210]:
+                - heading "Receba mensagens pela sua página" [level=2] [ref=f7e211]
+                - generic [ref=f7e214]: Desativado
+              - paragraph [ref=f7e216]: Adicione um formulário para pedidos de contato, orçamento ou lista de interesse.
+              - group "Ações da página" [ref=f7e217]:
+                - link "Ver contatos recebidos" [ref=f7e218] [cursor=pointer]:
+                  - /url: /painel/perfil/contatos
+                - button "Configurar formulário" [ref=f7e221] [cursor=pointer]
+              - dialog [ref=f7e225]:
+                - generic [ref=f7e226]:
+                  - generic [ref=f7e227]:
+                    - heading "Formulário da sua página" [level=2] [ref=f7e228]
+                    - button "Fechar janela" [ref=f7e229] [cursor=pointer]
+                  - form "Configurar formulário de contato" [ref=f7e233]:
+                    - generic [ref=f7e234]:
+                      - list "Etapas do formulário" [ref=f7e235]:
+                        - listitem [ref=f7e236]:
+                          - button "1 Ativação e privacidade" [disabled] [ref=f7e237]:
+                            - generic [aria-hidden] [ref=f7e238]: "1"
+                            - generic [ref=f7e239]: Ativação e privacidade
+                        - listitem [ref=f7e240]:
+                          - button "2 Campos do formulário" [disabled] [ref=f7e241]:
+                            - generic [aria-hidden] [ref=f7e242]: "2"
+                      - paragraph [ref=f7e243]: "Etapa 1 de 2: Ativação e privacidade"
+                    - generic [ref=f7e244] [cursor=pointer]:
+                      - checkbox "Mostrar formulário na página publicada" [checked] [active] [ref=f7e245]
+                      - text: Mostrar formulário na página publicada
+                    - generic [ref=f7e246]:
+                      - generic [ref=f7e247]: O que você quer receber?
+                      - generic [ref=f7e249]:
+                        - combobox "O que você quer receber?" [ref=f7e250] [cursor=pointer]:
+                          - generic [ref=f7e251]: Fale comigo
+                        - textbox [aria-hidden] [ref=f7e257]: contact
+                    - generic [ref=f7e258] [cursor=pointer]:
+                      - checkbox "Oferecer aceite opcional para novidades" [ref=f7e259]
+                      - text: Oferecer aceite opcional para novidades
+                    - paragraph [ref=f7e260]: Em páginas publicadas, salvar atualiza o formulário imediatamente. Contatos privados por até 180 dias; nenhum envio ou inscrição automática.
+                    - group "Ações da página" [ref=f7e261]:
+                      - button "Escolher campos" [ref=f7e262] [cursor=pointer]
+          - complementary "Prévia ao vivo da página" [ref=f7e266]:
+            - generic [ref=f7e267]:
+              - strong [ref=f7e268]: Prévia ao vivo
+              - generic [ref=f7e271]: Rascunho · não publicado
+            - generic [ref=f7e274]:
+              - article "Perfil público" [ref=f7e275]:
+                - generic [ref=f7e276]:
+                  - generic [aria-hidden] [ref=f7e277]: "N"
+                  - heading "Novo nome no rascunho" [level=3] [ref=f7e278]
+                  - paragraph [ref=f7e279]: Criação e projetos
+                - search "Busca nesta página" [ref=f7e280]:
+                  - generic [ref=f7e281]:
+                    - generic [ref=f7e282]: Buscar nesta página
+                    - searchbox "Buscar nesta página" [ref=f7e284]
+                    - button "Filtros" [ref=f7e285] [cursor=pointer]
+                - region "Projetos" [ref=f7e289]:
+                  - heading "Projetos" [level=4] [ref=f7e290]
+                  - list [ref=f7e291]:
+                    - listitem [ref=f7e292]:
+                      - link "Projeto" [ref=f7e293] [cursor=pointer]:
+                        - /url: https://example.com/projeto
+                        - generic [aria-hidden] [ref=f7e295]: ↗
+              - generic [ref=f7e296]:
+                - button "Gerenciar cookies" [ref=f7e297] [cursor=pointer]
+                - link "Criado por Tem Link Aqui" [ref=f7e298] [cursor=pointer]:
+                  - /url: /divulgar
+                  - generic [ref=f7e299]: Criado por
+                  - img "Tem Link Aqui" [ref=f7e300]
+  - contentinfo [ref=f7e301]:
+    - generic [ref=f7e302]: Tem Link Aqui
+    - navigation "Informações do site" [ref=f7e303]:
+      - link "Termos" [ref=f7e304] [cursor=pointer]:
+        - /url: /termos
+      - link "Privacidade" [ref=f7e305] [cursor=pointer]:
+        - /url: /privacidade
+      - button "Gerenciar cookies" [ref=f7e306] [cursor=pointer]
+  - alert [ref=f7e307]
+```

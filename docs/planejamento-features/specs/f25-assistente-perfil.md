@@ -2,12 +2,18 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 29.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
+**Estado:** S0–S6 verificadas localmente em 19/10/2026; S7/CI/liberação em revisão.
 **Onda:** 4. **Ordem:** 29.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Assistente de criação de perfil”.  
 **Plano:** [F25 implementação](../planos/f25-assistente-perfil.md).  
 **Dependências obrigatórias:** G00, [F09](../specs/f09-perfil-publico.md), [F16](../specs/f16-templates.md), [F17](../specs/f17-importacao-lote.md).  
 **Governança:** [arquitetura](../arquitetura-e-reuso.md), [testes](../qualidade-e-testes.md), [decisões](../decisoes.md), [roadmap](../roadmap-auditavel.md).
+
+## Contrato concretizado em 19/10/2026
+
+GET/POST /api/v1/me/profile/suggestions; GET/DELETE /:id; POST /:id/preview e /:id/apply. Entrada: name/slug (iguais ao rascunho existente), activity, providedFacts, linkIds, linksText, expectedVersion, requestKey. Saída schemaVersion 1, provenance, validation, content e quota; aplicação devolve rascunho com versão. Campos selecionáveis bio/groups/order/appearance, bio manual e template existente opcionais. Geração/descarte não salvam página nem publicam. Aplicação transacional, idempotente e com versão esperada, preservando campos omitidos. Reutiliza parser F17, modelos F16, renderer de prévia existente e writeDraft. Porta própria de geração; não reutiliza moderação como gerador. Seção global assistant permite consultar/aplicar rascunho, sem conceder editor manual/publicação. Cinco tentativas/dia UTC, reserva técnica e tokens/custo estimado; sugestões 24h, uso agregado 180 dias. Modelo/limites/dados e alternativas em D27 no registro de execução. Chave/acesso reais da conta e cobrança do provedor não foram ensaiados.
+
+D27 resolvida por escolha técnica documentada, conforme autorização para decidir sem consultas rotineiras. [Execução, testes, alternativas e limites](../execucao-f25.md). Sem novo commit/push/deploy. O planejamento inicial abaixo é histórico; divergências de nomes/contrato são reconciliadas por esta seção e pelo código/testes referenciados.
 
 ## Objetivo e fronteira
 
@@ -43,7 +49,7 @@ Proposta de migração: avaliar mudanças de schema e adicionar somente campos/t
 
 Regra transversal: IDs de outro tenant não podem ser aceitos em relações. Projeções públicas são allowlists; rascunhos, contatos, tokens e dados privados não entram por serialização automática. Dinheiro em centavos e tempo armazenado em UTC; a agregação de analytics existente mantém America/Sao_Paulo. Índices devem ser baseados em consulta real, sem plataforma de dados nova por padrão.
 
-## Contratos propostos
+## Contratos de referência do planejamento inicial
 
 Rotas/operações: POST /api/v1/me/profile/suggestions; POST /suggestions/:id/apply com campos escolhidos e versão de draft.
 
@@ -116,10 +122,10 @@ Criar um teste com ID Tnn para cada AC, com o seguinte protocolo específico da 
 
 ## Arquivos de teste propostos
 
-- U: `backend/src/domain/profiles/assistente-perfil.spec.ts`.
-- C: `frontend/src/components/domain/assistente-perfil.test.tsx`.
-- I: `backend/src/http/assistente-perfil.http.spec.ts`.
-- PG: `backend/src/http/assistente-perfil.pg.spec.ts`; registrar no comando/CI de PG.
+- U: `backend/src/domain/profiles/profile-suggestion.spec.ts`.
+- C: `frontend/src/features/profile-assistant/assistant-review.test.tsx`.
+- I: `backend/src/http/profile-suggestions.pg.spec.ts`.
+- PG: `backend/src/http/profile-suggestions.pg.spec.ts`; registrar no comando/CI de PG.
 - E: `frontend/e2e/assistente-perfil.spec.ts`; registrar no projeto features e features-mobile antes de executar.
 - Consumidores e novos caminhos sugeridos estão no plano; todos devem ser reconciliados com a árvore existente em S0.
 
@@ -141,3 +147,8 @@ Sem resolução das decisões bloqueantes e dependências concluídas, a feature
 
 **Indicadores:** conclusão da criação, sugestões aproveitadas e tempo até a primeira publicação.
 
+
+
+## Delta autorizado de UX — 19/10/2026
+
+[Refinamento executado e validação](../refinamento-f22-f23-f25.md): novos pontos de entrada, configuração integrada, seleção guiada/revisão e prévia reutilizada. Este delta prevalece sobre instruções antigas de navegação. Preserva os ACs e contratos comerciais/de acesso existentes; sem backend ou migração novos. Provas históricas permanecem nos JSONs originais; o refinamento tem evidência própria. S7 remoto continua pendente.

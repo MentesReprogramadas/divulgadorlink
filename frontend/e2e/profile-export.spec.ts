@@ -1,0 +1,34 @@
+import {readFileSync} from 'node:fs'
+import path from 'node:path'
+import {expect,test,type Page} from '@playwright/test'
+import AxeBuilder from '@axe-core/playwright'
+import {runtime} from './runtime.cjs'
+import {sql} from './db'
+import {capturePage} from './capture-page'
+import {profileEditorTool} from './profile-editor'
+const origin=runtime.web('checklist.localhost')
+const fixture=()=>JSON.parse(readFileSync(path.join(__dirname,'state.json'),'utf8')).checklist as {tenantId:string;ownerId:string;owner:string;other:string;password:string}
+async function login(page:Page,other=false){const f=fixture();await page.goto(origin+'/login');await page.getByLabel('E-mail').fill(other?f.other:f.owner);await page.getByLabel('Senha').fill(f.password);await page.getByRole('button',{name:'Entrar',exact:true}).click();await expect(page.getByRole('heading',{name:'Painel',exact:true})).toBeVisible();const refuse=page.getByRole('region',{name:'Este site usa cookies'}).getByRole('button',{name:'Recusar',exact:true});if(await refuse.count())await refuse.click()}
+async function seed(page:Page){
+ const status=await page.evaluate(async()=>{
+  const category=crypto.randomUUID();const csrf=decodeURIComponent(document.cookie.split('; ').find(row=>row.startsWith('csrf='))?.slice(5)??'')
+  return(await fetch('/bff/v1/me/profile',{method:'PATCH',headers:{'content-type':'application/json','x-csrf-token':csrf},body:JSON.stringify({expectedVersion:0,content:{slug:'export-f38',name:'Projetos da Ana ☀',bio:'Ciência e ação',avatarAssetId:null,requiresAge:false,primaryItemId:null,categories:[{id:category,name:'Projetos',visible:true}],items:[{id:crypto.randomUUID(),categoryId:category,type:'URL',label:'Projeto',destination:'https://example.com/f38',visible:true}]}})})).status
+ });expect(status).toBe(200)
+}
+test.beforeEach(()=>{const f=fixture();sql(`DELETE FROM profiles WHERE "tenantId"='${f.tenantId}'`)})
+test('F38-E01/T02/T03/T04/T05 owner downloads parseable JSON through editor action',async({page},info)=>{
+ await login(page);await seed(page);await page.goto(origin+'/painel/perfil');await expect(page.getByRole('region',{name:'Editor do perfil',exact:true})).toHaveAttribute('data-save-state','saved');await profileEditorTool(page,'Exportar página');await expect(page).toHaveURL(/exportar$/)
+ const [download]=await Promise.all([page.waitForEvent('download'),page.getByRole('button',{name:'Baixar arquivo'}).click()]);expect(download.suggestedFilename()).toBe('minha-pagina-draft.json');const file=await download.path();expect(file).toBeTruthy();const exported=JSON.parse(readFileSync(file!,'utf8'));expect(exported).toMatchObject({schemaVersion:1,revision:'draft',profile:{name:'Projetos da Ana ☀'},categories:[{name:'Projetos'}],items:[{label:'Projeto',destination:'https://example.com/f38'}]});expect(JSON.stringify(exported)).not.toMatch(/tenantId|ownerId|passwordHash|surfaceToken|accessToken/);expect(exported.omissions.join(' ')).toContain('não publica automaticamente')
+ await expect(page.getByRole('status').filter({hasText:'Arquivo preparado'})).toBeVisible();await capturePage(page,info.outputPath('export-success.png'));expect((await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze()).violations).toEqual([])
+})
+test('F38-E02/T01 anonymous and other owner cannot download private content',async({page,browser},info)=>{
+ await login(page);await seed(page);const context=await browser.newContext(),other=await context.newPage();try{await other.goto(origin);expect(await other.evaluate(async()=>(await fetch('/bff/v1/me/profile/export?revision=draft')).status)).toBe(401);await login(other,true);const response=await other.evaluate(async()=>{const r=await fetch('/bff/v1/me/profile/export?revision=draft');return {status:r.status,text:await r.text()}});expect(response.status).toBe(404);expect(response.text).not.toContain('Projetos da Ana');await other.goto(origin+'/painel/perfil/exportar');await other.getByRole('button',{name:'Baixar arquivo'}).click();await expect(other.getByRole('link',{name:'Editar minha página',exact:true})).toBeVisible();await capturePage(other,info.outputPath('export-empty.png'))}finally{await context.close()}
+})
+test('F38-E03 mobile keyboard action recovers from network failure and keeps layout at 320px zoom',async({page},info)=>{
+ await login(page);await seed(page);await page.goto(origin+'/painel/perfil/exportar');await page.route('**/bff/v1/me/profile/export?*',route=>route.abort('failed'));await expect(page.getByRole('button',{name:'Baixar arquivo'})).toBeEnabled();await page.getByRole('button',{name:'Baixar arquivo'}).focus();await page.keyboard.press('Enter');await expect(page.getByRole('main').getByRole('alert')).toBeVisible();await capturePage(page,info.outputPath('export-error.png'));await page.unrouteAll({behavior:'wait'});const [download]=await Promise.all([page.waitForEvent('download'),page.getByRole('button',{name:'Tentar de novo'}).click()]);expect(await download.failure()).toBeNull();await page.setViewportSize({width:320,height:844});await page.addStyleTag({content:'html{font-size:200%}'});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await capturePage(page,info.outputPath('export-zoom.png'),false)
+})
+
+test('F38-E04 exported JSON imports into a confirmed draft without publishing or losing the current address',async({page},info)=>{
+ await login(page);await seed(page);await page.goto(origin+'/painel/perfil/exportar');const [download]=await Promise.all([page.waitForEvent('download'),page.getByRole('button',{name:'Baixar arquivo'}).click()]);const backup=JSON.parse(readFileSync((await download.path())!,'utf8'));backup.profile.name='Página importada';backup.profile.slug='outro-endereco';await page.getByLabel('Arquivo da página').setInputFiles({name:'pagina.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(backup))});await expect(page.getByRole('dialog',{name:'Importar página'})).toBeVisible();expect(sql(`SELECT name FROM profiles WHERE "tenantId"='${fixture().tenantId}'`)).toBe('Projetos da Ana ☀');await capturePage(page,info.outputPath('import-confirmation.png'));await page.getByRole('button',{name:'Importar e substituir'}).click();await expect(page.getByRole('status')).toContainText('Página importada para edição');expect(sql(`SELECT name||':'||slug FROM profiles WHERE "tenantId"='${fixture().tenantId}'`)).toBe('Página importada:export-f38');expect(sql(`SELECT count(*) FROM profiles WHERE "tenantId"='${fixture().tenantId}' AND publication IS NOT NULL`)).toBe('0')
+ await page.getByLabel('Arquivo da página').setInputFiles({name:'invalido.json',mimeType:'application/json',buffer:Buffer.from('{"schemaVersion":99}')});await expect(page.getByRole('alert')).toBeVisible();expect(sql(`SELECT name FROM profiles WHERE "tenantId"='${fixture().tenantId}'`)).toBe('Página importada')
+})

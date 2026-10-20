@@ -1,3 +1,11 @@
+import {AssistantScreen} from '@/features/profile-assistant/assistant-screen'
+import {PoolScreen} from '@/features/redirect-pools/pool-screen'
+import {ContactScreen} from '@/features/contact-forms/contact-screen'
+import {MediaKitScreen} from '@/features/media-kit/media-kit-screen'
+import {WorkspaceTeamScreen} from '@/features/workspace-team/workspace-team-screen'
+import {CampaignScreen} from '@/features/profile-campaigns/campaign-screen'
+import {NicheFollowsScreen} from '@/features/niche-follows/niche-follows-screen'
+import {ProfileExportScreen} from '@/features/profiles/profile-export-screen'
 import { DashboardSkeleton, FormSkeleton, ListSkeleton, DetailSkeleton, ActionSkeleton, FiltersSkeleton } from './workspace-skeleton'
 import { AccountSkeleton } from '@/features/account/components/account-skeleton'
 import { FavoritesPageSkeleton } from '@/features/favorites/components/favorites-skeleton'
@@ -24,6 +32,17 @@ import {ProfileRouteSkeleton} from '@/features/profiles/components/profile-route
 import {ChannelsScreen} from '@/features/profile-channels/channels-screen'
 /** Route shells and their client data boundaries use the same composition. */
 export function WorkspaceContentSkeleton({ path }: { path: string }) {
+  if(['/painel/perfil/dados','/painel/perfil/links','/painel/perfil/aparencia'].includes(path))return <ProfilePageSkeleton section={path.endsWith('/dados')?'identity':path.endsWith('/links')?'groups':'appearance'}/>
+  if(/^\/painel\/convites\/[^/]+\/distribuicao$/.test(path))return <PoolScreen id={path.split('/')[3]} pendingOnly/>
+  if(path==='/painel/perfil/assistente')return <AssistantScreen pendingOnly/>
+  if(path==='/painel/perfil/contatos')return <ContactScreen pendingOnly/>
+  if(path==='/painel/perfil/midia-kit')return <MediaKitScreen pendingOnly/>
+  if(path==='/painel/equipe')return <WorkspaceTeamScreen pendingOnly/>
+  if(/^\/painel\/equipe\/[^/]+\/editar$/.test(path))return <ProfilePageSkeleton collaborative/>
+  if(path==='/painel/perfil/campanhas')return <CampaignScreen pendingOnly/>
+  if(/^\/painel\/perfil\/campanhas\/[^/]+\/metricas$/.test(path))return <InteractionScreen pendingOnly campaignId={path.split('/')[4]}/>
+  if(path==='/painel/interesses')return <NicheFollowsScreen pendingOnly/>
+  if(path==='/painel/perfil/exportar')return <ProfileExportScreen pendingOnly/>
   if(path==='/painel/perfil/canais')return <ChannelsScreen pendingOnly/>
   if(path.startsWith('/painel/perfil/canais/'))return <ChannelsScreen pendingOnly entry={path.endsWith('/novo')?{kind:'NEW'}:{kind:'EDIT',id:path.split('/').at(-1)!}}/>
   if(path==='/painel/perfil/checklist')return <ProfileChecklistScreen pendingOnly/>
@@ -47,7 +66,7 @@ export function WorkspaceContentSkeleton({ path }: { path: string }) {
   if (path === '/admin/disponibilidade') return <><ActionSkeleton /><CorrectionsQueueSkeleton /></>
   if (path.endsWith('/disponibilidade')) return <><ActionSkeleton count={2} /><AvailabilitySkeleton /></>
   if (path.endsWith('/favoritos')) return <FavoritesPageSkeleton />
-  if (path.endsWith('/convites')) return <><ActionSkeleton count={2} /><RedirectListSkeleton /></>
+  if (path.endsWith('/convites')) return <><ActionSkeleton count={3} /><RedirectListSkeleton /></>
   if (path.endsWith('/lembretes')) return <><ActionSkeleton /><ReminderSkeleton /></>
   if (path.endsWith('/planos')) return <PlanPageSkeleton />
   if (path.endsWith('/configuracoes')) return <SettingsSkeleton />

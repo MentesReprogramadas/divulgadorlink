@@ -1,0 +1,959 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\VSCODE\\divulgadorlinks\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "destination-pools.spec.ts",
+      "redirects.spec.ts",
+      "--project=features",
+      "--project=features-mobile"
+    ],
+    "configFile": "C:\\VSCODE\\divulgadorlinks\\frontend\\playwright.config.ts",
+    "rootDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\global-setup.ts",
+    "globalTeardown": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\global-teardown.ts",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "setup",
+        "name": "setup",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/auth\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features",
+        "name": "features",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features-mobile",
+        "name": "features-mobile",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "catalog",
+        "name": "catalog",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/catalog\\.spec\\.ts|mail\\.spec\\.ts|advertise\\.spec\\.ts|legal\\.spec\\.ts|funnel\\.spec\\.ts|signup\\.spec\\.ts|submit-link\\.spec\\.ts|security-headers\\.spec\\.ts|google-ads-submission\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "auth.setup.ts",
+      "file": "auth.setup.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "sessão da Bia para os testes do painel",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "setup",
+              "projectName": "setup",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 459,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:59:14.997Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "17e3fe6f4d9d8bd79c6b-40367c7f5b2a9e9ad033",
+          "file": "auth.setup.ts",
+          "line": 8,
+          "column": 6
+        }
+      ]
+    },
+    {
+      "title": "destination-pools.spec.ts",
+      "file": "destination-pools.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F23-E01/T02/T03/T04/T05 configura 1/3, encaminha ao stub real, pausa destinos e conserva endereço",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 120497,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "message": "Error: browserContext._wrapApiCall: Target page, context or browser has been closed"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\destination-pools.spec.ts",
+                        "column": 423,
+                        "line": 14
+                      },
+                      "message": "Error: locator.click: Test timeout of 120000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('article', { name: 'Grupo B' }).getByRole('button', { name: 'Pausar destino' })\u001b[22m\n\u001b[2m    - locator resolved to <button data-variant=\"secondary\" class=\"button button-secondary button_root__6a9Zs\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <dialog open=\"\" data-size=\"default\" data-variant=\"modal\" aria-labelledby=\"_r_0_\" class=\"overlay-dialog_dialog__TwZOg\">…</dialog> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <dialog open=\"\" data-size=\"default\" data-variant=\"modal\" aria-labelledby=\"_r_0_\" class=\"overlay-dialog_dialog__TwZOg\">…</dialog> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    205 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m        - element is visible, enabled and stable\u001b[22m\n\u001b[2m        - scrolling into view if needed\u001b[22m\n\u001b[2m        - done scrolling\u001b[22m\n\u001b[2m        - <dialog open=\"\" data-size=\"default\" data-variant=\"modal\" aria-labelledby=\"_r_0_\" class=\"overlay-dialog_dialog__TwZOg\">…</dialog> intercepts pointer events\u001b[22m\n\u001b[2m      - retrying click action\u001b[22m\n\u001b[2m        - waiting 500ms\u001b[22m\n\n\n  12 | test('F23-E01/T02/T03/T04/T05 configura 1/3, encaminha ao stub real, pausa destinos e conserva endereço',async({page},info)=>{\n  13 |  const {base,a,b}=await prepare(page);await page.goto(roadmapOrigin+'/painel/convites');await page.getByRole('button',{name:'Distribuir convites',exact:true}).click();await capturePage(page,info.outputPath('pool-entry.png'));await selectOption(page.getByLabel('Qual endereço você vai compartilhar?'),base.id);await page.getByRole('link',{name:'Escolher destinos'}).click();await expect(page.getByRole('dialog',{name:'Configurar distribuição'})).toBeVisible();await selectOption(page.getByLabel('Qual convite vai receber visitas?'),a.destinationRevision.id);await page.getByRole('button',{name:'Incluir convite'}).click();await selectOption(page.getByLabel('Qual convite vai receber visitas?'),b.destinationRevision.id);await page.getByRole('button',{name:'Incluir convite'}).click();await page.getByRole('button',{name:'Definir divisão'}).click();await page.getByRole('radio',{name:/Priorizar alguns convites/}).check();await selectOption(page.getByLabel('Convite para ajustar'),b.destinationRevision.id);await page.getByLabel('Participação nas visitas').fill('3');await capturePage(page,info.outputPath('pool-config.png'));await page.getByRole('button',{name:'Conferir distribuição'}).click();await expect(page.getByText('25% das visitas',{exact:true})).toBeVisible();await expect(page.getByText('75% das visitas',{exact:true})).toBeVisible();expect((await roadmapApi(page,'/me/redirects/'+base.id+'/pool')).body.version).toBe(0);await capturePage(page,info.outputPath('pool-review.png'));await page.getByRole('button',{name:'Confirmar e ativar'}).click();await expect(page.getByRole('dialog',{name:'Configurar distribuição'})).not.toBeVisible();await expect(page.getByText('Distribuidor ativo',{exact:true})).toBeVisible();await capturePage(page,info.outputPath('pool-management.png'));await roadmapResponsiveCapture(page,info,'pool-management');const axe=await new AxeBuilder({page}).include('main').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(v=>v.id)).toEqual([])\n> 14 |  const visitor=await guest(info);try{for(const label of ['A','B','B','B']){await visitor.page.goto(roadmapOrigin+'/r/'+base.id);await expect(visitor.page.getByRole('heading',{name:'Convite fixture '+label,exact:true})).toBeVisible()}await page.reload();await expect(page.getByRole('article',{name:'Grupo B'})).toContainText('3');await page.getByRole('article',{name:'Grupo B'}).getByRole('button',{name:'Pausar destino'}).click();await expect(page.getByRole('article',{name:'Grupo B'}).getByRole('button',{name:'Retomar destino'})).toBeVisible();await visitor.page.goto(roadmapOrigin+'/r/'+base.id);await expect(visitor.page.getByRole('heading',{name:'Convite fixture A',exact:true})).toBeVisible();await page.getByRole('article',{name:'Grupo A'}).getByRole('button',{name:'Pausar destino'}).click();await expect(page.getByRole('article',{name:'Grupo A'}).getByRole('button',{name:'Retomar destino'})).toBeVisible();await visitor.page.goto(roadmapOrigin+'/r/'+base.id);await expect(visitor.page.getByRole('heading',{name:'Convite indisponível',exact:true})).toBeVisible();expect(await visitor.page.content()).not.toMatch(/f12-a|f12-b/);await capturePage(visitor.page,info.outputPath('pool-unavailable.png'));expect((await roadmapApi(page,'/me/redirects/'+base.id+'/pool')).body.stablePath).toBe('/r/'+base.id)}finally{await visitor.browser.close()}\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                       ^\n  15 | })\n  16 | test('F23-E02/T01 privado nega visitante e outro dono; alvo inválido não altera distribuição',async({page,browser})=>{\n  17 |  const {base}=await prepare(page),path='/me/redirects/'+base.id+'/pool';const ctx=await browser.newContext(),other=await ctx.newPage();try{await other.goto(roadmapOrigin);expect((await roadmapApi(other,path)).status).toBe(401);await roadmapLogin(other,true);expect((await roadmapApi(other,path)).status).toBe(404);const result=await roadmapApi(page,path,'PUT',{destinations:[{revisionId:crypto.randomUUID(),weight:1,paused:false}],expectedVersion:0});expect(result.status).toBe(422);expect((await roadmapApi(page,path)).body.version).toBe(0)}finally{await ctx.close()}\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\destination-pools.spec.ts:14:423"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:59:15.987Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\destination-pools-F23-E01--3fe50-estinos-e-conserva-endereço-features\\test-failed-2.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\destination-pools-F23-E01--3fe50-estinos-e-conserva-endereço-features\\test-failed-1.png"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\destination-pools-F23-E01--3fe50-estinos-e-conserva-endereço-features\\trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "3504af596034472359d6-e692f6b0c33ed1f70a8b",
+          "file": "destination-pools.spec.ts",
+          "line": 12,
+          "column": 5
+        },
+        {
+          "title": "F23-E02/T01 privado nega visitante e outro dono; alvo inválido não altera distribuição",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1403,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:01:17.443Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-e2b4d2bedadc0d667135",
+          "file": "destination-pools.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "F23-E03 erro mantém peso, teclado recupera sem duplicar, layout cabe em 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2086,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:01:18.980Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-a0d63d4791adce42845e",
+          "file": "destination-pools.spec.ts",
+          "line": 19,
+          "column": 5
+        },
+        {
+          "title": "F23-G05 começa sem convites, cadastra entrada e um destino no fluxo, confirma divisão igual e testa URL real",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3278,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:01:21.072Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-868e6a8294bb503d96d9",
+          "file": "destination-pools.spec.ts",
+          "line": 23,
+          "column": 5
+        },
+        {
+          "title": "F23-G06 cadastro em revisão não entra como destino e mantém seleção anterior; cancelar retorna ao formulário",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2573,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:01:24.355Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-aeae256dfe0f8f78145a",
+          "file": "destination-pools.spec.ts",
+          "line": 27,
+          "column": 5
+        },
+        {
+          "title": "F23-E01/T02/T03/T04/T05 configura 1/3, encaminha ao stub real, pausa destinos e conserva endereço",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 120499,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "message": "Error: browserContext._wrapApiCall: Target page, context or browser has been closed"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\destination-pools.spec.ts",
+                        "column": 423,
+                        "line": 14
+                      },
+                      "message": "Error: locator.click: Test timeout of 120000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('article', { name: 'Grupo B' }).getByRole('button', { name: 'Pausar destino' })\u001b[22m\n\u001b[2m    - locator resolved to <button data-variant=\"secondary\" class=\"button button-secondary button_root__6a9Zs\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - <strong>Grupo A</strong> from <dialog open=\"\" data-size=\"default\" data-variant=\"modal\" aria-labelledby=\"_r_0_\" class=\"overlay-dialog_dialog__TwZOg\">…</dialog> subtree intercepts pointer events\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - <div class=\"pool_chosen__51SCU\" aria-label=\"Convites escolhidos\">…</div> from <dialog open=\"\" data-size=\"default\" data-variant=\"modal\" aria-labelledby=\"_r_0_\" class=\"overlay-dialog_dialog__TwZOg\">…</dialog> subtree intercepts pointer events\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"pool_destination__F_utC\">…</div> from <dialog open=\"\" data-size=\"default\" data-variant=\"modal\" aria-labelledby=\"_r_0_\" class=\"overlay-dialog_dialog__TwZOg\">…</dialog> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    55 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div class=\"pool_destination__F_utC\">…</div> from <dialog open=\"\" data-size=\"default\" data-variant=\"modal\" aria-labelledby=\"_r_0_\" class=\"overlay-dialog_dialog__TwZOg\">…</dialog> subtree intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div class=\"pool_chosen__51SCU\" aria-label=\"Convites escolhidos\">…</div> from <dialog open=\"\" data-size=\"default\" data-variant=\"modal\" aria-labelledby=\"_r_0_\" class=\"overlay-dialog_dialog__TwZOg\">…</dialog> subtree intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div class=\"pool_destination__F_utC\">…</div> from <dialog open=\"\" data-size=\"default\" data-variant=\"modal\" aria-labelledby=\"_r_0_\" class=\"overlay-dialog_dialog__TwZOg\">…</dialog> subtree intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div class=\"pool_destination__F_utC\">…</div> from <dialog open=\"\" data-size=\"default\" data-variant=\"modal\" aria-labelledby=\"_r_0_\" class=\"overlay-dialog_dialog__TwZOg\">…</dialog> subtree intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - <div class=\"pool_destination__F_utC\">…</div> from <dialog open=\"\" data-size=\"default\" data-variant=\"modal\" aria-labelledby=\"_r_0_\" class=\"overlay-dialog_dialog__TwZOg\">…</dialog> subtree intercepts pointer events\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting 500ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - <div class=\"pool_chosen__51SCU\" aria-label=\"Convites escolhidos\">…</div> from <dialog open=\"\" data-size=\"default\" data-variant=\"modal\" aria-labelledby=\"_r_0_\" class=\"overlay-dialog_dialog__TwZOg\">…</dialog> subtree intercepts pointer events\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting 500ms\u001b[22m\n\n\n  12 | test('F23-E01/T02/T03/T04/T05 configura 1/3, encaminha ao stub real, pausa destinos e conserva endereço',async({page},info)=>{\n  13 |  const {base,a,b}=await prepare(page);await page.goto(roadmapOrigin+'/painel/convites');await page.getByRole('button',{name:'Distribuir convites',exact:true}).click();await capturePage(page,info.outputPath('pool-entry.png'));await selectOption(page.getByLabel('Qual endereço você vai compartilhar?'),base.id);await page.getByRole('link',{name:'Escolher destinos'}).click();await expect(page.getByRole('dialog',{name:'Configurar distribuição'})).toBeVisible();await selectOption(page.getByLabel('Qual convite vai receber visitas?'),a.destinationRevision.id);await page.getByRole('button',{name:'Incluir convite'}).click();await selectOption(page.getByLabel('Qual convite vai receber visitas?'),b.destinationRevision.id);await page.getByRole('button',{name:'Incluir convite'}).click();await page.getByRole('button',{name:'Definir divisão'}).click();await page.getByRole('radio',{name:/Priorizar alguns convites/}).check();await selectOption(page.getByLabel('Convite para ajustar'),b.destinationRevision.id);await page.getByLabel('Participação nas visitas').fill('3');await capturePage(page,info.outputPath('pool-config.png'));await page.getByRole('button',{name:'Conferir distribuição'}).click();await expect(page.getByText('25% das visitas',{exact:true})).toBeVisible();await expect(page.getByText('75% das visitas',{exact:true})).toBeVisible();expect((await roadmapApi(page,'/me/redirects/'+base.id+'/pool')).body.version).toBe(0);await capturePage(page,info.outputPath('pool-review.png'));await page.getByRole('button',{name:'Confirmar e ativar'}).click();await expect(page.getByRole('dialog',{name:'Configurar distribuição'})).not.toBeVisible();await expect(page.getByText('Distribuidor ativo',{exact:true})).toBeVisible();await capturePage(page,info.outputPath('pool-management.png'));await roadmapResponsiveCapture(page,info,'pool-management');const axe=await new AxeBuilder({page}).include('main').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(v=>v.id)).toEqual([])\n> 14 |  const visitor=await guest(info);try{for(const label of ['A','B','B','B']){await visitor.page.goto(roadmapOrigin+'/r/'+base.id);await expect(visitor.page.getByRole('heading',{name:'Convite fixture '+label,exact:true})).toBeVisible()}await page.reload();await expect(page.getByRole('article',{name:'Grupo B'})).toContainText('3');await page.getByRole('article',{name:'Grupo B'}).getByRole('button',{name:'Pausar destino'}).click();await expect(page.getByRole('article',{name:'Grupo B'}).getByRole('button',{name:'Retomar destino'})).toBeVisible();await visitor.page.goto(roadmapOrigin+'/r/'+base.id);await expect(visitor.page.getByRole('heading',{name:'Convite fixture A',exact:true})).toBeVisible();await page.getByRole('article',{name:'Grupo A'}).getByRole('button',{name:'Pausar destino'}).click();await expect(page.getByRole('article',{name:'Grupo A'}).getByRole('button',{name:'Retomar destino'})).toBeVisible();await visitor.page.goto(roadmapOrigin+'/r/'+base.id);await expect(visitor.page.getByRole('heading',{name:'Convite indisponível',exact:true})).toBeVisible();expect(await visitor.page.content()).not.toMatch(/f12-a|f12-b/);await capturePage(visitor.page,info.outputPath('pool-unavailable.png'));expect((await roadmapApi(page,'/me/redirects/'+base.id+'/pool')).body.stablePath).toBe('/r/'+base.id)}finally{await visitor.browser.close()}\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                       ^\n  15 | })\n  16 | test('F23-E02/T01 privado nega visitante e outro dono; alvo inválido não altera distribuição',async({page,browser})=>{\n  17 |  const {base}=await prepare(page),path='/me/redirects/'+base.id+'/pool';const ctx=await browser.newContext(),other=await ctx.newPage();try{await other.goto(roadmapOrigin);expect((await roadmapApi(other,path)).status).toBe(401);await roadmapLogin(other,true);expect((await roadmapApi(other,path)).status).toBe(404);const result=await roadmapApi(page,path,'PUT',{destinations:[{revisionId:crypto.randomUUID(),weight:1,paused:false}],expectedVersion:0});expect(result.status).toBe(422);expect((await roadmapApi(page,path)).body.version).toBe(0)}finally{await ctx.close()}\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\destination-pools.spec.ts:14:423"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:01:41.111Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\destination-pools-F23-E01--3fe50-estinos-e-conserva-endereço-features-mobile\\test-failed-2.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\destination-pools-F23-E01--3fe50-estinos-e-conserva-endereço-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\destination-pools-F23-E01--3fe50-estinos-e-conserva-endereço-features-mobile\\trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "3504af596034472359d6-5728a34e410abe9a9096",
+          "file": "destination-pools.spec.ts",
+          "line": 12,
+          "column": 5
+        },
+        {
+          "title": "F23-E02/T01 privado nega visitante e outro dono; alvo inválido não altera distribuição",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1351,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:03:42.567Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-7a973f620ef26840c05e",
+          "file": "destination-pools.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "F23-E03 erro mantém peso, teclado recupera sem duplicar, layout cabe em 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2030,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:03:44.069Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-e737362e1c36c8f24f38",
+          "file": "destination-pools.spec.ts",
+          "line": 19,
+          "column": 5
+        },
+        {
+          "title": "F23-G05 começa sem convites, cadastra entrada e um destino no fluxo, confirma divisão igual e testa URL real",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3530,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:03:46.105Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-e8dd084a142100e36ef6",
+          "file": "destination-pools.spec.ts",
+          "line": 23,
+          "column": 5
+        },
+        {
+          "title": "F23-G06 cadastro em revisão não entra como destino e mantém seleção anterior; cancelar retorna ao formulário",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2589,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:03:49.640Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-9566d840abe1f22406d9",
+          "file": "destination-pools.spec.ts",
+          "line": 27,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "redirects.spec.ts",
+      "file": "redirects.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F12-E01/T01/T03/T04/T05 endereço fixo, cópia, destino A/B, validação pendente e indisponibilidade",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3975,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:01:26.937Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-b2f613899c676b55152a",
+          "file": "redirects.spec.ts",
+          "line": 31,
+          "column": 5
+        },
+        {
+          "title": "F12-E02/T02 sessão e outro ADMIN não liberam acesso; conteúdo suspeito e provedor mantêm destino anterior",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2872,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:01:30.918Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-fa381e1201e431d07029",
+          "file": "redirects.spec.ts",
+          "line": 60,
+          "column": 5
+        },
+        {
+          "title": "F12-E03 offline mantém campos, teclado confirma, conflito entre abas e reflow 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2355,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:01:33.797Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-b3e0f1483cd1a64fdaac",
+          "file": "redirects.spec.ts",
+          "line": 78,
+          "column": 5
+        },
+        {
+          "title": "F12-E04 restrição de idade oculta destino no HTML e API até o aceite",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1617,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:01:36.157Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-774497cc715390533be7",
+          "file": "redirects.spec.ts",
+          "line": 97,
+          "column": 5
+        },
+        {
+          "title": "F12-E05 cards, abas, foco e alertas separam endereço de histórico",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2753,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:01:37.779Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-5edb480dea5980f63135",
+          "file": "redirects.spec.ts",
+          "line": 109,
+          "column": 5
+        },
+        {
+          "title": "F12-E01/T01/T03/T04/T05 endereço fixo, cópia, destino A/B, validação pendente e indisponibilidade",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3800,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:03:52.238Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-a46542e44f4829162d36",
+          "file": "redirects.spec.ts",
+          "line": 31,
+          "column": 5
+        },
+        {
+          "title": "F12-E02/T02 sessão e outro ADMIN não liberam acesso; conteúdo suspeito e provedor mantêm destino anterior",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2854,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:03:56.043Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-04f6b9bf241069d4ac36",
+          "file": "redirects.spec.ts",
+          "line": 60,
+          "column": 5
+        },
+        {
+          "title": "F12-E03 offline mantém campos, teclado confirma, conflito entre abas e reflow 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2308,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:03:58.903Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-f7da661aef84093e8cd2",
+          "file": "redirects.spec.ts",
+          "line": 78,
+          "column": 5
+        },
+        {
+          "title": "F12-E04 restrição de idade oculta destino no HTML e API até o aceite",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1594,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:04:01.217Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-86961d02627f9bb0f658",
+          "file": "redirects.spec.ts",
+          "line": 97,
+          "column": 5
+        },
+        {
+          "title": "F12-E05 cards, abas, foco e alertas separam endereço de histórico",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2695,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T21:04:02.816Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-42b1ce8719277d2cda2d",
+          "file": "redirects.spec.ts",
+          "line": 109,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-19T20:58:31.016Z",
+    "duration": 335776.297,
+    "expected": 19,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

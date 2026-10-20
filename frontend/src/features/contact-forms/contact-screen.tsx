@@ -1,0 +1,38 @@
+'use client'
+import {useEffect,useRef,useState} from 'react'
+import {Button,ButtonLink} from '@/components/ui/button'
+import {Field,Input} from '@/components/ui/input'
+import {ActionIcon} from '@/components/ui/action-icon'
+import {Badge} from '@/components/ui/badge'
+import {OverlayDialog} from '@/components/ui/overlay-dialog'
+import {ContactSettingsForm} from './contact-settings-form'
+import {useWorkspaceIdentity} from '@/features/workspace-team/workspace-access'
+import {Skeleton,SkeletonRegion} from '@/components/feedback/skeleton'
+import {EmptyState} from '@/components/feedback/empty-state'
+import {ErrorState} from '@/components/feedback/error-state'
+import {WorkspaceActions,WorkspaceFilters} from '@/components/layout/workspace-controls'
+import {RefreshButton} from '@/components/layout/workspace-actions'
+import {contactRequest} from './contact-api'
+import {contactFields,defaultContact,type ContactSettings,type ContactSubmission,type ContactDefinition} from './contact-contract'
+import styles from './contact.module.css'
+type Page={items:ContactSubmission[];nextCursor:string|null}
+export function ContactScreen({pendingOnly=false}:{pendingOnly?:boolean}){
+ const workspace=useWorkspaceIdentity(),canOpenEditor=!workspace?.ownerId||workspace.grants?.page?.write===true
+ const [settings,setSettings]=useState<ContactSettings|null>(null),[page,setPage]=useState<Page|null>(null),[cursor,setCursor]=useState<string|undefined>(),[previous,setPrevious]=useState<Array<string|undefined>>([]),[query,setQuery]=useState(''),[error,setError]=useState(''),[notice,setNotice]=useState(''),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[editor,setEditor]=useState<ContactDefinition|null>(null),[formError,setFormError]=useState(''),[deleting,setDeleting]=useState<ContactSubmission|null>(null),lock=useRef(false),focus=useRef<HTMLElement|null>(null)
+ async function load(){if(pendingOnly)return;setLoading(true);setError('');try{const [s,p]=await Promise.all([contactRequest<ContactSettings>('/v1/me/forms'),contactRequest<Page>('/v1/me/forms/submissions'+(cursor?'?cursor='+cursor:''))]);setSettings(s);setPage(p)}catch(e){setError(e instanceof Error?e.message:'Sem conexão.')}finally{setLoading(false)}}
+ useEffect(()=>{void load()},[cursor,pendingOnly])
+ async function save(){if(lock.current||!editor||!settings)return;lock.current=true;setBusy(true);setFormError('');try{const s=await contactRequest<ContactSettings>('/v1/me/forms',{method:'PUT',body:JSON.stringify({definition:editor,expectedVersion:settings.version})});setSettings(s);setEditor(null);setNotice('Formulário salvo.')}catch(e){setFormError(e instanceof Error?e.message:'Não foi possível salvar.')}finally{lock.current=false;setBusy(false)}}
+ async function remove(){if(lock.current||!deleting)return;lock.current=true;setBusy(true);try{await contactRequest('/v1/me/forms/submissions/'+deleting.id,{method:'DELETE'});setDeleting(null);setNotice('Contato excluído.');await load()}catch(e){setError(e instanceof Error?e.message:'Não foi possível excluir.')}finally{lock.current=false;setBusy(false)}}
+ async function download(){if(lock.current)return;lock.current=true;setBusy(true);try{const result=await contactRequest<{csv:string}>('/v1/me/forms/submissions/export'+(cursor?'?cursor='+cursor:'')),url=URL.createObjectURL(new Blob([result.csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='contatos-pagina.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}catch(e){setError(e instanceof Error?e.message:'Não foi possível exportar.')}finally{lock.current=false;setBusy(false)}}
+ const pending=pendingOnly||loading,rows=page?.items??[],shown=rows.filter(row=>Object.values(row.answers).join(' ').toLocaleLowerCase('pt-BR').includes(query.toLocaleLowerCase('pt-BR')))
+ return <section className={styles.page} aria-label="Contatos da página" aria-busy={pending||undefined}>
+ <WorkspaceActions>{canOpenEditor?<ButtonLink href="/painel/perfil/dados#formulario-contato"><ActionIcon name="edit"/>Editar formulário na página</ButtonLink>:<Button disabled={pending||busy||!settings} onClick={e=>{focus.current=e.currentTarget;setEditor(structuredClone(settings?.definition??defaultContact));setFormError('')}}><ActionIcon name="settings"/>Configurar formulário</Button>}<Button variant="secondary" readOnlyAllowed disabled={pending||busy||!rows.length} onClick={()=>void download()}><ActionIcon name="download"/>Exportar esta página</Button><RefreshButton disabled={pending||busy} onClick={()=>void load()}/></WorkspaceActions>
+ {error?<ErrorState message={error} onRetry={()=>void load()}/>:null}{notice?<p role="status">{notice}</p>:null}
+ <div className={styles.row}><Badge tone={settings?.definition.enabled?'ok':'neutral'}>{settings?.definition.enabled?'Formulário ativado':'Formulário desativado'}</Badge></div>
+ <WorkspaceFilters label="Filtrar contatos"><Field label="Buscar nesta página"><Input disabled={pending} value={query} onChange={e=>setQuery(e.target.value)}/></Field></WorkspaceFilters>
+ {pending?<SkeletonRegion><div className={styles.card}><Skeleton width="45%" height={24}/><Skeleton width="100%" height={90}/><Skeleton width={120} height={44}/></div></SkeletonRegion>:shown.length?<div className={styles.list}>{shown.map(row=><article key={row.id} className={styles.card} aria-label={'Contato '+(row.answers.name||row.answers.email||row.answers.phone||'recebido')}><div className={styles.row}><h2>{row.answers.name||row.answers.email||row.answers.phone||'Contato recebido'}</h2><time dateTime={row.createdAt}>{new Date(row.createdAt).toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'})}</time></div><dl className={styles.answers}>{Object.entries(row.answers).filter(([,v])=>v).map(([k,v])=><div key={k}><dt>{contactFields[k as keyof typeof contactFields]}</dt><dd>{v}</dd></div>)}</dl><div className={styles.row}><Badge tone={row.marketingOptIn?'ok':'neutral'}>{row.marketingOptIn?'Aceitou novidades':'Sem aceite de novidades'}</Badge><Button variant="danger" disabled={busy} onClick={e=>{focus.current=e.currentTarget;setDeleting(row)}}><ActionIcon name="trash"/>Excluir contato</Button></div></article>)}</div>:!error?<EmptyState>{query?'Nenhum contato encontrado nesta página.':'Os contatos recebidos aparecerão aqui.'}</EmptyState>:null}
+ {previous.length||page?.nextCursor?<WorkspaceActions><Button variant="secondary" readOnlyAllowed disabled={pending||!previous.length} onClick={()=>{setCursor(previous.at(-1));setPrevious(previous.slice(0,-1));setQuery('')}}><ActionIcon name="back"/>Anterior</Button><Button readOnlyAllowed disabled={pending||!page?.nextCursor} onClick={()=>{setPrevious([...previous,cursor]);setCursor(page?.nextCursor??undefined);setQuery('')}}><ActionIcon name="next"/>Próxima</Button></WorkspaceActions>:null}
+ <OverlayDialog open={Boolean(editor)} title="Configurar formulário" closeDisabled={busy} returnFocusTo={focus.current} onClose={()=>{if(!busy)setEditor(null)}}>{editor?<ContactSettingsForm value={editor} onChange={setEditor} onSave={()=>void save()} pending={busy} error={formError}/>:null}</OverlayDialog>
+ <OverlayDialog open={Boolean(deleting)} title="Excluir contato?" closeDisabled={busy} returnFocusTo={focus.current} onClose={()=>{if(!busy)setDeleting(null)}}><div className={styles.form}><p>Os dados e a preferência de novidades deste contato serão removidos.</p><WorkspaceActions><Button variant="secondary" disabled={busy} onClick={()=>setDeleting(null)}><ActionIcon name="back"/>Cancelar</Button><Button variant="danger" disabled={busy} loading={busy} onClick={()=>void remove()}><ActionIcon name="trash"/>Confirmar exclusão</Button></WorkspaceActions></div></OverlayDialog>
+ </section>
+}

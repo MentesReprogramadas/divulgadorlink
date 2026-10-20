@@ -1,8 +1,11 @@
 # Plano de implementação F38 Exportação do perfil
 
+> Atualização autorizada em 19/10/2026: o [refinamento de escopo e UX](../refinamento-f05-f15-f20-f21-f38.md) prevalece sobre as fronteiras anteriores em caso de divergência. Inclui importação de JSON, consentimento no modal, navegação por contexto, prévia de campanha, equipe global e apresentação para parceiros. Estado da ampliação: implementada e validada localmente; S7/CI/liberação remotas continuam em revisão.
+
+
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 22.
 
-**Estado:** NÃO INICIADO. Somente planejamento autorizado.  
+**Estado:** S0–S6 validadas localmente; S7 em revisão. Implementação autorizada em 19/10/2026.
 **Spec vinculante:** [F38](../specs/f38-exportacao-perfil.md).  
 **Dependências:** G00, [F09](../specs/f09-perfil-publico.md), [F19](../specs/f19-historico-versoes.md).  
 **Onda:** 3. Etapas rastreadas no [roadmap](../roadmap-auditavel.md) e na [matriz](../matriz-aceitacao.csv).
@@ -158,3 +161,7 @@ Esses nomes não são obrigação de criar arquivos vazios. Preferir ampliação
 
 **Registro inicial:** responsável não atribuído; commit de implementação inexistente; resultados NÃO EXECUTADOS; liberação NÃO AUTORIZADA por este documento.
 
+
+## Contrato reconciliado em 19/10/2026
+
+Ver [execução F38](../execucao-f38.md) para D40, arquivos reais, resultados e limitações. Os nomes de arquivo propostos acima são históricos; implementação usa domain/profiles/profile-export.ts, profiles-repository.ts, @Profiles/routes.ts e features/profiles/profile-export-screen.tsx. Testes reais profile-export.spec.ts (U), profile-export.pg.spec.ts (I/PG), profile-export-screen.test.tsx e BFF route.test.ts (C/contrato), e2e/profile-export.spec.ts (E). Não há importação/restauração automática, middleware de permissão global nem nova migração.

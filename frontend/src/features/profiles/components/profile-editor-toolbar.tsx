@@ -5,6 +5,7 @@ import { TabNavigation } from '@/components/ui/tabs'
 import { Button, ButtonLink } from '@/components/ui/button'
 import { ActionIcon } from '@/components/ui/action-icon'
 import { RefreshButton } from '@/components/layout/workspace-actions'
+import {useWorkspaceAccess} from '@/features/workspace-team/workspace-access'
 import { profileEditorActions } from '../profile-editor-actions'
 import { profileEditorSections, type ProfileEditorSection } from '../profile-editor-section'
 import styles from './profile-editor-toolbar.module.css'
@@ -14,12 +15,15 @@ type ProfileEditorToolbarProps = {
  section: ProfileEditorSection; onSection: (section: ProfileEditorSection) => void
  pending: boolean; canSave: boolean; publicPath?: string
  onAction: (action: ProfileTool) => void; onReload: () => void; onUnpublish: () => void
- skeleton?: boolean; groupPrimaryRef?:Ref<HTMLDivElement>; groupOptionsRef?:Ref<HTMLDivElement>
+ collaborative?:boolean; skeleton?: boolean; groupPrimaryRef?:Ref<HTMLDivElement>; groupOptionsRef?:Ref<HTMLDivElement>
 }
-const tools = profileEditorActions.filter(tool => tool.id !== 'preview')
+const ownerTools = profileEditorActions.filter(tool => tool.id !== 'preview')
 
 /** Measures the actual controls so only the actions that fit remain beside the tabs. */
-export function ProfileEditorToolbar({section,onSection,pending,canSave,publicPath,onAction,onReload,onUnpublish,skeleton=false,groupPrimaryRef,groupOptionsRef}:ProfileEditorToolbarProps) {
+export function ProfileEditorToolbar({section,onSection,pending,canSave,publicPath,onAction,onReload,onUnpublish,skeleton=false,collaborative=false,groupPrimaryRef,groupOptionsRef}:ProfileEditorToolbarProps) {
+ const access=useWorkspaceAccess(!collaborative&&!skeleton)
+ const readonly=Boolean(access.context?.ownerId&&!access.context.grants?.page?.write)
+ const tools=collaborative||readonly?[]:ownerTools
  const root=useRef<HTMLDivElement>(null), measure=useRef<HTMLDivElement>(null), menu=useRef<HTMLDetailsElement>(null)
  const [visible,setVisible]=useState(0)
  useEffect(()=>{
@@ -54,7 +58,7 @@ export function ProfileEditorToolbar({section,onSection,pending,canSave,publicPa
    {tools.slice(0,visible).map(tool=><Button key={tool.id} variant={tool.variant} disabled={disabled(tool)} onClick={()=>run(tool.id)}><ActionIcon name={tool.icon}/>{tool.label}</Button>)}
    <div data-fixed-actions className={styles.fixed}>
     {section==='groups'?<div ref={groupPrimaryRef} className={styles.groupPrimary}/>:null}
-    <Button variant={section==='groups'?'secondary':'primary'} aria-label="Ver prévia" title="Ver prévia" disabled={pending||!canSave} onClick={()=>run('preview')}><ActionIcon name="preview"/>{section==='groups'?'Prévia':'Ver prévia'}</Button>
+    {readonly?<ButtonLink href="/painel/perfil/previa"><ActionIcon name="preview"/>Ver prévia</ButtonLink>:<Button variant={section==='groups'?'secondary':'primary'} aria-label="Ver prévia" title="Ver prévia" disabled={pending||!canSave} onClick={()=>run('preview')}><ActionIcon name="preview"/>{section==='groups'?'Prévia':'Ver prévia'}</Button>}
     <RefreshButton disabled={pending} onClick={onReload}/>
     <details ref={menu} className={styles.menu} onKeyDown={event=>{if(event.key==='Escape'){event.preventDefault();event.currentTarget.open=false;event.currentTarget.querySelector('summary')?.focus()}}}>
      <summary aria-label="Mais opções da página" aria-disabled={skeleton||undefined} onClick={event=>{if(skeleton)event.preventDefault()}}><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg></summary>

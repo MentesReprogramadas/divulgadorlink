@@ -2,12 +2,18 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 28.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
+**Estado:** S0–S6 verificadas localmente em 19/10/2026; S7/CI/liberação em revisão.
 **Onda:** 4. **Ordem:** 28.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Distribuidor de convites”.  
 **Plano:** [F23 implementação](../planos/f23-distribuidor-convites.md).  
 **Dependências obrigatórias:** G00, [F12](../specs/f12-link-permanente.md).  
 **Governança:** [arquitetura](../arquitetura-e-reuso.md), [testes](../qualidade-e-testes.md), [decisões](../decisoes.md), [roadmap](../roadmap-auditavel.md).
+
+## Contrato concretizado em 19/10/2026
+
+GET/PUT/DELETE /api/v1/me/redirects/:id/pool, PATCH /pool/:revisionId para pausa/retomada. Selecionar até 20 revisões APROVADAS e ativas de convites próprios, pesos 1–100. Mesma URL /r/:id. Round-robin ponderado persistente e transacional; validação F12 ao configurar/retomar; rechecagem de elegibilidade no acesso. Sem destino válido: indisponível, sem Location/fallback silencioso. DELETE desativa a distribuição e retorna explicitamente ao convite único, preservando configuração/métricas. Agregados por destino/dia por 180 dias, HEAD/dono/admin sem contagem/avanço; F37 avança sem duplicar contagem bruta. Seção global invitations.
+
+D25 resolvida por escolha técnica documentada, conforme autorização para decidir sem consultas rotineiras. [Execução, testes, alternativas e limites](../execucao-f23.md). Sem novo commit/push/deploy. O planejamento inicial abaixo é histórico; divergências de nomes/contrato são reconciliadas por esta seção e pelo código/testes referenciados.
 
 ## Objetivo e fronteira
 
@@ -43,7 +49,7 @@ Proposta de migração: avaliar mudanças de schema e adicionar somente campos/t
 
 Regra transversal: IDs de outro tenant não podem ser aceitos em relações. Projeções públicas são allowlists; rascunhos, contatos, tokens e dados privados não entram por serialização automática. Dinheiro em centavos e tempo armazenado em UTC; a agregação de analytics existente mantém America/Sao_Paulo. Índices devem ser baseados em consulta real, sem plataforma de dados nova por padrão.
 
-## Contratos propostos
+## Contratos de referência do planejamento inicial
 
 Rotas/operações: CRUD /api/v1/me/redirects/:id/pool; GET /r/:handle seleciona destino elegível.
 
@@ -116,10 +122,10 @@ Criar um teste com ID Tnn para cada AC, com o seguinte protocolo específico da 
 
 ## Arquivos de teste propostos
 
-- U: `backend/src/domain/redirects/distribuidor-convites.spec.ts`.
-- C: `frontend/src/components/domain/distribuidor-convites.test.tsx`.
-- I: `backend/src/http/distribuidor-convites.http.spec.ts`.
-- PG: `backend/src/http/distribuidor-convites.pg.spec.ts`; registrar no comando/CI de PG.
+- U: `backend/src/domain/redirects/destination-pool.spec.ts`.
+- C: `frontend/src/features/redirect-pools/pool-screen.test.tsx`.
+- I: `backend/src/http/destination-pools.pg.spec.ts`.
+- PG: `backend/src/http/destination-pools.pg.spec.ts`; registrar no comando/CI de PG.
 - E: `frontend/e2e/distribuidor-convites.spec.ts`; registrar no projeto features e features-mobile antes de executar.
 - Consumidores e novos caminhos sugeridos estão no plano; todos devem ser reconciliados com a árvore existente em S0.
 
@@ -143,3 +149,8 @@ Sem resolução das decisões bloqueantes e dependências concluídas, a feature
 
 **Indicadores:** uso do distribuidor e distribuição de cliques entre destinos.
 
+
+
+## Delta autorizado de UX — 19/10/2026
+
+[Refinamento executado e validação](../refinamento-f22-f23-f25.md): novos pontos de entrada, configuração integrada, seleção guiada/revisão e prévia reutilizada. Este delta prevalece sobre instruções antigas de navegação. Preserva os ACs e contratos comerciais/de acesso existentes; sem backend ou migração novos. Provas históricas permanecem nos JSONs originais; o refinamento tem evidência própria. S7 remoto continua pendente.

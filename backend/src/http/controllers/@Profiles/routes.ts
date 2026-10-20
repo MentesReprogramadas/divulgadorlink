@@ -1,3 +1,10 @@
+import * as mediaKits from '@/repositories/media-kits'
+import {readProfileBackup} from '@/domain/profiles/profile-backup'
+import {mediaKitContent} from '@/domain/profiles/media-kit'
+import * as team from '@/repositories/profile-team'
+import {profilePermission,type ProfileActor} from '@/domain/access/profile-access'
+import * as campaigns from '@/repositories/campaign-pages'
+import {campaignCreateInput,campaignUpdateInput} from '@/domain/profiles/campaign-page'
 import { avatarContentType } from '@/domain/profiles/avatar-webp'
 import {profileMeasurementDescriptor} from '@/repositories/profile-interactions'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
@@ -18,7 +25,7 @@ import * as profiles from '@/repositories/profiles-repository'
 import { profileValidationPorts, type ProfileValidationPorts } from '@/use-cases/@Profiles/validate-profile'
 let testDb: PrismaClient | null = null, testPorts: ProfileValidationPorts | null = null
 export function setProfilesForTest(db: PrismaClient | null, ports: ProfileValidationPorts | null = null) { if (process.env.NODE_ENV === 'test') { testDb = db; testPorts = ports } }
-type Context = { tenantId: string; ownerId: string; age: boolean }
+type Context = ProfileActor
 async function run(q: FastifyRequest, r: FastifyReply, privateRoute: boolean, work: (db: PrismaClient, actor: Context) => Promise<unknown>) {
   r.header('cache-control', 'private, no-store').header('x-content-type-options', 'nosniff')
   try {
@@ -26,7 +33,11 @@ async function run(q: FastifyRequest, r: FastifyReply, privateRoute: boolean, wo
     if (privateRoute && (!user || user.typ !== 'access')) throw new ProfileError(401, 'Entre para editar seu perfil.')
     const tenant = await resolveTenant(normalizeTenantHost(q.headers.host ?? ''))
     if (privateRoute && user?.tenantId !== tenant.id) throw new ProfileError(403, 'Acesso negado.')
-    return await work(testDb ?? prisma, { tenantId: tenant.id, ownerId: user?.sub ?? '', age: q.cookies.age === 'yes' })
+    const db=testDb??prisma, actor:Context={tenantId:tenant.id,ownerId:user?.sub??'',age:q.cookies.age==='yes'}
+    const target=q.headers['x-profile-id']
+    if(target&&!privateRoute)throw new ProfileError(400,'Contexto inválido.')
+    const context=privateRoute&&target?await team.resolveProfileActor(db,actor,String(target),profilePermission(q.method,q.url.split('?')[0].replace(/^\/api\/v1/,''))):actor
+    return await work(db,context)
   } catch (error) {
     if (error instanceof ResourceNotFoundError) return r.code(404).send(buildError({ code: 'not_found', message: 'Perfil não encontrado.', request_id: q.id }))
     if (error instanceof ZodError) return r.code(400).send(buildError({ code: 'validation', message: 'Confira os campos do perfil.', request_id: q.id }))
@@ -41,6 +52,20 @@ const slugParams = z.object({ slug: z.string().regex(/^[a-z0-9-]{3,40}$/) })
 const asset = z.string().regex(/^[a-f0-9]{64}$/)
 const itemSearchQuery=z.object({q:z.string().trim().max(100).default(''),categoryId:z.string().uuid().optional(),cursor:z.string().max(2048).optional()}).strict()
 export async function profilesRoutes(app: FastifyInstance) {
+  app.post('/me/profile/backup/preview',(q,r)=>run(q,r,true,async(db,a)=>{const input=z.object({backup:z.unknown()}).strict().parse(q.body);const state=await profiles.readProfile(db,a);return {content:readProfileBackup(input.backup,state.draft?.slug),expectedVersion:state.draft?.version??0}}))
+  app.post('/me/profile/backup/import',(q,r)=>run(q,r,true,async(db,a)=>{const input=z.object({backup:z.unknown(),expectedVersion:profileVersion}).strict().parse(q.body);const state=await profiles.readProfile(db,a);return profiles.saveProfile(db,a,readProfileBackup(input.backup,state.draft?.slug),input.expectedVersion)}))
+  app.get('/me/profile/media-kit',(q,r)=>run(q,r,true,(db,a)=>mediaKits.readMediaKit(db,a)))
+  app.patch('/me/profile/media-kit',(q,r)=>run(q,r,true,(db,a)=>{const input=z.object({content:mediaKitContent,expectedVersion:profileVersion}).strict().parse(q.body);return mediaKits.saveMediaKit(db,a,input.content,input.expectedVersion)}))
+  app.post('/me/profile/media-kit/publish',(q,r)=>run(q,r,true,(db,a)=>mediaKits.publishMediaKit(db,a,expected.parse(q.body).expectedVersion)))
+  app.post('/me/profile/media-kit/unpublish',(q,r)=>run(q,r,true,(db,a)=>mediaKits.unpublishMediaKit(db,a,expected.parse(q.body).expectedVersion)))
+  app.get('/me/profile/media-kit/preview',(q,r)=>run(q,r,true,(db,a)=>mediaKits.previewMediaKit(db,a)))
+  app.get('/profiles/:slug/media-kit',(q,r)=>run(q,r,false,(db,a)=>mediaKits.publicMediaKit(db,a.tenantId,slugParams.parse(q.params).slug,a.age)))
+  app.get('/me/profile/team',(q,r)=>run(q,r,true,(db,a)=>team.listTeam(db,a)))
+  app.post('/me/profile/invitations',(q,r)=>run(q,r,true,(db,a)=>team.createInvitation(db,a,team.inviteInput.parse(q.body))))
+  app.post('/invitations/accept',(q,r)=>run(q,r,true,(db,a)=>team.acceptInvitation(db,a,team.acceptInput.parse(q.body).token)))
+  app.delete('/me/profile/invitations/:id',(q,r)=>run(q,r,true,(db,a)=>team.revokeAccess(db,a,z.object({id:z.string().uuid()}).parse(q.params).id,'invitation')))
+  app.delete('/me/profile/members/:id',(q,r)=>run(q,r,true,(db,a)=>team.revokeAccess(db,a,z.object({id:z.string().uuid()}).parse(q.params).id,'member',expected.parse(q.body).expectedVersion)))
+  app.get('/me/profile/catalog',(q,r)=>run(q,r,true,async(db,a)=>db.$transaction(async tx=>{await profiles.assertProfileOwner(tx,a);return {links:await tx.link.findMany({where:{tenantId:a.tenantId,ownerId:a.ownerId,status:'PUBLISHED'},select:{id:true,name:true,status:true},orderBy:{id:'asc'}})}})))
   app.get('/profiles/:slug/items',(q,r)=>run(q,r,false,async(db,actor)=>{
     const slug=slugParams.parse(q.params).slug,result=await searchPublicProfileItems(db,actor.tenantId,slug,actor.age,itemSearchQuery.parse(q.query))
     return result.restricted?result:{...result,measurement:await profileMeasurementDescriptor(db,actor.tenantId,slug,result.publishedRevisionId)}
@@ -58,6 +83,28 @@ export async function profilesRoutes(app: FastifyInstance) {
   app.post('/me/profile/apply-template',(q,r)=>run(q,r,true,(db,actor)=>{
     const input=z.object({templateVersionId:z.string().max(80),preserveContent:z.boolean().default(true),expectedVersion:profileVersion,confirmedReplacement:z.boolean().default(false)}).strict().parse(q.body)
     return profiles.applyTemplateToProfile(db,actor,input)
+  }))
+  app.get('/me/profile/campaign-sources',(q,r)=>run(q,r,true,(db,a)=>profiles.listProfileRevisions(db,a)))
+  app.get('/me/profile/campaign-sources/:id',(q,r)=>run(q,r,true,(db,a)=>profiles.readProfileRevision(db,a,z.object({id:z.string().uuid()}).strict().parse(q.params).id)))
+  app.get('/me/profile/campaigns',(q,r)=>run(q,r,true,(db,a)=>campaigns.listCampaigns(db,a,campaigns.campaignQuery.parse(q.query))))
+  app.post('/me/profile/campaigns',(q,r)=>run(q,r,true,(db,a)=>campaigns.createCampaign(db,a,campaignCreateInput.parse(q.body))))
+  app.get('/me/profile/campaigns/:id',(q,r)=>run(q,r,true,(db,a)=>campaigns.readCampaign(db,a,z.object({id:z.string().uuid()}).strict().parse(q.params).id)))
+  app.patch('/me/profile/campaigns/:id',(q,r)=>run(q,r,true,(db,a)=>campaigns.updateCampaign(db,a,z.object({id:z.string().uuid()}).strict().parse(q.params).id,campaignUpdateInput.parse(q.body))))
+  app.delete('/me/profile/campaigns/:id',(q,r)=>run(q,r,true,(db,a)=>campaigns.deleteCampaign(db,a,z.object({id:z.string().uuid()}).strict().parse(q.params).id,expected.parse(q.body).expectedVersion)))
+  app.post('/me/profile/campaigns/:id/publish',(q,r)=>run(q,r,true,(db,a)=>campaigns.publishCampaign(db,a,z.object({id:z.string().uuid()}).strict().parse(q.params).id,expected.parse(q.body).expectedVersion,testPorts??profileValidationPorts(normalizeTenantHost(q.headers.host??'')))))
+  app.post('/me/profile/campaigns/:id/archive',(q,r)=>run(q,r,true,(db,a)=>campaigns.archiveCampaign(db,a,z.object({id:z.string().uuid()}).strict().parse(q.params).id,expected.parse(q.body).expectedVersion)))
+  app.get('/me/profile/campaigns/:id/preview',(q,r)=>run(q,r,true,(db,a)=>campaigns.previewCampaign(db,a,z.object({id:z.string().uuid()}).strict().parse(q.params).id)))
+  app.get('/profiles/:slug/campaigns/:campaignSlug',(q,r)=>run(q,r,false,async(db,a)=>{
+    const {slug,campaignSlug}=z.object({slug:z.string().regex(/^[a-z0-9-]{3,40}$/),campaignSlug:z.string().regex(/^[a-z0-9-]{3,40}$/)}).strict().parse(q.params)
+    const view=await campaigns.publicCampaign(db,a.tenantId,slug,campaignSlug,a.age)
+    if(view.restricted)return view
+    return {...view,measurement:await profileMeasurementDescriptor(db,a.tenantId,slug,view.publishedRevisionId,view.campaign!.id)}
+  }))
+  app.get('/me/profile/export',async(q,r)=>run(q,r,true,async(db,a)=>{
+    const {revision}=z.object({revision:z.enum(['draft','published'])}).strict().parse(q.query)
+    const value=await profiles.exportProfile(db,a,revision)
+    r.header('content-disposition',`attachment; filename="minha-pagina-${revision}.json"`)
+    return value
   }))
   app.get('/me/profile', (q, r) => run(q, r, true, (db, actor) => profiles.readProfile(db, actor)))
   app.get('/me/profile/channel-groups',(q,r)=>run(q,r,true,(db,actor)=>{z.object({}).strict().parse(q.query);return profiles.readProfileChannelGroups(db,actor)}))

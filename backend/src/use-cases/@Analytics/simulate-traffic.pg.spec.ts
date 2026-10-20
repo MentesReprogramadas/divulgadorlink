@@ -67,5 +67,21 @@ it('persiste no agregado real, retoma, limita, audita e reverte sem apagar event
     expect((await execute(grouped)).impressions).toBe(0)
     await execute({ ...grouped, rollback: true })
     expect(await db.analyticsEvent.count({ where: { tenantId } })).toBe(1)
+    const growthConfig = simulationConfig.parse({ until: '2026-10-03T00:00:00.000Z', minViews: 0, maxViews: 4000, growth: { since: config.until } })
+    const draft = await db.link.create({ data: { tenantId, canonicalUrl: 'https://example.com/draft', name: 'Draft', description: 'Test', networkId: network.id, nicheId: niche.id, status: 'DRAFT', createdAt: common.createdAt } })
+    const growthInput = { run: 'daily-growth', config: growthConfig, through: new Date(growthConfig.until), dryRun: false }
+    expect((await execute({ ...growthInput, dryRun: true })).impressions).toBeGreaterThan(0)
+    await execute(growthInput)
+    expect(await db.analyticsEvent.count({ where: { tenantId, linkId: draft.id } })).toBe(0)
+    expect((await execute(growthInput)).impressions).toBe(0)
+    await expect(execute({ ...growthInput, run: 'overlap' })).rejects.toThrow('sobreposto')
+    await execute({ ...growthInput, rollback: true })
+    expect(await db.analyticsEvent.count({ where: { tenantId } })).toBe(1)
+    const stronger = simulationConfig.parse({ ...growthConfig, until: '2026-10-03T03:00:00.000Z', growth: { ...growthConfig.growth, since: '2026-10-01T03:00:00.000Z', dailyMin: 180, dailyMedian: 240, dailyMax: 300 } })
+    const replacement = { ...growthInput, run: 'daily-replacement', config: stronger, through: new Date(stronger.until) }
+    expect((await execute(replacement)).impressions).toBeGreaterThanOrEqual(720)
+    expect((await execute(replacement)).impressions).toBe(0)
+    await execute({ ...replacement, rollback: true })
+    expect(await db.analyticsEvent.count({ where: { tenantId } })).toBe(1)
   } finally { await db.promotion.delete({ where: { id: promotion.id } }) }
 }, 60000)

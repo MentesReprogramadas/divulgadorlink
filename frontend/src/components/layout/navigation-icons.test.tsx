@@ -4,6 +4,7 @@ import { iconPaths } from '@/components/ui/action-icon'
 import { WorkspaceNavigation } from '@/features/account/components/workspace-navigation'
 import { navigationIcons } from './navigation-icons'
 
+vi.mock('@/features/workspace-team/workspace-access',async original=>({...await original<typeof import('@/features/workspace-team/workspace-access')>(),useWorkspaceAccess:()=>({ready:true,context:{ownerId:null,grants:null},error:''})}))
 vi.mock('next/navigation', () => ({ usePathname: () => '/painel' }))
 afterEach(cleanup)
 
@@ -15,7 +16,8 @@ describe('significado exclusivo dos ícones', () => {
 
   it.each(['panel', 'admin'] as const)('distingue grupos e destinos na sidebar %s renderizada', area => {
     const { container } = render(<WorkspaceNavigation area={area} />)
-    const symbols = Array.from(container.querySelectorAll('a, summary')).map(item => ({
+    // Section disclosures repeat the expand action; destination symbols stay exclusive.
+    const symbols = Array.from(container.querySelectorAll('a, summary:not([data-navigation-section])')).map(item => ({
       label: item.textContent,
       drawing: item.querySelector('svg path')?.getAttribute('d'),
     }))

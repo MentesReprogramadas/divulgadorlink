@@ -1,3 +1,4 @@
+import {resolveDestinationPool} from './destination-pools'
 import { queueContentReview } from '@/use-cases/@Notifications/content-review-events'
 import { ContentReviewRequired, reviewSummary } from '@/domain/moderation/content-review'
 import { createHash, randomUUID } from 'node:crypto'
@@ -11,7 +12,7 @@ import { RedirectError, validateRedirectDestination } from '@/use-cases/@Redirec
 import { validateRedirectContent } from '@/use-cases/@Redirects/validate-content'
 import type { PublicContentValidationPorts } from '@/use-cases/public-content-validation-ports'
 
-export type RedirectActor = { tenantId: string; ownerId: string }
+export type RedirectActor = { tenantId: string; ownerId: string; actorId?: string }
 const revisionSelect = { review: { select: { id: true, status: true, reason: true, appealedAt: true, version: true } }, id: true, number: true, label: true, destinationUrl: true, requiresAge: true, status: true, errorMessage: true, createdAt: true, resolvedAt: true }
 const fingerprint = (input: DestinationInput) => createHash('sha256').update(JSON.stringify([input.destinationUrl, input.label, input.requiresAge])).digest('hex')
 async function owner(db: Prisma.TransactionClient, actor: RedirectActor, publish = false) {
@@ -54,7 +55,7 @@ export async function listRedirects(db: PrismaClient, actor: RedirectActor, curs
   await owner(db, actor)
   const rows = await db.redirectHandle.findMany({ where: { tenantId: actor.tenantId, ownerId: actor.ownerId, ...(cursor ? { id: { gt: cursor } } : {}) }, orderBy: { id: 'asc' }, take: 26, select: { id: true, version: true, activeRevisionId: true, disabled: true, revisions: { where: { createdAt: { gte: new Date(Date.now() - 180 * 86400000) } }, orderBy: { number: 'desc' }, take: 1, select: revisionSelect } } })
   const published = await db.redirectDestination.findMany({ where: { id: { in: rows.flatMap(row => row.activeRevisionId ? [row.activeRevisionId] : []) }, tenantId: actor.tenantId, handle: { ownerId: actor.ownerId }, status: 'APPROVED' }, select: revisionSelect })
-  return { items: rows.slice(0, 25).map(({ revisions, ...r }) => ({ ...r, latest: (() => { const latest = revisions[0] ?? published.find(p => p.id === r.activeRevisionId); return latest ? { ...latest, review: reviewSummary(latest.review) } : null })(), stablePath: '/r/' + r.id })), nextCursor: rows.length > 25 ? rows[24]!.id : null }
+  return { items: rows.slice(0, 25).map(({ revisions, ...r }) => ({ ...r, active:published.find(p=>p.id===r.activeRevisionId)??null, latest: (() => { const latest = revisions[0] ?? published.find(p => p.id === r.activeRevisionId); return latest ? { ...latest, review: reviewSummary(latest.review) } : null })(), stablePath: '/r/' + r.id })), nextCursor: rows.length > 25 ? rows[24]!.id : null }
 }
 export async function readRedirect(db: PrismaClient, actor: RedirectActor, id: string, range?: { from?: string; to?: string }, now = new Date()) {
   return db.$transaction(async tx => {
@@ -132,7 +133,8 @@ export async function disableRedirect(db: PrismaClient, actor: RedirectActor, id
     return { disabled: true }
   })
 }
-export async function resolveRedirect(db: PrismaClient, tenantId: string, id: string, age: boolean, ports: PublicContentValidationPorts, viewerId: string | null, now = new Date(), countAccess = true) {
+export async function resolveRedirect(db: PrismaClient, tenantId: string, id: string, age: boolean, ports: PublicContentValidationPorts, viewerId: string | null, now = new Date(), countAccess = true, advance = true) {
+  const pool=await resolveDestinationPool(db,tenantId,id,age,viewerId,now,countAccess,advance);if(pool)return pool
   const unavailable = { available: false as const }
   const row = await db.redirectHandle.findFirst({ where: { id, tenantId, disabled: false, owner: { tenantId, status: 'ACTIVE' } } })
   if (!row?.activeRevisionId) return unavailable

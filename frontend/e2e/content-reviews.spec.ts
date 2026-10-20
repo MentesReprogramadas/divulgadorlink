@@ -19,9 +19,9 @@ for (const kind of ['profiles', 'redirects'] as const) test('Revisão e contesta
   const ownerPath = kind === 'profiles' ? '/painel/perfil' : '/painel/convites'
   await page.goto(origin + ownerPath)
   if (kind === 'profiles') {
-    await page.getByRole('tab', { name: 'Página', exact: true }).click()
+    await page.getByRole('region',{name:'Editor do perfil'}).getAttribute('data-save-state');await page.goto(new URL('/painel/perfil/dados',page.url()).href)
     await page.getByLabel('Endereço da página').fill('meu-projeto'); await page.getByLabel('Nome da página').fill(title); await page.getByLabel('Descrição', { exact: true }).fill('Conteúdo educativo para a comunidade.')
-    const areas = page.getByRole('combobox', { name: 'Editar minha página', exact: true }); if (await areas.isVisible()) { await areas.click(); await page.getByRole('option', { name: 'Grupos e links', exact: true }).click() } else await page.getByRole('tab', { name: 'Grupos e links', exact: true }).click()
+    await expect(page.getByRole('region',{name:'Editor do perfil'})).toHaveAttribute('data-save-state','saved');await page.goto(origin+'/painel/perfil/links')
     await page.getByRole('button', { name: 'Adicionar grupo', exact: true }).click(); await page.getByLabel('Nome do grupo', { exact: true }).fill('Projetos'); await page.getByRole('button', { name: 'Concluir grupo', exact: true }).click()
     await page.getByRole('button', { name: 'Adicionar link', exact: true }).click(); await page.getByLabel('Título do link', { exact: true }).fill('Meu site'); await page.getByLabel('Link de acesso', { exact: true }).fill('https://example.com/revisao'); await page.getByRole('button', { name: 'Concluir link', exact: true }).click()
     await page.getByRole('button', { name: 'Publicar', exact: true }).click()

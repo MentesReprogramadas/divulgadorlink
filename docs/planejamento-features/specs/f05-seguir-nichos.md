@@ -1,8 +1,11 @@
 # F05 Seguir nichos
 
+> Atualização autorizada em 19/10/2026: o [refinamento de escopo e UX](../refinamento-f05-f15-f20-f21-f38.md) prevalece sobre as fronteiras anteriores em caso de divergência. Inclui importação de JSON, consentimento no modal, navegação por contexto, prévia de campanha, equipe global e apresentação para parceiros. Estado da ampliação: implementada e validada localmente; S7/CI/liberação remotas continuam em revisão.
+
+
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 23.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
+**Estado:** IMPLEMENTADA E VALIDADA LOCALMENTE (S0–S6); S7 em revisão.
 **Onda:** 4. **Ordem:** 23.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Seguir nichos”.  
 **Plano:** [F05 implementação](../planos/f05-seguir-nichos.md).  
@@ -144,3 +147,7 @@ Sem resolução das decisões bloqueantes e dependências concluídas, a feature
 
 **Indicadores:** cliques nos resumos, visitas recorrentes e cancelamentos.
 
+
+## Contratos reconciliados em 19/10/2026
+
+[D06, alternativas, implementação, resultados e limites](../execucao-f05.md). Arquivos efetivos: domain/notifications/niche-digest.ts, use-cases/@Notifications/niche-follows.ts e niche-digests.ts, controllers/@Notifications/niche-follows.ts, fila enqueue-niche-digests.ts, features/niche-follows. U niche-digest.spec.ts; C niche-follows-screen.test.tsx; I/PG niche-follows.pg.spec.ts; E niche-follows.spec.ts em features/features-mobile. Histórico de propostas acima preservado; não representa API adicional. S7/CI/liberação separados da validação local.

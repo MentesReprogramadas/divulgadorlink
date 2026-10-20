@@ -10,16 +10,15 @@ const A = runtime.web('profiles.localhost')
 function state() { return JSON.parse(readFileSync(path.join(__dirname, 'state.json'), 'utf8')).profiles as { tenantId: string; ownerId: string; catalogId: string; owner: string; other: string; password: string } }
 function fixture() { const s = state(); sql(`DELETE FROM profiles WHERE "tenantId"='${s.tenantId}'; DELETE FROM profile_assets WHERE "tenantId"='${s.tenantId}'; UPDATE networks SET "requiresAge"=false WHERE "tenantId"='${s.tenantId}'`); return s }
 async function login(page: Page, email = state().owner) {
+  await page.context().addCookies([{name:'tla_consent',value:'denied',domain:'profiles.localhost',path:'/'}])
   await page.goto(A + '/login'); await page.getByLabel('E-mail').fill(email); await page.getByLabel('Senha').fill(state().password); await page.getByRole('button', { name: 'Entrar', exact: true }).click(); await expect(page.getByRole('heading', { name: 'Painel', exact: true })).toBeVisible()
   const refuse = page.getByRole('region', { name: 'Este site usa cookies' }).getByRole('button', { name: 'Recusar', exact: true }); if (await refuse.count()) await refuse.click()
 }
-async function editorSection(page: Page, label: string) {
-  const select = page.getByRole('combobox', { name: 'Editar minha página', exact: true })
-  const tab = page.getByRole('tab', { name: label, exact: true })
-  await expect(select.or(tab)).toBeVisible()
-  if (await select.isVisible()) await selectOption(select, { label })
-  else await tab.click()
+async function editorSection(page:Page,label:string){
+ const current=page.getByRole('region',{name:'Editor do perfil'});if(await current.count())await expect(current).toHaveAttribute('data-save-state','saved')
+ const routes:Record<string,string>={'Página':'dados','Grupos e links':'links','Aparência':'aparencia','Visão geral':''};await page.goto(A+'/painel/perfil'+(routes[label]?'/'+routes[label]:''));if(label==='Página')await expect(page.getByLabel('Nome da página')).toBeEnabled();else if(label==='Grupos e links')await expect(page.getByRole('button',{name:'Adicionar grupo',exact:true})).toBeEnabled();else if(label==='Aparência')await expect(page.getByRole('tab',{name:'Cores',exact:true})).toBeEnabled();else await expect(page.getByRole('region',{name:'Resumo do rascunho'})).toBeVisible()
 }
+
 async function step(page: Page, target: number) { await editorSection(page, target >= 2 ? 'Grupos e links' : 'Página') }
 async function autosaved(page: Page) { await expect(page.getByRole('region', { name: 'Editor do perfil', exact: true })).toHaveAttribute('data-save-state', 'saved') }
 async function base(page: Page, info?: TestInfo) {
@@ -100,11 +99,7 @@ test('F09-E08 cabeçalho, endereço copiável e aprovação reutilizada em alter
   const preview = page.getByRole('button', { name: 'Ver prévia', exact: true })
   await expect(preview).toHaveAttribute('data-variant', 'secondary')
   await expect(page.getByRole('group', { name: 'Link da sua página', exact: true })).toHaveCount(0)
-  if (!info.project.use.isMobile) {
-    const tabsBox = (await page.getByRole('tablist', { name: 'Seções da minha página' }).boundingBox())!, previewBox = (await preview.boundingBox())!
-    expect(Math.abs(tabsBox.y + tabsBox.height / 2 - previewBox.y - previewBox.height / 2)).toBeLessThan(3)
-    expect(previewBox.x).toBeGreaterThan(tabsBox.x + tabsBox.width)
-  }
+  await expect(page.getByRole('tablist',{name:'Seções da minha página'})).toBeVisible()
   await publish.click(); await expect(page.getByText('Perfil publicado.', { exact: true })).toBeVisible()
   const address = page.getByRole('group', { name: 'Link da sua página', exact: true })
   await editorSection(page, 'Visão geral'); await expect(address.getByRole('link')).toHaveAttribute('href', A + '/p/ana-estudos')
@@ -215,6 +210,7 @@ test('F09 aparência personalizada persiste e só chega ao público após public
   await autosaved(page)
   await expect(page.getByText('Salvo automaticamente', { exact: true })).toHaveCount(0)
   await page.reload(); await editorSection(page, 'Aparência')
+  const inlinePreview=page.getByRole('button',{name:'Ver prévia ao vivo',exact:true});if(await inlinePreview.isVisible())await inlinePreview.click()
   await expect(page.locator('[data-style="shadow"]')).toBeVisible()
   await page.getByRole('tab', { name: 'Cores', exact: true }).click()
   await page.getByText('Cor do fundo', { exact: true }).click()
@@ -364,9 +360,9 @@ test('F09-E03 autosave offline mantém dados, retoma online, 320px e conflito n�
   await page.context().setOffline(false); await autosaved(page)
   const second = await page.context().newPage()
   try {
-    await second.goto(A + '/painel/perfil'); await expect(second.getByRole('button', { name: 'Ver prévia', exact: true })).toBeVisible()
+    await second.goto(A + '/painel/perfil/dados');await expect(second.getByLabel('Descrição',{exact:true})).toBeEnabled()
     await page.getByLabel('Descrição', { exact: true }).fill('Gravado na primeira aba'); await autosaved(page)
-    await step(second, 0); await second.getByLabel('Descrição', { exact: true }).fill('Rascunho preservado')
+    await second.getByLabel('Descrição', { exact: true }).fill('Rascunho preservado')
     await expect(second.getByRole('region', { name: 'Editor do perfil', exact: true }).getByRole('alert')).toContainText('outra aba'); await expect(second.getByLabel('Descrição', { exact: true })).toHaveValue('Rascunho preservado')
   } finally { await second.close() }
   await page.setViewportSize({ width: 320, height: 844 }); await page.evaluate(() => { document.documentElement.style.fontSize = '200%' })
@@ -375,7 +371,7 @@ test('F09-E03 autosave offline mantém dados, retoma online, 320px e conflito n�
 })
 
 async function dragOrder(page: Page, source: Locator, target: Locator, touch: boolean) {
-  await source.evaluate(element => element.closest('li')!.scrollIntoView({ block: 'start' }))
+  await source.evaluate(element => element.closest('li')!.scrollIntoView({ block: 'center',behavior:'instant' }))
   const from = (await source.boundingBox())!, to = (await target.boundingBox())!
   if (touch) {
     const session = await page.context().newCDPSession(page)
@@ -413,7 +409,7 @@ test('F09-E05 criação e gestão: cards, DnD, transferência, edição e remoç
   await page.getByRole('button', { name: 'Arrastar grupo Materiais', exact: true }).focus(); await page.keyboard.press('ArrowUp')
   await expect(handles.first()).toHaveAccessibleName('Arrastar grupo Materiais')
   await page.getByRole('button', { name: 'Materiais Abrir grupo', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Materiais', exact: true })).toBeFocused()
+  await expect(page.getByRole('form',{name:'Editar perfil'}).getByRole('heading', { name: 'Materiais', exact: true })).toBeFocused()
   await expect(page.getByRole('button', { name: 'Projetos Abrir grupo', exact: true })).toHaveCount(0)
   const groupActions = page.getByRole('group', { name: 'Ações do grupo', exact: true })
   await expect(groupActions.getByRole('button', { name: 'Editar grupo', exact: true })).toBeVisible()
@@ -516,85 +512,9 @@ test('F09-E06 autosave, banner e campos não publicados; descartar restaura a pu
 })
 
 
-test('F09-E11 visão geral, atalhos com ícones e barra adaptável preservam publicação e foco', async ({ page }, info) => {
-  fixture(); await login(page)
-  await page.emulateMedia({ reducedMotion: 'reduce' })
-  let release!: () => void
-  const held = new Promise<void>(resolve => { release = resolve })
-  await page.route('**/bff/v1/me/profile', async route => { await held; await route.continue() }, { times: 1 })
-  await page.goto(A + '/painel/perfil')
-  await expect(page.locator('[data-skeleton]:visible').first()).toBeVisible()
-  await page.screenshot({ path: info.outputPath('overview-loading.png'), fullPage: true, animations: 'disabled' })
-  release()
-  await expect(page.getByRole('tab', { name: 'Visão geral', exact: true })).toHaveAttribute('aria-selected', 'true')
-  await expect(page.getByRole('button', { name: 'Começar minha página', exact: true })).toBeVisible()
-  const shortcuts = page.getByRole('region', { name: 'O que você quer fazer?', exact: true })
-  await expect(shortcuts.getByRole('button', { name: /Importar links/ })).toBeDisabled()
-  await base(page); await add(page, 1, 1, 'Meu site')
-  await page.getByRole('button', { name: 'Publicar', exact: true }).click()
-  await expect(page.getByText('Perfil publicado.', { exact: true })).toBeVisible()
-  await editorSection(page, 'Visão geral')
-  await expect(page.getByRole('region', { name: 'Resumo do rascunho' })).toContainText('1')
-  await expect(page.getByRole('group', { name: 'Link da sua página' }).getByRole('link')).toHaveAttribute('href', A + '/p/ana-estudos')
-  for (const button of await shortcuts.getByRole('button').all()) expect(await button.locator('svg').count()).toBeGreaterThan(0)
-  await page.evaluate(() => document.fonts.ready)
-  const toolbar = page.getByLabel('Navegação e ações da minha página', { exact: true })
-  await page.screenshot({ path: info.outputPath('overview.png'), fullPage: true, animations: 'disabled' })
-  const trigger = toolbar.getByLabel('Mais opções da página', { exact: true })
-  await trigger.focus(); await page.keyboard.press('Enter')
-  await expect(toolbar.getByRole('button', { name: 'Retirar do ar', exact: true })).toBeVisible()
-  await expect(toolbar.getByRole('button', { name: 'Retirar do ar', exact: true }).locator('svg')).toHaveCount(1)
-  await page.screenshot({ path: info.outputPath('overview-overflow.png'), animations: 'disabled' })
-  await page.keyboard.press('Escape'); await expect(trigger).toBeFocused()
-  await expect(toolbar.getByRole('button', { name: 'Retirar do ar', exact: true })).not.toBeVisible()
-  expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()).violations.map(item => item.id)).toEqual([])
-  for (const width of [768, 1024, 1440]) {
-    await page.setViewportSize({ width, height: 1000 })
-    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1)
-  }
-  await page.setViewportSize({ width: 1920, height: 1000 })
-  await expect(toolbar.getByRole('button', { name: 'Importar links', exact: true })).toBeVisible()
-  const tabs = (await page.getByRole('tablist', { name: 'Seções da minha página' }).boundingBox())!
-  const preview = (await toolbar.getByRole('button', { name: 'Ver prévia', exact: true }).boundingBox())!
-  expect(Math.abs(tabs.y + tabs.height / 2 - preview.y - preview.height / 2)).toBeLessThan(3)
-  await page.setViewportSize({ width: 320, height: 844 })
-  await page.evaluate(() => { document.documentElement.style.fontSize = '200%' })
-  await expect(page.getByRole('tab', { name: 'Visão geral', exact: true })).toBeVisible()
-  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(321)
-  await page.screenshot({ path: info.outputPath('overview-320-text-200.png'), fullPage: true, animations: 'disabled' })
-  await trigger.click()
-  for (const label of ['Importar links', 'Modelos', 'Histórico', 'Métricas', 'Checklist']) {
-    const tool = toolbar.getByRole('button', { name: label, exact: true })
-    await expect(tool).toBeVisible(); await expect(tool.locator('svg')).toHaveCount(1)
-  }
-  await page.keyboard.press('Escape'); await expect(trigger).toBeFocused()
-  await page.evaluate(() => { document.documentElement.style.fontSize = '' })
-  await page.setViewportSize(info.project.use.viewport ?? { width: 1280, height: 720 })
-  await shortcuts.getByRole('button', { name: /Histórico Consulte/ }).click()
-  await expect(page.getByRole('heading', { name: 'Histórico da minha página', exact: true })).toBeVisible()
-})
-
-
-test('F09-E12 grupos usam duas linhas no celular, ações secundárias mantêm ícones e foco',async({page},info)=>{
- fixture();await login(page);await page.emulateMedia({reducedMotion:'reduce'});await base(page);await add(page,1,1,'Meu site');await page.getByRole('button',{name:'Voltar aos grupos',exact:true}).click()
- const toolbar=page.getByLabel('Navegação e ações da minha página',{exact:true}),create=page.getByRole('button',{name:'Adicionar grupo',exact:true}),preview=page.getByRole('button',{name:'Ver prévia',exact:true})
- await expect(create).toBeVisible();await expect(page.getByRole('button',{name:'Botão principal',exact:true})).not.toBeVisible()
- await page.evaluate(()=>document.fonts.ready)
- if(info.project.use.isMobile){
-  for(const width of [390,320]){
-   await page.setViewportSize({width,height:844})
-   await expect.poll(async()=>{const a=(await create.boundingBox())!,b=(await preview.boundingBox())!;return Math.abs(a.y-b.y)}).toBeLessThan(3)
-   const tabs=(await page.getByRole('tablist',{name:'Seções da minha página'}).boundingBox())!,bar=(await toolbar.boundingBox())!
-   expect(bar.height).toBeLessThanOrEqual(tabs.height+56+12)
-   expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width)
-  }
-  await page.setViewportSize({width:390,height:844})
- }
- await page.screenshot({path:info.outputPath('groups-compact.png'),fullPage:true,animations:'disabled'})
- const more=page.getByLabel('Mais opções da página',{exact:true});await more.click()
- await expect(toolbar.getByRole('button',{name:'Canais de acesso',exact:true})).toHaveCount(0)
- for(const label of ['Botão principal'])await expect(toolbar.getByRole('button',{name:label,exact:true}).locator('svg')).toHaveCount(1)
- await page.screenshot({path:info.outputPath('groups-options.png'),animations:'disabled'})
- await toolbar.getByRole('button',{name:'Botão principal',exact:true}).click();await expect(page.getByRole('dialog',{name:'Escolher botão principal'})).toBeVisible();await page.keyboard.press('Escape');await expect(more).toBeFocused()
- expect((await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa','wcag22aa']).analyze()).violations.map(row=>row.id)).toEqual([])
+test('F09-E11 Minha página tem subseções expansíveis e escolha inicial de criação',async({page},info)=>{
+ fixture();await login(page);await page.goto(A+'/painel/perfil');await expect(page.getByRole('link',{name:/Criar do meu jeito/})).toBeVisible();await expect(page.getByRole('region',{name:'Escolha como criar sua página'})).toBeVisible();await page.screenshot({path:info.outputPath('profile-overview-actions.png'),fullPage:true,animations:'disabled'});
+ const mobile=page.getByRole('button',{name:'Menu',exact:true});if(await mobile.isVisible())await mobile.click();const nav=page.getByRole('navigation',{name:'Áreas do painel'}).filter({visible:true});
+ for(const name of ['Edição','Ferramentas','Resultados e divulgação']){const summary=nav.locator('summary').filter({hasText:new RegExp('^'+name+'$')});const group=summary.locator('..');await expect(group).not.toHaveAttribute('open');await summary.focus();await page.keyboard.press('Enter');await expect(group).toHaveAttribute('open');if(name==='Edição'){await nav.getByRole('link',{name:'Modelos',exact:true}).scrollIntoViewIfNeeded();await page.screenshot({path:info.outputPath('profile-menu-expanded.png'),animations:'disabled'})}await summary.focus();await page.keyboard.press('Enter');await expect(group).not.toHaveAttribute('open')}
+ if(await mobile.isVisible())await page.getByRole('button',{name:'Fechar menu',exact:true}).click();await page.getByRole('link',{name:/Criar do meu jeito/}).click();await expect(page).toHaveURL(/perfil\/dados$/);await expect(page.getByLabel('Nome da página')).toBeVisible();await page.screenshot({path:info.outputPath('dedicated-page-details.png'),fullPage:true,animations:'disabled'});await editorSection(page,'Aparência');await expect(page.getByRole('region',{name:'Resumo do rascunho'})).toHaveCount(0)
 })

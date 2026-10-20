@@ -36,3 +36,8 @@ it('F31-C04 a visible impression needs 50% for a continuous second; preview neve
  expect(api.mock.calls.filter(([,init])=>JSON.parse(init.body).kind==='IMPRESSION')).toHaveLength(1)
  view.unmount();api.mockClear();render(<Fixture disabled/>);await act(async()=>{});expect(api).not.toHaveBeenCalled()
 })
+
+function CampaignFixture(){const root=useRef<HTMLDivElement>(null);useProfileInteraction(root,{...descriptor,campaignId:'32345678-1234-4234-8234-123456789abc'},false);return <div ref={root}><a href="#campaign" data-profile-block-id="22345678-1234-4234-8234-123456789abc">Link da campanha</a></div>}
+it('F15-C04 the same observer dispatches campaign events only to its scoped endpoint after consent',async()=>{
+ document.cookie='tla_profile_measure=v1_yes; Path=/';render(<CampaignFixture/>);await waitFor(()=>expect(api).toHaveBeenCalled());expect(api.mock.calls.every(([path])=>path==='/v1/analytics/profiles/campaigns/32345678-1234-4234-8234-123456789abc/events')).toBe(true);expect(JSON.parse(api.mock.calls[0][1].body).profileId).toBe(descriptor.profileId)
+})

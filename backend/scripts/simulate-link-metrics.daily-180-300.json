@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "seed": "tem-link-dev-1",
+  "until": "2026-10-19T14:46:58.645Z",
+  "minViews": 0,
+  "maxViews": 4000,
+  "commonMaxViews": 3500,
+  "medianViews": 650,
+  "sigma": 0.35,
+  "minCtr": 0.025,
+  "maxCtr": 0.12,
+  "maturityDays": 30,
+  "weekendFactor": 1.15,
+  "spikeProbability": 0.025,
+  "spikeMultiplier": 2.2,
+  "growth": {
+    "since": "2026-10-17T16:44:53.029Z",
+    "dailyMedian": 240,
+    "dailyMax": 300,
+    "warmupDays": 14,
+    "sponsoredMultiplier": 1.25,
+    "dailyMin": 180
+  }
+}

@@ -48,6 +48,51 @@ Para avanço incremental use a mesma configuração e run, inicialmente `--throu
 
 ## Persistência, custos e reversão
 
+### Correção dos destaques concentrados em 4000 — 19/10/2026
+
+O piso anterior de 3800 mais o complemento diário levou os destaques ao mesmo teto acumulado. `sponsoredCeilingMinViews` permite sortear um teto individual estável entre esse valor e `maxViews`, com seed/tenant/link e maturação de sete dias ao quadrado. A faixa superior permanece reservada aos destaques; a idade influencia o teto, e a geração diária continua proporcional ao tempo de existência. O teto individual é aplicado também ao orçamento de inserção, evitando nova concentração em 4000 quando esta configuração for usada.
+
+`simulate-link-metrics.varied-sponsored.json` mantém os parâmetros diários e define a faixa de tetos em 3501–3999. Para próximos incrementos, atualizar since/until em outro arquivo e usar outra run. Não retomar os lotes antigos após uma correção: eles mantêm suas configurações imutáveis e podem repor eventos até o teto antigo.
+
+`rebalance-sponsored-metrics.ts` corrige exclusivamente sessões de lotes explicitados por `--sources`. Remove visitas completas por ranking de hash, distribuídas pelo histórico, preservando os cliques das visitas mantidas e todas as sessões de visitantes. Não altera comuns. O dry-run é padrão; `--apply` confirma a escrita. Uma única transação com lock por tenant registra todas as linhas removidas em auditoria, permitindo restauração com `--rollback --apply`. A repetição da mesma correção é idempotente.
+
+Aplicado no tenant dev solicitado em `destaques-variados-2026-10-19-01`: totais de 3858/692, 3690/347 e 3626/284 (visualizações/cliques). Removidos 828 impressões e 92 cliques gerados; as 20, 6 e 3 impressões de visitantes desses links permaneceram. O dry-run e a leitura posterior concordaram; repetir --apply retornou alreadyApplied. Oito testes de domínio, lint, typecheck e build passaram. A reversão foi inspecionada em dry-run, sem restaurar os dados.
+
+```powershell
+$env:NODE_ENV='development'
+npx tsx scripts/rebalance-sponsored-metrics.ts --tenant SEU_TENANT --run destaques-variados-2026-10-19-01 --config scripts/simulate-link-metrics.varied-sponsored.json --sources historico-800-4000-01,historico-complemento-patrocinados-01,crescimento-diario-180-300-2026-10-19-02
+# Acrescentar --apply para aplicar; --remote-development se for o banco dev remoto autorizado.
+# Restauração: mesmo --tenant e --run, com --rollback (prévia), depois --rollback --apply.
+```
+
+### Crescimento gradual por idade — 19/10/2026
+
+**Ajuste posterior do usuário:** a configuração efetivamente aplicada passou a ser `simulate-link-metrics.daily-180-300.json`, com `growth.dailyMin: 180`, `dailyMedian: 240` e `dailyMax: 300`. O lote inicial de crescimento baixo foi revertido por seu identificador e substituído pelo lote `crescimento-diario-180-300-2026-10-19-02`; o histórico anterior e eventos de visitantes foram preservados.
+
+Quando `dailyMin` está definido, o sorteio log-normal é condicionado à faixa diária. Popularidade, idade e destaque influenciam a posição dentro da faixa, sem romper seus limites. O dia de criação tem limites proporcionais à fração do dia em que o link existe. O dia atual incompleto revela somente os eventos planejados até o corte, com variação por horário, e por isso não tem garantia de piso proporcional exato em cada hora. Uma hora recém-transcorrida não recebe 180 visitas de uma vez. O multiplicador de destaque desse perfil é 1,25 e continua limitado a 300/dia.
+
+O intervalo de geração e o teto acumulado podem reduzir o total inserido: comuns continuam limitados a 3500 e patrocinados a 4000 no histórico completo. A faixa 180–300 vale para o plano de um dia local completo com orçamento disponível, não como garantia de tráfego humano nem de incremento depois de alcançar o teto. Sem `dailyMin`, permanece o modelo anterior de maturação lenta descrito abaixo, para compatibilidade com runs já auditadas.
+
+O arquivo `simulate-link-metrics.growth-2026-10-19.json` substitui o piso de 800 e a maturação de 6 horas para os próximos incrementos. Não use `mode: top-up` nem `sponsoredMinViews` com `growth`.
+
+O crescimento atende somente links atualmente PUBLISHED; não inventa novas visitas para rascunhos, rejeitados ou indisponíveis. A seleção não reconstitui mudanças históricas de publicação que não foram armazenadas.
+
+`growth.since` inicia o intervalo inclusivo; `until` encerra o intervalo exclusivo. O primeiro lote diário continua o histórico a partir do corte anterior em 17/10/2026 às 16:44:53.029 UTC. O horizonte fica salvo no arquivo para retomada e reversão. Execuções posteriores devem começar no `until` da anterior. A auditoria impede uma nova run de crescimento com intervalo sobreposto; uma execução interrompida deve ser retomada com o mesmo identificador e configuração.
+
+Cada dia local completo recebe um plano determinístico por seed/tenant/link/dia. Avançar o corte dentro do dia apenas revela eventos já planejados, sem redistribuir os anteriores. O volume usa popularidade log-normal fixa por link, log-normal diária, idade, fim de semana e picos ocasionais. Horários preservam o perfil já existente. No dia de criação o volume é proporcional à fração do dia restante, com apenas uma visita inicial após 5–45 minutos, limitada ao fim do dia local. Antes dessa primeira visita, zero impressões ainda é possível; zero cliques é normal em amostras pequenas.
+
+A maturação diária é `0,12 + 0,88 × (1 − exp(−idadeEmDias/14))`. A mediana madura de referência é 40 visitas/dia antes de popularidade e sazonalidade, não uma quota. O teto diário também escala com a idade: no primeiro dia completo, um comum tem teto de aproximadamente 20 visitas, sem piso de centenas. Patrocinados recebem multiplicador 1,6, respeitando os tetos; a vantagem é estatística e não exige que um destaque recém-criado supere o histórico de um link antigo.
+
+O lote usa CTR base de 2,5–12%, fim de semana 1,15 e picos com probabilidade 2,5% e fator 2,2. O teto diário é 160 e os tetos totais permanecem 3500 para comuns e 4000 para patrocinados. Eventos reais já existentes consomem esse orçamento; nada é removido ou reduzido. Totais altos dos lotes antigos continuam presentes. As visitas geradas continuam em ORGANIC, sem alterar campanhas, atribuição comercial ou eventos de visitantes.
+
+```powershell
+npm run metrics:simulate -- --tenant SEU_TENANT_ID --run crescimento-diario-2026-10-19-01 --config scripts/simulate-link-metrics.growth-2026-10-19.json --batch-size 1000
+# Acrescente --apply e, para o dev remoto autorizado, --remote-development.
+# A mesma run e configuração com --rollback --apply revertem apenas esse crescimento.
+```
+
+Os testes cobrem continuidade de cortes no meio do dia, limites temporais, diferença entre links novos e maduros, vantagem estatística de destaque, idempotência no PostgreSQL, bloqueio de sobreposição e rollback sem afetar eventos anteriores.
+
 ### Complementar totais e priorizar patrocinados
 
 O arquivo `simulate-link-metrics.top-up.json` configura `mode: "top-up"`: o volume sorteado é o alvo total do link, descontando impressões já existentes, em vez de somar um novo volume completo. `commonMaxViews: 3500` e `sponsoredMinViews: 3800`, com `maxViews: 4000`, separam as faixas de teste. O piso também evita links zerados quando há intervalo válido entre criação e horizonte. Cliques continuam probabilísticos por visita; a prioridade configura visualizações, sem prometer ordenação absoluta de cliques.

@@ -1,0 +1,34 @@
+[
+  {
+    "file": "desktop-pool-config.png",
+    "sha256": "6b0824fd12c00b2db25a90a484620aaba9b69fa36fe2b8f28659a42e12d691db"
+  },
+  {
+    "file": "desktop-pool-management.png",
+    "sha256": "e2c4cefa0111ab2fdd7a1c2675de02686b07b587c349036c6e3d467b343467de"
+  },
+  {
+    "file": "desktop-pool-unavailable.png",
+    "sha256": "1ce9471da6d7a1c878de70026fbdad0111c770bfb2d5f5cdbd10fac734f76d63"
+  },
+  {
+    "file": "mobile-pool-config.png",
+    "sha256": "cd3064a0285f1128ab419b8ae38f46b5197e5efcdb50dee3cab595c056d12ebc"
+  },
+  {
+    "file": "mobile-pool-management.png",
+    "sha256": "99c6590a48f8ac112e421cade7bc1cc7fb02403ad4245ca69b191ad29271946a"
+  },
+  {
+    "file": "mobile-pool-unavailable.png",
+    "sha256": "99489f57f283d50093b9c1ba9103f12463b07fb9a2f66b74ea637ed60a6eada9"
+  },
+  {
+    "file": "desktop-pool-zoom.png",
+    "sha256": "1d03ba7a927c6d2359c26c679f08e44ee9650dd119b91c3f50b8f7af9f4e7388"
+  },
+  {
+    "file": "mobile-pool-zoom.png",
+    "sha256": "53dc52e013a8b2ef54aadcfb0f5cb26f0a727b18dadfff7ff3414c46e196a43d"
+  }
+]

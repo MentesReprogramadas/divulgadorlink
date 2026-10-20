@@ -3,6 +3,7 @@
 import { cloneElement, isValidElement, useId, useState, type InputHTMLAttributes, type Ref, type ReactNode, type TextareaHTMLAttributes } from 'react'
 export { Select } from './select'
 import styles from './input.module.css'
+import {useReadOnly} from './interaction-policy'
 
 function controlClass(invalid: boolean | undefined, className: string | undefined): string {
   return ['field', invalid ? 'field-invalid' : '', className].filter(Boolean).join(' ')
@@ -14,6 +15,7 @@ export function Field({
   hint,
   error,
   icon,
+  align = 'start',
   children,
 }: {
   label: string
@@ -21,6 +23,7 @@ export function Field({
   hint?: string
   error?: string
   icon?: ReactNode
+  align?: 'start' | 'center'
   children: ReactNode
 }) {
   const generatedId = useId()
@@ -32,7 +35,7 @@ export function Field({
   const describedBy = [control?.props['aria-describedby'], descriptionId].filter(Boolean).join(' ') || undefined
   return (
     <div className="field-block" onInvalidCapture={event => { if (isControl(event.target)) setValidation(validationMessage(event.target)) }} onBlurCapture={event => { if (isControl(event.target)) setValidation(validationMessage(event.target)) }} onChange={event => { if (validation && isControl(event.target)) setValidation(validationMessage(event.target)) }}>
-      <div className={styles.labelRow}><label className="field-label" htmlFor={id}>{icon ? <span className={styles.labelIcon} aria-hidden="true">{icon}</span> : null}{label}</label>{control?.props.required ? <span className={styles.required} aria-hidden="true">*</span> : null}</div>
+      <div className={styles.labelRow} data-align={align}><label className="field-label" htmlFor={id}>{icon ? <span className={styles.labelIcon} aria-hidden="true">{icon}</span> : null}{label}</label>{control?.props.required ? <span className={styles.required} aria-hidden="true">*</span> : null}</div>
       {control ? cloneElement(control, { id, 'aria-describedby': describedBy, invalid: Boolean(message) || control.props.invalid }) : children}
       {message ? <span id={descriptionId} className="field-error" role="alert">{message}</span> : null}
       {hint && !message ? <span id={descriptionId} className="field-hint">{hint}</span> : null}
@@ -60,7 +63,8 @@ export function Input({
   className,
   ...props
 }: InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean; ref?: Ref<HTMLInputElement> }) {
-  return <input className={controlClass(invalid, [styles.control, className].filter(Boolean).join(' '))} aria-invalid={invalid || undefined} {...props} />
+  const readOnly=useReadOnly()
+  return <input className={controlClass(invalid, [styles.control, className].filter(Boolean).join(' '))} aria-invalid={invalid || undefined} {...props} disabled={props.disabled||props.type==='checkbox'&&readOnly} />
 }
 
 export function TextArea({

@@ -6,7 +6,7 @@ import { WorkspaceSection } from '@/components/layout/workspace-section'
 
 export default async function Page() {
   const role = (await cookies()).get('catalogo_role')?.value
-  if (role !== 'ADMIN') notFound()
+  if (role !== 'ADMIN' && !(await cookies()).get('workspaceOwner')?.value) notFound()
   return (
     <>
       <WorkspaceSection title="Exibição do catálogo"><SettingsEditor /></WorkspaceSection>

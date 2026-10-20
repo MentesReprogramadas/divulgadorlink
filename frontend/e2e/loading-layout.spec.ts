@@ -24,7 +24,7 @@ for (const admin of [false, true]) {
     const routes: Array<[string, string]> = admin ? [
       ['/admin/visao', '/v1/admin/office'], ['/admin/moderacao', '/v1/admin/moderation'], ['/admin/denuncias', '/v1/admin/reports'], ['/admin/disponibilidade', '/v1/admin/url-proposals'], ['/admin/planos', '/v1/promotions/offers'], ['/admin/estornos', '/v1/admin/refunds'], ['/admin/integracoes', '/v1/admin/integrations/evolution/status'], ['/admin/configuracoes', '/v1/admin/facets'],
     ] : [
-      ['/painel', '/v1/links/mine'], ['/painel/links', '/v1/links/mine'], ['/painel/pedidos', '/v1/orders/mine'], ['/painel/perfil', '/v1/me/profile'], ['/painel/favoritos', '/v1/me/favorites'], ['/painel/convites', '/v1/me/redirects'], ['/painel/lembretes', '/v1/promotions/mine/reminders'], [`/painel/links/${id}/editar`, '/v1/links/mine'], [`/painel/links/${id}/disponibilidade`, `/v1/links/${id}/availability`], [`/painel/links/${id}/resultado`, `/v1/analytics/links/${id}/performance`], [`/painel/links/${id}/destaque`, '/v1/promotions/offers'], [`/painel/denunciar/${id}`, `/v1/links/${id}`], ['/busca?q=Receitas', '/v1/search'],
+      ['/painel', '/v1/links/mine'], ['/painel/links', '/v1/links/mine'], ['/painel/pedidos', '/v1/orders/mine'], ['/painel/perfil', '/v1/me/profile'], ['/painel/perfil/links', '/v1/me/profile'], ['/painel/favoritos', '/v1/me/favorites'], ['/painel/convites', '/v1/me/redirects'], ['/painel/lembretes', '/v1/promotions/mine/reminders'], [`/painel/links/${id}/editar`, '/v1/links/mine'], [`/painel/links/${id}/disponibilidade`, `/v1/links/${id}/availability`], [`/painel/links/${id}/resultado`, `/v1/analytics/links/${id}/performance`], [`/painel/links/${id}/destaque`, '/v1/promotions/offers'], [`/painel/denunciar/${id}`, `/v1/links/${id}`], ['/busca?q=Receitas', '/v1/search'],
     ]
     for (const [url, endpoint] of routes) await test.step(url, async () => {
       let release = () => {}; let intercepted = 0
@@ -39,10 +39,9 @@ for (const admin of [false, true]) {
         await expect(page.locator('[data-skeleton]:visible').first()).toBeVisible()
         const header = page.locator('header').first()
         const before = await header.boundingBox()
-        const formBefore = url.endsWith('/perfil') ? await page.locator('[data-layout="profile-form"]').boundingBox() : null
+        const formBefore = url.endsWith('/perfil/links') ? await page.locator('[data-layout="profile-form"]').boundingBox() : null
         if (formBefore) {
-          // The profile response determines creation versus group management. Both use
-          // the same page width; the loading state cannot assume the draft or its count.
+          // Group management preserves its page width while its data is loading.
           await expect(page.locator('[data-skeleton] [data-skeleton-block]').first()).toBeVisible()
           await expect(page.locator('[data-skeleton] input:not(:disabled)')).toHaveCount(0)
         }
@@ -137,7 +136,7 @@ test('L04 sessão lenta preserva a geometria do formulário de publicar e respei
 
 test('L05 navegação entre abas mostra somente o skeleton de destino, sem a visão geral', async ({ page }, info) => {
   await login(page, false)
-  await expect(page.getByRole('heading', { name: 'O que você quer fazer?', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading',{name:'O que você quer fazer?',exact:true})).toBeVisible()
   let release = () => {}; let received = false
   const held = new Promise<void>(resolve => { release = resolve })
   await page.route('**/bff/v1/orders/mine', async route => { received = true; await held; await route.continue() })

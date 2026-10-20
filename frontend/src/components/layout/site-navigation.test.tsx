@@ -4,13 +4,27 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { SiteNavigation } from './site-navigation'
 import { WorkspaceNavigation } from '@/features/account/components/workspace-navigation'
 
-const { pathname } = vi.hoisted(() => ({ pathname: vi.fn(() => '/') }))
+const { pathname, workspaceAccess } = vi.hoisted(() => ({ pathname: vi.fn(() => '/'), workspaceAccess: vi.fn() }))
+vi.mock('@/features/workspace-team/workspace-access',async original=>({...await original<typeof import('@/features/workspace-team/workspace-access')>(),useWorkspaceAccess:()=>workspaceAccess()??({ready:true,context:{ownerId:null,grants:null},error:''})}))
 vi.mock('next/navigation', () => ({ usePathname: pathname }))
-afterEach(() => { cleanup(); pathname.mockReturnValue('/') })
+afterEach(() => { cleanup(); pathname.mockReturnValue('/'); workspaceAccess.mockReset() })
 
-it('F16 keeps Minha página selected for models/history without selecting an unrelated navigation destination',()=>{
-  pathname.mockReturnValue('/painel/perfil/modelos');const view=render(<WorkspaceNavigation area="panel" role="USER"/>);expect(screen.getByRole('link',{name:'Minha página'}).getAttribute('aria-current')).toBe('location');expect(screen.getByRole('link',{name:'Links'}).getAttribute('aria-current')).toBeNull()
-  pathname.mockReturnValue('/painel/perfil/historico');view.rerender(<WorkspaceNavigation area="panel" role="USER"/>);expect(screen.getByRole('link',{name:'Minha página'}).getAttribute('aria-current')).toBe('location');expect(view.container.querySelectorAll('[aria-current]').length).toBe(1)
+it('não expõe destinos de edição ou divulgação sem permissão dentro das subseções',()=>{
+ workspaceAccess.mockReturnValue({ready:true,context:{ownerId:'shared-owner',grants:{page:{read:true,write:false}}},error:''});pathname.mockReturnValue('/painel/perfil');render(<WorkspaceNavigation area="panel"/>);
+ expect(screen.queryByRole('link',{name:'Dados da página',hidden:true})).toBeNull();expect(screen.queryByRole('link',{name:'Aparência',hidden:true})).toBeNull();expect(screen.queryByRole('link',{name:'Importar links',hidden:true})).toBeNull();expect(screen.queryByText('Resultados e divulgação')).toBeNull()
+})
+
+it('seleciona o submenu específico de Minha página e remove Publicação',()=>{
+ pathname.mockReturnValue('/painel/perfil/modelos');const view=render(<WorkspaceNavigation area="panel" role="USER"/>);expect(screen.getByRole('link',{name:'Modelos'}).getAttribute('aria-current')).toBe('page');expect(screen.queryByText('Publicação')).toBeNull();expect(screen.getByText('Edição').closest('details')?.open).toBe(true);expect(screen.getByText('Ferramentas').closest('details')?.open).toBe(false);fireEvent.click(screen.getByText('Resultados e divulgação'));expect(screen.getByRole('link',{name:'Campanhas'})).toBeTruthy()
+ pathname.mockReturnValue('/painel/perfil/historico');view.rerender(<WorkspaceNavigation area="panel" role="USER"/>);expect(screen.getByRole('link',{name:'Histórico'}).getAttribute('aria-current')).toBe('page');expect(view.container.querySelectorAll('[aria-current]').length).toBe(1)
+})
+
+it('as subseções de Minha página abrem e fecham de forma independente',()=>{
+ pathname.mockReturnValue('/painel/perfil');render(<WorkspaceNavigation area="panel"/>);
+ const editing=screen.getByText('Edição'),tools=screen.getByText('Ferramentas');
+ expect(editing.closest('details')?.open).toBe(false);fireEvent.click(editing);expect(editing.closest('details')?.open).toBe(true);
+ fireEvent.click(tools);expect(tools.closest('details')?.open).toBe(true);expect(editing.closest('details')?.open).toBe(true);
+ fireEvent.click(editing);expect(editing.closest('details')?.open).toBe(false);expect(tools.closest('details')?.open).toBe(true);
 })
 
 describe('navegação principal', () => {

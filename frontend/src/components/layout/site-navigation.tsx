@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
+import {useWorkspaceAccess,hasWorkspaceAdmin,workspaceAdminPath} from '@/features/workspace-team/workspace-access'
 import { accountLinks } from '@/domain/account-nav'
 import { WorkspaceNavigation } from '@/features/account/components/workspace-navigation'
 import { LogoutButton } from '@/features/account/components/logout-button'
@@ -18,10 +19,12 @@ export function SiteNavigation({ role, support = false }: { role?: string; suppo
   const [ready, setReady] = useState(false)
   const [sessionRole, setSessionRole] = useState(role)
   const toggle = useRef<HTMLButtonElement>(null)
-  const items = [{ href: '/busca', label: 'Busca' }, ...accountLinks(sessionRole)]
+  const access=useWorkspaceAccess(sessionRole==='USER'||sessionRole==='ADMIN')
+  const effectiveRole=hasWorkspaceAdmin(access.context)?'ADMIN':sessionRole
+  const items = [{ href: '/busca', label: 'Busca' }, ...accountLinks(effectiveRole)].map(item=>item.href==='/admin/visao'&&access.context?.ownerId?{...item,href:workspaceAdminPath(access.context)}:item).filter(item=>item.href!=='/admin/visao'||!access.context?.ownerId||hasWorkspaceAdmin(access.context))
   const signedIn = sessionRole === 'USER' || sessionRole === 'ADMIN'
   const workspace = pathname.startsWith('/admin') ? 'admin' : 'panel'
-  const showWorkspace = signedIn && (pathname.startsWith('/painel') || pathname.startsWith('/admin') && sessionRole === 'ADMIN') && pathname !== '/painel/verificar'
+  const showWorkspace = signedIn && (pathname.startsWith('/painel') || pathname.startsWith('/admin') && effectiveRole === 'ADMIN') && pathname !== '/painel/verificar'
   function close() { setOpen(false); toggle.current?.focus() }
   useEffect(() => { setOpen(false) }, [pathname])
   useEffect(() => { setReady(true) }, [])
@@ -63,7 +66,7 @@ export function SiteNavigation({ role, support = false }: { role?: string; suppo
           <nav className={styles.drawerLinks} data-columns={pathname.startsWith('/painel') || pathname.startsWith('/admin') ? 2 : 1} aria-label="Navegação do site">
             {[{ href: '/', label: 'Catálogo' }, ...items].map(item => <SidebarLink key={item.href} href={item.href} active={pathname === item.href}><ActionIcon name={navigationIcons[item.href as NavigationDestination]} strokeWidth={1.7} />{item.label}</SidebarLink>)}
           </nav>
-          {showWorkspace ? <WorkspaceNavigation area={workspace} role={sessionRole} /> : null}
+          {showWorkspace ? <WorkspaceNavigation area={workspace} role={effectiveRole} /> : null}
           <div className={styles.drawerFooter}>
             {signedIn && !support ? <LogoutButton /> : null}
           </div>

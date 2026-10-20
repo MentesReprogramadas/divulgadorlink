@@ -1,0 +1,131 @@
+{
+  "feature": "F20",
+  "date": "2026-10-19",
+  "status": "S0-S6 VERIFIED LOCALLY; S7 REMOTE PENDING",
+  "branch": "codex/roadmap-f37-testes",
+  "commit": null,
+  "newDependencies": false,
+  "backendUnit": 570,
+  "frontendUnit": 373,
+  "pgRegression": {
+    "files": 8,
+    "tests": 91
+  },
+  "e2eRounds": [
+    {
+      "tests": 81,
+      "status": "passed"
+    },
+    {
+      "tests": 55,
+      "status": "passed"
+    },
+    {
+      "tests": 27,
+      "status": "passed",
+      "features": [
+        "F20",
+        "F21",
+        "F37"
+      ]
+    }
+  ],
+  "sumRoundsAsUniqueTests": false,
+  "ownPg": 11,
+  "manualReview": {
+    "nativeScreenshots": true,
+    "desktop": "1280x720",
+    "mobile": "390x844 Chromium emulation",
+    "keyboardAndFocus": true,
+    "zoom320": true,
+    "production": false,
+    "physicalIPhoneSafari": false
+  },
+  "localUpgrade": {
+    "target": "localhost:5437/divulgador",
+    "before": {
+      "users": 17,
+      "profiles": 1,
+      "links": 640,
+      "events": 0
+    },
+    "after": {
+      "users": 17,
+      "profiles": 1,
+      "links": 640,
+      "events": 0
+    },
+    "newMemberships": 0,
+    "newInvitations": 0,
+    "newKits": 0,
+    "migrations": 53,
+    "preserved": true
+  },
+  "logs": {
+    "e2e-delivery.log": {
+      "sha256": "a7fcedca2755b9163dee29ec03caa6bdacf42adb9a878574bed57315e575ee57",
+      "path": "output/roadmap-f21/e2e-delivery.log"
+    },
+    "e2e-final.log": {
+      "sha256": "394226c7c1671444935a851bb92ee37683661292c967b86739a7eb6116c760b4",
+      "path": "output/roadmap-f21/e2e-final.log"
+    },
+    "e2e-regression.log": {
+      "sha256": "ac775fdcb79d0e131972db5d96fea4569c582d43d304efe60dbefbd55113abf7",
+      "path": "output/roadmap-f21/e2e-regression.log"
+    },
+    "pg-regression-final.log": {
+      "sha256": "ee4dadb339c4e58612e8c3787b895229f517a7cc5f0b160fcf81ff98bc6f0242",
+      "path": "output/roadmap-f21/pg-regression-final.log"
+    },
+    "frontend-unit-final.log": {
+      "sha256": "b28f9d68f35d6983df4f613c627097729e80735fa2f31d80ab63986a436e8955",
+      "path": "output/roadmap-f21/frontend-unit-final.log"
+    },
+    "backend-unit-final.log": {
+      "sha256": "4dd6e980535458df4c359ed6d2518e91960ffeb070db614d91ad44749c0be461",
+      "path": "output/roadmap-f21/backend-unit-final.log"
+    },
+    "local-upgrade-proof.json": {
+      "sha256": "dce139c56201028662962370bfebe8a38ba7089c8b230de4796866fd63ae4580",
+      "path": "output/roadmap-f21/local-upgrade-proof.json"
+    },
+    "schema-diff.log": {
+      "sha256": "ddde7da46653c7528712005044cd9583985a24af0c2095e6cf9e0dff17bccd8e",
+      "path": "output/roadmap-f21/schema-diff.log"
+    }
+  },
+  "captures": [
+    "docs/frontend-profissional/evidencias/f20-2026-10-19/desktop-team-editor.png",
+    "docs/frontend-profissional/evidencias/f20-2026-10-19/desktop-team-empty.png",
+    "docs/frontend-profissional/evidencias/f20-2026-10-19/desktop-team-invite.png",
+    "docs/frontend-profissional/evidencias/f20-2026-10-19/desktop-team-preview.png",
+    "docs/frontend-profissional/evidencias/f20-2026-10-19/desktop-team-reader.png",
+    "docs/frontend-profissional/evidencias/f20-2026-10-19/desktop-team-revoked.png",
+    "docs/frontend-profissional/evidencias/f20-2026-10-19/desktop-team-zoom.png",
+    "docs/frontend-profissional/evidencias/f20-2026-10-19/mobile-team-editor.png",
+    "docs/frontend-profissional/evidencias/f20-2026-10-19/mobile-team-empty.png",
+    "docs/frontend-profissional/evidencias/f20-2026-10-19/mobile-team-invite.png",
+    "docs/frontend-profissional/evidencias/f20-2026-10-19/mobile-team-preview.png",
+    "docs/frontend-profissional/evidencias/f20-2026-10-19/mobile-team-reader.png",
+    "docs/frontend-profissional/evidencias/f20-2026-10-19/mobile-team-revoked.png",
+    "docs/frontend-profissional/evidencias/f20-2026-10-19/mobile-team-zoom.png"
+  ],
+  "cleanup": {
+    "ownTemporaryPgAndRedisRemoved": true,
+    "e2eContainersRemovedByHarness": true,
+    "personalDatabase5437Preserved": true,
+    "baseline5433Redis6380Preserved": true
+  },
+  "latestChecks": {
+    "frontendLint": 0,
+    "frontendTypecheck": 0,
+    "frontendUnit": 373,
+    "backendLint": 0,
+    "backendTypecheck": 0,
+    "backendBuild": 0,
+    "backendUnit": 570,
+    "postgresRegression": 91,
+    "e2eDelivery": 27
+  }
+}

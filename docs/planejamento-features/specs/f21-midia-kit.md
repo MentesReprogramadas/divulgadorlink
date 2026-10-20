@@ -1,8 +1,11 @@
-# F21 Mídia kit do divulgador
+# F21 Apresentação para parceiros (mídia kit)
+
+> Atualização autorizada em 19/10/2026: o [refinamento de escopo e UX](../refinamento-f05-f15-f20-f21-f38.md) prevalece sobre as fronteiras anteriores em caso de divergência. Inclui importação de JSON, consentimento no modal, navegação por contexto, prévia de campanha, equipe global e apresentação para parceiros. Estado da ampliação: implementada e validada localmente; S7/CI/liberação remotas continuam em revisão.
+
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 26.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
+**Estado:** S0–S6 VALIDADAS LOCALMENTE; S7/CI/liberação EM REVISÃO.
 **Onda:** 4. **Ordem:** 26.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Mídia kit do divulgador”.  
 **Plano:** [F21 implementação](../planos/f21-midia-kit.md).  
@@ -139,3 +142,10 @@ Sem resolução das decisões bloqueantes e dependências concluídas, a feature
 
 **Indicadores:** mídia kits publicados e acessos recebidos.
 
+
+
+## Execução reconciliada — 19/10/2026
+
+D23: apresentação aprovada, contato explícito vivo, métricas F01 com proveniência/cobertura e informado sem verificação. Gestão owner-only; renderer e prévia compartilhados.
+
+Caminhos, decisões, alternativas, migrações, retenção, testes e divergências do planejamento proposto estão no [registro de execução](../execucao-f21.md). Este fechamento substitui a condição histórica de somente planejamento. Não marcar os nomes propostos ou passos remotos como executados sem prova. Todos os ACs têm oráculos locais aprovados na matriz; CI/liberação continuam pendentes.

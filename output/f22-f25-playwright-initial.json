@@ -1,0 +1,920 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\VSCODE\\divulgadorlinks\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "profile-assistant.spec.ts",
+      "contact-forms.spec.ts",
+      "destination-pools.spec.ts",
+      "--project=features",
+      "--project=features-mobile"
+    ],
+    "configFile": "C:\\VSCODE\\divulgadorlinks\\frontend\\playwright.config.ts",
+    "rootDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\global-setup.ts",
+    "globalTeardown": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\global-teardown.ts",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "setup",
+        "name": "setup",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/auth\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features",
+        "name": "features",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features-mobile",
+        "name": "features-mobile",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "catalog",
+        "name": "catalog",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/catalog\\.spec\\.ts|mail\\.spec\\.ts|advertise\\.spec\\.ts|legal\\.spec\\.ts|funnel\\.spec\\.ts|signup\\.spec\\.ts|submit-link\\.spec\\.ts|security-headers\\.spec\\.ts|google-ads-submission\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "auth.setup.ts",
+      "file": "auth.setup.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "sessão da Bia para os testes do painel",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "setup",
+              "projectName": "setup",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 519,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:53:10.517Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "17e3fe6f4d9d8bd79c6b-40367c7f5b2a9e9ad033",
+          "file": "auth.setup.ts",
+          "line": 8,
+          "column": 6
+        }
+      ]
+    },
+    {
+      "title": "contact-forms.spec.ts",
+      "file": "contact-forms.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F22-E01/T01/T03/T04/T05 configura formulário, recebe contato privado, exporta CSV e exclui",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3598,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:53:11.661Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-7019657f9e91ca561718",
+          "file": "contact-forms.spec.ts",
+          "line": 9,
+          "column": 5
+        },
+        {
+          "title": "F22-E02/T01 outro dono e visitante não leem contatos; prévia não envia",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1687,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:53:15.480Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-091cc8eef136a562166e",
+          "file": "contact-forms.spec.ts",
+          "line": 15,
+          "column": 5
+        },
+        {
+          "title": "F22-E03/T02 falha mantém dados, teclado permite recuperar, duplicação é evitada e 320px não transborda",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1175,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:53:17.173Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-8c7c7eb3731aaaf90185",
+          "file": "contact-forms.spec.ts",
+          "line": 19,
+          "column": 5
+        },
+        {
+          "title": "F22-E01/T01/T03/T04/T05 configura formulário, recebe contato privado, exporta CSV e exclui",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2955,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:54:01.449Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-25bd04d53e18f047255d",
+          "file": "contact-forms.spec.ts",
+          "line": 9,
+          "column": 5
+        },
+        {
+          "title": "F22-E02/T01 outro dono e visitante não leem contatos; prévia não envia",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1582,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:54:04.539Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-45513f7390e0de7e266c",
+          "file": "contact-forms.spec.ts",
+          "line": 15,
+          "column": 5
+        },
+        {
+          "title": "F22-E03/T02 falha mantém dados, teclado permite recuperar, duplicação é evitada e 320px não transborda",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1187,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:54:06.128Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-20202ef7572b47378ed8",
+          "file": "contact-forms.spec.ts",
+          "line": 19,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "destination-pools.spec.ts",
+      "file": "destination-pools.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F23-E01/T02/T03/T04/T05 configura 1/3, encaminha ao stub real, pausa destinos e conserva endereço",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12259,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:53:18.362Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-e692f6b0c33ed1f70a8b",
+          "file": "destination-pools.spec.ts",
+          "line": 12,
+          "column": 5
+        },
+        {
+          "title": "F23-E02/T01 privado nega visitante e outro dono; alvo inválido não altera distribuição",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1457,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:53:30.629Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-e2b4d2bedadc0d667135",
+          "file": "destination-pools.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "F23-E03 erro mantém peso, teclado recupera sem duplicar, layout cabe em 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1899,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:53:32.096Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-a0d63d4791adce42845e",
+          "file": "destination-pools.spec.ts",
+          "line": 19,
+          "column": 5
+        },
+        {
+          "title": "F23-E01/T02/T03/T04/T05 configura 1/3, encaminha ao stub real, pausa destinos e conserva endereço",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5534,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:54:07.327Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-5728a34e410abe9a9096",
+          "file": "destination-pools.spec.ts",
+          "line": 12,
+          "column": 5
+        },
+        {
+          "title": "F23-E02/T01 privado nega visitante e outro dono; alvo inválido não altera distribuição",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1763,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:54:12.873Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-7a973f620ef26840c05e",
+          "file": "destination-pools.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "F23-E03 erro mantém peso, teclado recupera sem duplicar, layout cabe em 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1935,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:54:14.645Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-e737362e1c36c8f24f38",
+          "file": "destination-pools.spec.ts",
+          "line": 19,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "profile-assistant.spec.ts",
+      "file": "profile-assistant.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F25-E01 revisão seletiva e prévia reutilizada alteram só o rascunho; descarte preserva publicação",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2564,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:53:34.006Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "89db073b230187dada43-e080e05fde4956d6e84f",
+          "file": "profile-assistant.spec.ts",
+          "line": 11,
+          "column": 5
+        },
+        {
+          "title": "F25-E02 sem página geração não salva; outro dono não acessa e aplicação detecta versão desatualizada",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 21694,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'Revisar sugestões' }).getByRole('alert')\nExpected substring: \u001b[32m\"Sua página mudou\"\u001b[39m\nReceived string:    \u001b[31m\"O perfil mudou em outra aba. Recarregue os dados antes de salvar.\"\u001b[39m\nTimeout: 20000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('region', { name: 'Revisar sugestões' }).getByRole('alert') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'Revisar sugestões' }).getByRole('alert')\u001b[22m\n\u001b[2m    42 × locator resolved to <p role=\"alert\">O perfil mudou em outra aba. Recarregue os dados …</p>\u001b[22m\n\u001b[2m       - unexpected value \"O perfil mudou em outra aba. Recarregue os dados antes de salvar.\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'Revisar sugestões' }).getByRole('alert')\nExpected substring: \u001b[32m\"Sua página mudou\"\u001b[39m\nReceived string:    \u001b[31m\"O perfil mudou em outra aba. Recarregue os dados antes de salvar.\"\u001b[39m\nTimeout: 20000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('region', { name: 'Revisar sugestões' }).getByRole('alert') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'Revisar sugestões' }).getByRole('alert')\u001b[22m\n\u001b[2m    42 × locator resolved to <p role=\"alert\">O perfil mudou em outra aba. Recarregue os dados …</p>\u001b[22m\n\u001b[2m       - unexpected value \"O perfil mudou em outra aba. Recarregue os dados antes de salvar.\"\u001b[22m\n\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-assistant.spec.ts:23:202",
+                    "location": {
+                      "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-assistant.spec.ts",
+                      "column": 202,
+                      "line": 23
+                    },
+                    "snippet": "  21 |  await roadmapLogin(page);await page.goto(roadmapOrigin+'/painel/perfil/assistente');await page.getByLabel('Nome da página',{exact:true}).fill('Minha arte');await page.getByLabel('Link da sua página',{exact:true}).fill('arte-f25');await page.getByLabel('O que você faz?',{exact:true}).fill('Arte e desenho');await page.getByRole('button',{name:'Escolher links'}).click();await page.getByLabel('Links para incluir',{exact:true}).fill('https://example.com/art');await page.getByRole('button',{name:'Gerar sugestões',exact:true}).click();await expect(page.getByRole('heading',{name:'Escolha o que quer aplicar'})).toBeVisible();expect((await roadmapApi(page,'/me/profile')).body.draft).toBeNull();const list=(await roadmapApi(page,'/me/profile/suggestions')).body,id=list.items[0].id\n  22 |  const ctx=await browser.newContext(),other=await ctx.newPage();try{await other.goto(roadmapOrigin);expect((await roadmapApi(other,'/me/profile/suggestions/'+id)).status).toBe(401);await roadmapLogin(other,true);expect((await roadmapApi(other,'/me/profile/suggestions/'+id)).status).toBe(404)}finally{await ctx.close()}\n> 23 |  await roadmapProfile(page,'changed-f25',false);await page.getByRole('button',{name:'Aplicar ao rascunho'}).click();await expect(page.getByRole('region',{name:'Revisar sugestões'}).getByRole('alert')).toContainText('Sua página mudou');await capturePage(page,info.outputPath('assistant-conflict.png'));expect((await roadmapApi(page,'/me/profile')).body.draft.slug).toBe('changed-f25')\n     |                                                                                                                                                                                                          ^\n  24 | })\n  25 |\n  26 | test('F25-E03 erro recuperável mantém entrada e teclado; limite diário e 320px com zoom',async({page},info)=>{"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-assistant.spec.ts",
+                        "column": 202,
+                        "line": 23
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'Revisar sugestões' }).getByRole('alert')\nExpected substring: \u001b[32m\"Sua página mudou\"\u001b[39m\nReceived string:    \u001b[31m\"O perfil mudou em outra aba. Recarregue os dados antes de salvar.\"\u001b[39m\nTimeout: 20000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('region', { name: 'Revisar sugestões' }).getByRole('alert') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'Revisar sugestões' }).getByRole('alert')\u001b[22m\n\u001b[2m    42 × locator resolved to <p role=\"alert\">O perfil mudou em outra aba. Recarregue os dados …</p>\u001b[22m\n\u001b[2m       - unexpected value \"O perfil mudou em outra aba. Recarregue os dados antes de salvar.\"\u001b[22m\n\n\n  21 |  await roadmapLogin(page);await page.goto(roadmapOrigin+'/painel/perfil/assistente');await page.getByLabel('Nome da página',{exact:true}).fill('Minha arte');await page.getByLabel('Link da sua página',{exact:true}).fill('arte-f25');await page.getByLabel('O que você faz?',{exact:true}).fill('Arte e desenho');await page.getByRole('button',{name:'Escolher links'}).click();await page.getByLabel('Links para incluir',{exact:true}).fill('https://example.com/art');await page.getByRole('button',{name:'Gerar sugestões',exact:true}).click();await expect(page.getByRole('heading',{name:'Escolha o que quer aplicar'})).toBeVisible();expect((await roadmapApi(page,'/me/profile')).body.draft).toBeNull();const list=(await roadmapApi(page,'/me/profile/suggestions')).body,id=list.items[0].id\n  22 |  const ctx=await browser.newContext(),other=await ctx.newPage();try{await other.goto(roadmapOrigin);expect((await roadmapApi(other,'/me/profile/suggestions/'+id)).status).toBe(401);await roadmapLogin(other,true);expect((await roadmapApi(other,'/me/profile/suggestions/'+id)).status).toBe(404)}finally{await ctx.close()}\n> 23 |  await roadmapProfile(page,'changed-f25',false);await page.getByRole('button',{name:'Aplicar ao rascunho'}).click();await expect(page.getByRole('region',{name:'Revisar sugestões'}).getByRole('alert')).toContainText('Sua página mudou');await capturePage(page,info.outputPath('assistant-conflict.png'));expect((await roadmapApi(page,'/me/profile')).body.draft.slug).toBe('changed-f25')\n     |                                                                                                                                                                                                          ^\n  24 | })\n  25 |\n  26 | test('F25-E03 erro recuperável mantém entrada e teclado; limite diário e 320px com zoom',async({page},info)=>{\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-assistant.spec.ts:23:202"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:53:36.576Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-assistant-F25-E02--6509c-etecta-versão-desatualizada-features\\test-failed-1.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-assistant-F25-E02--6509c-etecta-versão-desatualizada-features\\test-failed-2.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-assistant-F25-E02--6509c-etecta-versão-desatualizada-features\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-assistant-F25-E02--6509c-etecta-versão-desatualizada-features\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-assistant.spec.ts",
+                    "column": 202,
+                    "line": 23
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "89db073b230187dada43-bcc0c5a55ad1f865b271",
+          "file": "profile-assistant.spec.ts",
+          "line": 20,
+          "column": 5
+        },
+        {
+          "title": "F25-E03 erro recuperável mantém entrada e teclado; limite diário e 320px com zoom",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1854,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:53:58.913Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "89db073b230187dada43-868ec1f408e392e4fe64",
+          "file": "profile-assistant.spec.ts",
+          "line": 26,
+          "column": 5
+        },
+        {
+          "title": "F25-E01 revisão seletiva e prévia reutilizada alteram só o rascunho; descarte preserva publicação",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2336,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:54:16.592Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "89db073b230187dada43-e07968dbedfe49e7988b",
+          "file": "profile-assistant.spec.ts",
+          "line": 11,
+          "column": 5
+        },
+        {
+          "title": "F25-E02 sem página geração não salva; outro dono não acessa e aplicação detecta versão desatualizada",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 21642,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'Revisar sugestões' }).getByRole('alert')\nExpected substring: \u001b[32m\"Sua página mudou\"\u001b[39m\nReceived string:    \u001b[31m\"O perfil mudou em outra aba. Recarregue os dados antes de salvar.\"\u001b[39m\nTimeout: 20000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('region', { name: 'Revisar sugestões' }).getByRole('alert') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'Revisar sugestões' }).getByRole('alert')\u001b[22m\n\u001b[2m    42 × locator resolved to <p role=\"alert\">O perfil mudou em outra aba. Recarregue os dados …</p>\u001b[22m\n\u001b[2m       - unexpected value \"O perfil mudou em outra aba. Recarregue os dados antes de salvar.\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'Revisar sugestões' }).getByRole('alert')\nExpected substring: \u001b[32m\"Sua página mudou\"\u001b[39m\nReceived string:    \u001b[31m\"O perfil mudou em outra aba. Recarregue os dados antes de salvar.\"\u001b[39m\nTimeout: 20000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('region', { name: 'Revisar sugestões' }).getByRole('alert') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'Revisar sugestões' }).getByRole('alert')\u001b[22m\n\u001b[2m    42 × locator resolved to <p role=\"alert\">O perfil mudou em outra aba. Recarregue os dados …</p>\u001b[22m\n\u001b[2m       - unexpected value \"O perfil mudou em outra aba. Recarregue os dados antes de salvar.\"\u001b[22m\n\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-assistant.spec.ts:23:202",
+                    "location": {
+                      "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-assistant.spec.ts",
+                      "column": 202,
+                      "line": 23
+                    },
+                    "snippet": "  21 |  await roadmapLogin(page);await page.goto(roadmapOrigin+'/painel/perfil/assistente');await page.getByLabel('Nome da página',{exact:true}).fill('Minha arte');await page.getByLabel('Link da sua página',{exact:true}).fill('arte-f25');await page.getByLabel('O que você faz?',{exact:true}).fill('Arte e desenho');await page.getByRole('button',{name:'Escolher links'}).click();await page.getByLabel('Links para incluir',{exact:true}).fill('https://example.com/art');await page.getByRole('button',{name:'Gerar sugestões',exact:true}).click();await expect(page.getByRole('heading',{name:'Escolha o que quer aplicar'})).toBeVisible();expect((await roadmapApi(page,'/me/profile')).body.draft).toBeNull();const list=(await roadmapApi(page,'/me/profile/suggestions')).body,id=list.items[0].id\n  22 |  const ctx=await browser.newContext(),other=await ctx.newPage();try{await other.goto(roadmapOrigin);expect((await roadmapApi(other,'/me/profile/suggestions/'+id)).status).toBe(401);await roadmapLogin(other,true);expect((await roadmapApi(other,'/me/profile/suggestions/'+id)).status).toBe(404)}finally{await ctx.close()}\n> 23 |  await roadmapProfile(page,'changed-f25',false);await page.getByRole('button',{name:'Aplicar ao rascunho'}).click();await expect(page.getByRole('region',{name:'Revisar sugestões'}).getByRole('alert')).toContainText('mudou em outra aba');await capturePage(page,info.outputPath('assistant-conflict.png'));expect((await roadmapApi(page,'/me/profile')).body.draft.slug).toBe('changed-f25')\n     |                                                                                                                                                                                                          ^\n  24 | })\n  25 |\n  26 | test('F25-E03 erro recuperável mantém entrada e teclado; limite diário e 320px com zoom',async({page},info)=>{"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-assistant.spec.ts",
+                        "column": 202,
+                        "line": 23
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'Revisar sugestões' }).getByRole('alert')\nExpected substring: \u001b[32m\"Sua página mudou\"\u001b[39m\nReceived string:    \u001b[31m\"O perfil mudou em outra aba. Recarregue os dados antes de salvar.\"\u001b[39m\nTimeout: 20000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('region', { name: 'Revisar sugestões' }).getByRole('alert') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'Revisar sugestões' }).getByRole('alert')\u001b[22m\n\u001b[2m    42 × locator resolved to <p role=\"alert\">O perfil mudou em outra aba. Recarregue os dados …</p>\u001b[22m\n\u001b[2m       - unexpected value \"O perfil mudou em outra aba. Recarregue os dados antes de salvar.\"\u001b[22m\n\n\n  21 |  await roadmapLogin(page);await page.goto(roadmapOrigin+'/painel/perfil/assistente');await page.getByLabel('Nome da página',{exact:true}).fill('Minha arte');await page.getByLabel('Link da sua página',{exact:true}).fill('arte-f25');await page.getByLabel('O que você faz?',{exact:true}).fill('Arte e desenho');await page.getByRole('button',{name:'Escolher links'}).click();await page.getByLabel('Links para incluir',{exact:true}).fill('https://example.com/art');await page.getByRole('button',{name:'Gerar sugestões',exact:true}).click();await expect(page.getByRole('heading',{name:'Escolha o que quer aplicar'})).toBeVisible();expect((await roadmapApi(page,'/me/profile')).body.draft).toBeNull();const list=(await roadmapApi(page,'/me/profile/suggestions')).body,id=list.items[0].id\n  22 |  const ctx=await browser.newContext(),other=await ctx.newPage();try{await other.goto(roadmapOrigin);expect((await roadmapApi(other,'/me/profile/suggestions/'+id)).status).toBe(401);await roadmapLogin(other,true);expect((await roadmapApi(other,'/me/profile/suggestions/'+id)).status).toBe(404)}finally{await ctx.close()}\n> 23 |  await roadmapProfile(page,'changed-f25',false);await page.getByRole('button',{name:'Aplicar ao rascunho'}).click();await expect(page.getByRole('region',{name:'Revisar sugestões'}).getByRole('alert')).toContainText('mudou em outra aba');await capturePage(page,info.outputPath('assistant-conflict.png'));expect((await roadmapApi(page,'/me/profile')).body.draft.slug).toBe('changed-f25')\n     |                                                                                                                                                                                                          ^\n  24 | })\n  25 |\n  26 | test('F25-E03 erro recuperável mantém entrada e teclado; limite diário e 320px com zoom',async({page},info)=>{\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-assistant.spec.ts:23:202"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:54:18.934Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-assistant-F25-E02--6509c-etecta-versão-desatualizada-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-assistant-F25-E02--6509c-etecta-versão-desatualizada-features-mobile\\test-failed-2.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-assistant-F25-E02--6509c-etecta-versão-desatualizada-features-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\profile-assistant-F25-E02--6509c-etecta-versão-desatualizada-features-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\profile-assistant.spec.ts",
+                    "column": 202,
+                    "line": 23
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "89db073b230187dada43-9563c6ca0fb77dc983b3",
+          "file": "profile-assistant.spec.ts",
+          "line": 20,
+          "column": 5
+        },
+        {
+          "title": "F25-E03 erro recuperável mantém entrada e teclado; limite diário e 320px com zoom",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1712,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:54:41.197Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "89db073b230187dada43-38ff562ad1639b64e74e",
+          "file": "profile-assistant.spec.ts",
+          "line": 26,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-19T19:51:54.863Z",
+    "duration": 169360.348,
+    "expected": 17,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

@@ -2,11 +2,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { emptyProfile, type ProfileContent, type ProfileDraft, type ProfileState } from './profile-contract'
 import { profileCanSave, profileKey, normalizedProfile } from './profile-diff'
-import { isProfileVersionConflict, profileRequest } from './profile-api'
+import { isProfileVersionConflict, profileRequest, profileScope } from './profile-api'
+import {registerWorkspaceSwitchGuard} from '@/lib/workspace-switch-guards'
 
 type SaveState = 'saved' | 'waiting' | 'saving' | 'error' | 'incomplete'
 /** One writer per editor. Responses advance the version without replacing newer edits. */
-export function useProfileDraft() {
+export function useProfileDraft(resourceId?:string) {
+  const target=useRef(resourceId)
   const [state, setState] = useState<ProfileState>({ draft: null, publishedVersion: null, publishedContent: null })
   const [draft, setDraft] = useState<ProfileDraft>(emptyProfile), [saveState, setSaveState] = useState<SaveState>('saved'), [error, setError] = useState('')
   const latest = useRef<ProfileDraft>(emptyProfile()), saved = useRef(profileKey(latest.current)), ready = useRef(false)
@@ -31,7 +33,7 @@ export function useProfileDraft() {
       try {
         while (profileKey(latest.current) !== saved.current) {
           const snapshot = latest.current, key = profileKey(snapshot)
-          const result = await profileRequest<ProfileState>('', { method: 'PATCH', body: JSON.stringify({ expectedVersion: snapshot.version, content: normalizedProfile(snapshot) }) })
+          const result = await profileRequest<ProfileState>('', profileScope({ method: 'PATCH', body: JSON.stringify({ expectedVersion: snapshot.version, content: normalizedProfile(snapshot) }) },target.current))
           if (!result.draft) throw new Error('O servidor não confirmou o rascunho.')
           const unchanged = profileKey(latest.current) === key
           latest.current = unchanged ? result.draft : { ...latest.current, version: result.draft.version }
@@ -50,6 +52,7 @@ export function useProfileDraft() {
     const promise = work(); writer.current = promise
     try { return await promise } finally { if (writer.current === promise) writer.current = null }
   }, [])
+  useEffect(()=>registerWorkspaceSwitchGuard(()=>flush()),[flush])
   useEffect(() => {
     if (!ready.current || paused.current || conflict.current || !profileCanSave(draft) || profileKey(draft) === saved.current || profileKey(draft) === failedKey.current) return
     const timer = setTimeout(() => { void flush().catch(() => {}) }, 700)
@@ -66,7 +69,7 @@ export function useProfileDraft() {
     paused.current = true
     try {
       try { await writer.current } catch { /* Use the last confirmed version; the server still checks it. */ }
-      const result = await profileRequest<ProfileState>('/discard', { method: 'POST', body: JSON.stringify({ expectedVersion: latest.current.version }) })
+      const result = await profileRequest<ProfileState>('/discard', profileScope({ method: 'POST', body: JSON.stringify({ expectedVersion: latest.current.version }) },target.current))
       replace(result)
     } finally { paused.current = false }
   }, [replace])

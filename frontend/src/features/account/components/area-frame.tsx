@@ -1,4 +1,6 @@
 "use client";
+import {MediaKitPreview} from '@/features/media-kit/media-kit-preview'
+import {CampaignPreview} from '@/features/profile-campaigns/campaign-preview'
 
 import { createContext, useContext, useEffect, useLayoutEffect, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -15,6 +17,10 @@ import { VerificationPageSkeleton } from "./verification-skeleton";
 import { panelGate } from "@/domain/panel-gate";
 import { readSession, SESSION_EVENT, type Session } from "@/domain/session";
 import { currentSession } from "@/lib/api";
+import {useWorkspaceAccess,workspaceVisible,workspaceSection,WorkspaceBanner,selectWorkspace,hasWorkspaceAdmin,WorkspaceIdentity} from '@/features/workspace-team/workspace-access';
+import {Button} from '@/components/ui/button';
+import {InteractionPolicy} from '@/components/ui/interaction-policy';
+import {WorkspaceHome} from '@/features/workspace-team/workspace-home';
 
 const AreaSession = createContext<Session | null>(null);
 
@@ -92,7 +98,14 @@ export function AreaFrame({
 }) {
   const path = usePathname();
   const { ready, session } = usePanelSession();
+  const access=useWorkspaceAccess(ready&&session?.status==='ACTIVE'&&session.canSubmit);
   const gate = panelGate(session, path);
+  const mediaPreview=path==='/painel/perfil/midia-kit/previa';
+  if(!ready&&mediaPreview)return <MediaKitPreview pendingOnly/>;
+  const sharedPreview=/^\/painel\/equipe\/[^/]+\/previa$/.test(path);
+  if(!ready&&sharedPreview)return <ProfilePreviewSkeleton/>;
+  const campaignPreview=/^\/painel\/perfil\/campanhas\/[^/]+\/previa$/.test(path);
+  if(!ready&&campaignPreview)return <CampaignPreview id={path.split('/')[4]} pendingOnly/>;
   if (!ready && path === "/painel/perfil/previa") return <ProfilePreviewSkeleton />;
   if (!ready) return path === "/painel/verificar" ? <VerificationPageSkeleton /> : <WorkspacePending path={path} title={title} admin={admin} create={create} />;
   if (gate === "redirect-verify") {
@@ -108,7 +121,7 @@ export function AreaFrame({
       </AreaSession.Provider>
     );
   }
-  if (!session || (admin && session.role !== "ADMIN")) {
+  if (!session || (admin && session.role !== "ADMIN" && access.ready && !hasWorkspaceAdmin(access.context))) {
     if (admin) return <main className="panel-page"><p>Área restrita.</p></main>;
     return (
       <main className="auth-page">
@@ -119,7 +132,12 @@ export function AreaFrame({
       </main>
     );
   }
-  if (path === "/painel/perfil/previa") return <AreaSession.Provider value={session}>{children}</AreaSession.Provider>;
+  if(!access.ready){if(access.error)return <main className="panel-page"><p role="alert">{access.error}</p><Button onClick={()=>void selectWorkspace(null)}>Voltar ao meu espaço</Button></main>;return <WorkspacePending path={path} title={title} admin={admin} create={create}/>}
+  const home=Boolean(access.context?.ownerId&&(path==='/painel'||path==='/painel/visao'));
+  const readonly=Boolean(access.context?.ownerId&&!home&&!access.context.grants?.[workspaceSection(path)]?.write);
+  if(readonly&&(/\/(?:novo|editar|destaque|contestar|importar|aparencia|dados)$/.test(path)||path==='/painel/perfil/links'))return <main className="panel-page"><h1>Acesso somente de leitura</h1><WorkspaceBanner context={access.context!}/></main>;
+  if(!workspaceVisible(access.context,path))return <main className="panel-page"><h1>Sem acesso a esta seção</h1><WorkspaceBanner context={access.context!}/></main>;
+  if (path === "/painel/perfil/previa"||campaignPreview||sharedPreview||mediaPreview) return <AreaSession.Provider value={session}>{children}</AreaSession.Provider>;
   return (
     <AreaSession.Provider value={session}>
       <main className={styles.shell}>
@@ -128,8 +146,8 @@ export function AreaFrame({
           <div className={styles.desktopMenu}><WorkspaceNavigation area={admin ? "admin" : "panel"} role={session.role} /></div>
         </aside>
         <div className={styles.content}>
-          <PanelTop session={session} title={title} create={create} />
-          <div className={styles.stage}>{children}</div>
+          <PanelTop session={session} title={title} create={create&&!home} />
+          <div className={styles.stage}><WorkspaceIdentity.Provider value={access.context}>{access.context?.ownerId?<WorkspaceBanner context={access.context}/>:null}{home?<WorkspaceHome context={access.context!}/>:readonly?<><p role="status">Somente leitura neste espaço.</p><InteractionPolicy readOnly>{children}</InteractionPolicy></>:children}</WorkspaceIdentity.Provider></div>
         </div>
       </main>
     </AreaSession.Provider>

@@ -20,7 +20,7 @@ function Metrics({report,pending=false}:{report:InteractionReport|null;pending?:
   {(!report||report.summary.available)?<section className={styles.blocks} aria-label="Interação dos links">{(report?.summary.blocks??Array.from({length:3},(_,index)=>({id:String(index),label:'',impressions:null,clicks:null,ctr:null}))).map(block=><article key={block.id} className={styles.card}><h2>{pending?<Skeleton width="60%" height="1.4rem"/>:block.label}</h2><dl className={styles.metrics}>{[['Visualizações',block.impressions],['Cliques',block.clicks],['Taxa de cliques',block.ctr]].map(([label,count])=><div key={String(label)}><dt>{label}</dt><dd>{value(count as number|null)}{!pending&&count!==null&&label==='Taxa de cliques'?'%':''}</dd></div>)}</dl></article>)}</section>:null}
  </div>
 }
-export function InteractionScreen({pendingOnly=false}:{pendingOnly?:boolean}={}){
+export function InteractionScreen({pendingOnly=false,campaignId}:{pendingOnly?:boolean;campaignId?:string}={}){
  const [preference,setPreference]=useState<MeasurementPreference|null>(null),[report,setReport]=useState<InteractionReport|null>(null),[from,setFrom]=useState(''),[to,setTo]=useState(''),[revision,setRevision]=useState(''),[viewport,setViewport]=useState('ALL')
  const [loading,setLoading]=useState(true),[saving,setSaving]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState(''),[applied,setApplied]=useState(''),[refresh,setRefresh]=useState(0)
  const [missing,setMissing]=useState(false)
@@ -28,10 +28,10 @@ export function InteractionScreen({pendingOnly=false}:{pendingOnly?:boolean}={})
  const load=useCallback(async()=>{
   const id=++sequence.current;setLoading(true);setError('');setMissing(false);let preferenceRead=false
   try{const pref=await request<MeasurementPreference>('measurement');if(id!==sequence.current)return;preferenceRead=true;setPreference(pref)
-   if(pref.allowed){const next=await request<InteractionReport>('interaction'+(applied?'?'+applied:''));if(id===sequence.current){setReport(next);if(!applied){setFrom(next.range.from);setTo(next.range.to);lastFilters.current=new URLSearchParams({from:next.range.from,to:next.range.to,viewport:'ALL'}).toString()}}}else setReport(null)
+   if(pref.allowed){const next=await request<InteractionReport>((campaignId?'campaigns/'+encodeURIComponent(campaignId)+'/interaction':'interaction')+(applied?'?'+applied:''));if(id===sequence.current){setReport(next);if(!applied){setFrom(next.range.from);setTo(next.range.to);lastFilters.current=new URLSearchParams({from:next.range.from,to:next.range.to,viewport:'ALL'}).toString()}}}else setReport(null)
   }catch(reason){if(id===sequence.current){if(reason instanceof Error&&'status' in reason&&reason.status===404&&!preferenceRead){setMissing(true);setPreference(null);setReport(null)}else setError(reason instanceof Error?reason.message:'Não foi possível carregar as métricas.')}}
   finally{if(id===sequence.current)setLoading(false)}
- },[applied])
+ },[applied,campaignId])
  useEffect(()=>{if(!pendingOnly)void load();return()=>{sequence.current++}},[load,refresh,pendingOnly])
  useEffect(()=>{
   if(loading||!preference?.allowed)return
@@ -45,8 +45,8 @@ export function InteractionScreen({pendingOnly=false}:{pendingOnly?:boolean}={})
   catch(reason){setError(reason instanceof Error?reason.message:'Não foi possível salvar.')}
   finally{busy.current=false;setSaving(false)}
  }
- return <section className={styles.page} aria-label="Métricas da minha página" aria-busy={loading}>
-  <WorkspaceActions label="Ações das métricas"><ButtonLink variant="secondary" href="/painel/perfil"><ActionIcon name="back"/>Voltar à edição</ButtonLink><Button aria-label="Atualizar métricas" disabled={loading||saving} variant="secondary" onClick={()=>setRefresh(value=>value+1)}><ActionIcon name="refresh"/></Button>{loading&&!preference?<SkeletonButton/>:preference&&(preference.allowed||preference.enabled)?<Button loading={saving} disabled={loading||saving} onClick={()=>void toggle()}><ActionIcon name={preference.enabled?'pauseMeasurement':'check'}/>{preference.enabled?'Pausar medição':'Ativar medição'}</Button>:null}</WorkspaceActions>
+ return <section className={styles.page} aria-label={campaignId?'Métricas da campanha':'Métricas da minha página'} aria-busy={loading}>
+  <WorkspaceActions label="Ações das métricas"><ButtonLink variant="secondary" href={campaignId?'/painel/perfil/campanhas':'/painel/perfil'}><ActionIcon name="back"/>{campaignId?'Voltar às campanhas':'Voltar à edição'}</ButtonLink><Button aria-label="Atualizar métricas" disabled={loading||saving} variant="secondary" onClick={()=>setRefresh(value=>value+1)}><ActionIcon name="refresh"/></Button>{campaignId?<ButtonLink variant="secondary" href="/painel/perfil/metricas"><ActionIcon name="settings"/>Configurar medição da página</ButtonLink>:loading&&!preference?<SkeletonButton/>:preference&&(preference.allowed||preference.enabled)?<Button loading={saving} disabled={loading||saving} onClick={()=>void toggle()}><ActionIcon name={preference.enabled?'pauseMeasurement':'check'}/>{preference.enabled?'Pausar medição':'Ativar medição'}</Button>:null}</WorkspaceActions>
   {error?<ErrorState message={error} onRetry={()=>void load()}/>:null}{notice?<p role="status">{notice}</p>:null}
   {missing?<EmptyState action={<ButtonLink href="/painel/perfil"><ActionIcon name="profile"/>Criar minha página</ButtonLink>}>Crie sua página para acompanhar as métricas.</EmptyState>:preference&&!preference.allowed?<EmptyState>Seu plano não inclui métricas da página.</EmptyState>:loading||preference?<>
    <div ref={filtersRegion}><WorkspaceFilters id="profile-interaction-filters" label="Filtrar métricas" onSubmit={event=>{event.preventDefault();const params=new URLSearchParams();if(from)params.set('from',from);if(to)params.set('to',to);if(revision)params.set('revision',revision);params.set('viewport',viewport);setApplied(params.toString());setRefresh(value=>value+1)}}>

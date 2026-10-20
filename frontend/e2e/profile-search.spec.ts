@@ -70,11 +70,14 @@ test('F18-E04 busca começa desativada, aparece nas duas prévias e só muda a p
  await seed(page,false);await browse(page,'q=inexistente')
  await expect(page.getByRole('searchbox')).toHaveCount(0);await expect(page.getByRole('button',{name:'Filtros',exact:true})).toHaveCount(0);await expect(results(page).getByRole('link')).toHaveCount(20)
  await page.getByRole('button',{name:'Próximos links',exact:true}).click();await expect(results(page).getByRole('link')).toHaveCount(20)
- await page.goto(origin+'/painel/perfil?secao=aparencia')
- const enabled=page.getByRole('checkbox',{name:'Exibir busca na minha página',exact:true}),simulation=page.getByRole('complementary',{name:'Simulação da aparência'})
+ await page.goto(origin+'/painel/perfil/dados')
+ const enabled=page.getByRole('checkbox',{name:'Exibir busca na minha página',exact:true}),simulation=page.getByRole('complementary',{name:'Prévia ao vivo da página'})
+ await expect(enabled).toBeEnabled();const toggle=simulation.getByRole('button',{name:'Ver prévia ao vivo'});if(await toggle.isVisible())await toggle.click();
+ const phone=simulation.locator('[data-preview-device="iphone"]'),beforePhone=await phone.boundingBox();
  await expect(enabled).not.toBeChecked();await expect(simulation.locator('input[type="search"]')).toHaveCount(0)
- await enabled.check();await expect(simulation.locator('input[type="search"]')).toBeVisible()
- await page.getByRole('button',{name:'Oceano',exact:true}).click();await expect(enabled).toBeChecked()
+ await enabled.check();await expect(simulation.locator('input[type="search"]')).toBeVisible();await expect(page.getByRole('region',{name:'Editor do perfil',exact:true})).toHaveAttribute('data-save-state','saved')
+ const afterPhone=await phone.boundingBox();expect(afterPhone!.height).toBe(beforePhone!.height);const phoneScreen=simulation.getByRole('region',{name:'Tela da prévia em formato iPhone'});await phoneScreen.focus();await page.keyboard.press('PageDown');await expect.poll(()=>phoneScreen.evaluate(element=>element.scrollTop)).toBeGreaterThan(0);
+ await page.goto(origin+'/painel/perfil/aparencia');await expect(enabled).toHaveCount(0);await page.getByRole('button',{name:'Oceano',exact:true}).click();await expect(page.getByRole('region',{name:'Editor do perfil',exact:true})).toHaveAttribute('data-save-state','saved');await page.goto(origin+'/painel/perfil/dados');await expect(enabled).toBeChecked()
  await expect(page.getByRole('region',{name:'Editor do perfil',exact:true})).toHaveAttribute('data-save-state','saved')
  await capturePage(page,info.outputPath('search-option-enabled.png'))
  const guest=await browser.newContext({viewport:page.viewportSize(),isMobile:info.project.name.includes('mobile'),hasTouch:info.project.name.includes('mobile')}),visitor=await guest.newPage()
@@ -92,7 +95,7 @@ test('F18-E04 busca começa desativada, aparece nas duas prévias e só muda a p
   await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Filtros',exact:true})).toBeFocused()
   await page.getByRole('link',{name:'Voltar à edição',exact:true}).click();await page.getByRole('button',{name:'Publicar',exact:true}).click();await expect(page.getByText('Perfil publicado.',{exact:true})).toBeVisible()
   await visitor.reload();await expect(visitor.getByRole('searchbox')).toBeVisible();await capturePage(visitor,info.outputPath('search-public-compact.png'))
-  await page.goto(origin+'/painel/perfil?secao=aparencia');await enabled.uncheck();await expect(simulation.locator('input[type="search"]')).toHaveCount(0)
+  await page.goto(origin+'/painel/perfil/dados');await enabled.uncheck();await expect(simulation.locator('input[type="search"]')).toHaveCount(0)
   await page.getByRole('button',{name:'Ver prévia',exact:true}).click();await expect(page.getByRole('region',{name:'Modo de prévia'})).toBeVisible();await expect(page.getByRole('searchbox')).toHaveCount(0)
   await visitor.reload();await expect(visitor.getByRole('searchbox')).toBeVisible()
   await page.getByRole('link',{name:'Voltar à edição',exact:true}).click();await page.getByRole('button',{name:'Publicar',exact:true}).click();await expect(page.getByText('Perfil publicado.',{exact:true})).toBeVisible()

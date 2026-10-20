@@ -1,5 +1,7 @@
 'use client'
 
+import {InteractionPolicy,useReadOnly} from '@/components/ui/interaction-policy'
+import {useWorkspaceIdentity} from '@/features/workspace-team/workspace-access'
 import { DatePicker } from '@/components/ui/date-picker'
 import { SkeletonField, SkeletonRegion } from '@/components/feedback/skeleton'
 
@@ -27,7 +29,9 @@ function localDate(value: string): string {
   return new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 16)
 }
 
-export function LinkPromotionEditor({ linkId, linkName }: LinkPromotionEditorProps) {
+export function LinkPromotionEditor(props:LinkPromotionEditorProps){const workspace=useWorkspaceIdentity();if(workspace?.ownerId&&!workspace.grants?.adminHighlights?.read)return null;return <InteractionPolicy readOnly={Boolean(workspace?.ownerId&&!workspace.grants?.adminHighlights?.write)}><PromotionControls {...props}/></InteractionPolicy>}
+function PromotionControls({ linkId, linkName }: LinkPromotionEditorProps) {
+ const readOnly=useReadOnly()
   const dialogRef = useRef<HTMLDialogElement>(null)
   const pendingRef = useRef(false)
   const [open, setOpen] = useState(false)
@@ -75,7 +79,7 @@ export function LinkPromotionEditor({ linkId, linkName }: LinkPromotionEditorPro
   }
 
   async function save(remove = false) {
-    if (pendingRef.current) return
+    if (pendingRef.current || readOnly) return
     setError('')
     let expiresAt: string | null = null
     if (!remove && period !== 'indefinite') {
@@ -104,7 +108,7 @@ export function LinkPromotionEditor({ linkId, linkName }: LinkPromotionEditorPro
 
   return (
     <div className={styles.root}>
-      <Button type="button" variant="secondary" onClick={start}><ActionIcon name="promotion" />Gerenciar destaque</Button>
+      <Button readOnlyAllowed type="button" variant="secondary" onClick={start}><ActionIcon name="promotion" />Gerenciar destaque</Button>
       <p role="status" className={styles.notice}>{notice}</p>
       <dialog ref={dialogRef} className={styles.dialog} aria-labelledby={`promotion-title-${linkId}`} onCancel={event => { event.preventDefault(); if (!pendingRef.current) setOpen(false) }}>
         <form className={styles.form} onSubmit={event => { event.preventDefault(); void save() }}>
@@ -113,31 +117,31 @@ export function LinkPromotionEditor({ linkId, linkName }: LinkPromotionEditorPro
             <h2 id={`promotion-title-${linkId}`}>{linkName}</h2>
             <p>Começa ao salvar, sem cobrança. O link mantém a identificação de patrocinado no catálogo.</p>
           </header>
-          {failed ? <div role="alert"><p>Não foi possível carregar o destaque.</p><Button type="button" variant="secondary" onClick={() => void load()}><ActionIcon name="refresh" />Tentar novamente</Button></div> : !context ? <SkeletonRegion><div className={styles.form}><SkeletonField label="Onde destacar" hint="Escolha os locais de exibição no catálogo." /><SkeletonField label="Período" /></div></SkeletonRegion> : <>
+          {failed ? <div role="alert"><p>Não foi possível carregar o destaque.</p><Button readOnlyAllowed type="button" variant="secondary" onClick={() => void load()}><ActionIcon name="refresh" />Tentar novamente</Button></div> : !context ? <SkeletonRegion><div className={styles.form}><SkeletonField label="Onde destacar" hint="Escolha os locais de exibição no catálogo." /><SkeletonField label="Período" /></div></SkeletonRegion> : <>
             {paid.length ? <p className={styles.info}>Destaque pago em: {paid.map(row => LABELS[row.surface]).join(', ')}. Estes locais não podem ser substituídos.</p> : null}
             {admin.length ? <p className={styles.info}>Atual: {admin.map(row => LABELS[row.surface]).join(', ')} · {admin[0].expiresAt ? `até ${new Date(admin[0].expiresAt).toLocaleString('pt-BR')}` : 'Sem prazo de término'}</p> : null}
             {!context.eligible ? <p role="alert">Somente links publicados de contas ativas podem receber destaque.</p> : <>
               <Field label="Onde destacar" hint="Escolha os locais de exibição no catálogo.">
-                <Select autoFocus value={placement} onChange={event => setPlacement(event.target.value)} disabled={busy}>
+                <Select autoFocus value={placement} onChange={event => setPlacement(event.target.value)} disabled={busy||readOnly}>
                   {!hasPlacement ? <option value="">Todos os locais já têm destaque pago</option> : null}
                   {placements.map(item => <option key={item.value} value={item.value} disabled={paid.some(row => item.value.split('+').includes(row.surface))}>{item.label}</option>)}
                 </Select>
               </Field>
               <Field label="Período">
-                <Select value={period} onChange={event => setPeriod(event.target.value)} disabled={busy}>
+                <Select value={period} onChange={event => setPeriod(event.target.value)} disabled={busy||readOnly}>
                   <option value="7">7 dias</option><option value="14">14 dias</option><option value="30">30 dias</option>
                   <option value="custom">Escolher data de término</option><option value="indefinite">Sem prazo (indeterminado)</option>
                 </Select>
               </Field>
-              {period === 'custom' ? <Field label="Data e hora de término" hint="Use o horário local do seu dispositivo."><DatePicker withTime required value={end} onChange={event => setEnd(event.target.value)} disabled={busy} /></Field> : null}
+              {period === 'custom' ? <Field label="Data e hora de término" hint="Use o horário local do seu dispositivo."><DatePicker withTime required value={end} onChange={event => setEnd(event.target.value)} disabled={busy||readOnly} /></Field> : null}
               {period === 'indefinite' ? <p className={styles.info}>O destaque ficará ativo até ser removido pelo admin ou o link sair do ar.</p> : null}
             </>}
           </>}
           {error ? <p role="alert" className={styles.error}>{error}</p> : null}
           <div className={styles.actions}>
             {context?.eligible ? <Button type="submit" disabled={busy || !hasPlacement}><ActionIcon name="save" />{busy ? 'Salvando…' : 'Salvar destaque'}</Button> : null}
-            <Button type="button" variant="secondary" disabled={busy} onClick={() => setOpen(false)}><ActionIcon name="close" />Cancelar</Button>
-            {admin.length ? <Button type="button" variant="danger" disabled={busy} onClick={() => void save(true)}><ActionIcon name="trash" />Remover destaque</Button> : null}
+            <Button readOnlyAllowed type="button" variant="secondary" disabled={busy} onClick={() => setOpen(false)}><ActionIcon name="close" />Cancelar</Button>
+            {admin.length ? <Button type="button" variant="danger" disabled={busy||readOnly} onClick={() => void save(true)}><ActionIcon name="trash" />Remover destaque</Button> : null}
           </div>
         </form>
       </dialog>

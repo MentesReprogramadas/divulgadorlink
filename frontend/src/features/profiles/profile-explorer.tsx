@@ -1,4 +1,5 @@
 'use client'
+import {privateProfileAvatar} from './profile-api'
 import {useCallback,useEffect,useLayoutEffect,useMemo,useRef,useState} from 'react'
 import {ProfileView} from './components/profile-view'
 import {ProfileAgeGate} from './profile-age-gate'
@@ -66,8 +67,8 @@ export function ProfileExplorer({initial,source,pending=false,initialNotice=''}:
   if(immediate)void request(next)
   else debounce.current=setTimeout(()=>void request(next),350)
  }
- const blocked=pending||loading||Boolean(error),avatarUrl=profile.avatarAssetId?(origin.kind==='public'?'/bff/v1/profiles/'+encodeURIComponent(origin.slug)+'/avatar/':'/bff/v1/me/profile/avatar/')+profile.avatarAssetId:undefined
+ const blocked=pending||loading||Boolean(error),avatarUrl=profile.avatarAssetId?(origin.kind==='public'?'/bff/v1/profiles/'+encodeURIComponent(origin.slug)+'/avatar/'+profile.avatarAssetId:privateProfileAvatar(profile.avatarAssetId)):undefined
  const controls=profile.appearance?.searchEnabled===true?<ProfileSearchControls query={query} groups={profile.search.groups} pending={pending} searching={loading} onQuery={changeQuery} onSubmit={()=>void request({...query,cursor:null})} onClear={()=>changeQuery(emptyProfileQuery(),true)}/>:undefined
  const navigation=<div className={styles.actions}>{profile.search.filters.cursor?<Button variant="secondary" disabled={pending||loading} onClick={()=>void request({...current.current,cursor:null},'page')}><ActionIcon name="back"/>Voltar ao início</Button>:null}{profile.search.nextCursor?<Button disabled={pending||loading} onClick={()=>void request({...current.current,cursor:profile.search.nextCursor},'page')}><ActionIcon name="next"/>Próximos links</Button>:null}</div>
- return <div ref={root}><ProfileView content={profile} pending={blocked} avatarUrl={avatarUrl} controls={controls} navigation={navigation} empty={<EmptyState>Nenhum link encontrado.</EmptyState>} notice={<>{error?<ErrorState message={error} onRetry={()=>void request(current.current,'refresh')}/>:null}{notice?<p className={styles.notice} role="status">{notice}</p>:null}</>}/><span className={styles.announcement} role="status" aria-label="Resultado da busca">{announced&&!loading&&!error?'Links atualizados.':''}</span></div>
+ return <div ref={root}><ProfileView contactPreview={source.kind==='preview'} content={profile} pending={blocked} avatarUrl={avatarUrl} controls={controls} navigation={navigation} empty={<EmptyState>Nenhum link encontrado.</EmptyState>} notice={<>{error?<ErrorState message={error} onRetry={()=>void request(current.current,'refresh')}/>:null}{notice?<p className={styles.notice} role="status">{notice}</p>:null}</>}/><span className={styles.announcement} role="status" aria-label="Resultado da busca">{announced&&!loading&&!error?'Links atualizados.':''}</span></div>
 }

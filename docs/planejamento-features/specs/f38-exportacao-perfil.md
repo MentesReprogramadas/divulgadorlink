@@ -1,8 +1,11 @@
 # F38 Exportação do perfil
 
+> Atualização autorizada em 19/10/2026: o [refinamento de escopo e UX](../refinamento-f05-f15-f20-f21-f38.md) prevalece sobre as fronteiras anteriores em caso de divergência. Inclui importação de JSON, consentimento no modal, navegação por contexto, prévia de campanha, equipe global e apresentação para parceiros. Estado da ampliação: implementada e validada localmente; S7/CI/liberação remotas continuam em revisão.
+
+
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 22.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
+**Estado:** IMPLEMENTADA E VALIDADA LOCALMENTE (S0–S6); S7 em revisão.
 **Onda:** 3. **Ordem:** 22.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Exportação do perfil”.  
 **Plano:** [F38 implementação](../planos/f38-exportacao-perfil.md).  
@@ -13,13 +16,13 @@
 
 dar ao proprietário uma cópia reutilizável de seus links, categorias e configurações.
 
-Escopo aprovado para detalhamento: baixar uma exportação estruturada com os dados do perfil e identificação da versão do formato.
+Escopo vigente: baixar JSON v1 e importar esse formato mediante conferência e confirmação, substituindo somente o rascunho. Endereço atual e publicação são preservados; foto e vínculos internos de convites não são restaurados.
 
 Não ampliar a entrega para capacidades mencionadas como futuras na fonte. Registrar decisão antes de mudar fronteira. Este planejamento não aprova preço, limite, provedor ou publicação. O texto-fonte integral está no final desta spec para permitir revisão de escopo além dos critérios enumerados.
 
 ## Jornada e comportamento observável
 
-Dono escolhe versão e baixa JSON estruturado com indicação do que não está incluído.
+Dono escolhe uma versão para exportar, ou seleciona um JSON v1, confere grupos/links e confirma a importação no rascunho; publicação segue validações e moderação existentes.
 
 Atores: proprietário autenticado no tenant de origem; visitante apenas em operações públicas expressamente definidas; outro dono do mesmo tenant e dono de outro tenant como controles negativos; admin conforme contrato atual; colaborador somente após F20 e conforme direito específico.
 
@@ -59,7 +62,7 @@ Erros: aplicar o envelope existente code/message/request_id; 400 para entrada in
 
 Compor controles locais e tokens em vez de introduzir biblioteca visual. O renderer público deve ser compartilhado com a prévia sempre que houver renderização de perfil. Nenhum template deve duplicar estrutura inteira de página. Novos textos e ações em português, com nomes acessíveis e foco preservado após erro.
 
-Fluxo a desenhar em S0/S4: Dono escolhe versão e baixa JSON estruturado com indicação do que não está incluído.
+Fluxo a desenhar em S0/S4: Dono escolhe uma versão para exportar, ou seleciona um JSON v1, confere grupos/links e confirma a importação no rascunho; publicação segue validações e moderação existentes.
 
 Validar desktop 1280×720, mobile 390×844 e overflow em 320px; teclado e touch; labels e mensagens vinculadas ao campo; carregamento sem salto que esconda ações; estados vazios orientando próximo passo; erros sem apagar entrada válida. Capturar evidência visual na execução futura. Componentes novos só com responsabilidade explícita no plano.
 
@@ -141,3 +144,7 @@ Sem resolução das decisões bloqueantes e dependências concluídas, a feature
 
 **Indicadores:** exportações concluídas e falhas de geração.
 
+
+## Contrato reconciliado em 19/10/2026
+
+Ver [execução F38](../execucao-f38.md) para D40, arquivos reais, resultados e limitações. Os nomes de arquivo propostos acima são históricos; implementação usa domain/profiles/profile-export.ts, profiles-repository.ts, @Profiles/routes.ts e features/profiles/profile-export-screen.tsx. Testes reais profile-export.spec.ts (U), profile-export.pg.spec.ts (I/PG), profile-export-screen.test.tsx e BFF route.test.ts (C/contrato), e2e/profile-export.spec.ts (E). Não há importação/restauração automática, middleware de permissão global nem nova migração.

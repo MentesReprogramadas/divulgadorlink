@@ -12,7 +12,7 @@ export function composePublicContentProbeForTest(probe: PublicContentValidationP
 }
 export function publicContentValidationPorts(host: string): PublicContentValidationPorts {
   const moderation = env.OPENAI_API_KEY ? new OpenAiTextModeration(env.OPENAI_API_KEY) : null
-  if (env.NODE_ENV === 'dev' && ['profiles.localhost', 'redirects.localhost', 'interaction.localhost', 'checklist.localhost', 'channels.localhost'].includes(host) && process.env.E2E_PROFILE_STUB_URL) {
+  if (env.NODE_ENV === 'dev' && ['profiles.localhost', 'redirects.localhost', 'interaction.localhost', 'checklist.localhost', 'channels.localhost', 'campaigns.localhost', 'teams.localhost', 'mediakit.localhost'].includes(host) && process.env.E2E_PROFILE_STUB_URL) {
     const target = new URL(process.env.E2E_PROFILE_STUB_URL)
     if (target.protocol === 'http:' && ['127.0.0.1', 'localhost'].includes(target.hostname)) return {
       probe: testProbe ?? probeAvailability,

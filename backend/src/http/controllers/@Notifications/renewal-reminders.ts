@@ -26,3 +26,5 @@ export async function renewalReminderRoutes(app: FastifyInstance) {
   app.patch('/me/notification-preferences', (request, reply) => actor(request, reply, input => renewalPreferences(testDb ?? prisma, input, z.object({ emailRenewal: z.boolean(), expectedVersion: z.number().int().nonnegative().max(2147483646) }).strict().parse(request.body))))
   app.get('/promotions/mine/reminders', (request, reply) => actor(request, reply, input => readRenewalReminders(testDb ?? prisma, input)))
 }
+
+export {actor as withNotificationActor}

@@ -1,0 +1,16 @@
+'use client'
+import {useState} from 'react'
+import {Pagination} from '@/components/ui/pagination'
+import {Field,Select} from '@/components/ui/input'
+import {Button} from '@/components/ui/button'
+import {ActionIcon} from '@/components/ui/action-icon'
+import type {Grants} from './workspace-access'
+import styles from './workspace-team.module.css'
+export type PermissionSection={id:string;label:string;group:string}
+export function PermissionEditor({sections,grants,onChange,disabled=false}:{sections:PermissionSection[];grants:Grants;onChange:(grants:Grants)=>void;disabled?:boolean}){
+ function all(ids:string[],level:'none'|'read'|'write'){onChange({...grants,...Object.fromEntries(ids.map(id=>[id,{read:level!=='none',write:level==='write'}]))})}
+ const groups=[...new Set(sections.map(row=>row.group))], [active,setActive]=useState(groups[0]??''),[page,setPage]=useState(1)
+ return <div className={styles.permissions}><div className={styles.quick}><Button type="button" variant="secondary" disabled={disabled} onClick={()=>all(sections.map(row=>row.id),'write')}><ActionIcon name="check"/>Acesso completo</Button><Button type="button" variant="secondary" disabled={disabled} onClick={()=>all(sections.map(row=>row.id),'read')}><ActionIcon name="preview"/>Só leitura</Button><Button type="button" variant="secondary" disabled={disabled} onClick={()=>all(sections.map(row=>row.id),'none')}><ActionIcon name="disable"/>Limpar acessos</Button></div>
+ <Field label="Seção de permissões"><Select value={active} disabled={disabled} onChange={event=>{setActive(event.target.value);setPage(1)}}>{groups.map(group=><option key={group} value={group}>{group}</option>)}</Select></Field>
+ {groups.filter(group=>group===active).map(group=><fieldset key={group} className={styles.permissionGroup} disabled={disabled}><legend>{group}</legend><div className={styles.sectionQuick}>{(['read','write','none'] as const).map(level=><button type="button" key={level} onClick={()=>all(sections.filter(row=>row.group===group).map(row=>row.id),level)}><ActionIcon name={level==='write'?'check':level==='read'?'eye':'disable'}/>{level==='write'?'Tudo':level==='read'?'Leitura':'Nenhum'}</button>)}</div><div className={styles.columnHead} aria-hidden="true"><span>Recurso</span><span>Ler</span><span>Escrever</span></div>{sections.filter(row=>row.group===group).slice((page-1)*3,page*3).map(row=><div className={styles.permissionRow} key={row.id}><strong>{row.label}</strong><label><input type="checkbox" aria-label={'Ler '+row.label} checked={grants[row.id]?.read===true} disabled={disabled||grants[row.id]?.write===true} onChange={event=>onChange({...grants,[row.id]:{read:event.target.checked,write:false}})}/><span className={styles.srOnly}>Ler</span></label><label><input type="checkbox" aria-label={'Escrever '+row.label} checked={grants[row.id]?.write===true} disabled={disabled} onChange={event=>onChange({...grants,[row.id]:{read:event.target.checked||grants[row.id]?.read===true,write:event.target.checked}})}/><span className={styles.srOnly}>Escrever</span></label></div>)}<Pagination variant="compact" page={page} pages={Math.ceil(sections.filter(row=>row.group===group).length/3)} onPage={setPage}/></fieldset>)}<p className={styles.hint}>Escrever mantém a leitura ativa.</p></div>
+}

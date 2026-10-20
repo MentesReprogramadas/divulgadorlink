@@ -1,8 +1,11 @@
 # Plano de implementação F15 Página por campanha
 
+> Atualização autorizada em 19/10/2026: o [refinamento de escopo e UX](../refinamento-f05-f15-f20-f21-f38.md) prevalece sobre as fronteiras anteriores em caso de divergência. Inclui importação de JSON, consentimento no modal, navegação por contexto, prévia de campanha, equipe global e apresentação para parceiros. Estado da ampliação: implementada e validada localmente; S7/CI/liberação remotas continuam em revisão.
+
+
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 24.
 
-**Estado:** NÃO INICIADO. Somente planejamento autorizado.  
+**Estado:** S0–S6 VALIDADAS LOCALMENTE; S7/CI/liberação EM REVISÃO.
 **Spec vinculante:** [F15](../specs/f15-pagina-campanha.md).  
 **Dependências:** G00, [F09](../specs/f09-perfil-publico.md), [F19](../specs/f19-historico-versoes.md).  
 **Onda:** 4. Etapas rastreadas no [roadmap](../roadmap-auditavel.md) e na [matriz](../matriz-aceitacao.csv).
@@ -158,3 +161,10 @@ Esses nomes não são obrigação de criar arquivos vazios. Preferir ampliação
 
 **Registro inicial:** responsável não atribuído; commit de implementação inexistente; resultados NÃO EXECUTADOS; liberação NÃO AUTORIZADA por este documento.
 
+
+
+## Contrato reconciliado e evidências — 19/10/2026
+
+D17 resolvida em [execução F15](../execucao-f15.md): versão aprovada própria como origem, seleção/copiar destinos privados sem nova edição textual pública; catálogo mantém referência elegível; URL /p/:slug/c/:campaignSlug; arquivar invalida acesso/eventos e preserva rascunho/relatórios. Nome da campanha é privado; alterar nome privado não cria nova publicação. Renderer/prévia F09 compartilhados e métricas F31 segregadas por campaignId. Histórico/canais/idade e foto obedecem ao registro de execução. Contratos reais: /me/profile/campaigns e /profiles/:slug/campaigns/:campaignSlug; arquivos feature profile-campaigns, repositories/campaign-pages, domain/profiles/campaign-page; testes campaign-page.spec, campaign-screen.test, campaign-pages.pg.spec e campaign-pages.spec.
+
+S0–S6 concluídas com os comandos e limites descritos na execução, que prevalece sobre nomes/caminhos propostos acima. S7 remoto permanece pendente, sem inventar commit ou liberação.

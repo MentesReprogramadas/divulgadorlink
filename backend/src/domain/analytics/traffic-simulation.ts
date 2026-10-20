@@ -19,13 +19,80 @@ export const simulationConfig = z.object({
   mode: z.literal('top-up').optional(),
   commonMaxViews: z.number().int().positive().optional(),
   sponsoredMinViews: z.number().int().positive().optional(),
+  sponsoredCeilingMinViews: z.number().int().positive().optional(),
+  growth: z.object({
+    since: z.string().datetime(),
+    dailyMedian: z.number().positive().max(1000).default(40),
+    dailyMax: z.number().int().positive().max(2000).default(160),
+    dailyMin: z.number().int().min(0).max(2000).optional(),
+    warmupDays: z.number().positive().default(14),
+    sponsoredMultiplier: z.number().min(1).max(5).default(1.6),
+  }).strict().optional(),
 }).strict().refine(c => c.minViews <= c.maxViews && c.minCtr <= c.maxCtr, 'Limites invertidos')
   .refine(c => c.commonMaxViews === undefined || (c.commonMaxViews >= c.minViews && c.commonMaxViews < (c.sponsoredMinViews ?? c.maxViews)), 'Faixas comuns/patrocinados inválidas')
   .refine(c => c.sponsoredMinViews === undefined || (c.sponsoredMinViews >= c.minViews && c.sponsoredMinViews <= c.maxViews), 'Piso patrocinado inválido')
+  .refine(c => c.sponsoredCeilingMinViews === undefined || (c.sponsoredCeilingMinViews >= Math.max(c.minViews, c.sponsoredMinViews ?? 0) && c.sponsoredCeilingMinViews < c.maxViews), 'Faixa de teto patrocinado inválida')
+  .refine(c => !c.growth || (Date.parse(c.growth.since) < Date.parse(c.until) && !c.mode && c.sponsoredMinViews === undefined), 'Crescimento exige since < until, sem top-up ou piso patrocinado')
+  .refine(c => c.growth?.dailyMin === undefined || c.growth.dailyMin <= c.growth.dailyMax, 'Piso diário maior que o teto')
 
-export function trafficConfigForLink(config: SimulationConfig, sponsored: boolean): SimulationConfig {
+export function trafficConfigForLink(config: SimulationConfig, sponsored: boolean, link?: SimulationLink): SimulationConfig {
+  if (sponsored && config.sponsoredCeilingMinViews !== undefined) {
+    if (!link) throw new Error('Link necessário para calcular teto individual')
+    const rng = random(`${config.seed}:${link.tenantId}:${link.id}:capacity`)
+    const age = Math.max(0, (Date.parse(config.until) - link.createdAt.getTime()) / 86400000)
+    const maturity = 1 - Math.exp(-age / 7)
+    const maxViews = Math.floor(config.sponsoredCeilingMinViews + (config.maxViews - config.sponsoredCeilingMinViews) * (0.25 + 0.75 * maturity ** 2) * (0.35 + 0.65 * rng()))
+    config = { ...config, maxViews }
+  }
   if (sponsored && config.sponsoredMinViews !== undefined) return { ...config, minViews: config.sponsoredMinViews, medianViews: (config.sponsoredMinViews + config.maxViews) / 2 }
+  if (sponsored) return config
   return config.commonMaxViews === undefined ? config : { ...config, maxViews: config.commonMaxViews }
+}
+
+// Day plans use complete local days so advancing a cutoff never reallocates past events.
+export function planGrowthTraffic(link: SimulationLink, config: SimulationConfig, prefix: string, sponsored: boolean): SimulatedVisit[] {
+  const growth = config.growth
+  if (!growth) throw new Error('Configuração de crescimento ausente')
+  const since = Math.max(Date.parse(growth.since), link.createdAt.getTime())
+  const until = Date.parse(config.until)
+  if (since >= until) return []
+  if ((until - since) / 86400000 > 366) throw new Error('Crescimento limitado a 366 dias por lote')
+  const popularityRandom = random(`${config.seed}:${link.tenantId}:${link.id}:growth-popularity`)
+  const normal = Math.sqrt(-2 * Math.log(1 - popularityRandom())) * Math.cos(2 * Math.PI * popularityRandom())
+  const popularity = Math.max(0.3, Math.min(2.5, Math.exp(0.55 * normal)))
+  const visits: SimulatedVisit[] = []
+  for (let day = analyticsDay(new Date(since)); analyticsDayStart(day).getTime() < until; day = shiftAnalyticsDay(day, 1)) {
+    const start = analyticsDayStart(day).getTime()
+    const end = analyticsDayStart(shiftAnalyticsDay(day, 1)).getTime()
+    const first = Math.max(start, link.createdAt.getTime())
+    const age = Math.max(0, (start - link.createdAt.getTime()) / 86400000)
+    const maturity = 0.12 + 0.88 * (1 - Math.exp(-age / growth.warmupDays))
+    const weekday = new Date(day + 'T12:00Z').getUTCDay()
+    const weekend = weekday === 0 || weekday === 6 ? config.weekendFactor : 1
+    const rng = random(`${config.seed}:${link.tenantId}:${link.id}:${day}:growth`)
+    const spike = rng() < config.spikeProbability ? config.spikeMultiplier : 1
+    const boost = sponsored ? growth.sponsoredMultiplier : 1
+    const fraction = (end - first) / 86400000
+    const isCreationDay = first === link.createdAt.getTime()
+    const bounded = growth.dailyMin !== undefined
+    const dayFraction = (end - first) / (end - start)
+    const rate = bounded ? Math.max(growth.dailyMin!, Math.min(growth.dailyMax, growth.dailyMedian * popularity * (0.85 + 0.15 * maturity) * weekend * spike * boost)) : 0
+    const dailyConfig = {
+      ...config, seed: `${config.seed}:growth-${bounded ? 'v2' : 'v1'}:${day}`, until: new Date(end).toISOString(),
+      minViews: Math.max(isCreationDay ? 1 : 0, bounded ? Math.floor(growth.dailyMin! * dayFraction) : 0),
+      maxViews: bounded ? Math.max(1, Math.ceil(growth.dailyMax * dayFraction)) : Math.max(1, Math.min(growth.dailyMax, Math.ceil(growth.dailyMax * maturity * boost * fraction))),
+      medianViews: bounded ? Math.max(0.1, rate * dayFraction) : growth.dailyMedian * popularity * maturity * weekend * spike * boost * fraction,
+      maturityDays: 0.000001,
+    }
+    const daily = planTraffic({ ...link, createdAt: new Date(first) }, dailyConfig, `${prefix}${day}:`)
+    if (isCreationDay && daily.length) {
+      // One initial visit after 5–45 minutes; no floor of hundreds for new links.
+      daily[0].at = new Date(first + Math.min(end - first - 1, Math.floor((5 + 40 * rng()) * 60000)))
+      daily.sort((a, b) => a.at.getTime() - b.at.getTime() || a.sessionId.localeCompare(b.sessionId))
+    }
+    visits.push(...daily.filter(visit => visit.at.getTime() >= since && visit.at.getTime() < until))
+  }
+  return visits
 }
 
 export type SimulationConfig = z.infer<typeof simulationConfig>

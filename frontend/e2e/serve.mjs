@@ -52,6 +52,7 @@ function shutdown() {
   process.exit(0)
 }
 
+const suggestionState = { count: 0, last: null }
 const redirectValidations = []
 let profileValidationCount = 0, lastProfileValidation = null, profileValidationUnavailable = false
 const stub = createServer((req, res) => {
@@ -61,6 +62,14 @@ const stub = createServer((req, res) => {
     const raw = Buffer.concat(chunks).toString()
     res.setHeader('content-type', 'application/json')
     if (await billingStub(req,res,raw,e2eRuntime)) return
+    if(req.method==='GET'&&req.url==='/profile-suggestions/state'){res.end(JSON.stringify(suggestionState));return}
+    if(req.method==='POST'&&req.url==='/profile-suggestions'){
+      const body=JSON.parse(raw),input=JSON.parse(body.messages[1].content);suggestionState.count++;suggestionState.last=body
+      if(input.facts.some(f=>f.includes('UnavailableSuggestionFixture'))){res.statusCode=503;res.end('{}');return}
+      const output={bioFactIndices:input.facts.map((_,i)=>i),links:input.links.map(l=>({index:l.index,group:'work'})),templateVersionId:'professional-v1'}
+      if(input.facts.some(f=>f.includes('InvalidSuggestionFixture')))output.bio='Invented claim'
+      res.end(JSON.stringify({choices:[{message:{content:JSON.stringify(output)}}],usage:{prompt_tokens:100,completion_tokens:100}}));return
+    }
     if (req.method === 'GET' && req.url === '/redirect-validation/pending') { res.end(JSON.stringify({ count: redirectValidations.length })); return }
     if (req.method === 'POST' && req.url === '/redirect-validation/release') {
       for (const pending of redirectValidations.splice(0)) pending.end(JSON.stringify({ pass: true, confidence: 0.99, reasons: [] }))
@@ -205,6 +214,7 @@ const apiEnv = {
   E2E_PROFILE_STUB_URL: e2eRuntime.stubOrigin,
   AVAILABILITY_ENABLED: '1',
   RENEWAL_REMINDERS_ENABLED: '1',
+  NICHE_DIGESTS_ENABLED: '1',
   E2E_RENEWAL_MAIL_URL: e2eRuntime.stubOrigin + '/renewal-mail',
 }
 

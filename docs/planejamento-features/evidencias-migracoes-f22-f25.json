@@ -1,0 +1,12 @@
+{
+  "database": "disposable-local-migration-proof",
+  "migrations": 57,
+  "legacyRowsUnchanged": {
+    "users": "58d480837491a8ccff2b8d67a9df7bb8",
+    "profile": "f6cb543ffd2626b314c40eb9eb5c2e25",
+    "handle": "650a29a0c8ace665a123f234855539b8",
+    "destination": "2091484c244120a4923ec80468530b9e"
+  },
+  "repeatDeployUnchanged": true,
+  "externalDatabaseAccessed": false
+}

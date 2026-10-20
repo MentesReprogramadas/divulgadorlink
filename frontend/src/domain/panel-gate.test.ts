@@ -28,3 +28,5 @@ describe('porta do painel', () => {
     expect(afterAuth(false, 'BANNED')).toBe('/painel')
   })
 })
+
+it('F20 convite volta ao caminho local após login, mantendo verificação e bloqueando redirects',()=>{const target='/equipe/convite?token='+'a'.repeat(43);expect(afterAuth(true,'ACTIVE',target)).toBe(target);expect(afterAuth(false,'ACTIVE',target)).toBe('/painel/verificar');for(const unsafe of [target+'&next=//evil.test','https://evil.test/equipe/convite','//evil.test',target+'%0A'])expect(afterAuth(true,'ACTIVE',unsafe)).toBe('/painel')})

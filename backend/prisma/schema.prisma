@@ -102,6 +102,12 @@ model Tenant {
 }
 
 model User {
+ profileSuggestions ProfileSuggestion[]
+ suggestionUsage ProfileSuggestionUsage[]
+ workspaceOwnedMembers WorkspaceMembership[] @relation("WorkspaceOwner")
+ workspaceJoinedMembers WorkspaceMembership[] @relation("WorkspaceMember")
+ workspaceInvitations WorkspaceInvitation[] @relation("WorkspaceInvitationOwner")
+ profileMemberships ProfileMembership[]
  contentReviews ContentReview[]
   id           String    @id @default(cuid())
   tenantId     String
@@ -122,6 +128,11 @@ model User {
   identifiers  UserIdentifier[]
   links        Link[]
   orders       Order[]
+  nicheFollows NicheFollow[]
+  nicheDigestBatches NicheDigestBatch[]
+  emailDigest Boolean @default(false)
+  digestFrequency String @default("WEEKLY") @db.VarChar(8)
+  nextDigestAt DateTime?
   emailRenewal Boolean @default(false)
   notificationVersion Int @default(0)
   acquisitionTouch AcquisitionTouch?
@@ -249,6 +260,7 @@ model Network {
 }
 
 model Niche {
+  followers NicheFollow[]
   id            String   @id @default(cuid())
   tenantId      String
   tenant        Tenant   @relation(fields: [tenantId], references: [id])
@@ -262,6 +274,7 @@ model Niche {
   links         Link[]
   @@unique([tenantId, slug])
   @@index([tenantId])
+  @@unique([id, tenantId], map: "niches_id_tenant_key")
   @@map("niches")
 }
 
@@ -317,6 +330,7 @@ model Link {
   @@unique([id, tenantId])
   @@index([tenantId, ownerId, status])
   @@index([tenantId, status, id])
+  digestReceipts NicheDigestReceipt[]
   @@map("links")
 }
 
@@ -797,6 +811,11 @@ model CollectionItem {
   @@map("collection_items")
 }
 model Profile {
+ contactForm ContactForm?
+ mediaKit MediaKitConfig?
+ memberships ProfileMembership[]
+ invitations ProfileInvitation[]
+ campaigns CampaignPage[]
  channelsDraft ProfileChannelDraft?
  channelsRevisions ProfileChannelRevision[]
  interactionEvents ProfileInteractionEvent[]
@@ -841,6 +860,8 @@ model ProfileMeasurement {
  @@map("profile_measurements")
 }
 model ProfileInteractionEvent {
+ campaignId String?
+ campaign CampaignPage? @relation(fields:[campaignId,tenantId,profileId,ownerId],references:[id,tenantId,profileId,ownerId],onDelete:Cascade,onUpdate:NoAction,map:"profile_events_campaign_fk")
  id String @id @default(uuid())
  eventId String @db.Uuid
  tenantId String
@@ -949,6 +970,8 @@ model ProfileAsset {
 }
 
 model RedirectHandle {
+ pool DestinationPool?
+ @@unique([id,tenantId,ownerId],map:"redirect_handles_owner_identity_key")
  id String @id @default(uuid())
  tenantId String
  ownerId String
@@ -967,6 +990,7 @@ model RedirectHandle {
  @@map("redirect_handles")
 }
 model RedirectDestination {
+ poolMembers DestinationPoolMember[]
  review ContentReview?
  id String @id @default(uuid())
  handleId String
@@ -1217,4 +1241,287 @@ model ProfileBillingEvent {
   @@index([tenantId, receivedAt])
     @@index([subscriptionId, kind, receivedAt])
   @@map("profile_billing_events")
+}
+
+model NicheFollow {
+ tenantId String
+ userId String
+ nicheId String
+ createdAt DateTime @default(now())
+ user User @relation(fields:[userId,tenantId],references:[id,tenantId],onDelete:Cascade,onUpdate:NoAction)
+ niche Niche @relation(fields:[nicheId,tenantId],references:[id,tenantId],onDelete:Cascade,onUpdate:NoAction)
+ receipts NicheDigestReceipt[]
+ @@id([tenantId,userId,nicheId])
+ @@map("niche_follows")
+}
+model NicheDigestReceipt {
+ tenantId String
+ userId String
+ nicheId String
+ linkId String
+ reason String @db.VarChar(8)
+ seenAt DateTime @default(now())
+ follow NicheFollow @relation(fields:[tenantId,userId,nicheId],references:[tenantId,userId,nicheId],onDelete:Cascade,onUpdate:NoAction)
+ link Link @relation(fields:[linkId,tenantId],references:[id,tenantId],onDelete:Cascade,onUpdate:NoAction)
+ @@id([tenantId,userId,nicheId,linkId])
+ @@map("niche_digest_receipts")
+}
+model NicheDigestBatch {
+ id String @id @default(uuid())
+ tenantId String
+ userId String
+ user User @relation(fields:[userId,tenantId],references:[id,tenantId],onDelete:Cascade,onUpdate:NoAction)
+ status String @default("PENDING") @db.VarChar(8)
+ attempts Int @default(0)
+ nextAttemptAt DateTime @default(now())
+ createdAt DateTime @default(now())
+ sentAt DateTime?
+ tokenHash String @unique
+ fingerprint String
+ linkIds String[]
+ payload Json?
+ @@index([status,nextAttemptAt,id],map:"niche_digest_due_idx")
+ @@index([tenantId,userId,createdAt],map:"niche_digest_owner_idx")
+ @@map("niche_digest_batches")
+}
+
+model CampaignPage {
+ id String @id @default(uuid())
+ tenantId String
+ ownerId String
+ profileId String
+ profile Profile @relation(fields:[profileId,tenantId,ownerId],references:[id,tenantId,ownerId],onDelete:Cascade,onUpdate:NoAction,map:"campaign_pages_profile_fk")
+ name String @db.VarChar(80)
+ slug String @db.VarChar(40)
+ state String @default("DRAFT") @db.VarChar(12)
+ sourceRevisionId String
+ sourceVersion Int
+ sourceSnapshot Json
+ content Json
+ publication Json?
+ version Int @default(1)
+ publishedVersion Int?
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ events ProfileInteractionEvent[]
+ @@unique([profileId,slug],map:"campaign_pages_profile_slug_key")
+ @@unique([id,tenantId,profileId,ownerId],map:"campaign_pages_identity_key")
+ @@index([tenantId,ownerId,createdAt,id],map:"campaign_pages_owner_idx")
+ @@map("campaign_pages")
+}
+
+model ProfileMembership {
+ id String @id @default(uuid())
+ profileId String
+ tenantId String
+ ownerId String
+ userId String
+ role String
+ status String @default("ACTIVE")
+ version Int @default(1)
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ profile Profile @relation(fields:[profileId,tenantId,ownerId],references:[id,tenantId,ownerId],onDelete:Cascade,onUpdate:NoAction)
+ user User @relation(fields:[userId,tenantId],references:[id,tenantId],onDelete:Cascade,onUpdate:NoAction)
+ @@unique([profileId,userId])
+ @@index([tenantId,userId,status],map:"profile_memberships_tenant_user_status_idx")
+ @@map("profile_memberships")
+}
+model ProfileInvitation {
+ id String @id @default(uuid())
+ profileId String
+ tenantId String
+ ownerId String
+ role String
+ recipientHash String
+ tokenHash String @unique
+ requestKey String
+ expiresAt DateTime
+ usedAt DateTime?
+ revokedAt DateTime?
+ createdAt DateTime @default(now())
+ profile Profile @relation(fields:[profileId,tenantId,ownerId],references:[id,tenantId,ownerId],onDelete:Cascade,onUpdate:NoAction)
+ @@unique([profileId,requestKey])
+ @@index([profileId,createdAt],map:"profile_invitations_profile_created_idx")
+ @@map("profile_invitations")
+}
+
+model MediaKitConfig {
+ profileId String @id
+ tenantId String
+ ownerId String
+ draft Json
+ publication Json?
+ version Int @default(1)
+ publishedVersion Int?
+ sourceVersion Int?
+ publishedAt DateTime?
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ profile Profile @relation(fields:[profileId,tenantId,ownerId],references:[id,tenantId,ownerId],onDelete:Cascade,onUpdate:NoAction)
+ @@unique([profileId,tenantId,ownerId],map:"media_kit_configs_identity_key")
+ @@map("media_kit_configs")
+}
+
+// Global team is account scoped; legacy profile sharing remains deliberately separate.
+model WorkspaceMembership {
+  owner User @relation("WorkspaceOwner",fields:[ownerId,tenantId],references:[id,tenantId],onDelete:Cascade,onUpdate:NoAction,map:"workspace_memberships_ownerId_tenantId_fkey")
+  user User @relation("WorkspaceMember",fields:[userId,tenantId],references:[id,tenantId],onDelete:Cascade,onUpdate:NoAction,map:"workspace_memberships_userId_tenantId_fkey")
+  id String @id
+  tenantId String
+  ownerId String
+  userId String
+  grants Json @default("{}")
+  version Int @default(1)
+  revokedAt DateTime? @db.Timestamp(3)
+  createdAt DateTime @default(now()) @db.Timestamp(3)
+  @@unique([tenantId, ownerId, userId], map: "workspace_memberships_tenantId_ownerId_userId_key")
+  @@index([tenantId, userId, revokedAt], map: "workspace_memberships_user_idx")
+  @@map("workspace_memberships")
+}
+model WorkspaceInvitation {
+  owner User @relation("WorkspaceInvitationOwner",fields:[ownerId,tenantId],references:[id,tenantId],onDelete:Cascade,onUpdate:NoAction,map:"workspace_invitations_ownerId_tenantId_fkey")
+  id String @id
+  tenantId String
+  ownerId String
+  grants Json
+  recipientHash String
+  tokenHash String @unique(map: "workspace_invitations_tokenHash_key")
+  requestKey String
+  expiresAt DateTime @db.Timestamp(3)
+  usedAt DateTime? @db.Timestamp(3)
+  revokedAt DateTime? @db.Timestamp(3)
+  createdAt DateTime @default(now()) @db.Timestamp(3)
+  @@unique([tenantId, ownerId, requestKey], map: "workspace_invitations_tenantId_ownerId_requestKey_key")
+  @@index([tenantId, ownerId, createdAt], map: "workspace_invitations_owner_idx")
+  @@map("workspace_invitations")
+}
+
+model ContactForm {
+ id String @id @default(uuid())
+ tenantId String
+ profileId String @unique
+ ownerId String
+ version Int @default(0)
+ @@unique([profileId,tenantId,ownerId])
+ profile Profile @relation(fields: [profileId,tenantId,ownerId], references: [id,tenantId,ownerId], onDelete: Cascade, onUpdate: NoAction)
+ revisions ContactFormRevision[]
+ submissions ContactSubmission[]
+ rates ContactRateBucket[]
+ @@unique([id,tenantId])
+ @@map("contact_forms")
+}
+model ContactFormRevision {
+ id String @id @default(uuid())
+ tenantId String
+ formId String
+ number Int
+ definition Json
+ createdAt DateTime @default(now())
+ form ContactForm @relation(fields:[formId,tenantId], references:[id,tenantId], onDelete:Cascade,onUpdate:NoAction)
+ submissions ContactSubmission[]
+ @@unique([formId,number])
+ @@unique([id,tenantId])
+ @@map("contact_form_revisions")
+}
+model ContactSubmission {
+ id String @id @default(uuid())
+ tenantId String
+ formId String
+ revisionId String
+ requestKey String
+ fingerprint String
+ answers Json
+ marketingOptIn Boolean @default(false)
+ createdAt DateTime @default(now())
+ expiresAt DateTime
+ form ContactForm @relation(fields:[formId,tenantId],references:[id,tenantId],onDelete:Cascade,onUpdate:NoAction)
+ revision ContactFormRevision @relation(fields:[revisionId,tenantId],references:[id,tenantId],onDelete:Cascade,onUpdate:NoAction)
+ @@unique([formId,requestKey])
+ @@index([formId,id],map:"contact_submissions_page_idx")
+ @@index([expiresAt],map:"contact_submissions_expiry_idx")
+ @@map("contact_submissions")
+}
+model ContactRateBucket {
+ key String @id
+ formId String
+ count Int
+ expiresAt DateTime
+ form ContactForm @relation(fields:[formId],references:[id],onDelete:Cascade,onUpdate:NoAction)
+ @@index([expiresAt],map:"contact_rate_expiry_idx")
+ @@map("contact_rate_buckets")
+}
+
+model DestinationPool {
+ handleId String @id
+ tenantId String
+ ownerId String
+ version Int @default(1)
+ cursor BigInt @default(0)
+ enabled Boolean @default(true)
+ @@unique([handleId,tenantId,ownerId])
+ handle RedirectHandle @relation(fields:[handleId,tenantId,ownerId],references:[id,tenantId,ownerId],onDelete:Cascade,onUpdate:NoAction)
+ members DestinationPoolMember[]
+ daily DestinationPoolDaily[]
+ @@unique([handleId,tenantId])
+ @@map("destination_pools")
+}
+model DestinationPoolMember {
+ poolId String
+ tenantId String
+ revisionId String
+ position Int
+ weight Int
+ paused Boolean @default(false)
+ pool DestinationPool @relation(fields:[poolId,tenantId],references:[handleId,tenantId],onDelete:Cascade,onUpdate:NoAction)
+ revision RedirectDestination @relation(fields:[revisionId,tenantId],references:[id,tenantId],onDelete:Cascade,onUpdate:NoAction)
+ @@id([poolId,revisionId])
+ @@unique([poolId,position])
+ @@map("destination_pool_members")
+}
+model DestinationPoolDaily {
+ poolId String
+ revisionId String
+ day DateTime @db.Date
+ accesses Int @default(0)
+ pool DestinationPool @relation(fields:[poolId],references:[handleId],onDelete:Cascade,onUpdate:NoAction)
+ @@id([poolId,revisionId,day])
+ @@index([day],map:"destination_pool_daily_retention_idx")
+ @@map("destination_pool_daily")
+}
+
+model ProfileSuggestion {
+ id String @id @default(uuid())
+ tenantId String
+ ownerId String
+ requestKey String
+ fingerprint String
+ baseVersion Int
+ status String
+ source Json?
+ plan Json?
+ usageRecorded Boolean @default(false)
+ createdAt DateTime
+ expiresAt DateTime
+ appliedVersion Int?
+ owner User @relation(fields:[ownerId,tenantId],references:[id,tenantId],onDelete:Cascade,onUpdate:NoAction)
+ @@unique([tenantId,ownerId,requestKey])
+ @@index([tenantId,ownerId,createdAt],map:"profile_suggestions_owner_page_idx")
+ @@index([expiresAt],map:"profile_suggestions_retention_idx")
+ @@map("profile_suggestions")
+}
+model ProfileSuggestionUsage {
+ tenantId String
+ ownerId String
+ day DateTime @db.Date
+ attempts Int @default(0)
+ reservedMicros Int @default(0)
+ inputTokens Int @default(0)
+ outputTokens Int @default(0)
+ estimatedMicros Int @default(0)
+ knownAttempts Int @default(0)
+ owner User @relation(fields:[ownerId,tenantId],references:[id,tenantId],onDelete:Cascade,onUpdate:NoAction)
+ @@id([tenantId,ownerId,day])
+ @@index([day],map:"profile_suggestion_usage_retention_idx")
+ @@map("profile_suggestion_usage")
 }

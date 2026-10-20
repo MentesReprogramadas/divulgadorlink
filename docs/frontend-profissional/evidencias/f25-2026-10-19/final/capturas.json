@@ -1,0 +1,58 @@
+[
+  {
+    "file": "docs/frontend-profissional/evidencias/f25-2026-10-19/final/desktop-assistant-input.png",
+    "sha256": "50c8b391695d631518aec161263aac101bdceff9cb508b8314acc8b7f5ffac02"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f25-2026-10-19/final/desktop-assistant-review-1440.png",
+    "sha256": "b8d089ca242466688106714675e8b5d19be292ac1335fb0c06bbafca62196a16"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f25-2026-10-19/final/desktop-assistant-review-768.png",
+    "sha256": "86ddea3945861d73266e887f94862d1a22fd84f0a615a9635c9b4bc06f849f5d"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f25-2026-10-19/final/desktop-assistant-review.png",
+    "sha256": "4810dbd955bb60aef7effafd89a32b4d5ce92010e5006c3a538de2502893a534"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f25-2026-10-19/final/mobile-assistant-input.png",
+    "sha256": "e676613278fee70d5a77911602e1a84eea17e59c0c2a58e6d61f91478d1076b4"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f25-2026-10-19/final/mobile-assistant-review.png",
+    "sha256": "607cd840c6e0981ed4317a1b71ec4b05b3fdef902f8da2d6312e3df62853c8f5"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f25-2026-10-19/final/desktop-assistant-conflict.png",
+    "sha256": "1074b3904076946bf5b3e79137cb40a230767db32c5d86217aac02e5f7a43190"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f25-2026-10-19/final/mobile-assistant-conflict.png",
+    "sha256": "cc26cffb7e589b58e10a318050d4ff90e617c05e2ea8ca3d5c67b856d1d02942"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f25-2026-10-19/final/desktop-assistant-error.png",
+    "sha256": "0f901dc2a85510ccb4038671c9b2d8f621e8b7fb39080e37ec5c6dd9a8c2ea06"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f25-2026-10-19/final/desktop-assistant-zoom.png",
+    "sha256": "160182f988160e79adbe0d4c2abd7c815c4442a743697cd38da5657a0db8f358"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f25-2026-10-19/final/mobile-assistant-error.png",
+    "sha256": "ca46e833ef0485d9e6199b3e47502b035fa74b5ff0c536151afb1ea06e3d9851"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f25-2026-10-19/final/mobile-assistant-zoom.png",
+    "sha256": "0c29c973973cc40c97900826e81abf02d3ada47c81e4ab7cce63fe55cad86c1c"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f25-2026-10-19/final/desktop-assistant-readonly.png",
+    "sha256": "aa0496411f61cef7c3aff24ef5ab01fb5da4add04fd1be18bda733599457ae18"
+  },
+  {
+    "file": "docs/frontend-profissional/evidencias/f25-2026-10-19/final/mobile-assistant-readonly.png",
+    "sha256": "adf538cd16a08b7a83c1b6f47a7b0d1e3400aaad72850f0b511be91aaa626850"
+  }
+]

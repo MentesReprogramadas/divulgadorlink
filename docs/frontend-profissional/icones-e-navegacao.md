@@ -111,3 +111,29 @@ F31: interaction usa página com ponteiro para Métricas da minha página; pause
 F34: checklist usa lista com três marcas, distinta da prancheta de moderação; publicação usa publish, abrir página usa profile, acompanhar análise usa reviews, recusa usa edit. Cada significado mantém seu desenho, com rótulo e SVG decorativo. Editor e skeleton compartilham inventário de ações. Nenhum item raiz novo na sidebar.
 
 F37: channels representa duas escolhas/saídas, distinta de link/invite/interaction; primaryLink representa botão principal com outros botões menores, distinto de favoritos. Editar/remover/voltar/atualizar conservam desenhos do mesmo significado. Rede usa FacetIcon existente, acompanhada de nome e texto; nenhum ícone sozinho identifica a escolha. Entrada contextual em Minha página, sem novo item raiz; skeleton compartilha ProfileGroupActions.
+
+## F05 — Categorias seguidas (19/10/2026)
+
+`followNiche`: marcador com sinal de adição, para seguir categorias e destino Categorias seguidas no desktop/mobile. Distingue Favoritos (estrela), lembretes (sino) e assinatura comercial. Configurar/salvar seguem os ícones de ações compartilhadas. Validado nos testes de navegação e nas capturas F05.
+
+F15: campaignPages representa páginas de campanha (folha e bandeira), distinto de profile, publish e export. F20: teamAccess representa colaboradores com acesso ao recurso (duas pessoas), distinto de account e permissões administrativas.
+
+F21: mediaKit representa apresentação comercial com resultados (documento com quadro de dados), sem compartilhar desenho com perfil, campanha, relatório ou download. A miniatura da marca pública reutiliza PersonalPageBrand, sem segunda identidade visual.
+
+## Refinamento de contextos — 19/10/2026
+
+Publicação removida da sidebar. Minha página passa a conter destinos reais: pageSummary (visão geral da página), pageIdentity (dados), pageGroups (grupos/links), appearance, templates, importLinks, download, history, checklist, interaction, campaignPages e mediaKit (Apresentação para parceiros). profile identifica o agrupamento Minha página; não usa o desenho de seu resumo. email e phone identificam contatos, sem reutilizar símbolos de conta ou configurações. Subitens mostram seus próprios ícones em desktop/mobile. Colaboradores enxergam somente destinos concedidos; grupos vazios desaparecem.
+
+## Equipe guiada — 19/10/2026
+
+Os perfis de acesso reutilizam os desenhos existentes pelo mesmo significado: edit = editar conteúdo, eye = visualizar, settings = configurar permissões. As cores azul, verde e violeta acompanham rótulos e descrições; não comunicam permissão sozinhas. Abas ficam textuais para não duplicar símbolos de destinos diferentes.
+
+## Perfis e categorias de acesso — 19/10/2026
+
+workspaceAdmin e workspaceOperator identificam as funções Administrador e Operador, com desenhos exclusivos. permissionContent, permissionTools, permissionTracking e permissionFinance representam as respectivas áreas de conteúdo, ferramentas, acompanhamento e financeiro. permissionAdminOperations, permissionAdminCommercial e permissionAdminSystem distinguem os três grupos administrativos. Analista usa acompanhamento; Financeiro usa a mesma área financeira. Editar e visualizar mantêm edit e eye, inclusive nos atalhos preenchidos. Ban indica a restrição “Sem acesso”. Somente down gira nas categorias, preservando a orientação do ícone da área. [Matriz e validação](evidencias/equipe-perfis-2026-10-19/README.md).
+
+## F22/F23/F25 — destinos distintos
+
+contactForm identifica o formulário público/configuração e difere do contactInbox de respostas recebidas. search mantém o significado de busca no card da Página; preview mantém o significado de simulação em todas as abas. Criar do meu jeito usa edit; Criar com ajuda usa profileAssistant. Salvar/excluir/retornar/expandir preservam os desenhos das mesmas ações. Ícones decorativos acompanham rótulos; não substituem o nome da ação. [Refinamento](../planejamento-features/refinamento-f22-f23-f25.md).
+
+contactInbox representa contatos recebidos; inviteDistributor, distribuição entre convites; profileAssistant, o assistente da página; generateSuggestion, a ação de gerar sugestão; resume, retomada de destino pausado. Desenhos distintos, com rótulos visíveis nas ações; consulta/download/exclusão/salvar reutilizam o significado existente. Novos destinos integram a navegação por seções, heading, skeleton e filtros de permissão global. [Provas desktop/mobile e hashes](../planejamento-features/execucao-f25.md).
