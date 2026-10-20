@@ -34,3 +34,5 @@ S1: testes negativos exercitados; a execução vermelha anterior à implementaç
 Sem env nova obrigatória; adapter usa HTTPS público e isolamento existente. Stub de arquivo restrito a NODE_ENV=dev, host example.com e origem localhost, somente no harness. Nenhum envio ou cobrança real. Migrations precisam ser aplicadas no ambiente autorizado. Para reverter, retirar endpoints/painel novos, preservando tabela/evidências para auditoria; não resetar alterações locais. Não aplicar migration destrutiva automaticamente. A infraestrutura descartável é encerrada no fechamento desta sequência.
 
 Próxima F29, conforme autorização até F10; F39 permanece fora da sequência.
+
+Commit de implementação: df413710cca316c159ad34f544293fa69ecab0f7.

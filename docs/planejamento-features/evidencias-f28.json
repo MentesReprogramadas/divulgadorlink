@@ -60,5 +60,6 @@
       "path": "backend/prisma/migrations/20261020080000_ownership_challenges/migration.sql",
       "sha256": "c9c12aec19191e67e4e5ef95c217067bb62ed55bfcbe246cbc6ecead050fc194"
     }
-  ]
+  ],
+  "implementationCommit": "df413710cca316c159ad34f544293fa69ecab0f7"
 }
