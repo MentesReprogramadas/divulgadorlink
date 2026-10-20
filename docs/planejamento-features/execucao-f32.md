@@ -27,3 +27,5 @@ Referências: [Canvas measureText](https://developer.mozilla.org/en-US/docs/Web/
 ## Operação e reversão
 
 Sem persistência nova: remover entrada da navegação e rota reverte a feature; arquivos já baixados permanecem com o usuário. Manter downloadBlob compatível com F13. Não há promessa de audiência ou QR válido para rascunho não publicado. S0–S6 locais; CI/liberação remota S7 pendentes. Próximas F33 → F10; parar após F10.
+
+Commit de implementação: dc859a9172511d83b6ccafc6284305d1cd164cd2.
