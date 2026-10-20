@@ -1,8 +1,8 @@
 import { randomUUID } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
-import jsQR from 'jsqr'
-import { expect,test,type Download,type Page } from '@playwright/test'
+import {decodeQrDownload as decode} from './decode-qr-download'
+import { expect,test,type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { runtime } from './runtime.cjs'
 import { sql } from './db'
@@ -13,21 +13,6 @@ const fixture=(area:'profiles'|'redirects')=>JSON.parse(readFileSync(path.join(_
 async function login(page:Page,area:'profiles'|'redirects',other=false){const data=fixture(area);await page.goto(runtime.web(area+'.localhost')+'/login');await page.getByLabel('E-mail').fill(other?data.other:data.owner);await page.getByLabel('Senha').fill(data.password);await page.getByRole('button',{name:'Entrar',exact:true}).click();await expect(page.getByRole('heading',{name:'Painel',exact:true})).toBeVisible();const refuse=page.getByRole('region',{name:'Este site usa cookies'}).getByRole('button',{name:'Recusar',exact:true});if(await refuse.count())await refuse.click()}
 async function mutate(page:Page,route:string,body:unknown,method='POST'){
   return page.evaluate(async({route,body,method})=>{const csrf=decodeURIComponent(document.cookie.split('; ').find(row=>row.startsWith('csrf='))?.slice(5)??'');const response=await fetch('/bff/v1'+route,{method,headers:{'content-type':'application/json','x-csrf-token':csrf,'idempotency-key':crypto.randomUUID()},body:JSON.stringify(body)});return{status:response.status,body:await response.json()}},{route,body,method})
-}
-async function decode(page:Page,download:Download){
-  const local=await download.path();if(!local)throw new Error('Download file missing')
-  const bytes=readFileSync(local),mime=download.suggestedFilename().endsWith('.svg')?'image/svg+xml':'image/png'
-  if(mime==='image/svg+xml'){expect(bytes.toString('utf8')).toContain('<svg');expect(bytes.toString('utf8')).not.toMatch(/<script|foreignObject|onload=/)}else expect([...bytes.subarray(0,8)]).toEqual([137,80,78,71,13,10,26,10])
-  // Rasterize the actual downloaded file, then use an independent decoder. No image mocks.
-  const pixels=await page.evaluate(async({base64,mime})=>{
-    const image=new Image();image.src='data:'+mime+';base64,'+base64;await image.decode()
-    const canvas=document.createElement('canvas');canvas.width=image.naturalWidth;canvas.height=image.naturalHeight
-    const context=canvas.getContext('2d');if(!context)throw new Error('Canvas unavailable')
-    context.drawImage(image,0,0);return{width:canvas.width,height:canvas.height,data:Array.from(context.getImageData(0,0,canvas.width,canvas.height).data)}
-  },{base64:bytes.toString('base64'),mime})
-  const result=jsQR(new Uint8ClampedArray(pixels.data),pixels.width,pixels.height,{inversionAttempts:'dontInvert'})
-  expect(result,'Exported QR must be readable').not.toBeNull()
-  return{payload:result!.data,width:pixels.width,height:pixels.height,bytes,mime,name:download.suggestedFilename()}
 }
 async function download(page:Page){const dialog=page.getByRole('dialog',{name:'QR Code'});await expect(dialog.getByRole('group',{name:'Prévia do QR Code'})).toHaveAttribute('aria-busy','false');const next=page.waitForEvent('download');await dialog.getByRole('button',{name:'Baixar QR Code'}).focus();await page.keyboard.press('Enter');return decode(page,await next)}
 

@@ -1,3 +1,4 @@
+import {downloadBlob} from '@/lib/download-blob'
 import { qrExportOptions,stableQrTarget,type StableQrTarget,type QrFormat,type QrSize } from './qr-target'
 export type QrArtifact={url:string;format:QrFormat;size:QrSize;mime:string;filename:string;preview:string;blob:Blob}
 /** One existing generator, no external service or camera, and no raw SVG inserted in the DOM. */
@@ -12,8 +13,4 @@ export async function generateQr(target:StableQrTarget,format:unknown,size:unkno
   const binary=options.format==='svg'?await QR.toString(safe.url,{...settings,type:'svg'}):Uint8Array.from(atob(preview.split(',')[1]),character=>character.charCodeAt(0))
   return{url:safe.url,format:options.format,size:options.size,mime:options.mime,filename:'temlinkaqui-'+(safe.kind==='PROFILE'?'pagina-':'convite-')+safe.name+'-'+options.size+'.'+options.format,preview,blob:new Blob([binary],{type:options.mime})}
 }
-export function downloadQr(artifact:QrArtifact){
-  const url=URL.createObjectURL(artifact.blob),anchor=document.createElement('a')
-  anchor.href=url;anchor.download=artifact.filename;document.body.append(anchor);anchor.click();anchor.remove()
-  setTimeout(()=>URL.revokeObjectURL(url),1000)
-}
+export function downloadQr(artifact:QrArtifact){downloadBlob(artifact.blob,artifact.filename)}

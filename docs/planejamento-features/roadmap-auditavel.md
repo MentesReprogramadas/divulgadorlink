@@ -518,14 +518,14 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 
 | Etapa | Estado | Pré-requisito imediato | Entregável a verificar |
 | --- | --- | --- | --- |
-| F32-S0 | NÃO INICIADA | F42 (prioridade), F09, F13 | [Escopo contratos e reuso](planos/f32-kit-divulgacao.md#f32-s0-escopo-contratos-e-revisão-de-reutilização) |
-| F32-S1 | NÃO INICIADA | F32-S0 | [Testes U e C](planos/f32-kit-divulgacao.md#f32-s1-testes-unitários-e-componentes-antes-da-regra) |
-| F32-S2 | NÃO INICIADA | F32-S1 | [Dados e migração](planos/f32-kit-divulgacao.md#f32-s2-dados-invariantes-e-migração) |
-| F32-S3 | NÃO INICIADA | F32-S2 | [Domínio API e jobs](planos/f32-kit-divulgacao.md#f32-s3-regra-de-negócio-api-e-jobs) |
-| F32-S4 | NÃO INICIADA | F32-S3 | [Interface](planos/f32-kit-divulgacao.md#f32-s4-interface-composição-e-estados) |
-| F32-S5 | NÃO INICIADA | F32-S4 | [Integração e ACs](planos/f32-kit-divulgacao.md#f32-s5-integração-contrato-persistência-e-falhas) |
-| F32-S6 | NÃO INICIADA | F32-S5 | [Playwright e QA](planos/f32-kit-divulgacao.md#f32-s6-e2e-playwright-e-revisão-visual) |
-| F32-S7 | NÃO INICIADA | F32-S6 | [Regressão e liberação](planos/f32-kit-divulgacao.md#f32-s7-regressão-rollout-e-fechamento-auditável) |
+| F32-S0 | CONCLUÍDA LOCALMENTE | F42 (prioridade), F09, F13 | [Escopo contratos e reuso](planos/f32-kit-divulgacao.md#f32-s0-escopo-contratos-e-revisão-de-reutilização) |
+| F32-S1 | CONCLUÍDA LOCALMENTE | F32-S0 | [Testes U e C](planos/f32-kit-divulgacao.md#f32-s1-testes-unitários-e-componentes-antes-da-regra) |
+| F32-S2 | CONCLUÍDA LOCALMENTE | F32-S1 | [Dados e migração](planos/f32-kit-divulgacao.md#f32-s2-dados-invariantes-e-migração) |
+| F32-S3 | CONCLUÍDA LOCALMENTE | F32-S2 | [Domínio API e jobs](planos/f32-kit-divulgacao.md#f32-s3-regra-de-negócio-api-e-jobs) |
+| F32-S4 | CONCLUÍDA LOCALMENTE | F32-S3 | [Interface](planos/f32-kit-divulgacao.md#f32-s4-interface-composição-e-estados) |
+| F32-S5 | CONCLUÍDA LOCALMENTE | F32-S4 | [Integração e ACs](planos/f32-kit-divulgacao.md#f32-s5-integração-contrato-persistência-e-falhas) |
+| F32-S6 | CONCLUÍDA LOCALMENTE | F32-S5 | [Playwright e QA](planos/f32-kit-divulgacao.md#f32-s6-e2e-playwright-e-revisão-visual) |
+| F32-S7 | EM REVISÃO | F32-S6 | [Regressão e liberação](planos/f32-kit-divulgacao.md#f32-s7-regressão-rollout-e-fechamento-auditável) |
 
 ### 33 F33 Coleções públicas compartilháveis
 
@@ -746,3 +746,8 @@ Não inicia uma nova feature da sequência: mantém 26/42 implementações e F22
 ## 20/10/2026 — F29 validada localmente
 
 [Evento na página: contrato, ACs, decisões e provas](execucao-f29.md). 31/42 implementações registradas. Próxima sequência F32 → F33 → F10; parar após F10; autorização de parar após F10 preservada. S7 remoto em revisão; commits na mesma branch, sem push/deploy.
+
+
+## 20/10/2026 — F32 validada localmente
+
+[Kit de divulgação: contrato, ACs, decisões e provas](execucao-f32.md). 32/42 implementações registradas. Próxima sequência F33 → F10; parar após F10; autorização de parar após F10 preservada. S7 remoto em revisão; commits na mesma branch, sem push/deploy.

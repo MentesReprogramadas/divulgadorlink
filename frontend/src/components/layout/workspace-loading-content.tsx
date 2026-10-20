@@ -1,3 +1,4 @@
+import {ShareKitScreen} from '@/features/share-kit/share-kit-screen'
 import {AssistantScreen} from '@/features/profile-assistant/assistant-screen'
 import {PoolScreen} from '@/features/redirect-pools/pool-screen'
 import {ContactScreen} from '@/features/contact-forms/contact-screen'
@@ -36,6 +37,7 @@ export function WorkspaceContentSkeleton({ path }: { path: string }) {
   if(/^\/painel\/convites\/[^/]+\/distribuicao$/.test(path))return <PoolScreen id={path.split('/')[3]} pendingOnly/>
   if(path==='/painel/perfil/assistente')return <AssistantScreen pendingOnly/>
   if(path==='/painel/perfil/contatos')return <ContactScreen pendingOnly/>
+  if(path==='/painel/perfil/divulgar')return <ShareKitScreen pendingOnly/>
   if(path==='/painel/perfil/midia-kit')return <MediaKitScreen pendingOnly/>
   if(path==='/painel/equipe')return <WorkspaceTeamScreen pendingOnly/>
   if(/^\/painel\/equipe\/[^/]+\/editar$/.test(path))return <ProfilePageSkeleton collaborative/>

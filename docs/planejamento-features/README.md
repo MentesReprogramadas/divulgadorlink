@@ -2,7 +2,7 @@
 
 Data da análise inicial: 14 de outubro de 2026. Atualização de prioridade: 15 de outubro de 2026.
 
-**Situação atual — 20/10/2026:** 31/42 implementações registradas. F29 validada localmente; próxima sequência F32 → F33 → F10; parar após F10. F39 não iniciada, corrigida a divergência do índice. S7/CI/liberação remotas pendentes. Commits na branch codex/roadmap-f37-testes; sem push/deploy. [Execução F29](execucao-f29.md).
+**Situação atual — 20/10/2026:** 32/42 implementações registradas. F32 validada localmente; próxima sequência F33 → F10; parar após F10. F39 não iniciada, corrigida a divergência do índice. S7/CI/liberação remotas pendentes. Commits na branch codex/roadmap-f37-testes; sem push/deploy. [Execução F32](execucao-f32.md).
 
 Refinamento solicitado após F21: [importação, resumos, navegação, campanhas, equipe global e apresentação](refinamento-f05-f15-f20-f21-f38.md). Ampliação anterior implementada e validada localmente. Pedido posterior implementou F22 → F23 → F25, conforme situação atual acima.
 
@@ -58,7 +58,7 @@ As decisões não resolvidas são propostas de desenho, nunca fatos aprovados. N
 | 29 | F25 | 4 | [Assistente de criação de perfil](specs/f25-assistente-perfil.md) | [Implementação](planos/f25-assistente-perfil.md) | F42 (prioridade); F09, F16, F17 | S0–S6 LOCAIS; S7 EM REVISÃO |
 | 30 | F28 | 4 | [Comprovação de propriedade](specs/f28-comprovacao-propriedade.md) | [Implementação](planos/f28-comprovacao-propriedade.md) | F42 (prioridade); F12 | S0–S6 LOCAL; S7 EM REVISÃO |
 | 31 | F29 | 4 | [Página de evento](specs/f29-evento.md) | [Implementação](planos/f29-evento.md) | F42 (prioridade); F09, F14 | S0–S6 LOCAL; S7 EM REVISÃO |
-| 32 | F32 | 4 | [Kit de divulgação](specs/f32-kit-divulgacao.md) | [Implementação](planos/f32-kit-divulgacao.md) | F42 (prioridade); F09, F13 | NÃO INICIADA |
+| 32 | F32 | 4 | [Kit de divulgação](specs/f32-kit-divulgacao.md) | [Implementação](planos/f32-kit-divulgacao.md) | F42 (prioridade); F09, F13 | S0–S6 LOCAL; S7 EM REVISÃO |
 | 33 | F33 | 4 | [Coleções públicas compartilháveis](specs/f33-colecoes-publicas.md) | [Implementação](planos/f33-colecoes-publicas.md) | F42 (prioridade); F04 | NÃO INICIADA |
 | 34 | F10 | 5 | [Página premium com subdomínio](specs/f10-pagina-premium-subdominio.md) | [Implementação](planos/f10-pagina-premium-subdominio.md) | F42 (prioridade); F09, F11, F19, F16 | NÃO INICIADA |
 | 35 | F24 | 5 | [Descoberta de perfis](specs/f24-descoberta-perfis.md) | [Implementação](planos/f24-descoberta-perfis.md) | F42 (prioridade); F09, F03 | NÃO INICIADA |

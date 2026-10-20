@@ -1,0 +1,100 @@
+{
+  "feature": "F32",
+  "date": "2026-10-20",
+  "baseCommit": "457739a4a3c916d068ce55f0b1bb04ea34a5ed04",
+  "branch": "codex/roadmap-f37-testes",
+  "e2eStats": {
+    "startTime": "2026-10-20T10:39:52.955Z",
+    "duration": 210311.46600000001,
+    "expected": 15,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "report": "output/f32-playwright-final.json",
+  "captures": "docs/frontend-profissional/evidencias/f32-2026-10-20/capturas.json",
+  "execution": "execucao-f32.md",
+  "S7": "CI/remote release pending",
+  "sourceHashes": [
+    {
+      "path": "frontend/e2e/decode-qr-download.ts",
+      "sha256": "8bac728b123380b98ae62c30efd39fbdc477a63f5cd9199e821673302d683353"
+    },
+    {
+      "path": "frontend/e2e/permanent-qr.spec.ts",
+      "sha256": "39e6610a0220e12085ef6c7e8ba0cf290fe8231cc0629ac73eb12d799a7141d0"
+    },
+    {
+      "path": "frontend/e2e/share-kit.spec.ts",
+      "sha256": "a5e28c422fe1cca2e32b231dd6c377d71e5cde47bb052bc1a2557650fd3b87d7"
+    },
+    {
+      "path": "frontend/src/app/painel/perfil/divulgar/page.tsx",
+      "sha256": "df0235dc4c4386e03bb4e8fdac2b4c76901fb5c33966fed1038110992e9431ef"
+    },
+    {
+      "path": "frontend/src/components/layout/navigation-icons.ts",
+      "sha256": "66f3a0c4131085f678f0cb84029a3c55ba7b9d6ce7d45ddd6cd283855a3f93d2"
+    },
+    {
+      "path": "frontend/src/components/layout/site-navigation.test.tsx",
+      "sha256": "19cd7344a4eeac4fd129afa218b86218e355b25a1860d577c3a731f08b9caa6d"
+    },
+    {
+      "path": "frontend/src/components/layout/workspace-loading-content.tsx",
+      "sha256": "1cbe31e0f037bd5070caaa612ed299ed7a725806e54c48cebc77144b787cdb0d"
+    },
+    {
+      "path": "frontend/src/components/ui/action-icon.tsx",
+      "sha256": "0a338dcfcdf2ef9fa2c7aa01d27e7e4f927af3522bce2d8c672b40b4857debc6"
+    },
+    {
+      "path": "frontend/src/features/account/components/workspace-heading.ts",
+      "sha256": "aff59b708ffa021f23c11098329874792f4a784ec9137966326d69f399cf725e"
+    },
+    {
+      "path": "frontend/src/features/account/components/workspace-navigation.tsx",
+      "sha256": "b5a4955245059513d1f89fc713ac6e9bf068391c6bb2bd81b5a869391f585307"
+    },
+    {
+      "path": "frontend/src/features/permanent-qr/generate-qr.ts",
+      "sha256": "a2786d41756e4f7048409e5426659c473c4347541aaa6b997b23c6ad0e5e298d"
+    },
+    {
+      "path": "frontend/src/features/share-kit/render-share-kit.ts",
+      "sha256": "7b56f1736ee71ff8fd9bc695284db1e1e7ab427e7db6b3847c84444169536190"
+    },
+    {
+      "path": "frontend/src/features/share-kit/share-kit-api.test.ts",
+      "sha256": "cb622e610b664ef09f8e5103323657f47b5d7245f4c2977a902fb7c54405095b"
+    },
+    {
+      "path": "frontend/src/features/share-kit/share-kit-api.ts",
+      "sha256": "0c7c1bea6eb75572fd4072fd4220117dea27c58fb8abed172c117c8199d695d3"
+    },
+    {
+      "path": "frontend/src/features/share-kit/share-kit-plan.test.ts",
+      "sha256": "82e22606f09ca9f3bc778330426c207c2109a9803aa4a55a240c9894250adc26"
+    },
+    {
+      "path": "frontend/src/features/share-kit/share-kit-plan.ts",
+      "sha256": "be95788376f4c6ede98d823e383390c48e87bd3e8fb547dbee212f8b58c47232"
+    },
+    {
+      "path": "frontend/src/features/share-kit/share-kit-screen.test.tsx",
+      "sha256": "1263070449c74704c94e25c5d8b2761de18eef46a39eb243e52bf6a5d5f9d5d7"
+    },
+    {
+      "path": "frontend/src/features/share-kit/share-kit-screen.tsx",
+      "sha256": "05791057e55cef5526f8a9aaaf4eb76c71da144ebc0bed52ef01e807b3aab5e1"
+    },
+    {
+      "path": "frontend/src/features/share-kit/share-kit.module.css",
+      "sha256": "d22c71a4242f6d41e416e88bcf3d66fc5e004fae3c3685d76b2dc71f6748740b"
+    },
+    {
+      "path": "frontend/src/lib/download-blob.ts",
+      "sha256": "a03e398e86850c0f8c6f0d9024218fb97fc42c023754b845a9bb6a54901bec72"
+    }
+  ]
+}

@@ -23,6 +23,7 @@ export const navigationIcons = {
   '/painel/perfil/contatos':'contactInbox',
   '/painel/perfil/campanhas':'campaignPages',
   '/painel/perfil/midia-kit':'mediaKit',
+  '/painel/perfil/divulgar':'shareArtwork',
   '/painel/equipe':'teamAccess',
   '/painel/convites': 'invite',
   '/painel/pedidos': 'orders',

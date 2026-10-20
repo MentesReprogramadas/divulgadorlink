@@ -15,7 +15,7 @@ type NavigationGroup = { label: string; items: NavigationItem[]; submenu?: Navig
 const profileSections: NavigationSection[] = [
   { label: 'Edição', items: [{href:'/painel/perfil/dados',label:'Dados da página'},{href:'/painel/perfil/links',label:'Grupos e links'},{href:'/painel/perfil/aparencia',label:'Aparência'},{href:'/painel/perfil/modelos',label:'Modelos'}] },
   { label: 'Ferramentas', items: [{href:'/painel/perfil/importar',label:'Importar links'},{href:'/painel/perfil/exportar',label:'Importar e exportar'},{href:'/painel/perfil/historico',label:'Histórico'},{href:'/painel/perfil/checklist',label:'Checklist'}] },
-  { label: 'Resultados e divulgação', items: [{href:'/painel/perfil/metricas',label:'Métricas'},{href:'/painel/perfil/contatos',label:'Contatos recebidos'},{href:'/painel/perfil/campanhas',label:'Campanhas'},{href:'/painel/perfil/midia-kit',label:'Apresentação para parceiros'}] },
+  { label: 'Resultados e divulgação', items: [{href:'/painel/perfil/metricas',label:'Métricas'},{href:'/painel/perfil/contatos',label:'Contatos recebidos'},{href:'/painel/perfil/campanhas',label:'Campanhas'},{href:'/painel/perfil/midia-kit',label:'Apresentação para parceiros'},{href:'/painel/perfil/divulgar',label:'Kit de divulgação'}] },
 ]
 function submenuItems(submenu?: NavigationSubmenu): NavigationItem[] {
   return submenu ? [...submenu.items, ...(submenu.sections ?? []).flatMap(section => section.items)] : []

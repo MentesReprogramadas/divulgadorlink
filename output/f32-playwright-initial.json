@@ -1,0 +1,697 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\VSCODE\\divulgadorlinks\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "e2e/share-kit.spec.ts",
+      "e2e/permanent-qr.spec.ts",
+      "--project=features",
+      "--project=features-mobile"
+    ],
+    "configFile": "C:\\VSCODE\\divulgadorlinks\\frontend\\playwright.config.ts",
+    "rootDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\global-setup.ts",
+    "globalTeardown": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\global-teardown.ts",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "setup",
+        "name": "setup",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/auth\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features",
+        "name": "features",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/share-kit\\.spec\\.ts|profile-events\\.spec\\.ts|ownership\\.spec\\.ts|profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features-mobile",
+        "name": "features-mobile",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/share-kit\\.spec\\.ts|profile-events\\.spec\\.ts|ownership\\.spec\\.ts|profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "catalog",
+        "name": "catalog",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/catalog\\.spec\\.ts|mail\\.spec\\.ts|advertise\\.spec\\.ts|legal\\.spec\\.ts|funnel\\.spec\\.ts|signup\\.spec\\.ts|submit-link\\.spec\\.ts|security-headers\\.spec\\.ts|google-ads-submission\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "auth.setup.ts",
+      "file": "auth.setup.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "sessão da Bia para os testes do painel",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "setup",
+              "projectName": "setup",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 425,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:35:58.038Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "17e3fe6f4d9d8bd79c6b-40367c7f5b2a9e9ad033",
+          "file": "auth.setup.ts",
+          "line": 8,
+          "column": 6
+        }
+      ]
+    },
+    {
+      "title": "permanent-qr.spec.ts",
+      "file": "permanent-qr.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F13-E01/T01/T03 published page exports real readable PNG/SVG; loading, keyboard, revalidation and private data stay safe",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 17550,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:35:58.953Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d0b1af1336fc78253fdd-2c28e50a7816fe01e522",
+          "file": "permanent-qr.spec.ts",
+          "line": 19,
+          "column": 5
+        },
+        {
+          "title": "F13-E02/T02/T04 replacing a destination preserves the actual decoded QR, owner isolation and unavailable-handle restrictions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7681,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:36:16.614Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d0b1af1336fc78253fdd-44b8ab54f14942d2d02d",
+          "file": "permanent-qr.spec.ts",
+          "line": 52,
+          "column": 5
+        },
+        {
+          "title": "F13-E01/T01/T03 published page exports real readable PNG/SVG; loading, keyboard, revalidation and private data stay safe",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 16469,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:37:05.620Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d0b1af1336fc78253fdd-9fe6b727bce4185d194b",
+          "file": "permanent-qr.spec.ts",
+          "line": 19,
+          "column": 5
+        },
+        {
+          "title": "F13-E02/T02/T04 replacing a destination preserves the actual decoded QR, owner isolation and unavailable-handle restrictions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7878,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:37:22.200Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d0b1af1336fc78253fdd-e679826ba60f161bb2c9",
+          "file": "permanent-qr.spec.ts",
+          "line": 52,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "share-kit.spec.ts",
+      "file": "share-kit.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F32-E01/T01/T02/T03/T04 duas dimensões reais, texto editável, preview obrigatório e QR decodificado do PNG final",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 27229,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:36:24.306Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "aa04fcd21f2c9afe6748-66b247e6df5f071e4d29",
+          "file": "share-kit.spec.ts",
+          "line": 13,
+          "column": 5
+        },
+        {
+          "title": "F32-E02/T05 rascunho exige escolha explícita e marca de prévia; outro dono não vê conteúdo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10785,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:36:51.540Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "aa04fcd21f2c9afe6748-c719b12d5bffa439c53c",
+          "file": "share-kit.spec.ts",
+          "line": 14,
+          "column": 5
+        },
+        {
+          "title": "F32-E03/C01 falha nativa não gera download, teclado recupera; versão antiga não baixa e 320px reflow",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1055,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected substring: \u001b[32m\"Não foi possível gerar o arquivo.\"\u001b[39m\nError: strict mode violation: getByRole('alert') resolved to 2 elements:\n    1) <div role=\"alert\" class=\"feedback_error__dEmIm\">…</div> aka getByRole('region', { name: 'Kit de divulgação' }).getByRole('alert')\n    2) <div role=\"alert\" aria-live=\"assertive\" id=\"__next-route-announcer__\"></div> aka locator('[id=\"__next-route-announcer__\"]')\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('alert') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\u001b[2m    2 × locator resolved to <div role=\"alert\" aria-live=\"assertive\" id=\"__next-route-announcer__\"></div>\u001b[22m\n\u001b[2m      - unexpected value \"\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected substring: \u001b[32m\"Não foi possível gerar o arquivo.\"\u001b[39m\nError: strict mode violation: getByRole('alert') resolved to 2 elements:\n    1) <div role=\"alert\" class=\"feedback_error__dEmIm\">…</div> aka getByRole('region', { name: 'Kit de divulgação' }).getByRole('alert')\n    2) <div role=\"alert\" aria-live=\"assertive\" id=\"__next-route-announcer__\"></div> aka locator('[id=\"__next-route-announcer__\"]')\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('alert') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\u001b[2m    2 × locator resolved to <div role=\"alert\" aria-live=\"assertive\" id=\"__next-route-announcer__\"></div>\u001b[22m\n\u001b[2m      - unexpected value \"\"\u001b[22m\n\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\share-kit.spec.ts:15:613",
+                    "location": {
+                      "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\share-kit.spec.ts",
+                      "column": 613,
+                      "line": 15
+                    },
+                    "snippet": "  13 | test('F32-E01/T01/T02/T03/T04 duas dimensões reais, texto editável, preview obrigatório e QR decodificado do PNG final',async({page},info)=>{await prepare(page);await expect(page.getByRole('button',{name:'Baixar imagem',exact:true})).toBeDisabled();await generate(page);const post=await download(page);writeFileSync(info.outputPath('share-kit-post-art.png'),post.bytes);expect(post).toMatchObject({width:1080,height:1080,payload:roadmapOrigin+'/p/kit-ana'});await capturePage(page,info.outputPath('share-kit-post.png'));await page.getByRole('button',{name:'Editar texto'}).click();await expect(page.getByLabel('Título na imagem')).toHaveValue('Projetos da Ana');await expect(page.getByLabel('Descrição na imagem')).toHaveValue('Criação e projetos');await page.getByLabel('Título na imagem').fill('Conheça nossos projetos');await expect(page.getByRole('button',{name:'Baixar imagem',exact:true})).toBeDisabled();await page.getByRole('button',{name:'Voltar',exact:true}).click();await selectOption(page.getByLabel('Formato da imagem'),'STORY');await selectOption(page.getByLabel('Modelo da arte'),'spotlight');await generate(page,'Conheça nossos projetos');const story=await download(page);writeFileSync(info.outputPath('share-kit-story-art.png'),story.bytes);expect(story).toMatchObject({width:1080,height:1920,payload:post.payload});await capturePage(page,info.outputPath('share-kit-story.png'));const axe=await new AxeBuilder({page}).include('main').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(v=>v.id)).toEqual([]);expect((await roadmapApi(page,'/me/profile')).body.draft.name).toBe('private-draft-sentinel')})\n  14 | test('F32-E02/T05 rascunho exige escolha explícita e marca de prévia; outro dono não vê conteúdo',async({page,browser},info)=>{await prepare(page,false);await expect(page.getByRole('button',{name:'Gerar prévia',exact:true})).toBeDisabled();await expect(page.getByRole('region',{name:'Prévia da arte'}).getByRole('img')).toHaveCount(0);await selectOption(page.getByLabel('Conteúdo da arte'),'draft');await expect(page.getByText('Prévia do rascunho. Publique a página antes de divulgar o endereço.')).toBeVisible();await generate(page,'private-draft-sentinel');const image=await download(page,true);writeFileSync(info.outputPath('share-kit-draft-art.png'),image.bytes);expect(image.name).toContain('-previa.png');expect(image.payload).toBe(roadmapOrigin+'/p/kit-ana');await capturePage(page,info.outputPath('share-kit-draft.png'));const context=await browser.newContext(),other=await context.newPage();try{await roadmapLogin(other,true);await other.goto(roadmapOrigin+'/painel/perfil/divulgar');await expect(other.getByText('Publique sua página para gerar a arte oficial.')).toBeVisible();expect(await other.content()).not.toContain('private-draft-sentinel');await expect(other.getByRole('button',{name:'Gerar prévia',exact:true})).toBeDisabled()}finally{await context.close()}})\n> 15 | test('F32-E03/C01 falha nativa não gera download, teclado recupera; versão antiga não baixa e 320px reflow',async({page},info)=>{await prepare(page);await page.getByRole('button',{name:'Editar texto'}).click();await page.getByLabel('Título na imagem').fill('Arte recuperada');await page.evaluate(()=>{const original=HTMLCanvasElement.prototype.toBlob;HTMLCanvasElement.prototype.toBlob=function(callback){HTMLCanvasElement.prototype.toBlob=original;callback(null)}});await page.getByRole('button',{name:'Gerar prévia',exact:true}).focus();await page.keyboard.press('Enter');await expect(page.getByRole('alert')).toContainText('Não foi possível gerar o arquivo.');await expect(page.getByLabel('Título na imagem')).toHaveValue('Arte recuperada');await expect(page.getByRole('button',{name:'Baixar imagem',exact:true})).toBeDisabled();await generate(page,'Arte recuperada');const current=(await roadmapApi(page,'/me/profile')).body.draft;const {version,...content}=current;expect((await roadmapApi(page,'/me/profile','PATCH',{expectedVersion:version,content:{...content,name:'Nova publicação'}})).status).toBe(200);await roadmapApi(page,'/me/profile/publish','POST',{expectedVersion:version+1});await page.getByRole('button',{name:'Baixar imagem',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Sua página mudou.');await expect(page.getByRole('button',{name:'Baixar imagem',exact:true})).toBeDisabled();await page.setViewportSize({width:320,height:844});await page.addStyleTag({content:'html{font-size:200%}'});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await capturePage(page,info.outputPath('share-kit-zoom.png'))})\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^\n  16 | test('F32-E04 carregamento preserva controles e geometria da prévia sem piscar a tela inicial',async({page},info)=>{await roadmapLogin(page);await roadmapProfile(page,'kit-ana');let release=()=>{},arrived=()=>{};const wait=new Promise<void>(resolve=>release=resolve),seen=new Promise<void>(resolve=>arrived=resolve);await page.route('**/bff/v1/me/profile',async route=>{if(route.request().method()==='GET'){arrived();await wait}await route.continue()});try{await page.goto(roadmapOrigin+'/painel/perfil/divulgar');await seen;const preview=page.getByRole('region',{name:'Prévia da arte'});await expect(preview).toHaveAttribute('aria-busy','true');const before=await preview.boundingBox();await capturePage(page,info.outputPath('share-kit-loading.png'));release();await expect(preview).toHaveAttribute('aria-busy','false');const after=await preview.boundingBox();for(const coordinate of ['x','y','width','height'] as const)expect(Math.abs(before![coordinate]-after![coordinate])).toBeLessThanOrEqual(1);await capturePage(page,info.outputPath('share-kit-ready.png'))}finally{release();await page.unrouteAll({behavior:'wait'})}})\n  17 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\share-kit.spec.ts",
+                        "column": 613,
+                        "line": 15
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected substring: \u001b[32m\"Não foi possível gerar o arquivo.\"\u001b[39m\nError: strict mode violation: getByRole('alert') resolved to 2 elements:\n    1) <div role=\"alert\" class=\"feedback_error__dEmIm\">…</div> aka getByRole('region', { name: 'Kit de divulgação' }).getByRole('alert')\n    2) <div role=\"alert\" aria-live=\"assertive\" id=\"__next-route-announcer__\"></div> aka locator('[id=\"__next-route-announcer__\"]')\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('alert') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\u001b[2m    2 × locator resolved to <div role=\"alert\" aria-live=\"assertive\" id=\"__next-route-announcer__\"></div>\u001b[22m\n\u001b[2m      - unexpected value \"\"\u001b[22m\n\n\n  13 | test('F32-E01/T01/T02/T03/T04 duas dimensões reais, texto editável, preview obrigatório e QR decodificado do PNG final',async({page},info)=>{await prepare(page);await expect(page.getByRole('button',{name:'Baixar imagem',exact:true})).toBeDisabled();await generate(page);const post=await download(page);writeFileSync(info.outputPath('share-kit-post-art.png'),post.bytes);expect(post).toMatchObject({width:1080,height:1080,payload:roadmapOrigin+'/p/kit-ana'});await capturePage(page,info.outputPath('share-kit-post.png'));await page.getByRole('button',{name:'Editar texto'}).click();await expect(page.getByLabel('Título na imagem')).toHaveValue('Projetos da Ana');await expect(page.getByLabel('Descrição na imagem')).toHaveValue('Criação e projetos');await page.getByLabel('Título na imagem').fill('Conheça nossos projetos');await expect(page.getByRole('button',{name:'Baixar imagem',exact:true})).toBeDisabled();await page.getByRole('button',{name:'Voltar',exact:true}).click();await selectOption(page.getByLabel('Formato da imagem'),'STORY');await selectOption(page.getByLabel('Modelo da arte'),'spotlight');await generate(page,'Conheça nossos projetos');const story=await download(page);writeFileSync(info.outputPath('share-kit-story-art.png'),story.bytes);expect(story).toMatchObject({width:1080,height:1920,payload:post.payload});await capturePage(page,info.outputPath('share-kit-story.png'));const axe=await new AxeBuilder({page}).include('main').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(v=>v.id)).toEqual([]);expect((await roadmapApi(page,'/me/profile')).body.draft.name).toBe('private-draft-sentinel')})\n  14 | test('F32-E02/T05 rascunho exige escolha explícita e marca de prévia; outro dono não vê conteúdo',async({page,browser},info)=>{await prepare(page,false);await expect(page.getByRole('button',{name:'Gerar prévia',exact:true})).toBeDisabled();await expect(page.getByRole('region',{name:'Prévia da arte'}).getByRole('img')).toHaveCount(0);await selectOption(page.getByLabel('Conteúdo da arte'),'draft');await expect(page.getByText('Prévia do rascunho. Publique a página antes de divulgar o endereço.')).toBeVisible();await generate(page,'private-draft-sentinel');const image=await download(page,true);writeFileSync(info.outputPath('share-kit-draft-art.png'),image.bytes);expect(image.name).toContain('-previa.png');expect(image.payload).toBe(roadmapOrigin+'/p/kit-ana');await capturePage(page,info.outputPath('share-kit-draft.png'));const context=await browser.newContext(),other=await context.newPage();try{await roadmapLogin(other,true);await other.goto(roadmapOrigin+'/painel/perfil/divulgar');await expect(other.getByText('Publique sua página para gerar a arte oficial.')).toBeVisible();expect(await other.content()).not.toContain('private-draft-sentinel');await expect(other.getByRole('button',{name:'Gerar prévia',exact:true})).toBeDisabled()}finally{await context.close()}})\n> 15 | test('F32-E03/C01 falha nativa não gera download, teclado recupera; versão antiga não baixa e 320px reflow',async({page},info)=>{await prepare(page);await page.getByRole('button',{name:'Editar texto'}).click();await page.getByLabel('Título na imagem').fill('Arte recuperada');await page.evaluate(()=>{const original=HTMLCanvasElement.prototype.toBlob;HTMLCanvasElement.prototype.toBlob=function(callback){HTMLCanvasElement.prototype.toBlob=original;callback(null)}});await page.getByRole('button',{name:'Gerar prévia',exact:true}).focus();await page.keyboard.press('Enter');await expect(page.getByRole('alert')).toContainText('Não foi possível gerar o arquivo.');await expect(page.getByLabel('Título na imagem')).toHaveValue('Arte recuperada');await expect(page.getByRole('button',{name:'Baixar imagem',exact:true})).toBeDisabled();await generate(page,'Arte recuperada');const current=(await roadmapApi(page,'/me/profile')).body.draft;const {version,...content}=current;expect((await roadmapApi(page,'/me/profile','PATCH',{expectedVersion:version,content:{...content,name:'Nova publicação'}})).status).toBe(200);await roadmapApi(page,'/me/profile/publish','POST',{expectedVersion:version+1});await page.getByRole('button',{name:'Baixar imagem',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Sua página mudou.');await expect(page.getByRole('button',{name:'Baixar imagem',exact:true})).toBeDisabled();await page.setViewportSize({width:320,height:844});await page.addStyleTag({content:'html{font-size:200%}'});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await capturePage(page,info.outputPath('share-kit-zoom.png'))})\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^\n  16 | test('F32-E04 carregamento preserva controles e geometria da prévia sem piscar a tela inicial',async({page},info)=>{await roadmapLogin(page);await roadmapProfile(page,'kit-ana');let release=()=>{},arrived=()=>{};const wait=new Promise<void>(resolve=>release=resolve),seen=new Promise<void>(resolve=>arrived=resolve);await page.route('**/bff/v1/me/profile',async route=>{if(route.request().method()==='GET'){arrived();await wait}await route.continue()});try{await page.goto(roadmapOrigin+'/painel/perfil/divulgar');await seen;const preview=page.getByRole('region',{name:'Prévia da arte'});await expect(preview).toHaveAttribute('aria-busy','true');const before=await preview.boundingBox();await capturePage(page,info.outputPath('share-kit-loading.png'));release();await expect(preview).toHaveAttribute('aria-busy','false');const after=await preview.boundingBox();for(const coordinate of ['x','y','width','height'] as const)expect(Math.abs(before![coordinate]-after![coordinate])).toBeLessThanOrEqual(1);await capturePage(page,info.outputPath('share-kit-ready.png'))}finally{release();await page.unrouteAll({behavior:'wait'})}})\n  17 |\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\share-kit.spec.ts:15:613"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:37:02.333Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\share-kit-F32-E03-C01-falh-aad46-ga-não-baixa-e-320px-reflow-features\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\share-kit-F32-E03-C01-falh-aad46-ga-não-baixa-e-320px-reflow-features\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\share-kit-F32-E03-C01-falh-aad46-ga-não-baixa-e-320px-reflow-features\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\share-kit.spec.ts",
+                    "column": 613,
+                    "line": 15
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "aa04fcd21f2c9afe6748-143b6f6a8ecd9434c622",
+          "file": "share-kit.spec.ts",
+          "line": 15,
+          "column": 5
+        },
+        {
+          "title": "F32-E04 carregamento preserva controles e geometria da prévia sem piscar a tela inicial",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1032,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:37:04.079Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "aa04fcd21f2c9afe6748-c74b4a08ce210e46f37f",
+          "file": "share-kit.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "F32-E01/T01/T02/T03/T04 duas dimensões reais, texto editável, preview obrigatório e QR decodificado do PNG final",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 27751,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:37:30.091Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "aa04fcd21f2c9afe6748-38ab204631c7ee5c3622",
+          "file": "share-kit.spec.ts",
+          "line": 13,
+          "column": 5
+        },
+        {
+          "title": "F32-E02/T05 rascunho exige escolha explícita e marca de prévia; outro dono não vê conteúdo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10727,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:37:57.848Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "aa04fcd21f2c9afe6748-e8d4639fb694a918befc",
+          "file": "share-kit.spec.ts",
+          "line": 14,
+          "column": 5
+        },
+        {
+          "title": "F32-E03/C01 falha nativa não gera download, teclado recupera; versão antiga não baixa e 320px reflow",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1046,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected substring: \u001b[32m\"Não foi possível gerar o arquivo.\"\u001b[39m\nError: strict mode violation: getByRole('alert') resolved to 2 elements:\n    1) <div role=\"alert\" class=\"feedback_error__dEmIm\">…</div> aka getByRole('region', { name: 'Kit de divulgação' }).getByRole('alert')\n    2) <div role=\"alert\" aria-live=\"assertive\" id=\"__next-route-announcer__\"></div> aka locator('[id=\"__next-route-announcer__\"]')\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('alert') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\u001b[2m    2 × locator resolved to <div role=\"alert\" aria-live=\"assertive\" id=\"__next-route-announcer__\"></div>\u001b[22m\n\u001b[2m      - unexpected value \"\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected substring: \u001b[32m\"Não foi possível gerar o arquivo.\"\u001b[39m\nError: strict mode violation: getByRole('alert') resolved to 2 elements:\n    1) <div role=\"alert\" class=\"feedback_error__dEmIm\">…</div> aka getByRole('region', { name: 'Kit de divulgação' }).getByRole('alert')\n    2) <div role=\"alert\" aria-live=\"assertive\" id=\"__next-route-announcer__\"></div> aka locator('[id=\"__next-route-announcer__\"]')\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('alert') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\u001b[2m    2 × locator resolved to <div role=\"alert\" aria-live=\"assertive\" id=\"__next-route-announcer__\"></div>\u001b[22m\n\u001b[2m      - unexpected value \"\"\u001b[22m\n\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\share-kit.spec.ts:15:613",
+                    "location": {
+                      "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\share-kit.spec.ts",
+                      "column": 613,
+                      "line": 15
+                    },
+                    "snippet": "  13 | test('F32-E01/T01/T02/T03/T04 duas dimensões reais, texto editável, preview obrigatório e QR decodificado do PNG final',async({page},info)=>{await prepare(page);await expect(page.getByRole('button',{name:'Baixar imagem',exact:true})).toBeDisabled();await generate(page);const post=await download(page);writeFileSync(info.outputPath('share-kit-post-art.png'),post.bytes);expect(post).toMatchObject({width:1080,height:1080,payload:roadmapOrigin+'/p/kit-ana'});await capturePage(page,info.outputPath('share-kit-post.png'));await page.getByRole('button',{name:'Editar texto'}).click();await expect(page.getByLabel('Título na imagem')).toHaveValue('Projetos da Ana');await expect(page.getByLabel('Descrição na imagem')).toHaveValue('Criação e projetos');await page.getByLabel('Título na imagem').fill('Conheça nossos projetos');await expect(page.getByRole('button',{name:'Baixar imagem',exact:true})).toBeDisabled();await page.getByRole('button',{name:'Voltar',exact:true}).click();await selectOption(page.getByLabel('Formato da imagem'),'STORY');await selectOption(page.getByLabel('Modelo da arte'),'spotlight');await generate(page,'Conheça nossos projetos');const story=await download(page);writeFileSync(info.outputPath('share-kit-story-art.png'),story.bytes);expect(story).toMatchObject({width:1080,height:1920,payload:post.payload});await capturePage(page,info.outputPath('share-kit-story.png'));const axe=await new AxeBuilder({page}).include('main').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(v=>v.id)).toEqual([]);expect((await roadmapApi(page,'/me/profile')).body.draft.name).toBe('private-draft-sentinel')})\n  14 | test('F32-E02/T05 rascunho exige escolha explícita e marca de prévia; outro dono não vê conteúdo',async({page,browser},info)=>{await prepare(page,false);await expect(page.getByRole('button',{name:'Gerar prévia',exact:true})).toBeDisabled();await expect(page.getByRole('region',{name:'Prévia da arte'}).getByRole('img')).toHaveCount(0);await selectOption(page.getByLabel('Conteúdo da arte'),'draft');await expect(page.getByText('Prévia do rascunho. Publique a página antes de divulgar o endereço.')).toBeVisible();await generate(page,'private-draft-sentinel');const image=await download(page,true);writeFileSync(info.outputPath('share-kit-draft-art.png'),image.bytes);expect(image.name).toContain('-previa.png');expect(image.payload).toBe(roadmapOrigin+'/p/kit-ana');await capturePage(page,info.outputPath('share-kit-draft.png'));const context=await browser.newContext(),other=await context.newPage();try{await roadmapLogin(other,true);await other.goto(roadmapOrigin+'/painel/perfil/divulgar');await expect(other.getByText('Publique sua página para gerar a arte oficial.')).toBeVisible();expect(await other.content()).not.toContain('private-draft-sentinel');await expect(other.getByRole('button',{name:'Gerar prévia',exact:true})).toBeDisabled()}finally{await context.close()}})\n> 15 | test('F32-E03/C01 falha nativa não gera download, teclado recupera; versão antiga não baixa e 320px reflow',async({page},info)=>{await prepare(page);await page.getByRole('button',{name:'Editar texto'}).click();await page.getByLabel('Título na imagem').fill('Arte recuperada');await page.evaluate(()=>{const original=HTMLCanvasElement.prototype.toBlob;HTMLCanvasElement.prototype.toBlob=function(callback){HTMLCanvasElement.prototype.toBlob=original;callback(null)}});await page.getByRole('button',{name:'Gerar prévia',exact:true}).focus();await page.keyboard.press('Enter');await expect(page.getByRole('alert')).toContainText('Não foi possível gerar o arquivo.');await expect(page.getByLabel('Título na imagem')).toHaveValue('Arte recuperada');await expect(page.getByRole('button',{name:'Baixar imagem',exact:true})).toBeDisabled();await generate(page,'Arte recuperada');const current=(await roadmapApi(page,'/me/profile')).body.draft;const {version,...content}=current;expect((await roadmapApi(page,'/me/profile','PATCH',{expectedVersion:version,content:{...content,name:'Nova publicação'}})).status).toBe(200);await roadmapApi(page,'/me/profile/publish','POST',{expectedVersion:version+1});await page.getByRole('button',{name:'Baixar imagem',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Sua página mudou.');await expect(page.getByRole('button',{name:'Baixar imagem',exact:true})).toBeDisabled();await page.setViewportSize({width:320,height:844});await page.addStyleTag({content:'html{font-size:200%}'});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await capturePage(page,info.outputPath('share-kit-zoom.png'))})\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^\n  16 | test('F32-E04 carregamento preserva controles e geometria da prévia sem piscar a tela inicial',async({page},info)=>{await roadmapLogin(page);await roadmapProfile(page,'kit-ana');let release=()=>{},arrived=()=>{};const wait=new Promise<void>(resolve=>release=resolve),seen=new Promise<void>(resolve=>arrived=resolve);await page.route('**/bff/v1/me/profile',async route=>{if(route.request().method()==='GET'){arrived();await wait}await route.continue()});try{await page.goto(roadmapOrigin+'/painel/perfil/divulgar');await seen;const preview=page.getByRole('region',{name:'Prévia da arte'});await expect(preview).toHaveAttribute('aria-busy','true');const before=await preview.boundingBox();await capturePage(page,info.outputPath('share-kit-loading.png'));release();await expect(preview).toHaveAttribute('aria-busy','false');const after=await preview.boundingBox();for(const coordinate of ['x','y','width','height'] as const)expect(Math.abs(before![coordinate]-after![coordinate])).toBeLessThanOrEqual(1);await capturePage(page,info.outputPath('share-kit-ready.png'))}finally{release();await page.unrouteAll({behavior:'wait'})}})\n  17 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\share-kit.spec.ts",
+                        "column": 613,
+                        "line": 15
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected substring: \u001b[32m\"Não foi possível gerar o arquivo.\"\u001b[39m\nError: strict mode violation: getByRole('alert') resolved to 2 elements:\n    1) <div role=\"alert\" class=\"feedback_error__dEmIm\">…</div> aka getByRole('region', { name: 'Kit de divulgação' }).getByRole('alert')\n    2) <div role=\"alert\" aria-live=\"assertive\" id=\"__next-route-announcer__\"></div> aka locator('[id=\"__next-route-announcer__\"]')\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('alert') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\u001b[2m    2 × locator resolved to <div role=\"alert\" aria-live=\"assertive\" id=\"__next-route-announcer__\"></div>\u001b[22m\n\u001b[2m      - unexpected value \"\"\u001b[22m\n\n\n  13 | test('F32-E01/T01/T02/T03/T04 duas dimensões reais, texto editável, preview obrigatório e QR decodificado do PNG final',async({page},info)=>{await prepare(page);await expect(page.getByRole('button',{name:'Baixar imagem',exact:true})).toBeDisabled();await generate(page);const post=await download(page);writeFileSync(info.outputPath('share-kit-post-art.png'),post.bytes);expect(post).toMatchObject({width:1080,height:1080,payload:roadmapOrigin+'/p/kit-ana'});await capturePage(page,info.outputPath('share-kit-post.png'));await page.getByRole('button',{name:'Editar texto'}).click();await expect(page.getByLabel('Título na imagem')).toHaveValue('Projetos da Ana');await expect(page.getByLabel('Descrição na imagem')).toHaveValue('Criação e projetos');await page.getByLabel('Título na imagem').fill('Conheça nossos projetos');await expect(page.getByRole('button',{name:'Baixar imagem',exact:true})).toBeDisabled();await page.getByRole('button',{name:'Voltar',exact:true}).click();await selectOption(page.getByLabel('Formato da imagem'),'STORY');await selectOption(page.getByLabel('Modelo da arte'),'spotlight');await generate(page,'Conheça nossos projetos');const story=await download(page);writeFileSync(info.outputPath('share-kit-story-art.png'),story.bytes);expect(story).toMatchObject({width:1080,height:1920,payload:post.payload});await capturePage(page,info.outputPath('share-kit-story.png'));const axe=await new AxeBuilder({page}).include('main').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(v=>v.id)).toEqual([]);expect((await roadmapApi(page,'/me/profile')).body.draft.name).toBe('private-draft-sentinel')})\n  14 | test('F32-E02/T05 rascunho exige escolha explícita e marca de prévia; outro dono não vê conteúdo',async({page,browser},info)=>{await prepare(page,false);await expect(page.getByRole('button',{name:'Gerar prévia',exact:true})).toBeDisabled();await expect(page.getByRole('region',{name:'Prévia da arte'}).getByRole('img')).toHaveCount(0);await selectOption(page.getByLabel('Conteúdo da arte'),'draft');await expect(page.getByText('Prévia do rascunho. Publique a página antes de divulgar o endereço.')).toBeVisible();await generate(page,'private-draft-sentinel');const image=await download(page,true);writeFileSync(info.outputPath('share-kit-draft-art.png'),image.bytes);expect(image.name).toContain('-previa.png');expect(image.payload).toBe(roadmapOrigin+'/p/kit-ana');await capturePage(page,info.outputPath('share-kit-draft.png'));const context=await browser.newContext(),other=await context.newPage();try{await roadmapLogin(other,true);await other.goto(roadmapOrigin+'/painel/perfil/divulgar');await expect(other.getByText('Publique sua página para gerar a arte oficial.')).toBeVisible();expect(await other.content()).not.toContain('private-draft-sentinel');await expect(other.getByRole('button',{name:'Gerar prévia',exact:true})).toBeDisabled()}finally{await context.close()}})\n> 15 | test('F32-E03/C01 falha nativa não gera download, teclado recupera; versão antiga não baixa e 320px reflow',async({page},info)=>{await prepare(page);await page.getByRole('button',{name:'Editar texto'}).click();await page.getByLabel('Título na imagem').fill('Arte recuperada');await page.evaluate(()=>{const original=HTMLCanvasElement.prototype.toBlob;HTMLCanvasElement.prototype.toBlob=function(callback){HTMLCanvasElement.prototype.toBlob=original;callback(null)}});await page.getByRole('button',{name:'Gerar prévia',exact:true}).focus();await page.keyboard.press('Enter');await expect(page.getByRole('alert')).toContainText('Não foi possível gerar o arquivo.');await expect(page.getByLabel('Título na imagem')).toHaveValue('Arte recuperada');await expect(page.getByRole('button',{name:'Baixar imagem',exact:true})).toBeDisabled();await generate(page,'Arte recuperada');const current=(await roadmapApi(page,'/me/profile')).body.draft;const {version,...content}=current;expect((await roadmapApi(page,'/me/profile','PATCH',{expectedVersion:version,content:{...content,name:'Nova publicação'}})).status).toBe(200);await roadmapApi(page,'/me/profile/publish','POST',{expectedVersion:version+1});await page.getByRole('button',{name:'Baixar imagem',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Sua página mudou.');await expect(page.getByRole('button',{name:'Baixar imagem',exact:true})).toBeDisabled();await page.setViewportSize({width:320,height:844});await page.addStyleTag({content:'html{font-size:200%}'});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await capturePage(page,info.outputPath('share-kit-zoom.png'))})\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^\n  16 | test('F32-E04 carregamento preserva controles e geometria da prévia sem piscar a tela inicial',async({page},info)=>{await roadmapLogin(page);await roadmapProfile(page,'kit-ana');let release=()=>{},arrived=()=>{};const wait=new Promise<void>(resolve=>release=resolve),seen=new Promise<void>(resolve=>arrived=resolve);await page.route('**/bff/v1/me/profile',async route=>{if(route.request().method()==='GET'){arrived();await wait}await route.continue()});try{await page.goto(roadmapOrigin+'/painel/perfil/divulgar');await seen;const preview=page.getByRole('region',{name:'Prévia da arte'});await expect(preview).toHaveAttribute('aria-busy','true');const before=await preview.boundingBox();await capturePage(page,info.outputPath('share-kit-loading.png'));release();await expect(preview).toHaveAttribute('aria-busy','false');const after=await preview.boundingBox();for(const coordinate of ['x','y','width','height'] as const)expect(Math.abs(before![coordinate]-after![coordinate])).toBeLessThanOrEqual(1);await capturePage(page,info.outputPath('share-kit-ready.png'))}finally{release();await page.unrouteAll({behavior:'wait'})}})\n  17 |\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\share-kit.spec.ts:15:613"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:38:08.580Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\share-kit-F32-E03-C01-falh-aad46-ga-não-baixa-e-320px-reflow-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\share-kit-F32-E03-C01-falh-aad46-ga-não-baixa-e-320px-reflow-features-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\share-kit-F32-E03-C01-falh-aad46-ga-não-baixa-e-320px-reflow-features-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\share-kit.spec.ts",
+                    "column": 613,
+                    "line": 15
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "aa04fcd21f2c9afe6748-86fb2d403a56467a7fe2",
+          "file": "share-kit.spec.ts",
+          "line": 15,
+          "column": 5
+        },
+        {
+          "title": "F32-E04 carregamento preserva controles e geometria da prévia sem piscar a tela inicial",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 994,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:38:10.279Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "aa04fcd21f2c9afe6748-44007a82def9ef59373b",
+          "file": "share-kit.spec.ts",
+          "line": 16,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-20T10:34:58.051Z",
+    "duration": 194835.673,
+    "expected": 11,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}
