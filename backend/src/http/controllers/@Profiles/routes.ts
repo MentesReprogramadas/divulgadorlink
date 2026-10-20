@@ -133,6 +133,7 @@ export async function profilesRoutes(app: FastifyInstance) {
   app.post('/me/profile/discard', (q, r) => run(q, r, true, (db, actor) => profiles.discardProfile(db, actor, expected.parse(q.body).expectedVersion)))
   app.post('/me/profile/avatar', (q, r) => run(q, r, true, (db, actor) => profiles.uploadProfileAvatar(db, actor, z.object({ base64: z.string().max(349528) }).strict().parse(q.body).base64)))
   app.get('/me/profile/avatar/:id', (q, r) => run(q, r, true, async (db, actor) => { const bytes = await profiles.profileAvatar(db, actor, z.object({ id: asset }).parse(q.params).id); return r.type(avatarContentType(bytes)).send(bytes) }))
+  app.get('/profiles/:slug/events/:eventId/calendar.ics',(q,r)=>run(q,r,false,async(db,a)=>{const p=z.object({slug:z.string().max(80),eventId:z.string().uuid()}).parse(q.params);const calendar=await profiles.publicEventCalendar(db,a.tenantId,p.slug,p.eventId,a.age);r.header('content-type','text/calendar; charset=utf-8').header('content-disposition','attachment; filename=evento.ics');return r.send(calendar)}))
   app.get('/profiles/:slug', (q, r) => run(q, r, false, async(db, actor) => {
     const slug=slugParams.parse(q.params).slug,result=await profiles.publicProfile(db,actor.tenantId,slug,actor.age)
     return result.restricted?result:{...result,measurement:await profileMeasurementDescriptor(db,actor.tenantId,slug,result.publishedRevisionId)}

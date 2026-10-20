@@ -6,7 +6,7 @@ export function normalizedProfile(value: ProfileContent): ProfileContent {
     slug: value.slug.trim().toLowerCase(), name: value.name.trim(), bio: value.bio.trim(), avatarAssetId: value.avatarAssetId,
     requiresAge: value.requiresAge, primaryItemId: value.primaryItemId, appearance: profileAppearance(value.appearance),
     categories: value.categories.map(group => ({ id: group.id, name: group.name.trim(), visible: group.visible })),
-    items: value.items.map(item => ({ id: item.id, categoryId: item.categoryId, type: item.type, label: item.label.trim(), destination: item.destination.trim(), visible: item.visible, ...(item.schedule ? { schedule: item.schedule } : {}), ...(item.templateExample ? {templateExample:true} : {}) })),
+    items: value.items.map(item => ({ id: item.id, categoryId: item.categoryId, type: item.type, label: item.label.trim(), destination: item.destination.trim(), visible: item.visible, ...(item.event?{event:item.event}:{}), ...(item.schedule ? { schedule: item.schedule } : {}), ...(item.templateExample ? {templateExample:true} : {}) })),
   }
 }
 export const profileKey = (value: ProfileContent) => JSON.stringify(normalizedProfile(value))

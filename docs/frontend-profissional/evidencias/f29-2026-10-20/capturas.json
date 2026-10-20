@@ -1,0 +1,34 @@
+[
+  {
+    "file": "desktop-event-cancelled.png",
+    "sha256": "63c963c628e18ac97c3c35574497d90903ff2a6ba5dbf728fb650f0795f69b3b"
+  },
+  {
+    "file": "desktop-event-editor.png",
+    "sha256": "c2b673e6b0cb741e61e57e87c3c9a14a39df55ae86d0aadc9fb49863079cee46"
+  },
+  {
+    "file": "desktop-event-public.png",
+    "sha256": "9324034c7a0e0542da8eaf50162713cf2691ec66b2790442e37e7df61acd2988"
+  },
+  {
+    "file": "desktop-event-zoom.png",
+    "sha256": "7fd24b2593e2ef74df432164b2c2f0c47cddb0c97ea3097652b173014ffe58bc"
+  },
+  {
+    "file": "mobile-event-cancelled.png",
+    "sha256": "0a6e02025216bef723787bf2442cf2bf462fedaa1a94b8ac1a9a3e41b565ed2f"
+  },
+  {
+    "file": "mobile-event-editor.png",
+    "sha256": "8e2b80044d684649227c148021a9b09891fe1597a230ea584788090f351141e9"
+  },
+  {
+    "file": "mobile-event-public.png",
+    "sha256": "f7034283aa0205d381db0eebb107f031ab7c3cade7add51fe266e54697aed601"
+  },
+  {
+    "file": "mobile-event-zoom.png",
+    "sha256": "5304e740ea888a531215f3153e746b080f506a15f307a4735cfa38063a699e02"
+  }
+]

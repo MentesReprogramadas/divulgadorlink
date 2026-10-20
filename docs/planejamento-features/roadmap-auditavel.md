@@ -503,14 +503,14 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 
 | Etapa | Estado | Pré-requisito imediato | Entregável a verificar |
 | --- | --- | --- | --- |
-| F29-S0 | NÃO INICIADA | F42 (prioridade), F09, F14 | [Escopo contratos e reuso](planos/f29-evento.md#f29-s0-escopo-contratos-e-revisão-de-reutilização) |
-| F29-S1 | NÃO INICIADA | F29-S0 | [Testes U e C](planos/f29-evento.md#f29-s1-testes-unitários-e-componentes-antes-da-regra) |
-| F29-S2 | NÃO INICIADA | F29-S1 | [Dados e migração](planos/f29-evento.md#f29-s2-dados-invariantes-e-migração) |
-| F29-S3 | NÃO INICIADA | F29-S2 | [Domínio API e jobs](planos/f29-evento.md#f29-s3-regra-de-negócio-api-e-jobs) |
-| F29-S4 | NÃO INICIADA | F29-S3 | [Interface](planos/f29-evento.md#f29-s4-interface-composição-e-estados) |
-| F29-S5 | NÃO INICIADA | F29-S4 | [Integração e ACs](planos/f29-evento.md#f29-s5-integração-contrato-persistência-e-falhas) |
-| F29-S6 | NÃO INICIADA | F29-S5 | [Playwright e QA](planos/f29-evento.md#f29-s6-e2e-playwright-e-revisão-visual) |
-| F29-S7 | NÃO INICIADA | F29-S6 | [Regressão e liberação](planos/f29-evento.md#f29-s7-regressão-rollout-e-fechamento-auditável) |
+| F29-S0 | CONCLUÍDA LOCALMENTE | F42 (prioridade), F09, F14 | [Escopo contratos e reuso](planos/f29-evento.md#f29-s0-escopo-contratos-e-revisão-de-reutilização) |
+| F29-S1 | CONCLUÍDA LOCALMENTE | F29-S0 | [Testes U e C](planos/f29-evento.md#f29-s1-testes-unitários-e-componentes-antes-da-regra) |
+| F29-S2 | CONCLUÍDA LOCALMENTE | F29-S1 | [Dados e migração](planos/f29-evento.md#f29-s2-dados-invariantes-e-migração) |
+| F29-S3 | CONCLUÍDA LOCALMENTE | F29-S2 | [Domínio API e jobs](planos/f29-evento.md#f29-s3-regra-de-negócio-api-e-jobs) |
+| F29-S4 | CONCLUÍDA LOCALMENTE | F29-S3 | [Interface](planos/f29-evento.md#f29-s4-interface-composição-e-estados) |
+| F29-S5 | CONCLUÍDA LOCALMENTE | F29-S4 | [Integração e ACs](planos/f29-evento.md#f29-s5-integração-contrato-persistência-e-falhas) |
+| F29-S6 | CONCLUÍDA LOCALMENTE | F29-S5 | [Playwright e QA](planos/f29-evento.md#f29-s6-e2e-playwright-e-revisão-visual) |
+| F29-S7 | EM REVISÃO | F29-S6 | [Regressão e liberação](planos/f29-evento.md#f29-s7-regressão-rollout-e-fechamento-auditável) |
 
 ### 32 F32 Kit de divulgação
 
@@ -741,3 +741,8 @@ Não inicia uma nova feature da sequência: mantém 26/42 implementações e F22
 ## 20/10/2026 — F28 concluída localmente
 
 [Execução, decisões e provas](execucao-f28.md). Checkpoint inicial 0d0a32b preservou todas as alterações locais. F39 corrigida para não iniciada. 30/42 implementações locais; próximo F29 → F32 → F33 → F10 por autorização vigente, sem parar na primeira feature. S7 remoto em revisão; sem push/deploy.
+
+
+## 20/10/2026 — F29 validada localmente
+
+[Evento na página: contrato, ACs, decisões e provas](execucao-f29.md). 31/42 implementações registradas. Próxima sequência F32 → F33 → F10; parar após F10; autorização de parar após F10 preservada. S7 remoto em revisão; commits na mesma branch, sem push/deploy.

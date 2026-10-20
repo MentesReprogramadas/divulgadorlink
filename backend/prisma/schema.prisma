@@ -935,6 +935,7 @@ model ProfileCategory {
  @@map("profile_categories")
 }
 model ProfileItem {
+ event Json?
  id String
  profileId String
  categoryId String

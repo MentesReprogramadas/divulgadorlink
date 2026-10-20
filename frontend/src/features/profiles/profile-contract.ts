@@ -1,3 +1,4 @@
+import type {EventBlock} from '@/features/profile-events/event-contract'
 import type { ContentReview } from '@/features/content-review/review-contract'
 import type { ProfileAppearance } from './profile-appearance'
 import type { ProfileSchedule } from './profile-schedule'
@@ -6,10 +7,10 @@ export type ProfileContent = {
   appearance?: ProfileAppearance
   slug: string; name: string; bio: string; avatarAssetId: string | null; requiresAge: boolean; primaryItemId: string | null
   categories: Array<{ id: string; name: string; visible: boolean }>
-  items: Array<{ id: string; categoryId: string; type: 'URL' | 'CATALOG' | 'SOCIAL'; label: string; destination: string; visible: boolean; schedule?: ProfileSchedule | null; templateExample?: boolean }>
+  items: Array<{ id: string; categoryId: string; type: 'URL' | 'CATALOG' | 'SOCIAL'; label: string; destination: string; visible: boolean; event?:EventBlock; schedule?: ProfileSchedule | null; templateExample?: boolean }>
 }
 export type ProfileDraft = ProfileContent & { version: number }
-export type ProfilePresentation=ProfileContent&{contactForm?:import('@/features/contact-forms/contact-contract').ContactFormDescriptor|null;channelGroups?:PublicChannelGroup[]}
+export type ProfilePresentation=ProfileContent&{serverNow?:string;contactForm?:import('@/features/contact-forms/contact-contract').ContactFormDescriptor|null;channelGroups?:PublicChannelGroup[]}
 export type ProfileRevision = { id: string; version: number; createdAt: string; current: boolean; imported: boolean; summary: { name: string; groups: number; links: number } }
 export type ProfileRevisionDetail = { id: string; version: number; content: ProfileContent; photoAvailable: boolean;channelGroups?:ChannelGroupSummary[] }
 export type ProfileState = { access?:{role:'EDITOR'|'VIEWER'}; scheduling?: { allowed: boolean; serverNow: string }; review?: ContentReview | null; draft: ProfileDraft | null; publishedVersion: number | null; publishedContent?: ProfileContent | null;channelGroups?:ChannelGroupSummary[];channelChanges?:boolean }

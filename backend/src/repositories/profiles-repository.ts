@@ -1,3 +1,4 @@
+import {eventCalendar,reconcileProfileEvents} from '@/domain/profiles/event-block'
 import {compileSuggestion,type SuggestionSource,type SuggestionPlan,type SuggestionApplyInput} from '@/domain/profiles/profile-suggestion'
 import {assertMembership} from './profile-team'
 import type {ProfileActor} from '@/domain/access/profile-access'
@@ -34,7 +35,7 @@ type Actor = ProfileActor
 const include = { reviews: { orderBy: { version: 'desc' as const }, take: 1 }, categories: { orderBy: { position: 'asc' as const } }, items: { orderBy: { position: 'asc' as const } } }
 type Stored = Prisma.ProfileGetPayload<{ include: typeof include }>
 function draft(row: Stored): ProfileContent {
-  return profileInput.parse({ ...(row.appearance ? { appearance: row.appearance } : {}), slug: row.slug, name: row.name, bio: row.bio, avatarAssetId: row.avatarAssetId, requiresAge: row.requiresAge, primaryItemId: row.items.some(i => i.id === row.primaryItemId) ? row.primaryItemId : null, categories: row.categories.map(c => ({ id: c.id, name: c.name, visible: c.visible })), items: row.items.map(i => ({ id: i.id, categoryId: i.categoryId, type: i.type, label: i.label, destination: i.destination, visible: i.visible, ...(i.templateExample ? { templateExample: true } : {}), ...(i.timeZone ? { schedule: { startsAt: i.startsAt?.toISOString() ?? null, endsAt: i.endsAt?.toISOString() ?? null, timeZone: i.timeZone, paused: i.paused } } : {}) })) })
+  return profileInput.parse({ ...(row.appearance ? { appearance: row.appearance } : {}), slug: row.slug, name: row.name, bio: row.bio, avatarAssetId: row.avatarAssetId, requiresAge: row.requiresAge, primaryItemId: row.items.some(i => i.id === row.primaryItemId) ? row.primaryItemId : null, categories: row.categories.map(c => ({ id: c.id, name: c.name, visible: c.visible })), items: row.items.map(i => ({ id: i.id, categoryId: i.categoryId, type: i.type, label: i.label, destination: i.destination, visible: i.visible, ...(i.event?{event:i.event}:{}), ...(i.templateExample ? { templateExample: true } : {}), ...(i.timeZone ? { schedule: { startsAt: i.startsAt?.toISOString() ?? null, endsAt: i.endsAt?.toISOString() ?? null, timeZone: i.timeZone, paused: i.paused } } : {}) })) })
 }
 async function owner(db: Prisma.TransactionClient, actor: Actor, publishing = false) {
   await assertMembership(db,actor,publishing?'PUBLISH':actor.permission??'READ')
@@ -81,7 +82,7 @@ async function writeProfileItems(tx: Prisma.TransactionClient, actor: Actor, pro
   await tx.profileCategory.createMany({ data: categories.map((category, position) => ({ ...category, position, profileId, tenantId: actor.tenantId, ownerId: actor.ownerId })) })
   const catalog = await tx.link.findMany({ where: { tenantId: actor.tenantId, ownerId: actor.ownerId, id: { in: items.filter(item => item.type === 'CATALOG').map(item => item.destination) } }, select: { id: true } })
   const refs = new Set(catalog.map(link => link.id))
-  await tx.profileItem.createMany({ data: items.map(({ schedule, ...item }, position) => ({ ...item, startsAt: schedule?.startsAt ? new Date(schedule.startsAt) : null, endsAt: schedule?.endsAt ? new Date(schedule.endsAt) : null, timeZone: schedule?.timeZone ?? null, paused: schedule?.paused ?? false, linkId: item.type === 'CATALOG' && refs.has(item.destination) ? item.destination : null, position, profileId, tenantId: actor.tenantId, ownerId: actor.ownerId })) })
+  await tx.profileItem.createMany({ data: items.map(({ schedule,event, ...item }, position) => ({ ...item,event:event??Prisma.DbNull, startsAt: schedule?.startsAt ? new Date(schedule.startsAt) : null, endsAt: schedule?.endsAt ? new Date(schedule.endsAt) : null, timeZone: schedule?.timeZone ?? null, paused: schedule?.paused ?? false, linkId: item.type === 'CATALOG' && refs.has(item.destination) ? item.destination : null, position, profileId, tenantId: actor.tenantId, ownerId: actor.ownerId })) })
   await synchronizeChannelDraft(tx,{id:profileId,tenantId:actor.tenantId,ownerId:actor.ownerId},content)
 }
 /** One projection for owner preview and public reads. Live catalog eligibility is never frozen into a snapshot. */
@@ -136,6 +137,7 @@ export async function recordProfileChecklistAction(db:PrismaClient,actor:Actor,i
  })
 }
 async function writeDraft(tx:Prisma.TransactionClient,actor:Actor,current:Stored|null,content:ProfileContent){
+ content=reconcileProfileEvents(content,current?.publication?profileInput.parse(current.publication):undefined)
   if (current?.publication && current.slug !== content.slug) throw new ProfileError(409, 'Retire o perfil do ar antes de mudar seu endereço.')
     const changedSchedules = content.items.some(item => item.schedule && JSON.stringify(item.schedule) !== JSON.stringify(current ? draft(current).items.find(old => old.id === item.id)?.schedule : null))
     if (changedSchedules && !(await profileSchedulingCoverage(tx, actor, profileBillingRuntime().delivered, profileNow())).enabled) throw new ProfileError(403, 'Seu plano atual não permite definir agendamentos. Você pode remover o agendamento e manter o link comum.')
@@ -472,4 +474,16 @@ export async function applyProfileSuggestion(db:PrismaClient,actor:Actor,id:stri
  const content=protectTemplateExamples(current?draft(current):null,compileSuggestion(current?draft(current):null,row.source,row.plan,input,randomUUID)),result=current&&JSON.stringify(draft(current))===JSON.stringify(content)?await response(tx,actor,current):await writeDraft(tx,actor,current,content),appliedVersion=result.draft?.version??0
  await tx.$executeRaw`UPDATE profile_suggestions SET status='APPLIED',"appliedVersion"=${appliedVersion},source=NULL,plan=NULL WHERE id=${id}`;await tx.auditLog.create({data:{tenantId:actor.tenantId,actorId:actor.auditActorId??actor.actorId??actor.ownerId,action:'profile.suggestion.applied',entityType:'ProfileSuggestion',entityId:id,after:{fields:input.selectedFields,manualBio:input.bioOverride!==undefined,appliedVersion}}});return{...result,appliedVersion}
  })
+}
+
+export async function publicEventCalendar(db:PrismaClient,tenantId:string,slug:string,eventId:string,age:boolean){
+ return db.$transaction(async tx=>{
+  const content=await publicProfileProjection(tx,tenantId,slug,age)
+  if(content.restricted)throw new ProfileError(403,'Confirme sua idade para acessar este evento.')
+  const item=content.items.find(item=>item.id===eventId)
+  if(!item?.event)throw new ProfileError(404,'Evento não encontrado.')
+  const profile=await tx.profile.findUnique({where:{tenantId_slug:{tenantId,slug}},select:{id:true,createdAt:true}})
+  const revision=await tx.profileRevision.findFirst({where:{profileId:profile!.id,tenantId,version:content.publishedRevisionId},select:{createdAt:true}})
+  return eventCalendar({...item,event:item.event},content.publishedRevisionId,revision?.createdAt??profile!.createdAt)
+ },{isolationLevel:'RepeatableRead'})
 }

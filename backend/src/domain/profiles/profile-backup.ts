@@ -3,9 +3,10 @@ import {z} from 'zod'
 import {profileInput} from './profile-input'
 import {ProfileError} from './profile'
 import {assertPublicHttps} from '@/adapters/http/safe-fetch'
+import {eventBlockInput} from './event-block'
 import {appearanceInput} from './appearance'
 
-const backup=z.object({schemaVersion:z.literal(1),profile:z.object({slug:z.string(),name:z.string(),bio:z.string(),requiresAge:z.boolean(),primaryItemId:z.string().uuid().nullable(),appearance:appearanceInput.optional()}).strict(),categories:z.array(z.object({id:z.string().uuid(),name:z.string(),visible:z.boolean()}).strict()).max(100),items:z.array(z.object({id:z.string().uuid(),categoryId:z.string().uuid(),type:z.enum(['URL','SOCIAL','CATALOG']),label:z.string(),destination:z.string(),visible:z.boolean(),schedule:z.unknown().optional()}).strict()).max(500),exportedAt:z.string().datetime(),revision:z.enum(['draft','published']),channelGroups:z.array(z.unknown()).max(100),assetsManifest:z.array(z.unknown()).max(10),omissions:z.array(z.string()).max(100)}).strict()
+const backup=z.object({schemaVersion:z.literal(1),profile:z.object({slug:z.string(),name:z.string(),bio:z.string(),requiresAge:z.boolean(),primaryItemId:z.string().uuid().nullable(),appearance:appearanceInput.optional()}).strict(),categories:z.array(z.object({id:z.string().uuid(),name:z.string(),visible:z.boolean()}).strict()).max(100),items:z.array(z.object({id:z.string().uuid(),categoryId:z.string().uuid(),type:z.enum(['URL','SOCIAL','CATALOG']),label:z.string(),destination:z.string(),visible:z.boolean(),event:eventBlockInput.optional(),schedule:z.unknown().optional()}).strict()).max(500),exportedAt:z.string().datetime(),revision:z.enum(['draft','published']),channelGroups:z.array(z.unknown()).max(100),assetsManifest:z.array(z.unknown()).max(10),omissions:z.array(z.string()).max(100)}).strict()
 
 /** Import content only. IDs, media, ACL and publication state never come from a file. */
 export function readProfileBackup(value:unknown,currentSlug?:string){

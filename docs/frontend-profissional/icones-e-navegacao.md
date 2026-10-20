@@ -140,3 +140,5 @@ contactInbox representa contatos recebidos; inviteDistributor, distribuição en
 
 
 F28: domainOwnership identifica controle do domínio (janela web com confirmação), distinto de confirmação de e-mail, equipe e moderação. Reutilizado no título/ação somente para esse significado. Revogar usa a ação disable já existente.
+
+F29: eventBlock representa o bloco de evento (calendário com marcador de evento), distinto de schedule, que continua sendo agendamento de visibilidade. O evento público reutiliza external para inscrição externa e download para calendário, ambos com rótulos; sem ícone ambíguo de confirmação de inscrição.

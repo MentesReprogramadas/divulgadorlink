@@ -1,0 +1,6 @@
+import {cleanup,fireEvent,render,screen} from '@testing-library/react'
+import {afterEach,expect,it,vi} from 'vitest'
+import {EventEditor} from './event-editor'
+const initial={id:'item',categoryId:'group',type:'URL' as const,label:'',destination:'',visible:true}
+afterEach(cleanup)
+it('F29-C01 datas inválidas ficam na etapa e campos anteriores não se perdem',()=>{const save=vi.fn();render(<EventEditor initial={initial} onSave={save} onClose={()=>{}}/>);fireEvent.change(screen.getByLabelText('Título do evento'),{target:{value:'Encontro'}});fireEvent.change(screen.getByLabelText('Local ou endereço da transmissão'),{target:{value:'Auditório'}});fireEvent.click(screen.getByRole('button',{name:'Definir data'}));fireEvent.change(screen.getByLabelText('Início do evento'),{target:{value:'20/11/2030 12:00'}});fireEvent.change(screen.getByLabelText('Fim do evento'),{target:{value:'20/11/2030 11:00'}});fireEvent.click(screen.getByRole('button',{name:'Configurar inscrição'}));expect(screen.getByRole('alert').textContent).toContain('O fim precisa ser depois');expect(save).not.toHaveBeenCalled();fireEvent.click(screen.getByRole('button',{name:'Voltar'}));expect((screen.getByLabelText('Título do evento') as HTMLInputElement).value).toBe('Encontro')})

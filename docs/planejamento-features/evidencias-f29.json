@@ -1,0 +1,124 @@
+{
+  "feature": "F29",
+  "date": "2026-10-20",
+  "baseCommit": "8613529756f753bd759365577439bd2d93838b6b",
+  "branch": "codex/roadmap-f37-testes",
+  "e2eStats": {
+    "startTime": "2026-10-20T10:15:50.358Z",
+    "duration": 86453.633,
+    "expected": 7,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "report": "output/f29-playwright-final.json",
+  "captures": "docs/frontend-profissional/evidencias/f29-2026-10-20/capturas.json",
+  "execution": "execucao-f29.md",
+  "S7": "CI/remote release pending",
+  "sourceHashes": [
+    {
+      "path": "backend/prisma/migrations/20261020090000_profile_events/migration.sql",
+      "sha256": "d39d093d977e51cf7de017945ca93e4341c96dfd09ddef2db3f5924d30f0eb90"
+    },
+    {
+      "path": "backend/prisma/schema.prisma",
+      "sha256": "ca7604dd3980f62b23de89cb3216c92a529ad9b7581e3b136091dd76e4f8c9b0"
+    },
+    {
+      "path": "backend/src/domain/profiles/event-block.spec.ts",
+      "sha256": "6f694451839a49e2fd39736e3cc806cd9c5d6c92683c3364c6a2381bdecdee41"
+    },
+    {
+      "path": "backend/src/domain/profiles/event-block.ts",
+      "sha256": "5665585bb3ada464267ed0b0f6eaa3fbc6d305cceb2b1af203550b4ffd2df985"
+    },
+    {
+      "path": "backend/src/domain/profiles/profile-backup.ts",
+      "sha256": "4f9128db2b451d3af902b0820f9e7779280ce36bc535a2abe0c02f8ea39f4eb9"
+    },
+    {
+      "path": "backend/src/domain/profiles/profile-export.ts",
+      "sha256": "f324bd28126115d31cd1eb688de3b6c4218c523f97069f6c2be5516e5b02d7a5"
+    },
+    {
+      "path": "backend/src/domain/profiles/profile-input.ts",
+      "sha256": "0b87eaa3e455d7bccd79ce2741625a99ba70c37ead01ed6ceea9c3e5d8abf2d9"
+    },
+    {
+      "path": "backend/src/domain/profiles/profile-moderation.ts",
+      "sha256": "9b84d2d3f9b087fdb993c3eecc81520f07bf41bafb185f2a93dfeeb3e3829fe7"
+    },
+    {
+      "path": "backend/src/domain/profiles/profile.ts",
+      "sha256": "d92c9a811684bb1b4dab4d5fe00c677c99eee375e1f621d4b33fce37cb4419a3"
+    },
+    {
+      "path": "backend/src/http/controllers/@Profiles/routes.ts",
+      "sha256": "2ab5dfd86c33adb68cdc39f9e86eb90e10539407113c2c886c4627c3c456da8d"
+    },
+    {
+      "path": "backend/src/http/profile-events.pg.spec.ts",
+      "sha256": "7f5ac618dc90b7be2c2a05eb9404b9143a4f64d94d04067cc9f478b6e5282bd4"
+    },
+    {
+      "path": "backend/src/repositories/profiles-repository.ts",
+      "sha256": "85916b6de7d7d3a95aae7653c79e6b70c009ae7c78e099100b9925d8f546c21e"
+    },
+    {
+      "path": "frontend/e2e/profile-events.spec.ts",
+      "sha256": "54bda7c0d02a9e73f41d13c678304f367b203782a81120163bc07ea6d5c91f9a"
+    },
+    {
+      "path": "frontend/src/components/ui/action-icon.tsx",
+      "sha256": "1ecc03e8d977df01892140325419bf18d69483a336159fd30218aca0dc03847f"
+    },
+    {
+      "path": "frontend/src/features/profile-events/event-card.test.tsx",
+      "sha256": "6f9cac1184111d4e614a282ab888a63c71c7b6a24e81c56a320f5576da329831"
+    },
+    {
+      "path": "frontend/src/features/profile-events/event-card.tsx",
+      "sha256": "e326ecc27fd8ab4f49008958e104b580d3911c9a0ab37c9721711963576a29c0"
+    },
+    {
+      "path": "frontend/src/features/profile-events/event-contract.ts",
+      "sha256": "5594547e77df440b6e28aa127335f1ff7c6ffaf475788c5dab34c4f77a8f7078"
+    },
+    {
+      "path": "frontend/src/features/profile-events/event-editor.test.tsx",
+      "sha256": "0ed119afbcf04e3e27e91bdb004bf3467a801e906dc91036a0ba4f7f25955c61"
+    },
+    {
+      "path": "frontend/src/features/profile-events/event-editor.tsx",
+      "sha256": "738f79c7ba97ffb7f03f705f838282fcb7d8ca3dd0d99aae0a422b5ddafe792d"
+    },
+    {
+      "path": "frontend/src/features/profile-events/event.module.css",
+      "sha256": "e456f672d1d7447fb32cd156b7b912b88862974ffea2fd513a01befb0a4ed716"
+    },
+    {
+      "path": "frontend/src/features/profiles/components/profile-group-manager.tsx",
+      "sha256": "3424f76dce9706ad42afcdbc9e60b10f92cb1229b29286df1c253a4a56336356"
+    },
+    {
+      "path": "frontend/src/features/profiles/components/profile-link-dialog.tsx",
+      "sha256": "f60efe3ff0cc2b45adcfce9b4c3e5125842210ef53c1a25e7f9e71184ddde584"
+    },
+    {
+      "path": "frontend/src/features/profiles/components/profile-link-list.tsx",
+      "sha256": "698986b7950843d600a180e8c7f9259e184f05c4ad3c1a182f8300c87fc9923c"
+    },
+    {
+      "path": "frontend/src/features/profiles/components/profile-view.tsx",
+      "sha256": "162c87fa180b259c55f4d243fca7e5cddc33c3c4e72c4a6a30470e2a289a6aaf"
+    },
+    {
+      "path": "frontend/src/features/profiles/profile-contract.ts",
+      "sha256": "f73c11aac58b2578b8ea7820f6d2d7173b4273c09635840e8ddd85e8dabf6e74"
+    },
+    {
+      "path": "frontend/src/features/profiles/profile-diff.ts",
+      "sha256": "cf1011dd152c363278c5f70bcc7974793b81978180d7de037a5fdd70295cd8c8"
+    }
+  ]
+}

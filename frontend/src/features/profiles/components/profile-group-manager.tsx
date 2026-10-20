@@ -55,13 +55,14 @@ export function ProfileGroupManager({ content: c, onChange, catalog, scheduling,
     const item=c.items.find(row=>row.id===id)
     if(item)setItemDraft({...item,...(item.templateExample?{destination:'',visible:true}:{})})
   }
-  function completeLink() {
-    if (!itemDraft) return
-    const existing = c.items.find(item => item.id === itemDraft.id)
-    const moved = existing && existing.categoryId !== itemDraft.categoryId
-    const content = moved ? transferProfileLink(c, itemDraft.id, itemDraft.categoryId) : c
-    onChange({ ...content, items: existing ? content.items.map(item => item.id === itemDraft.id ? itemDraft : item) : [...content.items, itemDraft] })
-    if (moved) setAnnouncement(`Link movido para ${c.categories.find(group => group.id === itemDraft.categoryId)?.name}.`)
+  function completeLink(provided?:Item) {
+    const value=provided??itemDraft
+    if (!value) return
+    const existing = c.items.find(item => item.id === value.id)
+    const moved = existing && existing.categoryId !== value.categoryId
+    const content = moved ? transferProfileLink(c, value.id, value.categoryId) : c
+    onChange({ ...content, items: existing ? content.items.map(item => item.id === value.id ? value : item) : [...content.items, value] })
+    if (moved) setAnnouncement(`Link movido para ${c.categories.find(group => group.id === value.categoryId)?.name}.`)
     setItemDraft(null)
   }
   function completeDialog(element: HTMLElement, work: () => void) {
@@ -93,7 +94,7 @@ export function ProfileGroupManager({ content: c, onChange, catalog, scheduling,
     <OverlayDialog open={groupDraft !== null} title={c.categories.some(group => group.id === groupDraft?.id) ? 'Editar grupo' : 'Criar grupo'} onClose={() => setGroupDraft(null)}>
       {groupDraft ? <div data-profile-dialog className={styles.dialog} onKeyDown={event => { if (event.key === 'Enter' && event.target instanceof HTMLInputElement) { event.preventDefault(); event.currentTarget.querySelector<HTMLButtonElement>('[data-complete]')?.click() } }}><ChangedField changed={changes.baseline !== undefined && groupDraft.name !== changes.baseline.categories.find(row => row.id === groupDraft.id)?.name}><Field label="Nome do grupo"><Input required pattern=".*\S.*" title="Digite um nome para o grupo." maxLength={80} autoFocus value={groupDraft.name} onChange={event => setGroupDraft({ ...groupDraft, name: event.target.value })} placeholder="Ex.: Meus projetos" /></Field></ChangedField>{c.categories.some(row=>row.id===groupDraft.id)?<ChangedField changed={changes.baseline !== undefined && groupDraft.visible !== changes.baseline.categories.find(row => row.id === groupDraft.id)?.visible}><label className={styles.check}><input type="checkbox" checked={groupDraft.visible} onChange={event => setGroupDraft({ ...groupDraft, visible: event.target.checked })} />Grupo visível</label></ChangedField>:null}<div className={styles.actions}><Button type="button" variant="secondary" onClick={() => setGroupDraft(null)}>Cancelar</Button><Button type="button" data-complete onClick={event => completeDialog(event.currentTarget, () => { const exists = c.categories.some(group => group.id === groupDraft.id); change({ categories: exists ? c.categories.map(group => group.id === groupDraft.id ? { ...groupDraft, name: groupDraft.name.trim() } : group) : [...c.categories, { ...groupDraft, name: groupDraft.name.trim() }] }); setSelected(groupDraft.id); setGroupDraft(null) })}><ActionIcon name="save" />Concluir grupo</Button></div></div> : null}
     </OverlayDialog>
-    {itemDraft?<ProfileLinkDialog draft={itemDraft} content={c} catalog={catalog} channels={channels} trigger={itemTrigger.current??document.body} onChange={setItemDraft} onSave={element=>completeDialog(element,completeLink)} onClose={()=>setItemDraft(null)}/>:null}
+    {itemDraft?<ProfileLinkDialog draft={itemDraft} content={c} catalog={catalog} channels={channels} trigger={itemTrigger.current??document.body} onChange={setItemDraft} onSave={(element,value)=>completeDialog(element,()=>completeLink(value))} onClose={()=>setItemDraft(null)}/>:null}
     <OverlayDialog open={removal !== null} title={removal?.kind === 'group' ? 'Remover grupo' : 'Remover link'} onClose={() => setRemoval(null)}>{removal ? <div className={styles.dialog}><p className={styles.warning}>{removal.kind === 'group' ? `Remover ${c.categories.find(group => group.id === removal.id)?.name} e seus ${c.items.filter(item => item.categoryId === removal.id).length} ${c.items.filter(item => item.categoryId === removal.id).length === 1 ? 'link' : 'links'} da sua página? Os links do catálogo permanecem no catálogo.` : 'Remover este link da sua página?'}</p><div className={styles.actions}><Button type="button" variant="secondary" onClick={() => setRemoval(null)}>Cancelar</Button><Button type="button" variant="danger" onClick={() => { const items = c.items.filter(item => removal.kind === 'group' ? item.categoryId !== removal.id : item.id !== removal.id); change({ categories: removal.kind === 'group' ? c.categories.filter(group => group.id !== removal.id) : c.categories, items, primaryItemId: items.some(item => item.id === c.primaryItemId) ? c.primaryItemId : null }); if (removal.kind === 'group') { lastGroup.current = removal.id; setSelected(null) } setRemoval(null); setAnnouncement('Removido.') }}>Confirmar remoção</Button></div></div> : null}</OverlayDialog>
   </section>
 }
