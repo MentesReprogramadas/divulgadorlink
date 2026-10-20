@@ -53,3 +53,5 @@ Primeira rodada vermelha de domínio capturada antes da regra (3 falhas). Compon
 [Configuração, ensaio e checklist de staging](operacao-f10.md). Aplicar migration e API compatível antes do frontend; reiniciar serviços após configurar envs. Não remover mapa do frontend enquanto o proxy ainda encaminhar hosts pessoais: desativar registros primeiro para continuar respondendo 404. Preservar reservas e leitores de coverStyle/histórico no rollback; não resetar banco nem reverter para parser estrito antigo. Nenhuma migração no banco pessoal ou produção foi executada.
 
 S0–S6 automatizados localmente, com a ressalva de sequência S1 acima. AC03 permanece parcial e S7 em revisão: TLS/DNS reais, CI e liberação comercial não foram executados. Parada após F10 cumprida; não iniciar F24 nem outras features.
+
+Commit de implementação: 6694ce0d7325345f842c4f8c5e684b180a98e63c.

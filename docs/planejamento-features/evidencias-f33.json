@@ -93,5 +93,36 @@
       "sha256": "4405e154f31a047c7e8bb0c92d6e636bc5f0dfe9f78f39d33ea56fb04851c7a0"
     }
   ],
-  "implementationCommit": "e2d5b8a68dcb758dd09219cabecc3bfa831b4702"
+  "implementationCommit": "e2d5b8a68dcb758dd09219cabecc3bfa831b4702",
+  "followUpF10": {
+    "commit": "6694ce0d7325345f842c4f8c5e684b180a98e63c",
+    "execution": "execucao-f10.md",
+    "report": "output/f10-playwright-final.json",
+    "changes": [
+      "P2003 foreign-tenant FK oracle",
+      "Public organic-card skeleton without private controls"
+    ],
+    "sourceHashes": [
+      {
+        "path": "backend/src/http/public-collections.pg.spec.ts",
+        "sha256": "1614c1130ef26eaa1a368f640b2efb43b7d7ee59d0585f796e4a262e08dc09ef"
+      },
+      {
+        "path": "frontend/src/app/colecoes/[slug]/loading.tsx",
+        "sha256": "94a3766e51a6758531db70e738e95f544058677044e105342e4f56dc2936b954"
+      },
+      {
+        "path": "frontend/src/app/colecoes/[slug]/page.tsx",
+        "sha256": "f99edccf45911d96966f14113799f4f898f06df0b452e6178de7d3a2ed1b450c"
+      },
+      {
+        "path": "frontend/src/features/catalog/components/catalog-skeleton.tsx",
+        "sha256": "c3c047085547240e3f120aff1bfca5cca47321147cbe1e478a0f5c43964585be"
+      },
+      {
+        "path": "frontend/src/features/favorites/components/favorites.module.css",
+        "sha256": "f0827d54f5fd0653615b24f23d26a42b777accf5c940284333a5533a73ae8fa6"
+      }
+    ]
+  }
 }
