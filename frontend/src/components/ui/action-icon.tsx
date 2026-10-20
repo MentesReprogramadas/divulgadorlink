@@ -1,6 +1,7 @@
 import type { SVGProps } from 'react'
 
 export const iconPaths = {
+  domainOwnership:'M3 4h18v13H3ZM3 8h18M6 6h.01M9 6h.01M8 21l3 2 6-6',
   profileAssistant:'M3 3h13v10H8l-5 4ZM7 7h5M13 20l6-6 3 3-6 6ZM17 2v4M15 4h4',
   generateSuggestion:'m12 2 3 7 7 3-7 3-3 7-3-7-7-3 7-3Z',
   resume:'m8 4 12 8-12 8Z',

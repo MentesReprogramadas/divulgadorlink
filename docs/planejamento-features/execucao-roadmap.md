@@ -159,3 +159,8 @@ Não inicia uma nova feature da sequência: mantém 26/42 implementações e F22
 ## Refinamento de entrada e edição — 19/10/2026
 
 [Fluxos guiados F22/F23/F25, decisões, alternativas e provas](refinamento-f22-f23-f25.md). Distribuição orientada na lista de Convites; contato na criação/edição e na visão geral; escolha manual/assistida antes da primeira página. Checkbox corrigido, busca movida para Página e prévia do rascunho nas quatro abas de edição. Mantém 29/42; F28 não iniciada e S7 remoto pendente. Sem commit/push/deploy novos. O registro vinculado complementa as provas históricas, sem reescrever os resultados anteriores.
+
+
+## 20/10/2026 — F28 concluída localmente
+
+[Execução, decisões e provas](execucao-f28.md). Checkpoint inicial 0d0a32b preservou todas as alterações locais. F39 corrigida para não iniciada. 30/42 implementações locais; próximo F29 → F32 → F33 → F10 por autorização vigente, sem parar na primeira feature. S7 remoto em revisão; sem push/deploy.

@@ -1,3 +1,4 @@
+import {purgeOwnership} from './ownership'
 import {resolveDestinationPool} from './destination-pools'
 import { queueContentReview } from '@/use-cases/@Notifications/content-review-events'
 import { ContentReviewRequired, reviewSummary } from '@/domain/moderation/content-review'
@@ -40,6 +41,7 @@ async function prune(db: Prisma.TransactionClient, handleId: string, now: Date) 
   await db.redirectDaily.deleteMany({ where: { revision: { handleId }, day: { lt: new Date(analyticsDay(cutoff) + 'T00:00:00Z') } } })
 }
 export async function purgeRedirectHistory(db: PrismaClient, now = new Date()) {
+  await purgeOwnership(db,now)
   let cursor: string | undefined
   for (;;) {
     const rows = await db.redirectHandle.findMany({ where: cursor ? { id: { gt: cursor } } : {}, orderBy: { id: 'asc' }, take: 100, select: { id: true } })
@@ -114,7 +116,7 @@ export async function changeRedirect(db: PrismaClient, actor: RedirectActor, id:
     }
     const status = failure ? failure.status === 422 ? 'BLOCKED' : 'FAILED' : 'APPROVED'
     await tx.redirectDestination.update({ where: { id: revision.id }, data: { status, ...(failure ? { errorMessage: failure.message } : { destinationUrl: destination }), resolvedAt: now } })
-    if (!failure) await tx.redirectHandle.update({ where: { id: handle.id }, data: { activeRevisionId: revision.id } })
+    if (!failure) {await tx.redirectHandle.update({ where: { id: handle.id }, data: { activeRevisionId: revision.id } })}
     await prune(tx, handle.id, now)
     return { status, errorMessage: failure?.message ?? null }
   })

@@ -1,0 +1,34 @@
+[
+  {
+    "file": "desktop-ownership-instructions.png",
+    "sha256": "6861995bf0207ccaa07739cac987606306bb42baa647bde85cd7387f552d300c"
+  },
+  {
+    "file": "desktop-ownership-public.png",
+    "sha256": "0cfc8101fd90b42db8fc628cd6b2f2f0ab61f395318f8bc2d2bd8ec03d46a118"
+  },
+  {
+    "file": "desktop-ownership-verified.png",
+    "sha256": "cb30fa589c9d66c2107fbe9d111dd963236ccc4c98ac6317ad400cb07a10e849"
+  },
+  {
+    "file": "desktop-ownership-zoom.png",
+    "sha256": "d26ad07c0c6399c621046ea6ca2ba5c27166c6fe5989409c71ec12b145524ee2"
+  },
+  {
+    "file": "mobile-ownership-instructions.png",
+    "sha256": "cbbb2137a8a25a573c89c62557edd2a6536923493af92b74e833c5b039b640ec"
+  },
+  {
+    "file": "mobile-ownership-public.png",
+    "sha256": "d4cace3c55074955b13a8e20c0617b531fca3c4b89583d3ca0926a2c559f165e"
+  },
+  {
+    "file": "mobile-ownership-verified.png",
+    "sha256": "576f60696bb20e004dfbc5fcb8f3aa30b415d89ca7d35b1810c55345156da0a7"
+  },
+  {
+    "file": "mobile-ownership-zoom.png",
+    "sha256": "0d03db40710f82c500cf69337a2288a375dbdd9183855b5e06ab30a744c7c373"
+  }
+]

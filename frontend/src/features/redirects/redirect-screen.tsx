@@ -1,4 +1,5 @@
 'use client'
+import {OwnershipPanel} from '@/features/ownership/ownership-panel'
 import {PoolEntryDialog} from '@/features/redirect-pools/pool-entry-dialog'
 import { DatePicker } from '@/components/ui/date-picker'
 import { ReviewStatus } from '@/features/content-review/components/review-status'
@@ -101,6 +102,7 @@ export function RedirectScreen() {
       <a className={styles.publicLink} href={detail.stablePath}>Testar endereço público <ActionIcon name="external" /></a>
       {active ? <div className={styles.destination}><div><span className={styles.note}>Destino atual</span><h3>{active.label}</h3><p className={styles.url}>{active.destinationUrl}</p></div>{!detail.disabled ? <Button variant="secondary" disabled={pending} onClick={() => setEditing(true)}><ActionIcon name="edit" />Editar destino</Button> : null}</div> : !detail.disabled ? <div className={styles.actions}><Button variant="secondary" disabled={pending} onClick={() => setEditing(true)}><ActionIcon name="edit" />Editar destino</Button></div> : null}
     </section>
+    <OwnershipPanel key={detail.id} id={detail.id} revisionId={detail.activeRevisionId}/>
     {!detail.disabled ? <details className={styles.management}><summary>Gerenciar endereço</summary><div className={styles.managementBody}><p className={styles.note}>A desativação é definitiva e interrompe o encaminhamento de visitantes.</p>{confirmDisable ? <div className={styles.warning} role="group" aria-label="Confirmar desativação"><p>Desativar este endereço definitivamente? Ele deixará de encaminhar visitantes.</p><div className={styles.actions}><Button variant="danger" disabled={pending} onClick={() => void action(async () => { await redirectRequest('/' + detail.id + '/disable', { method: 'POST', body: JSON.stringify({ expectedRevision: detail.version }) }); await loadDetail(detail.id, true); await loadList(); setNotice('Endereço desativado.') })}><ActionIcon name="disable" />Confirmar desativação</Button><Button variant="secondary" disabled={pending} onClick={() => setConfirmDisable(false)}><ActionIcon name="close" />Cancelar</Button></div></div> : <Button variant="danger" disabled={pending} onClick={() => setConfirmDisable(true)}><ActionIcon name="disable" />Desativar endereço</Button>}</div></details> : null}
   </> : null
   const historyContent = detail ? <>

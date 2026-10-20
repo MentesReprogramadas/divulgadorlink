@@ -2,7 +2,7 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 30.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
+**Estado:** IMPLEMENTADA E VALIDADA LOCALMENTE; S7 EM REVISÃO.
 **Onda:** 4. **Ordem:** 30.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Comprovação de propriedade”.  
 **Plano:** [F28 implementação](../planos/f28-comprovacao-propriedade.md).  
@@ -142,3 +142,8 @@ Sem resolução das decisões bloqueantes e dependências concluídas, a feature
 
 **Indicadores:** verificações concluídas e proporção de destinos verificados.
 
+
+
+## Execução autorizada — 20/10/2026
+
+[Contrato reconciliado, decisões, ACs, testes, desvio S1, evidências e reversão](../execucao-f28.md). Rotas usam /me/redirects/:id/ownership, recurso F12 existente; origem web e validade D30 resolvidas. Não repetir a proposta antiga como contrato implementado. Checklist original preservado como planejamento; conclusão comprovada pelo registro de execução, sem marcar liberação remota.

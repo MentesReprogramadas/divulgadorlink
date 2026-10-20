@@ -1,3 +1,5 @@
+import * as ownership from '@/repositories/ownership'
+import {fetchOwnershipFile,type OwnershipFetch} from '@/adapters/http/ownership-fetch'
 import {destinationPoolInput} from '@/domain/redirects/destination-pool'
 import * as pools from '@/repositories/destination-pools'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
@@ -14,6 +16,8 @@ import { RedirectError } from '@/use-cases/@Redirects/validate-destination'
 import { publicContentValidationPorts, type PublicContentValidationPorts } from '@/use-cases/public-content-validation-ports'
 import * as redirects from '@/repositories/redirects-repository'
 
+let ownershipFetch:OwnershipFetch=fetchOwnershipFile
+export function setOwnershipFetchForTest(fetcher:OwnershipFetch|null){if(process.env.NODE_ENV==='test')ownershipFetch=fetcher??fetchOwnershipFile}
 let testDb: PrismaClient | null = null, testPorts: PublicContentValidationPorts | null = null
 export function setRedirectsForTest(db: PrismaClient | null, ports: PublicContentValidationPorts | null = null) { if (process.env.NODE_ENV === 'test') { testDb = db; testPorts = ports } }
 type Context = redirects.RedirectActor & { age: boolean; viewerId: string | null; ports: PublicContentValidationPorts }
@@ -36,6 +40,12 @@ const params = z.object({ id: redirectHandle })
 const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(value => { const date = new Date(value + 'T00:00:00Z'); return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value })
 const range = z.object({ from: day.optional(), to: day.optional() }).strict().refine(input => !input.from || !input.to || input.from <= input.to)
 export async function redirectsRoutes(app: FastifyInstance) {
+  app.get('/me/redirects/:id/ownership',(q,r)=>run(q,r,true,(db,a)=>ownership.readOwnership(db,a,params.parse(q.params).id)))
+  app.post('/me/redirects/:id/ownership/challenges',(q,r)=>run(q,r,true,(db,a)=>ownership.createOwnership(db,a,params.parse(q.params).id,z.object({revisionId:z.string().uuid()}).strict().parse(q.body).revisionId)))
+  app.post('/me/redirects/:id/ownership/verify',(q,r)=>run(q,r,true,(db,a)=>ownership.verifyOwnership(db,a,params.parse(q.params).id,z.object({challengeId:z.string().uuid()}).strict().parse(q.body).challengeId,ownershipFetch)))
+  app.delete('/me/redirects/:id/ownership',(q,r)=>run(q,r,true,(db,a)=>ownership.revokeOwnership(db,a,params.parse(q.params).id)))
+  app.get('/redirects/:id/ownership',(q,r)=>run(q,r,false,(db,a)=>ownership.publicOwnership(db,a.tenantId,params.parse(q.params).id,a.age)))
+
   app.get('/me/redirects/:id/pool',(q,r)=>run(q,r,true,(db,a)=>pools.readDestinationPool(db,a,params.parse(q.params).id)))
   app.put('/me/redirects/:id/pool',(q,r)=>run(q,r,true,(db,a)=>pools.saveDestinationPool(db,a,params.parse(q.params).id,destinationPoolInput.parse(q.body),a.ports)))
   app.patch('/me/redirects/:id/pool/:revisionId',(q,r)=>run(q,r,true,(db,a)=>{const p=z.object({id:redirectHandle,revisionId:z.string().uuid()}).parse(q.params),input=z.object({paused:z.boolean(),expectedVersion:z.number().int().nonnegative()}).strict().parse(q.body);return pools.pausePoolDestination(db,a,p.id,p.revisionId,input.paused,input.expectedVersion,a.ports)}))

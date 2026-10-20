@@ -970,6 +970,7 @@ model ProfileAsset {
 }
 
 model RedirectHandle {
+ ownershipChallenges OwnershipChallenge[]
  pool DestinationPool?
  @@unique([id,tenantId,ownerId],map:"redirect_handles_owner_identity_key")
  id String @id @default(uuid())
@@ -1524,4 +1525,24 @@ model ProfileSuggestionUsage {
  @@id([tenantId,ownerId,day])
  @@index([day],map:"profile_suggestion_usage_retention_idx")
  @@map("profile_suggestion_usage")
+}
+
+model OwnershipChallenge {
+ id String @id
+ tenantId String
+ handleId String
+ ownerId String
+ revisionId String
+ destinationUrl String
+ tokenHash String
+ createdAt DateTime @default(now()) @db.Timestamptz(6)
+ expiresAt DateTime @db.Timestamptz(6)
+ consumedAt DateTime? @db.Timestamptz(6)
+ verifiedAt DateTime? @db.Timestamptz(6)
+ validUntil DateTime? @db.Timestamptz(6)
+ revokedAt DateTime? @db.Timestamptz(6)
+ handle RedirectHandle @relation(fields:[handleId,tenantId,ownerId],references:[id,tenantId,ownerId],onDelete:Cascade,onUpdate:Cascade,map:"ownership_handle_fk")
+ @@index([tenantId,handleId,createdAt(sort:Desc)],map:"ownership_handle_idx")
+ @@index([createdAt],map:"ownership_retention_idx")
+ @@map("ownership_challenges")
 }

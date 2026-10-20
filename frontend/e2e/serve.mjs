@@ -55,7 +55,11 @@ function shutdown() {
 const suggestionState = { count: 0, last: null }
 const redirectValidations = []
 let profileValidationCount = 0, lastProfileValidation = null, profileValidationUnavailable = false
+let ownershipFile=''
 const stub = createServer((req, res) => {
+    if(req.method==='PUT'&&req.url==='/ownership-file'){let body='';req.on('data',chunk=>body+=chunk);req.on('end',()=>{ownershipFile=body;res.end('ok')});return}
+    if(req.method==='GET'&&req.url==='/ownership-file'){res.statusCode=ownershipFile?200:404;res.end(ownershipFile);return}
+
   const chunks = []
   req.on('data', (chunk) => chunks.push(chunk))
   req.on('end', async () => {

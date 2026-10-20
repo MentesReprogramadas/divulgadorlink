@@ -104,3 +104,12 @@ D24/D25/D27 concretizadas nesta sequência, conforme autorização para adotar a
 ## Refinamento de entrada e edição — 19/10/2026
 
 [Fluxos guiados F22/F23/F25, decisões, alternativas e provas](refinamento-f22-f23-f25.md). Distribuição orientada na lista de Convites; contato na criação/edição e na visão geral; escolha manual/assistida antes da primeira página. Checkbox corrigido, busca movida para Página e prévia do rascunho nas quatro abas de edição. Mantém 29/42; F28 não iniciada e S7 remoto pendente. Sem commit/push/deploy novos. O registro vinculado complementa as provas históricas, sem reescrever os resultados anteriores.
+
+
+## 20/10/2026 — F39 e continuidade autorizada
+
+F39 marcada no índice como validada sem implementação, testes ou execução correspondente. Corrigido para NÃO INICIADA, alinhado ao roadmap/matriz; permanece fora desta sequência. Nenhuma funcionalidade removida. Alternativa rejeitada: considerar uma linha isolada como evidência de entrega.
+
+Autorização: salvar todas as alterações locais na branch atual e implementar F28, F29, F32, F33 e F10 com testes/docs/commits, parando após F10. Sem push/deploy implícito.
+
+D30/F28: primeiro método é arquivo HTTPS no domínio do destino web aprovado de um convite F12. Escopo público: controle do domínio desse destino, sem identidade civil, endosso ou verificação de comunidade. Redes hospedadas sem mecanismo comprovado não são suportadas. Desafio aleatório de uso único por 30 minutos, somente hash persistido; validade da evidência 30 dias, retenção 180 dias. Revalidação exige novo desafio; novo destino/titular, desativação ou revogação invalidam o selo. Alternativas: DNS TXT (mais complexo para iniciante), código em descrição de rede (sem API comprovada), e-mail (não prova controle). Rotas propostas /me/links reconciliadas para /me/redirects/:id/ownership, recurso F12 real. Publicação de evidência em rota somente de leitura; sem tokens na projeção pública.

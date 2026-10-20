@@ -2,7 +2,7 @@
 
 Data da análise inicial: 14 de outubro de 2026. Atualização de prioridade: 15 de outubro de 2026.
 
-**Situação atual — 19/10/2026:** 29/42 implementações nos ambientes declarados. F22, F23 e F25 verificadas localmente nesta sequência; parada atendida após o assistente. Restam 13 implementações; próxima F28, não iniciada. S7/CI/liberação remotas em revisão. Sem nova branch, commit, push ou deploy. [F22](execucao-f22.md) · [F23](execucao-f23.md) · [F25](execucao-f25.md).
+**Situação atual — 20/10/2026:** 30/42 implementações nos ambientes declarados. F28 validada localmente; execução autorizada segue F29 → F32 → F33 → F10 e para após F10. Restam 12 implementações; F39 permanece não iniciada, corrigida a divergência do índice. S7/CI/liberação remotas em revisão. Sem nova branch, commit, push ou deploy. [F22](execucao-f22.md) · [F23](execucao-f23.md) · [F25](execucao-f25.md).
 
 Refinamento solicitado após F21: [importação, resumos, navegação, campanhas, equipe global e apresentação](refinamento-f05-f15-f20-f21-f38.md). Ampliação anterior implementada e validada localmente. Pedido posterior implementou F22 → F23 → F25, conforme situação atual acima.
 
@@ -56,7 +56,7 @@ As decisões não resolvidas são propostas de desenho, nunca fatos aprovados. N
 | 27 | F22 | 4 | [Formulário de contato na página](specs/f22-formulario-contato.md) | [Implementação](planos/f22-formulario-contato.md) | F42 (prioridade); F09, F20 | S0–S6 LOCAIS; S7 EM REVISÃO |
 | 28 | F23 | 4 | [Distribuidor de convites](specs/f23-distribuidor-convites.md) | [Implementação](planos/f23-distribuidor-convites.md) | F42 (prioridade); F12 | S0–S6 LOCAIS; S7 EM REVISÃO |
 | 29 | F25 | 4 | [Assistente de criação de perfil](specs/f25-assistente-perfil.md) | [Implementação](planos/f25-assistente-perfil.md) | F42 (prioridade); F09, F16, F17 | S0–S6 LOCAIS; S7 EM REVISÃO |
-| 30 | F28 | 4 | [Comprovação de propriedade](specs/f28-comprovacao-propriedade.md) | [Implementação](planos/f28-comprovacao-propriedade.md) | F42 (prioridade); F12 | NÃO INICIADA |
+| 30 | F28 | 4 | [Comprovação de propriedade](specs/f28-comprovacao-propriedade.md) | [Implementação](planos/f28-comprovacao-propriedade.md) | F42 (prioridade); F12 | S0–S6 LOCAL; S7 EM REVISÃO |
 | 31 | F29 | 4 | [Página de evento](specs/f29-evento.md) | [Implementação](planos/f29-evento.md) | F42 (prioridade); F09, F14 | NÃO INICIADA |
 | 32 | F32 | 4 | [Kit de divulgação](specs/f32-kit-divulgacao.md) | [Implementação](planos/f32-kit-divulgacao.md) | F42 (prioridade); F09, F13 | NÃO INICIADA |
 | 33 | F33 | 4 | [Coleções públicas compartilháveis](specs/f33-colecoes-publicas.md) | [Implementação](planos/f33-colecoes-publicas.md) | F42 (prioridade); F04 | NÃO INICIADA |
@@ -64,7 +64,7 @@ As decisões não resolvidas são propostas de desenho, nunca fatos aprovados. N
 | 35 | F24 | 5 | [Descoberta de perfis](specs/f24-descoberta-perfis.md) | [Implementação](planos/f24-descoberta-perfis.md) | F42 (prioridade); F09, F03 | NÃO INICIADA |
 | 36 | F30 | 5 | [Integrações e avisos automáticos](specs/f30-integracoes-webhooks.md) | [Implementação](planos/f30-integracoes-webhooks.md) | F42 (prioridade); F22, F02 | NÃO INICIADA |
 | 37 | F35 | 5 | [Central de contatos recebidos](specs/f35-central-contatos.md) | [Implementação](planos/f35-central-contatos.md) | F42 (prioridade); F22, F20 | NÃO INICIADA |
-| 38 | F39 | 5 | [Página em vários idiomas](specs/f39-multilingue.md) | [Implementação](planos/f39-multilingue.md) | F42 (prioridade); F09, F19 | S0–S6 LOCAIS; S7 EM REVISÃO |
+| 38 | F39 | 5 | [Página em vários idiomas](specs/f39-multilingue.md) | [Implementação](planos/f39-multilingue.md) | F42 (prioridade); F09, F19 | NÃO INICIADA |
 | 39 | F26 | 6 | [Teste de versões de botões](specs/f26-teste-botoes.md) | [Implementação](planos/f26-teste-botoes.md) | F42 (prioridade); F09, F31 | NÃO INICIADA |
 | 40 | F36 | 6 | [Pacotes para agências](specs/f36-agencias.md) | [Implementação](planos/f36-agencias.md) | F42 (prioridade); F20, F11, F21 | NÃO INICIADA |
 | 41 | F40 | 6 | [Diagnóstico da página](specs/f40-diagnostico.md) | [Implementação](planos/f40-diagnostico.md) | F42 (prioridade); F09, F07, F31 | NÃO INICIADA |

@@ -488,14 +488,14 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 
 | Etapa | Estado | Pré-requisito imediato | Entregável a verificar |
 | --- | --- | --- | --- |
-| F28-S0 | NÃO INICIADA | F42 (prioridade), F12 | [Escopo contratos e reuso](planos/f28-comprovacao-propriedade.md#f28-s0-escopo-contratos-e-revisão-de-reutilização) |
-| F28-S1 | NÃO INICIADA | F28-S0 | [Testes U e C](planos/f28-comprovacao-propriedade.md#f28-s1-testes-unitários-e-componentes-antes-da-regra) |
-| F28-S2 | NÃO INICIADA | F28-S1 | [Dados e migração](planos/f28-comprovacao-propriedade.md#f28-s2-dados-invariantes-e-migração) |
-| F28-S3 | NÃO INICIADA | F28-S2 | [Domínio API e jobs](planos/f28-comprovacao-propriedade.md#f28-s3-regra-de-negócio-api-e-jobs) |
-| F28-S4 | NÃO INICIADA | F28-S3 | [Interface](planos/f28-comprovacao-propriedade.md#f28-s4-interface-composição-e-estados) |
-| F28-S5 | NÃO INICIADA | F28-S4 | [Integração e ACs](planos/f28-comprovacao-propriedade.md#f28-s5-integração-contrato-persistência-e-falhas) |
-| F28-S6 | NÃO INICIADA | F28-S5 | [Playwright e QA](planos/f28-comprovacao-propriedade.md#f28-s6-e2e-playwright-e-revisão-visual) |
-| F28-S7 | NÃO INICIADA | F28-S6 | [Regressão e liberação](planos/f28-comprovacao-propriedade.md#f28-s7-regressão-rollout-e-fechamento-auditável) |
+| F28-S0 | CONCLUÍDA LOCALMENTE | F42 (prioridade), F12 | [Escopo contratos e reuso](planos/f28-comprovacao-propriedade.md#f28-s0-escopo-contratos-e-revisão-de-reutilização) |
+| F28-S1 | CONCLUÍDA LOCALMENTE | F28-S0 | [Testes U e C](planos/f28-comprovacao-propriedade.md#f28-s1-testes-unitários-e-componentes-antes-da-regra) |
+| F28-S2 | CONCLUÍDA LOCALMENTE | F28-S1 | [Dados e migração](planos/f28-comprovacao-propriedade.md#f28-s2-dados-invariantes-e-migração) |
+| F28-S3 | CONCLUÍDA LOCALMENTE | F28-S2 | [Domínio API e jobs](planos/f28-comprovacao-propriedade.md#f28-s3-regra-de-negócio-api-e-jobs) |
+| F28-S4 | CONCLUÍDA LOCALMENTE | F28-S3 | [Interface](planos/f28-comprovacao-propriedade.md#f28-s4-interface-composição-e-estados) |
+| F28-S5 | CONCLUÍDA LOCALMENTE | F28-S4 | [Integração e ACs](planos/f28-comprovacao-propriedade.md#f28-s5-integração-contrato-persistência-e-falhas) |
+| F28-S6 | CONCLUÍDA LOCALMENTE | F28-S5 | [Playwright e QA](planos/f28-comprovacao-propriedade.md#f28-s6-e2e-playwright-e-revisão-visual) |
+| F28-S7 | EM REVISÃO | F28-S6 | [Regressão e liberação](planos/f28-comprovacao-propriedade.md#f28-s7-regressão-rollout-e-fechamento-auditável) |
 
 ### 31 F29 Página de evento
 
@@ -736,3 +736,8 @@ Não inicia uma nova feature da sequência: mantém 26/42 implementações e F22
 ## Refinamento de entrada e edição — 19/10/2026
 
 [Fluxos guiados F22/F23/F25, decisões, alternativas e provas](refinamento-f22-f23-f25.md). Distribuição orientada na lista de Convites; contato na criação/edição e na visão geral; escolha manual/assistida antes da primeira página. Checkbox corrigido, busca movida para Página e prévia do rascunho nas quatro abas de edição. Mantém 29/42; F28 não iniciada e S7 remoto pendente. Sem commit/push/deploy novos. O registro vinculado complementa as provas históricas, sem reescrever os resultados anteriores.
+
+
+## 20/10/2026 — F28 concluída localmente
+
+[Execução, decisões e provas](execucao-f28.md). Checkpoint inicial 0d0a32b preservou todas as alterações locais. F39 corrigida para não iniciada. 30/42 implementações locais; próximo F29 → F32 → F33 → F10 por autorização vigente, sem parar na primeira feature. S7 remoto em revisão; sem push/deploy.

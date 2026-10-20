@@ -137,3 +137,6 @@ workspaceAdmin e workspaceOperator identificam as funções Administrador e Oper
 contactForm identifica o formulário público/configuração e difere do contactInbox de respostas recebidas. search mantém o significado de busca no card da Página; preview mantém o significado de simulação em todas as abas. Criar do meu jeito usa edit; Criar com ajuda usa profileAssistant. Salvar/excluir/retornar/expandir preservam os desenhos das mesmas ações. Ícones decorativos acompanham rótulos; não substituem o nome da ação. [Refinamento](../planejamento-features/refinamento-f22-f23-f25.md).
 
 contactInbox representa contatos recebidos; inviteDistributor, distribuição entre convites; profileAssistant, o assistente da página; generateSuggestion, a ação de gerar sugestão; resume, retomada de destino pausado. Desenhos distintos, com rótulos visíveis nas ações; consulta/download/exclusão/salvar reutilizam o significado existente. Novos destinos integram a navegação por seções, heading, skeleton e filtros de permissão global. [Provas desktop/mobile e hashes](../planejamento-features/execucao-f25.md).
+
+
+F28: domainOwnership identifica controle do domínio (janela web com confirmação), distinto de confirmação de e-mail, equipe e moderação. Reutilizado no título/ação somente para esse significado. Revogar usa a ação disable já existente.
