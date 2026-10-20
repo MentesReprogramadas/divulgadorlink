@@ -34,3 +34,5 @@ Primeiro red de domínio: duas regras ausentes e uma falha de transform que lan�
 Nenhuma env ou dependência nova; usar provedor de moderação já configurado. Sem nova coleta de analytics: seleção abre o detalhe original, preservando métricas/consentimento existentes; relatório específico de visitas da coleção não foi criado. Índice é para lookup tenant/slug, sem alegação de ganho de desempenho em fixture pequena. Reverter entradas de publicação/rota antes do código, manter campos e reservas; não remover dados nem liberar nomes no downgrade. Rollout exige migration antes do leitor.
 
 S0–S6 locais; S7/CI/liberação remota pendentes. Próxima e última desta autorização: F10.
+
+Commit de implementação: e2d5b8a68dcb758dd09219cabecc3bfa831b4702.
