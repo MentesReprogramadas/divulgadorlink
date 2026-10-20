@@ -1,1 +1,24 @@
-.card{display:grid;gap:var(--space-3);padding:var(--space-6);min-width:0;border:1px solid color-mix(in srgb,var(--page-ink,var(--text-primary)),transparent 75%);border-radius:min(var(--page-radius,var(--radius-lg)),24px);font-family:inherit;color:var(--page-ink,var(--text-primary));background:color-mix(in srgb,var(--page-bg,var(--surface-raised)),var(--page-shade,#fff) 4%);text-align:center;overflow-wrap:anywhere}.card :is(h2,h3,h4,h5,p){margin:0;font-family:inherit}.status{display:flex;align-items:center;justify-content:center;gap:var(--space-2);font-weight:600}.zone{font-size:.8em;opacity:.8}.description{white-space:pre-wrap}.actions{display:grid;gap:var(--space-3)}.signup,.calendar{display:flex;align-items:center;justify-content:center;gap:var(--space-2);min-height:48px;padding:var(--space-3);font:inherit;border-radius:var(--page-radius,var(--radius-md));text-decoration:none}.signup{background:var(--button-bg,var(--action-primary-bg));color:var(--button-ink,#fff);border:2px solid var(--button-bg,var(--action-primary-bg))}.calendar{color:inherit;border:1px solid currentColor}.card a:focus-visible{outline:3px solid currentColor;outline-offset:3px}[data-style=outline] .signup{background:transparent;color:var(--page-ink)}[data-style=shadow] .signup{box-shadow:3px 3px 0 var(--page-ink)}.editor{display:grid;gap:var(--space-4);min-width:0}.editorActions{display:flex;justify-content:flex-end;gap:var(--space-3);flex-wrap:wrap}@media(width<40rem){.card{padding:var(--space-4)}}
+.card{display:grid;container-type:inline-size;gap:var(--space-4);padding:var(--space-6);min-width:0;border:1px solid color-mix(in srgb,var(--page-ink,var(--text-primary)),transparent 80%);border-radius:min(var(--page-radius,var(--radius-lg)),24px);font-family:inherit;color:var(--page-ink,var(--text-primary));background:color-mix(in srgb,var(--page-bg,var(--surface-raised)),var(--page-shade,#fff) 4%);text-align:center;overflow-wrap:anywhere}
+.card :is(h2,h3,h4,h5,p,dl,dd){margin:0;font-family:inherit}
+.header{display:grid;justify-items:center;gap:var(--space-3)}
+.eyebrow{display:flex;align-items:center;gap:var(--space-2);font-size:.8em;font-weight:600}
+.card .title{font-size:1.4em;line-height:1.25;font-weight:700;text-wrap:balance}
+.status{padding:var(--space-1) var(--space-3);border:1px solid currentColor;border-radius:var(--radius-pill,999px);font-size:.85em;font-weight:600}
+.dates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border:1px solid color-mix(in srgb,currentColor,transparent 85%);border-radius:min(var(--page-radius,var(--radius-md)),16px);overflow:hidden}
+.date{padding:var(--space-4);min-width:0}
+.date+.date{border-inline-start:1px solid color-mix(in srgb,currentColor,transparent 85%)}
+.card dt{font-size:.8em;font-weight:600;margin-bottom:var(--space-2)}
+.date time{display:grid;gap:var(--space-2);font-size:.85em}
+.date strong{font-size:1.5em;line-height:1.2;font-weight:700;font-variant-numeric:tabular-nums}
+.location dd{font-size:.95em;white-space:pre-wrap}
+.description{font-size:.95em;line-height:1.6;white-space:pre-wrap}
+.actions{display:grid}
+.signup{display:flex;align-items:center;justify-content:center;gap:var(--space-3);min-height:48px;padding:var(--space-3);font:inherit;font-weight:600;border-radius:var(--page-radius,var(--radius-md));text-decoration:none;background:var(--button-bg,var(--action-primary-bg));color:var(--button-ink,#fff);border:2px solid var(--button-bg,var(--action-primary-bg))}
+.signup svg{flex-shrink:0}
+.card a:focus-visible{outline:3px solid currentColor;outline-offset:3px}
+[data-style=outline] .signup{background:transparent;color:var(--page-ink)}
+[data-style=shadow] .signup{box-shadow:3px 3px 0 var(--page-ink)}
+.editor{display:grid;gap:var(--space-4);min-width:0}
+.editorActions{display:flex;justify-content:flex-end;gap:var(--space-3);flex-wrap:wrap}
+@media(width<40rem){.card{padding:var(--space-4)}.date{padding:var(--space-3)}}
+@container (width < 18rem){.dates{grid-template-columns:1fr}.date+.date{border-inline-start:0;border-block-start:1px solid color-mix(in srgb,currentColor,transparent 85%)}}

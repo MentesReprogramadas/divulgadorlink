@@ -36,6 +36,11 @@ const schema = z.object({
   PIX_EXPIRATION_SECONDS: z.preprocess(blankAsUnset, z.string().optional()),
 
   PROFILE_HOST_BASES:z.string().default('{}'),
+  COOLIFY_API_URL:optionalUrl,
+  COOLIFY_API_TOKEN:optionalText,
+  COOLIFY_PROFILE_ROUTER_UUID:optionalText,
+  CLOUDFLARE_DNS_API_TOKEN:optionalText,
+  PROFILE_HOST_DNS_ZONES:z.string().default('{}'),
   TENANT_HOST: textOr('localhost'),
   TENANT_NAME: textOr('Localhost'),
 

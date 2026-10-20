@@ -11,7 +11,7 @@ afterEach(() => { cleanup(); pathname.mockReturnValue('/'); workspaceAccess.mock
 
 it('não expõe destinos de edição ou divulgação sem permissão dentro das subseções',()=>{
  workspaceAccess.mockReturnValue({ready:true,context:{ownerId:'shared-owner',grants:{page:{read:true,write:false}}},error:''});pathname.mockReturnValue('/painel/perfil');render(<WorkspaceNavigation area="panel"/>);
- expect(screen.queryByRole('link',{name:'Dados da página',hidden:true})).toBeNull();expect(screen.queryByRole('link',{name:'Aparência',hidden:true})).toBeNull();expect(screen.queryByRole('link',{name:'Importar links',hidden:true})).toBeNull();expect(screen.queryByRole('link',{name:'Campanhas',hidden:true})).toBeNull();expect(screen.queryByRole('link',{name:'Contatos recebidos',hidden:true})).toBeNull();expect(screen.queryByRole('link',{name:'Apresentação para parceiros',hidden:true})).toBeNull();expect(screen.getByRole('link',{name:'Kit de divulgação',hidden:true})).toBeTruthy()
+ expect(screen.queryByRole('link',{name:'Dados da página',hidden:true})).toBeNull();expect(screen.queryByRole('link',{name:'Aparência',hidden:true})).toBeNull();expect(screen.queryByRole('link',{name:'Importar links',hidden:true})).toBeNull();expect(screen.queryByRole('link',{name:'Campanhas',hidden:true})).toBeNull();expect(screen.queryByRole('link',{name:'Contatos recebidos',hidden:true})).toBeNull();expect(screen.queryByRole('link',{name:'Apresentação para parceiros',hidden:true})).toBeNull();expect(screen.getByRole('link',{name:'Criar imagem de divulgação',hidden:true})).toBeTruthy()
 })
 
 it('seleciona o submenu específico de Minha página e remove Publicação',()=>{

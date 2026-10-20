@@ -1,0 +1,1 @@
+{"nodes": [{"id": "$graphify-root$_backend_prisma_migrations_20261018160000_profile_channels_migration_sql", "label": "migration.sql", "file_type": "code", "source_file": "backend/prisma/migrations/20261018160000_profile_channels/migration.sql", "source_location": null}], "edges": []}

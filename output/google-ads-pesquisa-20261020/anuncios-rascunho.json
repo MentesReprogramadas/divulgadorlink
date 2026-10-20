@@ -1,0 +1,48 @@
+[
+  {
+    "campanha": "TLA | Pesquisa | Catalogo | BR",
+    "grupo": "Ofertas WhatsApp",
+    "status": "RASCUNHO_LOCAL_NAO_PUBLICADO",
+    "url_candidata": "https://temlinkaqui.com/rede/whatsapp",
+    "condicao": "Revisar se os grupos de ofertas sao facilmente encontrados nessa pagina; ajustar a landing de forma real se necessario.",
+    "titulos": [
+      "Grupos e Ofertas no WhatsApp",
+      "Encontre Grupos por Tema",
+      "Explore o Tem Link Aqui",
+      "Links Organizados por Rede",
+      "Descubra Grupos e Canais",
+      "Veja Comunidades de Ofertas",
+      "Busque Grupos no Catálogo",
+      "Encontre Seu Próximo Grupo"
+    ],
+    "descricoes": [
+      "Explore links de grupos e canais organizados por tema e rede no Tem Link Aqui.",
+      "Encontre comunidades de ofertas e escolha os links do seu interesse.",
+      "Navegue pelo catálogo, veja as descrições e escolha uma comunidade para conhecer.",
+      "Procure grupos de WhatsApp por interesse e descubra links no Tem Link Aqui."
+    ]
+  },
+  {
+    "campanha": "TLA | Pesquisa | Publicadores | BR",
+    "grupo": "Divulgar WhatsApp",
+    "status": "RASCUNHO_LOCAL_NAO_PUBLICADO",
+    "url_candidata": "https://temlinkaqui.com/divulgar",
+    "condicao": "Validar a conversao de envio aceito; publicacao segue as regras do site, sem promessa de membros.",
+    "titulos": [
+      "Divulgue Seu Grupo Grátis",
+      "Publique no Tem Link Aqui",
+      "Cadastre Seu Grupo",
+      "Divulgue Grupos e Canais",
+      "Seu Link em um Catálogo",
+      "Divulgue Grupo de WhatsApp",
+      "Publicar Link É Grátis",
+      "Apresente Sua Comunidade"
+    ],
+    "descricoes": [
+      "Cadastre seu link no Tem Link Aqui. A publicação é grátis e segue as regras do site.",
+      "Apresente seu grupo de WhatsApp em um catálogo organizado por tema e rede.",
+      "Adicione nome, descrição e rede para ajudar visitantes a conhecer seu grupo.",
+      "Publique seu link gratuitamente. O destaque pago é opcional e depende de elegibilidade."
+    ]
+  }
+]

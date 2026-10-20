@@ -1,7 +1,7 @@
 import {z} from 'zod'
 import type {ProfileContent} from './profile'
 const instant=z.string().datetime().refine(value=>{const date=new Date(value);return Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===value.slice(0,10)},'Informe uma data válida.')
-export const eventBlockInput=z.object({description:z.string().trim().max(1000),startsAt:instant,endsAt:instant,timeZone:z.string().max(100).refine(value=>{try{new Intl.DateTimeFormat('pt-BR',{timeZone:value});return true}catch{return false}},'Escolha um fuso válido.'),location:z.string().trim().min(1).max(400),state:z.enum(['SCHEDULED','CANCELLED']),previousStartsAt:instant.optional()}).strict().refine(event=>new Date(event.endsAt)>new Date(event.startsAt),{path:['endsAt'],message:'O fim precisa ser depois do início.'})
+export const eventBlockInput=z.object({buttonLabel:z.string().trim().min(1).max(40).optional(),description:z.string().trim().max(1000),startsAt:instant,endsAt:instant,timeZone:z.string().max(100).refine(value=>{try{new Intl.DateTimeFormat('pt-BR',{timeZone:value});return true}catch{return false}},'Escolha um fuso válido.'),location:z.string().trim().min(1).max(400),state:z.enum(['SCHEDULED','CANCELLED']),previousStartsAt:instant.optional()}).strict().refine(event=>new Date(event.endsAt)>new Date(event.startsAt),{path:['endsAt'],message:'O fim precisa ser depois do início.'})
 export type EventBlock=z.infer<typeof eventBlockInput>
 export function eventState(event:EventBlock,now:Date){return event.state==='CANCELLED'?'CANCELLED':new Date(event.endsAt)<=now?'ENDED':'SCHEDULED'}
 export function reconcileProfileEvents(content:ProfileContent,published?:ProfileContent):ProfileContent{

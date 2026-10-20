@@ -10,9 +10,9 @@ it('uses palette, hex and keyboard sliders without a native color input', () => 
   fireEvent.change(screen.getByLabelText('Fundo — código hexadecimal'), { target: { value: 'url(x)' } })
   expect(change).not.toHaveBeenCalled(); expect(screen.getByRole('alert')).toBeTruthy()
   fireEvent.change(screen.getByLabelText('Fundo — código hexadecimal'), { target: { value: '#173c32' } })
-  expect(change).toHaveBeenCalledWith('#173c32')
+  expect(change).toHaveBeenCalledWith('#173c32', true)
   fireEvent.change(screen.getByRole('slider', { name: 'Fundo — Vermelho' }), { target: { value: '0' } })
-  expect(change).toHaveBeenCalledWith('#00ffff')
+  expect(change).toHaveBeenCalledWith('#00ffff', true)
 })
 it('reconciles incomplete text when a theme changes the external value', () => {
   const { rerender } = render(<ColorPicker label="Fundo" value="#ffffff" onChange={() => {}} />)

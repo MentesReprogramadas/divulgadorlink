@@ -154,3 +154,7 @@ Sem resolução das decisões bloqueantes e dependências concluídas, a feature
 [Contrato reconciliado, decisões, ACs, testes e reversão](../execucao-f10.md). O registro de execução prevalece sobre caminhos/contratos apenas propostos neste planejamento. S7 remoto permanece pendente.
 
 F10-M01 obrigatório: certificado/DNS/HTTPS reais em staging não executados. A matriz mantém AC03 parcial; a composição HTTP descartável não é aceite desse gate. [Roteiro operacional](../operacao-f10.md).
+
+## Complemento autorizado de segurança — 20/10/2026
+
+F10-AC07: nomes em uso por infraestrutura têm prioridade sobre perfil. Conferir inventário Coolify e registros exatos Cloudflare sem cache na reserva, antes/depois da prova HTTPS e na leitura pública. Inclusão bloqueia; remoção retira apenas a restrição da infraestrutura, preservando reservas de titulares e nomes operacionais. Exceção estrita para wildcard do roteador identificado. Falhas/parcialidade/credenciais ausentes não liberam nome. Testes: adapters coolify-domains.spec.ts e cloudflare-profile-dns.spec.ts, integração profile-hosts.pg.spec.ts e F10-E05. Código/fixtures validados; consultas aos provedores reais permanecem pendentes de credenciais e conexão. F10-AC03/F10-M01 TLS real continuam pendentes. Configuração e limites em ../operacao-f10.md.

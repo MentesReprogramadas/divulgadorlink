@@ -146,3 +146,9 @@ Sem resolução das decisões bloqueantes e dependências concluídas, a feature
 ## Execução autorizada — 20/10/2026
 
 [Contrato reconciliado, decisões, ACs, testes e reversão](../execucao-f32.md). O registro de execução prevalece sobre caminhos/contratos apenas propostos neste planejamento. S7 remoto permanece pendente.
+
+## Complemento autorizado — 20/10/2026
+
+Nome atual na UI: Criar imagem de divulgação (rota mantida). F32-AC06: título tenta linha única até o mínimo legível (32 px Post, 40 px Story), depois permite quebra sem corte; modelos Fundo simples e Cartão com moldura devem ser distinguíveis no mesmo formato. Cobertura: fitShareTitle em share-kit-plan.test.ts e F32-E06, PNGs/QR reais e inspeção visual. Execução e exemplos em ../execucao-f32.md.
+
+F32-AC07 (20/10/2026): alterações nos controles geram nova prévia sem clique. Textos, código de cor e sliders aguardam pausa de 500 ms; mudanças discretas são imediatas. Geração antiga não substitui resultado novo; sair cancela timer; formulário permanece editável e download exige versão atual. Cobertura: testes de componentes de agendamento/concorrência/saída, ColorPicker e F32-E07 desktop/mobile.

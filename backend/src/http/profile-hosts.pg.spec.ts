@@ -1,5 +1,5 @@
 import {vi} from 'vitest'
-import {setProfileHostProbeForTest} from '@/repositories/profile-hosts'
+import {setProfileHostProbeForTest,setProfileHostInfrastructureForTest} from '@/repositories/profile-hosts'
 import {setWorkspaceDbForTest} from '@/http/workspace-access'
 import { randomUUID } from 'node:crypto'
 import { PrismaClient } from '@prisma/client'
@@ -12,7 +12,7 @@ import { setProfileClockForTest } from '@/lib/profile-clock'
 import { setProfileBillingForTest } from '@/lib/profile-billing'
 import { BASE_PROFILE_CAPABILITIES } from '@/domain/billing/profile-plans'
 import { cleanBillingFixture } from '@/test-support/clean-billing-fixture'
-import type { ProfileContent } from '@/domain/profiles/profile'
+import {ProfileError,type ProfileContent} from '@/domain/profiles/profile'
 const url=process.env.ANALYTICS_DATABASE_URL
 if(!url || !['127.0.0.1','localhost'].includes(new URL(url).hostname)) throw new Error('Disposable local PG required')
 const db=new PrismaClient({datasources:{db:{url}}})
@@ -33,8 +33,9 @@ beforeEach(async()=>{
   setWorkspaceDbForTest(db)
   vi.stubEnv('PROFILE_HOST_BASES',JSON.stringify({['pages-'+tenant+'.test']:tenant+'.test',['foreign-'+foreign+'.test']:foreign+'.test'}))
   setProfileHostProbeForTest(async()=>true)
+  setProfileHostInfrastructureForTest(async()=>{})
 })
-afterEach(async()=>{vi.unstubAllEnvs();setWorkspaceDbForTest(null);setProfileHostProbeForTest(null);setProfileClockForTest(null);setProfileBillingForTest(null,null);await cleanBillingFixture(db,tenant)})
+afterEach(async()=>{vi.unstubAllEnvs();setWorkspaceDbForTest(null);setProfileHostProbeForTest(null);setProfileHostInfrastructureForTest(null);setProfileClockForTest(null);setProfileBillingForTest(null,null);await cleanBillingFixture(db,tenant)})
 afterAll(async()=>{setProfilesForTest(null);setRedirectsForTest(null);await db.$disconnect()})
 function call(method:'GET'|'POST'|'PATCH'|'DELETE',route:string,body?:unknown,actor:string|null=owner,actorTenant=tenant){return app.inject({method,url:'/api/v1/'+route,headers:{host:tenant+'.test',...(actor?{authorization:'Bearer '+app.jwt.sign({sub:actor,tenantId:actorTenant,role:'ADMIN',typ:'access'})}:{})},...(body?{payload:body}:{})})}
 function content():ProfileContent{const group=randomUUID();return{slug:'f14-pagina',name:'Página F14',bio:'',avatarAssetId:null,requiresAge:false,primaryItemId:null,categories:[{id:group,name:'Eventos',visible:true}],items:[{id:randomUUID(),categoryId:group,type:'URL',label:'F14-FUTURE-SECRET',destination:'https://example.com/f14-private-future',visible:true,schedule:undefined}]}}
@@ -58,3 +59,5 @@ it('F10-PG01/T06 outro assinante não toma nome após exclusão do perfil',async
 it('F10-I02 seção page aplica leitura/escrita granular e audita colaborador real',async()=>{await published();const member=await db.workspaceMembership.create({data:{id:randomUUID(),tenantId:tenant,ownerId:owner,userId:other,grants:{page:{read:true,write:false}}}});const scoped=(method:'GET'|'POST',body?:unknown)=>app.inject({method,url:'/api/v1/me/profile/hosts',headers:{host:tenant+'.test',cookie:'workspaceOwner='+owner,authorization:'Bearer '+app.jwt.sign({sub:other,tenantId:tenant,role:'ADMIN',typ:'access'})},...(body?{payload:body}:{})});expect((await scoped('GET')).statusCode).toBe(200);const input={name:'equipe',base:'pages-'+tenant+'.test',expectedVersion:0};expect((await scoped('POST',input)).statusCode).toBe(403);await db.workspaceMembership.update({where:{id:member.id},data:{grants:{page:{read:true,write:true}}}});expect((await scoped('POST',input)).statusCode).toBe(200);expect(await db.auditLog.count({where:{tenantId:tenant,actorId:other,action:'profile.host.reserved'}})).toBe(1);await db.workspaceMembership.update({where:{id:member.id},data:{revokedAt:now}});expect((await scoped('GET')).statusCode).toBe(403)})
 
 it('F10-I03 revogação de colaborador durante probe não ativa endereço tardiamente',async()=>{await published();await reserve();const member=await db.workspaceMembership.create({data:{id:randomUUID(),tenantId:tenant,ownerId:owner,userId:other,grants:{page:{read:true,write:true}}}});setProfileHostProbeForTest(async()=>{await db.workspaceMembership.update({where:{id:member.id},data:{revokedAt:now}});return true});const result=await app.inject({method:'POST',url:'/api/v1/me/profile/hosts/verify',headers:{host:tenant+'.test',cookie:'workspaceOwner='+owner,authorization:'Bearer '+app.jwt.sign({sub:other,tenantId:tenant,role:'ADMIN',typ:'access'})},payload:{hostname:'ana.pages-'+tenant+'.test',expectedVersion:1}});expect(result.statusCode).toBe(403);expect((await db.profileHost.findUniqueOrThrow({where:{hostname:'ana.pages-'+tenant+'.test'}})).status).toBe('PENDING');expect((await resolve()).statusCode).toBe(404)})
+
+it('infraestrutura ganha prioridade em reserva, ativação e leitura; removida a colisão, publicação retoma',async()=>{await published();setProfileHostInfrastructureForTest(async()=>{throw new ProfileError(409,'Infraestrutura')});expect((await reserve()).statusCode).toBe(409);expect(await db.profileHostName.count({where:{profileKey:(await db.profile.findUniqueOrThrow({where:{tenantId_ownerId:{tenantId:tenant,ownerId:owner}}})).id}})).toBe(0);setProfileHostInfrastructureForTest(async()=>{});expect((await reserve()).statusCode).toBe(200);setProfileHostProbeForTest(async()=>{setProfileHostInfrastructureForTest(async()=>{throw new ProfileError(409,'Infraestrutura')});return true});expect((await verify()).statusCode).toBe(409);expect((await db.profileHost.findUniqueOrThrow({where:{hostname:'ana.pages-'+tenant+'.test'}})).status).toBe('PENDING');setProfileHostInfrastructureForTest(async()=>{});setProfileHostProbeForTest(async()=>true);expect((await verify()).statusCode).toBe(200);setProfileHostInfrastructureForTest(async()=>{throw new ProfileError(409,'Infraestrutura')});expect((await resolve()).statusCode).toBe(404);setProfileHostInfrastructureForTest(async()=>{throw new ProfileError(503,'Inventário indisponível')});expect((await resolve()).statusCode).toBe(503);setProfileHostInfrastructureForTest(async()=>{});expect((await resolve()).statusCode).toBe(200)})

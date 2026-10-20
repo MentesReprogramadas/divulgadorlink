@@ -167,3 +167,7 @@ Esses nomes não são obrigação de criar arquivos vazios. Preferir ampliação
 [Contrato reconciliado, decisões, ACs, testes e reversão](../execucao-f10.md). O registro de execução prevalece sobre caminhos/contratos apenas propostos neste planejamento. S7 remoto permanece pendente.
 
 Fechamento local: testes e contratos reconciliados na execução F10; a lista original permanece como planejamento histórico. Não marcar o check global de ACs/manual como aprovado: AC03 depende de F10-M01 real em staging, ainda pendente. Componentes testados após a composição, sem red prévio registrado; desvio de sequência S1 explícito. Parada após F10 solicitada pelo usuário.
+
+## Complemento executado — 20/10/2026
+
+Guard de inventário e DNS incluído nos pontos existentes de reserva/ativação/leitura, com autorização/plano antes das chamadas e reconferência transacional depois. Adapters de leitura com origem/timeout/tamanho/contrato limitados, sem libs novas ou alteração de schema. Unidade, PG e E2E simulados aprovados; liberação externa depende dos gates do roteiro operacional, tokens, Zone ID e UUID do roteador. Não tratar a implementação local como ativação em produção.

@@ -3,7 +3,7 @@ export function workspaceHeading(path: string): { title: string; hint: string } 
   if(path.startsWith('/painel/equipe/'))return {title:'Página compartilhada',hint:''}
   if(path==='/painel/perfil/endereco')return {title:'Endereço próprio',hint:''}
   const titles: Record<string, [string, string]> = {
-    "/painel/perfil/divulgar": ["Kit de divulgação", ""],
+    "/painel/perfil/divulgar": ["Criar imagem de divulgação", ""],
     "/painel/equipe": ["Equipe e permissões", ""],
     "/painel": ["Painel", "Tudo o que você precisa para cuidar dos seus links."],
     "/painel/links": ["Meus links", "Encontre um link e escolha o próximo passo."],

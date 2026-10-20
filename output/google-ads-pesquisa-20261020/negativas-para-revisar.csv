@@ -1,0 +1,77 @@
+﻿grupo,palavra_chave_negativa,correspondencia,escopo,motivo
+intencao-adulta,pornografia,PHRASE,campanha_catalogo_proposta,Candidatas a excluir da campanha geral; revisar politica e landing inteira
+intencao-adulta,porno,PHRASE,campanha_catalogo_proposta,Candidatas a excluir da campanha geral; revisar politica e landing inteira
+intencao-adulta,pornô,PHRASE,campanha_catalogo_proposta,Candidatas a excluir da campanha geral; revisar politica e landing inteira
+intencao-adulta,porn,PHRASE,campanha_catalogo_proposta,Candidatas a excluir da campanha geral; revisar politica e landing inteira
+intencao-adulta,nudes,PHRASE,campanha_catalogo_proposta,Candidatas a excluir da campanha geral; revisar politica e landing inteira
+intencao-adulta,nude,PHRASE,campanha_catalogo_proposta,Candidatas a excluir da campanha geral; revisar politica e landing inteira
+intencao-adulta,sexo explicito,PHRASE,campanha_catalogo_proposta,Candidatas a excluir da campanha geral; revisar politica e landing inteira
+intencao-adulta,sexo explícito,PHRASE,campanha_catalogo_proposta,Candidatas a excluir da campanha geral; revisar politica e landing inteira
+intencao-adulta,conteudo adulto,PHRASE,campanha_catalogo_proposta,Candidatas a excluir da campanha geral; revisar politica e landing inteira
+intencao-adulta,conteúdo adulto,PHRASE,campanha_catalogo_proposta,Candidatas a excluir da campanha geral; revisar politica e landing inteira
+intencao-adulta,telegram adulto,PHRASE,campanha_catalogo_proposta,Candidatas a excluir da campanha geral; revisar politica e landing inteira
+intencao-adulta,whatsapp adulto,PHRASE,campanha_catalogo_proposta,Candidatas a excluir da campanha geral; revisar politica e landing inteira
+intencao-adulta,grupo adulto,PHRASE,campanha_catalogo_proposta,Candidatas a excluir da campanha geral; revisar politica e landing inteira
+intencao-adulta,grupos adultos,PHRASE,campanha_catalogo_proposta,Candidatas a excluir da campanha geral; revisar politica e landing inteira
+intencao-adulta,onlyfans,PHRASE,campanha_catalogo_proposta,Candidatas a excluir da campanha geral; revisar politica e landing inteira
+intencao-adulta,privacy vazado,PHRASE,campanha_catalogo_proposta,Candidatas a excluir da campanha geral; revisar politica e landing inteira
+intencao-adulta,vazados,PHRASE,campanha_catalogo_proposta,Candidatas a excluir da campanha geral; revisar politica e landing inteira
+intencao-adulta,vazadas,PHRASE,campanha_catalogo_proposta,Candidatas a excluir da campanha geral; revisar politica e landing inteira
+intencao-adulta,telegram 18,PHRASE,campanha_catalogo_proposta,Candidatas a excluir da campanha geral; revisar politica e landing inteira
+intencao-adulta,grupos 18,PHRASE,campanha_catalogo_proposta,Candidatas a excluir da campanha geral; revisar politica e landing inteira
+intencao-adulta,whatsapp 18,PHRASE,campanha_catalogo_proposta,Candidatas a excluir da campanha geral; revisar politica e landing inteira
+suporte-app,baixar telegram,PHRASE,campanha_catalogo_proposta,"Excluir procura por aplicativo, suporte ou software; nao excluir telegram/whatsapp em frase"
+suporte-app,baixar whatsapp,PHRASE,campanha_catalogo_proposta,"Excluir procura por aplicativo, suporte ou software; nao excluir telegram/whatsapp em frase"
+suporte-app,download telegram,PHRASE,campanha_catalogo_proposta,"Excluir procura por aplicativo, suporte ou software; nao excluir telegram/whatsapp em frase"
+suporte-app,download whatsapp,PHRASE,campanha_catalogo_proposta,"Excluir procura por aplicativo, suporte ou software; nao excluir telegram/whatsapp em frase"
+suporte-app,telegram apk,PHRASE,campanha_catalogo_proposta,"Excluir procura por aplicativo, suporte ou software; nao excluir telegram/whatsapp em frase"
+suporte-app,whatsapp apk,PHRASE,campanha_catalogo_proposta,"Excluir procura por aplicativo, suporte ou software; nao excluir telegram/whatsapp em frase"
+suporte-app,whatsapp gb,PHRASE,campanha_catalogo_proposta,"Excluir procura por aplicativo, suporte ou software; nao excluir telegram/whatsapp em frase"
+suporte-app,gb whatsapp,PHRASE,campanha_catalogo_proposta,"Excluir procura por aplicativo, suporte ou software; nao excluir telegram/whatsapp em frase"
+suporte-app,recuperar conta,PHRASE,campanha_catalogo_proposta,"Excluir procura por aplicativo, suporte ou software; nao excluir telegram/whatsapp em frase"
+suporte-app,recuperar senha,PHRASE,campanha_catalogo_proposta,"Excluir procura por aplicativo, suporte ou software; nao excluir telegram/whatsapp em frase"
+suporte-app,codigo de verificacao,PHRASE,campanha_catalogo_proposta,"Excluir procura por aplicativo, suporte ou software; nao excluir telegram/whatsapp em frase"
+suporte-app,código de verificação,PHRASE,campanha_catalogo_proposta,"Excluir procura por aplicativo, suporte ou software; nao excluir telegram/whatsapp em frase"
+suporte-app,telegram nao funciona,PHRASE,campanha_catalogo_proposta,"Excluir procura por aplicativo, suporte ou software; nao excluir telegram/whatsapp em frase"
+suporte-app,whatsapp nao funciona,PHRASE,campanha_catalogo_proposta,"Excluir procura por aplicativo, suporte ou software; nao excluir telegram/whatsapp em frase"
+suporte-app,whatsapp fora do ar,PHRASE,campanha_catalogo_proposta,"Excluir procura por aplicativo, suporte ou software; nao excluir telegram/whatsapp em frase"
+suporte-app,suporte telegram,PHRASE,campanha_catalogo_proposta,"Excluir procura por aplicativo, suporte ou software; nao excluir telegram/whatsapp em frase"
+suporte-app,suporte whatsapp,PHRASE,campanha_catalogo_proposta,"Excluir procura por aplicativo, suporte ou software; nao excluir telegram/whatsapp em frase"
+suporte-app,instalar telegram,PHRASE,campanha_catalogo_proposta,"Excluir procura por aplicativo, suporte ou software; nao excluir telegram/whatsapp em frase"
+suporte-app,instalar whatsapp,PHRASE,campanha_catalogo_proposta,"Excluir procura por aplicativo, suporte ou software; nao excluir telegram/whatsapp em frase"
+genericos-isolados,telegram,EXACT,campanha_catalogo_proposta,Exata apenas: preservar buscas como grupos de whatsapp e grupos de promocoes
+genericos-isolados,whatsapp,EXACT,campanha_catalogo_proposta,Exata apenas: preservar buscas como grupos de whatsapp e grupos de promocoes
+genericos-isolados,promos,EXACT,campanha_catalogo_proposta,Exata apenas: preservar buscas como grupos de whatsapp e grupos de promocoes
+genericos-isolados,promocoes,EXACT,campanha_catalogo_proposta,Exata apenas: preservar buscas como grupos de whatsapp e grupos de promocoes
+genericos-isolados,promoções,EXACT,campanha_catalogo_proposta,Exata apenas: preservar buscas como grupos de whatsapp e grupos de promocoes
+genericos-isolados,cupom,EXACT,campanha_catalogo_proposta,Exata apenas: preservar buscas como grupos de whatsapp e grupos de promocoes
+genericos-isolados,cupons,EXACT,campanha_catalogo_proposta,Exata apenas: preservar buscas como grupos de whatsapp e grupos de promocoes
+genericos-isolados,desconto,EXACT,campanha_catalogo_proposta,Exata apenas: preservar buscas como grupos de whatsapp e grupos de promocoes
+genericos-isolados,descontos,EXACT,campanha_catalogo_proposta,Exata apenas: preservar buscas como grupos de whatsapp e grupos de promocoes
+direitos-e-abuso,filme completo gratis,PHRASE,campanha_catalogo_proposta,Candidatas fora do piloto; revisar relatorio de termos e evitar bloqueios excessivos
+direitos-e-abuso,filme completo grátis,PHRASE,campanha_catalogo_proposta,Candidatas fora do piloto; revisar relatorio de termos e evitar bloqueios excessivos
+direitos-e-abuso,filmes piratas,PHRASE,campanha_catalogo_proposta,Candidatas fora do piloto; revisar relatorio de termos e evitar bloqueios excessivos
+direitos-e-abuso,series piratas,PHRASE,campanha_catalogo_proposta,Candidatas fora do piloto; revisar relatorio de termos e evitar bloqueios excessivos
+direitos-e-abuso,séries piratas,PHRASE,campanha_catalogo_proposta,Candidatas fora do piloto; revisar relatorio de termos e evitar bloqueios excessivos
+direitos-e-abuso,iptv pirata,PHRASE,campanha_catalogo_proposta,Candidatas fora do piloto; revisar relatorio de termos e evitar bloqueios excessivos
+direitos-e-abuso,iptv gratis,PHRASE,campanha_catalogo_proposta,Candidatas fora do piloto; revisar relatorio de termos e evitar bloqueios excessivos
+direitos-e-abuso,iptv grátis,PHRASE,campanha_catalogo_proposta,Candidatas fora do piloto; revisar relatorio de termos e evitar bloqueios excessivos
+direitos-e-abuso,crack download,PHRASE,campanha_catalogo_proposta,Candidatas fora do piloto; revisar relatorio de termos e evitar bloqueios excessivos
+direitos-e-abuso,contas roubadas,PHRASE,campanha_catalogo_proposta,Candidatas fora do piloto; revisar relatorio de termos e evitar bloqueios excessivos
+direitos-e-abuso,cartao clonado,PHRASE,campanha_catalogo_proposta,Candidatas fora do piloto; revisar relatorio de termos e evitar bloqueios excessivos
+direitos-e-abuso,cartão clonado,PHRASE,campanha_catalogo_proposta,Candidatas fora do piloto; revisar relatorio de termos e evitar bloqueios excessivos
+direitos-e-abuso,clonar whatsapp,PHRASE,campanha_catalogo_proposta,Candidatas fora do piloto; revisar relatorio de termos e evitar bloqueios excessivos
+direitos-e-abuso,invadir whatsapp,PHRASE,campanha_catalogo_proposta,Candidatas fora do piloto; revisar relatorio de termos e evitar bloqueios excessivos
+direitos-e-abuso,hackear whatsapp,PHRASE,campanha_catalogo_proposta,Candidatas fora do piloto; revisar relatorio de termos e evitar bloqueios excessivos
+direitos-e-abuso,dados vazados,PHRASE,campanha_catalogo_proposta,Candidatas fora do piloto; revisar relatorio de termos e evitar bloqueios excessivos
+direitos-e-abuso,cpf vazado,PHRASE,campanha_catalogo_proposta,Candidatas fora do piloto; revisar relatorio de termos e evitar bloqueios excessivos
+apostas-fora-piloto,tigrinho,PHRASE,campanha_catalogo_proposta,Nao misturar com comunidades/ofertas; produtos regulados demandam analise propria
+apostas-fora-piloto,jogo do tigrinho,PHRASE,campanha_catalogo_proposta,Nao misturar com comunidades/ofertas; produtos regulados demandam analise propria
+apostas-fora-piloto,cassino online,PHRASE,campanha_catalogo_proposta,Nao misturar com comunidades/ofertas; produtos regulados demandam analise propria
+apostas-fora-piloto,casino online,PHRASE,campanha_catalogo_proposta,Nao misturar com comunidades/ofertas; produtos regulados demandam analise propria
+apostas-fora-piloto,roleta online,PHRASE,campanha_catalogo_proposta,Nao misturar com comunidades/ofertas; produtos regulados demandam analise propria
+apostas-fora-piloto,sinais de aposta,PHRASE,campanha_catalogo_proposta,Nao misturar com comunidades/ofertas; produtos regulados demandam analise propria
+apostas-fora-piloto,sinais de apostas,PHRASE,campanha_catalogo_proposta,Nao misturar com comunidades/ofertas; produtos regulados demandam analise propria
+apostas-fora-piloto,apostas esportivas,PHRASE,campanha_catalogo_proposta,Nao misturar com comunidades/ofertas; produtos regulados demandam analise propria
+apostas-fora-piloto,ganho garantido,PHRASE,campanha_catalogo_proposta,Nao misturar com comunidades/ofertas; produtos regulados demandam analise propria
+apostas-fora-piloto,renda garantida,PHRASE,campanha_catalogo_proposta,Nao misturar com comunidades/ofertas; produtos regulados demandam analise propria

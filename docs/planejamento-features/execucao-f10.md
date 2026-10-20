@@ -55,3 +55,9 @@ Primeira rodada vermelha de domínio capturada antes da regra (3 falhas). Compon
 S0–S6 automatizados localmente, com a ressalva de sequência S1 acima. AC03 permanece parcial e S7 em revisão: TLS/DNS reais, CI e liberação comercial não foram executados. Parada após F10 cumprida; não iniciar F24 nem outras features.
 
 Commit de implementação: 6694ce0d7325345f842c4f8c5e684b180a98e63c.
+
+## Proteção de infraestrutura — 20/10/2026
+
+F10-AC07 implementado localmente: inventário Coolify + DNS autoritativo Cloudflare, leitura sem cache e falha fechada em reserva/ativação/resolução. Configuração, decisões, exceção estrita do roteador e limites em [operação](operacao-f10.md). Credenciais reais indisponíveis: MCP Coolify e Context7 falharam por conexão; nenhuma env de produção, token, DNS ou deploy foi alterado. Dados anteriores/assinaturas/reservas foram preservados, sem migration nova.
+
+Validação: 13/13 testes unitários backend (adapters Coolify/Cloudflare e domínio de hostname); 11/11 PG contra container descartável localhost:5946. A ordenação inicial do pré-check alterou erro de conta sem página para 403; teste capturou, restaurado o contrato 400 antes de fechar. Suíte E2E conjunta F10/F32: 23/23 desktop/mobile; repetição dirigida F10-E05/F32-E06: 5/5, incluindo setup. E2E tem composição de infraestrutura sintética explícita, não prova acesso às APIs reais. Uma repetição não iniciou API/worker no Windows; repetição posterior passou. Lint, typecheck e build backend passaram. Frontend lint/typecheck e build com TEMLINK_E2E_BUILD=1 passaram, sem encerrar servidor local. Containers próprios de PG/Redis removidos ao finalizar. F10-M01 real e AC07 nos provedores reais seguem pendentes.

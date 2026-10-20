@@ -1,5 +1,9 @@
 # Tem Link Aqui
 
+## Grafo do projeto
+
+Usar a skill Graphify e consultar `graphify-out/graph.json` primeiro em perguntas de arquitetura, dependências e impacto; confirmar conclusões no código atual. O índice local cobre código e testes de frontend/backend, conforme `.graphifyignore`. Escopo, comandos de atualização e limites estão em `graphify-out/ESCOPO.md`. Reindexar após mudanças relevantes antes de tratar o grafo como atualizado.
+
 ## Escopo e fonte de verdade
 
 O programa de frontend inclui engenharia, produto, UX, acessibilidade e Design System. O contrato está em [docs/frontend-profissional/README.md](docs/frontend-profissional/README.md).

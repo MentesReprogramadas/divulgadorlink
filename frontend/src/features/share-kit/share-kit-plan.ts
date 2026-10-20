@@ -29,3 +29,9 @@ export function wrapShareText(text:string,width:number,measure:(value:string)=>n
  }
  return lines
 }
+
+export function fitShareTitle(value:string,width:number,measure:(text:string,size:number)=>number,max=76,min=32){
+ const title=value.replace(/\s+/gu,' ').trim()
+ for(let size=max;size>=min;size-=2)if(measure(title,size)<=width)return{size,lines:[title]}
+ return{size:min,lines:wrapShareText(title,width,text=>measure(text,min))}
+}

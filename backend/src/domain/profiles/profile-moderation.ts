@@ -19,7 +19,7 @@ const textKey = (value: string) => value.normalize('NFKC').trim().replace(/\s+/g
 // Punctuation alone introduces no subject, destination or instruction.
 const punctuationOnly = (value: string) => /^[\p{P}\s]*$/u.test(value.normalize('NFKC'))
 const destinationKey = (item: ProfileContent['items'][number]) => item.type + ':' + (item.type === 'CATALOG' ? item.destination : canonicalUrl(item.destination))
-export const profileModerationText = (content: ProfileContent) => [content.name, content.bio, ...content.categories.map(group => group.name), ...content.items.flatMap(item => [item.label,...(item.event?[item.event.description,item.event.location]:[])])].join('\n')
+export const profileModerationText = (content: ProfileContent) => [content.name, content.bio, ...content.categories.map(group => group.name), ...content.items.flatMap(item => [item.label,...(item.event?[item.event.description,item.event.location,item.event.buttonLabel??'Acessar evento']:[])])].join('\n')
 
 export function profileModerationSnapshot(content: ProfileContent): ModerationSnapshot {
   return {
@@ -62,6 +62,6 @@ export function profileModerationChanges(content: ProfileContent, approved?: Pro
     if (!labels) { changedFields.push('destino ou tipo de link'); text.push(item.label) }
     else if (!labels.has(textKey(item.label))) { changedFields.push('título de link'); text.push(item.label) }
   }
-  for(const item of content.items){const old=approved.items.find(prior=>prior.id===item.id)?.event;if(item.event&&(item.event.description!==old?.description||item.event.location!==old?.location)){changedFields.push('dados do evento');text.push(item.event.description,item.event.location)}}
+  for(const item of content.items){const old=approved.items.find(prior=>prior.id===item.id)?.event;if(item.event&&(item.event.description!==old?.description||item.event.location!==old?.location||(item.event.buttonLabel??'Acessar evento')!==(old?.buttonLabel??'Acessar evento'))){changedFields.push('dados do evento');text.push(item.event.description,item.event.location,item.event.buttonLabel??'Acessar evento')}}
   return { changedFields: [...new Set(changedFields)], text: text.join('\n') }
 }

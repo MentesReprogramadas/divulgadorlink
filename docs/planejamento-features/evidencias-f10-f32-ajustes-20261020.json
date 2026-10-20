@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-20",
+  "branch": "codex/roadmap-f37-testes",
+  "workingTree": true,
+  "committed": false,
+  "deployed": false,
+  "checks": {
+    "frontendUnit": 20,
+    "backendUnit": 13,
+    "pg": 11,
+    "e2eJoint": 23,
+    "e2eDirectedRepeat": 5,
+    "lint": "passed frontend/backend",
+    "typecheck": "passed frontend/backend",
+    "build": "passed backend; frontend TEMLINK_E2E_BUILD=1"
+  },
+  "pending": [
+    "Coolify API token and router UUID",
+    "Cloudflare read token and authoritative Zone IDs",
+    "real provider inventory inclusion/removal test",
+    "F10-M01 public DNS/TLS staging"
+  ],
+  "limits": [
+    "E2E uses isolated infrastructure composition; unit adapters mock provider APIs",
+    "mobile is Chromium emulation",
+    "no DNS writes or deploy performed"
+  ],
+  "sha256": {
+    "backend/src/adapters/http/coolify-domains.ts": "54d6b20bb6cfda5f56af16e97749023c9cceaefb84a0faeaac8056919b0bf38f",
+    "backend/src/adapters/http/coolify-domains.spec.ts": "3d71833d1c54174539e129b2d12df3567469d1f4619b208d11e8049f6336d3a0",
+    "backend/src/adapters/http/cloudflare-profile-dns.ts": "49432b5da9d77ea5346170267e90a52b8610e0319330763540e695002ea833ba",
+    "backend/src/adapters/http/cloudflare-profile-dns.spec.ts": "1275ef175c7c20ab2b3693253388647b14404681c9561b65729b8628998cc2b8",
+    "backend/src/repositories/profile-hosts.ts": "bdef01b5506f1277726dc9728cff65faa437c978c13c016feec8033eefd1492c",
+    "backend/src/env/index.ts": "6cb137114f26c34baf338a843ebd7a47c70943ceb5595d1bc7abb188c40daacf",
+    "backend/.env.example": "cab9b4ea8aa6a5e9d1a88773c16d5a14e480180aba4a3387077f098988ced4b3",
+    "backend/scripts/e2e-profile-hosts.ts": "f127ed5a31bc1090ba0360b53e29db508846c3a0e22b7212bdf253cce87e7f83",
+    "backend/src/http/profile-hosts.pg.spec.ts": "82aaf5693e23f93b37e2182246bffdc6c90fe64e52e3da032191e1fd2655ad0c",
+    "frontend/src/features/share-kit/share-kit-plan.ts": "db1e312071aced04748e967280e7f47feedee6a75bf7d9aed4a3cf09e412619a",
+    "frontend/src/features/share-kit/render-share-kit.ts": "a27eafc9ca2f1e42a0961a2220a360837640c6c446baa0747875940127c418f8",
+    "frontend/src/features/share-kit/share-kit-screen.tsx": "34ee75f371cdb1823fca91beccbcc102e384d2f94ecbfd7cc8accebb9cbdccde",
+    "frontend/src/features/account/components/workspace-heading.ts": "f14eff152a6569b92ce51afe36ff6f265eb5f3e49fdbe28acd8706cbf2172569",
+    "frontend/src/features/account/components/workspace-navigation.tsx": "6360bc63258c3aee845000c34edb062cf8b575a87cf4fa422ae3ab5a87224bd6",
+    "frontend/e2e/share-kit.spec.ts": "4161d3526def756ff63de2f7bfff5f91c51b4581bdb7955a2575852f859905bf",
+    "frontend/e2e/profile-hosts.spec.ts": "87de47815f72212b6417842acb5620a9f2ee4feba2a65ab3a86d5141c43610ca"
+  }
+}

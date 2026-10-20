@@ -1,8 +1,15 @@
 import {request} from 'node:http'
-import {setProfileHostProbeForTest} from '../src/repositories/profile-hosts'
+import {setProfileHostProbeForTest,setProfileHostInfrastructureForTest} from '../src/repositories/profile-hosts'
 import {existsSync,readFileSync} from 'node:fs'
+import {ProfileError} from '../src/domain/profiles/profile'
 export function composeProfileHostsE2e(){
  if(process.env.NODE_ENV==='production')throw new Error('Local fixture only')
+ setProfileHostInfrastructureForTest(async hostname=>{
+  const control=new URL('../../frontend/e2e/.runtime/profile-host-probe.json',import.meta.url)
+  const value=existsSync(control)?JSON.parse(readFileSync(control,'utf8')):{blocked:[],inventoryUnavailable:false}
+  if(value.inventoryUnavailable)throw new ProfileError(503,'Não foi possível conferir os endereços da plataforma.')
+  if(value.blocked?.includes(hostname))throw new ProfileError(409,'Esse endereço está em uso pela plataforma. Escolha outro.')
+ })
  setProfileHostProbeForTest(async(hostname,challenge)=>{
   if(!/^[a-z0-9-]+\.pages\.localhost$/.test(hostname))return false
   const control=new URL('../../frontend/e2e/.runtime/profile-host-probe.json',import.meta.url)

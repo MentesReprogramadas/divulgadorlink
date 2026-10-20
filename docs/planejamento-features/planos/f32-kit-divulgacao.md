@@ -162,3 +162,7 @@ Esses nomes não são obrigação de criar arquivos vazios. Preferir ampliação
 ## Execução autorizada — 20/10/2026
 
 [Contrato reconciliado, decisões, ACs, testes e reversão](../execucao-f32.md). O registro de execução prevalece sobre caminhos/contratos apenas propostos neste planejamento. S7 remoto permanece pendente.
+
+## Complemento executado — 20/10/2026
+
+Ajustados nomes em todos os consumidores de navegação/heading, composição Canvas medida e controles de modelo/cor existentes. Contratos de exportação e consentimento mantidos. Unitários e E2E registrados em ../execucao-f32.md, build isolado frontend aprovado. Sem nova dependência ou migration.

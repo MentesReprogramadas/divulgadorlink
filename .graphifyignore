@@ -1,0 +1,4 @@
+# Indexar somente frontend e backend; preservar exclusões locais de cada pacote.
+/*
+!/frontend/
+!/backend/
