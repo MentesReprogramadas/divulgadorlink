@@ -32,3 +32,5 @@ Primeira rodada E2E: 5/7; o teste navegava antes da confirmação da publicaçã
 Nenhuma env nova. Aplicar migration antes da versão que lê event. Não reverter simplesmente para um parser antigo estrito depois que snapshots com evento forem publicados: manter leitores compatíveis e desabilitar somente a entrada de edição, preservando snapshots e histórico. Nenhuma migração destrutiva ou alteração no banco pessoal executada. Arquivo não usa fila/cron novo; cancelamento é uma publicação, e dados privados continuam privados.
 
 S0–S6 comprovados localmente; S7/CI/liberação remota pendentes. Próxima sequência F32 → F33 → F10 e parada após F10, conforme autorização.
+
+Commit de implementação: b100747814a9a988ad8382954dc3c613ee9d7de1.
