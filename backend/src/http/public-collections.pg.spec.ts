@@ -1,0 +1,43 @@
+import { randomUUID } from 'node:crypto'
+import { PrismaClient } from '@prisma/client'
+import { beforeAll, beforeEach, afterAll, expect, it } from 'vitest'
+import { app } from '@/app'
+import { setFavoritesDbForTest,setCollectionsPortsForTest } from '@/http/controllers/@Collections/routes'
+import { setTenantsRepositoryForTest } from '@/http/tenant'
+
+const url = process.env.ANALYTICS_DATABASE_URL
+if (!url || !['localhost', '127.0.0.1'].includes(new URL(url).hostname)) throw new Error('Local disposable database required')
+const db = new PrismaClient({ datasources: { db: { url } } })
+let tenant: string, otherTenant: string, host: string, user: string, other: string, link: string
+beforeAll(async () => { setFavoritesDbForTest(db); setTenantsRepositoryForTest({ async findByHost(host) { return db.tenant.findUnique({ where: { host } }) } }); setCollectionsPortsForTest({probe:async()=>200,judge:async()=>({pass:true,confidence:1,reasons:[]})});await app.ready() })
+beforeEach(async () => {
+  tenant = randomUUID(); otherTenant = randomUUID(); host = tenant + '.test'; user = 'u-' + tenant; other = 'o-' + tenant; link = 'l-' + tenant
+  for (const id of [tenant, otherTenant]) {
+    await db.tenant.create({ data: { id, host: id + '.test', name: 'F04' } })
+    await db.network.create({ data: { id: 'r-' + id, tenantId: id, name: 'Site', slug: 'site', knownHosts: [] } })
+    await db.niche.create({ data: { id: 'n-' + id, tenantId: id, name: 'Estudo', slug: 'estudo' } })
+  }
+  await db.config.create({data:{tenantId:tenant,key:'MODERATION_AUTO_APPROVE_THRESHOLD',value:'0.85'}})
+  for (const id of [user, other]) await db.user.create({ data: { id, tenantId: tenant, name: id, passwordHash: 'fixture',identifiers:{create:{tenantId:tenant,kind:'EMAIL',normalizedValue:id+'@fixture.test',confirmedAt:new Date()}} } })
+  await db.user.create({ data: { id: 'foreign-' + tenant, tenantId: otherTenant, name: 'Foreign', passwordHash: 'fixture' } })
+  await db.link.create({ data: { id: link, tenantId: tenant, ownerId: other, name: 'SentinelaSalva', description: 'DescricaoPrivadaQuandoOculto', canonicalUrl: 'https://example.com/f04', nicheId: 'n-' + tenant, networkId: 'r-' + tenant, status: 'PUBLISHED' } })
+})
+afterAll(async () => { setFavoritesDbForTest(null); await db.$disconnect() })
+function call(method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE', path: string, body?: unknown, actor: string | null = user, tokenTenant = tenant, requestHost = host, role = 'USER') {
+  return app.inject({ method, url: '/api/v1/me/' + path, headers: { host: requestHost, ...(actor ? { authorization: 'Bearer ' + app.jwt.sign({ sub: actor, tenantId: tokenTenant, role, typ: 'access' }) } : {}) }, ...(body ? { payload: body } : {}) })
+}
+async function collection(name = 'Estudos') {
+  const r = await call('POST', 'collections', { id: randomUUID(), name }); expect(r.statusCode).toBe(200); return r.json().collection as { id: string; name: string; version: number }
+}
+async function favorite(id = link) {
+  const r = await call('PUT', 'favorites/' + id); expect(r.statusCode).toBe(200); return r.json().favoriteId as string
+}
+
+async function ready(){const c=await collection(),f=await favorite();await call('PUT','collections/'+c.id+'/items/'+f,{expectedVersion:0});return {...c,version:1,f}}
+const input=(version=1,slug='estudos')=>({expectedVersion:version,title:'Comunidades de estudo',description:'Seleção de comunidades',curator:'Ana',slug,requiresAge:false})
+async function publicRead(slug='estudos',cookie=''){return app.inject({method:'GET',url:'/api/v1/collections/'+slug,headers:{host,...(cookie?{cookie}:{})}})}
+it('F33-I01/T01/T02/T04 voluntária, snapshot, curador distinto, não publica adições privadas',async()=>{const c=await ready();expect((await publicRead()).statusCode).toBe(404);expect((await call('POST','collections/'+c.id+'/publish',input())).statusCode).toBe(200);const result=await publicRead();expect(result.headers['cache-control']).toBe('private, no-store');expect(result.json()).toMatchObject({curator:'Ana',publishedRevision:1,items:[{id:link,publisher:'Publicado por outro anunciante'}]});expect(result.body).not.toContain(c.f);expect(result.body).not.toContain('passwordHash');expect(result.body).not.toContain(user);const another=await collection('PrivadaSentinela');await call('PUT','collections/'+another.id+'/items/'+c.f,{expectedVersion:0});expect((await publicRead()).body).not.toContain('PrivadaSentinela');await call('PATCH','collections/'+c.id,{name:'RascunhoSentinela',expectedVersion:2});expect((await publicRead()).body).not.toContain('RascunhoSentinela')})
+it('F33-I01/T03/T05/T06 disponibilidade viva, idade, banimento, remoção, privada sem cache',async()=>{const c=await ready();await call('POST','collections/'+c.id+'/publish',input());await db.niche.update({where:{id:'n-'+tenant},data:{requiresAge:true}});expect((await publicRead()).json()).toEqual({restricted:true});expect((await publicRead('estudos','age=yes')).json().items).toHaveLength(1);await db.link.update({where:{id:link},data:{status:'UNAVAILABLE'}});expect((await publicRead()).json().items).toEqual([]);await db.link.update({where:{id:link},data:{status:'PUBLISHED'}});await db.user.update({where:{id:other},data:{status:'BANNED'}});expect((await publicRead()).json().items).toEqual([]);await db.user.update({where:{id:other},data:{status:'ACTIVE'}});await call('DELETE','collections/'+c.id+'/items/'+c.f,{expectedVersion:2});expect((await publicRead()).json().items).toEqual([]);expect((await call('PATCH','collections/'+c.id+'/visibility',{expectedVersion:3,visibility:'PRIVATE'})).statusCode).toBe(200);expect((await publicRead()).statusCode).toBe(404)})
+it('F33-I02 sem sessão, outro dono/admin, tenant e conta não confirmada não publicam',async()=>{const c=await ready();for(const actor of [null,other])expect((await call('POST','collections/'+c.id+'/publish',input(),actor)).statusCode).toBe(actor?404:401);expect((await call('POST','collections/'+c.id+'/publish',input(),user,otherTenant)).statusCode).toBe(403);await db.userIdentifier.updateMany({where:{userId:user},data:{confirmedAt:null}});expect((await call('POST','collections/'+c.id+'/publish',input())).statusCode).toBe(403);expect((await publicRead()).statusCode).toBe(404)})
+it('F33-I03/PG01 concorrência, texto bloqueado, reserva anti tomada e constraints',async()=>{const c=await ready();await db.blocklistTerm.create({data:{tenantId:tenant,term:'sentinela'}});expect((await call('POST','collections/'+c.id+'/publish',{...input(),title:'sentinela'})).statusCode).toBe(400);expect((await publicRead()).statusCode).toBe(404);const results=await Promise.all([1,2].map(()=>call('POST','collections/'+c.id+'/publish',input())));expect(results.map(x=>x.statusCode).sort()).toEqual([200,409]);expect((await db.collection.findUnique({where:{id:c.id}}))?.publishedRevision).toBe(1);await call('DELETE','collections/'+c.id+'?expectedVersion=2');const next=await ready();expect((await call('POST','collections/'+next.id+'/publish',input())).statusCode).toBe(409);await expect(db.collection.update({where:{id:next.id},data:{visibility:'PUBLIC'}})).rejects.toThrow();await expect(db.collectionItem.create({data:{collectionId:next.id,favoriteId:next.f,tenantId:otherTenant,userId:user,position:4}})).rejects.toThrow()})
+it('F33-I03 falha na auditoria reverte publicação e reserva na mesma transação',async()=>{const c=await ready(),fn='f33_fail_'+tenant.replaceAll('-','');await db.$executeRawUnsafe(`CREATE FUNCTION ${fn}() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.action='collection.published' THEN RAISE EXCEPTION 'fixture failure'; END IF; RETURN NEW; END $$`);await db.$executeRawUnsafe(`CREATE TRIGGER ${fn} BEFORE INSERT ON audit_logs FOR EACH ROW EXECUTE FUNCTION ${fn}()`);try{expect((await call('POST','collections/'+c.id+'/publish',input())).statusCode).toBe(500);expect((await publicRead()).statusCode).toBe(404);expect(await db.collectionSlug.count({where:{tenantId:tenant}})).toBe(0);expect((await db.collection.findUnique({where:{id:c.id}}))?.version).toBe(1)}finally{await db.$executeRawUnsafe(`DROP TRIGGER ${fn} ON audit_logs`);await db.$executeRawUnsafe(`DROP FUNCTION ${fn}()`)}})

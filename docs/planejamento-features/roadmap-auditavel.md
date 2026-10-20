@@ -533,14 +533,14 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 
 | Etapa | Estado | Pré-requisito imediato | Entregável a verificar |
 | --- | --- | --- | --- |
-| F33-S0 | NÃO INICIADA | F42 (prioridade), F04 | [Escopo contratos e reuso](planos/f33-colecoes-publicas.md#f33-s0-escopo-contratos-e-revisão-de-reutilização) |
-| F33-S1 | NÃO INICIADA | F33-S0 | [Testes U e C](planos/f33-colecoes-publicas.md#f33-s1-testes-unitários-e-componentes-antes-da-regra) |
-| F33-S2 | NÃO INICIADA | F33-S1 | [Dados e migração](planos/f33-colecoes-publicas.md#f33-s2-dados-invariantes-e-migração) |
-| F33-S3 | NÃO INICIADA | F33-S2 | [Domínio API e jobs](planos/f33-colecoes-publicas.md#f33-s3-regra-de-negócio-api-e-jobs) |
-| F33-S4 | NÃO INICIADA | F33-S3 | [Interface](planos/f33-colecoes-publicas.md#f33-s4-interface-composição-e-estados) |
-| F33-S5 | NÃO INICIADA | F33-S4 | [Integração e ACs](planos/f33-colecoes-publicas.md#f33-s5-integração-contrato-persistência-e-falhas) |
-| F33-S6 | NÃO INICIADA | F33-S5 | [Playwright e QA](planos/f33-colecoes-publicas.md#f33-s6-e2e-playwright-e-revisão-visual) |
-| F33-S7 | NÃO INICIADA | F33-S6 | [Regressão e liberação](planos/f33-colecoes-publicas.md#f33-s7-regressão-rollout-e-fechamento-auditável) |
+| F33-S0 | CONCLUÍDA LOCALMENTE | F42 (prioridade), F04 | [Escopo contratos e reuso](planos/f33-colecoes-publicas.md#f33-s0-escopo-contratos-e-revisão-de-reutilização) |
+| F33-S1 | CONCLUÍDA LOCALMENTE | F33-S0 | [Testes U e C](planos/f33-colecoes-publicas.md#f33-s1-testes-unitários-e-componentes-antes-da-regra) |
+| F33-S2 | CONCLUÍDA LOCALMENTE | F33-S1 | [Dados e migração](planos/f33-colecoes-publicas.md#f33-s2-dados-invariantes-e-migração) |
+| F33-S3 | CONCLUÍDA LOCALMENTE | F33-S2 | [Domínio API e jobs](planos/f33-colecoes-publicas.md#f33-s3-regra-de-negócio-api-e-jobs) |
+| F33-S4 | CONCLUÍDA LOCALMENTE | F33-S3 | [Interface](planos/f33-colecoes-publicas.md#f33-s4-interface-composição-e-estados) |
+| F33-S5 | CONCLUÍDA LOCALMENTE | F33-S4 | [Integração e ACs](planos/f33-colecoes-publicas.md#f33-s5-integração-contrato-persistência-e-falhas) |
+| F33-S6 | CONCLUÍDA LOCALMENTE | F33-S5 | [Playwright e QA](planos/f33-colecoes-publicas.md#f33-s6-e2e-playwright-e-revisão-visual) |
+| F33-S7 | EM REVISÃO | F33-S6 | [Regressão e liberação](planos/f33-colecoes-publicas.md#f33-s7-regressão-rollout-e-fechamento-auditável) |
 
 ### 34 F10 Página premium com subdomínio
 
@@ -751,3 +751,8 @@ Não inicia uma nova feature da sequência: mantém 26/42 implementações e F22
 ## 20/10/2026 — F32 validada localmente
 
 [Kit de divulgação: contrato, ACs, decisões e provas](execucao-f32.md). 32/42 implementações registradas. Próxima sequência F33 → F10; parar após F10; autorização de parar após F10 preservada. S7 remoto em revisão; commits na mesma branch, sem push/deploy.
+
+
+## 20/10/2026 — F33 validada localmente
+
+[Coleções públicas compartilháveis: contrato, ACs, decisões e provas](execucao-f33.md). 33/42 implementações registradas. Próxima sequência F10; parar após F10; autorização de parar após F10 preservada. S7 remoto em revisão; commits na mesma branch, sem push/deploy.

@@ -1,0 +1,5 @@
+import '@testing-library/jest-dom/vitest'
+import {render,screen} from '@testing-library/react'
+import {expect,it} from 'vitest'
+import {PublicCollectionView} from './public-collection'
+it('F33-C02 mostra papéis distintos sem campos privados e trata vazio',()=>{const content={restricted:false as const,title:'Estudos',description:'Seleção',curator:'Ana',slug:'estudos',publishedRevision:1,items:[{id:'public',name:'Comunidade',description:'Conversas',href:'/link/public',publisher:'Publicado por outro anunciante',niche:{name:'Estudo',slug:'estudo'},network:{name:'Site',slug:'site'},secret:'sentinela-privada'}]};const view=render(<PublicCollectionView content={content}/>);expect(screen.getByText('Ana')).toBeVisible();expect(screen.getByText('Publicado por outro anunciante')).toBeVisible();expect(view.container.innerHTML).not.toContain('sentinela-privada');view.rerender(<PublicCollectionView content={{...content,items:[]}}/>);expect(screen.getByRole('status')).toHaveTextContent('Sem links disponíveis')})

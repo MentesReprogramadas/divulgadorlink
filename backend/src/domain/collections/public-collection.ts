@@ -1,0 +1,5 @@
+import {z} from 'zod'
+import {profileSlug} from '@/domain/profiles/profile'
+export const collectionPublicationInput=z.object({expectedVersion:z.number().int().nonnegative().max(2147483646),title:z.string().trim().min(1).max(80),description:z.string().trim().max(500),curator:z.string().trim().min(1).max(80),slug:z.string().transform((value,ctx)=>{try{return profileSlug(value)}catch{ctx.addIssue({code:'custom',message:'Endereço inválido ou reservado.'});return z.NEVER}}),requiresAge:z.boolean()}).strict()
+export function publicCollectionLink(row:{status:string;tenantId:string;ownerId:string|null;owner:{status:string;tenantId:string}|null;niche:{tenantId:string};network:{tenantId:string}},tenantId:string){return row.status==='PUBLISHED'&&row.tenantId===tenantId&&row.niche.tenantId===tenantId&&row.network.tenantId===tenantId&&(!row.ownerId||Boolean(row.owner&&row.owner.status==='ACTIVE'&&row.owner.tenantId===tenantId))}
+export function collectionPublished(visibility:string,publication:unknown){return visibility==='PUBLIC'&&publication!==null}

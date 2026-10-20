@@ -1,0 +1,685 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\VSCODE\\divulgadorlinks\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "e2e/public-collections.spec.ts",
+      "e2e/favorites.spec.ts",
+      "--project=features",
+      "--project=features-mobile"
+    ],
+    "configFile": "C:\\VSCODE\\divulgadorlinks\\frontend\\playwright.config.ts",
+    "rootDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\global-setup.ts",
+    "globalTeardown": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\global-teardown.ts",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "setup",
+        "name": "setup",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/auth\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features",
+        "name": "features",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/public-collections\\.spec\\.ts|share-kit\\.spec\\.ts|profile-events\\.spec\\.ts|ownership\\.spec\\.ts|profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features-mobile",
+        "name": "features-mobile",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/public-collections\\.spec\\.ts|share-kit\\.spec\\.ts|profile-events\\.spec\\.ts|ownership\\.spec\\.ts|profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "catalog",
+        "name": "catalog",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/catalog\\.spec\\.ts|mail\\.spec\\.ts|advertise\\.spec\\.ts|legal\\.spec\\.ts|funnel\\.spec\\.ts|signup\\.spec\\.ts|submit-link\\.spec\\.ts|security-headers\\.spec\\.ts|google-ads-submission\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "auth.setup.ts",
+      "file": "auth.setup.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "sessão da Bia para os testes do painel",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "setup",
+              "projectName": "setup",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 420,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:58:12.100Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "17e3fe6f4d9d8bd79c6b-40367c7f5b2a9e9ad033",
+          "file": "auth.setup.ts",
+          "line": 8,
+          "column": 6
+        }
+      ]
+    },
+    {
+      "title": "favorites.spec.ts",
+      "file": "favorites.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F04-E04 cria uma coleção pelo card e mantém o favorito selecionado",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3699,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:58:12.968Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "16966837d6a9b32aed7f-7a5ef79630ea8cebd652",
+          "file": "favorites.spec.ts",
+          "line": 29,
+          "column": 5
+        },
+        {
+          "title": "F04-E01/T01/T03/T05 catálogo, persistência, duas coleções, ordenação e exclusão preservam favoritos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9062,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:58:16.788Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "16966837d6a9b32aed7f-f9407ab7d5295fe9ceed",
+          "file": "favorites.spec.ts",
+          "line": 51,
+          "column": 5
+        },
+        {
+          "title": "F04-E02/T02/T04 anônimo pede login, outra conta não recebe coleções e indisponível não vaza destino",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4878,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:58:25.855Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "16966837d6a9b32aed7f-695a2c5f7fb163fa1b9a",
+          "file": "favorites.spec.ts",
+          "line": 142,
+          "column": 5
+        },
+        {
+          "title": "F04-E03 offline preserva nome, teclado confirma, reload e reflow 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3436,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:58:30.739Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "16966837d6a9b32aed7f-7584884ef50ecd282a8e",
+          "file": "favorites.spec.ts",
+          "line": 163,
+          "column": 5
+        },
+        {
+          "title": "F04-E04 cria uma coleção pelo card e mantém o favorito selecionado",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3603,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:58:44.730Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "16966837d6a9b32aed7f-59132adac79e525e2f01",
+          "file": "favorites.spec.ts",
+          "line": 29,
+          "column": 5
+        },
+        {
+          "title": "F04-E01/T01/T03/T05 catálogo, persistência, duas coleções, ordenação e exclusão preservam favoritos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8562,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:58:48.447Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "16966837d6a9b32aed7f-6be61b45851c41476e0b",
+          "file": "favorites.spec.ts",
+          "line": 51,
+          "column": 5
+        },
+        {
+          "title": "F04-E02/T02/T04 anônimo pede login, outra conta não recebe coleções e indisponível não vaza destino",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4694,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:58:57.014Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "16966837d6a9b32aed7f-a74213dce01c6bb43d28",
+          "file": "favorites.spec.ts",
+          "line": 142,
+          "column": 5
+        },
+        {
+          "title": "F04-E03 offline preserva nome, teclado confirma, reload e reflow 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2893,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:59:01.714Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "16966837d6a9b32aed7f-7d3883a2093d1daf0613",
+          "file": "favorites.spec.ts",
+          "line": 163,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "public-collections.spec.ts",
+      "file": "public-collections.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F33-E01/T01/T02/T03/T04/T05/T06 publica seleção e revoga, autoria distinta e elegibilidade viva",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3926,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:58:34.216Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1a32627936c3521c94bd-65babf082e3c5a8ae730",
+          "file": "public-collections.spec.ts",
+          "line": 8,
+          "column": 5
+        },
+        {
+          "title": "F33-E02/I02 sem sessão/outro dono e rascunho secreto fora do público",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2849,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:58:38.148Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1a32627936c3521c94bd-20a2a8fdefddc19a8a67",
+          "file": "public-collections.spec.ts",
+          "line": 9,
+          "column": 5
+        },
+        {
+          "title": "F33-E03/C01 falha real de rede mantém formulário; teclado, idade e reflow",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3157,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:58:41.003Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1a32627936c3521c94bd-509f3147b6f787240cf6",
+          "file": "public-collections.spec.ts",
+          "line": 10,
+          "column": 5
+        },
+        {
+          "title": "F33-E01/T01/T02/T03/T04/T05/T06 publica seleção e revoga, autoria distinta e elegibilidade viva",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3427,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:59:04.646Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1a32627936c3521c94bd-d0b6504a86e75cbd8347",
+          "file": "public-collections.spec.ts",
+          "line": 8,
+          "column": 5
+        },
+        {
+          "title": "F33-E02/I02 sem sessão/outro dono e rascunho secreto fora do público",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2745,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:59:08.078Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1a32627936c3521c94bd-7760e26f69a213ded1bc",
+          "file": "public-collections.spec.ts",
+          "line": 9,
+          "column": 5
+        },
+        {
+          "title": "F33-E03/C01 falha real de rede mantém formulário; teclado, idade e reflow",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3326,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:59:10.829Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1a32627936c3521c94bd-972fbf1c81fd28b1a235",
+          "file": "public-collections.spec.ts",
+          "line": 10,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-20T10:57:30.950Z",
+    "duration": 104916.059,
+    "expected": 15,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

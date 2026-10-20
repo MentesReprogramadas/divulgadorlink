@@ -1,0 +1,6 @@
+import {expect,it} from 'vitest'
+import {collectionPublicationInput,publicCollectionLink,collectionPublished} from './public-collection'
+const row={status:'PUBLISHED',tenantId:'a',ownerId:'owner',owner:{status:'ACTIVE',tenantId:'a'},niche:{tenantId:'a'},network:{tenantId:'a'}}
+it('F33-U01/T03/T05 elegibilidade atual exclui rejeitados, banidos e relações de outro tenant',()=>{expect(publicCollectionLink(row,'a')).toBe(true);for(const value of [{...row,status:'REJECTED'},{...row,owner:{status:'BANNED',tenantId:'a'}},{...row,network:{tenantId:'b'}},{...row,owner:null}])expect(publicCollectionLink(value,'a')).toBe(false)})
+it('F33-U02/U04/T01/T04/T06 privado nunca publica nem conserva público ao revogar',()=>{expect(collectionPublished('PRIVATE',{})).toBe(false);expect(collectionPublished('PUBLIC',null)).toBe(false);expect(collectionPublished('PUBLIC',{})).toBe(true)})
+it('F33-U03/T02 contrato público exige curador explícito e não transfere dono',()=>{const input={expectedVersion:0,title:'Estudos',description:'Seleção',curator:'Ana',slug:'estudos',requiresAge:false};expect(collectionPublicationInput.parse(input)).toEqual(input);expect(collectionPublicationInput.safeParse({...input,ownerId:'outro'}).success).toBe(false);expect(collectionPublicationInput.safeParse({...input,slug:'admin'}).success).toBe(false)})

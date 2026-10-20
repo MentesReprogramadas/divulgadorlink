@@ -1,0 +1,775 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\VSCODE\\divulgadorlinks\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "e2e/public-collections.spec.ts",
+      "e2e/favorites.spec.ts",
+      "--project=features",
+      "--project=features-mobile"
+    ],
+    "configFile": "C:\\VSCODE\\divulgadorlinks\\frontend\\playwright.config.ts",
+    "rootDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\global-setup.ts",
+    "globalTeardown": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\global-teardown.ts",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "setup",
+        "name": "setup",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/auth\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features",
+        "name": "features",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/public-collections\\.spec\\.ts|share-kit\\.spec\\.ts|profile-events\\.spec\\.ts|ownership\\.spec\\.ts|profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features-mobile",
+        "name": "features-mobile",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/public-collections\\.spec\\.ts|share-kit\\.spec\\.ts|profile-events\\.spec\\.ts|ownership\\.spec\\.ts|profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/VSCODE/divulgadorlinks/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "catalog",
+        "name": "catalog",
+        "testDir": "C:/VSCODE/divulgadorlinks/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/catalog\\.spec\\.ts|mail\\.spec\\.ts|advertise\\.spec\\.ts|legal\\.spec\\.ts|funnel\\.spec\\.ts|signup\\.spec\\.ts|submit-link\\.spec\\.ts|security-headers\\.spec\\.ts|google-ads-submission\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "auth.setup.ts",
+      "file": "auth.setup.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "sessão da Bia para os testes do painel",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "setup",
+              "projectName": "setup",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 466,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:56:09.538Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "17e3fe6f4d9d8bd79c6b-40367c7f5b2a9e9ad033",
+          "file": "auth.setup.ts",
+          "line": 8,
+          "column": 6
+        }
+      ]
+    },
+    {
+      "title": "favorites.spec.ts",
+      "file": "favorites.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F04-E04 cria uma coleção pelo card e mantém o favorito selecionado",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3685,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:56:10.498Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "16966837d6a9b32aed7f-7a5ef79630ea8cebd652",
+          "file": "favorites.spec.ts",
+          "line": 29,
+          "column": 5
+        },
+        {
+          "title": "F04-E01/T01/T03/T05 catálogo, persistência, duas coleções, ordenação e exclusão preservam favoritos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8710,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:56:14.295Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "16966837d6a9b32aed7f-f9407ab7d5295fe9ceed",
+          "file": "favorites.spec.ts",
+          "line": 51,
+          "column": 5
+        },
+        {
+          "title": "F04-E02/T02/T04 anônimo pede login, outra conta não recebe coleções e indisponível não vaza destino",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4827,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:56:23.010Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "16966837d6a9b32aed7f-695a2c5f7fb163fa1b9a",
+          "file": "favorites.spec.ts",
+          "line": 142,
+          "column": 5
+        },
+        {
+          "title": "F04-E03 offline preserva nome, teclado confirma, reload e reflow 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3404,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:56:27.843Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "16966837d6a9b32aed7f-7584884ef50ecd282a8e",
+          "file": "favorites.spec.ts",
+          "line": 163,
+          "column": 5
+        },
+        {
+          "title": "F04-E04 cria uma coleção pelo card e mantém o favorito selecionado",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3631,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:56:42.776Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "16966837d6a9b32aed7f-59132adac79e525e2f01",
+          "file": "favorites.spec.ts",
+          "line": 29,
+          "column": 5
+        },
+        {
+          "title": "F04-E01/T01/T03/T05 catálogo, persistência, duas coleções, ordenação e exclusão preservam favoritos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8628,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:56:46.518Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "16966837d6a9b32aed7f-6be61b45851c41476e0b",
+          "file": "favorites.spec.ts",
+          "line": 51,
+          "column": 5
+        },
+        {
+          "title": "F04-E02/T02/T04 anônimo pede login, outra conta não recebe coleções e indisponível não vaza destino",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4725,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:56:55.152Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "16966837d6a9b32aed7f-a74213dce01c6bb43d28",
+          "file": "favorites.spec.ts",
+          "line": 142,
+          "column": 5
+        },
+        {
+          "title": "F04-E03 offline preserva nome, teclado confirma, reload e reflow 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3362,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:56:59.883Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "16966837d6a9b32aed7f-7d3883a2093d1daf0613",
+          "file": "favorites.spec.ts",
+          "line": 163,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "public-collections.spec.ts",
+      "file": "public-collections.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F33-E01/T01/T02/T03/T04/T05/T06 publica seleção e revoga, autoria distinta e elegibilidade viva",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 3293,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m404\u001b[39m\nReceived: \u001b[31m200\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m404\u001b[39m\nReceived: \u001b[31m200\u001b[39m\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\public-collections.spec.ts:8:1581",
+                    "location": {
+                      "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\public-collections.spec.ts",
+                      "column": 1581,
+                      "line": 8
+                    },
+                    "snippet": "   6 | async function prepare(page:Page,suffix:string){await roadmapLogin(page);const f=roadmapFixture(),id=crypto.randomUUID(),link='f33-'+suffix;sql(`DELETE FROM collections WHERE \"tenantId\"='${f.tenantId}'; INSERT INTO links (id,\"tenantId\",\"ownerId\",\"canonicalUrl\",name,description,\"networkId\",\"nicheId\",status,\"occupiesSlot\",\"everPublished\",\"updatedAt\") SELECT '${link}','${f.tenantId}',(SELECT id FROM users WHERE \"tenantId\"='${f.tenantId}' AND id<>'${f.ownerId}' LIMIT 1),'https://example.com/${link}','Comunidade pública','Encontros e materiais de estudo',(SELECT id FROM networks WHERE \"tenantId\"='${f.tenantId}' LIMIT 1),(SELECT id FROM niches WHERE \"tenantId\"='${f.tenantId}' AND \"requiresAge\"=false LIMIT 1),'PUBLISHED',false,true,NOW()`);const saved=await roadmapApi(page,'/me/favorites/'+link,'PUT');expect(saved.status).toBe(200);expect((await roadmapApi(page,'/me/collections','POST',{id,name:'Estudos'})).status).toBe(200);expect((await roadmapApi(page,'/me/collections/'+id+'/items/'+saved.body.favoriteId,'PUT',{expectedVersion:0})).status).toBe(200);await page.goto(roadmapOrigin+'/painel/favoritos');await page.getByRole('tab',{name:'Coleções',exact:true}).click();await page.getByRole('region',{name:'Suas coleções'}).getByRole('button',{name:'Estudos',exact:true}).click();return {id,link,slug:'estudos-'+suffix,favorite:saved.body.favoriteId}}\n   7 | async function fill(page:Page,slug:string){await page.getByRole('button',{name:'Publicar coleção',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Compartilhar coleção'});await dialog.getByLabel('Nome do curador').fill('Ana Curadora');await dialog.getByLabel('Endereço da coleção').fill(slug);return dialog}\n>  8 | test('F33-E01/T01/T02/T03/T04/T05/T06 publica seleção e revoga, autoria distinta e elegibilidade viva',async({page,browser},info)=>{const f=await prepare(page,'journey-'+(info.project.name.includes('mobile')?'m':'d'));const dialog=await fill(page,f.slug);await dialog.getByRole('button',{name:'Publicar seleção'}).click();await expect(dialog).not.toBeVisible();await expect(page.getByRole('link',{name:'Ver coleção pública'})).toBeVisible();const context=await browser.newContext(),visitor=await context.newPage();try{await visitor.goto(roadmapOrigin+'/colecoes/'+f.slug);await expect(visitor.getByRole('heading',{name:'Estudos',exact:true})).toBeVisible();await expect(visitor.getByText('Curadoria de Ana Curadora')).toBeVisible();await expect(visitor.getByText('Publicado por outro anunciante')).toBeVisible();await capturePage(visitor,info.outputPath('collection-public.png'));const axe=await new AxeBuilder({page:visitor}).include('main').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(v=>v.id)).toEqual([]);sql(`UPDATE links SET status='UNAVAILABLE' WHERE id='${f.link}'`);await visitor.reload();await expect(visitor.getByText('Sem links disponíveis no momento.')).toBeVisible();expect(await visitor.content()).not.toContain('Comunidade pública');await page.getByRole('button',{name:'Configurar publicação'}).click();await page.getByRole('button',{name:'Tornar privada',exact:true}).click();await expect(page.getByRole('dialog')).not.toBeVisible();const response=await visitor.goto(roadmapOrigin+'/colecoes/'+f.slug);expect(response?.status()).toBe(404)}finally{await context.close()}})\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             ^\n   9 | test('F33-E02/I02 sem sessão/outro dono e rascunho secreto fora do público',async({page,browser},info)=>{const f=await prepare(page,'isolation-'+(info.project.name.includes('mobile')?'m':'d'));const context=await browser.newContext(),visitor=await context.newPage();try{await visitor.goto(roadmapOrigin);expect((await roadmapApi(visitor,'/me/collections/'+f.id)).status).toBe(401);await roadmapLogin(visitor,true);expect((await roadmapApi(visitor,'/me/collections/'+f.id)).status).toBe(404);const dialog=await fill(page,f.slug);await dialog.getByRole('button',{name:'Publicar seleção'}).click();await expect(dialog).not.toBeVisible();await roadmapApi(page,'/me/collections/'+f.id,'PATCH',{name:'private-title-sentinel',expectedVersion:2});await visitor.goto(roadmapOrigin+'/colecoes/'+f.slug);expect(await visitor.content()).not.toContain('private-title-sentinel');const body=(await roadmapApi(visitor,'/collections/'+f.slug)).body;expect(JSON.stringify(body)).not.toContain(f.favorite);expect(body.items[0]).not.toHaveProperty('ownerId')}finally{await context.close()}})\n  10 | test('F33-E03/C01 falha real de rede mantém formulário; teclado, idade e reflow',async({page},info)=>{const f=await prepare(page,'recovery-'+(info.project.name.includes('mobile')?'m':'d'));const dialog=await fill(page,f.slug);await page.route('**/bff/v1/me/collections/*/publish',route=>route.abort('failed'));await dialog.getByRole('button',{name:'Publicar seleção'}).click();await expect(dialog.getByRole('alert')).toContainText('Sem conexão');await expect(dialog.getByLabel('Nome do curador')).toHaveValue('Ana Curadora');await page.unrouteAll({behavior:'wait'});await dialog.getByRole('checkbox').check();await dialog.getByRole('button',{name:'Publicar seleção'}).focus();await page.keyboard.press('Enter');await expect(dialog).not.toBeVisible();await page.goto(roadmapOrigin+'/colecoes/'+f.slug);await expect(page.getByRole('button',{name:'Tenho 18 anos ou mais'})).toBeVisible();expect(await page.content()).not.toContain('Comunidade pública');await page.getByRole('button',{name:'Tenho 18 anos ou mais'}).click();await expect(page.getByRole('heading',{name:'Estudos',exact:true})).toBeVisible();await page.setViewportSize({width:320,height:844});await page.addStyleTag({content:'html{font-size:200%}'});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await capturePage(page,info.outputPath('collection-reflow.png'))})\n  11 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\public-collections.spec.ts",
+                        "column": 1581,
+                        "line": 8
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m404\u001b[39m\nReceived: \u001b[31m200\u001b[39m\n\n   6 | async function prepare(page:Page,suffix:string){await roadmapLogin(page);const f=roadmapFixture(),id=crypto.randomUUID(),link='f33-'+suffix;sql(`DELETE FROM collections WHERE \"tenantId\"='${f.tenantId}'; INSERT INTO links (id,\"tenantId\",\"ownerId\",\"canonicalUrl\",name,description,\"networkId\",\"nicheId\",status,\"occupiesSlot\",\"everPublished\",\"updatedAt\") SELECT '${link}','${f.tenantId}',(SELECT id FROM users WHERE \"tenantId\"='${f.tenantId}' AND id<>'${f.ownerId}' LIMIT 1),'https://example.com/${link}','Comunidade pública','Encontros e materiais de estudo',(SELECT id FROM networks WHERE \"tenantId\"='${f.tenantId}' LIMIT 1),(SELECT id FROM niches WHERE \"tenantId\"='${f.tenantId}' AND \"requiresAge\"=false LIMIT 1),'PUBLISHED',false,true,NOW()`);const saved=await roadmapApi(page,'/me/favorites/'+link,'PUT');expect(saved.status).toBe(200);expect((await roadmapApi(page,'/me/collections','POST',{id,name:'Estudos'})).status).toBe(200);expect((await roadmapApi(page,'/me/collections/'+id+'/items/'+saved.body.favoriteId,'PUT',{expectedVersion:0})).status).toBe(200);await page.goto(roadmapOrigin+'/painel/favoritos');await page.getByRole('tab',{name:'Coleções',exact:true}).click();await page.getByRole('region',{name:'Suas coleções'}).getByRole('button',{name:'Estudos',exact:true}).click();return {id,link,slug:'estudos-'+suffix,favorite:saved.body.favoriteId}}\n   7 | async function fill(page:Page,slug:string){await page.getByRole('button',{name:'Publicar coleção',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Compartilhar coleção'});await dialog.getByLabel('Nome do curador').fill('Ana Curadora');await dialog.getByLabel('Endereço da coleção').fill(slug);return dialog}\n>  8 | test('F33-E01/T01/T02/T03/T04/T05/T06 publica seleção e revoga, autoria distinta e elegibilidade viva',async({page,browser},info)=>{const f=await prepare(page,'journey-'+(info.project.name.includes('mobile')?'m':'d'));const dialog=await fill(page,f.slug);await dialog.getByRole('button',{name:'Publicar seleção'}).click();await expect(dialog).not.toBeVisible();await expect(page.getByRole('link',{name:'Ver coleção pública'})).toBeVisible();const context=await browser.newContext(),visitor=await context.newPage();try{await visitor.goto(roadmapOrigin+'/colecoes/'+f.slug);await expect(visitor.getByRole('heading',{name:'Estudos',exact:true})).toBeVisible();await expect(visitor.getByText('Curadoria de Ana Curadora')).toBeVisible();await expect(visitor.getByText('Publicado por outro anunciante')).toBeVisible();await capturePage(visitor,info.outputPath('collection-public.png'));const axe=await new AxeBuilder({page:visitor}).include('main').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(v=>v.id)).toEqual([]);sql(`UPDATE links SET status='UNAVAILABLE' WHERE id='${f.link}'`);await visitor.reload();await expect(visitor.getByText('Sem links disponíveis no momento.')).toBeVisible();expect(await visitor.content()).not.toContain('Comunidade pública');await page.getByRole('button',{name:'Configurar publicação'}).click();await page.getByRole('button',{name:'Tornar privada',exact:true}).click();await expect(page.getByRole('dialog')).not.toBeVisible();const response=await visitor.goto(roadmapOrigin+'/colecoes/'+f.slug);expect(response?.status()).toBe(404)}finally{await context.close()}})\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             ^\n   9 | test('F33-E02/I02 sem sessão/outro dono e rascunho secreto fora do público',async({page,browser},info)=>{const f=await prepare(page,'isolation-'+(info.project.name.includes('mobile')?'m':'d'));const context=await browser.newContext(),visitor=await context.newPage();try{await visitor.goto(roadmapOrigin);expect((await roadmapApi(visitor,'/me/collections/'+f.id)).status).toBe(401);await roadmapLogin(visitor,true);expect((await roadmapApi(visitor,'/me/collections/'+f.id)).status).toBe(404);const dialog=await fill(page,f.slug);await dialog.getByRole('button',{name:'Publicar seleção'}).click();await expect(dialog).not.toBeVisible();await roadmapApi(page,'/me/collections/'+f.id,'PATCH',{name:'private-title-sentinel',expectedVersion:2});await visitor.goto(roadmapOrigin+'/colecoes/'+f.slug);expect(await visitor.content()).not.toContain('private-title-sentinel');const body=(await roadmapApi(visitor,'/collections/'+f.slug)).body;expect(JSON.stringify(body)).not.toContain(f.favorite);expect(body.items[0]).not.toHaveProperty('ownerId')}finally{await context.close()}})\n  10 | test('F33-E03/C01 falha real de rede mantém formulário; teclado, idade e reflow',async({page},info)=>{const f=await prepare(page,'recovery-'+(info.project.name.includes('mobile')?'m':'d'));const dialog=await fill(page,f.slug);await page.route('**/bff/v1/me/collections/*/publish',route=>route.abort('failed'));await dialog.getByRole('button',{name:'Publicar seleção'}).click();await expect(dialog.getByRole('alert')).toContainText('Sem conexão');await expect(dialog.getByLabel('Nome do curador')).toHaveValue('Ana Curadora');await page.unrouteAll({behavior:'wait'});await dialog.getByRole('checkbox').check();await dialog.getByRole('button',{name:'Publicar seleção'}).focus();await page.keyboard.press('Enter');await expect(dialog).not.toBeVisible();await page.goto(roadmapOrigin+'/colecoes/'+f.slug);await expect(page.getByRole('button',{name:'Tenho 18 anos ou mais'})).toBeVisible();expect(await page.content()).not.toContain('Comunidade pública');await page.getByRole('button',{name:'Tenho 18 anos ou mais'}).click();await expect(page.getByRole('heading',{name:'Estudos',exact:true})).toBeVisible();await page.setViewportSize({width:320,height:844});await page.addStyleTag({content:'html{font-size:200%}'});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await capturePage(page,info.outputPath('collection-reflow.png'))})\n  11 |\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\public-collections.spec.ts:8:1581"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:56:31.290Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\public-collections-F33-E01-07ea3-stinta-e-elegibilidade-viva-features\\test-failed-1.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\public-collections-F33-E01-07ea3-stinta-e-elegibilidade-viva-features\\test-failed-2.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\public-collections-F33-E01-07ea3-stinta-e-elegibilidade-viva-features\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\public-collections-F33-E01-07ea3-stinta-e-elegibilidade-viva-features\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\public-collections.spec.ts",
+                    "column": 1581,
+                    "line": 8
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1a32627936c3521c94bd-65babf082e3c5a8ae730",
+          "file": "public-collections.spec.ts",
+          "line": 8,
+          "column": 5
+        },
+        {
+          "title": "F33-E02/I02 sem sessão/outro dono e rascunho secreto fora do público",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3321,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:56:35.309Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1a32627936c3521c94bd-20a2a8fdefddc19a8a67",
+          "file": "public-collections.spec.ts",
+          "line": 9,
+          "column": 5
+        },
+        {
+          "title": "F33-E03/C01 falha real de rede mantém formulário; teclado, idade e reflow",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3636,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:56:38.743Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1a32627936c3521c94bd-509f3147b6f787240cf6",
+          "file": "public-collections.spec.ts",
+          "line": 10,
+          "column": 5
+        },
+        {
+          "title": "F33-E01/T01/T02/T03/T04/T05/T06 publica seleção e revoga, autoria distinta e elegibilidade viva",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 4005,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m404\u001b[39m\nReceived: \u001b[31m200\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m404\u001b[39m\nReceived: \u001b[31m200\u001b[39m\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\public-collections.spec.ts:8:1581",
+                    "location": {
+                      "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\public-collections.spec.ts",
+                      "column": 1581,
+                      "line": 8
+                    },
+                    "snippet": "   6 | async function prepare(page:Page,suffix:string){await roadmapLogin(page);const f=roadmapFixture(),id=crypto.randomUUID(),link='f33-'+suffix;sql(`DELETE FROM collections WHERE \"tenantId\"='${f.tenantId}'; INSERT INTO links (id,\"tenantId\",\"ownerId\",\"canonicalUrl\",name,description,\"networkId\",\"nicheId\",status,\"occupiesSlot\",\"everPublished\",\"updatedAt\") SELECT '${link}','${f.tenantId}',(SELECT id FROM users WHERE \"tenantId\"='${f.tenantId}' AND id<>'${f.ownerId}' LIMIT 1),'https://example.com/${link}','Comunidade pública','Encontros e materiais de estudo',(SELECT id FROM networks WHERE \"tenantId\"='${f.tenantId}' LIMIT 1),(SELECT id FROM niches WHERE \"tenantId\"='${f.tenantId}' AND \"requiresAge\"=false LIMIT 1),'PUBLISHED',false,true,NOW()`);const saved=await roadmapApi(page,'/me/favorites/'+link,'PUT');expect(saved.status).toBe(200);expect((await roadmapApi(page,'/me/collections','POST',{id,name:'Estudos'})).status).toBe(200);expect((await roadmapApi(page,'/me/collections/'+id+'/items/'+saved.body.favoriteId,'PUT',{expectedVersion:0})).status).toBe(200);await page.goto(roadmapOrigin+'/painel/favoritos');await page.getByRole('tab',{name:'Coleções',exact:true}).click();await page.getByRole('region',{name:'Suas coleções'}).getByRole('button',{name:'Estudos',exact:true}).click();return {id,link,slug:'estudos-'+suffix,favorite:saved.body.favoriteId}}\n   7 | async function fill(page:Page,slug:string){await page.getByRole('button',{name:'Publicar coleção',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Compartilhar coleção'});await dialog.getByLabel('Nome do curador').fill('Ana Curadora');await dialog.getByLabel('Endereço da coleção').fill(slug);return dialog}\n>  8 | test('F33-E01/T01/T02/T03/T04/T05/T06 publica seleção e revoga, autoria distinta e elegibilidade viva',async({page,browser},info)=>{const f=await prepare(page,'journey-'+(info.project.name.includes('mobile')?'m':'d'));const dialog=await fill(page,f.slug);await dialog.getByRole('button',{name:'Publicar seleção'}).click();await expect(dialog).not.toBeVisible();await expect(page.getByRole('link',{name:'Ver coleção pública'})).toBeVisible();const context=await browser.newContext(),visitor=await context.newPage();try{await visitor.goto(roadmapOrigin+'/colecoes/'+f.slug);await expect(visitor.getByRole('heading',{name:'Estudos',exact:true})).toBeVisible();await expect(visitor.getByText('Curadoria de Ana Curadora')).toBeVisible();await expect(visitor.getByText('Publicado por outro anunciante')).toBeVisible();await capturePage(visitor,info.outputPath('collection-public.png'));const axe=await new AxeBuilder({page:visitor}).include('main').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(v=>v.id)).toEqual([]);sql(`UPDATE links SET status='UNAVAILABLE' WHERE id='${f.link}'`);await visitor.reload();await expect(visitor.getByText('Sem links disponíveis no momento.')).toBeVisible();expect(await visitor.content()).not.toContain('Comunidade pública');await page.getByRole('button',{name:'Configurar publicação'}).click();await page.getByRole('button',{name:'Tornar privada',exact:true}).click();await expect(page.getByRole('dialog')).not.toBeVisible();const response=await visitor.goto(roadmapOrigin+'/colecoes/'+f.slug);expect(response?.status()).toBe(404)}finally{await context.close()}})\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             ^\n   9 | test('F33-E02/I02 sem sessão/outro dono e rascunho secreto fora do público',async({page,browser},info)=>{const f=await prepare(page,'isolation-'+(info.project.name.includes('mobile')?'m':'d'));const context=await browser.newContext(),visitor=await context.newPage();try{await visitor.goto(roadmapOrigin);expect((await roadmapApi(visitor,'/me/collections/'+f.id)).status).toBe(401);await roadmapLogin(visitor,true);expect((await roadmapApi(visitor,'/me/collections/'+f.id)).status).toBe(404);const dialog=await fill(page,f.slug);await dialog.getByRole('button',{name:'Publicar seleção'}).click();await expect(dialog).not.toBeVisible();await roadmapApi(page,'/me/collections/'+f.id,'PATCH',{name:'private-title-sentinel',expectedVersion:2});await visitor.goto(roadmapOrigin+'/colecoes/'+f.slug);expect(await visitor.content()).not.toContain('private-title-sentinel');const body=(await roadmapApi(visitor,'/collections/'+f.slug)).body;expect(JSON.stringify(body)).not.toContain(f.favorite);expect(body.items[0]).not.toHaveProperty('ownerId')}finally{await context.close()}})\n  10 | test('F33-E03/C01 falha real de rede mantém formulário; teclado, idade e reflow',async({page},info)=>{const f=await prepare(page,'recovery-'+(info.project.name.includes('mobile')?'m':'d'));const dialog=await fill(page,f.slug);await page.route('**/bff/v1/me/collections/*/publish',route=>route.abort('failed'));await dialog.getByRole('button',{name:'Publicar seleção'}).click();await expect(dialog.getByRole('alert')).toContainText('Sem conexão');await expect(dialog.getByLabel('Nome do curador')).toHaveValue('Ana Curadora');await page.unrouteAll({behavior:'wait'});await dialog.getByRole('checkbox').check();await dialog.getByRole('button',{name:'Publicar seleção'}).focus();await page.keyboard.press('Enter');await expect(dialog).not.toBeVisible();await page.goto(roadmapOrigin+'/colecoes/'+f.slug);await expect(page.getByRole('button',{name:'Tenho 18 anos ou mais'})).toBeVisible();expect(await page.content()).not.toContain('Comunidade pública');await page.getByRole('button',{name:'Tenho 18 anos ou mais'}).click();await expect(page.getByRole('heading',{name:'Estudos',exact:true})).toBeVisible();await page.setViewportSize({width:320,height:844});await page.addStyleTag({content:'html{font-size:200%}'});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await capturePage(page,info.outputPath('collection-reflow.png'))})\n  11 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\public-collections.spec.ts",
+                        "column": 1581,
+                        "line": 8
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m404\u001b[39m\nReceived: \u001b[31m200\u001b[39m\n\n   6 | async function prepare(page:Page,suffix:string){await roadmapLogin(page);const f=roadmapFixture(),id=crypto.randomUUID(),link='f33-'+suffix;sql(`DELETE FROM collections WHERE \"tenantId\"='${f.tenantId}'; INSERT INTO links (id,\"tenantId\",\"ownerId\",\"canonicalUrl\",name,description,\"networkId\",\"nicheId\",status,\"occupiesSlot\",\"everPublished\",\"updatedAt\") SELECT '${link}','${f.tenantId}',(SELECT id FROM users WHERE \"tenantId\"='${f.tenantId}' AND id<>'${f.ownerId}' LIMIT 1),'https://example.com/${link}','Comunidade pública','Encontros e materiais de estudo',(SELECT id FROM networks WHERE \"tenantId\"='${f.tenantId}' LIMIT 1),(SELECT id FROM niches WHERE \"tenantId\"='${f.tenantId}' AND \"requiresAge\"=false LIMIT 1),'PUBLISHED',false,true,NOW()`);const saved=await roadmapApi(page,'/me/favorites/'+link,'PUT');expect(saved.status).toBe(200);expect((await roadmapApi(page,'/me/collections','POST',{id,name:'Estudos'})).status).toBe(200);expect((await roadmapApi(page,'/me/collections/'+id+'/items/'+saved.body.favoriteId,'PUT',{expectedVersion:0})).status).toBe(200);await page.goto(roadmapOrigin+'/painel/favoritos');await page.getByRole('tab',{name:'Coleções',exact:true}).click();await page.getByRole('region',{name:'Suas coleções'}).getByRole('button',{name:'Estudos',exact:true}).click();return {id,link,slug:'estudos-'+suffix,favorite:saved.body.favoriteId}}\n   7 | async function fill(page:Page,slug:string){await page.getByRole('button',{name:'Publicar coleção',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Compartilhar coleção'});await dialog.getByLabel('Nome do curador').fill('Ana Curadora');await dialog.getByLabel('Endereço da coleção').fill(slug);return dialog}\n>  8 | test('F33-E01/T01/T02/T03/T04/T05/T06 publica seleção e revoga, autoria distinta e elegibilidade viva',async({page,browser},info)=>{const f=await prepare(page,'journey-'+(info.project.name.includes('mobile')?'m':'d'));const dialog=await fill(page,f.slug);await dialog.getByRole('button',{name:'Publicar seleção'}).click();await expect(dialog).not.toBeVisible();await expect(page.getByRole('link',{name:'Ver coleção pública'})).toBeVisible();const context=await browser.newContext(),visitor=await context.newPage();try{await visitor.goto(roadmapOrigin+'/colecoes/'+f.slug);await expect(visitor.getByRole('heading',{name:'Estudos',exact:true})).toBeVisible();await expect(visitor.getByText('Curadoria de Ana Curadora')).toBeVisible();await expect(visitor.getByText('Publicado por outro anunciante')).toBeVisible();await capturePage(visitor,info.outputPath('collection-public.png'));const axe=await new AxeBuilder({page:visitor}).include('main').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(v=>v.id)).toEqual([]);sql(`UPDATE links SET status='UNAVAILABLE' WHERE id='${f.link}'`);await visitor.reload();await expect(visitor.getByText('Sem links disponíveis no momento.')).toBeVisible();expect(await visitor.content()).not.toContain('Comunidade pública');await page.getByRole('button',{name:'Configurar publicação'}).click();await page.getByRole('button',{name:'Tornar privada',exact:true}).click();await expect(page.getByRole('dialog')).not.toBeVisible();const response=await visitor.goto(roadmapOrigin+'/colecoes/'+f.slug);expect(response?.status()).toBe(404)}finally{await context.close()}})\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             ^\n   9 | test('F33-E02/I02 sem sessão/outro dono e rascunho secreto fora do público',async({page,browser},info)=>{const f=await prepare(page,'isolation-'+(info.project.name.includes('mobile')?'m':'d'));const context=await browser.newContext(),visitor=await context.newPage();try{await visitor.goto(roadmapOrigin);expect((await roadmapApi(visitor,'/me/collections/'+f.id)).status).toBe(401);await roadmapLogin(visitor,true);expect((await roadmapApi(visitor,'/me/collections/'+f.id)).status).toBe(404);const dialog=await fill(page,f.slug);await dialog.getByRole('button',{name:'Publicar seleção'}).click();await expect(dialog).not.toBeVisible();await roadmapApi(page,'/me/collections/'+f.id,'PATCH',{name:'private-title-sentinel',expectedVersion:2});await visitor.goto(roadmapOrigin+'/colecoes/'+f.slug);expect(await visitor.content()).not.toContain('private-title-sentinel');const body=(await roadmapApi(visitor,'/collections/'+f.slug)).body;expect(JSON.stringify(body)).not.toContain(f.favorite);expect(body.items[0]).not.toHaveProperty('ownerId')}finally{await context.close()}})\n  10 | test('F33-E03/C01 falha real de rede mantém formulário; teclado, idade e reflow',async({page},info)=>{const f=await prepare(page,'recovery-'+(info.project.name.includes('mobile')?'m':'d'));const dialog=await fill(page,f.slug);await page.route('**/bff/v1/me/collections/*/publish',route=>route.abort('failed'));await dialog.getByRole('button',{name:'Publicar seleção'}).click();await expect(dialog.getByRole('alert')).toContainText('Sem conexão');await expect(dialog.getByLabel('Nome do curador')).toHaveValue('Ana Curadora');await page.unrouteAll({behavior:'wait'});await dialog.getByRole('checkbox').check();await dialog.getByRole('button',{name:'Publicar seleção'}).focus();await page.keyboard.press('Enter');await expect(dialog).not.toBeVisible();await page.goto(roadmapOrigin+'/colecoes/'+f.slug);await expect(page.getByRole('button',{name:'Tenho 18 anos ou mais'})).toBeVisible();expect(await page.content()).not.toContain('Comunidade pública');await page.getByRole('button',{name:'Tenho 18 anos ou mais'}).click();await expect(page.getByRole('heading',{name:'Estudos',exact:true})).toBeVisible();await page.setViewportSize({width:320,height:844});await page.addStyleTag({content:'html{font-size:200%}'});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await capturePage(page,info.outputPath('collection-reflow.png'))})\n  11 |\n    at C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\public-collections.spec.ts:8:1581"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:57:03.284Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\public-collections-F33-E01-07ea3-stinta-e-elegibilidade-viva-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\public-collections-F33-E01-07ea3-stinta-e-elegibilidade-viva-features-mobile\\test-failed-2.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\public-collections-F33-E01-07ea3-stinta-e-elegibilidade-viva-features-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\VSCODE\\divulgadorlinks\\frontend\\test-results\\public-collections-F33-E01-07ea3-stinta-e-elegibilidade-viva-features-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\VSCODE\\divulgadorlinks\\frontend\\e2e\\public-collections.spec.ts",
+                    "column": 1581,
+                    "line": 8
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1a32627936c3521c94bd-d0b6504a86e75cbd8347",
+          "file": "public-collections.spec.ts",
+          "line": 8,
+          "column": 5
+        },
+        {
+          "title": "F33-E02/I02 sem sessão/outro dono e rascunho secreto fora do público",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2815,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:57:08.011Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1a32627936c3521c94bd-7760e26f69a213ded1bc",
+          "file": "public-collections.spec.ts",
+          "line": 9,
+          "column": 5
+        },
+        {
+          "title": "F33-E03/C01 falha real de rede mantém formulário; teclado, idade e reflow",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3310,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T10:57:10.934Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1a32627936c3521c94bd-972fbf1c81fd28b1a235",
+          "file": "public-collections.spec.ts",
+          "line": 10,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-20T10:55:07.798Z",
+    "duration": 128104.299,
+    "expected": 13,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

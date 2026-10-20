@@ -174,3 +174,8 @@ Não inicia uma nova feature da sequência: mantém 26/42 implementações e F22
 ## 20/10/2026 — F32 validada localmente
 
 [Kit de divulgação: contrato, ACs, decisões e provas](execucao-f32.md). 32/42 implementações registradas. Próxima sequência F33 → F10; parar após F10; autorização de parar após F10 preservada. S7 remoto em revisão; commits na mesma branch, sem push/deploy.
+
+
+## 20/10/2026 — F33 validada localmente
+
+[Coleções públicas compartilháveis: contrato, ACs, decisões e provas](execucao-f33.md). 33/42 implementações registradas. Próxima sequência F10; parar após F10; autorização de parar após F10 preservada. S7 remoto em revisão; commits na mesma branch, sem push/deploy.

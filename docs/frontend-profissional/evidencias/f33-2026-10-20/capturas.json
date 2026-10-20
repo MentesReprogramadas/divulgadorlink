@@ -1,0 +1,82 @@
+[
+  {
+    "file": "desktop-collection-320-text200.png",
+    "sha256": "c9483100034db69e3f47fcd86ee2f07d134367e8f9b8e4801cbb9778baaf840d"
+  },
+  {
+    "file": "desktop-collection-folders.png",
+    "sha256": "0ad92b0f491a34c7be125b8f58e7fe6349493a67d896500f24feed42fbca8eee"
+  },
+  {
+    "file": "desktop-collection-picker.png",
+    "sha256": "5569a5c8daec7db44f6ddfbd63f684d946b8275ec582e1ec2b3910ac566c57ed"
+  },
+  {
+    "file": "desktop-collection-public.png",
+    "sha256": "ef282c78d597991cf581286de8e467f4505b2dc2f34074db0f78ea8fee3cfbbc"
+  },
+  {
+    "file": "desktop-collection-reflow.png",
+    "sha256": "34cdc9380c640bdb0fa165ca4ca9ae91be656d8e100ed3aea0b40098fcf0e6be"
+  },
+  {
+    "file": "desktop-collection.png",
+    "sha256": "36f5553b1f90cc4581ececac261388eace27c3eeb01394ae09374796b8d928cb"
+  },
+  {
+    "file": "desktop-favorite-stars.png",
+    "sha256": "237c9be4a2497ca95cb3b08abfd026037736ee839adb289a7a478c6d41a83110"
+  },
+  {
+    "file": "desktop-favorites-320-text200.png",
+    "sha256": "ce04e4f4b7259db46c410c4ac8a0e4380465e1802ec5991b5ddee57a1ac7333c"
+  },
+  {
+    "file": "desktop-favorites-grid.png",
+    "sha256": "5ad1e2d738055186fca366b3498ec7a1a18128d7a1757e6108745f71f547ac41"
+  },
+  {
+    "file": "desktop-favorites.png",
+    "sha256": "be2d831853168018e88e57be37cd217fbec35eb090bc3d5123569e1ccccd6d10"
+  },
+  {
+    "file": "mobile-collection-320-text200.png",
+    "sha256": "6783be423837cdb319af12ae39f72af7d8e42e705eb4cb5a514bdd72a8554fc8"
+  },
+  {
+    "file": "mobile-collection-folders.png",
+    "sha256": "ab73e3a3758d1cc8c93d0f6ca8625fb84edacb8d8826f9e03f8fd79d9c7533b7"
+  },
+  {
+    "file": "mobile-collection-picker.png",
+    "sha256": "ef003bbe11cbb883d4409f499e3c2142cbb8887898d6a6b0132cd077c6eebcb4"
+  },
+  {
+    "file": "mobile-collection-public.png",
+    "sha256": "c8bcf14c2265798bae4fd6d694de50294a5694a29aed94ad60ec42e7e9217c1f"
+  },
+  {
+    "file": "mobile-collection-reflow.png",
+    "sha256": "81d2ddbe4227c0e9588aa5175f8a59e44d5d4b5571bc4f32cf556eda0aa74735"
+  },
+  {
+    "file": "mobile-collection.png",
+    "sha256": "7f991a2d5cdb5e942b5b484efcf37f964434641dcc5b20648d35865193b7e651"
+  },
+  {
+    "file": "mobile-favorite-stars.png",
+    "sha256": "17a1732d48177dba0d0e4354cf25c7e224c0e9a1a4752e1e17446b76a26186c6"
+  },
+  {
+    "file": "mobile-favorites-320-text200.png",
+    "sha256": "5ec744bac2551e0e24b01ff83671883646df2f1ab270b27e06b7d596c75479df"
+  },
+  {
+    "file": "mobile-favorites-grid.png",
+    "sha256": "a83a543c0094e5f4516f72e0f68f5e605820da62a72d6e546650f3cf3c828b5b"
+  },
+  {
+    "file": "mobile-favorites.png",
+    "sha256": "35ba7f6b489acf9e093cf9a65db6ee376eb3b430cbf86524c5c72f060d7f5574"
+  }
+]

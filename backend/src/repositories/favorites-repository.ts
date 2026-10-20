@@ -70,7 +70,7 @@ export async function favoritesOperation(db: PrismaClient, scope: Scope, operati
       const created = await tx.collection.create({ data: { id: operation.id, ...owner, name }, select: { id: true, name: true, version: true } })
       return { collection: created }
     }
-    const collection = await tx.collection.findFirst({ where: { id: operation.id, ...owner }, select: { id: true, name: true, version: true } })
+    const collection = await tx.collection.findFirst({ where: { id: operation.id, ...owner }, select: { id: true, name: true, version: true, visibility:true, slug:true, publication:true, publishedRevision:true } })
     if (!collection) throw notFound()
     if (operation.kind === 'collection') {
       const cursor = operation.cursor ? await tx.collectionItem.findFirst({ where: { collectionId: collection.id, favoriteId: operation.cursor, ...owner } }) : null

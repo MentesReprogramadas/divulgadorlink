@@ -1,0 +1,17 @@
+'use client'
+import {useRef,useState} from 'react'
+import {Button,ButtonLink} from '@/components/ui/button'
+import {ActionIcon} from '@/components/ui/action-icon'
+import {OverlayDialog} from '@/components/ui/overlay-dialog'
+import {Field,Input,TextArea} from '@/components/ui/input'
+import {Checkbox} from '@/components/ui/checkbox'
+import type {Collection} from '../favorites-contract'
+import styles from './favorites.module.css'
+type Publication={title:string;description:string;curator:string;requiresAge:boolean}
+export function CollectionPublication({collection,pending,onSave}:{collection:Collection;pending:boolean;onSave:(path:string,method:string,body:unknown)=>Promise<void>}){
+ const [open,setOpen]=useState(false),[error,setError]=useState(''),[saving,setSaving]=useState(false),busy=useRef(false)
+ const current=collection.publication as Publication|undefined
+ const [title,setTitle]=useState(current?.title??collection.name),[description,setDescription]=useState(current?.description??''),[curator,setCurator]=useState(current?.curator??''),[slug,setSlug]=useState(collection.slug??''),[requiresAge,setAge]=useState(current?.requiresAge??false)
+ async function save(publish:boolean){if(busy.current)return;busy.current=true;setSaving(true);setError('');try{await onSave('collections/'+collection.id+(publish?'/publish':'/visibility'),publish?'POST':'PATCH',{expectedVersion:collection.version,...(publish?{title,description,curator,slug,requiresAge}:{visibility:'PRIVATE'})});setOpen(false)}catch(reason){setError(reason instanceof Error?reason.message:'Não foi possível salvar.')}finally{busy.current=false;setSaving(false)}}
+ return <><div className={styles.actions}>{collection.visibility==='PUBLIC'&&collection.slug?<ButtonLink href={'/colecoes/'+collection.slug} variant="secondary"><ActionIcon name="external"/>Ver coleção pública</ButtonLink>:null}<Button disabled={pending} onClick={()=>setOpen(true)}><ActionIcon name="publicCollection"/>{collection.visibility==='PUBLIC'?'Configurar publicação':'Publicar coleção'}</Button></div><OverlayDialog open={open} title="Compartilhar coleção" onClose={()=>{if(!saving)setOpen(false)}}><form className={styles.form} onSubmit={e=>{e.preventDefault();void save(true)}}><p>Apenas os links aprovados desta seleção serão publicados. Novas adições exigem publicar novamente.</p>{error?<p role="alert">{error}</p>:null}<Field label="Título público"><Input value={title} onChange={e=>setTitle(e.target.value)} required maxLength={80}/></Field><Field label="Descrição"><TextArea value={description} onChange={e=>setDescription(e.target.value)} maxLength={500}/></Field><Field label="Nome do curador"><Input value={curator} onChange={e=>setCurator(e.target.value)} required maxLength={80}/></Field><Field label="Endereço da coleção" hint="/colecoes/seu-endereco · permanente após publicar"><Input value={slug} onChange={e=>setSlug(e.target.value)} disabled={Boolean(collection.slug)} required pattern="[a-z0-9][a-z0-9-]{1,38}[a-z0-9]" placeholder="comunidades-de-estudo"/></Field><label><Checkbox checked={requiresAge} onChange={e=>setAge(e.target.checked)}/>Conteúdo para maiores de 18 anos</label><div className={styles.actions}>{collection.visibility==='PUBLIC'?<Button type="button" variant="danger" disabled={saving} onClick={()=>void save(false)}><ActionIcon name="collectionPrivate"/>Tornar privada</Button>:null}<Button type="submit" disabled={saving}><ActionIcon name="publish"/>{saving?'Salvando…':'Publicar seleção'}</Button></div></form></OverlayDialog></>
+}

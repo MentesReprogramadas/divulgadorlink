@@ -784,7 +784,19 @@ model Favorite {
   @@index([tenantId, userId, id], map: "favorites_owner_page_idx")
   @@map("favorites")
 }
+model CollectionSlug {
+ tenantId String
+ slug String
+ publicationKey String
+ @@id([tenantId, slug])
+ @@map("collection_slugs")
+}
 model Collection {
+  publicationKey String @default(uuid())
+  visibility String @default("PRIVATE")
+  slug String?
+  publication Json?
+  publishedRevision Int?
   id String @id
   tenantId String
   userId String

@@ -2,7 +2,7 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 33.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
+**Estado:** IMPLEMENTADA E VALIDADA LOCALMENTE; S7 EM REVISÃO.
 **Onda:** 4. **Ordem:** 33.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Coleções públicas compartilháveis”.  
 **Plano:** [F33 implementação](../planos/f33-colecoes-publicas.md).  
@@ -142,3 +142,8 @@ Sem resolução das decisões bloqueantes e dependências concluídas, a feature
 
 **Indicadores:** coleções publicadas, visitas recebidas e cliques nos links selecionados.
 
+
+
+## Execução autorizada — 20/10/2026
+
+[Contrato reconciliado, decisões, ACs, testes e reversão](../execucao-f33.md). O registro de execução prevalece sobre caminhos/contratos apenas propostos neste planejamento. S7 remoto permanece pendente.

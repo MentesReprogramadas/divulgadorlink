@@ -1,0 +1,96 @@
+{
+  "feature": "F33",
+  "date": "2026-10-20",
+  "baseCommit": "a9ff9fd9bee115b06eb22d2d0be3a5af49049737",
+  "branch": "codex/roadmap-f37-testes",
+  "e2eStats": {
+    "startTime": "2026-10-20T10:57:30.950Z",
+    "duration": 104916.059,
+    "expected": 15,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "report": "output/f33-playwright-final.json",
+  "captures": "docs/frontend-profissional/evidencias/f33-2026-10-20/capturas.json",
+  "execution": "execucao-f33.md",
+  "S7": "CI/remote release pending",
+  "sourceHashes": [
+    {
+      "path": "backend/prisma/migrations/20261020100000_public_collections/migration.sql",
+      "sha256": "faa234b59a32776bf2206647cd1f16dc432b74255aa3e38bd18f261e623702dd"
+    },
+    {
+      "path": "backend/prisma/schema.prisma",
+      "sha256": "0135439304880b2b7c2d490d7d856c750f121a27529a05b13a5728089f267039"
+    },
+    {
+      "path": "backend/src/domain/collections/public-collection.spec.ts",
+      "sha256": "6b9cdf952b5e6799e2d52cfe1680d92e85d96d4061ce8c0d3a07abaf0b072e33"
+    },
+    {
+      "path": "backend/src/domain/collections/public-collection.ts",
+      "sha256": "0e40d99009cf51fd7f97201262cedff32b54d163c1b5d7ddfdea65bc24be0a5e"
+    },
+    {
+      "path": "backend/src/http/controllers/@Collections/routes.ts",
+      "sha256": "a6ab72f88319615534e5801599389b2eb447e6398da9b00acee40cf95fcad2ca"
+    },
+    {
+      "path": "backend/src/http/public-collections.pg.spec.ts",
+      "sha256": "3a0b568d326e105b2b3bd1d11a29b4f9eae6d2f546689a5d73c158677196b50d"
+    },
+    {
+      "path": "backend/src/http/workspace-access.ts",
+      "sha256": "b2c5c341495e324fd0c66ebdfc5273cff180a2857dc706c5ff8b0b9e7be0040c"
+    },
+    {
+      "path": "backend/src/repositories/favorites-repository.ts",
+      "sha256": "f9b9c21186b80003eddca7491088e26dfaa24b6240d5b4a851b22b19860edbeb"
+    },
+    {
+      "path": "backend/src/repositories/public-collections.ts",
+      "sha256": "befc1320e45831e5b5b8855fb8eac21a06031b9089153af24bd52117b0293063"
+    },
+    {
+      "path": "frontend/e2e/public-collections.spec.ts",
+      "sha256": "405b0aeaa0a70f82c537dfff43723f5021bede5a96522e4622ba755a103ba040"
+    },
+    {
+      "path": "frontend/src/app/colecoes/[slug]/loading.tsx",
+      "sha256": "e01aff6e5dd3b21299785a09fd28b76c3bafd168038844675a363d34c5f3e46f"
+    },
+    {
+      "path": "frontend/src/app/colecoes/[slug]/page.tsx",
+      "sha256": "4d794a8fcff6c3bba2728c365d4ae4c5bccf43f75d218f276197c62bb0992744"
+    },
+    {
+      "path": "frontend/src/components/ui/action-icon.tsx",
+      "sha256": "4ebd1c2c5d02c1c1872bd020f48d2fabec0b3eb527bbba0014f50724cef00037"
+    },
+    {
+      "path": "frontend/src/features/favorites/components/collection-publication.test.tsx",
+      "sha256": "c98f77b3b364ae46c6094045c701abe2bd52e9b5a613d1bbcd7b9102334a3ebb"
+    },
+    {
+      "path": "frontend/src/features/favorites/components/collection-publication.tsx",
+      "sha256": "5d7556c94093234cc04eaa1d059243f8436fa863e85fa92974a13c924c878d31"
+    },
+    {
+      "path": "frontend/src/features/favorites/favorites-contract.ts",
+      "sha256": "54e87be4b57901ad1c83fd6facd0bd71e71c0a22c6c04b5493c7d5b939f6a771"
+    },
+    {
+      "path": "frontend/src/features/favorites/favorites-screen.tsx",
+      "sha256": "91c29487874cb9f519ed726b03f3e268d870ca2648f3551155c576514c28bb8f"
+    },
+    {
+      "path": "frontend/src/features/favorites/public-collection.test.tsx",
+      "sha256": "afd42178003d21af1ecd596db402fb6aefcc31b8b972b6c6c4f4501e7ca90a66"
+    },
+    {
+      "path": "frontend/src/features/favorites/public-collection.tsx",
+      "sha256": "4405e154f31a047c7e8bb0c92d6e636bc5f0dfe9f78f39d33ea56fb04851c7a0"
+    }
+  ]
+}

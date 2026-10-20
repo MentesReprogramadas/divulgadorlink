@@ -1,0 +1,3 @@
+import {FavoriteCardsSkeleton} from '@/features/favorites/components/favorites-skeleton'
+import {Skeleton} from '@/components/feedback/skeleton'
+export default function Loading(){return <main className="container" aria-label="Carregando coleção" aria-busy="true" style={{display:'grid',gap:'var(--space-6)',paddingBlock:'var(--space-8)'}}><div style={{padding:'var(--space-6)',display:'grid',gap:'var(--space-4)',border:'1px solid var(--border-default)',borderRadius:'var(--radius)'}}><Skeleton height={36} width="60%"/><Skeleton height={24} width="80%"/><Skeleton height={24} width="40%"/></div><FavoriteCardsSkeleton/></main>}
