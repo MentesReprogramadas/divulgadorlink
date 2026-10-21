@@ -1,0 +1,25 @@
+import { expect, test } from '@playwright/test'
+import AxeBuilder from '@axe-core/playwright'
+import { roadmapLogin, roadmapApi, roadmapOrigin, roadmapProfile, roadmapFixture } from './roadmap-profile'
+import { sql } from './db'
+import { capturePage } from './capture-page'
+test.beforeEach(()=>sql(`DELETE FROM profiles WHERE "tenantId"='${roadmapFixture().tenantId}'`))
+test('F24-E01/T01/T04 publica, habilita descoberta, segue, remove e deixa de seguir',async({page,browser},info)=>{
+ await roadmapLogin(page);await roadmapProfile(page,'descobrir-ana');await page.goto(roadmapOrigin+'/painel/perfil/dados')
+ const settings=page.getByRole('region',{name:'Descoberta da página'});await settings.getByRole('checkbox',{name:'Mostrar na descoberta de páginas'}).check();await settings.getByRole('button',{name:'Salvar descoberta'}).click();await expect(settings.getByRole('status')).toContainText('Descoberta atualizada.')
+ const context=await browser.newContext();const visitor=await context.newPage()
+ try{await roadmapLogin(visitor,true);await visitor.goto(roadmapOrigin+'/paginas');const card=visitor.getByRole('article').filter({hasText:'Projetos da Ana'});await expect(card).toBeVisible();await card.getByRole('button',{name:'Seguir',exact:true}).click();await expect(card.getByRole('button',{name:'Deixar de seguir'})).toBeVisible();await visitor.reload();await expect(card.getByRole('button',{name:'Deixar de seguir'})).toBeVisible();await capturePage(visitor,info.outputPath('directory.png'));expect((await new AxeBuilder({page:visitor}).include('main').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze()).violations.map(v=>v.id)).toEqual([])
+ const id=(await roadmapApi(visitor,'/profiles')).body.profiles[0].id
+ await settings.getByRole('checkbox',{name:'Mostrar na descoberta de páginas'}).uncheck();await settings.getByRole('button',{name:'Salvar descoberta'}).click();await expect(settings.getByRole('status')).toContainText('Descoberta atualizada.');await visitor.reload();await expect(visitor.getByText('Nenhuma página encontrada. Tente outro nome ou nicho.')).toBeVisible();await visitor.getByRole('checkbox',{name:'Somente páginas que sigo'}).check();await visitor.getByRole('button',{name:'Buscar',exact:true}).click();await expect(visitor.getByRole('heading',{name:'Página indisponível'})).toBeVisible();await visitor.getByRole('button',{name:'Deixar de seguir'}).click();await expect(visitor.getByRole('article')).toHaveCount(0);expect((await roadmapApi(visitor,'/me/followed-profiles/'+id,'DELETE')).status).toBe(200)
+ }finally{await context.close()}
+})
+test('F24-E02 rascunho, categorias ocultas e tenant alheio não aparecem; mutação exige sessão',async({page,browser})=>{
+ await roadmapLogin(page);const content=await roadmapProfile(page,'privacidade-ana',false);expect((await roadmapApi(page,'/me/profile/discovery','PATCH',{enabled:true,nicheId:null,expectedVersion:0})).status).toBe(200);expect((await roadmapApi(page,'/profiles')).body.profiles).toEqual([])
+ expect((await roadmapApi(page,'/me/profile/publish','POST',{expectedVersion:1})).status).toBe(200);await roadmapApi(page,'/me/profile','PATCH',{content:{...content,name:'DRAFT_SENTINELA'},expectedVersion:1})
+ const publicResult=await roadmapApi(page,'/profiles');expect(JSON.stringify(publicResult.body)).not.toContain('DRAFT_SENTINELA');expect(JSON.stringify(publicResult.body)).not.toContain('ownerId')
+ const context=await browser.newContext();try{const visitor=await context.newPage();await visitor.goto(roadmapOrigin+'/paginas');expect((await roadmapApi(visitor,'/me/profile/discovery','PATCH',{enabled:false,nicheId:null,expectedVersion:1})).status).toBe(401);await visitor.goto(roadmapOrigin.replace('checklist.localhost','tenant-a.localhost')+'/paginas');await expect(visitor.getByText('Projetos da Ana')).toHaveCount(0)}finally{await context.close()}
+})
+test('F24-E03 falha recuperável, teclado e 320px sem overflow',async({page},info)=>{
+ await roadmapLogin(page);await roadmapProfile(page,'busca-ana');await roadmapApi(page,'/me/profile/discovery','PATCH',{enabled:true,nicheId:null,expectedVersion:0});await page.goto(roadmapOrigin+'/paginas');await expect(page.getByRole('button',{name:'Seguir',exact:true})).toBeVisible()
+ await page.route('**/bff/v1/profiles?**',route=>route.abort('failed'));await page.getByLabel('Buscar páginas').fill('Ana');await page.getByRole('button',{name:'Buscar',exact:true}).focus();await page.keyboard.press('Enter');await expect(page.getByRole('region',{name:'Descoberta de páginas'}).getByRole('alert')).toBeVisible();await expect(page.getByLabel('Buscar páginas')).toHaveValue('Ana');await page.unrouteAll({behavior:'wait'});await page.getByRole('button',{name:'Tentar de novo'}).click();await expect(page.getByRole('region',{name:'Descoberta de páginas'}).getByRole('alert')).toHaveCount(0);await page.setViewportSize({width:320,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await capturePage(page,info.outputPath('directory-320.png'))
+})

@@ -1,9 +1,14 @@
 export function workspaceHeading(path: string): { title: string; hint: string } {
+  if(path==='/painel/integracoes')return {title:'Integrações e avisos',hint:''}
   if(/^\/painel\/convites\/[^/]+\/distribuicao$/.test(path))return {title:'Distribuidor de convites',hint:''}
+  if(/^\/painel\/equipe\/[^/]+\/metricas$/.test(path))return {title:'Métricas do cliente',hint:''}
   if(path.startsWith('/painel/equipe/'))return {title:'Página compartilhada',hint:''}
   if(path==='/painel/perfil/endereco')return {title:'Endereço próprio',hint:''}
   const titles: Record<string, [string, string]> = {
     "/painel/perfil/divulgar": ["Criar imagem de divulgação", ""],
+    "/painel/clientes": ["Clientes", ""],
+    "/painel/clientes/acessos": ["Acessos por cliente", ""],
+    "/painel/clientes/transferencias": ["Transferir página", ""],
     "/painel/equipe": ["Equipe e permissões", ""],
     "/painel": ["Painel", "Tudo o que você precisa para cuidar dos seus links."],
     "/painel/links": ["Meus links", "Encontre um link e escolha o próximo passo."],
@@ -11,6 +16,8 @@ export function workspaceHeading(path: string): { title: string; hint: string } 
     "/painel/assinatura": ["Assinatura da minha página", "Seu plano e os próximos pagamentos."],
     "/painel/perfil/assistente": ["Assistente de criação", ""],
     "/painel/perfil/contatos": ["Contatos recebidos", ""],
+    "/painel/perfil/testes": ["Comparar botões", ""],
+    "/painel/perfil/idiomas": ["Idiomas da página", ""],
     "/painel/perfil/dados": ["Dados da página", ""],
     "/painel/perfil/links": ["Grupos e links", ""],
     "/painel/perfil/aparencia": ["Aparência da página", ""],

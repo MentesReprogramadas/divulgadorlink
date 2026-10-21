@@ -1,5 +1,7 @@
 # Graphify — Tem Link Aqui
 
+Atualização de campanhas em 21/10/2026: extração incremental local de código após a correção de atribuição. Última passagem concluída: 6.989 nós e 24.122 relações; 14 arquivos reprocessados e 1.329 reutilizados. Inclui mudanças simultâneas de outras tarefas. Sem LLM/API ou novo clustering; relatório e HTML permanecem históricos. A extração anterior advertiu sobre parse parcial de `frontend/src/features/contact-forms/contact-handling.test.tsx`, fora da correção; conclusões devem continuar confirmadas no código. Arquivos sem símbolos, incluindo o E2E de funil, não possuem cobertura estrutural completa.
+
 Extração local em 20/10/2026. Escopo escolhido pelo usuário: código e testes de frontend e backend, sem cópias de validação, documentação, capturas ou serviços externos.
 
 - 1.261 arquivos classificados como código, incluindo migrações SQL.
@@ -44,3 +46,17 @@ As preferências globais estão em `C:/Users/ferna/.codex/AGENTS.md`. Caveman us
 ## Manutenção — prévia automática F32
 
 Índice de código atualizado localmente após alteração de ShareKitScreen, ColorPicker e testes. JSON bruto preserva relações sobrepostas: 6641 nós e 22669 relações. Comunidades antigas reaplicadas somente aos IDs já analisados; não houve nova análise de comunidades/HTML nem envio externo. O comando legado update reextraiu o corpus de código; próximas atualizações devem seguir o fluxo incremental de extract descrito acima. Custo de LLM/API: zero. O relatório analítico inicial continua histórico.
+
+## Manutenção — CI/CD
+
+Atualização incremental local em 20/10/2026, com `graphify extract . --code-only --max-workers 4 --no-cluster`: na última passagem, 17 arquivos reprocessados e 1.252 reutilizados; 6.636 nós e 22.665 relações. Inclui os testes consultados/corrigidos durante a investigação do CI. Sem extração semântica, LLM ou envio externo. Comunidades existentes preservadas pela ferramenta; relatório/HTML continuam históricos. `.github/` e documentação permanecem fora do índice estrutural conforme `.graphifyignore`.
+
+## Manutenção — métricas agendadas, 21/10/2026
+
+Extração incremental local de código após adicionar scheduledTrafficInput, runScheduledTraffic e o CLI agendado. Última passagem: 29 arquivos alterados reprocessados e 1262 reutilizados; 6721 nós e 22962 relações. A árvore incluía alterações simultâneas de outras tarefas, também capturadas pelo índice. Sem LLM/API ou rotulagem de comunidades; relatório e HTML continuam históricos. Uma extração iniciada por engano no diretório backend foi movida para output/scheduled-metrics/graph-backend-extra, sem substituir o grafo principal.
+
+## Manutenção — lote F24/F30/F35/F39/F26/F36, 21/10/2026
+
+Extração incremental `graphify extract . --code-only --max-workers 4 --no-cluster`: 41 arquivos de código reprocessados e 1320 reutilizados; 7049 nós e 24443 relações. Inclui alterações simultâneas da árvore, sem atribuir sua autoria ao lote. Sem LLM/API/extração semântica; relatórios e HTML antigos continuam históricos. O índice confirmou relações; autorização, constraints e transferência foram verificadas no código e PostgreSQL real. Mudança posterior de assertiva em agency.pg.spec não altera o escopo estrutural; atualizar incrementalmente na próxima retomada.
+
+Passagem final incremental de fechamento: nove arquivos reprocessados, 1352 reutilizados; 7049 nós/24443 relações. Sem análise semântica externa.

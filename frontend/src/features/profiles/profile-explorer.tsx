@@ -1,4 +1,5 @@
 'use client'
+import {useButtonTest} from './use-button-test'
 import {privateProfileAvatar} from './profile-api'
 import {useCallback,useEffect,useLayoutEffect,useMemo,useRef,useState} from 'react'
 import {ProfileView} from './components/profile-view'
@@ -11,12 +12,14 @@ import {ErrorState} from '@/components/feedback/error-state'
 import {EmptyState} from '@/components/feedback/empty-state'
 import {Button} from '@/components/ui/button'
 import {ActionIcon} from '@/components/ui/action-icon'
+import {Field,Select} from '@/components/ui/input'
+import type {ProfileLocale} from './profile-contract'
 import styles from './components/profile-search.module.css'
 import {useProfileInteraction} from '@/features/profile-interaction/use-profile-interaction'
 type Navigation='push'|'replace'|'refresh'|'page'|'history'
 function writePublicQuery(slug:string,query:ProfileSearchQuery,method:'pushState'|'replaceState'){
  const url=new URL(window.location.href);url.pathname=document.body.dataset.personalHost==='true'?'/':'/p/'+encodeURIComponent(slug)
- for(const name of ['q','categoryId','cursor'])url.searchParams.delete(name)
+ for(const name of ['q','categoryId','cursor','locale'])url.searchParams.delete(name)
  profileSearchParams(query).forEach((value,name)=>url.searchParams.set(name,value))
  window.history[method](null,'',url.pathname+url.search+url.hash)
 }
@@ -37,6 +40,7 @@ export function ProfileExplorer({initial,source,pending=false,initialNotice=''}:
    setProfile(received);setAnnounced(true)
    if(!received.restricted){
     current.current=received.search.filters;if(mode!=='refresh')setQuery(received.search.filters)
+    if(origin.kind==='preview'){const url=new URL(window.location.href);if(received.search.filters.locale)url.searchParams.set('locale',received.search.filters.locale);else url.searchParams.delete('locale');window.history.replaceState(null,'',url.pathname+url.search)}
     if(origin.kind==='public'){
      if(mode!=='history')writePublicQuery(origin.slug,received.search.filters,mode==='push'||mode==='page'?'pushState':'replaceState')
     }
@@ -50,7 +54,8 @@ export function ProfileExplorer({initial,source,pending=false,initialNotice=''}:
  },[origin])
  const refresh=useCallback(async()=>{await request(current.current,'refresh')},[request])
  useProfileBoundary(profile,refresh)
- useProfileInteraction(root,profile.restricted?undefined:profile.measurement,origin.kind!=='public'||pending||loading||Boolean(error))
+ const test=useButtonTest(root,origin.kind==='public'?origin.slug:null,profile.restricted?initial:profile,pending||loading||Boolean(error)||profile.restricted)
+ useProfileInteraction(root,profile.restricted?undefined:profile.measurement,origin.kind!=='public'||pending||loading||test.loading||Boolean(error))
  useEffect(()=>()=>{if(debounce.current)clearTimeout(debounce.current);sequence.current++;active.current?.controller.abort();active.current=null},[])
  useEffect(()=>{if(origin.kind==='public')writePublicQuery(origin.slug,initial.search.filters,'replaceState')},[origin,initial.search.filters])
  useEffect(()=>{
@@ -67,8 +72,9 @@ export function ProfileExplorer({initial,source,pending=false,initialNotice=''}:
   if(immediate)void request(next)
   else debounce.current=setTimeout(()=>void request(next),350)
  }
- const blocked=pending||loading||Boolean(error),avatarUrl=profile.avatarAssetId?(origin.kind==='public'?'/bff/v1/profiles/'+encodeURIComponent(origin.slug)+'/avatar/'+profile.avatarAssetId:privateProfileAvatar(profile.avatarAssetId)):undefined
- const controls=profile.appearance?.searchEnabled===true?<ProfileSearchControls query={query} groups={profile.search.groups} pending={pending} searching={loading} onQuery={changeQuery} onSubmit={()=>void request({...query,cursor:null})} onClear={()=>changeQuery(emptyProfileQuery(),true)}/>:undefined
+ const blocked=pending||loading||test.loading||Boolean(error),avatarUrl=profile.avatarAssetId?(origin.kind==='public'?'/bff/v1/profiles/'+encodeURIComponent(origin.slug)+'/avatar/'+profile.avatarAssetId:privateProfileAvatar(profile.avatarAssetId)):undefined
+ const controls=profile.appearance?.searchEnabled===true?<ProfileSearchControls query={query} groups={profile.search.groups} pending={pending} searching={loading} onQuery={changeQuery} onSubmit={()=>void request({...query,cursor:null})} onClear={()=>changeQuery({...emptyProfileQuery(),...(query.locale?{locale:query.locale}:{})},true)}/>:undefined
+ const language=profile.availableLocales&&profile.availableLocales.length>1?<div className={styles.controls}><Field label="Idioma da página"><Select value={profile.locale??profile.fallbackLocale??'pt-BR'} disabled={pending} onChange={event=>changeQuery({...query,locale:event.target.value as ProfileLocale,cursor:null},true)}>{profile.availableLocales.map(value=><option key={value} value={value}>{{'pt-BR':'Português',en:'English',es:'Español'}[value]}</option>)}</Select></Field></div>:null
  const navigation=<div className={styles.actions}>{profile.search.filters.cursor?<Button variant="secondary" disabled={pending||loading} onClick={()=>void request({...current.current,cursor:null},'page')}><ActionIcon name="back"/>Voltar ao início</Button>:null}{profile.search.nextCursor?<Button disabled={pending||loading} onClick={()=>void request({...current.current,cursor:profile.search.nextCursor},'page')}><ActionIcon name="next"/>Próximos links</Button>:null}</div>
- return <div ref={root}><ProfileView contactPreview={source.kind==='preview'} content={profile} pending={blocked} avatarUrl={avatarUrl} controls={controls} navigation={navigation} empty={<EmptyState>Nenhum link encontrado.</EmptyState>} notice={<>{error?<ErrorState message={error} onRetry={()=>void request(current.current,'refresh')}/>:null}{notice?<p className={styles.notice} role="status">{notice}</p>:null}</>}/><span className={styles.announcement} role="status" aria-label="Resultado da busca">{announced&&!loading&&!error?'Links atualizados.':''}</span></div>
+ return <div ref={root}><ProfileView contactPreview={source.kind==='preview'} content={test.assignment?{...profile,items:profile.items.map(item=>item.id===test.assignment!.blockId?{...item,label:test.assignment!.label}:item)}:profile} pending={blocked} avatarUrl={avatarUrl} controls={<>{language}{controls}</>} navigation={navigation} empty={<EmptyState>Nenhum link encontrado.</EmptyState>} notice={<>{error?<ErrorState message={error} onRetry={()=>void request(current.current,'refresh')}/>:null}{notice?<p className={styles.notice} role="status">{notice}</p>:null}</>}/><span className={styles.announcement} role="status" aria-label="Resultado da busca">{announced&&!loading&&!error?'Links atualizados.':''}</span></div>
 }

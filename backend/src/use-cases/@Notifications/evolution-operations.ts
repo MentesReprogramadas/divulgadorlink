@@ -129,6 +129,7 @@ export function renderOperationalMessage(event: Pick<OperationalMessage, 'id' | 
     p.ownerName ? `*Usuário*\n${safeText(String(p.ownerName), 100)}` : '',
     name || url || pageUrl ? [p.resourceType === 'PROFILE' ? '*Página*' : p.resourceType === 'REDIRECT' ? '*Convite*' : '*Link*', name ? `*${name}*` : '', p.description ? safeText(String(p.description)) : '', url ?? pageUrl ?? ''].filter(Boolean).join('\n') : '',
     p.niche || p.network ? `*Classificação*\nCategoria: ${safeText(String(p.niche ?? '—'), 100)}\nRede: ${safeText(String(p.network ?? '—'), 100)}` : '',
+    Array.isArray(p.translationLocales)&&p.translationLocales.length?`🌐 *Traduções*\n${p.translationLocales.map(locale=>safeText(String(locale),10)).join(', ')} • Textos no painel`:'',
     groups ? `*Grupos e links*\n${groups}${Array.isArray(p.groups) && p.groups.length > 4 ? '\nMais grupos no painel.' : ''}` : '',
     p.resourceType ? `*Envio*\nVersão ${Number(p.version) || 1} • Adulto: ${p.requiresAge === true ? 'Sim' : 'Não'}` : '',
     p.note ? `*Observação*\n${safeText(String(p.note), 200)}` : '',

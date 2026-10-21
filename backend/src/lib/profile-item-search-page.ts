@@ -3,6 +3,7 @@ import {z} from 'zod'
 import {profileItemPage,type ProfileItemFilters} from '@/domain/profiles/profile-item-search'
 import {ProfileError,type ProfileContent} from '@/domain/profiles/profile'
 import type {PublicChannelGroup} from '@/domain/profiles/profile-channels'
+import {pruneTranslations} from '@/domain/profiles/profile-translations'
 type ProjectedProfile={restricted:true}|(ProfileContent&{restricted:false;publishedRevisionId:number;serverNow?:string;nextBoundary?:string|null;previewAt?:string;previewBounds?:{before:string|null;after:string|null};channelGroups?:PublicChannelGroup[]})
 const payload=z.object({offset:z.number().int().min(1).max(500),fingerprint:z.string().regex(/^[a-f0-9]{64}$/)}).strict()
 const mac=(body:string,secret:string)=>createHmac('sha256',secret).update('profile-items-v1\0'+body).digest()
@@ -25,5 +26,5 @@ export function profileItemSearchPage(projected:ProjectedProfile,context:string,
  const result=profileItemPage(projected,active,page?.offset??0)
  const selected=new Set(result.items.map(item=>item.id)),channelGroups=projected.channelGroups?.filter(group=>group.channels.some(channel=>selected.has(channel.id))||(!group.channels.length&&!active.q&&(!active.categoryId||active.categoryId===group.id)&&!page?.offset)).map(group=>({...group,channels:group.channels.filter(channel=>selected.has(channel.id))})),emptyGroups=new Set(channelGroups?.filter(group=>!group.channels.length).map(group=>group.id)??[])
  const categories=projected.categories.filter(group=>result.categories.some(selected=>selected.id===group.id)||emptyGroups.has(group.id))
- return {...projected,items:result.items,categories,...(channelGroups?{channelGroups}:{}),primaryItemId:result.items.some(item=>item.id===projected.primaryItemId)?projected.primaryItemId:null,search:{filters:{...active,cursor},groups:projected.categories,total:result.total,nextCursor:result.nextOffset===null?null:encodeCursor(result.nextOffset,fingerprint,secret)}}
+ return {...projected,...(projected.translations?{translations:pruneTranslations(projected.translations,categories,result.items)}:{}),items:result.items,categories,...(channelGroups?{channelGroups}:{}),primaryItemId:result.items.some(item=>item.id===projected.primaryItemId)?projected.primaryItemId:null,search:{filters:{...active,cursor},groups:projected.categories,total:result.total,nextCursor:result.nextOffset===null?null:encodeCursor(result.nextOffset,fingerprint,secret)}}
 }

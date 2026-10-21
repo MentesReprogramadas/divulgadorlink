@@ -7,7 +7,7 @@ export async function publicProfileRequest(slug: string): Promise<PublicProfile>
 }
 export class ProfileRequestError extends Error { constructor(message: string, public readonly status: number) { super(message) } }
 export const isProfileVersionConflict = (reason: unknown) => reason instanceof ProfileRequestError && reason.status === 409 && reason.message.toLowerCase().includes('outra aba')
-export function managedProfileId(){return typeof window==='undefined'?null:/^\/painel\/equipe\/([^/]+)\/(?:editar|previa)$/.exec(window.location.pathname)?.[1]??null}
+export function managedProfileId(){return typeof window==='undefined'?null:/^\/painel\/equipe\/([^/]+)\/(?:editar|previa|metricas)$/.exec(window.location.pathname)?.[1]??null}
 export function profileWorkspacePath(path:string,id:string|null=managedProfileId()){return id&&path==='previa'?'/painel/equipe/'+id+'/previa':'/painel/perfil/'+path}
 export async function profileRequest<T>(path: string, init?: RequestInit): Promise<T> {
   const r = await api<T & { message?: string }>('/v1/me/profile' + path, init).catch(() => { throw new Error('Sem conexão. Seus dados foram mantidos; tente novamente.') })

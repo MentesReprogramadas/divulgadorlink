@@ -2,7 +2,7 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 39.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
+**Estado:** IMPLEMENTADA E VALIDADA LOCALMENTE; S7 pendente.
 **Onda:** 6. **Ordem:** 39.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Teste de versões de botões”.  
 **Plano:** [F26 implementação](../planos/f26-teste-botoes.md).  
@@ -141,3 +141,7 @@ Sem resolução das decisões bloqueantes e dependências concluídas, a feature
 
 **Indicadores:** testes concluídos com amostra suficiente e mudanças adotadas pelos divulgadores.
 
+
+## Execução local — 21/10/2026
+
+D28 e critérios estatísticos concretizados em [execução F26](../execucao-f26.md). Sem CI/deploy nesta rodada.

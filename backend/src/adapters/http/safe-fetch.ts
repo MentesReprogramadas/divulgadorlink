@@ -1,64 +1,8 @@
 import https from 'node:https'
 import { isIP } from 'node:net'
 
-function isPrivateIPv4(host: string): boolean {
-  const [a, b] = host.split('.').map(Number)
-  return (
-    a === 10
-    || a === 0
-    || a === 127
-    || a >= 224
-    || (a === 100 && b >= 64 && b <= 127)
-    || (a === 198 && (b === 18 || b === 19))
-    || (a === 169 && b === 254)
-    || (a === 172 && b >= 16 && b <= 31)
-    || (a === 192 && b === 168)
-  )
-}
-
-function mappedIPv4(host: string): string | null {
-  if (!host.startsWith('::ffff:')) return null
-  const embedded = host.slice('::ffff:'.length)
-  if (isIP(embedded) === 4) return embedded
-  const parts = embedded.split(':')
-  if (parts.length !== 2) return null
-  const high = Number.parseInt(parts[0] || '', 16)
-  const low = Number.parseInt(parts[1] || '', 16)
-  if (Number.isNaN(high) || Number.isNaN(low)) return null
-  return `${(high >> 8) & 255}.${high & 255}.${(low >> 8) & 255}.${low & 255}`
-}
-
-function isPrivate(host: string): boolean {
-  const bare = host.replace(/^\[|\]$/g, '').toLowerCase()
-  if (bare === 'localhost' || bare.endsWith('.localhost') || bare.endsWith('.local')) return true
-
-  const mapped = mappedIPv4(bare)
-  if (mapped) return isPrivateIPv4(mapped)
-
-  if (isIP(bare) === 4) return isPrivateIPv4(bare)
-
-  if (isIP(bare) === 6) {
-    return bare === '::' || bare === '::1' || bare.startsWith('fc') || bare.startsWith('fd') || bare.startsWith('fe80') || bare.startsWith('ff')
-  }
-
-  return false
-}
-
-export function assertPublicHttps(raw: string): true {
-  const url = new URL(raw)
-  if (url.protocol !== 'https:') throw new Error('somente https')
-  if (url.username || url.password) throw new Error('credenciais na URL')
-  if (url.port && url.port !== '443') throw new Error('porta')
-  if (isPrivate(url.hostname)) throw new Error('destino privado')
-  return true
-}
-
-export function assertResolvedAddresses(addresses: string[]): true {
-  if (addresses.length === 0) throw new Error('dns vazio')
-  if (addresses.some(address => isIP(address.replace(/^\[|\]$/g, '')) === 0)) throw new Error('dns inválido')
-  if (addresses.some(isPrivate)) throw new Error('destino privado')
-  return true
-}
+import { assertPublicHttps, assertResolvedAddresses } from '@/domain/links/public-address'
+export { assertPublicHttps, assertResolvedAddresses }
 
 /** Limite de engenharia para o corpo da resposta (1 MiB). */
 export const SAFE_FETCH_MAX_BODY_BYTES = 1024 * 1024
@@ -99,7 +43,7 @@ async function resolvePinned(raw: string, resolve: DnsResolver): Promise<PinnedT
   }
 }
 
-export function defaultPinnedConnect(target: PinnedTarget): Promise<PinnedResponse> {
+export function defaultPinnedConnect(target: PinnedTarget, outgoing?: { body: string; headers: Record<string,string> }): Promise<PinnedResponse> {
   const url = new URL(target.url)
   const family = isIP(target.address) === 6 ? 6 : 4
 
@@ -111,8 +55,8 @@ export function defaultPinnedConnect(target: PinnedTarget): Promise<PinnedRespon
         family,
         servername: target.servername,
         path: `${url.pathname}${url.search}`,
-        method: 'GET',
-        headers: { host: target.hostname },
+        method: outgoing ? 'POST' : 'GET',
+        headers: { ...outgoing?.headers, host: target.hostname },
         timeout: SAFE_FETCH_TIMEOUT_MS,
       },
       (response) => {
@@ -153,8 +97,16 @@ export function defaultPinnedConnect(target: PinnedTarget): Promise<PinnedRespon
     req.on('error', error => { clearTimeout(deadline); reject(error) })
     const deadline = setTimeout(() => req.destroy(new Error('timeout')), SAFE_FETCH_TIMEOUT_MS)
     deadline.unref()
-    req.end()
+    req.end(outgoing?.body)
   })
+}
+
+/** POST never follows redirects, so receiver credentials cannot cross origins. */
+export async function safePost(raw:string,body:string,headers:Record<string,string>,resolve:DnsResolver,connect=defaultPinnedConnect):Promise<number>{
+  const target=await resolvePinned(raw,resolve)
+  const response=await connect(target,{body,headers:{...headers,'content-type':'application/json','content-length':String(Buffer.byteLength(body))}})
+  if(response.status>=300&&response.status<400)throw new Error('redirect bloqueado')
+  return response.status
 }
 
 export async function safeFetch(raw: string, deps: SafeFetchDeps): Promise<Response> {

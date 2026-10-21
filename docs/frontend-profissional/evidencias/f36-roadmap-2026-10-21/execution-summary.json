@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-21",
+  "branch": "codex/roadmap-f37-testes",
+  "revision": "WORKTREE",
+  "scope": "F24/F30/F35/F39/F26/F36; stop after F36",
+  "checks": {
+    "backend_unit": {
+      "files": 11,
+      "passed": 32,
+      "exit_code": 0
+    },
+    "postgresql": {
+      "files": 7,
+      "passed": 69,
+      "exit_code": 0
+    },
+    "agency_pg_directed": {
+      "passed": 6,
+      "exit_code": 0
+    },
+    "frontend_unit": {
+      "files": 37,
+      "passed": 136,
+      "exit_code": 0
+    },
+    "backend_lint": 0,
+    "backend_typecheck": 0,
+    "backend_build": 0,
+    "frontend_lint": 0,
+    "frontend_typecheck": 0,
+    "frontend_build_isolated": 0,
+    "playwright_final": {
+      "passed": 25,
+      "skipped": 0,
+      "flaky": 0,
+      "unexpected": 0,
+      "exit_code": 0,
+      "report": "playwright-f36-f20-f19-f31.json"
+    }
+  },
+  "not_executed": [
+    "personal/production migrations",
+    "CI",
+    "new commit",
+    "push",
+    "deploy",
+    "physical-device tests",
+    "staging rollback"
+  ],
+  "notes": [
+    "Existing workspace-dashboard/workspace-section CSS compatibility warnings remain; agency align-items warnings fixed.",
+    "No actual customer webhook endpoint contacted.",
+    "Only own disposable databases migrated."
+  ]
+}

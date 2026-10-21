@@ -1,67 +1,56 @@
-# F36 Pacotes para agências
+# F36 — Clientes e agência
 
-**Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 40.
+**Estado:** S0–S6 implementados e validados localmente em 21/10/2026; S7 EM REVISÃO. Ordem 40, onda 6. Branch `codex/roadmap-f37-testes`, alterações em WORKTREE, sem novo commit/push/deploy. Execução encerrada nesta feature por pedido do usuário.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
-**Onda:** 6. **Ordem:** 40.  
-**Fonte:** [features-propostas.md](../../features-propostas.md), seção “Pacotes para agências”.  
-**Plano:** [F36 implementação](../planos/f36-agencias.md).  
-**Dependências obrigatórias:** G00, [F20](../specs/f20-equipe-permissoes.md), [F11](../specs/f11-planos-perfis.md), [F21](../specs/f21-midia-kit.md).  
-**Governança:** [arquitetura](../arquitetura-e-reuso.md), [testes](../qualidade-e-testes.md), [decisões](../decisoes.md), [roadmap](../roadmap-auditavel.md).
+**Dependências:** G00, F42 (prioridade), F20 (permissões), F11 (planos), F21 (relatórios). [Plano](../planos/f36-agencias.md), [execução/D38](../execucao-f36.md), [guia local](../testar-lote-2026-10-21.md), [arquitetura](../arquitetura-e-reuso.md).
 
 ## Objetivo e fronteira
 
-atender profissionais que gerenciam páginas de vários clientes.
+Gerenciar páginas autorizadas de vários clientes, mantendo contas reais, identidade visual, relatórios e permissões separados. Agência não é tenant e não passa a ser dona da página por adicioná-la ao portfólio. A titularidade continua com o cliente até uma transferência explícita.
 
-Escopo aprovado para detalhamento: conta com vários perfis de clientes, identidade visual e relatórios separados; atribuição de colaboradores por cliente. Evolução do recurso de equipe e permissões.
+D38 concretiza o pacote inicial como portfólio gratuito com até dez clientes ativos, limite técnico. Cada cliente mantém sua assinatura F11. Não há nova oferta agregada, checkout ou preço; essa alternativa comercial permanece fora desta entrega. A escolha e as demais alternativas estão no registro de execução.
 
-Não ampliar a entrega para capacidades mencionadas como futuras na fonte. Registrar decisão antes de mudar fronteira. Este planejamento não aprova preço, limite, provedor ou publicação. O texto-fonte integral está no final desta spec para permitir revisão de escopo além dos critérios enumerados.
+## Jornada no painel
 
-## Jornada e comportamento observável
+- **Clientes**: lista com busca, filtro de acesso, adicionar página já autorizada, editar/consultar, métricas do cliente e remover do portfólio. Remover não apaga a página. O vazio guia cliente → convite F20 → aceite → portfólio.
+- **Acessos por cliente**: titular da agência solicita Leitor/Editor para uma pessoa ativa de sua equipe global. O titular do cliente precisa aprovar; pertencer à agência não concede acesso automático a todas as páginas.
+- **Transferir página**: titular atual pede; destinatário confirmado sem página aceita em até sete dias. Ambos consentem com dados, revogações e cobrança separada. Alteração concorrente do rascunho impede aceite com versão antiga.
+- Edição usa `/painel/equipe/:id/editar`; relatório usa `/painel/equipe/:id/metricas`, identificando a página. Transferências são sempre pessoais, inclusive após sair de um espaço compartilhado. Navegação troca de contexto por mecanismo F20 existente e reinicializa o estado.
 
-Agência alterna clientes e vê página/relatório isolado; atribui equipe por cliente e solicita transferência.
+## Reutilização e interface
 
-Atores: proprietário autenticado no tenant de origem; visitante apenas em operações públicas expressamente definidas; outro dono do mesmo tenant e dono de outro tenant como controles negativos; admin conforme contrato atual; colaborador somente após F20 e conforme direito específico.
+Reutiliza ProfileMembership, convites F20, workspace/access, editor/prévia, renderer público, métricas F31, cobertura F11, auditoria, BFF/CSRF e controles locais. Portfólio, aprovação derivada e transferência são responsabilidades novas, isoladas em repositories específicos. Nenhuma biblioteca nova.
 
-A página precisa tratar carregamento, lista vazia, entrada inválida, sem permissão, conflito de versão quando houver mutação concorrente, falha recuperável e sucesso persistido. Uma ação não deve anunciar sucesso antes da confirmação do servidor. Não criar uma área de login alternativa.
-
-## Reutilização verificada e lacuna concreta
-
-- `backend/src/http/authorize.ts`: inspecionar e ampliar o contrato relacionado, preservando regressões existentes.
-- `backend/src/repositories/audit-logs-repository.ts`: inspecionar e ampliar o contrato relacionado, preservando regressões existentes.
-- `frontend/src/components/domain/panel.tsx`: inspecionar e ampliar o contrato relacionado, preservando regressões existentes.
-
-Justificativa de evolução: A autorização atual considera ownerId único; evolução deve conservar regras do catálogo e impedir confundir agência com tenant.
-
-Antes de criar arquivo novo, localizar equivalente por responsabilidade e conferir exports/consumidores. Não copiar código para cumprir nome sugerido. Se reaproveitamento não couber, registrar lacuna concreta no ADR da feature e manter a dependência na direção domínio → porta, adapter implementando porta.
+Ações à direita, filtros em card separado, vazios orientados, skeletons equivalentes, erros conservando entrada, diálogos com confirmação e retorno de foco. Navegação entre rotas usa links reais, com Select da casa quando apertado; não simula abas sem painéis. Identificadores/ícones de portfólio, aprovação e transferência têm desenhos diferentes.
 
 ## Dados e invariantes
 
-AgencyWorkspace e ClientMembership dentro do tenant existente; capacidade multiperfil; cliente não vira tenant só para seleção; transferência de Profile com validação explícita e trilha.
+`AgencyWorkspace`, `AgencyClient`, `AgencyAccessRequest`, `AgencyProfileTransfer`, no tenant existente. Migração `20261021170000_agency_clients` adiciona constraints compostas, idempotência e estados. Não transforma clientes em contas fictícias, não amplia quotas do catálogo e não altera preços.
 
-Proposta de migração: avaliar mudanças de schema e adicionar somente campos/tabelas/índices necessários ao contrato acima; validar tenantId, relações, unicidade e transações no PostgreSQL real; dado antigo permanece legível durante rollout. A spec de migração em S2 deve registrar backfill e validação antes de qualquer alteração destrutiva.
+- API valida usuário ativo/confirmado para operações sensíveis, tenant, dono, direito da página e grants `agency.read/write`; operador real é auditado. Interface não concede autorização.
+- Concessão derivada vincula ID/versão da equipe global e do acesso da agência à página. Revogar/mudar qualquer vínculo nega imediatamente a API e oculta dados. Concessão direta posterior pelo titular é preservada.
+- Máximo dez pedidos pendentes por cliente; pedidos expiram em sete dias. Aprovados ativos mantêm a prova do vínculo. Encerrados/expirados são retidos por 180 dias; limpeza reconcilia até cem concessões inválidas por ciclo antes de apagar provas expiradas.
+- Transferência usa hash do e-mail, CAS da página e pedido, locks ordenados de usuários, uma transação e auditoria. Não grava e-mail de destino em claro no pedido. Recibo congela nome/slug da proposta e não revela futuras edições privadas do novo dono.
+- Preserva URL, publicação, conteúdo de snapshots, contatos/notas e histórico. Copia fotos atuais; não ressuscita foto removida de versão antiga. Moderação pendente é invalidada, equipe/convites anteriores revogados, testes encerrados e descoberta/medição pausadas.
+- Assinatura/faturas, links do catálogo, convites independentes, permissões globais e webhooks não são transferidos. Benefícios passam a depender do novo dono. Canais dependentes de convites independentes podem ficar indisponíveis.
+- FKs que propagam ownerId são `DEFERRABLE INITIALLY IMMEDIATE`; somente a transação de transferência adia a checagem. Revisões permitem exclusivamente a troca de ownerId no contexto auditado da página, sem alterar o JSON. FK futura não preparada causa 503 e rollback integral, em vez de transferência parcial.
 
-Regra transversal: IDs de outro tenant não podem ser aceitos em relações. Projeções públicas são allowlists; rascunhos, contatos, tokens e dados privados não entram por serialização automática. Dinheiro em centavos e tempo armazenado em UTC; a agregação de analytics existente mantém America/Sao_Paulo. Índices devem ser baseados em consulta real, sem plataforma de dados nova por padrão.
+## Contratos implementados
 
-## Contratos propostos
+Prefixo `/api/v1`; tenant vem do host e sessão, nunca do corpo. Todas as operações privadas passam pelo BFF/CSRF e não expõem hashes/tokens em DTO.
 
-Rotas/operações: CRUD /api/v1/me/agency/clients; selecionar contexto; POST /agency/profiles/:id/transfer com confirmação de titulares.
+| Operação | Entrada principal | Resultado |
+| --- | --- | --- |
+| GET/POST `/me/agency/clients` | criar: `profileId,name` | portfólio/choices/capacidade ou ID idempotente |
+| DELETE `/me/agency/clients/:id` | `expectedVersion` | arquiva sem apagar página |
+| GET/POST `/me/agency/access` | solicitar: `clientId,userId,role,requestKey` | pedidos disponíveis ou ID |
+| POST `/me/agency/access/:id/decision` | `expectedVersion,approve` | decisão do próprio titular |
+| GET/POST `/me/agency/transfers` | pedir: `profileId,recipientEmail,expectedVersion,consent:true,requestKey` | recibos/ID sem e-mail/hash |
+| POST `/me/agency/transfers/:id/accept` | `expectedVersion,consent:true` | transferência atômica/idempotente |
+| POST `/me/agency/transfers/:id/decline` ou `/cancel` | `expectedVersion` | recusa do destino/cancelamento da origem |
+| GET `/me/profile/interaction` e `/measurement` | `x-profile-id`, filtros existentes | página identificada e relatório isolado, sem permissão de configurar medição |
 
-**Entrada específica:** `clientName,profileIds,memberGrants; transfer{targetOwnerId,expectedVersion,acceptance}`.
-
-**Saída específica:** `workspace,clients,scopedCapabilities,transfer{state}; sem cópia implícita de cobrança`.
-
-Todos os caminhos são propostas a reconciliar com rotas atuais em S0; não estão implementados. Quando a rota abreviada omite prefixo, o prefixo é /api/v1. PATCH/POST/DELETE com sessão preservam CSRF do app e enviam host pelo BFF; tenant não vem do corpo. GET público não exige autenticação indevida. Exportações, tokens e respostas privadas usam política de cache que impeça exposição.
-
-Erros: aplicar o envelope existente code/message/request_id; 400 para entrada inválida, 401 sem sessão em recurso privado, 403 para contexto de tenant incompatível quando contrato atual exige, 404 para recurso alheio/ausente sem enumerar dados, 409 para conflito de versão/identidade, 429 para limite, 503 para indisponibilidade externa quando apropriado. Rotas existentes podem ter semântica específica; preservar testes de contrato e documentar divergência antes de mudar.
-
-## Interface e design
-
-Compor controles locais e tokens em vez de introduzir biblioteca visual. O renderer público deve ser compartilhado com a prévia sempre que houver renderização de perfil. Nenhum template deve duplicar estrutura inteira de página. Novos textos e ações em português, com nomes acessíveis e foco preservado após erro.
-
-Fluxo a desenhar em S0/S4: Agência alterna clientes e vê página/relatório isolado; atribui equipe por cliente e solicita transferência.
-
-Validar desktop 1280×720, mobile 390×844 e overflow em 320px; teclado e touch; labels e mensagens vinculadas ao campo; carregamento sem salto que esconda ações; estados vazios orientando próximo passo; erros sem apagar entrada válida. Capturar evidência visual na execução futura. Componentes novos só com responsabilidade explícita no plano.
+Erros existentes: 400 inválido, 401 anônimo, 403 sem direito, 404 recurso alheio, 409 conflito/condições do pedido alteradas, 422 capacidade/destino inválido, 429 excesso de pedidos, 503 esquema não preparado. Erro não anuncia sucesso nem limpa entrada válida.
 
 ## Critérios de aceitação da fonte
 
@@ -75,61 +64,21 @@ Cada linha preserva uma obrigação da fonte. Se um critério envolve decisão a
 | F36-AC04 | procedimento de transferência de titularidade | F36-T04 | ADR + I/E |
 | F36-AC05 | relatórios sem mistura de resultados. | F36-T05 | I/PG |
 
-## Cenários específicos e oráculos
+## Evidências por critério
 
-Fixture comum: tenant A/B, dono A/outro dono A/admin A/dono B, IDs determinísticos por F36; T0 = 2026-10-14T12:00:00Z quando houver tempo. Acrescentar dados específicos abaixo sem alterar o seed global de outros testes.
+| Critério | Prova local |
+| --- | --- |
+| AC01/T01 | F36-PG01/02/06: conta/tenant, revogação, vínculos, expiração; E01/E02: duas sessões e ausência de outro cliente |
+| AC02/T02 | PG05 e E01: editor/métricas mostram ID/nome correto; hook descarta resposta de contexto anterior |
+| AC03/T03 | PG01 capacidade/default/idempotência; PG03 assinatura original preservada; D38 sem cobrança nova |
+| AC04/T04 | PG03/04: dois aceites, CAS, destino ocupado, confirmação perdida, esquema incompatível/rollback, snapshots/contatos/fotos; E03 transferência real |
+| AC05/T05 | PG05 dois clientes com contagens 10/20 e nenhum cruzamento; E01 relatórios com página identificada |
 
-### Unitários de domínio
+Unitários: domínio de agência e componentes/hooks. PostgreSQL real: `backend/src/http/agency.pg.spec.ts` (6 casos). Playwright: `frontend/e2e/agency.spec.ts` nos dois projetos; F20/F19/F31 como regressão. Capturas e relatório vinculados em [execução](../execucao-f36.md). Nenhum teste em produção, aparelho físico ou CI remoto foi declarado concluído.
 
-- **F36-U01:** Membro cliente A não lê B.
-- **F36-U02:** trocar cliente não usa cache anterior.
-- **F36-U03:** limite contratado recusa nova página sem apagar existentes.
-- **F36-U04:** transferência não move assinatura tacitamente.
+## Configuração e liberação
 
-Cada cenário precisa criar a entrada e verificar o resultado descrito; usar relógio/RNG/porta injetável quando necessário. Restaurar mocks ao fim. Não mockar a própria regra que se pretende validar.
-
-### Integração HTTP e persistência
-
-- **F36-I01:** Transferência concorrente com edição é controlada por versão; dono novo e ACL atualizados atomicamente; links e relatórios mantêm tenant original.
-- **F36-I02:** chamar operação privada como outro dono A e dono B; afirmar código de negação e ausência de mutação/retorno de dados de F36. Para leitura pública, afirmar apenas campos elegíveis, sem bloquear o visitante legítimo.
-- **F36-I03:** repetir mutação ou evento aplicável e simular falha na fronteira de persistência/provedor; conferir invariantes, não apenas resposta. Se não houver mutação, repetir leitura/geração e comprovar ausência de efeitos.
-- **F36-PG01:** validar constraints/consulta real descritas na seção Dados; quando não houver migração nova, testar isolamento e consulta sobre modelos existentes, sem migração artificial.
-
-### Componentes
-
-- **F36-C01:** renderizar a composição com dados válidos, vazios e falha; interagir com a ação principal de “Pacotes para agências”; comprovar rótulos, resultado e ausência de envio duplicado.
-- **F36-C02:** dado sensível/oculto na fixture de controle não pode entrar no texto, atributo ou link público. Se a feature só existe em painel privado, testar ausência de ações sem capacidade/permissão e confirmar que servidor também nega em I02.
-
-### E2E Playwright
-
-- **F36-E01:** Criar clientes A/B, editar perfil A e alternar para B; conferir ausência dos dados A; membro A tenta URL B e é negado; transferir com aceites previstos.
-- **F36-E02:** abrir a URL/ação privada por contexto sem sessão e por outro dono; checar negação real. Na superfície pública, inspecionar DOM e respostas de rede para ausência dos itens/segredos sentinela de controle.
-- **F36-E03:** repetir a jornada principal no mobile; usar teclado para ação relevante; simular falha recuperável no adapter externo/harness ou desligamento de rede apropriado, conferir erro e recuperação sem sucesso falso. Não interceptar API interna para fingir persistência.
-
-### Casos por critério original
-
-Criar um teste com ID Tnn para cada AC, com o seguinte protocolo específico da feature: preparar a fixture descrita nos cenários U/I/E acima; executar a operação da seção Contratos que exercita o critério; afirmar exatamente o estado/valor/comportamento da linha do AC; quando a obrigação for negativa, introduzir o dado proibido na fixture e verificar sua ausência no estado, DTO e DOM aplicáveis. A matriz indica a camada primária; acrescentar PG/worker ou revisão manual quando a natureza exigir. A coluna de resultado permanece NÃO EXECUTADO até haver prova.
-
-
-
-
-
-## Arquivos de teste propostos
-
-- U: `backend/src/domain/organizations/agencias.spec.ts`.
-- C: `frontend/src/components/domain/agencias.test.tsx`.
-- I: `backend/src/http/agencias.http.spec.ts`.
-- PG: `backend/src/http/agencias.pg.spec.ts`; registrar no comando/CI de PG.
-- E: `frontend/e2e/agencias.spec.ts`; registrar no projeto features e features-mobile antes de executar.
-- Consumidores e novos caminhos sugeridos estão no plano; todos devem ser reconciliados com a árvore existente em S0.
-
-## Decisões e condições de liberação
-
-D38 limites/preços, vínculo de cobrança, consentimento e procedimento de transferência.
-
-Risco específico: A autorização atual considera ownerId único; evolução deve conservar regras do catálogo e impedir confundir agência com tenant.
-
-Sem resolução das decisões bloqueantes e dependências concluídas, a feature não avança para implementação. Critério de saída: ACs com evidências, U/C/I/E relevantes verdes, PG/Redis quando exigidos, revisão de design e rollout/rollback aprovados. Seguir Definition of Done comum, sem marcar testes não executados como aprovados.
+Mesmos PostgreSQL, Redis, autenticação e worker existentes. Nenhum segredo/provedor extra para F36. Aplicação ao banco pessoal/produto e CI/liberação dependem de execução autorizada. Plano de reversão preserva tabelas, páginas e assinaturas; retirar entradas/novas operações e revogar concessões derivadas com auditoria. Uma transferência aceita exige nova transferência consentida para voltar; não desfazer ownerId por SQL nem apagar snapshots.
 
 ## Fonte integral da feature
 

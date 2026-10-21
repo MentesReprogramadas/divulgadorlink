@@ -142,3 +142,10 @@ contactInbox representa contatos recebidos; inviteDistributor, distribuição en
 F28: domainOwnership identifica controle do domínio (janela web com confirmação), distinto de confirmação de e-mail, equipe e moderação. Reutilizado no título/ação somente para esse significado. Revogar usa a ação disable já existente.
 
 F29: eventBlock representa o bloco de evento (calendário com marcador de evento), distinto de schedule, que continua sendo agendamento de visibilidade. O evento público reutiliza external para inscrição externa e download para calendário, ambos com rótulos; sem ícone ambíguo de confirmação de inscrição.
+
+
+21/10/2026: F24 usa discoverPages/followProfile/unfollowProfile para descoberta e vínculo com página; F30 usa outboundWebhook para saídas de eventos; F35 distingue contactHandling e contactNotes; F39 usa pageLanguages para traduções autorais; F26 distingue compareButtons/startComparison/stopComparison. Novos desenhos próprios, com rótulos acessíveis. Ações gerais reutilizam salvar, editar, remover e prévia.
+
+## F36 — Clientes, acessos e transferência
+
+`clientPortfolio` representa portfólio, `agencyAccess` aprovação de equipe por cliente e `ownershipTransfer` troca de titularidade; desenhos distintos, sem substituir por um ícone genérico. Edição/consulta/métricas reutilizam seus significados existentes. Navegação entre rotas da agência usa anchors com aria-current e Select da casa quando apertado. Não usar role=tab sem tabpanel: Axe detectou esse problema na primeira rodada e a composição foi corrigida. Capturas e regressão estão em execucao-f36.md.

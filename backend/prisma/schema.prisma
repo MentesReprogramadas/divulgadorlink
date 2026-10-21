@@ -102,6 +102,12 @@ model Tenant {
 }
 
 model User {
+ agencyWorkspace AgencyWorkspace?
+ agencyAssignments AgencyAccessRequest[]
+ sentProfileTransfers AgencyProfileTransfer[]
+  webhookEndpoints WebhookEndpoint[]
+  outboundEvents OutboundEvent[]
+  followedProfiles ProfileFollow[]
  profileSuggestions ProfileSuggestion[]
  suggestionUsage ProfileSuggestionUsage[]
  workspaceOwnedMembers WorkspaceMembership[] @relation("WorkspaceOwner")
@@ -260,6 +266,7 @@ model Network {
 }
 
 model Niche {
+  discoveredProfiles ProfileDiscovery[]
   followers NicheFollow[]
   id            String   @id @default(cuid())
   tenantId      String
@@ -843,6 +850,14 @@ model ProfileHost {
  @@map("profile_hosts")
 }
 model Profile {
+ agencyClients AgencyClient[]
+ ownershipTransfers AgencyProfileTransfer[]
+ @@unique([id,tenantId],map:"profiles_id_tenant_key")
+ buttonTestDraft ProfileButtonTestDraft?
+ buttonTests ProfileButtonTest[]
+ translation ProfileTranslation?
+ discovery ProfileDiscovery?
+ followers ProfileFollow[]
  hosts ProfileHost[]
  contactForm ContactForm?
  mediaKit MediaKitConfig?
@@ -879,6 +894,38 @@ model Profile {
  @@unique([tenantId, ownerId], map: "profiles_tenant_owner_key")
  @@unique([id, tenantId, ownerId], map: "profiles_identity_key")
  @@map("profiles")
+}
+model ProfileTranslation {
+ profileId String @id
+ tenantId String
+ ownerId String
+ content Json
+ profile Profile @relation(fields:[profileId,tenantId,ownerId],references:[id,tenantId,ownerId],onDelete:Cascade)
+ @@unique([profileId,tenantId,ownerId])
+ @@map("profile_translations")
+}
+model ProfileDiscovery {
+ profileId String @id
+ tenantId String
+ ownerId String
+ enabled Boolean @default(false)
+ version Int @default(1)
+ nicheId String?
+ profile Profile @relation(fields:[profileId,tenantId,ownerId],references:[id,tenantId,ownerId],onDelete:Cascade)
+ niche Niche? @relation(fields:[nicheId,tenantId],references:[id,tenantId],onDelete:Restrict)
+ @@unique([profileId,tenantId,ownerId])
+ @@map("profile_discovery")
+}
+model ProfileFollow {
+ tenantId String
+ userId String
+ profileId String
+ profileOwnerId String
+ createdAt DateTime @default(now())
+ user User @relation(fields:[userId,tenantId],references:[id,tenantId],onDelete:Cascade)
+ profile Profile @relation(fields:[profileId,tenantId,profileOwnerId],references:[id,tenantId,ownerId],onDelete:Cascade)
+ @@id([tenantId,userId,profileId])
+ @@map("profile_follows")
 }
 model ProfileMeasurement {
  profileId String @id
@@ -1346,6 +1393,7 @@ model CampaignPage {
 }
 
 model ProfileMembership {
+ agencyRequests AgencyAccessRequest[]
  id String @id @default(uuid())
  profileId String
  tenantId String
@@ -1460,6 +1508,12 @@ model ContactFormRevision {
  @@map("contact_form_revisions")
 }
 model ContactSubmission {
+ status String @default("NEW")
+ version Int @default(0)
+ firstHandledAt DateTime?
+ sourceSlug String @default("")
+ notes ContactNote[]
+ history ContactHistory[]
  id String @id @default(uuid())
  tenantId String
  formId String
@@ -1473,9 +1527,37 @@ model ContactSubmission {
  form ContactForm @relation(fields:[formId,tenantId],references:[id,tenantId],onDelete:Cascade,onUpdate:NoAction)
  revision ContactFormRevision @relation(fields:[revisionId,tenantId],references:[id,tenantId],onDelete:Cascade,onUpdate:NoAction)
  @@unique([formId,requestKey])
+ @@unique([id,tenantId],map:"contact_submissions_id_tenant_key")
+ @@index([formId,status,id],map:"contact_submissions_status_idx")
  @@index([formId,id],map:"contact_submissions_page_idx")
  @@index([expiresAt],map:"contact_submissions_expiry_idx")
  @@map("contact_submissions")
+}
+model ContactNote {
+ id String @id
+ tenantId String
+ contactId String
+ actorId String
+ text String
+ createdAt DateTime @default(now())
+ updatedAt DateTime @default(now())
+ contact ContactSubmission @relation(fields:[contactId,tenantId],references:[id,tenantId],onDelete:Cascade)
+ @@index([contactId,createdAt,id],map:"contact_notes_contact_idx")
+ @@map("contact_notes")
+}
+model ContactHistory {
+ contactId String
+ tenantId String
+ version Int
+ actorId String
+ kind String
+ fromStatus String?
+ toStatus String?
+ noteId String?
+ createdAt DateTime @default(now())
+ contact ContactSubmission @relation(fields:[contactId,tenantId],references:[id,tenantId],onDelete:Cascade)
+ @@id([contactId,version])
+ @@map("contact_history")
 }
 model ContactRateBucket {
  key String @id
@@ -1579,4 +1661,195 @@ model OwnershipChallenge {
  @@index([tenantId,handleId,createdAt(sort:Desc)],map:"ownership_handle_idx")
  @@index([createdAt],map:"ownership_retention_idx")
  @@map("ownership_challenges")
+}
+model WebhookEndpoint {
+ id String @id
+ tenantId String
+ ownerId String
+ url String
+ eventTypes String[]
+ enabled Boolean @default(true)
+ secret String
+ previousSecret String?
+ previousUntil DateTime?
+ version Int @default(1)
+ createdAt DateTime @default(now())
+ owner User @relation(fields:[ownerId,tenantId],references:[id,tenantId],onDelete:Cascade)
+ deliveries WebhookDelivery[]
+ @@unique([id,tenantId,ownerId])
+ @@index([tenantId,ownerId],map:"webhook_endpoints_owner_idx")
+ @@map("webhook_endpoints")
+}
+model OutboundEvent {
+ id String @id
+ tenantId String
+ ownerId String
+ type String
+ occurrenceKey String
+ resourceId String
+ createdAt DateTime @default(now())
+ owner User @relation(fields:[ownerId,tenantId],references:[id,tenantId],onDelete:Cascade)
+ deliveries WebhookDelivery[]
+ @@unique([tenantId,ownerId,occurrenceKey])
+ @@unique([id,tenantId,ownerId])
+ @@index([createdAt],map:"outbound_events_created_idx")
+ @@map("outbound_events")
+}
+model WebhookDelivery {
+ id String @id
+ tenantId String
+ ownerId String
+ eventId String
+ endpointId String
+ status String @default("PENDING")
+ attempts Int @default(0)
+ budget Int @default(5)
+ nextAttemptAt DateTime @default(now())
+ lockedUntil DateTime?
+ leaseId String?
+ statusCode Int?
+ errorCode String?
+ event OutboundEvent @relation(fields:[eventId,tenantId,ownerId],references:[id,tenantId,ownerId],onDelete:Cascade)
+ endpoint WebhookEndpoint @relation(fields:[endpointId,tenantId,ownerId],references:[id,tenantId,ownerId],onDelete:Cascade)
+ history WebhookAttempt[]
+ @@unique([eventId,endpointId])
+ @@unique([id,tenantId,ownerId])
+ @@index([status,nextAttemptAt],map:"webhook_deliveries_due_idx")
+ @@index([tenantId,ownerId,eventId],map:"webhook_deliveries_owner_idx")
+ @@map("webhook_deliveries")
+}
+model WebhookAttempt {
+ deliveryId String
+ tenantId String
+ ownerId String
+ number Int
+ createdAt DateTime @default(now())
+ statusCode Int?
+ errorCode String?
+ delivery WebhookDelivery @relation(fields:[deliveryId,tenantId,ownerId],references:[id,tenantId,ownerId],onDelete:Cascade)
+ @@id([deliveryId,number])
+ @@map("webhook_attempts")
+}
+
+model ProfileButtonTestDraft {
+ profileId String @id
+ tenantId String
+ ownerId String
+ content Json?
+ profile Profile @relation(fields:[profileId,tenantId,ownerId],references:[id,tenantId,ownerId],onDelete:Cascade,onUpdate:NoAction)
+ @@unique([profileId,tenantId,ownerId])
+ @@map("profile_button_test_drafts")
+}
+model ProfileButtonTest {
+ id String @id @db.Uuid
+ profileId String
+ tenantId String
+ ownerId String
+ revisionId Int
+ config Json
+ status String
+ version Int @default(0)
+ startedAt DateTime @db.Timestamptz
+ endsAt DateTime @db.Timestamptz
+ stoppedAt DateTime? @db.Timestamptz
+ profile Profile @relation(fields:[profileId,tenantId,ownerId],references:[id,tenantId,ownerId],onDelete:Cascade,onUpdate:NoAction)
+ visits ProfileButtonTestVisit[]
+ @@unique([id,tenantId,profileId,ownerId])
+ @@index([tenantId,ownerId,startedAt(sort:Desc)],map:"profile_button_test_owner_time")
+ @@map("profile_button_tests")
+}
+model ProfileButtonTestVisit {
+ id String @id @db.Uuid
+ experimentId String @db.Uuid
+ tenantId String
+ profileId String
+ ownerId String
+ sessionHash String @db.VarChar(64)
+ variant Int
+ exposedAt DateTime @db.Timestamptz
+ clickedAt DateTime? @db.Timestamptz
+ experiment ProfileButtonTest @relation(fields:[experimentId,tenantId,profileId,ownerId],references:[id,tenantId,profileId,ownerId],onDelete:Cascade,onUpdate:NoAction)
+ @@unique([experimentId,sessionHash])
+ @@index([exposedAt],map:"profile_button_test_visit_retention")
+ @@map("profile_button_test_visits")
+}
+
+model AgencyWorkspace {
+ id String @id @db.Uuid
+ tenantId String
+ agencyOwnerId String
+ maxClients Int @default(10)
+ owner User @relation(fields:[agencyOwnerId,tenantId],references:[id,tenantId],onDelete:Cascade)
+ clients AgencyClient[]
+ @@unique([agencyOwnerId,tenantId],map:"agency_workspaces_owner_key")
+ @@unique([id,tenantId,agencyOwnerId])
+ @@map("agency_workspaces")
+}
+model AgencyClient {
+ id String @id @db.Uuid
+ workspaceId String @db.Uuid
+ tenantId String
+ agencyOwnerId String
+ profileId String
+ clientOwnerId String
+ name String
+ version Int @default(0)
+ archivedAt DateTime? @db.Timestamptz
+ createdAt DateTime @default(now()) @db.Timestamptz
+ workspace AgencyWorkspace @relation(fields:[workspaceId,tenantId,agencyOwnerId],references:[id,tenantId,agencyOwnerId],onDelete:Cascade)
+ profile Profile @relation(fields:[profileId,tenantId,clientOwnerId],references:[id,tenantId,ownerId],onDelete:Cascade)
+ requests AgencyAccessRequest[]
+ @@unique([workspaceId,profileId])
+ @@unique([id,tenantId,agencyOwnerId,profileId,clientOwnerId])
+ @@map("agency_clients")
+}
+model AgencyAccessRequest {
+ id String @id @db.Uuid
+ clientId String @db.Uuid
+ tenantId String
+ agencyOwnerId String
+ profileId String
+ clientOwnerId String
+ userId String
+ role String
+ status String @default("PENDING")
+ requestKey String @db.Uuid
+ version Int @default(0)
+ expiresAt DateTime @db.Timestamptz
+ membershipId String?
+ membershipVersion Int?
+ workspaceMembershipId String?
+ workspaceMembershipVersion Int?
+ parentMembershipId String?
+ parentMembershipVersion Int?
+ createdAt DateTime @default(now()) @db.Timestamptz
+ updatedAt DateTime @default(now()) @db.Timestamptz
+ client AgencyClient @relation(fields:[clientId,tenantId,agencyOwnerId,profileId,clientOwnerId],references:[id,tenantId,agencyOwnerId,profileId,clientOwnerId],onDelete:Cascade)
+ user User @relation(fields:[userId,tenantId],references:[id,tenantId],onDelete:Cascade)
+ membership ProfileMembership? @relation(fields:[membershipId],references:[id],onDelete:SetNull)
+ @@unique([agencyOwnerId,requestKey])
+ @@index([tenantId,clientOwnerId,status,createdAt(sort:Desc)],map:"agency_access_client_inbox")
+ @@map("agency_access_requests")
+}
+model AgencyProfileTransfer {
+ id String @id @db.Uuid
+ tenantId String
+ profileId String
+ sourceOwnerId String
+ targetOwnerId String?
+ pageName String
+ pageSlug String
+ recipientHash String
+ profileVersion Int
+ requestKey String @db.Uuid
+ version Int @default(0)
+ status String @default("PENDING")
+ expiresAt DateTime @db.Timestamptz
+ createdAt DateTime @default(now()) @db.Timestamptz
+ updatedAt DateTime @default(now()) @db.Timestamptz
+ profile Profile @relation(fields:[profileId,tenantId],references:[id,tenantId],onDelete:Cascade)
+ sourceOwner User @relation(fields:[sourceOwnerId,tenantId],references:[id,tenantId],onDelete:Cascade)
+ @@unique([sourceOwnerId,requestKey])
+ @@index([tenantId,recipientHash,status],map:"agency_transfer_recipient")
+ @@map("agency_profile_transfers")
 }

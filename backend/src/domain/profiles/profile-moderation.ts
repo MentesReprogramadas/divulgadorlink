@@ -1,8 +1,11 @@
 import { canonicalUrl } from '@/domain/links/canonical-url'
 import type { ProfileContent } from './profile'
+import {translationTexts,type ProfileTranslations} from './profile-translations'
 import { hitsBlocklist } from '@/domain/links/blocklist'
 
 type ModerationSnapshot = {
+  buttonTest?:ProfileContent['buttonTest']
+  translations?:ProfileTranslations
   name: string; description: string; slug: string; requiresAge: boolean; avatarAssetId: string | null
   groups: Array<{ id: string; name: string }>
   links: Array<{ id: string; groupId: string; type: string; label: string; destination: string; event?:ProfileContent['items'][number]['event'] }>
@@ -19,10 +22,11 @@ const textKey = (value: string) => value.normalize('NFKC').trim().replace(/\s+/g
 // Punctuation alone introduces no subject, destination or instruction.
 const punctuationOnly = (value: string) => /^[\p{P}\s]*$/u.test(value.normalize('NFKC'))
 const destinationKey = (item: ProfileContent['items'][number]) => item.type + ':' + (item.type === 'CATALOG' ? item.destination : canonicalUrl(item.destination))
-export const profileModerationText = (content: ProfileContent) => [content.name, content.bio, ...content.categories.map(group => group.name), ...content.items.flatMap(item => [item.label,...(item.event?[item.event.description,item.event.location,item.event.buttonLabel??'Acessar evento']:[])])].join('\n')
+export const profileModerationText = (content: ProfileContent) => [content.name, content.bio, ...content.categories.map(group => group.name), ...content.items.flatMap(item => [item.label,...(item.event?[item.event.description,item.event.location,item.event.buttonLabel??'Acessar evento']:[])]),...(content.buttonTest?.labels??[]),...translationTexts(content)].join('\n')
 
 export function profileModerationSnapshot(content: ProfileContent): ModerationSnapshot {
   return {
+    ...(content.buttonTest?{buttonTest:content.buttonTest}:{}),...(content.translations?{translations:content.translations}:{}),
     name: content.name, description: content.bio, slug: content.slug, requiresAge: content.requiresAge, avatarAssetId: content.avatarAssetId,
     groups: content.categories.map(group => ({ id: group.id, name: group.name })),
     links: content.items.map(item => ({ id: item.id, groupId: item.categoryId, type: item.type, label: item.label, destination: item.type === 'CATALOG' ? item.destination : canonicalUrl(item.destination),...(item.event?{event:item.event}:{}) })),
@@ -44,6 +48,8 @@ export function profileHasNewBlockedSignals(text: string, terms: string[], appro
 export function profileModerationChanges(content: ProfileContent, approved?: ProfileContent) {
   if (!approved) return { changedFields: ['primeira publicação'], text: profileModerationText(content) }
   const changedFields: string[] = [], text: string[] = []
+  if(JSON.stringify(content.buttonTest??null)!==JSON.stringify(approved.buttonTest??null)&&content.buttonTest){changedFields.push('versões do botão');text.push(...content.buttonTest.labels)}
+  if(JSON.stringify(content.translations??null)!==JSON.stringify(approved.translations??null)&&translationTexts(content).length){changedFields.push('traduções');text.push(...translationTexts(content))}
   for (const [field, label] of [['name', 'nome'], ['bio', 'descrição']] as const) {
     if (textKey(content[field]) !== textKey(approved[field])) { changedFields.push(label); text.push(content[field]) }
   }

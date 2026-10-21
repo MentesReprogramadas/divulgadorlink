@@ -1,6 +1,19 @@
 import type { SVGProps } from 'react'
 
 export const iconPaths = {
+  clientPortfolio:'M2 5h8l2 3h10v13H2ZM7 1h14v4M6 12h4v5H6ZM14 12h4M14 16h4',
+  agencyAccess:'M2 3h8v6H2ZM2 15h8v6H2ZM6 9v6M10 6h5v12h-5M15 12h7M19 9l3 3-3 3',
+  ownershipTransfer:'M2 2h8v8H2ZM14 14h8v8h-8ZM14 4h6v6M20 4l-7 7M4 14v6h6M4 20l7-7',
+  startComparison:'M2 3h8v18H2ZM14 5l8 7-8 7ZM5 7h2M5 12h2M5 17h2',
+  stopComparison:'M3 3h18v18H3ZM7 7l10 10M17 7 7 17',
+  compareButtons:'M3 2h7v7H3ZM14 15h7v7h-7ZM6 9v9h5M9 15l3 3-3 3M18 15V6h-5M15 3l-3 3 3 3',
+  pageLanguages:'M3 3h10M8 1v3M5 4c0 6 6 10 8 10M11 4c0 5-4 10-8 12M14 21l4-11 4 11M16 17h4',
+  contactHandling:'M3 3h18v15H9l-6 4ZM7 8h6M7 12h3M13 11l2 2 4-5',
+  contactNotes:'M4 3h16v13l-5 5H4ZM15 16h5M15 16v5M8 7h8M8 11h8M8 15h3',
+  outboundWebhook:'M3 3h7v7H3ZM3 15h7v7H3ZM14 7h8M18 3l4 4-4 4M14 18h8M18 14l4 4-4 4M7 10v5',
+  discoverPages:'M3 3h7v7H3ZM14 3h7v7h-7ZM3 14h7v7H3ZM18 12l2 4 4 2-4 2-2 4-2-4-4-2 4-2Z',
+  followProfile:'M12 5a4 4 0 1 0-8 0 4 4 0 0 0 8 0ZM2 21v-4a6 6 0 0 1 10-4M18 11v10M13 16h10',
+  unfollowProfile:'M12 5a4 4 0 1 0-8 0 4 4 0 0 0 8 0ZM2 21v-4a6 6 0 0 1 10-4M13 16h10',
   createPage:'M4 3h12l4 4v14H4ZM15 3v5h5M8 14h8M12 10v8',
   profileHost:'M3 3h18v18H3ZM3 8h18M6 5h.01M9 5h.01M6 13h5v5H6ZM14 12h4M14 16h4',
   verifyHost:'M3 3h18v10H3ZM3 7h18M6 5h.01M9 5h.01M8 17l4 4 9-8',

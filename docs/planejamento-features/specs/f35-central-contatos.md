@@ -2,7 +2,7 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 37.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
+**Estado:** IMPLEMENTADA E VALIDADA LOCALMENTE; S7 pendente.
 **Onda:** 5. **Ordem:** 37.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Central de contatos recebidos”.  
 **Plano:** [F35 implementação](../planos/f35-central-contatos.md).  
@@ -141,3 +141,7 @@ Sem resolução das decisões bloqueantes e dependências concluídas, a feature
 
 **Indicadores:** contatos tratados, tempo até o primeiro atendimento registrado e contatos pendentes.
 
+
+## Execução local — 21/10/2026
+
+Contratos, decisões, alternativas e evidências em [execução F35](../execucao-f35.md). Não há comprovação de CI/deploy nesta rodada.

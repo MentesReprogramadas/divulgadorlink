@@ -7,12 +7,13 @@ import {assertProfileOwner,publicProfileProjection} from './profiles-repository'
 type Db=Prisma.TransactionClient
 type Form={id:string;tenantId:string;profileId:string;version:number}
 type Revision={id:string;number:number;definition:ContactDefinition}
-type Submission={id:string;revisionId:string;answers:Record<string,string>;marketingOptIn:boolean;createdAt:Date;expiresAt:Date;fingerprint:string}
+type Submission={id:string;revisionId:string;answers:Record<string,string>;marketingOptIn:boolean;createdAt:Date;expiresAt:Date;fingerprint:string;status:'NEW'|'IN_PROGRESS'|'DONE';version:number;sourceSlug:string;firstHandledAt:Date|null}
 export async function purgeContacts(db:PrismaClient,now=new Date()){
  await db.$executeRaw`DELETE FROM contact_submissions WHERE "expiresAt"<=${now}`
  await db.$executeRaw`DELETE FROM contact_rate_buckets WHERE "expiresAt"<=${now}`
 }
 async function owned(tx:Db,a:ProfileActor,write=false){await assertProfileOwner(tx,a,write);const p=await tx.profile.findUnique({where:{tenantId_ownerId:{tenantId:a.tenantId,ownerId:a.ownerId}},select:{id:true}});if(!p)throw new ProfileError(404,'Salve sua página antes de configurar contatos.');return p}
+export {owned as assertContactPage}
 async function latest(tx:Db,id:string){const rows=await tx.$queryRaw<Revision[]>`SELECT id,number,definition FROM contact_form_revisions WHERE "formId"=${id}::text ORDER BY number DESC LIMIT 1`;return rows[0]}
 async function formFor(tx:Db,profileId:string){return (await tx.$queryRaw<Form[]>`SELECT * FROM contact_forms WHERE "profileId"=${profileId}::text`)[0]}
 export async function readContactForm(db:PrismaClient,a:ProfileActor){const p=await owned(db,a);const f=await formFor(db,p.id),rev=f?await latest(db,f.id):null;return{version:f?.version??0,revisionId:rev?.id??null,definition:rev?.definition??defaultContact}}
@@ -40,13 +41,13 @@ export async function submitContact(db:PrismaClient,scope:{tenantId:string;slug:
  return{id,createdAt:now}
  })
 }
-export async function listContacts(db:PrismaClient,a:ProfileActor,cursor?:string,now=new Date()){
+export async function listContacts(db:PrismaClient,a:ProfileActor,cursor?:string,now=new Date(),status?:Submission['status']){
  const p=await owned(db,a),f=await formFor(db,p.id);if(!f)return{items:[],nextCursor:null}
  await db.$executeRaw`DELETE FROM contact_submissions WHERE "formId"=${f.id}::text AND "expiresAt"<=${now}`
- const rows=await db.$queryRaw<Submission[]>`SELECT id,"revisionId",answers,"marketingOptIn","createdAt","expiresAt" FROM contact_submissions WHERE "formId"=${f.id}::text AND "expiresAt">${now} AND (${cursor??null}::text IS NULL OR id>${cursor??null}::text) ORDER BY id LIMIT 26`
+ const rows=await db.$queryRaw<Submission[]>`SELECT id,"revisionId",answers,"marketingOptIn","createdAt","expiresAt",status,version,"sourceSlug","firstHandledAt" FROM contact_submissions WHERE "formId"=${f.id}::text AND "expiresAt">${now} AND (${status??null}::text IS NULL OR status=${status??null}::text) AND (${cursor??null}::text IS NULL OR id>${cursor??null}::text) ORDER BY id LIMIT 26`
  return{items:rows.slice(0,25),nextCursor:rows.length>25?rows[24]!.id:null}
 }
 export async function deleteContact(db:PrismaClient,a:ProfileActor,id:string){return db.$transaction(async tx=>{const p=await owned(tx,a,true),f=await formFor(tx,p.id);if(!f)throw new ProfileError(404,'Contato não encontrado.');await tx.$executeRaw`DELETE FROM contact_submissions WHERE id=${id}::text AND "formId"=${f.id}::text`;return{deleted:true}})}
-export async function exportContacts(db:PrismaClient,a:ProfileActor,cursor?:string){const page=await listContacts(db,a,cursor);const keys=['name','email','phone','company','message'] as const;return{csv:'\uFEFF'+['Data',...keys,'Aceitou novidades'].map(csvCell).join(',')+'\r\n'+page.items.map(row=>[row.createdAt.toISOString(),...keys.map(k=>row.answers[k]??''),row.marketingOptIn?'Sim':'Não'].map(csvCell).join(',')).join('\r\n'),nextCursor:page.nextCursor}}
+export async function exportContacts(db:PrismaClient,a:ProfileActor,cursor?:string,status?:Submission['status']){const page=await listContacts(db,a,cursor,new Date(),status);const keys=['name','email','phone','company','message'] as const;await db.auditLog.create({data:{tenantId:a.tenantId,actorId:a.auditActorId??a.actorId??a.ownerId,action:'contact.exported',entityType:'Profile',entityId:(await owned(db,a)).id,after:{count:page.items.length}}});return{csv:'\uFEFF'+['Data',...keys,'Aceitou novidades','Situação','Página de origem','Primeiro atendimento'].map(csvCell).join(',')+'\r\n'+page.items.map(row=>[row.createdAt.toISOString(),...keys.map(k=>row.answers[k]??''),row.marketingOptIn?'Sim':'Não',({NEW:'Novo',IN_PROGRESS:'Em atendimento',DONE:'Concluído'} as const)[row.status],'/p/'+row.sourceSlug,row.firstHandledAt?.toISOString()??''].map(csvCell).join(',')).join('\r\n'),nextCursor:page.nextCursor}}
 
 export async function previewContactForm(db:PrismaClient,a:ProfileActor){const state=await readContactForm(db,a);return state.definition.enabled&&state.revisionId?{revisionId:state.revisionId,definition:state.definition}:null}

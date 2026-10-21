@@ -1,0 +1,10 @@
+.body,.form,.notes,.history { display:grid; gap:var(--space-6); min-width:0; }
+.form { max-width:none; }
+.note,.entry { padding:var(--space-4); border:1px solid var(--border-default); border-radius:var(--radius-md); background:var(--surface-raised); min-width:0; }
+.note p { white-space:pre-wrap; overflow-wrap:anywhere; margin:0; }
+.meta { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:var(--space-3); }
+.meta time,.muted { color:var(--text-secondary); font-size:var(--text-sm); }
+.answers { display:grid; gap:var(--space-3); margin:0; }
+.answers dt { font-weight:600; }
+.answers dd { margin:0; overflow-wrap:anywhere; }
+.entry p { margin:0; }

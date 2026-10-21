@@ -6,12 +6,14 @@ import styles from "./event.module.css";
 type Item = ProfileContent["items"][number];
 export function EventCard({
   item,
+  originalLanguage,buttonLanguage,
   preview = false,
   pending = false,
   now = new Date().toISOString(),
   heading: Heading = "h3",
 }: {
   item: Item;
+  originalLanguage?:string;buttonLanguage?:string;
   slug: string;
   preview?: boolean;
   pending?: boolean;
@@ -37,7 +39,7 @@ export function EventCard({
     }).format(new Date(value));
   return (
     <section
-      className={styles.card}
+      className={styles.card} lang={originalLanguage}
       aria-label={"Evento: " + item.label}
       data-event-state={event.state}
     >
@@ -77,7 +79,7 @@ export function EventCard({
           {pending ? (
             <Skeleton height="3rem" />
           ) : (
-            <a
+            <a lang={buttonLanguage}
               className={styles.signup}
               href={preview ? undefined : item.destination}
               aria-disabled={preview || undefined}

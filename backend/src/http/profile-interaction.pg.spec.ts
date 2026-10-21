@@ -1,3 +1,4 @@
+import {setWorkspaceDbForTest} from '@/http/workspace-access'
 import {randomUUID} from 'node:crypto'
 import {Prisma,PrismaClient} from '@prisma/client'
 import {afterAll,afterEach,beforeAll,beforeEach,expect,it} from 'vitest'
@@ -16,7 +17,7 @@ if(!url||!['127.0.0.1','localhost'].includes(new URL(url).hostname))throw new Er
 const db=new PrismaClient({datasources:{db:{url}}})
 let tenant:string,owner:string,other:string,profileId:string,block:string,hidden:string,subscriptionId:string
 const now=new Date('2026-10-18T12:00:00Z')
-beforeAll(async()=>{setTenantsRepositoryForTest({async findByHost(host){return db.tenant.findUnique({where:{host}})}});await app.ready()})
+beforeAll(async()=>{setWorkspaceDbForTest(db);setTenantsRepositoryForTest({async findByHost(host){return db.tenant.findUnique({where:{host}})}});await app.ready()})
 beforeEach(async()=>{
  tenant=randomUUID();owner=randomUUID();other=randomUUID();profileId=randomUUID();block=randomUUID();hidden=randomUUID()
  await db.tenant.create({data:{id:tenant,host:tenant+'.test',name:'F31 fixture'}})
@@ -29,7 +30,7 @@ beforeEach(async()=>{
  setProfilesForTest(db);setProfileInteractionsForTest(db);setProfileBillingForTest(db,{enabled:false,production:false,gateway:null,webhookReady:false,delivered:new Set([...BASE_PROFILE_CAPABILITIES,'profile.analytics'])});setProfileClockForTest(()=>now)
 })
 afterEach(async()=>{setProfileClockForTest(null);setProfileBillingForTest(null,null);await db.profile.deleteMany({where:{tenantId:tenant}});await db.auditLog.deleteMany({where:{tenantId:tenant}});await cleanBillingFixture(db,tenant);await db.userIdentifier.deleteMany({where:{tenantId:tenant}});await db.user.deleteMany({where:{tenantId:tenant}});await db.tenant.delete({where:{id:tenant}})})
-afterAll(async()=>{setProfilesForTest(null);setProfileInteractionsForTest(null);await db.$disconnect()})
+afterAll(async()=>{setWorkspaceDbForTest(null);setProfilesForTest(null);setProfileInteractionsForTest(null);await db.$disconnect()})
 function call(method:'GET'|'POST'|'PATCH',route:string,body?:unknown,actor:string|null=null,extra:Record<string,string>={}){return app.inject({method,url:'/api/v1/'+route,headers:{host:tenant+'.test','user-agent':'Mozilla/5.0 Safari/605.1',cookie:'tla_profile_measure=v1_yes; analyticsSession=12345678-1234-4234-8234-123456789abc',...(actor?{authorization:'Bearer '+app.jwt.sign({sub:actor,tenantId:tenant,role:'ADMIN',typ:'access'})}:{}),...extra},...(body?{payload:body}:{})})}
 const preference=(enabled=true,expectedVersion=0)=>call('PATCH','me/profile/measurement',{enabled,expectedVersion},owner)
 async function descriptor(){await preference();const r=await call('GET','profiles/pagina-f31');expect(r.statusCode,r.body).toBe(200);return r.json().measurement as {surfaceToken:string}}
@@ -133,3 +134,51 @@ it('F31-I02 another host cannot collect or read this tenant; age-restricted cont
 
 
 
+
+async function prepareButtonTest(){
+ await preference();const p=await db.profile.findUniqueOrThrow({where:{id:profileId}}),snapshot=p.publication as Prisma.JsonObject
+ const config={blockId:block,labels:['Conhecer projeto','Explorar agora'],samplePerVariant:100,durationDays:7}
+ await db.profile.update({where:{id:profileId},data:{publishedDraft:{...snapshot,buttonTest:config}}})
+ const response=await call('POST','me/profile/button-tests/start',{expectedVersion:1},owner);expect(response.statusCode,response.body).toBe(200)
+ const assignment=await call('POST','profiles/pagina-f31/button-test/assignment',{});expect(assignment.statusCode,assignment.body).toBe(200);const value=assignment.json().assignment;expect(value).toMatchObject({blockId:block,revisionId:1});const token=(await call('GET','profiles/pagina-f31')).json().measurement.surfaceToken
+ return{...value,surfaceToken:token}
+}
+function buttonEvent(assignment:Record<string,unknown>,kind='EXPOSURE'){return{id:assignment.id,variant:assignment.variant,revisionId:assignment.revisionId,surfaceToken:assignment.surfaceToken,kind}}
+it('F26-PG01/T01/T02/U03 atribuição estável, dedupe e clique somente após exposição; relatório não elege cedo',async()=>{
+ const assignment=await prepareButtonTest(),route='profiles/pagina-f31/button-test/events'
+ expect((await call('POST','profiles/pagina-f31/button-test/assignment',{})).json().assignment).toMatchObject({id:assignment.id,variant:assignment.variant,label:assignment.label})
+ expect((await call('POST','me/profile/button-tests/start',{expectedVersion:1},owner)).json().id).toBe(assignment.id)
+ expect((await call('POST',route,buttonEvent(assignment,'CLICK'))).json().counted).toBe(false)
+ expect((await call('POST',route,buttonEvent(assignment))).json().counted).toBe(true);expect((await call('POST',route,buttonEvent(assignment))).json().counted).toBe(false)
+ expect((await call('POST',route,buttonEvent(assignment,'CLICK'))).json().counted).toBe(true);expect((await call('POST',route,buttonEvent(assignment,'CLICK'))).json().counted).toBe(false)
+ expect((await call('POST',route,{...buttonEvent(assignment),variant:1-assignment.variant})).statusCode).toBe(422)
+ const report=(await call('GET','me/profile/button-tests',undefined,owner)).json();expect(report.experiments[0].counts[assignment.variant]).toEqual({exposures:1,clicks:1});expect(report.experiments[0].result.winner).toBeNull();expect(JSON.stringify(report)).not.toMatch(/sessionHash|analyticsSession/)
+ setProfileClockForTest(()=>new Date(+now+7*86400000));const ended=(await call('GET','me/profile/button-tests',undefined,owner)).json().experiments[0];expect(ended.status).toBe('COMPLETE');expect(ended.result.status).toBe('INCONCLUSIVE')
+})
+it('F26-PG02/T03/T04/T05 consentimento, tenant, dono, token e cobertura impedem medição indevida',async()=>{
+ const assignment=await prepareButtonTest(),route='profiles/pagina-f31/button-test/events'
+ for(const extra of ([{cookie:''},{dnt:'1'},{'sec-gpc':'1'},{'user-agent':'Googlebot'}] as Record<string,string>[])){const response=await call('POST','profiles/pagina-f31/button-test/assignment',{},null,extra);expect(response.json().assignment).toBeNull();expect(response.headers['set-cookie']).toBeUndefined()}
+ expect((await call('POST','profiles/pagina-f31/button-test/assignment',{},owner)).json().assignment).toBeNull()
+ expect((await call('POST',route,{...buttonEvent(assignment),surfaceToken:assignment.surfaceToken+'x'})).statusCode).toBe(422)
+ expect((await call('POST','me/profile/button-tests/'+assignment.id+'/stop',{expectedVersion:0},other)).statusCode).toBe(404)
+ expect((await call('POST','me/profile/button-tests/start',{expectedVersion:0},owner)).statusCode).toBe(409)
+ expect((await call('GET','me/profile/button-tests',undefined,null)).statusCode).toBe(401)
+ expect((await call('GET','me/profile/button-tests',undefined,owner,{authorization:'Bearer '+app.jwt.sign({sub:owner,tenantId:randomUUID(),role:'ADMIN',typ:'access'})})).statusCode).toBe(403)
+ await db.profileSubscription.update({where:{id:subscriptionId},data:{paidThrough:now}});expect((await call('POST','profiles/pagina-f31/button-test/assignment',{})).json().assignment).toBeNull();const masked=(await call('GET','me/profile/button-tests',undefined,owner)).json().experiments[0];expect(masked.counts).toEqual([{exposures:null,clicks:null},{exposures:null,clicks:null}]);expect(masked.result.status).toBe('UNAVAILABLE')
+})
+it('F26-PG03 publicação nova encerra teste e interrupção usa versão sem alterar conteúdo público',async()=>{
+ const assignment=await prepareButtonTest();await db.profile.update({where:{id:profileId},data:{version:2,publishedVersion:2}})
+ const report=(await call('GET','me/profile/button-tests',undefined,owner)).json().experiments[0];expect(report.status).toBe('STOPPED');expect(report.result.winner).toBeNull();expect((await call('POST','profiles/pagina-f31/button-test/assignment',{})).json().assignment).toBeNull();expect((await call('POST','me/profile/button-tests/'+assignment.id+'/stop',{expectedVersion:0},owner)).statusCode).toBe(409)
+ expect((await call('GET','profiles/pagina-f31')).json().items[0].label).toBe('Meu projeto')
+})
+
+it('F26-PG04 permissões globais separam leitura e escrita e auditam o operador real',async()=>{
+ const assignment=await prepareButtonTest();expect((await call('POST','me/profile/button-tests/'+assignment.id+'/stop',{expectedVersion:0},owner)).statusCode).toBe(200)
+ await db.$executeRaw`INSERT INTO workspace_memberships(id,"tenantId","ownerId","userId",grants) VALUES(${randomUUID()},${tenant},${owner},${other},'{}'::jsonb)`
+ const headers={'x-workspace-owner':owner};expect((await call('GET','me/profile/button-tests',undefined,other,headers)).statusCode).toBe(403)
+ await db.$executeRaw`UPDATE workspace_memberships SET grants='{"page":{"read":true,"write":false}}'::jsonb WHERE "tenantId"=${tenant}`
+ expect((await call('GET','me/profile/button-tests',undefined,other,headers)).statusCode).toBe(200);expect((await call('POST','me/profile/button-tests/start',{expectedVersion:1},other,headers)).statusCode).toBe(403)
+ await db.$executeRaw`UPDATE workspace_memberships SET grants='{"page":{"read":true,"write":true}}'::jsonb WHERE "tenantId"=${tenant}`
+ const start=await call('POST','me/profile/button-tests/start',{expectedVersion:1},other,headers);expect(start.statusCode,start.body).toBe(200);expect((await db.auditLog.findFirst({where:{tenantId:tenant,action:'PROFILE_BUTTON_TEST_START'},orderBy:{createdAt:'desc'}}))?.actorId).toBe(other)
+ await db.$executeRaw`UPDATE workspace_memberships SET "revokedAt"=CURRENT_TIMESTAMP WHERE "tenantId"=${tenant}`;expect((await call('GET','me/profile/button-tests',undefined,other,headers)).statusCode).toBe(403)
+})

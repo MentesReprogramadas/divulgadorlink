@@ -1,5 +1,8 @@
 # Execução contínua do roadmap
 
+**Estado atual — 21/10/2026:** parada após F36 concluída localmente; F40/F41 não iniciadas. Total 40/42 implementações locais, S7 pendente. [Guia local](testar-lote-2026-10-21.md), [execução final](execucao-f36.md). Os registros datados abaixo preservam o histórico.
+
+
 Estado corrente em 18/10/2026: F19, F08 e F11 S0–S6 validadas localmente; F13 S0–S6 validada localmente; F14 S0–S6 validadas localmente; F16 S0–S6 validadas localmente; F17 S0–S6 validadas localmente; F18 S0–S6 validadas localmente; execução encerrada na F18 por pedido do usuário em 18/10. O checkout atual é main com alterações locais preservadas; o AGENTS vigente exige pedido para novas operações de Git. Não foram criados branch, commit, push ou deploy nesta continuação. Os registros de branch/CI abaixo são históricos, não descrição do estado atual.
 
 ## Autorização e isolamento
@@ -201,3 +204,16 @@ Implementação/automação locais concluídas, AC03 parcial e F10-M01 (TLS/DNS 
 - F10: endereço próprio, gate TLS e isolamento; commit 6694ce0d7325345f842c4f8c5e684b180a98e63c (evidencias-f10.json).
 
 F39 tinha somente indicação indevida no índice; foi reconciliada para não iniciada, sem implementação fictícia. O roteiro posterior permanece F24, F30, F35, F39, F26, F36, F40 e F41; nenhum foi iniciado nesta autorização. F10-M01 real e S7 continuam pendentes. Nenhum push/deploy realizado.
+
+
+## Continuidade autorizada em 21/10/2026
+
+A instrução de continuar as features restantes substitui a parada anterior após F10. F24 e F30 implementadas e validadas localmente; F35 em execução. Registros em [F24](execucao-f24.md) e [F30](execucao-f30.md). S7/CI remotos, commit, push e deploy desta rodada não executados. Não interpretar os registros históricos de parada como estado atual.
+
+## Encerramento após F36 — 21/10/2026
+
+Pedido posterior do usuário: concluir a feature atual, atualizar documentação, explicar teste/configuração e parar. F36 concluída localmente; **não iniciar F40/F41**. Lote entregue: F24 → F30 → F35 → F39 → F26 → F36. Total 40/42 implementações locais, com S7 em revisão. Próxima sequência somente após nova autorização: F40 → F41. Não há novo commit/push/deploy desta rodada. [Guia de teste](testar-lote-2026-10-21.md), [execução F36](execucao-f36.md), [contexto para retomada](contexto-apos-f36.md). Registros anteriores de execução contínua são históricos e não superam este pedido de parada.
+
+## Migração e publicação da branch — 21/10/2026
+
+Por novo pedido explícito do usuário, as seis migrations do lote foram aplicadas ao banco **local** `localhost:5437/divulgador`. O container existente `backend-postgres-1`, confirmado como pertencente a este projeto, estava parado e foi iniciado preservando seu volume. Backup PostgreSQL custom foi salvo fora do repositório em `C:/Users/ferna/.codex/backups/divulgadorlinks/before-roadmap-f36-20261021.dump` e seu índice foi conferido antes de migrar. `prisma migrate deploy`, `prisma migrate status` (67 migrations, atualizado) e `prisma generate`: exit 0. Nenhum reset, seed ou migração em produção. O pedido também autoriza commit e push deste lote para `codex/roadmap-f37-testes`; CI/produção permanecem gates separados. Chave mestra da F30 continua pendente de configuração.

@@ -241,3 +241,36 @@ it('F09 CSRF por cookie continua obrigatório para mutações privadas', async (
   expect((await app.inject({ ...request, headers: { host, cookie: 'accessToken=' + token } })).statusCode).toBe(403)
   expect((await app.inject({ ...request, headers: { host, cookie: 'accessToken=' + token + '; csrf=' + csrf, 'x-csrf-token': csrf } })).statusCode).toBe(200)
 })
+
+it('F39-PG01 traduções são privadas, publicadas atomicamente e respeitam isolamento e CAS',async()=>{
+ const c=content(),g=c.categories[0].id,i=c.items[0].id
+ const translated={...c,translations:{primaryLocale:'pt-BR' as const,entries:[{locale:'en' as const,name:'Anna',categories:{[g]:'Projects'},items:{[i]:'Website',[c.items[1].id]:'PRIVATE_TRANSLATION'}}]}}
+ await save(c);await publish();await save(translated,1)
+ expect((await call('GET','profiles/meu-perfil?locale=en',undefined,null)).json().name).toBe('Ana')
+ const preview=(await call('GET','me/profile/preview/items?locale=en')).json();expect(preview.name).toBe('Anna');expect(preview.body).toBeUndefined();expect(JSON.stringify(preview)).not.toContain('PRIVATE_TRANSLATION')
+ expect((await call('PATCH','me/profile',{expectedVersion:1,content:{...translated,bio:'Outra edição'}})).statusCode).toBe(409)
+ expect((await call('GET','me/profile',undefined,user,foreign)).statusCode).toBe(403)
+ await publish(2);const live=(await call('GET','profiles/meu-perfil/items?locale=en',undefined,null)).json();expect(live).toMatchObject({name:'Anna',locale:'en',bio:c.bio});expect(live.items[0]).toMatchObject({label:'Website',destination:c.items[0].destination});expect(JSON.stringify(live)).not.toContain('PRIVATE_TRANSLATION')
+ expect((await call('GET','profiles/meu-perfil?locale=fr',undefined,null)).statusCode).toBe(400)
+ // Older clients retain translations; explicit empty entries removes them only from the draft.
+ await save({...c,name:'Ana atualizada'},2);expect((await call('GET','me/profile')).json().draft.translations.entries).toHaveLength(1)
+ await save({...c,translations:{primaryLocale:'pt-BR',entries:[]}},3);expect((await call('GET','profiles/meu-perfil?locale=en',undefined,null)).json().name).toBe('Anna')
+ const discarded=await call('POST','me/profile/discard',{expectedVersion:4});expect(discarded.statusCode,discarded.body).toBe(200);expect(discarded.json().draft.translations.entries[0].name).toBe('Anna')
+})
+it('F39-PG02 tradução suspeita usa revisão humana e aprovação continua vinculada ao snapshot',async()=>{
+ const c=content();await save(c);await publish();ports.judge=async()=>({pass:false,confidence:0.99,reasons:['Revisar tradução']})
+ await save({...c,translations:{primaryLocale:'pt-BR',entries:[{locale:'en',name:'New translated title',categories:{},items:{}}]}},1);await publish(2)
+ const state=(await call('GET','me/profile')).json();expect(state.review.status).toBe('PENDING');expect((await call('GET','profiles/meu-perfil?locale=en',undefined,null)).json().name).toBe('Ana');const review=await db.contentReview.findUniqueOrThrow({where:{id:state.review.id}});expect(JSON.stringify(review.snapshot)).toContain('New translated title')
+})
+
+it('F39-PG03 cursores não atravessam idiomas e labels órfãos são eliminados no rascunho',async()=>{
+ const c=content(),g=c.categories[0].id,items=Array.from({length:30},(_,index)=>({id:randomUUID(),categoryId:g,type:'URL' as const,label:'Projeto '+index,destination:'https://example.com/'+index,visible:true})),translated={...c,appearance:{background:'#ffffff',buttonColor:'#000000',backgroundStyle:'solid' as const,buttonStyle:'filled' as const,radius:'rounded' as const,font:'modern' as const,alignment:'center' as const,searchEnabled:true},items,translations:{primaryLocale:'pt-BR' as const,entries:[{locale:'en' as const,name:'Projects',categories:{},items:{[items[0].id]:'Website'}}]}}
+ await save(translated);await publish();const result=await call('GET','profiles/meu-perfil/items?locale=en',undefined,null);expect(result.statusCode,result.body).toBe(200);const cursor=result.json().search.nextCursor;expect(cursor).toBeTruthy();expect((await call('GET','profiles/meu-perfil/items?locale=es&cursor='+cursor,undefined,null)).statusCode).toBe(409)
+ await save({...translated,items:items.slice(1)},1);expect((await call('GET','me/profile')).json().draft.translations.entries[0].items).toEqual({})
+})
+
+it('F26-PG04 variantes novas passam pela moderação e só podem iniciar após publicação aprovada',async()=>{
+ const c=content();await save(c);await publish();ports.judge=vi.fn(async()=>({pass:false,confidence:0.99,reasons:['Revisar versões']}))
+ const proposed={...c,buttonTest:{blockId:c.items[0].id,labels:['Nova frase A','Nova frase B'] as [string,string],samplePerVariant:100,durationDays:7 as const}}
+ await save(proposed,1);await publish(2);const state=(await call('GET','me/profile')).json();expect(state.review.status).toBe('PENDING');expect(state.draft.buttonTest.labels).toEqual(proposed.buttonTest.labels);expect(JSON.stringify((await call('GET','profiles/meu-perfil',undefined,null)).json())).not.toContain('Nova frase A');expect((await call('POST','me/profile/button-tests/start',{expectedVersion:2})).statusCode).toBe(409)
+})

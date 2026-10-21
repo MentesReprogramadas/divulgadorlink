@@ -33,6 +33,39 @@ async function save(value=content(),expectedVersion=0){const r=await call('PATCH
 const definition={enabled:true,purpose:'contact',marketingAllowed:true,fields:[{key:'name',required:false},{key:'email',required:true},{key:'message',required:false}]}
 async function prepare(){await save();expect((await call('POST','me/profile/publish',{expectedVersion:1})).statusCode).toBe(200);const result=await call('PUT','me/forms',{definition,expectedVersion:0});expect(result.statusCode,result.body).toBe(200);return(await call('GET','profiles/pagina-f22/contact-form',undefined,null)).json().form as {revisionId:string}}
 const submit=(revisionId:string,answers:unknown={email:'private@example.com',message:'PRIVATE-SENTINEL'},requestKey=randomUUID(),extras={})=>call('POST','profiles/pagina-f22/contact-form/submissions',{revisionId,answers,requestKey,marketingOptIn:false,website:'',...extras},null)
+it('F35-T02/T04/T05/I01 notas privadas e histórico, CAS e origem preservada sem envio automático',async()=>{
+ const {revisionId}=await prepare(),received=await submit(revisionId),id=received.json().id,initial=(await call('GET','me/forms/submissions/'+id)).json(),before=await db.operationalMessage.count({where:{tenantId:tenant}})
+ expect(initial.status).toBe('NEW');expect(initial.version).toBe(0);expect(initial.sourceSlug).toBe('pagina-f22')
+ const noteId=randomUUID(),note={id:noteId,text:'NOTE_PRIVATE_SENTINEL',expectedVersion:0};for(let i=0;i<2;i++)expect((await call('POST','me/forms/submissions/'+id+'/notes',note)).statusCode).toBe(200)
+ const noted=(await call('GET','me/forms/submissions/'+id)).json();expect(noted.notes).toHaveLength(1);expect(noted.version).toBe(1)
+ expect((await call('PATCH','me/forms/submissions/'+id+'/status',{status:'IN_PROGRESS',expectedVersion:0})).statusCode).toBe(409)
+ const handled=(await call('PATCH','me/forms/submissions/'+id+'/status',{status:'IN_PROGRESS',expectedVersion:1})).json();expect(handled.firstHandledAt).not.toBe(null)
+ const done=(await call('PATCH','me/forms/submissions/'+id+'/status',{status:'DONE',expectedVersion:2})).json();expect(done.firstHandledAt).toBe(handled.firstHandledAt)
+ expect((await call('GET','me/forms/submissions?status=NEW')).json().items).toHaveLength(0);expect((await call('GET','me/forms/submissions?status=DONE')).json().items).toHaveLength(1)
+ const reopened=(await call('PATCH','me/forms/submissions/'+id+'/status',{status:'NEW',expectedVersion:3})).json();expect(reopened.firstHandledAt).toBe(handled.firstHandledAt);expect(reopened.createdAt).toBe(initial.createdAt)
+ expect((await call('GET','profiles/pagina-f22/items',undefined,null)).body).not.toContain('NOTE_PRIVATE_SENTINEL');expect((await call('GET','profiles/pagina-f22/contact-form',undefined,null)).body).not.toContain('NOTE_PRIVATE_SENTINEL')
+ const logs=await db.auditLog.findMany({where:{tenantId:tenant,action:{startsWith:'contact.note'}}});expect(JSON.stringify(logs)).not.toContain('NOTE_PRIVATE_SENTINEL');expect(reopened.history).toHaveLength(4);expect(await db.operationalMessage.count({where:{tenantId:tenant}})).toBe(before)
+ await db.profile.update({where:{tenantId_ownerId:{tenantId:tenant,ownerId:owner}},data:{slug:'pagina-renomeada'}});expect((await call('GET','me/forms/submissions/'+id)).json().sourceSlug).toBe('pagina-f22')
+})
+it('F35-T01/T03 notas, exportação e exclusão têm permissões específicas; revogar bloqueia sessão aberta',async()=>{
+ const {revisionId}=await prepare(),id=(await submit(revisionId)).json().id,headers={'x-workspace-owner':owner}
+ await db.$executeRaw`INSERT INTO workspace_memberships(id,"tenantId","ownerId","userId",grants) VALUES(${randomUUID()},${tenant},${owner},${other},${JSON.stringify({contacts:{read:true,write:true}})}::jsonb)`
+ const note={id:randomUUID(),text:'NOT_EXPORTED_PRIVATE_NOTE',expectedVersion:0};expect((await call('POST','me/forms/submissions/'+id+'/notes',note,other,tenant,tenant,headers)).statusCode).toBe(200)
+ expect((await call('GET','me/forms/submissions/export',undefined,other,tenant,tenant,headers)).statusCode).toBe(403);expect((await call('DELETE','me/forms/submissions/'+id,undefined,other,tenant,tenant,headers)).statusCode).toBe(403)
+ const audit=await db.auditLog.findFirst({where:{tenantId:tenant,action:'contact.note.created'}});expect(audit?.actorId).toBe(other)
+ await db.$executeRaw`UPDATE workspace_memberships SET grants=${JSON.stringify({contacts:{read:true,write:false},contactsExport:{read:true,write:false},contactsDelete:{read:true,write:true}})}::jsonb WHERE "tenantId"=${tenant}`
+ expect((await call('PATCH','me/forms/submissions/'+id+'/status',{status:'DONE',expectedVersion:1},other,tenant,tenant,headers)).statusCode).toBe(403)
+ const exported=await call('GET','me/forms/submissions/export',undefined,other,tenant,tenant,headers);expect(exported.statusCode).toBe(200);expect(exported.json().csv).not.toContain('NOT_EXPORTED_PRIVATE_NOTE');expect(exported.json().csv).toContain('/p/pagina-f22')
+ await db.$executeRaw`UPDATE workspace_memberships SET "revokedAt"=CURRENT_TIMESTAMP WHERE "tenantId"=${tenant}`;expect((await call('GET','me/forms/submissions/'+id,undefined,other,tenant,tenant,headers)).statusCode).toBe(403)
+ expect((await call('DELETE','me/forms/submissions/'+id)).statusCode).toBe(200)
+ expect((await db.$queryRaw<Array<{count:bigint}>>`SELECT COUNT(*) FROM contact_notes WHERE "contactId"=${id}`)[0].count).toBe(0n);expect((await db.$queryRaw<Array<{count:bigint}>>`SELECT COUNT(*) FROM contact_history WHERE "contactId"=${id}`)[0].count).toBe(0n)
+})
+it('F35-PG01 expiração remove notas e histórico; alterações de outro dono não enumeram o contato',async()=>{
+ const {revisionId}=await prepare(),id=(await submit(revisionId)).json().id;await call('POST','me/forms/submissions/'+id+'/notes',{id:randomUUID(),text:'EXPIRES_WITH_PARENT',expectedVersion:0})
+ expect((await call('GET','me/forms/submissions/'+id,undefined,other)).statusCode).toBe(404);expect((await call('GET','me/forms/submissions/'+id,undefined,null)).statusCode).toBe(401)
+ await db.$executeRaw`UPDATE contact_submissions SET "expiresAt"=CURRENT_TIMESTAMP-INTERVAL '1 second' WHERE id=${id}`;expect((await call('GET','me/forms/submissions/'+id)).statusCode).toBe(404);await purgeContacts(db)
+ expect((await db.$queryRaw<Array<{count:bigint}>>`SELECT COUNT(*) FROM contact_notes WHERE "contactId"=${id}`)[0].count).toBe(0n)
+})
 it('F22-T01/I02 respostas privadas exigem sessão, tenant e permissão global própria; revogação é imediata',async()=>{
  const form=await prepare();await submit(form.revisionId)
  expect((await call('GET','me/forms/submissions',undefined,null)).statusCode).toBe(401)

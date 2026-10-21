@@ -1,3 +1,4 @@
+import {pruneTranslations} from './profile-translations'
 import type {ChannelSettings} from './profile-channels'
 import type {ProfileContent} from './profile'
 import {appearanceInput} from './appearance'
@@ -10,7 +11,7 @@ export function buildProfileExport(content:ProfileContent,revision:ExportRevisio
  const exportable=content.items.filter(row=>row.type==='CATALOG'||!hasCredentials(row.destination)),excluded=content.items.length-exportable.length
  const appearance=content.appearance?appearanceInput.parse(content.appearance):undefined
  return {schemaVersion:1 as const,exportedAt:now.toISOString(),revision,
-  profile:{slug:content.slug,name:content.name,bio:content.bio,requiresAge:content.requiresAge,primaryItemId:exportable.some(row=>row.id===content.primaryItemId)?content.primaryItemId:null,...(appearance?{appearance}:{})},
+  profile:{...(content.buttonTest&&exportable.some(item=>item.id===content.buttonTest!.blockId)?{buttonTest:content.buttonTest}:{}),slug:content.slug,name:content.name,bio:content.bio,requiresAge:content.requiresAge,...(content.translations?{translations:pruneTranslations(content.translations,content.categories,exportable)}:{}),primaryItemId:exportable.some(row=>row.id===content.primaryItemId)?content.primaryItemId:null,...(appearance?{appearance}:{})},
   categories:content.categories.map(row=>({id:row.id,name:row.name,visible:row.visible})),
   items:exportable.map(row=>({id:row.id,categoryId:row.categoryId,type:row.type,label:row.label,destination:row.destination,visible:row.visible,...(row.event?{event:row.event}:{}),...(row.schedule?{schedule:{startsAt:row.schedule.startsAt,endsAt:row.schedule.endsAt,timeZone:row.schedule.timeZone,paused:row.schedule.paused}}:{})})),
   channelGroups:channels.groups.map(group=>({id:group.id,channels:group.channels.filter(row=>exportable.some(item=>item.id===row.id)).map(row=>({id:row.id,paused:row.paused,showLabel:row.showLabel??true}))})),

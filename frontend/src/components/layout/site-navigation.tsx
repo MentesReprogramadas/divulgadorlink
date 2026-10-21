@@ -21,7 +21,7 @@ export function SiteNavigation({ role, support = false }: { role?: string; suppo
   const toggle = useRef<HTMLButtonElement>(null)
   const access=useWorkspaceAccess(sessionRole==='USER'||sessionRole==='ADMIN')
   const effectiveRole=hasWorkspaceAdmin(access.context)?'ADMIN':sessionRole
-  const items = [{ href: '/busca', label: 'Busca' }, ...accountLinks(effectiveRole)].map(item=>item.href==='/admin/visao'&&access.context?.ownerId?{...item,href:workspaceAdminPath(access.context)}:item).filter(item=>item.href!=='/admin/visao'||!access.context?.ownerId||hasWorkspaceAdmin(access.context))
+  const items = [{ href: '/busca', label: 'Busca' }, { href:'/paginas',label:'Páginas' }, ...accountLinks(effectiveRole)].map(item=>item.href==='/admin/visao'&&access.context?.ownerId?{...item,href:workspaceAdminPath(access.context)}:item).filter(item=>item.href!=='/admin/visao'||!access.context?.ownerId||hasWorkspaceAdmin(access.context))
   const signedIn = sessionRole === 'USER' || sessionRole === 'ADMIN'
   const workspace = pathname.startsWith('/admin') ? 'admin' : 'panel'
   const showWorkspace = signedIn && (pathname.startsWith('/painel') || pathname.startsWith('/admin') && effectiveRole === 'ADMIN') && pathname !== '/painel/verificar'

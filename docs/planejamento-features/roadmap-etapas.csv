@@ -271,54 +271,54 @@ F10,Página premium com subdomínio,34,5,F10-S4,F10-S3,CONCLUÍDA LOCALMENTE,Cod
 F10,Página premium com subdomínio,34,5,F10-S5,F10-S4,CONCLUÍDA LOCALMENTE,Codex,6694ce0d7325345f842c4f8c5e684b180a98e63c,PG/Redis descartáveis; Chromium desktop/mobile; certificado público não validado,2026-10-20 local,ver execucao-f10.md,0,execucao-f10.md; evidencias-f10.json,,Automação local comprovada; AC03 parcial até F10-M01. Sequência S1 de componentes com ressalva documentada.
 F10,Página premium com subdomínio,34,5,F10-S6,F10-S5,CONCLUÍDA LOCALMENTE,Codex,6694ce0d7325345f842c4f8c5e684b180a98e63c,PG/Redis descartáveis; Chromium desktop/mobile; certificado público não validado,2026-10-20 local,ver execucao-f10.md,0,execucao-f10.md; evidencias-f10.json,,Automação local comprovada; AC03 parcial até F10-M01. Sequência S1 de componentes com ressalva documentada.
 F10,Página premium com subdomínio,34,5,F10-S7,F10-S6,EM REVISÃO,Codex,6694ce0d7325345f842c4f8c5e684b180a98e63c,PG/Redis descartáveis; Chromium desktop/mobile; certificado público não validado,2026-10-20 local,ver execucao-f10.md,,execucao-f10.md; evidencias-f10.json,F10-M01 TLS/DNS real em staging; CI/liberação remota pendentes,Automação local comprovada; AC03 parcial até F10-M01. Sequência S1 de componentes com ressalva documentada.
-F24,Descoberta de perfis,35,5,F24-S0,F42 G00 F09 F03,NAO_INICIADA,,,,,,,,,
-F24,Descoberta de perfis,35,5,F24-S1,F24-S0,NAO_INICIADA,,,,,,,,,
-F24,Descoberta de perfis,35,5,F24-S2,F24-S1,NAO_INICIADA,,,,,,,,,
-F24,Descoberta de perfis,35,5,F24-S3,F24-S2,NAO_INICIADA,,,,,,,,,
-F24,Descoberta de perfis,35,5,F24-S4,F24-S3,NAO_INICIADA,,,,,,,,,
-F24,Descoberta de perfis,35,5,F24-S5,F24-S4,NAO_INICIADA,,,,,,,,,
-F24,Descoberta de perfis,35,5,F24-S6,F24-S5,NAO_INICIADA,,,,,,,,,
-F24,Descoberta de perfis,35,5,F24-S7,F24-S6,NAO_INICIADA,,,,,,,,,
-F30,Integrações e avisos automáticos,36,5,F30-S0,F42 G00 F22 F02,NAO_INICIADA,,,,,,,,,
-F30,Integrações e avisos automáticos,36,5,F30-S1,F30-S0,NAO_INICIADA,,,,,,,,,
-F30,Integrações e avisos automáticos,36,5,F30-S2,F30-S1,NAO_INICIADA,,,,,,,,,
-F30,Integrações e avisos automáticos,36,5,F30-S3,F30-S2,NAO_INICIADA,,,,,,,,,
-F30,Integrações e avisos automáticos,36,5,F30-S4,F30-S3,NAO_INICIADA,,,,,,,,,
-F30,Integrações e avisos automáticos,36,5,F30-S5,F30-S4,NAO_INICIADA,,,,,,,,,
-F30,Integrações e avisos automáticos,36,5,F30-S6,F30-S5,NAO_INICIADA,,,,,,,,,
-F30,Integrações e avisos automáticos,36,5,F30-S7,F30-S6,NAO_INICIADA,,,,,,,,,
-F35,Central de contatos recebidos,37,5,F35-S0,F42 G00 F22 F20,NAO_INICIADA,,,,,,,,,
-F35,Central de contatos recebidos,37,5,F35-S1,F35-S0,NAO_INICIADA,,,,,,,,,
-F35,Central de contatos recebidos,37,5,F35-S2,F35-S1,NAO_INICIADA,,,,,,,,,
-F35,Central de contatos recebidos,37,5,F35-S3,F35-S2,NAO_INICIADA,,,,,,,,,
-F35,Central de contatos recebidos,37,5,F35-S4,F35-S3,NAO_INICIADA,,,,,,,,,
-F35,Central de contatos recebidos,37,5,F35-S5,F35-S4,NAO_INICIADA,,,,,,,,,
-F35,Central de contatos recebidos,37,5,F35-S6,F35-S5,NAO_INICIADA,,,,,,,,,
-F35,Central de contatos recebidos,37,5,F35-S7,F35-S6,NAO_INICIADA,,,,,,,,,
-F39,Página em vários idiomas,38,5,F39-S0,F42 G00 F09 F19,NAO_INICIADA,,,,,,,,,
-F39,Página em vários idiomas,38,5,F39-S1,F39-S0,NAO_INICIADA,,,,,,,,,
-F39,Página em vários idiomas,38,5,F39-S2,F39-S1,NAO_INICIADA,,,,,,,,,
-F39,Página em vários idiomas,38,5,F39-S3,F39-S2,NAO_INICIADA,,,,,,,,,
-F39,Página em vários idiomas,38,5,F39-S4,F39-S3,NAO_INICIADA,,,,,,,,,
-F39,Página em vários idiomas,38,5,F39-S5,F39-S4,NAO_INICIADA,,,,,,,,,
-F39,Página em vários idiomas,38,5,F39-S6,F39-S5,NAO_INICIADA,,,,,,,,,
-F39,Página em vários idiomas,38,5,F39-S7,F39-S6,NAO_INICIADA,,,,,,,,,
-F26,Teste de versões de botões,39,6,F26-S0,F42 G00 F09 F31,NAO_INICIADA,,,,,,,,,
-F26,Teste de versões de botões,39,6,F26-S1,F26-S0,NAO_INICIADA,,,,,,,,,
-F26,Teste de versões de botões,39,6,F26-S2,F26-S1,NAO_INICIADA,,,,,,,,,
-F26,Teste de versões de botões,39,6,F26-S3,F26-S2,NAO_INICIADA,,,,,,,,,
-F26,Teste de versões de botões,39,6,F26-S4,F26-S3,NAO_INICIADA,,,,,,,,,
-F26,Teste de versões de botões,39,6,F26-S5,F26-S4,NAO_INICIADA,,,,,,,,,
-F26,Teste de versões de botões,39,6,F26-S6,F26-S5,NAO_INICIADA,,,,,,,,,
-F26,Teste de versões de botões,39,6,F26-S7,F26-S6,NAO_INICIADA,,,,,,,,,
-F36,Pacotes para agências,40,6,F36-S0,F42 G00 F20 F11 F21,NAO_INICIADA,,,,,,,,,
-F36,Pacotes para agências,40,6,F36-S1,F36-S0,NAO_INICIADA,,,,,,,,,
-F36,Pacotes para agências,40,6,F36-S2,F36-S1,NAO_INICIADA,,,,,,,,,
-F36,Pacotes para agências,40,6,F36-S3,F36-S2,NAO_INICIADA,,,,,,,,,
-F36,Pacotes para agências,40,6,F36-S4,F36-S3,NAO_INICIADA,,,,,,,,,
-F36,Pacotes para agências,40,6,F36-S5,F36-S4,NAO_INICIADA,,,,,,,,,
-F36,Pacotes para agências,40,6,F36-S6,F36-S5,NAO_INICIADA,,,,,,,,,
-F36,Pacotes para agências,40,6,F36-S7,F36-S6,NAO_INICIADA,,,,,,,,,
+F24,Descoberta de perfis,35,5,F24-S0,F42 G00 F09 F03,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartavel,2026-10-21,Ver comandos e testes na evidencia,0,execucao-f24.md,,LOCAL; sem liberacao remota
+F24,Descoberta de perfis,35,5,F24-S1,F24-S0,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartavel,2026-10-21,Ver comandos e testes na evidencia,0,execucao-f24.md,,LOCAL; sem liberacao remota
+F24,Descoberta de perfis,35,5,F24-S2,F24-S1,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartavel,2026-10-21,Ver comandos e testes na evidencia,0,execucao-f24.md,,LOCAL; sem liberacao remota
+F24,Descoberta de perfis,35,5,F24-S3,F24-S2,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartavel,2026-10-21,Ver comandos e testes na evidencia,0,execucao-f24.md,,LOCAL; sem liberacao remota
+F24,Descoberta de perfis,35,5,F24-S4,F24-S3,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartavel,2026-10-21,Ver comandos e testes na evidencia,0,execucao-f24.md,,LOCAL; sem liberacao remota
+F24,Descoberta de perfis,35,5,F24-S5,F24-S4,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartavel,2026-10-21,Ver comandos e testes na evidencia,0,execucao-f24.md,,LOCAL; sem liberacao remota
+F24,Descoberta de perfis,35,5,F24-S6,F24-S5,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartavel,2026-10-21,Ver comandos e testes na evidencia,0,execucao-f24.md,,LOCAL; sem liberacao remota
+F24,Descoberta de perfis,35,5,F24-S7,F24-S6,EM_REVISAO,Codex,WORKTREE,Local descartavel,2026-10-21,Ver comandos e testes na evidencia,0,execucao-f24.md,CI e liberacao remotos pendentes,LOCAL; sem liberacao remota
+F30,Integrações e avisos automáticos,36,5,F30-S0,F42 G00 F22 F02,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartavel,2026-10-21,Ver comandos e testes na evidencia,0,execucao-f30.md,,LOCAL; sem liberacao remota
+F30,Integrações e avisos automáticos,36,5,F30-S1,F30-S0,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartavel,2026-10-21,Ver comandos e testes na evidencia,0,execucao-f30.md,,LOCAL; sem liberacao remota
+F30,Integrações e avisos automáticos,36,5,F30-S2,F30-S1,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartavel,2026-10-21,Ver comandos e testes na evidencia,0,execucao-f30.md,,LOCAL; sem liberacao remota
+F30,Integrações e avisos automáticos,36,5,F30-S3,F30-S2,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartavel,2026-10-21,Ver comandos e testes na evidencia,0,execucao-f30.md,,LOCAL; sem liberacao remota
+F30,Integrações e avisos automáticos,36,5,F30-S4,F30-S3,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartavel,2026-10-21,Ver comandos e testes na evidencia,0,execucao-f30.md,,LOCAL; sem liberacao remota
+F30,Integrações e avisos automáticos,36,5,F30-S5,F30-S4,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartavel,2026-10-21,Ver comandos e testes na evidencia,0,execucao-f30.md,,LOCAL; sem liberacao remota
+F30,Integrações e avisos automáticos,36,5,F30-S6,F30-S5,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartavel,2026-10-21,Ver comandos e testes na evidencia,0,execucao-f30.md,,LOCAL; sem liberacao remota
+F30,Integrações e avisos automáticos,36,5,F30-S7,F30-S6,EM_REVISAO,Codex,WORKTREE,Local descartavel,2026-10-21,Ver comandos e testes na evidencia,0,execucao-f30.md,CI e liberacao remotos pendentes,LOCAL; sem liberacao remota
+F35,Central de contatos recebidos,37,5,F35-S0,F42 G00 F22 F20,CONCLUIDA_LOCAL,Codex,WORKTREE,Local isolado,2026-10-21,,,execucao-f35.md,,Validação local; sem CI/deploy
+F35,Central de contatos recebidos,37,5,F35-S1,F35-S0,CONCLUIDA_LOCAL,Codex,WORKTREE,Local isolado,2026-10-21,,,execucao-f35.md,,Validação local; sem CI/deploy
+F35,Central de contatos recebidos,37,5,F35-S2,F35-S1,CONCLUIDA_LOCAL,Codex,WORKTREE,Local isolado,2026-10-21,,,execucao-f35.md,,Validação local; sem CI/deploy
+F35,Central de contatos recebidos,37,5,F35-S3,F35-S2,CONCLUIDA_LOCAL,Codex,WORKTREE,Local isolado,2026-10-21,,,execucao-f35.md,,Validação local; sem CI/deploy
+F35,Central de contatos recebidos,37,5,F35-S4,F35-S3,CONCLUIDA_LOCAL,Codex,WORKTREE,Local isolado,2026-10-21,,,execucao-f35.md,,Validação local; sem CI/deploy
+F35,Central de contatos recebidos,37,5,F35-S5,F35-S4,CONCLUIDA_LOCAL,Codex,WORKTREE,Local isolado,2026-10-21,,,execucao-f35.md,,Validação local; sem CI/deploy
+F35,Central de contatos recebidos,37,5,F35-S6,F35-S5,CONCLUIDA_LOCAL,Codex,WORKTREE,Local isolado,2026-10-21,,,execucao-f35.md,,Validação local; sem CI/deploy
+F35,Central de contatos recebidos,37,5,F35-S7,F35-S6,EM_REVISAO,Codex,WORKTREE,Local isolado,2026-10-21,,,execucao-f35.md,,Validação local; sem CI/deploy
+F39,Página em vários idiomas,38,5,F39-S0,F42 G00 F09 F19,CONCLUIDA_LOCAL,Codex,WORKTREE,Local isolado,2026-10-21,,,execucao-f39.md,,Validação local; sem CI/deploy
+F39,Página em vários idiomas,38,5,F39-S1,F39-S0,CONCLUIDA_LOCAL,Codex,WORKTREE,Local isolado,2026-10-21,,,execucao-f39.md,,Validação local; sem CI/deploy
+F39,Página em vários idiomas,38,5,F39-S2,F39-S1,CONCLUIDA_LOCAL,Codex,WORKTREE,Local isolado,2026-10-21,,,execucao-f39.md,,Validação local; sem CI/deploy
+F39,Página em vários idiomas,38,5,F39-S3,F39-S2,CONCLUIDA_LOCAL,Codex,WORKTREE,Local isolado,2026-10-21,,,execucao-f39.md,,Validação local; sem CI/deploy
+F39,Página em vários idiomas,38,5,F39-S4,F39-S3,CONCLUIDA_LOCAL,Codex,WORKTREE,Local isolado,2026-10-21,,,execucao-f39.md,,Validação local; sem CI/deploy
+F39,Página em vários idiomas,38,5,F39-S5,F39-S4,CONCLUIDA_LOCAL,Codex,WORKTREE,Local isolado,2026-10-21,,,execucao-f39.md,,Validação local; sem CI/deploy
+F39,Página em vários idiomas,38,5,F39-S6,F39-S5,CONCLUIDA_LOCAL,Codex,WORKTREE,Local isolado,2026-10-21,,,execucao-f39.md,,Validação local; sem CI/deploy
+F39,Página em vários idiomas,38,5,F39-S7,F39-S6,EM_REVISAO,Codex,WORKTREE,Local isolado,2026-10-21,,,execucao-f39.md,,Validação local; sem CI/deploy
+F26,Teste de versões de botões,39,6,F26-S0,F42 G00 F09 F31,CONCLUIDA_LOCAL,Codex,WORKTREE,Local isolado,2026-10-21,,,execucao-f26.md,,Validação local; sem CI/deploy
+F26,Teste de versões de botões,39,6,F26-S1,F26-S0,CONCLUIDA_LOCAL,Codex,WORKTREE,Local isolado,2026-10-21,,,execucao-f26.md,,Validação local; sem CI/deploy
+F26,Teste de versões de botões,39,6,F26-S2,F26-S1,CONCLUIDA_LOCAL,Codex,WORKTREE,Local isolado,2026-10-21,,,execucao-f26.md,,Validação local; sem CI/deploy
+F26,Teste de versões de botões,39,6,F26-S3,F26-S2,CONCLUIDA_LOCAL,Codex,WORKTREE,Local isolado,2026-10-21,,,execucao-f26.md,,Validação local; sem CI/deploy
+F26,Teste de versões de botões,39,6,F26-S4,F26-S3,CONCLUIDA_LOCAL,Codex,WORKTREE,Local isolado,2026-10-21,,,execucao-f26.md,,Validação local; sem CI/deploy
+F26,Teste de versões de botões,39,6,F26-S5,F26-S4,CONCLUIDA_LOCAL,Codex,WORKTREE,Local isolado,2026-10-21,,,execucao-f26.md,,Validação local; sem CI/deploy
+F26,Teste de versões de botões,39,6,F26-S6,F26-S5,CONCLUIDA_LOCAL,Codex,WORKTREE,Local isolado,2026-10-21,,,execucao-f26.md,,Validação local; sem CI/deploy
+F26,Teste de versões de botões,39,6,F26-S7,F26-S6,EM_REVISAO,Codex,WORKTREE,Local isolado,2026-10-21,,,execucao-f26.md,,Validação local; sem CI/deploy
+F36,Pacotes para agências,40,6,F36-S0,F42 G00 F20 F11 F21,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartável,2026-10-21,Ver execucao-f36.md,0,execucao-f36.md,,Verificação local aprovada
+F36,Pacotes para agências,40,6,F36-S1,F36-S0,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartável,2026-10-21,Ver execucao-f36.md,0,execucao-f36.md,,Verificação local aprovada
+F36,Pacotes para agências,40,6,F36-S2,F36-S1,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartável,2026-10-21,Ver execucao-f36.md,0,execucao-f36.md,,Verificação local aprovada
+F36,Pacotes para agências,40,6,F36-S3,F36-S2,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartável,2026-10-21,Ver execucao-f36.md,0,execucao-f36.md,,Verificação local aprovada
+F36,Pacotes para agências,40,6,F36-S4,F36-S3,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartável,2026-10-21,Ver execucao-f36.md,0,execucao-f36.md,,Verificação local aprovada
+F36,Pacotes para agências,40,6,F36-S5,F36-S4,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartável,2026-10-21,Ver execucao-f36.md,0,execucao-f36.md,,Verificação local aprovada
+F36,Pacotes para agências,40,6,F36-S6,F36-S5,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartável,2026-10-21,Ver execucao-f36.md,0,execucao-f36.md,,Verificação local aprovada
+F36,Pacotes para agências,40,6,F36-S7,F36-S6,EM_REVISAO,Codex,WORKTREE,Local descartável,2026-10-21,Ver execucao-f36.md,,execucao-f36.md,CI e liberação remotos pendentes,S7 pendente
 F40,Diagnóstico da página,41,6,F40-S0,F42 G00 F09 F07 F31,NAO_INICIADA,,,,,,,,,
 F40,Diagnóstico da página,41,6,F40-S1,F40-S0,NAO_INICIADA,,,,,,,,,
 F40,Diagnóstico da página,41,6,F40-S2,F40-S1,NAO_INICIADA,,,,,,,,,

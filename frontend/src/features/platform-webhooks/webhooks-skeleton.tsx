@@ -1,0 +1,3 @@
+import {Skeleton,SkeletonButton,SkeletonRegion} from '@/components/feedback/skeleton'
+import styles from './webhooks.module.css'
+export function WebhooksSkeleton(){return <SkeletonRegion label="Carregando integrações"><div className={styles.page}><div className={styles.actions}><SkeletonButton/><SkeletonButton/></div><article className={styles.card}><div className={styles.meta}><Skeleton width="45%" height={26}/><Skeleton width={85} height={28}/></div><Skeleton width="70%"/><div className={styles.actions}><SkeletonButton/><SkeletonButton/></div></article><div className={styles.history}><Skeleton width={160} height={26}/><div className={styles.delivery}><Skeleton width="50%"/><Skeleton width="65%"/></div></div></div></SkeletonRegion>}

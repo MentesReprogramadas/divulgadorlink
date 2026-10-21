@@ -71,3 +71,7 @@ Canal Evolution recebe evento de domínio durável e não contém regras de apro
 
 F42 introduz primitivas mínimas de outbox e receipt que podem ser reutilizadas por F02, F05 e F30, sem criar framework de bots. A base da Evolution é configuração confiável; credenciais ficam somente no servidor. Integração desabilitada por padrão, autenticação do webhook e vínculo de operador conferidos por ação. O gate de prioridade F42 não cria dependência funcional de WhatsApp em todo o produto.
 
+
+## F36 — Dono da página e extensões futuras
+
+A conta da agência não substitui tenant nem owner da página; portfólio aponta a páginas F20 autorizadas. Reutilizar editor/prévia e métricas por x-profile-id; não misturar cabeçalho de página com workspace global. Transferências são pessoais e auditadas. FK nova que referencia a identidade composta de Profile com ownerId precisa ser `DEFERRABLE INITIALLY IMMEDIATE`, preservando comportamento normal imediato e permitindo transferência atômica. O guard recusa esquema incompatível (503/rollback). Snapshots continuam imutáveis: exceção controlada muda somente ownerId durante a transferência. Concessão derivada aprovada precisa manter sua prova até revogar a membership vinculada; apagar a prova antes pode transformar acesso em concessão direta. [Decisão e testes](execucao-f36.md).

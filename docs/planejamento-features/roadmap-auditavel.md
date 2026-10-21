@@ -1,5 +1,8 @@
 # Roadmap auditável por etapa
 
+**Estado atual — 21/10/2026:** parada após F36 concluída localmente; F40/F41 não iniciadas. Total 40/42 implementações locais, S7 pendente. [Guia local](testar-lote-2026-10-21.md), [execução final](execucao-f36.md). Os registros datados abaixo preservam o histórico.
+
+
 **Baseline inicial:** 14 de outubro de 2026. **Repriorização:** 15 de outubro de 2026, F42 em primeiro lugar. **Execução:** P0/F42 concluído em produção e validado, por autorização posterior. Continuação F01–F41 autorizada em branch separada; F01 concluída na branch; F06 concluída na branch e F07 concluída na branch, com CI aprovado. F02, F03 e F04 concluídas na branch; ajuste aleatório de F03 validado e parada solicitada após F04. Autorização posterior concluiu somente F09, com D10 resolvida, seis ACs e S0–S7 verificados no CI 38940575906. A parada após F09 foi revogada em 16/10/2026 pela autorização de execução contínua. F12 concluída na branch com CI aprovado. A parada após F12 foi superada pelo pedido de continuação em 17/10: F19 S0–S6 validadas localmente, S7 em revisão por CI/liberação pendentes; F08 S0–S6 validadas localmente; F11 S0–S6 validadas localmente; F13 S0–S6 validadas localmente; F14 S0–S6 validadas localmente; F16 S0–S6 validadas localmente; F17 S0–S6 validadas localmente; F18 S0–S6 validadas localmente; execução encerrada na F18 por pedido do usuário em 18/10. CI/liberação dessas entregas permanecem separados. Aprovação automática e retenção foram definidas pelo usuário, conforme [execução F12](execucao-f12.md). Ver [execução F09](execucao-f09.md) e [execução contínua](execucao-roadmap.md). Evidências em [execução F42](execucao-f42.md).
 
 [Índice](README.md) · [Ordem](ordem-de-entrega.md) · [Decisões](decisoes.md) · [Qualidade](qualidade-e-testes.md) · [Ledger em CSV](roadmap-etapas.csv) · [Matriz AC](matriz-aceitacao.csv).
@@ -563,14 +566,14 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 
 | Etapa | Estado | Pré-requisito imediato | Entregável a verificar |
 | --- | --- | --- | --- |
-| F24-S0 | NÃO INICIADA | F42 (prioridade), F09, F03 | [Escopo contratos e reuso](planos/f24-descoberta-perfis.md#f24-s0-escopo-contratos-e-revisão-de-reutilização) |
-| F24-S1 | NÃO INICIADA | F24-S0 | [Testes U e C](planos/f24-descoberta-perfis.md#f24-s1-testes-unitários-e-componentes-antes-da-regra) |
-| F24-S2 | NÃO INICIADA | F24-S1 | [Dados e migração](planos/f24-descoberta-perfis.md#f24-s2-dados-invariantes-e-migração) |
-| F24-S3 | NÃO INICIADA | F24-S2 | [Domínio API e jobs](planos/f24-descoberta-perfis.md#f24-s3-regra-de-negócio-api-e-jobs) |
-| F24-S4 | NÃO INICIADA | F24-S3 | [Interface](planos/f24-descoberta-perfis.md#f24-s4-interface-composição-e-estados) |
-| F24-S5 | NÃO INICIADA | F24-S4 | [Integração e ACs](planos/f24-descoberta-perfis.md#f24-s5-integração-contrato-persistência-e-falhas) |
-| F24-S6 | NÃO INICIADA | F24-S5 | [Playwright e QA](planos/f24-descoberta-perfis.md#f24-s6-e2e-playwright-e-revisão-visual) |
-| F24-S7 | NÃO INICIADA | F24-S6 | [Regressão e liberação](planos/f24-descoberta-perfis.md#f24-s7-regressão-rollout-e-fechamento-auditável) |
+| F24-S0 | CONCLUÍDA LOCALMENTE | F42 (prioridade), F09, F03 | [Escopo contratos e reuso](planos/f24-descoberta-perfis.md#f24-s0-escopo-contratos-e-revisão-de-reutilização) |
+| F24-S1 | CONCLUÍDA LOCALMENTE | F24-S0 | [Testes U e C](planos/f24-descoberta-perfis.md#f24-s1-testes-unitários-e-componentes-antes-da-regra) |
+| F24-S2 | CONCLUÍDA LOCALMENTE | F24-S1 | [Dados e migração](planos/f24-descoberta-perfis.md#f24-s2-dados-invariantes-e-migração) |
+| F24-S3 | CONCLUÍDA LOCALMENTE | F24-S2 | [Domínio API e jobs](planos/f24-descoberta-perfis.md#f24-s3-regra-de-negócio-api-e-jobs) |
+| F24-S4 | CONCLUÍDA LOCALMENTE | F24-S3 | [Interface](planos/f24-descoberta-perfis.md#f24-s4-interface-composição-e-estados) |
+| F24-S5 | CONCLUÍDA LOCALMENTE | F24-S4 | [Integração e ACs](planos/f24-descoberta-perfis.md#f24-s5-integração-contrato-persistência-e-falhas) |
+| F24-S6 | CONCLUÍDA LOCALMENTE | F24-S5 | [Playwright e QA](planos/f24-descoberta-perfis.md#f24-s6-e2e-playwright-e-revisão-visual) |
+| F24-S7 | EM REVISÃO REMOTA | F24-S6 | [Regressão e liberação](planos/f24-descoberta-perfis.md#f24-s7-regressão-rollout-e-fechamento-auditável) |
 
 ### 36 F30 Integrações e avisos automáticos
 
@@ -578,14 +581,14 @@ G00 mínimo de F42 concluído: árvore preservada, snapshot isolado, descoberta 
 
 | Etapa | Estado | Pré-requisito imediato | Entregável a verificar |
 | --- | --- | --- | --- |
-| F30-S0 | NÃO INICIADA | F42 (prioridade), F22, F02 | [Escopo contratos e reuso](planos/f30-integracoes-webhooks.md#f30-s0-escopo-contratos-e-revisão-de-reutilização) |
-| F30-S1 | NÃO INICIADA | F30-S0 | [Testes U e C](planos/f30-integracoes-webhooks.md#f30-s1-testes-unitários-e-componentes-antes-da-regra) |
-| F30-S2 | NÃO INICIADA | F30-S1 | [Dados e migração](planos/f30-integracoes-webhooks.md#f30-s2-dados-invariantes-e-migração) |
-| F30-S3 | NÃO INICIADA | F30-S2 | [Domínio API e jobs](planos/f30-integracoes-webhooks.md#f30-s3-regra-de-negócio-api-e-jobs) |
-| F30-S4 | NÃO INICIADA | F30-S3 | [Interface](planos/f30-integracoes-webhooks.md#f30-s4-interface-composição-e-estados) |
-| F30-S5 | NÃO INICIADA | F30-S4 | [Integração e ACs](planos/f30-integracoes-webhooks.md#f30-s5-integração-contrato-persistência-e-falhas) |
-| F30-S6 | NÃO INICIADA | F30-S5 | [Playwright e QA](planos/f30-integracoes-webhooks.md#f30-s6-e2e-playwright-e-revisão-visual) |
-| F30-S7 | NÃO INICIADA | F30-S6 | [Regressão e liberação](planos/f30-integracoes-webhooks.md#f30-s7-regressão-rollout-e-fechamento-auditável) |
+| F30-S0 | CONCLUÍDA LOCALMENTE | F42 (prioridade), F22, F02 | [Escopo contratos e reuso](planos/f30-integracoes-webhooks.md#f30-s0-escopo-contratos-e-revisão-de-reutilização) |
+| F30-S1 | CONCLUÍDA LOCALMENTE | F30-S0 | [Testes U e C](planos/f30-integracoes-webhooks.md#f30-s1-testes-unitários-e-componentes-antes-da-regra) |
+| F30-S2 | CONCLUÍDA LOCALMENTE | F30-S1 | [Dados e migração](planos/f30-integracoes-webhooks.md#f30-s2-dados-invariantes-e-migração) |
+| F30-S3 | CONCLUÍDA LOCALMENTE | F30-S2 | [Domínio API e jobs](planos/f30-integracoes-webhooks.md#f30-s3-regra-de-negócio-api-e-jobs) |
+| F30-S4 | CONCLUÍDA LOCALMENTE | F30-S3 | [Interface](planos/f30-integracoes-webhooks.md#f30-s4-interface-composição-e-estados) |
+| F30-S5 | CONCLUÍDA LOCALMENTE | F30-S4 | [Integração e ACs](planos/f30-integracoes-webhooks.md#f30-s5-integração-contrato-persistência-e-falhas) |
+| F30-S6 | CONCLUÍDA LOCALMENTE | F30-S5 | [Playwright e QA](planos/f30-integracoes-webhooks.md#f30-s6-e2e-playwright-e-revisão-visual) |
+| F30-S7 | EM REVISÃO REMOTA | F30-S6 | [Regressão e liberação](planos/f30-integracoes-webhooks.md#f30-s7-regressão-rollout-e-fechamento-auditável) |
 
 ### 37 F35 Central de contatos recebidos
 
@@ -766,3 +769,12 @@ Não inicia uma nova feature da sequência: mantém 26/42 implementações e F22
 ### Fechamento F10 — limite da validação
 
 Implementação/automação locais concluídas, AC03 parcial e F10-M01 (TLS/DNS real em staging) pendente. CI/deploy não executados. Parada solicitada após F10: não iniciar F24. [Operação e reversão](operacao-f10.md).
+
+
+## Continuidade autorizada em 21/10/2026
+
+A instrução de continuar as features restantes substitui a parada anterior após F10. F24 e F30 implementadas e validadas localmente; F35 em execução. Registros em [F24](execucao-f24.md) e [F30](execucao-f30.md). S7/CI remotos, commit, push e deploy desta rodada não executados. Não interpretar os registros históricos de parada como estado atual.
+
+## Encerramento após F36 — 21/10/2026
+
+Pedido posterior do usuário: concluir a feature atual, atualizar documentação, explicar teste/configuração e parar. F36 concluída localmente; **não iniciar F40/F41**. Lote entregue: F24 → F30 → F35 → F39 → F26 → F36. Total 40/42 implementações locais, com S7 em revisão. Próxima sequência somente após nova autorização: F40 → F41. Não há novo commit/push/deploy desta rodada. [Guia de teste](testar-lote-2026-10-21.md), [execução F36](execucao-f36.md), [contexto para retomada](contexto-apos-f36.md). Registros anteriores de execução contínua são históricos e não superam este pedido de parada.

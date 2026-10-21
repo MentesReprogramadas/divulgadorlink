@@ -1,3 +1,4 @@
+vi.mock('@/features/profile-discovery/discovery-settings',()=>({DiscoverySettings:()=>null}))
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach,beforeEach, expect, it, vi } from 'vitest'
 import { ProfileEditor } from './profile-editor'

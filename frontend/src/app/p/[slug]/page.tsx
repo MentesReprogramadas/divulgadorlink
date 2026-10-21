@@ -13,11 +13,11 @@ import {ActionIcon} from '@/components/ui/action-icon'
 import { ProfileAgeGate } from '@/features/profiles/profile-age-gate'
 import styles from '@/features/profiles/components/profiles.module.css'
 export const dynamic = 'force-dynamic'
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params, content = await loadPublicProfile(slug)
+export async function generateMetadata({ params,searchParams }: { params: Promise<{ slug: string }>;searchParams:Promise<Record<string,string|string[]|undefined>> }): Promise<Metadata> {
+  const { slug } = await params,values=await searchParams,locale=typeof values.locale==='string'&&['pt-BR','en','es'].includes(values.locale)?values.locale as import('@/features/profiles/profile-contract').ProfileLocale:undefined,content = await loadPublicProfile(slug,locale)
   if (!content) notFound()
-  const requestHeaders=await headers(),personal=requestHeaders.get('x-profile-hostname')
-  return { title: content.restricted ? 'Conteúdo para maiores de 18 anos' : content.name + ' | Tem Link Aqui', description: content.restricted ? undefined : content.bio, robots: { index: false, follow: !content.restricted }, alternates: { canonical:personal?'https://'+personal+'/':'https://'+tenantHost(requestHeaders.get('host')??'localhost')+'/p/'+encodeURIComponent(slug) } }
+  const requestHeaders=await headers(),personal=requestHeaders.get('x-profile-hostname'),base=personal?'https://'+personal+'/':'https://'+tenantHost(requestHeaders.get('host')??'localhost')+'/p/'+encodeURIComponent(slug)
+  return { title: content.restricted ? 'Conteúdo para maiores de 18 anos' : content.name + ' | Tem Link Aqui', description: content.restricted ? undefined : content.bio, robots: { index: false, follow: !content.restricted }, alternates: { canonical:base+(content.restricted||!content.locale||content.locale===content.fallbackLocale?'':'?locale='+content.locale),...(!content.restricted&&content.availableLocales?{languages:Object.fromEntries(content.availableLocales.map(language=>[language,base+(language===content.fallbackLocale?'':'?locale='+language)]))}:{}) } }
 }
 async function invalidSearch(slug:string,message:string){
   const original=await loadPublicProfile(slug);if(!original)notFound()
@@ -25,7 +25,7 @@ async function invalidSearch(slug:string,message:string){
 }
 export default async function Page({params,searchParams}:{params:Promise<{slug:string}>;searchParams:Promise<Record<string,string|string[]|undefined>>}){
   const {slug}=await params,values=await searchParams,paramsToRead=new URLSearchParams()
-  for(const key of ['q','categoryId','cursor']){const value=values[key];if(Array.isArray(value))value.forEach(item=>paramsToRead.append(key,item));else if(value!==undefined)paramsToRead.set(key,value)}
+  for(const key of ['q','categoryId','cursor','locale']){const value=values[key];if(Array.isArray(value))value.forEach(item=>paramsToRead.append(key,item));else if(value!==undefined)paramsToRead.set(key,value)}
   let query=emptyProfileQuery();try{query=readProfileSearch(paramsToRead)}catch(reason){return invalidSearch(slug,reason instanceof Error?reason.message:'Confira os filtros.')}
   let content,notice=''
   try{content=await loadPublicProfileItems(slug,profileSearchParams(query).toString())}catch(reason){

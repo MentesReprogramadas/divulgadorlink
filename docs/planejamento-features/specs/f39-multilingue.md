@@ -2,7 +2,7 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 38.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
+**Estado:** IMPLEMENTADA E VALIDADA LOCALMENTE; S7 pendente.
 **Onda:** 5. **Ordem:** 38.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Página em vários idiomas”.  
 **Plano:** [F39 implementação](../planos/f39-multilingue.md).  
@@ -141,3 +141,7 @@ Sem resolução das decisões bloqueantes e dependências concluídas, a feature
 
 **Indicadores:** páginas com traduções, visitas e cliques por idioma.
 
+
+## Execução local — 21/10/2026
+
+Decisões, reuso, testes e limites em [execução F39](../execucao-f39.md).

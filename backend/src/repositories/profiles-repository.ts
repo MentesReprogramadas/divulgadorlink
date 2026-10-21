@@ -33,9 +33,9 @@ import {resolveRedirect} from './redirects-repository'
 
 type Actor = ProfileActor
 const include = { reviews: { orderBy: { version: 'desc' as const }, take: 1 }, categories: { orderBy: { position: 'asc' as const } }, items: { orderBy: { position: 'asc' as const } } }
-type Stored = Prisma.ProfileGetPayload<{ include: typeof include }>
+type Stored = Prisma.ProfileGetPayload<{ include: typeof include }> & {translationContent?:unknown;buttonTestContent?:unknown}
 function draft(row: Stored): ProfileContent {
-  return profileInput.parse({ ...(row.appearance ? { appearance: row.appearance } : {}), slug: row.slug, name: row.name, bio: row.bio, avatarAssetId: row.avatarAssetId, requiresAge: row.requiresAge, primaryItemId: row.items.some(i => i.id === row.primaryItemId) ? row.primaryItemId : null, categories: row.categories.map(c => ({ id: c.id, name: c.name, visible: c.visible })), items: row.items.map(i => ({ id: i.id, categoryId: i.categoryId, type: i.type, label: i.label, destination: i.destination, visible: i.visible, ...(i.event?{event:i.event}:{}), ...(i.templateExample ? { templateExample: true } : {}), ...(i.timeZone ? { schedule: { startsAt: i.startsAt?.toISOString() ?? null, endsAt: i.endsAt?.toISOString() ?? null, timeZone: i.timeZone, paused: i.paused } } : {}) })) })
+  return profileInput.parse({...(row.buttonTestContent?{buttonTest:row.buttonTestContent}:{}), ...(row.translationContent?{translations:row.translationContent}:{}), ...(row.appearance ? { appearance: row.appearance } : {}), slug: row.slug, name: row.name, bio: row.bio, avatarAssetId: row.avatarAssetId, requiresAge: row.requiresAge, primaryItemId: row.items.some(i => i.id === row.primaryItemId) ? row.primaryItemId : null, categories: row.categories.map(c => ({ id: c.id, name: c.name, visible: c.visible })), items: row.items.map(i => ({ id: i.id, categoryId: i.categoryId, type: i.type, label: i.label, destination: i.destination, visible: i.visible, ...(i.event?{event:i.event}:{}), ...(i.templateExample ? { templateExample: true } : {}), ...(i.timeZone ? { schedule: { startsAt: i.startsAt?.toISOString() ?? null, endsAt: i.endsAt?.toISOString() ?? null, timeZone: i.timeZone, paused: i.paused } } : {}) })) })
 }
 async function owner(db: Prisma.TransactionClient, actor: Actor, publishing = false) {
   await assertMembership(db,actor,publishing?'PUBLISH':actor.permission??'READ')
@@ -54,7 +54,7 @@ async function locked<T>(db: PrismaClient, actor: Actor, work: (tx: Prisma.Trans
     return result
   })
 }
-async function read(db: Prisma.TransactionClient, actor: Actor) { return db.profile.findUnique({ where: { tenantId_ownerId: { tenantId: actor.tenantId, ownerId: actor.ownerId } }, include }) }
+async function read(db: Prisma.TransactionClient, actor: Actor) { const row=await db.profile.findUnique({ where: { tenantId_ownerId: { tenantId: actor.tenantId, ownerId: actor.ownerId } }, include });if(!row)return null;const translations=await db.$queryRaw<Array<{content:unknown}>>`SELECT content FROM profile_translations WHERE "profileId"=${row.id} AND "tenantId"=${actor.tenantId} AND "ownerId"=${actor.ownerId}`;const tests=await db.$queryRaw<Array<{content:unknown}>>`SELECT content FROM profile_button_test_drafts WHERE "profileId"=${row.id} AND "tenantId"=${actor.tenantId} AND "ownerId"=${actor.ownerId}`;return{...row,translationContent:translations[0]?.content,buttonTestContent:tests[0]?.content} }
 function version(row: Stored | null, expected: number) { if ((row?.version ?? 0) !== expected) throw new ProfileError(409, 'O perfil mudou em outra aba. Recarregue os dados antes de salvar.') }
 async function response(db: Prisma.TransactionClient, actor: Actor, row: Stored | null) {
   const now = profileNow(), coverage = await profileSchedulingCoverage(db, actor, profileBillingRuntime().delivered, now)
@@ -77,6 +77,10 @@ async function pruneMedia(db: Prisma.TransactionClient, actor: Actor, keep: stri
   await db.profileAsset.deleteMany({ where: { tenantId: actor.tenantId, ownerId: actor.ownerId, id: { notIn: keep } } })
 }
 async function writeProfileItems(tx: Prisma.TransactionClient, actor: Actor, profileId: string, content: ProfileContent) {
+  if(content.translations)await tx.$executeRaw`INSERT INTO profile_translations("profileId","tenantId","ownerId",content) VALUES(${profileId},${actor.tenantId},${actor.ownerId},${JSON.stringify(content.translations)}::jsonb) ON CONFLICT("profileId") DO UPDATE SET content=EXCLUDED.content`
+  else await tx.$executeRaw`DELETE FROM profile_translations WHERE "profileId"=${profileId} AND "tenantId"=${actor.tenantId} AND "ownerId"=${actor.ownerId}`
+  if(content.buttonTest)await tx.$executeRaw`INSERT INTO profile_button_test_drafts("profileId","tenantId","ownerId",content) VALUES(${profileId},${actor.tenantId},${actor.ownerId},${JSON.stringify(content.buttonTest)}::jsonb) ON CONFLICT("profileId") DO UPDATE SET content=EXCLUDED.content`
+  else await tx.$executeRaw`DELETE FROM profile_button_test_drafts WHERE "profileId"=${profileId} AND "tenantId"=${actor.tenantId} AND "ownerId"=${actor.ownerId}`
   const { categories, items } = content
   await tx.profileItem.deleteMany({ where: { profileId } }); await tx.profileCategory.deleteMany({ where: { profileId } })
   await tx.profileCategory.createMany({ data: categories.map((category, position) => ({ ...category, position, profileId, tenantId: actor.tenantId, ownerId: actor.ownerId })) })
@@ -153,6 +157,8 @@ async function writeDraft(tx:Prisma.TransactionClient,actor:Actor,current:Stored
 export async function saveProfile(db: PrismaClient, actor: Actor, content: ProfileContent, expectedVersion: number) {
   return locked(db, actor, async tx => {
     const current = await read(tx, actor)
+    if(content.buttonTest===undefined&&current?.buttonTestContent)content=profileInput.parse({...content,buttonTest:current.buttonTestContent})
+    if(content.translations===undefined&&current?.translationContent)content=profileInput.parse({...content,translations:current.translationContent})
     content = protectTemplateExamples(current ? draft(current) : null, content)
     if (current && JSON.stringify(draft(current)) === JSON.stringify(content)) return response(tx, actor, current)
     version(current, expectedVersion)

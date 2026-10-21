@@ -31,7 +31,7 @@ describe('navegação principal', () => {
   it('preserva os destinos públicos e acompanha cada rótulo com ícone decorativo', () => {
     render(<SiteNavigation />)
     const links = within(screen.getByRole('navigation', { name: 'Navegação principal' })).getAllByRole('link')
-    expect(links.map((link) => link.getAttribute('href'))).toEqual(['/busca', '/login', '/cadastro'])
+    expect(links.map((link) => link.getAttribute('href'))).toEqual(['/busca', '/paginas', '/login', '/cadastro'])
     for (const link of links) expect(link.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true')
     expect(screen.queryByRole('button', { name: 'Sair' })).toBeNull()
   })
@@ -53,7 +53,7 @@ describe('navegação principal', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Menu' }))
     const drawer = screen.getByRole('dialog')
     const site = within(drawer).getByRole('navigation', { name: 'Navegação do site' })
-    expect(within(site).getAllByRole('link').map(link => link.textContent)).toEqual(['Catálogo', 'Busca', 'Painel', 'Admin'])
+    expect(within(site).getAllByRole('link').map(link => link.textContent)).toEqual(['Catálogo', 'Busca', 'Páginas', 'Painel', 'Admin'])
     for (const link of within(site).getAllByRole('link')) expect(link.querySelector('svg')).toBeTruthy()
     const workspace = within(drawer).getByRole('navigation', { name: 'Admin' })
     expect(site.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()

@@ -13,7 +13,7 @@ export async function contentReviewPayload(tx: Prisma.TransactionClient, row: Co
   const common = { resourceType: row.kind, ownerName: owner.name ?? 'Não informado', version: row.version, appeal: row.appealText }
   if (row.kind === 'PROFILE') {
     const profile = profileInput.parse(row.snapshot)
-    return { ...common, name: profile.name, description: profile.bio, publicPath: `/p/${profile.slug}`, requiresAge: profile.requiresAge,
+    return { ...common, name: profile.name, description: profile.bio,...(profile.translations?.entries.length?{translationLocales:profile.translations.entries.map(row=>row.locale)}:{}), publicPath: `/p/${profile.slug}`, requiresAge: profile.requiresAge,
       groups: profile.categories.filter(group => group.visible).map(group => ({ name: group.name, items: profile.items.filter(item => item.visible && item.categoryId === group.id).map(item => ({ label: item.label, destination: item.type === 'CATALOG' ? `/link/${item.destination}` : item.destination })) })) }
   }
   const destination = destinationInput.parse(row.snapshot)

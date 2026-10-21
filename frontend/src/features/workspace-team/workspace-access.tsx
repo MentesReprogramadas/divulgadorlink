@@ -11,6 +11,9 @@ export const WorkspaceIdentity=createContext<WorkspaceContext|null>(null)
 export function useWorkspaceIdentity(){return useContext(WorkspaceIdentity)}
 const adminRoutes:Record<string,string>={'/admin/destaques':'adminHighlights','/admin/visao':'adminManagement','/admin/moderacao':'adminModeration','/admin/denuncias':'adminReports','/admin/disponibilidade':'adminAvailability','/admin/planos':'adminSettings','/admin/assinaturas':'adminBilling','/admin/estornos':'adminRefunds','/admin/integracoes':'adminIntegrations','/admin/configuracoes':'adminSettings'}
 export function workspaceSection(path:string){
+ if(path.startsWith('/painel/clientes/transferencias'))return 'personal'
+ if(path.startsWith('/painel/clientes'))return 'agency'
+ if(path.startsWith('/painel/integracoes'))return 'integrations'
  if(adminRoutes[path])return adminRoutes[path]
  if(path.startsWith('/admin')||path.startsWith('/painel/conta')||path.startsWith('/painel/equipe'))return 'personal'
  if(path.startsWith('/painel/perfil/assistente'))return 'assistant'
@@ -38,5 +41,5 @@ export function useWorkspaceAccess(enabled=true){
 
  return {context,ready,error}
 }
-export async function selectWorkspace(ownerId:string|null){await prepareWorkspaceSwitch();const response=await api<{message?:string}>('/v1/team/select',{method:'POST',body:JSON.stringify({ownerId})});if(response.status!==200)throw new Error(response.body.message??'Não foi possível abrir o espaço.');window.location.assign(ownerId?'/painel':'/painel/equipe')}
+export async function selectWorkspace(ownerId:string|null,destination?:string){if(destination&&(ownerId!==null||destination!=='/painel/clientes/transferencias'&&!/^\/painel\/equipe\/[a-f0-9-]{36}\/(editar|metricas)$/.test(destination)))throw new Error('Destino do espaço inválido.');await prepareWorkspaceSwitch();const response=await api<{message?:string}>('/v1/team/select',{method:'POST',body:JSON.stringify({ownerId})});if(response.status!==200)throw new Error(response.body.message??'Não foi possível abrir o espaço.');window.location.assign(destination??(ownerId?'/painel':'/painel/equipe'))}
 export function WorkspaceBanner({context}:{context:WorkspaceContext}){const [error,setError]=useState('');return <div role="region" aria-label="Espaço compartilhado" className={styles.workspaceBanner}><strong>Espaço de {context.name}</strong><Button variant="secondary" onClick={()=>void selectWorkspace(null).catch(reason=>setError(reason.message))}><ActionIcon name="back"/>Voltar ao meu espaço</Button>{error?<p role="alert">{error}</p>:null}</div>}

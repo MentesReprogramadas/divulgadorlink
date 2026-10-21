@@ -1,0 +1,5 @@
+import {Skeleton,SkeletonButton,SkeletonField,SkeletonRegion} from '@/components/feedback/skeleton'
+import {WorkspaceActions,WorkspaceFilters} from '@/components/layout/workspace-controls'
+import {AgencySectionsSkeleton} from './agency-sections'
+import styles from './agency.module.css'
+export function AgencySkeleton({cards=2,filters=true,bodyOnly=false}:{cards?:number;filters?:boolean;bodyOnly?:boolean}){return <SkeletonRegion><div className={styles.page}>{!bodyOnly?<><AgencySectionsSkeleton/><WorkspaceActions><SkeletonButton/><Skeleton width={44} height={48}/></WorkspaceActions>{filters?<WorkspaceFilters label="Carregando filtros"><SkeletonField label="Buscar"/><SkeletonField label="Situação"/></WorkspaceFilters>:null}</>:null}<div className={styles.list}>{Array.from({length:Math.max(1,cards)},(_,index)=><article key={index} className={styles.card}><div className={styles.heading}><Skeleton width="60%" height="1.5rem"/><Skeleton width="6rem" height="1.5rem"/></div><Skeleton width="70%" height="1rem"/><WorkspaceActions><SkeletonButton/><SkeletonButton/><SkeletonButton/></WorkspaceActions></article>)}</div></div></SkeletonRegion>}

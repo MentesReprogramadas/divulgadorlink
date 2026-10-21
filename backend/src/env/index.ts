@@ -20,6 +20,7 @@ const schema = z.object({
   DATABASE_URL: z.string().url(),
   REDIS_URL: z.string().url(),
   JWT_SECRET: z.string().min(16),
+  WEBHOOK_ENCRYPTION_KEY: optionalText,
   HDX_API_KEY: optionalText,
   HDX_SERVICE_NAME: textOr('divulgador-links-api'),
   STRIPE_SECRET_KEY: optionalText,

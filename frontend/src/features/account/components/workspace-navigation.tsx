@@ -13,9 +13,9 @@ type NavigationSection = { label: string; items: NavigationItem[] }
 type NavigationSubmenu = NavigationSection & { icon: ActionIconName; sections?: NavigationSection[] }
 type NavigationGroup = { label: string; items: NavigationItem[]; submenu?: NavigationSubmenu }
 const profileSections: NavigationSection[] = [
-  { label: 'Edição', items: [{href:'/painel/perfil/dados',label:'Dados da página'},{href:'/painel/perfil/links',label:'Grupos e links'},{href:'/painel/perfil/aparencia',label:'Aparência'},{href:'/painel/perfil/modelos',label:'Modelos'},{href:'/painel/perfil/endereco',label:'Endereço próprio'}] },
+  { label: 'Edição', items: [{href:'/painel/perfil/dados',label:'Dados da página'},{href:'/painel/perfil/links',label:'Grupos e links'},{href:'/painel/perfil/aparencia',label:'Aparência'},{href:'/painel/perfil/idiomas',label:'Idiomas'},{href:'/painel/perfil/modelos',label:'Modelos'},{href:'/painel/perfil/endereco',label:'Endereço próprio'}] },
   { label: 'Ferramentas', items: [{href:'/painel/perfil/importar',label:'Importar links'},{href:'/painel/perfil/exportar',label:'Importar e exportar'},{href:'/painel/perfil/historico',label:'Histórico'},{href:'/painel/perfil/checklist',label:'Checklist'}] },
-  { label: 'Resultados e divulgação', items: [{href:'/painel/perfil/metricas',label:'Métricas'},{href:'/painel/perfil/contatos',label:'Contatos recebidos'},{href:'/painel/perfil/campanhas',label:'Campanhas'},{href:'/painel/perfil/midia-kit',label:'Apresentação para parceiros'},{href:'/painel/perfil/divulgar',label:'Criar imagem de divulgação'}] },
+  { label: 'Resultados e divulgação', items: [{href:'/painel/perfil/testes',label:'Comparar botões'},{href:'/painel/perfil/metricas',label:'Métricas'},{href:'/painel/perfil/contatos',label:'Contatos recebidos'},{href:'/painel/perfil/campanhas',label:'Campanhas'},{href:'/painel/perfil/midia-kit',label:'Apresentação para parceiros'},{href:'/painel/perfil/divulgar',label:'Criar imagem de divulgação'}] },
 ]
 function submenuItems(submenu?: NavigationSubmenu): NavigationItem[] {
   return submenu ? [...submenu.items, ...(submenu.sections ?? []).flatMap(section => section.items)] : []
@@ -27,7 +27,8 @@ const panelGroups: NavigationGroup[] = [
   {label:'Seu espaço',items:[{href:'/painel',label:'Visão geral'},{href:'/painel/convites',label:'Convites'},{href:'/painel/equipe',label:'Equipe'}]},
   {label:'Catálogo',items:[{href:'/painel/links',label:'Meus links'},{href:'/painel/links/novo',label:'Criar link'}]},
   {label:'Minha página',items:[],submenu:{label:'Minha página',icon:'profile',items:[{href:'/painel/perfil',label:'Visão geral'}],sections:profileSections}},
-  {label:'Acompanhar',items:[{href:'/painel/pedidos',label:'Pedidos'},{href:'/painel/lembretes',label:'Lembretes'},{href:'/painel/favoritos',label:'Favoritos'},{href:'/painel/interesses',label:'Categorias seguidas'}]},
+  {label:'Clientes',items:[],submenu:{label:'Clientes',icon:'clientPortfolio',items:[{href:'/painel/clientes',label:'Portfólio'}],sections:[{label:'Equipe e titularidade',items:[{href:'/painel/clientes/acessos',label:'Acessos por cliente'},{href:'/painel/clientes/transferencias',label:'Transferir página'}]}]}},
+  {label:'Acompanhar',items:[{href:'/painel/pedidos',label:'Pedidos'},{href:'/painel/lembretes',label:'Lembretes'},{href:'/painel/favoritos',label:'Favoritos'},{href:'/painel/interesses',label:'Categorias seguidas'},{href:'/painel/integracoes',label:'Integrações e avisos'}]},
   {label:'Preferências',items:[{href:'/painel/assinatura',label:'Assinatura'},{href:'/painel/conta',label:'Conta'}]},
 ]
 const adminGroups: NavigationGroup[] = [

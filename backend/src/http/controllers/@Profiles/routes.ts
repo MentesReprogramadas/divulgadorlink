@@ -1,3 +1,14 @@
+import * as agency from '@/repositories/agency-clients'
+import * as transfers from '@/repositories/profile-ownership-transfer'
+import {agencyClientInput,agencyAccessInput,agencyTransferInput} from '@/domain/access/agency'
+import * as buttonTests from '@/repositories/button-tests'
+import {canMeasureProfile} from '@/domain/analytics/profile-interaction'
+import {analyticsSession} from '@/http/controllers/@Analytics/routes'
+import * as discovery from '@/repositories/profile-discovery'
+import * as webhooks from '@/repositories/platform-webhooks'
+import {webhookEndpointInput} from '@/domain/notifications/platform-webhook'
+import { discoveryInput, discoveryQuery } from '@/domain/profiles/profile-discovery'
+import {profileLocale,localizeProfile} from '@/domain/profiles/profile-translations'
 import * as hosts from '@/repositories/profile-hosts'
 import * as mediaKits from '@/repositories/media-kits'
 import {readProfileBackup} from '@/domain/profiles/profile-backup'
@@ -51,8 +62,37 @@ async function run(q: FastifyRequest, r: FastifyReply, privateRoute: boolean, wo
 const expected = z.object({ expectedVersion: profileVersion }).strict()
 const slugParams = z.object({ slug: z.string().regex(/^[a-z0-9-]{3,40}$/) })
 const asset = z.string().regex(/^[a-f0-9]{64}$/)
-const itemSearchQuery=z.object({q:z.string().trim().max(100).default(''),categoryId:z.string().uuid().optional(),cursor:z.string().max(2048).optional()}).strict()
+const itemSearchQuery=z.object({q:z.string().trim().max(100).default(''),categoryId:z.string().uuid().optional(),cursor:z.string().max(2048).optional(),locale:profileLocale.optional()}).strict()
 export async function profilesRoutes(app: FastifyInstance) {
+  app.get('/me/agency/clients',(q,r)=>run(q,r,true,(db,a)=>agency.listAgencyClients(db,{...a,auditActorId:q.workspaceActor?.id})))
+  app.post('/me/agency/clients',(q,r)=>run(q,r,true,(db,a)=>agency.addAgencyClient(db,{...a,auditActorId:q.workspaceActor?.id},agencyClientInput.parse(q.body))))
+  app.delete('/me/agency/clients/:id',(q,r)=>run(q,r,true,(db,a)=>agency.archiveAgencyClient(db,{...a,auditActorId:q.workspaceActor?.id},z.object({id:z.string().uuid()}).strict().parse(q.params).id,expected.parse(q.body).expectedVersion)))
+  app.get('/me/agency/access',(q,r)=>run(q,r,true,(db,a)=>agency.listAgencyAccess(db,{...a,auditActorId:q.workspaceActor?.id})))
+  app.post('/me/agency/access',(q,r)=>run(q,r,true,(db,a)=>agency.requestAgencyAccess(db,{...a,auditActorId:q.workspaceActor?.id},agencyAccessInput.parse(q.body))))
+  app.post('/me/agency/access/:id/decision',(q,r)=>run(q,r,true,(db,a)=>{const input=z.object({expectedVersion:profileVersion,approve:z.boolean()}).strict().parse(q.body);return agency.decideAgencyAccess(db,{...a,auditActorId:q.workspaceActor?.id},z.object({id:z.string().uuid()}).strict().parse(q.params).id,input.expectedVersion,input.approve)}))
+  app.get('/me/agency/transfers',(q,r)=>run(q,r,true,(db,a)=>transfers.readProfileTransfers(db,{...a,auditActorId:q.workspaceActor?.id})))
+  app.post('/me/agency/transfers',(q,r)=>run(q,r,true,(db,a)=>transfers.requestProfileTransfer(db,{...a,auditActorId:q.workspaceActor?.id},agencyTransferInput.parse(q.body))))
+  app.post('/me/agency/transfers/:id/:action',(q,r)=>run(q,r,true,(db,a)=>{const p=z.object({id:z.string().uuid(),action:z.enum(['accept','decline','cancel'])}).strict().parse(q.params);const input=p.action==='accept'?z.object({expectedVersion:profileVersion,consent:z.literal(true)}).strict().parse(q.body):expected.parse(q.body);return transfers.decideProfileTransfer(db,{...a,auditActorId:q.workspaceActor?.id},p.id,input.expectedVersion,p.action)}))
+  app.get('/me/profile/button-tests',(q,r)=>run(q,r,true,(db,a)=>buttonTests.listButtonTests(db,a)))
+  app.post('/me/profile/button-tests/start',(q,r)=>run(q,r,true,(db,a)=>buttonTests.startButtonTest(db,{...a,auditActorId:q.workspaceActor?.id},expected.parse(q.body).expectedVersion)))
+  app.post('/me/profile/button-tests/:id/stop',(q,r)=>run(q,r,true,(db,a)=>buttonTests.stopButtonTest(db,{...a,auditActorId:q.workspaceActor?.id},z.object({id:z.string().uuid()}).strict().parse(q.params).id,expected.parse(q.body).expectedVersion)))
+  for(const action of ['assignment','events'] as const)app.post('/profiles/:slug/button-test/'+action,(q,r)=>run(q,r,false,async(db,a)=>{
+    const slug=slugParams.parse(q.params).slug,user=await readAccessUser(q),page=await db.profile.findUnique({where:{tenantId_slug:{tenantId:a.tenantId,slug}},select:{ownerId:true}})
+    const input=action==='events'?z.object({id:z.string().uuid(),variant:z.union([z.literal(0),z.literal(1)]),revisionId:profileVersion,surfaceToken:z.string().max(2048),kind:z.enum(['EXPOSURE','CLICK'])}).strict().parse(q.body):undefined
+    if(action==='assignment')z.object({}).strict().parse(q.body)
+    if(!page||!canMeasureProfile({consent:q.cookies.tla_profile_measure,dnt:q.headers.dnt as string|undefined,gpc:q.headers['sec-gpc'] as string|undefined,userAgent:q.headers['user-agent'],testTraffic:q.headers['x-test-traffic'] as string|undefined,owner:user?.tenantId===a.tenantId&&user.sub===page.ownerId,admin:user?.tenantId===a.tenantId&&user.role==='ADMIN',support:Boolean(q.supportSession)}))return{assignment:null,counted:false}
+    return buttonTests.publicButtonTest(db,a.tenantId,slug,analyticsSession(q,r),a.age,input)
+  }))
+  app.get('/me/integrations/endpoints',(q,r)=>run(q,r,true,(db,a)=>webhooks.readWebhooks(db,a)))
+  app.delete('/me/integrations/endpoints/:id',(q,r)=>run(q,r,true,(db,a)=>webhooks.webhookAction(db,{...a,auditActorId:q.workspaceActor?.id},z.object({id:z.string().uuid()}).parse(q.params).id,'delete',expected.parse(q.body).expectedVersion)))
+  app.post('/me/integrations/endpoints',(q,r)=>run(q,r,true,(db,a)=>webhooks.saveWebhook(db,{...a,auditActorId:q.workspaceActor?.id},webhookEndpointInput.parse(q.body))))
+  app.patch('/me/integrations/endpoints/:id',(q,r)=>run(q,r,true,(db,a)=>{const input=webhookEndpointInput.extend({expectedVersion:profileVersion}).strict().parse(q.body);return webhooks.saveWebhook(db,{...a,auditActorId:q.workspaceActor?.id},{url:input.url,eventTypes:input.eventTypes,enabled:input.enabled},z.object({id:z.string().uuid()}).parse(q.params).id,input.expectedVersion)}))
+  app.post('/me/integrations/endpoints/:id/:action',(q,r)=>run(q,r,true,(db,a)=>{const p=z.object({id:z.string().uuid(),action:z.enum(['disable','rotate-secret','test'])}).strict().parse(q.params);return webhooks.webhookAction(db,{...a,auditActorId:q.workspaceActor?.id},p.id,p.action,expected.parse(q.body).expectedVersion)}))
+  app.post('/me/integrations/deliveries/:id/retry',(q,r)=>run(q,r,true,(db,a)=>webhooks.retryWebhook(db,{...a,auditActorId:q.workspaceActor?.id},z.object({id:z.string().uuid()}).parse(q.params).id)))
+  app.get('/profiles', (q,r)=>run(q,r,false,(db,a)=>discovery.listDiscoveredProfiles(db,a,discoveryQuery.parse(q.query))))
+  app.get('/me/profile/discovery', (q,r)=>run(q,r,true,(db,a)=>discovery.readDiscovery(db,a)))
+  app.patch('/me/profile/discovery', (q,r)=>run(q,r,true,(db,a)=>discovery.saveDiscovery(db,{...a,auditActorId:q.workspaceActor?.id},discoveryInput.parse(q.body))))
+  for(const method of ['PUT','DELETE'] as const) app.route({method,url:'/me/followed-profiles/:id',handler:(q,r)=>run(q,r,true,(db,a)=>discovery.followProfile(db,a,z.object({id:z.string().uuid()}).strict().parse(q.params).id,method==='PUT'))})
   app.get('/me/profile/hosts',(q,r)=>run(q,r,true,(db,a)=>hosts.readProfileHosts(db,a)))
   app.post('/me/profile/hosts',(q,r)=>run(q,r,true,(db,a)=>hosts.reserveProfileHost(db,{...a,auditActorId:q.workspaceActor?.id},z.object({name:z.string().max(80),base:z.string().max(253),expectedVersion:profileVersion}).strict().parse(q.body))))
   app.post('/me/profile/hosts/verify',(q,r)=>run(q,r,true,(db,a)=>{const input=z.object({hostname:z.string().max(253),expectedVersion:profileVersion}).strict().parse(q.body);return hosts.verifyProfileHost(db,{...a,auditActorId:q.workspaceActor?.id},input.hostname,input.expectedVersion)}))
@@ -147,7 +187,8 @@ export async function profilesRoutes(app: FastifyInstance) {
   app.get('/profiles/:slug/events/:eventId/calendar.ics',(q,r)=>run(q,r,false,async(db,a)=>{const p=z.object({slug:z.string().max(80),eventId:z.string().uuid()}).parse(q.params);const calendar=await profiles.publicEventCalendar(db,a.tenantId,p.slug,p.eventId,a.age);r.header('content-type','text/calendar; charset=utf-8').header('content-disposition','attachment; filename=evento.ics');return r.send(calendar)}))
   app.get('/profiles/:slug', (q, r) => run(q, r, false, async(db, actor) => {
     const slug=slugParams.parse(q.params).slug,result=await profiles.publicProfile(db,actor.tenantId,slug,actor.age)
-    return result.restricted?result:{...result,measurement:await profileMeasurementDescriptor(db,actor.tenantId,slug,result.publishedRevisionId)}
+    const {locale}=z.object({locale:profileLocale.optional()}).strict().parse(q.query)
+    return result.restricted?result:{...localizeProfile(result,locale),measurement:await profileMeasurementDescriptor(db,actor.tenantId,slug,result.publishedRevisionId)}
   }))
   app.get('/profiles/:slug/avatar/:id', (q, r) => run(q, r, false, async (db, actor) => { const p = slugParams.extend({ id: asset }).parse(q.params); const bytes = await profiles.profileAvatar(db, actor, p.id, p.slug); return r.type(avatarContentType(bytes)).send(bytes) }))
 }

@@ -1,5 +1,8 @@
 # Análise e ordem de entrega
 
+**Estado atual — 21/10/2026:** parada após F36 concluída localmente; F40/F41 não iniciadas. Total 40/42 implementações locais, S7 pendente. [Guia local](testar-lote-2026-10-21.md), [execução final](execucao-f36.md). Os registros datados abaixo preservam o histórico.
+
+
 ## Resultado da análise
 
 O backlog mistura melhorias sobre produto existente, novas capacidades de perfil e expansões profissionais. Implementar na ordem em que ideias apareceram criaria retrabalho: página premium depende de perfis, publicação e capacidades comerciais; testes de botões dependem de instrumentação por perfil; agências dependem de permissões e de cobrança; contatos dependem de formulário e de acesso específico.
@@ -107,3 +110,12 @@ Não inicia uma nova feature da sequência: mantém 26/42 implementações e F22
 ### Fechamento F10 — limite da validação
 
 Implementação/automação locais concluídas, AC03 parcial e F10-M01 (TLS/DNS real em staging) pendente. CI/deploy não executados. Parada solicitada após F10: não iniciar F24. [Operação e reversão](operacao-f10.md).
+
+
+## Continuidade autorizada em 21/10/2026
+
+A instrução de continuar as features restantes substitui a parada anterior após F10. F24 e F30 implementadas e validadas localmente; F35 em execução. Registros em [F24](execucao-f24.md) e [F30](execucao-f30.md). S7/CI remotos, commit, push e deploy desta rodada não executados. Não interpretar os registros históricos de parada como estado atual.
+
+## Encerramento após F36 — 21/10/2026
+
+Pedido posterior do usuário: concluir a feature atual, atualizar documentação, explicar teste/configuração e parar. F36 concluída localmente; **não iniciar F40/F41**. Lote entregue: F24 → F30 → F35 → F39 → F26 → F36. Total 40/42 implementações locais, com S7 em revisão. Próxima sequência somente após nova autorização: F40 → F41. Não há novo commit/push/deploy desta rodada. [Guia de teste](testar-lote-2026-10-21.md), [execução F36](execucao-f36.md), [contexto para retomada](contexto-apos-f36.md). Registros anteriores de execução contínua são históricos e não superam este pedido de parada.

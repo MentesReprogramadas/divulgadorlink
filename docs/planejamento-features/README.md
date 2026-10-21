@@ -2,7 +2,7 @@
 
 Data da análise inicial: 14 de outubro de 2026. Atualização de prioridade: 15 de outubro de 2026.
 
-**Situação atual — 20/10/2026:** 34/42 implementações registradas. F10 implementada e testada localmente; AC03/TLS real e S7 pendentes; parada solicitada após F10. Features futuras, ainda não iniciadas: F24 → F30 → F35 → F39 → F26 → F36 → F40 → F41. F39 não iniciada, corrigida a divergência do índice. S7/CI/liberação remotas pendentes. Commits na branch codex/roadmap-f37-testes; sem push/deploy. [Execução F10](execucao-f10.md).
+**Situação atual — 21/10/2026:** 40/42 implementações locais registradas. F24, F30, F35, F39, F26 e F36 validadas localmente. Execução encerrada após F36 por pedido do usuário. Restam F40 e F41, não iniciadas. F10 continua com TLS/DNS real e S7 pendentes. Migrações locais aplicadas com backup em novo pedido de 21/10; commit/push do lote autorizados nesta branch. CI e deploy continuam separados. [Como testar/configurar](testar-lote-2026-10-21.md), [F36 e evidências](execucao-f36.md).
 
 Refinamento solicitado após F21: [importação, resumos, navegação, campanhas, equipe global e apresentação](refinamento-f05-f15-f20-f21-f38.md). Ampliação anterior implementada e validada localmente. Pedido posterior implementou F22 → F23 → F25, conforme situação atual acima.
 
@@ -21,7 +21,7 @@ A fonte foi ampliada por solicitação do usuário com F42; as seções anterior
 7. Specs e planos individuais na tabela abaixo.
 8. [Auditoria documental realizada](auditoria-documental.md).
 
-As decisões não resolvidas são propostas de desenho, nunca fatos aprovados. Não há preços, SLAs ou estimativas de calendário inventados. Ordem de dependência é obrigatória; prioridade de negócio pode ser revista com registro. A implementação atual parou após F25. As notas datadas anteriores preservam o histórico de autorizações e paradas. F09 e F12 concluídas na branch, com decisões registradas em [execução F12](execucao-f12.md). Ver também [execução F09](execucao-f09.md). Evidências e decisões ficam em [execução contínua](execucao-roadmap.md). Deploy e cobrança reais não são consequência automática dos commits nessa branch.
+As decisões não resolvidas são propostas de desenho, nunca fatos aprovados. Não há preços, SLAs ou estimativas de calendário inventados. Ordem de dependência é obrigatória; prioridade de negócio pode ser revista com registro. A implementação atual parou após F36 em 21/10/2026. As notas datadas anteriores preservam o histórico de autorizações e paradas. F09 e F12 concluídas na branch, com decisões registradas em [execução F12](execucao-f12.md). Ver também [execução F09](execucao-f09.md). Evidências e decisões ficam em [execução contínua](execucao-roadmap.md). Deploy e cobrança reais não são consequência automática dos commits nessa branch.
 
 ## Índice e sequência única
 
@@ -61,12 +61,12 @@ As decisões não resolvidas são propostas de desenho, nunca fatos aprovados. N
 | 32 | F32 | 4 | [Kit de divulgação](specs/f32-kit-divulgacao.md) | [Implementação](planos/f32-kit-divulgacao.md) | F42 (prioridade); F09, F13 | S0–S6 LOCAL; S7 EM REVISÃO |
 | 33 | F33 | 4 | [Coleções públicas compartilháveis](specs/f33-colecoes-publicas.md) | [Implementação](planos/f33-colecoes-publicas.md) | F42 (prioridade); F04 | S0–S6 LOCAL; S7 EM REVISÃO |
 | 34 | F10 | 5 | [Página premium com subdomínio](specs/f10-pagina-premium-subdominio.md) | [Implementação](planos/f10-pagina-premium-subdominio.md) | F42 (prioridade); F09, F11, F19, F16 | S0–S6 LOCAL; TLS/S7 PENDENTES |
-| 35 | F24 | 5 | [Descoberta de perfis](specs/f24-descoberta-perfis.md) | [Implementação](planos/f24-descoberta-perfis.md) | F42 (prioridade); F09, F03 | NÃO INICIADA |
-| 36 | F30 | 5 | [Integrações e avisos automáticos](specs/f30-integracoes-webhooks.md) | [Implementação](planos/f30-integracoes-webhooks.md) | F42 (prioridade); F22, F02 | NÃO INICIADA |
-| 37 | F35 | 5 | [Central de contatos recebidos](specs/f35-central-contatos.md) | [Implementação](planos/f35-central-contatos.md) | F42 (prioridade); F22, F20 | NÃO INICIADA |
-| 38 | F39 | 5 | [Página em vários idiomas](specs/f39-multilingue.md) | [Implementação](planos/f39-multilingue.md) | F42 (prioridade); F09, F19 | NÃO INICIADA |
-| 39 | F26 | 6 | [Teste de versões de botões](specs/f26-teste-botoes.md) | [Implementação](planos/f26-teste-botoes.md) | F42 (prioridade); F09, F31 | NÃO INICIADA |
-| 40 | F36 | 6 | [Pacotes para agências](specs/f36-agencias.md) | [Implementação](planos/f36-agencias.md) | F42 (prioridade); F20, F11, F21 | NÃO INICIADA |
+| 35 | F24 | 5 | [Descoberta de perfis](specs/f24-descoberta-perfis.md) | [Implementação](planos/f24-descoberta-perfis.md) | F42 (prioridade); F09, F03 | S0–S6 LOCAL; S7 EM REVISÃO |
+| 36 | F30 | 5 | [Integrações e avisos automáticos](specs/f30-integracoes-webhooks.md) | [Implementação](planos/f30-integracoes-webhooks.md) | F42 (prioridade); F22, F02 | S0–S6 LOCAL; S7 EM REVISÃO |
+| 37 | F35 | 5 | [Central de contatos recebidos](specs/f35-central-contatos.md) | [Implementação](planos/f35-central-contatos.md) | F42 (prioridade); F22, F20 | S0–S6 LOCAL; S7 EM REVISÃO |
+| 38 | F39 | 5 | [Página em vários idiomas](specs/f39-multilingue.md) | [Implementação](planos/f39-multilingue.md) | F42 (prioridade); F09, F19 | S0–S6 LOCAL; S7 EM REVISÃO |
+| 39 | F26 | 6 | [Teste de versões de botões](specs/f26-teste-botoes.md) | [Implementação](planos/f26-teste-botoes.md) | F42 (prioridade); F09, F31 | S0–S6 LOCAL; S7 EM REVISÃO |
+| 40 | F36 | 6 | [Pacotes para agências](specs/f36-agencias.md) | [Implementação](planos/f36-agencias.md) | F42 (prioridade); F20, F11, F21 | S0–S6 LOCAL; S7 EM REVISÃO |
 | 41 | F40 | 6 | [Diagnóstico da página](specs/f40-diagnostico.md) | [Implementação](planos/f40-diagnostico.md) | F42 (prioridade); F09, F07, F31 | NÃO INICIADA |
 | 42 | F41 | 6 | [App instalável](specs/f41-pwa.md) | [Implementação](planos/f41-pwa.md) | F42 (prioridade); F09 | NÃO INICIADA |
 
@@ -98,3 +98,8 @@ Checkpoint F37: 21/42 implementações nos ambientes declarados, incluindo [F37]
 ## Refinamento de entrada e edição — 19/10/2026
 
 [Fluxos guiados F22/F23/F25, decisões, alternativas e provas](refinamento-f22-f23-f25.md). Distribuição orientada na lista de Convites; contato na criação/edição e na visão geral; escolha manual/assistida antes da primeira página. Checkbox corrigido, busca movida para Página e prévia do rascunho nas quatro abas de edição. Mantém 29/42; F28 não iniciada e S7 remoto pendente. Sem commit/push/deploy novos. O registro vinculado complementa as provas históricas, sem reescrever os resultados anteriores.
+
+
+## Continuidade autorizada em 21/10/2026
+
+A instrução de continuar as features restantes substitui a parada anterior após F10. F24 e F30 implementadas e validadas localmente; F35 em execução. Registros em [F24](execucao-f24.md) e [F30](execucao-f30.md). S7/CI remotos, commit, push e deploy desta rodada não executados. Não interpretar os registros históricos de parada como estado atual.

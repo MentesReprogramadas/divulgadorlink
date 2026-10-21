@@ -1,6 +1,7 @@
 'use client'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import {ErrorState} from '@/components/feedback/error-state'
+import {DiscoverySettings} from '@/features/profile-discovery/discovery-settings'
 import type {ContactDefinition,ContactFormDescriptor} from '@/features/contact-forms/contact-contract'
 import {ContactSettingsPanel} from '@/features/contact-forms/contact-settings-panel'
 import {useWorkspaceIdentity} from '@/features/workspace-team/workspace-access'
@@ -148,6 +149,7 @@ export function ProfileEditor({initialSection,collaborative=false,resourceId}:{i
         {section === 'appearance' ? <section role="tabpanel" id="page-editor-panel-appearance" aria-labelledby="page-editor-appearance"><fieldset disabled={pending} className={styles.controls}><legend className={styles.visuallyHidden}>Aparência da página</legend><ProfileAppearanceEditor content={draft} onChange={content => { retry.current = null; model.change(content); setNotice('') }} /></fieldset></section> : null}
       </form>
       {section==='identity'&&canConfigureContacts?<ContactSettingsPanel ready={profileCanSave(draft)} pending={pending} onPrepare={model.flush} onPreviewChange={changeContactPreview}/>:null}
+      {section==='identity'&&!collaborative&&(!workspace?.ownerId||workspace.grants?.page?.write===true)?<DiscoverySettings ready={Boolean(state.draft)}/>:null}
       </ProfileEditingLayout>
     </> : null}
     {qrTarget ? <QrDialog target={qrTarget} trigger={qrTrigger.current} onClose={() => setQrTarget(null)} /> : null}

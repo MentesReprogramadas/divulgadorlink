@@ -2,7 +2,7 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 35.
 
-**Estado:** SPEC PROPOSTA; implementação NÃO INICIADA.  
+**Estado:** IMPLEMENTADA E VALIDADA LOCALMENTE; S7 pendente.
 **Onda:** 5. **Ordem:** 35.  
 **Fonte:** [features-propostas.md](../../features-propostas.md), seção “Descoberta de perfis”.  
 **Plano:** [F24 implementação](../planos/f24-descoberta-perfis.md).  
@@ -140,3 +140,8 @@ Sem resolução das decisões bloqueantes e dependências concluídas, a feature
 
 **Indicadores:** visitas vindas da descoberta, perfis seguidos e retorno de visitantes.
 
+
+
+## Execução de 21/10/2026
+
+A autorização de continuar substitui a parada anterior após F10. Contratos finais, D26, alternativas, desvios e evidências em [execução F24](../execucao-f24.md). Endpoint público `/api/v1/profiles`; configuração GET/PATCH `/me/profile/discovery` com `expectedVersion`; PUT/DELETE `/me/followed-profiles/:id`. Consulta `followed=true` exige sessão. Nenhuma etapa remota aprovada por este registro.

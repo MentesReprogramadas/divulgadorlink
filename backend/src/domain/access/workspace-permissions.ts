@@ -1,10 +1,13 @@
 import {z} from 'zod'
 
 export const permissionSections=[
+ {id:'agency',label:'Clientes da agência',group:'Conteúdo'},
 
  {id:'links',label:'Links do catálogo',group:'Conteúdo'},
 
  {id:'contacts',label:'Contatos recebidos e formulário',group:'Conteúdo'},
+ {id:'contactsExport',label:'Exportar dados de contatos',group:'Conteúdo'},
+ {id:'contactsDelete',label:'Excluir contatos recebidos',group:'Conteúdo'},
 
  {id:'page',label:'Minha página',group:'Conteúdo'},
 
@@ -19,6 +22,7 @@ export const permissionSections=[
  {id:'history',label:'Histórico de publicações',group:'Ferramentas'},
 
  {id:'transfer',label:'Importação e exportação',group:'Ferramentas'},
+ {id:'integrations',label:'Integrações e avisos automáticos',group:'Ferramentas'},
 
  {id:'reports',label:'Métricas e resultados',group:'Acompanhamento'},
 
@@ -64,13 +68,19 @@ export function publicWorkspaceAction(method:string,path:string){
 
  if(method==='GET')return /^\/links\/(?!mine$|submission-started$)[^/]+\/?$/.test(path)
 
- return method==='POST'&&(/^\/profiles\/[a-z0-9-]+\/contact-form\/submissions$/.test(path)||/^\/analytics\/(consent|visits|impressions)$/.test(path)||/^\/analytics\/profiles\/(events|campaigns\/[^/]+\/events)$/.test(path)||/^\/links\/[^/]+\/reports$/.test(path)||path==='/age')
+ return method==='POST'&&(/^\/profiles\/[a-z0-9-]+\/button-test\/(assignment|events)$/.test(path)||/^\/profiles\/[a-z0-9-]+\/contact-form\/submissions$/.test(path)||/^\/analytics\/(consent|visits|impressions)$/.test(path)||/^\/analytics\/profiles\/(events|campaigns\/[^/]+\/events)$/.test(path)||/^\/links\/[^/]+\/reports$/.test(path)||path==='/age')
 
 }
 
 /** Explicit registration: new private endpoints are denied until classified. */
 
-export function workspaceRoute(path:string):WorkspaceSection|null{
+export function workspaceRoute(path:string,method='GET'):WorkspaceSection|null{
+ if(/^\/me\/agency\/transfers(?:\/|$)/.test(path))return null
+ if(/^\/me\/agency(?:\/|$)/.test(path))return 'agency'
+ if(/^\/me\/profile\/button-tests(?:\/|$)/.test(path))return 'page'
+ if(path==='/me/forms/submissions/export')return 'contactsExport'
+ if(/^\/me\/forms\/submissions\/[^/]+$/.test(path))return method==='DELETE'?'contactsDelete':'contacts'
+ if(/^\/me\/integrations(?:\/|$)/.test(path))return 'integrations'
 
  if(/^\/admin\/(office|finance|retention|traffic|search-opportunities)(\/|$)/.test(path)||/^\/admin\/users\/[^/]+\/ban$/.test(path)||/^\/admin\/links\/[^/]+\/withdraw$/.test(path))return 'adminManagement'
 
@@ -114,7 +124,8 @@ export function workspaceRoute(path:string):WorkspaceSection|null{
 
  if(/^\/me\/(favorites|collections)(\/|$)/.test(path))return 'favorites'
 
- if(/^\/me\/(followed-niches|niche-digest-preferences)(\/|$)/.test(path))return 'interests'
+ if(path==='/me/profile/discovery')return 'page'
+ if(/^\/me\/(followed-profiles|followed-niches|niche-digest-preferences)(\/|$)/.test(path))return 'interests'
 
  if(path==='/me/notification-preferences'||path==='/promotions/mine/reminders')return 'reminders'
 

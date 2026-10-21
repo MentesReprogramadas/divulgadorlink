@@ -1,4 +1,8 @@
+import {purgeAgencyAccess} from '@/repositories/agency-clients'
+import {purgeButtonTests} from '@/repositories/button-tests'
 import {purgeSuggestions} from '@/repositories/profile-suggestions'
+import {runWebhookCycle,purgeWebhooks} from '@/repositories/platform-webhooks'
+import {enqueueWebhookCycle,PLATFORM_WEBHOOK_QUEUE} from '@/adapters/queues/enqueue-platform-webhooks'
 import {purgeDestinationPools} from '@/repositories/destination-pools'
 import {purgeContacts} from '@/repositories/contact-forms'
 import {runNicheDigestCycle,type DigestCycleInput} from '@/use-cases/@Notifications/niche-digests'
@@ -186,6 +190,7 @@ export function createWorker(connection: Redis, deps: WorkerDeps, queueName = QU
       try {
       const result = await (async () => {
       if (job.name === 'evolution-cycle') return runEvolutionCycle(deps.db ?? prisma)
+      if (job.name === 'platform-webhook-cycle') return runWebhookCycle(deps.db ?? prisma)
       if(job.name==='niche-digest-cycle')return runNicheDigestCycle(deps.db??prisma,deps.nicheDigests)
       if (job.name === 'renewal-reminder-cycle') return runRenewalReminderCycle(deps.db ?? prisma, deps.renewalReminders)
       if (job.name === 'availability-cycle') return runAvailabilityCycle(deps.db ?? prisma, deps.availability)
@@ -287,6 +292,8 @@ export function createWorker(connection: Redis, deps: WorkerDeps, queueName = QU
       }
       if (job.name === 'purge-analytics') {
         const profileDeleted=await purgeProfileInteractions(deps.db??prisma)
+        await purgeButtonTests(deps.db??prisma)
+        await purgeAgencyAccess(deps.db??prisma)
         const deleted = await runAnalyticsPurge(prismaRetentionView(), new Date())+profileDeleted.count
         if (deleted > 0) logDomainEvent('analytics.purged', { entity: String(deleted) })
         return deleted
@@ -345,6 +352,8 @@ export async function startWorker(): Promise<void> {
   createWorker(connection, { textJudge: null }, EVOLUTION_QUEUE_NAME)
   createWorker(connection, { textJudge: null }, AVAILABILITY_QUEUE_NAME)
   createWorker(connection, { textJudge: null }, RENEWAL_QUEUE_NAME)
+  createWorker(connection, { textJudge: null }, PLATFORM_WEBHOOK_QUEUE)
+  await enqueueWebhookCycle()
   await enqueuePendingEmbeddingJobs()
   await enqueueEvolutionCycle()
   await enqueueAvailabilityCycle()
@@ -352,6 +361,7 @@ export async function startWorker(): Promise<void> {
   await enqueueNicheDigestCycle()
   await enqueueRenewalReminderCycle()
   const drain = setInterval(() => {
+    void enqueueWebhookCycle().catch(()=>logDomainEvent('webhook.drain.failed',{result:'queue_unavailable'}))
     void enqueueEvolutionCycle().catch(() => logDomainEvent('evolution.drain.failed', { result: 'queue_unavailable' }))
     void enqueueNicheDigestCycle().catch(()=>logDomainEvent('niche.digest.drain.failed',{result:'queue_unavailable'}))
     void enqueueRenewalReminderCycle().catch(() => logDomainEvent('renewal.reminder.drain.failed', { result: 'queue_unavailable' }))
@@ -366,6 +376,7 @@ export async function startWorker(): Promise<void> {
   drain.unref()
   const day = 24 * 60 * 60 * 1000
   const purge = async () => {
+    await purgeWebhooks(prisma)
     await purgeSuggestions(prisma)
     await purgeDestinationPools(prisma)
     await purgeContacts(prisma)

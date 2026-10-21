@@ -146,3 +146,16 @@ F10: contenção de abuso sem nova quota comercial: até cinco reservas de nomes
 F10: o ensaio real mostrou que fetch pode descartar Host. O resolver público global agora deriva tenant somente de hostname cadastrado + mapa de raízes no servidor; Host/X-Forwarded-Host do chamador não trocam o proprietário. Retorna apenas slug/host públicos, sem sessão, dono ou rascunho. A prova HTTP descartável usa transporte nativo para exercer Host real; o adapter de produção continua HTTPS com DNS fixado e SNI.
 
 F10: após o probe externo, a transação revalida a permissão page.write e a conta confirmada do colaborador real; revogação em voo impede ativação tardia. A edição é serializada pelo dono, como as mudanças de equipe existentes. CTA de assinatura não aparece para colaborador sem billing.read. O ícone de criar página é distinto de criar link de catálogo.
+
+## Decisões concretizadas no lote encerrado após F36 — 21/10/2026
+
+Este registro substitui a indicação de pendência técnica dessas decisões para S0–S6; não aprova cobrança, oferta agregada nem produção.
+
+| Decisão | Escolha implementada | Alternativa descartada / limite | Registro |
+| --- | --- | --- | --- |
+| D26/F24 | Opt-in desligado por padrão; projeção pública elegível, busca/nicho, seguir pessoal | Ranking pago sem produto contratado e exposição de rascunho descartados | [F24](execucao-f24.md) |
+| D32/F30 | Três eventos mínimos, outbox/worker, HMAC, AES-GCM, retries limitados e retenção 30d | Chamada HTTP dentro de mutação e payload pessoal descartados | [F30](execucao-f30.md) |
+| D37/F35 | Novo/Em atendimento/Concluído, reabrir, notas internas; exportar/excluir separados | Disparar mensagem em cada nota e permitir exportar só por ler descartados | [F35](execucao-f35.md) |
+| D41/F39 | pt-BR/en/es manual, fallback original, URL locale com canonical da página | Tradução externa paga, destino alternativo por idioma e rastreamento de preferência descartados | [F39](execucao-f39.md) |
+| D28/F26 | 50/50 por sessão consentida; 7/14/28d, mínimo 100–10000/variante, α5%, efeito mínimo 2pp; inconclusivo sem validade/amostra | Vencedor por cliques brutos, parar cedo e aplicar automaticamente descartados | [F26](execucao-f26.md) |
+| D38/F36 | Dez clientes técnicos sem cobrança adicional, contas reais e plano individual; colaboração aprovada pelo cliente, transferência com dois titulares/7d | Preço/pacote agregado, contas fictícias, OWNER implícito, mover cobrança e substituir página do destino descartados | [F36](execucao-f36.md) |

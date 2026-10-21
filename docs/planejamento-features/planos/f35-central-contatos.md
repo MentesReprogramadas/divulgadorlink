@@ -2,7 +2,7 @@
 
 **Gate de prioridade:** [F42](../specs/f42-evolution-moderacao.md) deve ser concluída antes desta feature, por prioridade definida em 15 de outubro de 2026. Este gate de sequência não cria dependência funcional de WhatsApp para o produto. Ordem de entrega atual: 37.
 
-**Estado:** NÃO INICIADO. Somente planejamento autorizado.  
+**Estado:** IMPLEMENTADA E VALIDADA LOCALMENTE; S7 pendente.
 **Spec vinculante:** [F35](../specs/f35-central-contatos.md).  
 **Dependências:** G00, [F22](../specs/f22-formulario-contato.md), [F20](../specs/f20-equipe-permissoes.md).  
 **Onda:** 5. Etapas rastreadas no [roadmap](../roadmap-auditavel.md) e na [matriz](../matriz-aceitacao.csv).
@@ -158,3 +158,7 @@ Esses nomes não são obrigação de criar arquivos vazios. Preferir ampliação
 
 **Registro inicial:** responsável não atribuído; commit de implementação inexistente; resultados NÃO EXECUTADOS; liberação NÃO AUTORIZADA por este documento.
 
+
+## Execução local — 21/10/2026
+
+Contratos, decisões, alternativas e evidências em [execução F35](../execucao-f35.md). Não há comprovação de CI/deploy nesta rodada.

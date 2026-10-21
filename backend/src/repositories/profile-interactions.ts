@@ -1,3 +1,4 @@
+import type {ProfileActor} from '@/domain/access/profile-access'
 import {publicCampaignProjection} from './campaign-pages'
 import {createHmac,randomUUID} from 'node:crypto'
 import {Prisma,type PrismaClient} from '@prisma/client'
@@ -16,7 +17,7 @@ import {assertProfileOwner,publicProfileProjection} from './profiles-repository'
 import {profilePaidCapabilityCoverage} from './profile-capability-coverage'
 import {availableProfileRevisions} from './profile-revisions'
 
-type Actor={tenantId:string;ownerId:string;age:boolean}
+type Actor=ProfileActor
 const coverage=(tx:Prisma.TransactionClient,actor:{tenantId:string;ownerId:string},now:Date)=>profilePaidCapabilityCoverage(tx,actor,profileBillingRuntime().delivered,now,'profile.analytics')
 export async function profileMeasurementDescriptor(db:PrismaClient,tenantId:string,slug:string,revisionId:number,campaignId?:string){
  return db.$transaction(async tx=>{
@@ -45,7 +46,7 @@ export async function profileMeasurementPreference(db:PrismaClient,actor:Actor,c
    row=await tx.profileMeasurement.upsert({where:{profileId:p.id},create:{profileId:p.id,tenantId:actor.tenantId,ownerId:actor.ownerId,enabled:change.enabled,version:1},update:{enabled:change.enabled,version:{increment:1}}})
    await tx.auditLog.create({data:{tenantId:actor.tenantId,actorId:actor.ownerId,action:'profile.measurement.changed',entityType:'Profile',entityId:p.id,after:{enabled:change.enabled,version:row.version}}})
   }
-  return {enabled:row?.enabled??false,version:row?.version??0,allowed}
+  return {...(actor.profileId?{page:{id:p.id,name:p.name,slug:p.slug}}:{}),enabled:row?.enabled??false,version:row?.version??0,allowed}
  })
 }
 export async function collectProfileInteraction(db:PrismaClient,tenantId:string,input:z.infer<typeof profileInteractionInput>,session:string,excluded:(ownerId:string)=>boolean,age=false,campaignId?:string){
@@ -120,7 +121,7 @@ export async function readProfileInteractionReport(db:PrismaClient,actor:Actor,q
   const blockIds=[...new Set([...labels.keys(),...rows.flatMap(row=>row.blockId?[row.blockId]:[])])]
   const count=(kind:string,id:string|null)=>Number(rows.find(row=>row.kind===kind&&row.blockId===id)?.count??0)
   const summary=profileInteractionSummary({sessions:sample,pageViews:count('PAGE',null),blocks:blockIds.map(id=>({id,impressions:count('IMPRESSION',id),clicks:count('CLICK',id)})),reach:new Map([25,50,75,100].map(threshold=>[threshold,Number(sessions[0]?.[('reach'+threshold) as 'reach25']??0)]))},blockIds.map(id=>({id,label:labels.get(id)??'Bloco removido ou versão indisponível'})))
-  return {...(campaign?{campaignId:campaign.id}:{}),range:{from:range.from,to:range.to},revision,viewport:query.viewport,revisions,minimumSample:PROFILE_INTERACTION_MIN_SAMPLE,retentionDays:PROFILE_INTERACTION_RETENTION_DAYS,coverage:'Somente visitas com consentimento; sessões diárias, sem estimativa de pessoas únicas.',summary}
+  return {...(actor.profileId?{page:{id:p.id,name:p.name,slug:p.slug}}:{}),...(campaign?{campaignId:campaign.id}:{}),range:{from:range.from,to:range.to},revision,viewport:query.viewport,revisions,minimumSample:PROFILE_INTERACTION_MIN_SAMPLE,retentionDays:PROFILE_INTERACTION_RETENTION_DAYS,coverage:'Somente visitas com consentimento; sessões diárias, sem estimativa de pessoas únicas.',summary}
  },{isolationLevel:Prisma.TransactionIsolationLevel.RepeatableRead})
 }
 export function purgeProfileInteractions(db:PrismaClient,now=new Date()){return db.profileInteractionEvent.deleteMany({where:{createdAt:{lt:new Date(+now-PROFILE_INTERACTION_RETENTION_DAYS*86400000)}}})}
