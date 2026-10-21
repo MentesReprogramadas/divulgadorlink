@@ -50,6 +50,7 @@ export function legalDocument(contact: string | null): { privacy: LegalDocument;
           title: 'Campanha',
           paragraphs: [
             'O cookie tla_touch só é gravado depois do aceite. Ele guarda o primeiro acesso a /divulgar com parâmetros de campanha, por 30 dias. No cadastro, esse toque fica na conta e é copiado para o link enviado. Recusar apaga esse cookie.',
+            'Ao seguir o botão de publicação de /divulgar para o cadastro, os parâmetros válidos da campanha seguem na URL, sem armazenamento em cookies antes do aceite. Rótulos opcionais fora do formato permitido são descartados.',
           ],
         },
         {

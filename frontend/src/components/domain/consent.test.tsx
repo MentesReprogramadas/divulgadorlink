@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Consent, CookieSettings } from './consent'
+import { renderToString } from 'react-dom/server'
 
 vi.mock('next/navigation', () => ({ usePathname: () => '/' }))
 vi.mock('@/lib/api', () => ({ api: vi.fn().mockResolvedValue({ status: 200, body: {} }) }))
@@ -24,6 +25,9 @@ afterEach(() => {
 })
 
 describe('aviso de cookies', () => {
+  it('mantém ações desabilitadas até ler os cookies no navegador', () => {
+    expect((renderToString(<Consent pending />).match(/disabled=""/g) ?? []).length).toBe(2)
+  })
   it('exibe uma região sem modal nem bloqueio de interação com a página', () => {
     render(<><a href="/busca">Buscar links</a><Consent pending /></>)
     const banner = screen.getByRole('region', { name: 'Este site usa cookies' })

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { trackMeta } from '@/domain/meta-pixel'
 import { installGoogleAds, setGoogleAdsConsent, trackGoogleAdsPageView } from '@/domain/google-ads'
 import { api } from '@/lib/api'
+import { syncCampaignTouch } from '@/lib/campaign-touch'
 
 type Choice = 'marketing' | 'denied' | null
 
@@ -23,14 +24,6 @@ function writeConsent(value: Exclude<Choice, null>) {
 
 function countChoice(choice: Exclude<Choice, null>) {
   void api('/v1/analytics/consent', { method: 'POST', body: JSON.stringify({ choice }) }).catch(() => undefined)
-}
-
-async function syncTouch() {
-  try {
-    await fetch('/anuncio/toque', { method: 'POST' })
-  } catch {
-    return
-  }
 }
 
 type PixelQueue = {
@@ -74,11 +67,11 @@ export function CookieSettings() {
 }
 
 export function Consent({ pending }: { pending: boolean }) {
-  const [choice, setChoice] = useState<Choice | undefined>(pending ? null : undefined)
+  const [choice, setChoice] = useState<Choice | undefined>(undefined)
   const [reviewing, setReviewing] = useState(false)
   const ref = useRef<HTMLElement>(null)
   const [bannerHeight, setBannerHeight] = useState(0)
-  const open = choice === null || reviewing
+  const open = choice === null || reviewing || (choice === undefined && pending)
   const pathname = usePathname()
   const lastPath = useRef(pathname)
 
@@ -131,7 +124,7 @@ export function Consent({ pending }: { pending: boolean }) {
     setGoogleAdsConsent(value === 'marketing')
     setChoice(value)
     setReviewing(false)
-    void syncTouch().finally(() => {
+    void syncCampaignTouch().finally(() => {
       if (changing) location.reload()
     })
   }
@@ -147,8 +140,8 @@ export function Consent({ pending }: { pending: boolean }) {
             <p id="cookie-description">Usamos cookies para o site funcionar e, com seu aceite, medir anúncios. Veja a{' '}<a href="/privacidade">Política de Privacidade</a>.</p>
           </div>
           <div className="cookie-banner-actions">
-            <Button type="button" onClick={() => choose('marketing')}>Aceitar</Button>
-            <Button type="button" variant="secondary" onClick={() => choose('denied')}>Recusar</Button>
+            <Button type="button" disabled={choice === undefined} onClick={() => choose('marketing')}>Aceitar</Button>
+            <Button type="button" disabled={choice === undefined} variant="secondary" onClick={() => choose('denied')}>Recusar</Button>
           </div>
         </div>
       </section>

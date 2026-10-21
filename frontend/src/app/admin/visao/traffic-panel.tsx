@@ -81,7 +81,7 @@ export function TrafficPanel() {
     <section aria-label="Tráfego interno">
       <p className="office-note">
         Contagem própria, sem IP e sem identificador, inclusive de quem recusou cookies. Últimos {view.windowDays} dias.
-        A Meta só vê quem aceitou: {share(view.consent.marketing, decided)} das escolhas.
+        Aceites e recusas contam escolhas, não pessoas únicas. Percentual de aceite: {share(view.consent.marketing, decided)} das escolhas.
       </p>
       <InsightTabs name="trafego" label="Tráfego" tabs={TABS} current={tab} onChange={setTab} />
 
@@ -90,8 +90,8 @@ export function TrafficPanel() {
           <dl className="insight-metrics">
             <div><dt>Entradas</dt><dd>{count(view.entries)}</dd></div>
             <div><dt>Páginas vistas</dt><dd>{count(view.views)}</dd></div>
-            <div><dt>Aceitaram cookies</dt><dd>{count(view.consent.marketing)} · {share(view.consent.marketing, decided)}</dd></div>
-            <div><dt>Recusaram cookies</dt><dd>{count(view.consent.denied)}</dd></div>
+            <div><dt>Aceites de cookies</dt><dd>{count(view.consent.marketing)} · {share(view.consent.marketing, decided)}</dd></div>
+            <div><dt>Recusas de cookies</dt><dd>{count(view.consent.denied)}</dd></div>
           </dl>
           <h2>Entradas por dia</h2>
           {view.daily.length === 0 ? <EmptyState /> : (
@@ -140,7 +140,7 @@ export function TrafficPanel() {
 
       {tab === 'campanhas' ? (
         <div {...panelProps('trafego', 'campanhas')}>
-          <p className="office-note">Entradas contam todo mundo que chegou com UTM. Cadastro por campanha só existe para quem aceitou cookies.</p>
+          <p className="office-note">Entradas são acessos com UTM. Cadastros atribuídos exigem aceite e uma campanha válida capturada antes do cadastro. O primeiro toque é preservado por até 30 dias. Zero não significa ausência de aceite ou de cadastros. Os aceites não são separados por campanha.</p>
           {view.campaigns.length === 0 ? <EmptyState /> : (
             <ul className="insight-rows">
               {view.campaigns.map((row) => {
@@ -150,7 +150,7 @@ export function TrafficPanel() {
                   <li key={`${row.source}|${row.medium}|${row.campaign}`}>
                     <strong>{row.campaign}</strong>
                     <span>{row.source || '—'} / {row.medium || '—'}</span>
-                    <span>{count(row.entries)} entradas · {count(registered)} cadastros com aceite</span>
+                    <span>{count(row.entries)} entradas · {count(registered)} cadastros atribuídos</span>
                   </li>
                 )
               })}

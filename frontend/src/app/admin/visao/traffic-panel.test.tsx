@@ -43,6 +43,7 @@ describe('tráfego na gestão', () => {
 
     fireEvent.click(screen.getByRole('tab', { name: 'Campanhas' }))
     expect(screen.getByText('outubro')).toBeTruthy()
-    expect(screen.getByText('3 entradas · 1 cadastros com aceite')).toBeTruthy()
+    expect(screen.getByText('3 entradas · 1 cadastros atribuídos')).toBeTruthy()
+    expect(screen.getByText(/Zero não significa ausência de aceite/)).toBeTruthy()
   })
 })

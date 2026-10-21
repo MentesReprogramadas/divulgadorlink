@@ -1,20 +1,15 @@
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
-import { touchDecision } from '@/domain/campaign-touch'
+import { campaignTouchFromUrl, touchDecision } from '@/domain/campaign-touch'
 
-function paramsFrom(referer: string | null) {
+function paramsFrom(referer: string | null, host: string) {
   const empty = { pathname: '', source: '', medium: '', campaign: '', content: '', term: '' }
   if (!referer) return empty
   try {
     const url = new URL(referer)
-    return {
-      pathname: url.pathname,
-      source: url.searchParams.get('utm_source') ?? '',
-      medium: url.searchParams.get('utm_medium') ?? '',
-      campaign: url.searchParams.get('utm_campaign') ?? '',
-      content: url.searchParams.get('utm_content') ?? '',
-      term: url.searchParams.get('utm_term') ?? '',
-    }
+    if (url.host !== host) return empty
+    const touch = campaignTouchFromUrl(url)
+    return touch ? { ...touch, pathname: touch.landingPath } : empty
   } catch {
     return empty
   }
@@ -25,7 +20,7 @@ export async function POST(request: Request) {
   const decision = touchDecision({
     consent: jar.get('tla_consent')?.value,
     existing: jar.has('tla_touch'),
-    ...paramsFrom(request.headers.get('referer')),
+    ...paramsFrom(request.headers.get('referer'), request.headers.get('host') ?? new URL(request.url).host),
   })
   const response = NextResponse.json({ stored: decision.action === 'set' })
   if (decision.action === 'keep') return response

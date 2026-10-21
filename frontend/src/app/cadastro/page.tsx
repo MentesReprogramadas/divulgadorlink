@@ -6,6 +6,7 @@ import { Field, Input } from '@/components/ui/input'
 import { trackMeta } from '@/domain/meta-pixel'
 import { writeSession } from '@/domain/session'
 import { api } from '@/lib/api'
+import { syncCampaignTouch } from '@/lib/campaign-touch'
 
 export default function Page() {
   const [error, setError] = useState('')
@@ -18,6 +19,7 @@ export default function Page() {
     setError('')
     const data = new FormData(event.currentTarget)
     try {
+      if (document.cookie.split('; ').includes('tla_consent=marketing')) await syncCampaignTouch()
       const result = await api<{ role?: string; user?: { id: string; status: string; canSubmitLink: boolean }; message?: string }>('/v1/auth/register', {
         method: 'POST',
         body: JSON.stringify({

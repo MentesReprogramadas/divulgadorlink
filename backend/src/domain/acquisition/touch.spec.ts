@@ -18,4 +18,10 @@ describe('toque de campanha', () => {
   it('rejeita cookie vazio', () => {
     expect(parseTouch(undefined)).toBeNull()
   })
+
+  it('descarta texto livre opcional sem perder a campanha válida', () => {
+    const raw = JSON.stringify({ ...JSON.parse(good), content: 'Video Instagram', term: 'contato@example.com' })
+    expect(parseTouch(encodeURIComponent(raw))).toEqual({ ...JSON.parse(good), content: '', term: '' })
+    expect(parseTouch(JSON.stringify({ ...JSON.parse(good), content: { unexpected: true } }))).toBeNull()
+  })
 })
