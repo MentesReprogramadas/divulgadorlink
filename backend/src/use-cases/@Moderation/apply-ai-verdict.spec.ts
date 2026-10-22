@@ -10,3 +10,12 @@ describe('veredito', () => {
     expect(applyAiVerdict(null, threshold)).toBe('ADMIN')
   })
 })
+
+it('zero dispensa a IA; valores positivos mantêm o parecer e a confiança', () => {
+  expect(applyAiVerdict(null, 0)).toBe('PUBLISH')
+  expect(applyAiVerdict({ pass: false, confidence: 0, reasons: ['Recusado'] }, 0)).toBe('PUBLISH')
+  expect(applyAiVerdict({ pass: true, confidence: 0.85, reasons: [] }, 0.85)).toBe('PUBLISH')
+  expect(applyAiVerdict({ pass: false, confidence: 1, reasons: [] }, 0.01)).toBe('ADMIN')
+  for (const threshold of [-1, 1.01, NaN, Infinity]) expect(applyAiVerdict(null, threshold)).toBe('ADMIN')
+  for (const confidence of [NaN, -1, 1.01]) expect(applyAiVerdict({ pass: true, confidence, reasons: [] }, 0.5)).toBe('ADMIN')
+})

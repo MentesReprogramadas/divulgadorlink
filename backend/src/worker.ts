@@ -33,7 +33,7 @@ import { runEvolutionCycle, queueTextReview, queueCaseReview } from '@/use-cases
 import { enqueueEvolutionCycle, EVOLUTION_QUEUE_NAME } from '@/adapters/queues/enqueue-evolution'
 import { logDomainEvent, logJob } from '@/observability/logger'
 import { applyAiVerdict } from '@/use-cases/@Moderation/apply-ai-verdict'
-import { publishSubmission, settleSubmission } from '@/use-cases/@Moderation/settle-submission'
+import { publishSubmission, recordSubmissionReview, settleSubmission } from '@/use-cases/@Moderation/settle-submission'
 import { PrismaConfigsRepository } from '@/repositories/configs-repository'
 import { embedLink } from '@/use-cases/@Search/embed-link'
 import { runExpirePix, runNotifyRefundFailed, runRefundPix } from '@/use-cases/@Payments/payment-jobs'
@@ -225,6 +225,7 @@ export function createWorker(connection: Redis, deps: WorkerDeps, queueName = QU
               }
             },
             publish: publishSubmission,
+            recordReview: recordSubmissionReview,
           })
           if (decision === 'ADMIN') {
             const review = await prisma.moderationCase.findFirst({ where: { linkId: data.linkId, closedAt: null } })

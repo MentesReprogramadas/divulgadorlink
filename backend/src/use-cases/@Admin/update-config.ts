@@ -84,7 +84,7 @@ export class UpdateAdminConfigUseCase {
       throw new ConfigAuthorizeDeniedError(authorizeDenialCode(authorizeContext))
     }
 
-    if (input.value.length === 0) {
+    if (input.value.trim().length === 0) {
       throw new InvalidConfigValueError()
     }
     if (input.key === 'SHOW_IMPRESSIONS' && input.value !== '0' && input.value !== '1') {
@@ -92,7 +92,8 @@ export class UpdateAdminConfigUseCase {
     }
 
     try {
-      readConfig({ [input.key]: input.value }, input.key)
+      const value = readConfig({ [input.key]: input.value }, input.key)
+      if (input.key === 'MODERATION_AUTO_APPROVE_THRESHOLD' && (value < 0 || value > 1)) throw new InvalidConfigValueError()
     } catch {
       throw new InvalidConfigValueError()
     }

@@ -113,7 +113,19 @@ async function writeFlag(request: FastifyRequest, reply: FastifyReply) {
   }
 }
 
+async function readModeration(request: FastifyRequest, reply: FastifyReply) {
+  const tenant = await requireAdmin(request, reply)
+  if (!tenant) return reply
+  const row = await getConfigsRepository().findByTenantAndKey(tenant.id, 'MODERATION_AUTO_APPROVE_THRESHOLD')
+  const threshold = row ? Number(row.value) : NaN
+  if (!row || !row.value.trim() || !Number.isFinite(threshold) || threshold < 0 || threshold > 1) {
+    return reply.status(503).send({ message: 'O limiar de aprovação está ausente ou inválido.' })
+  }
+  return reply.send({ threshold })
+}
+
 export async function registerSettingsRoutes(app: FastifyInstance) {
+  app.get('/admin/settings/moderation', { onRequest: [verifyJWT] }, readModeration)
   app.get('/admin/settings/impressions', { onRequest: [verifyJWT] }, readFlag)
   app.patch('/admin/settings/impressions', { onRequest: [verifyJWT] }, writeFlag)
 }

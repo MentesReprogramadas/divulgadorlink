@@ -42,7 +42,7 @@ export async function settleProposedText(input: {
   const threshold = readConfig(config ? { MODERATION_AUTO_APPROVE_THRESHOLD: config.value } : {}, 'MODERATION_AUTO_APPROVE_THRESHOLD')
   let verdict: ModelVerdict = null
   let providerFailed = false
-  if (input.judge) {
+  if (threshold !== 0 && input.judge) {
     try {
       verdict = await input.judge({ name: proposedName, description: proposedDescription, niche: link.niche.name })
     } catch (error) {
@@ -75,7 +75,7 @@ export async function settleProposedText(input: {
         },
       })
     }
-    const explanation = verdict ? aiApprovalSnapshot({ verdict, threshold }) : null
+    const explanation = aiApprovalSnapshot({ verdict, threshold })
     const audit = await tx.auditLog.create({ data: {
       tenantId: link.tenantId,
       actorId: null,
@@ -88,14 +88,13 @@ export async function settleProposedText(input: {
         provider: providerFailed ? 'error' : decided.provider,
         confidence: verdict?.confidence ?? null,
         threshold,
-        reasons: explanation?.reasons ?? [],
+        reasons: explanation.reasons,
+        decisionReason: explanation.decisionReason,
       },
       requestId: null,
     } })
-    if (decided.decision === 'PUBLISH' && explanation) {
-      const updated = await tx.link.findUniqueOrThrow({ where: { id: link.id }, include: { owner: { select: { name: true } }, network: true, niche: true } })
-      await operationalEvent(tx, { tenantId: link.tenantId, kind: 'AI_APPROVED', resourceId: link.id, occurrenceKey: `ai-approved:${audit.id}`, payload: { ...linkNotificationSnapshot(updated), ...explanation, type: 'Alteração de texto' } })
-    }
+    const updated = await tx.link.findUniqueOrThrow({ where: { id: link.id }, include: { owner: { select: { name: true } }, network: true, niche: true } })
+    await operationalEvent(tx, { tenantId: link.tenantId, kind: decided.decision === 'PUBLISH' ? 'AI_APPROVED' : 'AI_REVIEWED', resourceId: link.id, occurrenceKey: `ai-text:${audit.id}`, payload: { ...linkNotificationSnapshot(updated), name: proposedName, description: proposedDescription, ...explanation, type: 'Alteração de texto' } })
     if (decided.decision === 'ADMIN') await queueTextReview(tx, link.tenantId, link.id)
     return decided.decision
   })

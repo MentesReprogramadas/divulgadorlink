@@ -18,7 +18,8 @@ export async function validateRedirectContent(db: Prisma.TransactionClient, tena
   if (humanApproved) return destination
   if (hitsBlocklist({ text: input.label, selectedNiche: '', nicheNames: [], terms: terms.map(t => t.term) })) throw new ContentReviewRequired()
   const limit = Number(threshold?.value)
-  if (!threshold || !Number.isFinite(limit) || limit < 0 || limit > 1) throw new ContentReviewRequired()
+  if (!threshold || !threshold.value.trim() || !Number.isFinite(limit) || limit < 0 || limit > 1) throw new ContentReviewRequired()
+  if (limit === 0) return destination
   let verdict: ModelVerdict
   try { verdict = await ports.judge({ name: input.label, description: input.label, niche: 'Convite permanente: avaliar conteúdo permitido, sem exigir nicho do catálogo' }) }
   catch { throw new ContentReviewRequired() }

@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers'
 import { notFound } from 'next/navigation'
+import { ModerationSettings } from '@/features/administration/components/moderation-settings'
 import { SettingsEditor } from './editor'
 import { FacetSummaries } from './facet-summaries'
 import { WorkspaceSection } from '@/components/layout/workspace-section'
@@ -10,6 +11,7 @@ export default async function Page() {
   return (
     <>
       <WorkspaceSection title="Exibição do catálogo"><SettingsEditor /></WorkspaceSection>
+      <WorkspaceSection title="Aprovação pela IA"><ModerationSettings /></WorkspaceSection>
       <FacetSummaries />
     </>
   )

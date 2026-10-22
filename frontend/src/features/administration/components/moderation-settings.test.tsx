@@ -1,0 +1,40 @@
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+import { api } from '@/lib/api'
+import { ModerationSettings } from './moderation-settings'
+vi.mock('@/lib/api', () => ({ api: vi.fn() }))
+afterEach(cleanup)
+beforeEach(() => { vi.mocked(api).mockReset(); vi.mocked(api).mockResolvedValue({ status: 200, body: { threshold: 0.85, decisions: [] } }) })
+it('ajusta o limiar sem salvar ao arrastar e envia somente o valor ao confirmar', async () => {
+  render(<ModerationSettings />)
+  const slider = await screen.findByRole('slider', { name: 'Limiar de aprovação da IA' })
+  expect(slider.getAttribute('value')).toBe('85')
+  fireEvent.change(slider, { target: { value: '0' } })
+  expect(screen.getByText('Aprovação automática sem IA.')).toBeTruthy()
+  expect(vi.mocked(api)).toHaveBeenCalledTimes(1)
+  vi.mocked(api).mockResolvedValueOnce({ status: 200, body: { config: { value: '0' } } })
+  fireEvent.click(screen.getByRole('button', { name: 'Salvar limiar' }))
+  await screen.findByText(/Limiar salvo/)
+  expect(vi.mocked(api)).toHaveBeenLastCalledWith('/v1/admin/config/MODERATION_AUTO_APPROVE_THRESHOLD', { method: 'PATCH', body: '{"value":"0"}' })
+  expect(screen.getByText('Valor salvo: 0%')).toBeTruthy()
+})
+it('falha ao salvar mantém o ajuste e o valor anteriormente salvo', async () => {
+  render(<ModerationSettings />)
+  const slider = await screen.findByRole('slider')
+  fireEvent.change(slider, { target: { value: '10' } })
+  vi.mocked(api).mockRejectedValueOnce(new Error('offline'))
+  fireEvent.click(screen.getByRole('button', { name: 'Salvar limiar' }))
+  await screen.findByRole('alert')
+  expect(slider.getAttribute('value')).toBe('10')
+  expect(screen.getByText('Valor salvo: 85%')).toBeTruthy()
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Salvar limiar' }).hasAttribute('disabled')).toBe(false))
+})
+it('falha no carregamento não permite salvar um zero falso e oferece recuperação', async () => {
+  vi.mocked(api).mockResolvedValueOnce({ status: 503, body: { message: 'Configuração indisponível' } })
+  render(<ModerationSettings />)
+  await screen.findByRole('alert')
+  expect(screen.queryByRole('slider')).toBeNull()
+  expect(screen.queryByRole('button', { name: 'Salvar limiar' })).toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: 'Tentar carregar novamente' }))
+  await screen.findByRole('slider')
+})

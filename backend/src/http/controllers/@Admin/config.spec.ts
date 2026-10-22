@@ -176,3 +176,45 @@ describe('PATCH /api/v1/admin/config/:key', () => {
     expect(row?.value).toBe('0.35')
   })
 })
+
+describe('limiar de aprovação da IA', () => {
+  const key = 'MODERATION_AUTO_APPROVE_THRESHOLD'
+  beforeEach(async () => {
+    resetConfigsRepositoryForTest()
+    resetAuditLogsRepositoryForTest()
+    await getConfigsRepository().create({ tenantId: TENANT_ID, key, value: '0.85' })
+  })
+  it('lê o valor salvo, aceita limites e audita a alteração', async () => {
+    const token = accessToken({ sub: 'admin-1', role: 'ADMIN', tenantId: TENANT_ID })
+    const get = await app.inject({ method: 'GET', url: '/api/v1/admin/settings/moderation', headers: { host: HOST, authorization: `Bearer ${token}` } })
+    expect(get.statusCode).toBe(200)
+    expect(get.json()).toEqual({ threshold: 0.85 })
+    for (const value of ['0', '0.1', '1']) {
+      const result = await patchConfig({ token, key, body: { value } })
+      expect(result.statusCode).toBe(200)
+      expect(result.json().audit.after.value).toBe(value)
+    }
+  })
+  it('rejeita fora da escala, vazio e injeção de tenant sem alterar configuração', async () => {
+    const token = accessToken({ sub: 'admin-1', role: 'ADMIN', tenantId: TENANT_ID })
+    for (const value of ['-0.01', '1.01', '10', 'NaN', 'Infinity', '   ', '']) expect((await patchConfig({ token, key, body: { value } })).statusCode).toBe(400)
+    expect((await patchConfig({ token, key, body: { value: '0', tenantId: 'outro' } })).statusCode).toBe(400)
+    expect((await getConfigsRepository().findByTenantAndKey(TENANT_ID, key))?.value).toBe('0.85')
+  })
+  it('protege leitura e escrita contra usuário e outro tenant', async () => {
+    for (const [role, tenantId, status] of [['USER', TENANT_ID, 404], ['ADMIN', 'outro', 403]] as const) {
+      const token = accessToken({ sub: 'actor', role, tenantId })
+      expect((await app.inject({ method: 'GET', url: '/api/v1/admin/settings/moderation', headers: { host: HOST, authorization: `Bearer ${token}` } })).statusCode).toBe(status)
+      expect((await patchConfig({ token, key, body: { value: '0' } })).statusCode).toBe(status)
+    }
+  })
+})
+
+it('leitura sem configuração ou com valor inválido não oferece aprovação em zero', async () => {
+  const token = accessToken({ sub: 'admin-1', role: 'ADMIN', tenantId: TENANT_ID })
+  const read = () => app.inject({ method: 'GET', url: '/api/v1/admin/settings/moderation', headers: { host: HOST, authorization: `Bearer ${token}` } })
+  resetConfigsRepositoryForTest()
+  expect((await read()).statusCode).toBe(503)
+  await getConfigsRepository().create({ tenantId: TENANT_ID, key: 'MODERATION_AUTO_APPROVE_THRESHOLD', value: ' ' })
+  expect((await read()).statusCode).toBe(503)
+})

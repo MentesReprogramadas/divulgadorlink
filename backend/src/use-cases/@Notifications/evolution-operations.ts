@@ -146,10 +146,16 @@ export function renderOperationalMessage(event: Pick<OperationalMessage, 'id' | 
     ].join('\n\n')
   }
   if (event.kind === 'NEW_USER') return ['👤 *NOVO USUÁRIO*', ...details, '*Cadastro*\nConta criada; a confirmação dos contatos é uma etapa separada.', `*Painel*\n${origin.replace(/\/$/, '')}/admin/usuarios`].join('\n\n')
-  if (event.kind === 'AI_APPROVED') {
+  if (event.kind === 'AI_APPROVED' || event.kind === 'AI_REVIEWED') {
     const reasons = Array.isArray(p.reasons) ? p.reasons.filter((reason): reason is string => typeof reason === 'string').map(reason => safeText(reason, 240)).filter(Boolean).slice(0, 5) : []
     const percent = (value: unknown) => typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 1 ? `${(value * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%` : 'Não informado'
-    return ['🤖 *APROVADO PELA IA*', ...details, `*Resultado*\n${p.type === 'Alteração de texto' ? 'Alteração de texto publicada.' : 'Link publicado.'}`, `*Justificativa da IA*\n${reasons.length ? reasons.map(reason => `• ${reason}`).join('\n') : 'A IA não forneceu uma justificativa textual.'}`, `*Critério de aprovação*\nConfiança informada pela IA: ${percent(p.confidence)}\nLimiar configurado: ${percent(p.threshold)}`, '*Escopo da análise*\nNome e descrição em relação à categoria e às regras de conteúdo. Não verifica o conteúdo interno do grupo nem garante a segurança do destino.', `*Painel*\n${panel}`].join('\n\n')
+    const approved = event.kind === 'AI_APPROVED'
+    return [approved ? p.threshold === 0 ? '*APROVADO POR CONFIGURAÇÃO*' : '🤖 *APROVADO PELA IA*' : '*IA NÃO APROVOU AUTOMATICAMENTE*', ...details,
+      `*Resultado*\n${approved ? p.type === 'Alteração de texto' ? 'Alteração de texto publicada.' : 'Link publicado.' : 'Encaminhado para revisão humana. Não é uma recusa definitiva.'}`,
+      typeof p.decisionReason === 'string' ? `*Motivo da decisão*\n${safeText(p.decisionReason, 400)}` : '',
+      `*Justificativa da IA*\n${p.threshold === 0 ? 'Limiar em 0%: análise da IA desativada por configuração.' : reasons.length ? reasons.map(reason => `• ${reason}`).join('\n') : 'A IA não forneceu uma justificativa textual.'}`,
+      `*Critério de aprovação*\nConfiança informada pela IA: ${percent(p.confidence)}\nLimiar configurado: ${percent(p.threshold)}`,
+      '*Escopo da análise*\nNome e descrição em relação à categoria e às regras de conteúdo. Não verifica o conteúdo interno do grupo nem garante a segurança do destino.', `*Painel*\n${panel}`].filter(Boolean).join('\n\n')
   }
   if (event.kind.startsWith('REVIEW_')) {
     return [p.appeal ? `📣 *CONTESTAÇÃO • ${type}*` : event.kind === 'REVIEW_TEXT' ? '✏️ *ALTERAÇÃO DE TEXTO*' : `${symbol} *${p.resourceType ? type + ' EM REVISÃO' : safeText(String(p.type ?? 'Novo link')).toUpperCase()}*`, ...details, p.appeal ? `*Contestação*\n${safeText(String(p.appeal), 240)}` : '', '*Ação*\nResponda: *APROVAR* ou *RECUSAR motivo*.', `Revisão: ${event.id}\nValidade: 24h\nPainel: ${panel}`].filter(Boolean).join('\n\n')

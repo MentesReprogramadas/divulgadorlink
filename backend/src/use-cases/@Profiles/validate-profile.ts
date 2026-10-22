@@ -38,7 +38,8 @@ export async function validateProfile(db: Prisma.TransactionClient, tenantId: st
   const blocklisted = profileHasNewBlockedSignals(changes.text, terms.map(t => t.term), approvedReal)
   if (blocklisted) throw new ContentReviewRequired()
   const limit = Number(threshold?.value)
-  if (!Number.isFinite(limit) || limit < 0 || limit > 1 || !threshold) throw new ContentReviewRequired()
+  if (!Number.isFinite(limit) || limit < 0 || limit > 1 || !threshold || !threshold.value.trim()) throw new ContentReviewRequired()
+  if (limit === 0) return result
   let verdict: ModelVerdict
   try {
     verdict = await ports.judge({

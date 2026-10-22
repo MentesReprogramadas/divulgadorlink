@@ -62,3 +62,19 @@ describe('settleSubmission', () => {
     })).rejects.toThrow('timeout')
   })
 })
+
+it('limiar zero publica sem chamar o modelo, sem atribuir parecer à IA', async () => {
+  const judge = vi.fn(async () => { throw new Error('Não deve consultar o provedor') })
+  const publish = vi.fn(async () => undefined)
+  expect(await settleSubmission({ linkId: 'zero', judge, load: async () => pending, readThreshold: async () => 0, publish })).toBe('PUBLISH')
+  expect(judge).not.toHaveBeenCalled()
+  expect(publish).toHaveBeenCalledWith('zero', { verdict: null, threshold: 0 })
+  expect(await settleSubmission({ linkId: 'sem-chave', judge: null, load: async () => pending, readThreshold: async () => 0, publish })).toBe('PUBLISH')
+})
+it('registra o motivo da revisão sem chamar publicação', async () => {
+  const publish = vi.fn(async () => undefined), recordReview = vi.fn(async () => undefined)
+  const verdict = { pass: false, confidence: 0.99, reasons: ['Conteúdo incompatível'] }
+  expect(await settleSubmission({ linkId: 'recusado', judge: async () => verdict, load: async () => pending, readThreshold: async () => 0.85, publish, recordReview })).toBe('ADMIN')
+  expect(recordReview).toHaveBeenCalledWith('recusado', expect.objectContaining({ verdict, threshold: 0.85, decisionReason: expect.stringContaining('não aprovou') }))
+  expect(publish).not.toHaveBeenCalled()
+})

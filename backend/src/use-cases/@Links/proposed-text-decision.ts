@@ -9,7 +9,7 @@ export function decideProposedText(input: {
   blocklisted: boolean
   verdict: ModelVerdict
   threshold: number
-}): { decision: 'PUBLISH' | 'ADMIN'; visibleName: string; provider: 'adapter' | 'unavailable' } {
+}): { decision: 'PUBLISH' | 'ADMIN'; visibleName: string; provider: 'adapter' | 'unavailable' | 'disabled' } {
   const decision = input.blocklisted ? 'ADMIN' : applyAiVerdict(input.verdict, input.threshold)
   const edited = editLinkText({
     publishedName: input.publishedName,
@@ -20,6 +20,6 @@ export function decideProposedText(input: {
   return {
     decision,
     visibleName: edited.visibleName,
-    provider: input.verdict ? 'adapter' : 'unavailable',
+    provider: input.threshold === 0 ? 'disabled' : input.verdict ? 'adapter' : 'unavailable',
   }
 }
