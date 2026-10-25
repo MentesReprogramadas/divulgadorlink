@@ -34,6 +34,12 @@ async function save(value=content(),expectedVersion=0){const r=await call('PATCH
 async function invite(role='EDITOR',requestKey=randomUUID()){const p=await db.profile.findUniqueOrThrow({where:{tenantId_ownerId:{tenantId:tenant,ownerId:owner}}});const r=await call('POST','me/profile/invitations',{resourceId:p.id,email:other+'@fixture.test',role,requestKey});expect(r.statusCode,r.body).toBe(200);return {...r.json(),profileId:p.id,requestKey}}
 const accept=(token:string,actor=other)=>call('POST','invitations/accept',{token},actor)
 const shared=(method:'GET'|'PATCH'|'POST',id:string,path='',body?:unknown,actor=other)=>call(method,'me/profile'+path,body,actor,tenant,tenant,{'x-profile-id':id})
+it('convites de páginas diferentes isolam a chave de envio do mesmo pedido do navegador',async()=>{
+ await save();const another=await call('PATCH','me/profile',{content:{...content(),slug:'pagina-f38-other'},expectedVersion:0},other);expect(another.statusCode,another.body).toBe(200)
+ const pages=await db.profile.findMany({where:{tenantId:tenant}}),requestKey=randomUUID()
+ for(const [actor,recipient] of [[owner,other],[other,owner]]){const page=pages.find(row=>row.ownerId===actor)!;const sent=await call('POST','me/profile/invitations',{resourceId:page.id,email:recipient+'@fixture.test',role:'EDITOR',requestKey},actor);expect(sent.statusCode,sent.body).toBe(200)}
+ expect(readOutbound(other+'@fixture.test')[0].idempotencyKey).not.toBe(readOutbound(owner+'@fixture.test')[0].idempotencyKey)
+})
 it('conta sem e-mail confirmado não usa convites de página para enviar mensagens',async()=>{
  await save();await db.userIdentifier.updateMany({where:{userId:owner,tenantId:tenant},data:{confirmedAt:null}})
  const profile=await db.profile.findUniqueOrThrow({where:{tenantId_ownerId:{tenantId:tenant,ownerId:owner}}})

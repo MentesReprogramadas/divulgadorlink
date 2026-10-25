@@ -24,7 +24,7 @@ export async function inviteWorkspace(db:PrismaClient,a:Actor,input:{email:strin
  const id=randomUUID(),token=invitationToken(),digest=tokenDigest(token),expiresAt=new Date(Date.now()+7*86400000)
  await tx.$executeRaw`INSERT INTO workspace_invitations(id,"tenantId","ownerId",grants,"recipientHash","tokenHash","requestKey","expiresAt") VALUES(${id},${a.tenantId},${a.sub},${JSON.stringify(grants)}::jsonb,${recipientHash},${digest},${input.requestKey},${expiresAt})`
  await audit(tx,a,'workspace.invited',id,{grants});return {token}
- });return {...result,emailDelivery:result.token?await sendInvitationEmail(db,{tenantId:a.tenantId,kind:'workspace_invitation',email:input.email,token:result.token,requestId:input.requestKey}):null}}
+ });return {...result,emailDelivery:result.token?await sendInvitationEmail(db,{tenantId:a.tenantId,kind:'workspace_invitation',email:input.email,token:result.token,requestId:tokenDigest(result.token)}):null}}
 export async function acceptWorkspace(db:PrismaClient,a:Actor,token:string){return db.$transaction(async tx=>{
  const lookup=await tx.$queryRaw<Invite[]>`SELECT * FROM workspace_invitations WHERE "tokenHash"=${tokenDigest(token)} AND "tenantId"=${a.tenantId}`
  if(!lookup[0])throw new ProfileError(404,'Convite não encontrado.')

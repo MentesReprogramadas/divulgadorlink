@@ -35,6 +35,15 @@ async function save(value=content(),expectedVersion=0){const r=await call('PATCH
 const get=(revision='draft')=>call('GET','me/profile/export?revision='+revision)
 
 const grants={page:{read:true,write:true},campaigns:{read:true,write:false}}
+it('contas diferentes podem reutilizar o identificador do pedido sem colidir no envio',async()=>{
+ const requestKey=randomUUID()
+ const first=await call('POST','team/invitations',{email:other+'@fixture.test',grants,requestKey})
+ const second=await call('POST','team/invitations',{email:owner+'@fixture.test',grants,requestKey},other)
+ expect(first.statusCode,first.body).toBe(200);expect(second.statusCode,second.body).toBe(200)
+ const a=readOutbound(other+'@fixture.test')[0],b=readOutbound(owner+'@fixture.test')[0]
+ expect(a.idempotencyKey).toBeTruthy();expect(b.idempotencyKey).toBeTruthy()
+ expect(a.idempotencyKey).not.toBe(b.idempotencyKey)
+})
 it('convite de equipe chega por e-mail uma vez, com o tenant e o escopo corretos',async()=>{
  const input={email:other+'@fixture.test',grants,requestKey:randomUUID()}
  const sent=await call('POST','team/invitations',input)

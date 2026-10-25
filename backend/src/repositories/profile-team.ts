@@ -39,7 +39,7 @@ export async function createInvitation(db:PrismaClient,actor:ProfileActor,input:
  if(existing){if(existing.recipientHash!==recipientHash||existing.role!==input.role)throw new ProfileError(409,'Este pedido já foi usado com outros dados.');return {invitation:invitationDto(existing),token:null}}
  const token=invitationToken(),now=profileNow(),row=await tx.profileInvitation.create({data:{id:randomUUID(),profileId:profile.id,tenantId:actor.tenantId,ownerId:actor.ownerId,role:input.role,recipientHash,tokenHash:tokenDigest(token),requestKey:input.requestKey,expiresAt:new Date(now.getTime()+7*86400000),createdAt:now}})
  await audit(tx,actor,profile.id,'profile.team.invited',{invitationId:row.id,role:row.role});return {invitation:invitationDto(row),token}
- });return {...result,emailDelivery:result.token?await sendInvitationEmail(db,{tenantId:actor.tenantId,kind:'profile_invitation',email:input.email,token:result.token,requestId:input.requestKey}):null}}
+ });return {...result,emailDelivery:result.token?await sendInvitationEmail(db,{tenantId:actor.tenantId,kind:'profile_invitation',email:input.email,token:result.token,requestId:result.invitation.id}):null}}
 export async function acceptInvitation(db:PrismaClient,actor:ProfileActor,token:string){return db.$transaction(async tx=>{
  const found=await tx.profileInvitation.findUnique({where:{tokenHash:tokenDigest(token)}});if(!found||found.tenantId!==actor.tenantId)throw new ProfileError(404,'Convite não encontrado.')
  await tx.$queryRaw`SELECT id FROM users WHERE id=${found.ownerId} AND "tenantId"=${actor.tenantId} FOR UPDATE`

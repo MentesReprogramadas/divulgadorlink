@@ -2,7 +2,7 @@
 
 ## Resultado
 
-Convites de equipe da conta, colaboradores da página, solicitações de acesso da agência e transferências de titularidade passam a enviar e-mail pelo Resend existente. O envio acontece após confirmar a transação. Repetições idempotentes não enviam outro e-mail. O remetente precisa estar ativo e com e-mail confirmado; o destinatário continua precisando confirmar sua própria identidade e aceitar as permissões existentes.
+Convites de equipe da conta, colaboradores da página, solicitações de acesso da agência e transferências de titularidade passam a enviar e-mail pelo Resend existente. O envio acontece após confirmar a transação. Repetições idempotentes não enviam outro e-mail. A chave de envio deriva do identificador do convite criado no servidor; pedidos com o mesmo identificador do navegador em contas/páginas distintas permanecem independentes. O remetente precisa estar ativo e com e-mail confirmado; o destinatário continua precisando confirmar sua própria identidade e aceitar as permissões existentes.
 
 As telas distinguem envio aceito pelo provedor de falha de envio. Nos convites de equipe, o link continua disponível na criação como alternativa. Se o envio falhar, é possível revogar e criar outro convite para tentar novamente. Pedidos de agência e transferência continuam disponíveis nos respectivos painéis, com o erro de entrega explícito. Nenhum envio concede acesso por si só.
 
@@ -34,6 +34,7 @@ Aceitar equipe, aprovar acesso a uma conta, transferir titularidade, consentimen
 
 - Backend: lint, typecheck, build e **676 testes unitários** aprovados na cópia isolada.
 - Integração completa: **460 testes**, em **56 arquivos**, com PostgreSQL/Redis descartáveis.
+- Isolamento de entrega: testes reproduziram a colisão de chaves entre contas/páginas com o mesmo pedido do navegador; a correção foi verificada em **30 testes** de equipe, incluindo as duas regressões.
 - Últimos ajustes: **14 testes** de equipe de página e **29 testes** de mídia/revisão operacional aprovados, incluindo remetente sem confirmação, preservação da imagem anterior e criação da revisão humana após a IA. São repetições focais, não testes adicionais aos totais anteriores.
 - Frontend: lint, tipos de aplicação/E2E e **764 testes** aprovados na cópia inicial; após incorporar a correção da home `8b40ad21`, os **3 testes** de ondas também passaram. Total combinado de 767, sem apresentar como uma única execução integral da nova base.
 - **44 casos E2E** aprovados, incluindo setup, e-mail de recuperação e login com a nova senha, convites em duas sessões, revogação, escopo administrativo, anexos em 0%, revisão humana e quatro capturas de configuração.
@@ -51,8 +52,8 @@ O índice Graphify foi atualizado incrementalmente por extração local de códi
 - Links de recuperação emitidos antes da mudança devem ser solicitados novamente. Trocar a senha não revoga sessões já emitidas; isso mantém o contrato anterior de sessão.
 - A IA recebe os pixels das imagens anexadas permitidas pela plataforma. Vídeos externos são representados pelos seus campos/URLs; não há inspeção integral de vídeos nem do conteúdo interno de grupos privados.
 - O limiar vale para as próximas análises; salvar a configuração não reprocessa em massa decisões anteriores.
-- A publicação ocorre pelo CI/CD da main, após os gates existentes. O run associado ao SHA registra o resultado do deploy e as verificações de saúde.
-- Reversão: reverter o commit desta entrega e passar novamente pelo CI/CD. Não há migração de banco nesta mudança. Reverter código não desfaz e-mails enviados, senhas alteradas ou aprovações já gravadas.
+- Os gates de qualidade da main foram preservados. A etapa automática de deploy do GitHub informou ausência de `COOLIFY_URL` e `COOLIFY_TOKEN`; a publicação usa o conector Coolify após os checks do SHA, fixando esse mesmo commit e conferindo cada deployment e a saúde das aplicações. As credenciais do GitHub não foram alteradas.
+- Reversão: reverter os commits desta entrega e passar novamente pelo CI/CD. Não há migração de banco nesta mudança. Reverter código não desfaz e-mails enviados, senhas alteradas ou aprovações já gravadas.
 
 ## Referência técnica
 
