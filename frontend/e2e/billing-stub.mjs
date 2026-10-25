@@ -47,7 +47,7 @@ export async function billingStub(req,res,raw,runtime){
   const params=new URLSearchParams(raw);let result
   if(method==='GET'&&path.startsWith('/v1/prices/'))result=price(path.split('/').at(-1))
   if(method==='POST'&&path==='/v1/customers'){result={id:next('cus'),object:'customer',livemode:false};customers.set(result.id,result)}
-  if(method==='POST'&&path==='/v1/checkout/sessions'){const id=next('cs');result={id,object:'checkout.session',customer:params.get('customer'),mode:'subscription',status:'open',livemode:false,subscription:null,url:'https://checkout.stripe.com/c/pay/'+id,expires_at:Number(params.get('expires_at')),fixturePrice:params.get('line_items[0][price]'),success_url:params.get('success_url')};sessions.set(id,result)}
+  if(method==='POST'&&path==='/v1/checkout/sessions'){const id=next('cs');result={id,object:'checkout.session',customer:params.get('customer'),mode:'subscription',status:'open',livemode:false,subscription:null,url:'https://checkout.contavera.com/c/pay/'+id,expires_at:Number(params.get('expires_at')),fixturePrice:params.get('line_items[0][price]'),success_url:params.get('success_url')};sessions.set(id,result)}
   if(method==='GET'&&path==='/v1/checkout/sessions')result=list([...sessions.values()].filter(row=>row.subscription===url.searchParams.get('subscription')))
   if(path.startsWith('/v1/checkout/sessions/')){const id=path.split('/')[4],session=sessions.get(id);if(session){if(method==='POST'&&path.endsWith('/expire'))session.status='expired';result=session}}
   if(path.startsWith('/v1/subscriptions/')){const sub=subscriptions.get(path.split('/').at(-1));if(sub){if(method==='POST')sub.cancel_at_period_end=params.get('cancel_at_period_end')==='true';if(method==='DELETE')sub.status='canceled';result=sub}}

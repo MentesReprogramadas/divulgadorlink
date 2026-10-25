@@ -12,6 +12,10 @@ node build/scripts/configure-profile-plans.js --apply --fiscal-reviewed --host "
 
 Executar dentro do container da API após as migrações, com as três variáveis de assinaturas já configuradas. A rotina mantém o subdomínio fora do Premium quando esse recurso não está entregue no ambiente. A confirmação fiscal não ativa cálculo automático de impostos nem altera o webhook de pagamentos avulsos.
 
+A conta Contavera utiliza `checkout.contavera.com` como [domínio próprio do Stripe Checkout](https://docs.stripe.com/payments/checkout/custom-domains). Backend e frontend aceitam somente essa origem HTTPS e a origem padrão `checkout.stripe.com`, preservando a restrição a `/c/pay/`, sem credenciais ou portas alternativas. Os testes de fronteira e do SDK cobrem as duas origens; o provedor local do E2E usa o domínio da Contavera.
+
+A revisão desta compatibilidade passou nos 26 testes unitários afetados e nos 17 E2E de assinatura em desktop/mobile. Dois checkouts em modo real devolveram os valores configurados e páginas HTTP 200; ambos foram encerrados sem pagamento, e o cliente temporário foi removido. Os eventos de encerramento chegaram ao webhook habilitado, sem entregas pendentes. Esse ensaio não comprova liquidação de um pagamento real; confirmação, renovação e cancelamento continuam cobertos pelos testes com provedor isolado.
+
 Registro de 17/10/2026: **VALIDADA LOCALMENTE; S0–S6 concluídas, S7 remoto/comercial EM REVISÃO.** A implementação local foi autorizada pelo usuário; a publicação e a configuração comercial receberam autorização em 25/10/2026, conforme atualização acima.
 
 ## Decisões e alternativas — 17/10/2026

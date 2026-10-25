@@ -6,6 +6,8 @@ Extração incremental local de código: 483 arquivos reavaliados, 1.062 reutili
 
 Passagens incrementais após os ajustes de regressão e a remoção da configuração temporária do navegador: 7.782 nós e 27.875 relações no índice final. Relatórios e visualização históricos não foram reconstruídos; nenhum código foi enviado a um serviço externo pela indexação.
 
+Compatibilidade com o domínio próprio de checkout da Contavera: consulta dirigida às validações, gateway, operação e painel, confirmada nos consumidores atuais. Extração incremental local de 16 arquivos, preservando 7.782 nós e 27.875 relações; sem LLM/API ou clustering. Os testes e a conferência real do checkout são a evidência de comportamento, conforme `docs/planejamento-features/execucao-f11.md`.
+
 ## Manutenção — validação visual completa Ondas, 24/10/2026
 
 Consulta inicial dirigida ao grafo existente (7580 nós/27028 relações), confirmada nos consumidores atuais. Extrações locais incrementais `graphify extract . --code-only --max-workers 4 --no-cluster`; a última passagem reprocessou11 arquivos e reutilizou1524. Resultado final: **7741 nós/27732 relações**. Log final: `output/ondas-v24/graphify-verified.log`; passagens anteriores permanecem nos logs `graphify-final.log`, `graphify-closure.log`, `graphify-final-frozen.log` e `graphify-complete.log`. Inclui a árvore compartilhada e não atribui todas as diferenças a uma única autoria. Sem LLM/API, clustering ou envio externo; CSS, fotos, capturas, certificados e `tokens.css` mantêm os limites e exclusões anteriores. Arquivos sem símbolos continuam sujeitos aos checks reais. Evidência de aparência e comportamento em `docs/superpowers/2026-10-24-ondas-complete-visual-audit.md`, sem inferir aprovação visual a partir do grafo.

@@ -8,6 +8,6 @@ export const billingMoney = (cents: number, currency: string) => new Intl.Number
 export const billingDate = (value: string) => new Intl.DateTimeFormat('pt-BR',{dateStyle:'short',timeZone:'America/Sao_Paulo'}).format(new Date(value))
 export function safeBillingCheckout(input: string) {
   const url = new URL(input)
-  if (url.protocol !== 'https:' || url.hostname !== 'checkout.stripe.com' || url.port || url.username || url.password || !url.pathname.startsWith('/c/pay/')) throw new Error('Endereço de pagamento inválido. Atualize a situação.')
+  if (url.protocol !== 'https:' || !['checkout.stripe.com','checkout.contavera.com'].includes(url.hostname) || url.port || url.username || url.password || !url.pathname.startsWith('/c/pay/')) throw new Error('Endereço de pagamento inválido. Atualize a situação.')
   return url.href
 }

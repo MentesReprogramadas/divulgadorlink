@@ -45,6 +45,8 @@ it('F11-C04 unavailable plans remain informative and cannot start billing',async
 })
 it('F11-C05 redirects accept only hosted Stripe Checkout addresses',()=>{
   expect(safeBillingCheckout('https://checkout.stripe.com/c/pay/cs_fixture')).toContain('cs_fixture')
+  expect(safeBillingCheckout('https://checkout.contavera.com/c/pay/cs_fixture')).toBe('https://checkout.contavera.com/c/pay/cs_fixture')
+  for(const url of ['http://checkout.contavera.com/c/pay/one','https://checkout.contavera.com.evil.test/c/pay/one','https://user@checkout.contavera.com/c/pay/one','https://checkout.contavera.com:444/c/pay/one','https://checkout.contavera.com/other'])expect(()=>safeBillingCheckout(url)).toThrow()
   for(const url of ['javascript:alert(1)','https://checkout.stripe.com.evil.test/c/pay/one','https://user@checkout.stripe.com/c/pay/one','http://checkout.stripe.com/c/pay/one','https://checkout.stripe.com/other'])expect(()=>safeBillingCheckout(url)).toThrow()
 })
 it('destaca o plano disponível que inclui o recurso solicitado e mostra o resumo antes de cobrar',async()=>{

@@ -42,6 +42,7 @@ export function hostedBillingUrl(input: string): string {
   // eslint-disable-next-line no-control-regex
   if (input.length > 16384 || /[\u0000-\u0020\u007f]/u.test(input)) throw new Error('Checkout inválido.')
   const url = new URL(input)
-  if (url.origin !== 'https://checkout.stripe.com' || url.username || url.password || !url.pathname.startsWith('/c/pay/')) throw new Error('Checkout inválido.')
+  // Contavera uses its verified custom domain for Stripe-hosted Checkout.
+  if (!['https://checkout.stripe.com','https://checkout.contavera.com'].includes(url.origin) || url.username || url.password || !url.pathname.startsWith('/c/pay/')) throw new Error('Checkout inválido.')
   return url.href
 }

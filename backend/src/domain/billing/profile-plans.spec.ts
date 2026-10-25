@@ -47,5 +47,7 @@ it('F11-T04 checkout only uses an explicit internal return and the real hosted p
  expect(billingReturnPath('/painel/perfil')).toBe('/painel/perfil')
  for (const target of ['https://evil.test','//evil.test','/\\evil.test','/%2f%2fevil.test','/painel/assinatura?redirect=https://evil.test','/admin','/painel/../admin']) expect(() => billingReturnPath(target)).toThrow()
  expect(hostedBillingUrl('https://checkout.stripe.com/c/pay/cs_fixture#token')).toBe('https://checkout.stripe.com/c/pay/cs_fixture#token')
+ expect(hostedBillingUrl('https://checkout.contavera.com/c/pay/cs_fixture#token')).toBe('https://checkout.contavera.com/c/pay/cs_fixture#token')
+ for (const target of ['http://checkout.contavera.com/c/pay/x','https://checkout.contavera.com.evil.test/c/pay/x','https://user@checkout.contavera.com/c/pay/x','https://checkout.contavera.com:444/c/pay/x','https://checkout.contavera.com/other']) expect(() => hostedBillingUrl(target)).toThrow()
  for (const target of ['javascript:alert(1)','http://checkout.stripe.com/c/pay/x','https://checkout.stripe.com.evil.test','https://user@checkout.stripe.com/c/pay/x','https://checkout.stripe.com:444/c/pay/x','https://billing.stripe.com/p/session/x']) expect(() => hostedBillingUrl(target)).toThrow()
 })

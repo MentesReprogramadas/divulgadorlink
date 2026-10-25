@@ -54,12 +54,12 @@ it('F11-A07 Checkout expiration and unpaid cancellation use provider APIs withou
   expect(cancel.headers['idempotency-key']).toBe('cancel-unpaid-fixture')
 })
 
-it('F11-A01 actual SDK sends subscription Checkout with one Price, no manual payment methods or PaymentIntent, and stable idempotency tracking', async () => {
+it.each(['checkout.stripe.com','checkout.contavera.com'])('F11-A01 actual SDK sends subscription Checkout with one Price, no manual payment methods or PaymentIntent, and stable idempotency tracking (%s)', async (host) => {
   replies.set('POST /v1/customers', { id: 'cus_fixture', object: 'customer', livemode: false })
   expect(await gateway.createCustomer('account-fixture')).toBe('cus_fixture')
-  replies.set('POST /v1/checkout/sessions', { id: 'cs_fixture', object: 'checkout.session', customer: 'cus_fixture', mode: 'subscription', livemode: false, url: 'https://checkout.stripe.com/c/pay/cs_fixture', expires_at: end })
+  replies.set('POST /v1/checkout/sessions', { id: 'cs_fixture', object: 'checkout.session', customer: 'cus_fixture', mode: 'subscription', livemode: false, url: 'https://'+host+'/c/pay/cs_fixture', expires_at: end })
   const input = { customerId: 'cus_fixture', priceId: 'price_fixture', referenceId: 'internal-reference', successUrl: 'https://fixture.test/painel/assinatura', cancelUrl: 'https://fixture.test/painel/assinatura', idempotencyKey: 'random-operation-fixture', expiresAt: new Date(Date.now()+3600000) }
-  await gateway.createCheckout(input)
+  expect((await gateway.createCheckout(input)).url).toBe('https://'+host+'/c/pay/cs_fixture')
   await gateway.createCheckout(input)
   const [first, repeated] = seen.filter(row => row.path === '/v1/checkout/sessions')
   expect(first.body.get('mode')).toBe('subscription')
