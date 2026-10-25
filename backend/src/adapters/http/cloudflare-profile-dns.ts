@@ -8,7 +8,7 @@ export async function assertCloudflareHostAvailable(hostname:string,bases:Profil
  let occupied=false
  try{
   const base=Object.keys(bases).sort((a,b)=>b.length-a.length).find(base=>hostname.endsWith('.'+base)),token=process.env.CLOUDFLARE_DNS_API_TOKEN
-  const zones=z.record(z.string().regex(/^[a-f0-9]{32}$/i)).parse(JSON.parse(process.env.PROFILE_HOST_DNS_ZONES??'{}') as unknown),zoneId=base?zones[base]:undefined
+  const zones=z.record(z.string(),z.string().regex(/^[a-f0-9]{32}$/i)).parse(JSON.parse(process.env.PROFILE_HOST_DNS_ZONES??'{}') as unknown),zoneId=base?zones[base]:undefined
   if(!base||!zoneId||!token)throw unavailable()
   const signal=AbortSignal.timeout(5000)
   async function get(path:string,query?:Record<string,string>){

@@ -55,6 +55,7 @@ jobs:
         working-directory: backend
         env:
           PG_SPECS: "1"
+          AI_THRESHOLD_DATABASE_URL: postgresql://divulgador:divulgador@127.0.0.1:5433/divulgador?schema=public
           DATABASE_URL: postgresql://divulgador:divulgador@127.0.0.1:5433/divulgador?schema=public
           ANALYTICS_DATABASE_URL: postgresql://divulgador:divulgador@127.0.0.1:5433/divulgador?schema=public
           CHECKOUT_DATABASE_URL: postgresql://divulgador:divulgador@127.0.0.1:5433/divulgador?schema=public

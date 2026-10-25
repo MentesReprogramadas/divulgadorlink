@@ -19,6 +19,7 @@ async function login(page: Page) {
   if (await refuse.count()) await refuse.click()
 }
 test('support: real user reads, server write denials, compact banner, accessible exit and exact admin return', async ({ page }, info) => {
+  const originalViewport = page.viewportSize()
   await login(page)
   await page.goto(origin + '/admin/visao')
   const tab = page.getByRole('tab', { name: 'Contas', exact: true })
@@ -77,6 +78,8 @@ test('support: real user reads, server write denials, compact banner, accessible
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(321)
   expect((await banner.locator('p').first().boundingBox())!.width).toBeGreaterThan(200)
   await page.screenshot({ path: info.outputPath('support-320-zoom.png'), fullPage: true, animations: 'disabled' })
+  if (originalViewport) await page.setViewportSize(originalViewport)
+  await page.evaluate(() => { document.documentElement.style.fontSize = '' })
   await page.getByRole('button', { name: 'Sair do suporte', exact: true }).focus()
   await page.keyboard.press('Enter')
   await expect(page).toHaveURL(origin + '/admin/visao')

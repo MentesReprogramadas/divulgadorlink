@@ -47,6 +47,8 @@ function get(id = source, cursor?: string, age?: string, requestHost = host) {
 it('F03-I01/PG01/T01 eligibility, stable keysets and canonical URL deduplication before pagination', async () => {
   const ids = Array.from({ length: 9 }, (_, i) => 'a' + i + tenant)
   for (const id of ids) await seed(id)
+  // Keep the duplicate representative distinct from the cursor removed below.
+  ids.sort((a,b) => relatedShuffleKey(a, '0'.repeat(32)).localeCompare(relatedShuffleKey(b, '0'.repeat(32))))
   await seed('duplicate' + tenant, { canonicalUrl: 'https://example.com/' + ids[0] })
   await seed('same-source' + tenant, { canonicalUrl: 'https://example.com/' + source })
   for (const status of ['PENDING_MODERATION', 'UNAVAILABLE', 'PRE_REJECTED'] as const) await seed(status + tenant, { status })
@@ -55,7 +57,6 @@ it('F03-I01/PG01/T01 eligibility, stable keysets and canonical URL deduplication
   await seed('corrupt-network' + tenant, { networkId: 'r' + foreign })
   await seed('corrupt-owner' + tenant, { ownerId: 'u-' + foreign })
   await seed('unrelated' + tenant, { nicheId: 'n-other' + tenant, networkId: 'r-other' + tenant })
-  ids.sort((a,b) => relatedShuffleKey(a, '0'.repeat(32)).localeCompare(relatedShuffleKey(b, '0'.repeat(32))))
   const first = await get(); expect(first.statusCode).toBe(200); expect(first.headers['cache-control']).toBe('private, no-store')
   const a = first.json(); expect(a.items.map((r: { id: string }) => r.id)).toEqual(ids.slice(0, 6)); expect(a.nextCursor).toBeTruthy()
   expect((await get()).json()).toEqual(a)

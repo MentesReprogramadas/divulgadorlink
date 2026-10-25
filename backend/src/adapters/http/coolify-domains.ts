@@ -10,7 +10,7 @@ function hosts(value:string|null|undefined):string[]{return (value??'').split(',
 function composeHosts(raw:unknown):string[]{
  if(raw===undefined||raw===null||raw==='')return[]
  const value=typeof raw==='string'?JSON.parse(raw) as unknown:raw
- const row=z.object({domain:z.string().nullable()});return (Array.isArray(value)?z.array(row).max(500).parse(value):Object.values(z.record(row).parse(value))).flatMap(row=>hosts(row.domain))
+ const row=z.object({domain:z.string().nullable()});return (Array.isArray(value)?z.array(row).max(500).parse(value):Object.values(z.record(z.string(),row).parse(value))).flatMap(row=>hosts(row.domain))
 }
 function matches(hostname:string,occupied:string){return hostname===occupied||occupied.startsWith('*.')&&hostname.endsWith(occupied.slice(1))}
 /** Live read on every decision; provider failures never become available names. */
