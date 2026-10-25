@@ -63,7 +63,10 @@ test('F04-E01/T01/T03/T05 catálogo, persistência, duas coleções, ordenação
   await expect(links.getByRole('link', { name: 'Clube de leitura', exact: true })).toBeVisible()
   const cards = links.getByRole('article')
   await expect(cards).toHaveCount(2)
-  const firstCard = await cards.nth(0).boundingBox(), secondCard = await cards.nth(1).boundingBox()
+  const [firstCard, secondCard] = await cards.evaluateAll(elements => elements.slice(0, 2).map(element => {
+    const { x, y } = element.getBoundingClientRect()
+    return { x, y }
+  }))
   if (info.project.name.includes('mobile')) expect(secondCard!.y).toBeGreaterThan(firstCard!.y)
   else { expect(Math.abs(secondCard!.y - firstCard!.y)).toBeLessThan(2); expect(secondCard!.x).toBeGreaterThan(firstCard!.x) }
   await page.screenshot({ path: info.outputPath('favorites-grid.png'), fullPage: true, animations: 'disabled' })
