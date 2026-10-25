@@ -59,7 +59,7 @@ export function publishCampaign(db:PrismaClient,a:Actor,id:string,expected:numbe
  const refs=content.items.filter(item=>item.type==='CATALOG').map(item=>item.destination)
  if(await tx.link.count({where:{id:{in:refs},tenantId:a.tenantId,ownerId:a.ownerId,status:'PUBLISHED',niche:{tenantId:a.tenantId},network:{tenantId:a.tenantId}}})!==new Set(refs).size)throw new ProfileError(422,'Uma referência do catálogo está indisponível. Revise os links selecionados.')
  let approved:ProfileContent
- try{approved=await validateProfile(tx,a.tenantId,content,ports,false,source)}catch(error){if(error instanceof ContentReviewRequired)throw new ProfileError(409,'Revise e publique a página de origem antes de criar esta campanha.');throw error}
+ try{approved=await validateProfile(tx,a.tenantId,content,ports,false,source,a.ownerId)}catch(error){if(error instanceof ContentReviewRequired)throw new ProfileError(409,'Revise e publique a página de origem antes de criar esta campanha.');throw error}
  if(row.state==='PUBLISHED'&&JSON.stringify(profileInput.parse(row.publication))===JSON.stringify(approved))return detail(tx,row)
  const next=await tx.campaignPage.update({where:{id},data:{state:'PUBLISHED',publication:approved,publishedVersion:row.version}});await audit(tx,a,next,'published');return detail(tx,next)
  },{timeout:35000})}

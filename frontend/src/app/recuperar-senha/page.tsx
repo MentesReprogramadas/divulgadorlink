@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { ResetForm } from './reset-form'
 import { privateMetadata } from '@/domain/crawler-policy'
 
-export const metadata: Metadata = privateMetadata
+export const metadata: Metadata = { ...privateMetadata, referrer: 'no-referrer' }
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ token?: string }> }) {
   const params = await searchParams

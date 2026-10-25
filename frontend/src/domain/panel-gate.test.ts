@@ -5,6 +5,14 @@ const open = { status: 'ACTIVE', canSubmit: true }
 const pending = { status: 'ACTIVE', canSubmit: false }
 const banned = { status: 'BANNED', canSubmit: false }
 
+it('retoma convite de equipe depois do login sem aceitar destinos extras',()=>{
+ const target='/equipe/convite?scope=workspace&token='+'a'.repeat(43)
+ expect(afterAuth(true,'ACTIVE',target)).toBe(target)
+ expect(afterAuth(false,'ACTIVE',target)).toBe('/painel/verificar')
+ expect(afterAuth(true,'BANNED',target)).toBe('/painel')
+ expect(afterAuth(true,'ACTIVE',target+'&next=https://evil.test')).toBe('/painel')
+})
+
 describe('porta do painel', () => {
   it('F06 retoma a denúncia após entrar, preservando verificação e suspensão', () => {
     expect(afterAuth(true, 'ACTIVE', '/painel/denunciar/link-1')).toBe('/painel/denunciar/link-1')

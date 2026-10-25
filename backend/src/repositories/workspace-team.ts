@@ -5,6 +5,7 @@ import {ProfileError} from '@/domain/profiles/profile'
 import {invitationToken,tokenDigest,recipientDigest,invitationAvailable} from '@/domain/access/profile-access'
 import {workspaceGrants,permissionSections,type WorkspaceGrants} from '@/domain/access/workspace-permissions'
 import {env} from '@/env'
+import {sendInvitationEmail} from '@/use-cases/@Notifications/invitation-mail'
 type Actor={tenantId:string;sub:string}
 export type WorkspaceMember={id:string;tenantId:string;ownerId:string;userId:string;grants:WorkspaceGrants;version:number;revokedAt:Date|null}
 type Invite={id:string;tenantId:string;ownerId:string;grants:WorkspaceGrants;recipientHash:string;tokenHash:string;requestKey:string;expiresAt:Date;usedAt:Date|null;revokedAt:Date|null}
@@ -15,7 +16,7 @@ async function audit(tx:Prisma.TransactionClient,a:Actor,action:string,id:string
 export async function workspaceMembership(db:PrismaClient,tenantId:string,ownerId:string,userId:string){const rows=await db.$queryRaw<WorkspaceMember[]>`SELECT * FROM workspace_memberships WHERE "tenantId"=${tenantId} AND "ownerId"=${ownerId} AND "userId"=${userId} AND "revokedAt" IS NULL`;return rows[0]??null}
 export async function teamWorkspaces(db:PrismaClient,a:Actor){await db.$transaction(tx=>active(tx,a));return db.$queryRaw<Array<{ownerId:string;name:string;grants:WorkspaceGrants}>>`SELECT m."ownerId",u.name,m.grants FROM workspace_memberships m JOIN users u ON u.id=m."ownerId" AND u."tenantId"=m."tenantId" WHERE m."tenantId"=${a.tenantId} AND m."userId"=${a.sub} AND m."revokedAt" IS NULL AND u.status='ACTIVE' ORDER BY u.name`}
 export async function readWorkspaceTeam(db:PrismaClient,a:Actor){return db.$transaction(async tx=>{const actor=await active(tx,a);const members=await tx.$queryRaw<Array<WorkspaceMember&{name:string}>>`SELECT m.*,u.name FROM workspace_memberships m JOIN users u ON u.id=m."userId" AND u."tenantId"=m."tenantId" WHERE m."tenantId"=${a.tenantId} AND m."ownerId"=${a.sub} AND m."revokedAt" IS NULL ORDER BY m."createdAt"`;const invitations=await tx.$queryRaw<Array<{id:string;expiresAt:Date;usedAt:Date|null;revokedAt:Date|null}>>`SELECT id,"expiresAt","usedAt","revokedAt" FROM workspace_invitations WHERE "tenantId"=${a.tenantId} AND "ownerId"=${a.sub} ORDER BY "createdAt" DESC LIMIT 50`;return {sections:permissionSections.filter(row=>actor.role==='ADMIN'||!row.id.startsWith('admin')),members,invitations:invitations.map(row=>({id:row.id,expiresAt:row.expiresAt,status:row.revokedAt?'REVOKED':row.usedAt?'ACCEPTED':row.expiresAt<=new Date()?'EXPIRED':'PENDING'}))}})}
-export async function inviteWorkspace(db:PrismaClient,a:Actor,input:{email:string;grants:WorkspaceGrants;requestKey:string}){return db.$transaction(async tx=>{
+export async function inviteWorkspace(db:PrismaClient,a:Actor,input:{email:string;grants:WorkspaceGrants;requestKey:string}){const result=await db.$transaction(async tx=>{
  const user=await lock(tx,a);if(!user.identifiers.some(row=>row.kind==='EMAIL'&&row.confirmedAt))throw new ProfileError(403,'Confirme seu e-mail antes de convidar.');const grants=validateGrants(input.grants,user.role),recipientHash=recipientDigest(input.email,env.JWT_SECRET)
  if(user.identifiers.some(row=>row.kind==='EMAIL'&&recipientDigest(row.normalizedValue,env.JWT_SECRET)===recipientHash))throw new ProfileError(400,'Você já tem acesso completo ao seu espaço.')
  const previous=await tx.$queryRaw<Invite[]>`SELECT * FROM workspace_invitations WHERE "tenantId"=${a.tenantId} AND "ownerId"=${a.sub} AND "requestKey"=${input.requestKey}`
@@ -23,7 +24,7 @@ export async function inviteWorkspace(db:PrismaClient,a:Actor,input:{email:strin
  const id=randomUUID(),token=invitationToken(),digest=tokenDigest(token),expiresAt=new Date(Date.now()+7*86400000)
  await tx.$executeRaw`INSERT INTO workspace_invitations(id,"tenantId","ownerId",grants,"recipientHash","tokenHash","requestKey","expiresAt") VALUES(${id},${a.tenantId},${a.sub},${JSON.stringify(grants)}::jsonb,${recipientHash},${digest},${input.requestKey},${expiresAt})`
  await audit(tx,a,'workspace.invited',id,{grants});return {token}
- })}
+ });return {...result,emailDelivery:result.token?await sendInvitationEmail(db,{tenantId:a.tenantId,kind:'workspace_invitation',email:input.email,token:result.token,requestId:input.requestKey}):null}}
 export async function acceptWorkspace(db:PrismaClient,a:Actor,token:string){return db.$transaction(async tx=>{
  const lookup=await tx.$queryRaw<Invite[]>`SELECT * FROM workspace_invitations WHERE "tokenHash"=${tokenDigest(token)} AND "tenantId"=${a.tenantId}`
  if(!lookup[0])throw new ProfileError(404,'Convite não encontrado.')

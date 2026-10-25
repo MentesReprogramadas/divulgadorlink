@@ -83,6 +83,17 @@ export function passwordResetEmail(input: { brand: EmailBrand; url: string }): R
   return { subject: `${input.brand.name}: criar outra senha`, ...body }
 }
 
+export function invitationEmail(input: { brand: EmailBrand; kind: 'workspace_invitation' | 'profile_invitation' | 'agency_access' | 'ownership_transfer'; url: string }): RenderedEmail {
+  const copy = {
+    workspace_invitation: { title: 'Convite para participar de uma equipe', text: 'Você recebeu um convite para colaborar em uma conta. Entre ou crie uma conta com este e-mail e confirme o endereço antes de aceitar.', action: 'Ver convite' },
+    profile_invitation: { title: 'Convite para colaborar em uma página', text: 'Você recebeu um convite para colaborar em uma página. Entre ou crie uma conta com este e-mail e confirme o endereço antes de aceitar.', action: 'Ver convite' },
+    agency_access: { title: 'Pedido de acesso à sua página', text: 'Uma agência solicitou acesso para uma pessoa da equipe. Entre na sua conta para conferir a permissão e aprovar ou recusar. O acesso só é liberado após sua aprovação.', action: 'Revisar pedido' },
+    ownership_transfer: { title: 'Convite para receber uma página', text: 'Você recebeu um pedido de transferência de página. Entre ou crie uma conta com este e-mail e confirme o endereço. Confira os dados e as consequências antes de aceitar. A transferência só acontece após sua confirmação.', action: 'Revisar transferência' },
+  }[input.kind]
+  return { subject: `${input.brand.name}: ${copy.title}`, ...document({ brand: input.brand, title: copy.title, preheader: copy.title,
+    blocks: [paragraph(copy.text), paragraph('Este pedido vale por sete dias.'), action(input.url, copy.action), paragraph('Se você não reconhece este pedido, ignore este e-mail.')], footnote: input.brand.name }) }
+}
+
 export type ModerationOutcome = 'published' | 'rejected' | 'change_rejected'
 
 export function moderationEmail(input: {

@@ -30,6 +30,7 @@ import { readConfig, type ConfigKey } from '@/domain/config/read-config'
 import { env } from '@/env'
 import { prisma } from '@/lib/prisma'
 import { runEvolutionCycle, queueTextReview, queueCaseReview } from '@/use-cases/@Notifications/evolution-operations'
+import { settlePendingLinkMedia } from '@/use-cases/@Moderation/settle-link-media'
 import { enqueueEvolutionCycle, EVOLUTION_QUEUE_NAME } from '@/adapters/queues/enqueue-evolution'
 import { logDomainEvent, logJob } from '@/observability/logger'
 import { applyAiVerdict } from '@/use-cases/@Moderation/apply-ai-verdict'
@@ -231,6 +232,8 @@ export function createWorker(connection: Redis, deps: WorkerDeps, queueName = QU
             const review = await prisma.moderationCase.findFirst({ where: { linkId: data.linkId, closedAt: null } })
             if (review) await queueCaseReview(prisma, review.id)
           }
+          const mediaLink = await prisma.link.findUnique({ where: { id: data.linkId }, select: { tenantId: true } })
+          if (mediaLink) await settlePendingLinkMedia(prisma, mediaLink.tenantId, data.linkId)
           void enqueueEvolutionCycle().catch(() => undefined)
           return decision
         }

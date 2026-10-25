@@ -13,6 +13,14 @@ function chat(content: string, status = 200): typeof fetch {
 }
 
 describe('moderação de texto por modelo', () => {
+  it('análise de perfil envia os pixels como imagem e nunca duplica base64 no texto',async()=>{
+    let payload: {messages:Array<{content:string|Array<{type:string;text?:string;image_url?:{url:string}}>}>} | undefined
+    const fetchImpl=(async(_url:unknown,init?:RequestInit)=>{payload=JSON.parse(String(init?.body));return new Response(JSON.stringify({choices:[{message:{content:'{"pass":true,"confidence":0.95,"reasons":["Imagem permitida"]}'}}]}))}) as typeof fetch
+    await new OpenAiTextModeration('fixture',fetchImpl).judgeProfile({name:'Ana',description:'Projetos',images:[{base64:'dGVzdGU=',mimeType:'image/webp',label:'Foto'}]})
+    const content=payload!.messages[1].content
+    expect(content).toEqual(expect.arrayContaining([{type:'image_url',image_url:{url:'data:image/webp;base64,dGVzdGU=',detail:'auto'}}]))
+    expect(JSON.stringify((content as Array<{text?:string}>)[0])).not.toContain('dGVzdGU=')
+  })
   it('F09 reutiliza transporte e contrato com instrução de perfil, preservando a instrução do catálogo', async () => {
     const instructions: string[] = []
     const fetchImpl = (async (_url: unknown, init?: RequestInit) => {

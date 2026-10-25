@@ -9,6 +9,7 @@ import {setProfileBillingForTest} from '@/lib/profile-billing'
 import {BASE_PROFILE_CAPABILITIES} from '@/domain/billing/profile-plans'
 import type {ProfileContent} from '@/domain/profiles/profile'
 import {permissionSections} from '@/domain/access/workspace-permissions'
+import {readOutbound,resetOutboundForTest} from '@/adapters/notifications/outbound-mail'
 const url=process.env.ANALYTICS_DATABASE_URL
 if(!url||!['127.0.0.1','localhost'].includes(new URL(url).hostname))throw new Error('Disposable local PG required')
 const db=new PrismaClient({datasources:{db:{url}}})
@@ -16,12 +17,15 @@ let tenant:string,foreign:string,owner:string,other:string,foreignOwner:string
 const probe=vi.fn(async()=>200),judge=vi.fn(async()=>({pass:true,confidence:.99,reasons:[] as string[]}))
 beforeAll(async()=>{setTenantsRepositoryForTest({async findByHost(host){return db.tenant.findUnique({where:{host}})}});await app.ready()})
 beforeEach(async()=>{
+ process.env.EMAIL_OUTBOX='1';resetOutboundForTest()
  tenant=randomUUID();foreign=randomUUID();owner=randomUUID();other=randomUUID();foreignOwner=randomUUID();probe.mockClear();judge.mockReset();judge.mockResolvedValue({pass:true,confidence:.99,reasons:[]})
  for(const id of [tenant,foreign]){await db.tenant.create({data:{id,host:id+'.test',name:'F38 fixture'}});await db.config.create({data:{tenantId:id,key:'MODERATION_AUTO_APPROVE_THRESHOLD',value:'.85'}})}
  for(const [id,tenantId] of [[owner,tenant],[other,tenant],[foreignOwner,foreign]])await db.user.create({data:{id,tenantId,name:'F38-PRIVATE-NAME',passwordHash:'fixture',role:id===other?'ADMIN':'USER',identifiers:{create:{tenantId,kind:'EMAIL',normalizedValue:id+'@fixture.test',confirmedAt:new Date()}}}})
  setProfilesForTest(db,{probe,judge});setWorkspaceDbForTest(db);setProfileBillingForTest(db,{enabled:false,production:false,gateway:null,webhookReady:false,delivered:new Set(BASE_PROFILE_CAPABILITIES)})
 })
 afterEach(async()=>{
+ vi.unstubAllGlobals();vi.unstubAllEnvs()
+ delete process.env.EMAIL_OUTBOX;resetOutboundForTest()
  for(const tenantId of [tenant,foreign]){const where={tenantId};await db.operationalMessage.deleteMany({where});await db.contentReview.deleteMany({where});await db.profile.deleteMany({where});await db.auditLog.deleteMany({where});await db.link.deleteMany({where});await db.niche.deleteMany({where});await db.network.deleteMany({where});await db.config.deleteMany({where});await db.userIdentifier.deleteMany({where});await db.user.deleteMany({where});await db.tenant.deleteMany({where:{id:tenantId}})}
 })
 afterAll(async()=>{setProfilesForTest(null);setWorkspaceDbForTest(null);setProfileBillingForTest(null,null);await db.$disconnect()})
@@ -31,6 +35,31 @@ async function save(value=content(),expectedVersion=0){const r=await call('PATCH
 const get=(revision='draft')=>call('GET','me/profile/export?revision='+revision)
 
 const grants={page:{read:true,write:true},campaigns:{read:true,write:false}}
+it('convite de equipe chega por e-mail uma vez, com o tenant e o escopo corretos',async()=>{
+ const input={email:other+'@fixture.test',grants,requestKey:randomUUID()}
+ const sent=await call('POST','team/invitations',input)
+ expect(sent.statusCode,sent.body).toBe(200)
+ expect(sent.json().emailDelivery).toBe('sent')
+ const mail=readOutbound(input.email)
+ expect(mail).toHaveLength(1)
+ expect(mail[0].kind).toBe('workspace_invitation')
+ expect(mail[0].text).toContain(tenant+'.test/equipe/convite?scope=workspace&token='+sent.json().token)
+ expect(mail[0].subject).not.toContain(sent.json().token)
+ expect((await call('POST','team/invitations',input)).json().token).toBeNull()
+ expect(readOutbound(input.email)).toHaveLength(1)
+})
+it('falha do provedor mantém convite revogável e nunca confirma envio por e-mail',async()=>{
+ delete process.env.EMAIL_OUTBOX
+ vi.stubEnv('RESEND_API_KEY','test-key');vi.stubEnv('EMAIL_FROM','teste@example.test')
+ vi.stubGlobal('fetch',vi.fn(async()=>new Response('',{status:503})))
+ const created=await call('POST','team/invitations',{email:other+'@fixture.test',grants,requestKey:randomUUID()})
+ expect(created.statusCode,created.body).toBe(200)
+ expect(created.json()).toMatchObject({emailDelivery:'failed',token:expect.any(String)})
+ const invitations=(await call('GET','team')).json().invitations
+ expect(invitations).toHaveLength(1)
+ expect((await call('DELETE','team/invitations/'+invitations[0].id)).statusCode).toBe(200)
+ expect((await call('POST','team/accept',{token:created.json().token},other)).statusCode).toBe(409)
+})
 async function inviteWorkspace(value=grants){const r=await call('POST','team/invitations',{email:other+'@fixture.test',grants:value,requestKey:randomUUID()});expect(r.statusCode,r.body).toBe(200);return r.json().token as string}
 async function join(value=grants){const token=await inviteWorkspace(value),r=await call('POST','team/accept',{token},other);expect(r.statusCode,r.body).toBe(200);return token}
 function scoped(method:'GET'|'POST'|'PATCH'|'DELETE',path:string,body?:unknown){return call(method,path,body,other,tenant,tenant,{cookie:'workspaceOwner='+owner})}

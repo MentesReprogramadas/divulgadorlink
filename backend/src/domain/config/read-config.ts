@@ -14,7 +14,7 @@ export function impressionsEnabled(value: string | null | undefined): boolean {
 
 export function readConfig(rows: Partial<Record<ConfigKey, string>>, key: ConfigKey): number {
   const raw = rows[key]
-  if (raw === undefined) throw new Error('config ausente')
+  if (raw === undefined || !raw.trim()) throw new Error('config ausente')
   const value = Number(raw)
   if (!Number.isFinite(value)) throw new Error('config inválida')
   return value

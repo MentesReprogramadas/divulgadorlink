@@ -14,8 +14,8 @@ export function hashResetToken(token: string): string {
 }
 
 export interface PasswordResetStore {
-  save(userId: string, tokenHash: string, ttlSeconds: number): Promise<void>
-  consume(tokenHash: string): Promise<string | null>
+  save(tenantId: string, userId: string, tokenHash: string, ttlSeconds: number): Promise<void>
+  consume(tenantId: string, tokenHash: string): Promise<string | null>
 }
 
 export class MemoryPasswordResetStore implements PasswordResetStore {
@@ -24,19 +24,22 @@ export class MemoryPasswordResetStore implements PasswordResetStore {
 
   constructor(private readonly now: () => number = Date.now) {}
 
-  async save(userId: string, tokenHash: string, ttlSeconds: number): Promise<void> {
+  async save(tenantId: string, userId: string, tokenHash: string, ttlSeconds: number): Promise<void> {
+    userId = `${tenantId}:${userId}`
+    tokenHash = `${tenantId}:${tokenHash}`
     const previous = this.byUser.get(userId)
     if (previous) this.tokens.delete(previous)
     this.tokens.set(tokenHash, { userId, expiresAt: this.now() + ttlSeconds * 1000 })
     this.byUser.set(userId, tokenHash)
   }
 
-  async consume(tokenHash: string): Promise<string | null> {
+  async consume(tenantId: string, tokenHash: string): Promise<string | null> {
+    tokenHash = `${tenantId}:${tokenHash}`
     const row = this.tokens.get(tokenHash)
     this.tokens.delete(tokenHash)
     if (!row || row.expiresAt <= this.now()) return null
     if (this.byUser.get(row.userId) === tokenHash) this.byUser.delete(row.userId)
-    return row.userId
+    return row.userId.slice(tenantId.length + 1)
   }
 
   reset(): void {
@@ -48,20 +51,27 @@ export class MemoryPasswordResetStore implements PasswordResetStore {
 export class RedisPasswordResetStore implements PasswordResetStore {
   constructor(private readonly redis: Redis) {}
 
-  async save(userId: string, tokenHash: string, ttlSeconds: number): Promise<void> {
-    const previous = await this.redis.get(`pwdreset:user:${userId}`)
-    const multi = this.redis.multi()
-    if (previous) multi.del(`pwdreset:token:${previous}`)
-    multi.set(`pwdreset:token:${tokenHash}`, userId, 'EX', ttlSeconds)
-    multi.set(`pwdreset:user:${userId}`, tokenHash, 'EX', ttlSeconds)
-    await multi.exec()
+  async save(tenantId: string, userId: string, tokenHash: string, ttlSeconds: number): Promise<void> {
+    await this.redis.eval(`
+      local previous = redis.call('GET', KEYS[1])
+      if previous then redis.call('DEL', ARGV[4] .. previous) end
+      redis.call('SET', KEYS[2], ARGV[1], 'EX', ARGV[3])
+      redis.call('SET', KEYS[1], ARGV[2], 'EX', ARGV[3])
+      return 1
+    `, 2, `pwdreset:user:${tenantId}:${userId}`, `pwdreset:token:${tenantId}:${tokenHash}`,
+    userId, tokenHash, ttlSeconds, `pwdreset:token:${tenantId}:`)
   }
 
-  async consume(tokenHash: string): Promise<string | null> {
-    const userId = await this.redis.getdel(`pwdreset:token:${tokenHash}`)
-    if (!userId) return null
-    await this.redis.del(`pwdreset:user:${userId}`)
-    return userId
+  async consume(tenantId: string, tokenHash: string): Promise<string | null> {
+    const userId = await this.redis.eval(`
+      local userId = redis.call('GETDEL', KEYS[1])
+      if not userId then return nil end
+      local userKey = ARGV[1] .. userId
+      if redis.call('GET', userKey) ~= ARGV[2] then return nil end
+      redis.call('DEL', userKey)
+      return userId
+    `, 1, `pwdreset:token:${tenantId}:${tokenHash}`, `pwdreset:user:${tenantId}:`, tokenHash)
+    return typeof userId === 'string' ? userId : null
   }
 }
 
@@ -69,7 +79,7 @@ export type PasswordAccount = { id: string; passwordHash: string }
 
 export interface PasswordAccounts {
   findByEmail(tenantId: string, email: string): Promise<PasswordAccount | null>
-  setPassword(userId: string, passwordHash: string): Promise<boolean>
+  setPassword(tenantId: string, userId: string, passwordHash: string): Promise<boolean>
 }
 
 export class MemoryPasswordAccounts implements PasswordAccounts {
@@ -83,9 +93,9 @@ export class MemoryPasswordAccounts implements PasswordAccounts {
     return null
   }
 
-  async setPassword(userId: string, passwordHash: string): Promise<boolean> {
+  async setPassword(tenantId: string, userId: string, passwordHash: string): Promise<boolean> {
     const user = this.users.get(userId)
-    if (!user) return false
+    if (!user || user.tenantId !== tenantId) return false
     user.passwordHash = passwordHash
     return true
   }
@@ -101,8 +111,8 @@ export class PrismaPasswordAccounts implements PasswordAccounts {
     return { id: identifier.userId, passwordHash: identifier.user.passwordHash }
   }
 
-  async setPassword(userId: string, passwordHash: string): Promise<boolean> {
-    const result = await prisma.user.updateMany({ where: { id: userId }, data: { passwordHash } })
+  async setPassword(tenantId: string, userId: string, passwordHash: string): Promise<boolean> {
+    const result = await prisma.user.updateMany({ where: { id: userId, tenantId }, data: { passwordHash } })
     return result.count === 1
   }
 }
@@ -143,7 +153,7 @@ export async function requestPasswordReset(input: {
   const account = await passwordAccounts().findByEmail(input.tenantId, input.email)
   if (!account) return
   const token = input.token ?? randomBytes(32).toString('base64url')
-  await passwordResetStore().save(account.id, hashResetToken(token), PASSWORD_RESET_TTL_SECONDS)
+  await passwordResetStore().save(input.tenantId, account.id, hashResetToken(token), PASSWORD_RESET_TTL_SECONDS)
   try {
     await notifyPasswordReset({
       to: normalizeEmail(input.email),
@@ -162,10 +172,11 @@ export async function requestPasswordReset(input: {
 }
 
 export async function resetPassword(input: {
+  tenantId: string
   token: string
   passwordHash: string
 }): Promise<boolean> {
-  const userId = await passwordResetStore().consume(hashResetToken(input.token))
+  const userId = await passwordResetStore().consume(input.tenantId, hashResetToken(input.token))
   if (!userId) return false
-  return passwordAccounts().setPassword(userId, input.passwordHash)
+  return passwordAccounts().setPassword(input.tenantId, userId, input.passwordHash)
 }

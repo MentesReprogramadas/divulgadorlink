@@ -410,8 +410,8 @@ async function currentSession(request: FastifyRequest, reply: FastifyReply) {
   }
 }
 
-const forgotBodySchema = z.object({ email: z.string().email() }).strict()
-const resetBodySchema = z.object({ token: z.string().min(20), password: z.string().min(8) }).strict()
+const forgotBodySchema = z.object({ email: z.string().trim().email().max(254) }).strict()
+const resetBodySchema = z.object({ token: z.string().regex(/^[A-Za-z0-9_-]{43}$/), password: z.string().min(8).refine(value => Buffer.byteLength(value, 'utf8') <= 72, 'Use uma senha de até 72 bytes.') }).strict()
 const deleteBodySchema = z.object({ password: z.string().min(8) }).strict()
 
 async function forgotPassword(request: FastifyRequest, reply: FastifyReply) {
@@ -438,8 +438,15 @@ async function forgotPassword(request: FastifyRequest, reply: FastifyReply) {
 
 async function resetPasswordRoute(request: FastifyRequest, reply: FastifyReply) {
   const body = resetBodySchema.parse(request.body)
+  let tenant
+  try {
+    tenant = await resolveTenant(hostFromRequest(request))
+  } catch (error) {
+    if (!(error instanceof ResourceNotFoundError)) throw error
+    return reply.status(400).send({ message: 'Link inválido ou vencido.' })
+  }
   const passwordHash = await hash(body.password, 12)
-  const updated = await resetPassword({ token: body.token, passwordHash })
+  const updated = await resetPassword({ tenantId: tenant.id, token: body.token, passwordHash })
   if (!updated) {
     return reply.status(400).send(buildError({
       code: 'validation',

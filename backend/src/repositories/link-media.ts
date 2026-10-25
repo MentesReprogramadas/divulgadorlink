@@ -4,6 +4,8 @@ import type { Prisma, PrismaClient } from '@prisma/client'
 import { LinkMediaError, type LinkMediaKind, type PreparedLinkMedia } from '@/domain/links/link-media'
 import { MEDIA_REVIEW_KIND, mediaReviewHash, mediaReviewInclude, mediaReviewPayload, queuePendingLinkMediaReviews } from '@/use-cases/@Notifications/link-media-events'
 import { operationalEvent, ReviewError } from '@/use-cases/@Moderation/resolve-human-review'
+import { settlePendingLinkMedia } from '@/use-cases/@Moderation/settle-link-media'
+import { hitsBlocklist } from '@/domain/links/blocklist'
 
 let testDb: PrismaClient | null = null
 export function setLinkMediaDbForTest(db: PrismaClient | null) { if (process.env.NODE_ENV === 'test') testDb = db }
@@ -23,12 +25,19 @@ export async function readApprovedLinkMedia(db: Prisma.TransactionClient, tenant
   return result
 }
 export async function insertLinkMedia(db: Prisma.TransactionClient, tenantId: string, linkId: string, media: PreparedLinkMedia[], revision = 1) {
-  for (const row of media) await db.linkMediaAsset.create({ data: { ...row, tenantId, linkId, revision } })
+  const config = media.length ? await db.config.findUnique({ where: { tenantId_key: { tenantId, key: 'MODERATION_AUTO_APPROVE_THRESHOLD' } } }) : null
+  const zero = Boolean(config?.value.trim()) && Number(config?.value) === 0
+  const terms = zero ? await db.blocklistTerm.findMany({ where: { tenantId }, select: { term: true } }) : []
+  for (const row of media) {
+    const approved = zero && !hitsBlocklist({ text: row.alt ?? '', selectedNiche: '', nicheNames: [], terms: terms.map(term => term.term) })
+    if (approved) await db.linkMediaAsset.deleteMany({ where: { tenantId, linkId, kind: row.kind, status: 'APPROVED' } })
+    const asset = await db.linkMediaAsset.create({ data: { ...row, tenantId, linkId, revision, status: approved ? 'APPROVED' : 'PENDING' } })
+    if (approved) await db.auditLog.create({ data: { tenantId, actorId: null, entityType: 'link', entityId: linkId, action: 'link.media.ai', after: { assetId: asset.id, kind: row.kind, revision, threshold: 0, decision: 'PUBLISH' } } })
+  }
   if (media.length) await db.link.update({ where: { id: linkId }, data: { mediaVersion: revision } })
-  if (media.length) await queuePendingLinkMediaReviews(db, tenantId, linkId)
 }
 export async function mutateLinkMedia(db: PrismaClient, actor: LinkMediaActor, linkId: string, expectedVersion: number, mutation: MediaMutation, delivery?: { messageId: string; operatorPhone: string; receiptId: string }) {
-  return db.$transaction(async tx => {
+  const result = await db.$transaction(async tx => {
     await tx.$queryRaw`SELECT id FROM users WHERE id=${actor.ownerId} AND "tenantId"=${actor.tenantId} FOR UPDATE`
     await tx.$queryRaw`SELECT id FROM links WHERE id=${linkId} AND "tenantId"=${actor.tenantId} FOR UPDATE`
     const link = await tx.link.findFirst({ where: { id: linkId, tenantId: actor.tenantId, ...(!actor.admin ? { ownerId: actor.ownerId } : {}) }, include: { owner: { include: { identifiers: true } } } })
@@ -73,7 +82,13 @@ export async function mutateLinkMedia(db: PrismaClient, actor: LinkMediaActor, l
       if (delivery) await tx.evolutionReceipt.update({ where: { id: delivery.receiptId }, data: { state: 'DONE', resultCode: mutation.decision === 'APPROVE' ? 'APPROVED' : 'REJECTED' } })
     }
     await tx.link.update({ where: { id: linkId }, data: { mediaVersion: expectedVersion + 1 } })
-    await queuePendingLinkMediaReviews(tx, actor.tenantId, linkId)
+    if (mutation.type !== 'PUT') await queuePendingLinkMediaReviews(tx, actor.tenantId, linkId)
     return { version: expectedVersion + 1 }
   })
+  if (mutation.type === 'PUT') {
+    await settlePendingLinkMedia(db, actor.tenantId, linkId)
+    const link = await db.link.findUniqueOrThrow({ where: { id: linkId } })
+    return { version: link.mediaVersion }
+  }
+  return result
 }

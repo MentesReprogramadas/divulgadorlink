@@ -3,7 +3,8 @@ import { OpenAiTextModeration } from '@/adapters/moderation/openai-text-moderati
 import type { ModelVerdict } from '@/use-cases/@Links/proposed-text-decision'
 import { env } from '@/env'
 import type { ProfileModerationContext } from '@/domain/profiles/profile-moderation'
-export type PublicContentValidationPorts = { probe: (url: string) => Promise<number | null>; judge: (text: { name: string; description: string; niche: string; profileContext?: ProfileModerationContext }) => Promise<ModelVerdict> }
+import type { ModerationImage } from '@/domain/moderation/content-review'
+export type PublicContentValidationPorts = { probe: (url: string) => Promise<number | null>; judge: (text: { name: string; description: string; niche: string; profileContext?: ProfileModerationContext; images?: ModerationImage[] }) => Promise<ModelVerdict> }
 let testProbe: PublicContentValidationPorts['probe'] | undefined
 /** Explicit test composition only; production cannot install a replacement probe. */
 export function composePublicContentProbeForTest(probe: PublicContentValidationPorts['probe']) {

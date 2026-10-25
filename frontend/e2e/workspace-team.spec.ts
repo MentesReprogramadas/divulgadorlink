@@ -35,6 +35,8 @@ test('ordinary accounts invite account managers without exposing or granting pla
  await page.getByRole('button',{name:'Revisar acesso'}).click()
  await page.getByRole('button',{name:'Criar convite',exact:true}).click()
  await expect(page.getByLabel('Link do convite')).toHaveValue(/scope=workspace&token=/)
+ await expect(page.getByRole('status').filter({hasText:'Convite enviado por e-mail'})).toBeVisible()
+ const inbox=await api(page,'/auth/email-outbox?to='+encodeURIComponent(fixture().other));expect(inbox.status).toBe(200);const messages=inbox.body.messages.filter((mail:{kind:string})=>mail.kind==='workspace_invitation');expect(messages.at(-1).text).toContain('scope=workspace&token='+new URL(await page.getByLabel('Link do convite').inputValue()).searchParams.get('token'))
  expect(sql(`SELECT count(*) FROM workspace_invitations WHERE "tenantId"='${fixture().tenantId}'`)).toBe('1')
 })
 test('global team configures granular access, shares an account space, enforces API/UI and revokes a live session',async({page,browser},info)=>{
@@ -176,4 +178,8 @@ test('team tabs and page access headings share a row with actions on desktop and
  await page.addStyleTag({content:'html{font-size:125%}'})
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true)
  await capturePage(page,info.outputPath('page-team-header-zoom.png'))
+})
+
+test('convite recebido por e-mail retoma após login anônimo e libera só o espaço autorizado',async({page,browser})=>{
+ await login(page);const sent=await api(page,'/team/invitations',{email:fixture().other,grants:{page:{read:true,write:false}},requestKey:crypto.randomUUID()},'POST');expect(sent.body.emailDelivery).toBe('sent');const inbox=await api(page,'/auth/email-outbox?to='+encodeURIComponent(fixture().other));const mail=inbox.body.messages.filter((row:{kind:string})=>row.kind==='workspace_invitation').at(-1);const token=mail.text.match(/token=([A-Za-z0-9_-]+)/)?.[1];expect(token).toBeTruthy();const context=await browser.newContext({viewport:page.viewportSize()!});try{const guest=await context.newPage();const address=origin+'/equipe/convite?scope=workspace&token='+token;await guest.goto(address);await guest.getByRole('button',{name:'Aceitar convite',exact:true}).click();await guest.getByLabel('E-mail',{exact:true}).fill(fixture().other);await guest.getByLabel('Senha',{exact:true}).fill(fixture().password);await guest.getByRole('button',{name:'Entrar',exact:true}).click();await expect(guest).toHaveURL(address);await guest.getByRole('button',{name:'Aceitar convite',exact:true}).click();await expect(guest.getByRole('region',{name:'Espaço compartilhado'})).toBeVisible();expect((await api(guest,'/links/mine')).status).toBe(403)}finally{await context.close()}
 })

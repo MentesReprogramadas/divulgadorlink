@@ -23,7 +23,7 @@ describe('revogação distribuída do refresh', () => {
         shell: true,
         env: {
           NODE_ENV: 'test',
-          REDIS_URL: 'redis://127.0.0.1:6380',
+          REDIS_URL: process.env.REDIS_URL ?? 'redis://127.0.0.1:6380',
           DATABASE_URL: 'postgresql://divulgador:divulgador@127.0.0.1:5433/divulgador?schema=public',
           JWT_SECRET: 'test-jwt-secret-min-16',
           PATH: process.env.PATH,

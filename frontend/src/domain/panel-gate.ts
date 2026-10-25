@@ -12,6 +12,6 @@ export function panelGate(
 export function afterAuth(canSubmit: boolean, status?: string, returnTo?: string): string {
   if (status === 'BANNED') return '/painel'
   if (!canSubmit) return '/painel/verificar'
-  if(returnTo&&/^\/equipe\/convite\?token=[A-Za-z0-9_-]{43}$/.test(returnTo))return returnTo
+  if(returnTo&&/^\/equipe\/convite\?(?:scope=workspace&)?token=[A-Za-z0-9_-]{43}$/.test(returnTo))return returnTo
   return returnTo && /^\/painel\/denunciar\/[a-zA-Z0-9_-]{1,100}$/.test(returnTo) ? returnTo : '/painel'
 }

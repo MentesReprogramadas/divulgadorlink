@@ -323,7 +323,7 @@ export async function publishProfile(db: PrismaClient, actor: Actor, expectedVer
   let validated: ProfileContent
   let needsReview = false
   const approved = row.publication ? profileInput.parse(row.publishedDraft ?? row.publication) : undefined
-  try { validated = await validateProfile(db, actor.tenantId, content, ports, false, approved) } catch (error) { if (!(error instanceof ContentReviewRequired)) throw error; needsReview = true; validated = content }
+  try { validated = await validateProfile(db, actor.tenantId, content, ports, false, approved, actor.ownerId) } catch (error) { if (!(error instanceof ContentReviewRequired)) throw error; needsReview = true; validated = content }
   return locked(db, actor, async tx => {
     await owner(tx, actor, true)
     const current = await read(tx, actor); version(current, expectedVersion)

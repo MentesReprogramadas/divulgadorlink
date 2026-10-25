@@ -6,10 +6,11 @@ import { decideProposedText, type ModelVerdict } from '@/use-cases/@Links/propos
 import { ProfileError, type ProfileContent } from '@/domain/profiles/profile'
 import { assertProfileExamplesReady, profileModerationContent } from '@/domain/profiles/template-content'
 import { profileHasNewBlockedSignals, profileModerationChanges, profileModerationSnapshot, profileModerationText } from '@/domain/profiles/profile-moderation'
+import { avatarContentType } from '@/domain/profiles/avatar-webp'
 export { publicContentValidationPorts as profileValidationPorts } from '@/use-cases/public-content-validation-ports'
 import type { PublicContentValidationPorts as ProfileValidationPorts } from '@/use-cases/public-content-validation-ports'
 export type { PublicContentValidationPorts as ProfileValidationPorts } from '@/use-cases/public-content-validation-ports'
-export async function validateProfile(db: Prisma.TransactionClient, tenantId: string, content: ProfileContent, ports: ProfileValidationPorts, humanApproved = false, approved?: ProfileContent): Promise<ProfileContent> {
+export async function validateProfile(db: Prisma.TransactionClient, tenantId: string, content: ProfileContent, ports: ProfileValidationPorts, humanApproved = false, approved?: ProfileContent, mediaOwnerId?: string): Promise<ProfileContent> {
   assertProfileExamplesReady(content)
   const [terms, banned, threshold] = await Promise.all([db.blocklistTerm.findMany({ where: { tenantId } }), db.link.findMany({ where: { tenantId, owner: { tenantId, status: 'BANNED' } }, select: { canonicalUrl: true } }), db.config.findUnique({ where: { tenantId_key: { tenantId, key: 'MODERATION_AUTO_APPROVE_THRESHOLD' } } })])
   const result = normalizeProfileDestinations(content)
@@ -40,10 +41,16 @@ export async function validateProfile(db: Prisma.TransactionClient, tenantId: st
   const limit = Number(threshold?.value)
   if (!Number.isFinite(limit) || limit < 0 || limit > 1 || !threshold || !threshold.value.trim()) throw new ContentReviewRequired()
   if (limit === 0) return result
+  const assetIds = (value?: ProfileContent) => new Set([...(value?.avatarAssetId ? [value.avatarAssetId] : []), ...(value?.contentBlocks ?? []).flatMap(block => block.type === 'IMAGE' ? [block.assetId] : [])])
+  const approvedAssets = assetIds(approved), newAssets = [...assetIds(result)].filter(id => !approvedAssets.has(id))
+  if (newAssets.length && !mediaOwnerId) throw new ContentReviewRequired()
+  const assets = newAssets.length ? await db.profileAsset.findMany({ where: { tenantId, ownerId: mediaOwnerId, id: { in: newAssets } }, select: { id: true, bytes: true } }) : []
+  if (assets.length !== newAssets.length) throw new ProfileError(422, 'Uma imagem não está disponível nesta conta. Envie-a novamente antes de publicar.')
   let verdict: ModelVerdict
   try {
     verdict = await ports.judge({
       name: real.name, description: profileModerationText(real), niche: 'Perfil público: conteúdo permitido e grupos pessoais, sem exigir correspondência com nicho do catálogo',
+      ...(assets.length ? { images: assets.map(asset => ({ base64: Buffer.from(asset.bytes).toString('base64'), mimeType: avatarContentType(Buffer.from(asset.bytes)), label: asset.id === result.avatarAssetId ? 'Foto da página' : 'Imagem de conteúdo' })) } : {}),
       profileContext: {
         ...(approvedReal ? { approved: { name: approvedReal.name, description: profileModerationText(approvedReal), snapshot: profileModerationSnapshot(approvedReal) } } : {}),
         proposed: profileModerationSnapshot(real), changedFields: changes.changedFields, destinations: [...destinations],

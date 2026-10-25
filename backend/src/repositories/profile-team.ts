@@ -5,6 +5,7 @@ import {z} from 'zod'
 import {ProfileError} from '@/domain/profiles/profile'
 import {env} from '@/env'
 import {profileNow} from '@/lib/profile-clock'
+import {sendInvitationEmail} from '@/use-cases/@Notifications/invitation-mail'
 import {invitationAvailable,invitationToken,tokenDigest,recipientDigest,permits,type ProfileActor,type ProfilePermission} from '@/domain/access/profile-access'
 export const inviteInput=z.object({resourceId:z.string().uuid(),email:z.string().trim().email().max(254),role:z.enum(['EDITOR','VIEWER']),requestKey:z.string().uuid()}).strict()
 export const acceptInput=z.object({token:z.string().regex(/^[A-Za-z0-9_-]{43}$/)}).strict()
@@ -28,16 +29,17 @@ async function own(tx:Prisma.TransactionClient,actor:ProfileActor){await active(
 const invitationDto=(row:{id:string;role:string;expiresAt:Date;usedAt:Date|null;revokedAt:Date|null})=>({id:row.id,role:row.role,expiresAt:row.expiresAt.toISOString(),status:row.revokedAt?'REVOKED':row.usedAt?'ACCEPTED':row.expiresAt<=profileNow()?'EXPIRED':'PENDING'})
 async function audit(tx:Prisma.TransactionClient,actor:ProfileActor,profileId:string,action:string,after:Prisma.InputJsonObject){await tx.auditLog.create({data:{tenantId:actor.tenantId,actorId:actor.actorId??actor.ownerId,entityType:'Profile',entityId:profileId,action,after}})}
 export async function listTeam(db:PrismaClient,actor:ProfileActor){return db.$transaction(async tx=>{await active(tx,actor);const profile=await tx.profile.findUnique({where:{tenantId_ownerId:{tenantId:actor.tenantId,ownerId:actor.ownerId}}});const candidates=await tx.profileMembership.findMany({where:{tenantId:actor.tenantId,userId:actor.ownerId,status:'ACTIVE',profile:{owner:{status:'ACTIVE'}}},select:{id:true,version:true,role:true,profile:{select:{id:true,name:true,slug:true}}},orderBy:{createdAt:'desc'}});const shared=[];for(const row of candidates)if(await agencyDerivedAccess(tx,row.id,row.version))shared.push({role:row.role,profile:row.profile});if(!profile)return {resourceId:null,members:[],invitations:[],shared};const members=await tx.profileMembership.findMany({where:{profileId:profile.id,status:'ACTIVE'},select:{id:true,role:true,status:true,version:true,user:{select:{name:true}}},orderBy:{createdAt:'asc'}});const invitations=await tx.profileInvitation.findMany({where:{profileId:profile.id},take:50,orderBy:{createdAt:'desc'}});return {resourceId:profile.id,members,invitations:invitations.map(invitationDto),shared}},{isolationLevel:'RepeatableRead'})}
-export async function createInvitation(db:PrismaClient,actor:ProfileActor,input:z.infer<typeof inviteInput>){return db.$transaction(async tx=>{
+export async function createInvitation(db:PrismaClient,actor:ProfileActor,input:z.infer<typeof inviteInput>){const result=await db.$transaction(async tx=>{
  await tx.$queryRaw`SELECT id FROM users WHERE id=${actor.ownerId} AND "tenantId"=${actor.tenantId} FOR UPDATE`
  const profile=await own(tx,actor);if(input.resourceId!==profile.id)throw new ProfileError(404,'Página não encontrada.')
  const recipientHash=recipientDigest(input.email,env.JWT_SECRET),user=await active(tx,actor)
+ if(!user.identifiers.some(row=>row.kind==='EMAIL'&&row.confirmedAt&&!row.replacedAt))throw new ProfileError(403,'Confirme seu e-mail antes de convidar.')
  if(user.identifiers.some(row=>row.kind==='EMAIL'&&recipientDigest(row.normalizedValue,env.JWT_SECRET)===recipientHash))throw new ProfileError(400,'Você já é proprietário desta página.')
  const existing=await tx.profileInvitation.findUnique({where:{profileId_requestKey:{profileId:profile.id,requestKey:input.requestKey}}})
  if(existing){if(existing.recipientHash!==recipientHash||existing.role!==input.role)throw new ProfileError(409,'Este pedido já foi usado com outros dados.');return {invitation:invitationDto(existing),token:null}}
  const token=invitationToken(),now=profileNow(),row=await tx.profileInvitation.create({data:{id:randomUUID(),profileId:profile.id,tenantId:actor.tenantId,ownerId:actor.ownerId,role:input.role,recipientHash,tokenHash:tokenDigest(token),requestKey:input.requestKey,expiresAt:new Date(now.getTime()+7*86400000),createdAt:now}})
  await audit(tx,actor,profile.id,'profile.team.invited',{invitationId:row.id,role:row.role});return {invitation:invitationDto(row),token}
- })}
+ });return {...result,emailDelivery:result.token?await sendInvitationEmail(db,{tenantId:actor.tenantId,kind:'profile_invitation',email:input.email,token:result.token,requestId:input.requestKey}):null}}
 export async function acceptInvitation(db:PrismaClient,actor:ProfileActor,token:string){return db.$transaction(async tx=>{
  const found=await tx.profileInvitation.findUnique({where:{tokenHash:tokenDigest(token)}});if(!found||found.tenantId!==actor.tenantId)throw new ProfileError(404,'Convite não encontrado.')
  await tx.$queryRaw`SELECT id FROM users WHERE id=${found.ownerId} AND "tenantId"=${actor.tenantId} FOR UPDATE`

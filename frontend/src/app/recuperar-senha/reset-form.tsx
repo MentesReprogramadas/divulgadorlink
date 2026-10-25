@@ -29,6 +29,7 @@ export function ResetForm({ token }: { token: string }) {
         return
       }
       setError('')
+      history.replaceState(null, '', '/recuperar-senha')
       setMessage('Senha salva.')
     } catch {
       setError('Não foi possível conectar. Verifique sua conexão e tente novamente.')

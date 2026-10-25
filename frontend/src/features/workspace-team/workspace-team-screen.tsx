@@ -57,6 +57,7 @@ export function WorkspaceTeamScreen({
     [email, setEmail] = useState(""),
     [step, setStep] = useState(0),
     [link, setLink] = useState(""),
+    [emailSent, setEmailSent] = useState(false),
     [formError, setFormError] = useState(""),
     [revoking, setRevoking] = useState<Member | null>(null),
     [tab, setTab] = useState("team"),
@@ -101,7 +102,7 @@ export function WorkspaceTeamScreen({
         setDialog(null);
         setNotice("Permissões atualizadas.");
       } else {
-        const result = await request<{ token: string | null }>("/invitations", {
+        const result = await request<{ token: string | null; emailDelivery: 'sent' | 'failed' | null }>("/invitations", {
           method: "POST",
           body: JSON.stringify({
             email,
@@ -113,6 +114,7 @@ export function WorkspaceTeamScreen({
           throw new Error(
             "Convite já criado. Revogue e crie outro se perdeu o link.",
           );
+        setEmailSent(result.emailDelivery === 'sent');
         setLink(
           new URL(
             "/equipe/convite?scope=workspace&token=" + result.token,
@@ -418,7 +420,7 @@ export function WorkspaceTeamScreen({
             ) : null}
             {link ? (
               <>
-                <p>Envie este convite à pessoa. Válido por 7 dias.</p>
+                <p role={emailSent ? "status" : "alert"}>{emailSent ? "Convite enviado por e-mail. Válido por 7 dias. Você também pode copiar o link abaixo." : "O convite foi criado, mas não foi possível enviar o e-mail. Copie o link ou revogue este convite e crie outro para tentar o envio novamente."}</p>
                 <Field label="Link do convite">
                   <Input readOnly value={link} />
                 </Field>

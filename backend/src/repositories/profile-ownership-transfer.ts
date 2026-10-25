@@ -8,6 +8,7 @@ import {agencyTransferInput,agencyTransferReady} from '@/domain/access/agency'
 import {recipientDigest,type ProfileActor} from '@/domain/access/profile-access'
 import {env} from '@/env'
 import {profileNow} from '@/lib/profile-clock'
+import {sendInvitationEmail} from '@/use-cases/@Notifications/invitation-mail'
 type Transfer={id:string;tenantId:string;profileId:string;sourceOwnerId:string;targetOwnerId:string|null;recipientHash:string;profileVersion:number;requestKey:string;version:number;status:string;expiresAt:Date;pageName:string;pageSlug:string}
 async function personal(tx:Prisma.TransactionClient,a:ProfileActor){if(a.auditActorId&&a.auditActorId!==a.ownerId)throw new ProfileError(403,'Volte à sua conta para transferir uma página.');const user=await tx.user.findFirst({where:{id:a.ownerId,tenantId:a.tenantId,status:'ACTIVE'},include:{identifiers:true}});if(!user)throw new ProfileError(403,'Conta sem acesso.');return{user,hashes:user.identifiers.filter(row=>row.kind==='EMAIL'&&row.confirmedAt&&!row.replacedAt).map(row=>recipientDigest(row.normalizedValue,env.JWT_SECRET))}}
 const dto=(row:Transfer,userId:string)=>({id:row.id,profileId:row.profileId,pageName:row.pageName,pageSlug:row.pageSlug,version:row.version,profileVersion:row.profileVersion,status:row.status,expiresAt:row.expiresAt,incoming:row.sourceOwnerId!==userId})
@@ -17,18 +18,18 @@ export async function readProfileTransfers(db:PrismaClient,a:ProfileActor){retur
  const page=await tx.profile.findUnique({where:{tenantId_ownerId:{tenantId:a.tenantId,ownerId:a.ownerId}},select:{id:true,name:true,slug:true,version:true}})
  return{requests:rows.map(row=>dto(row,a.ownerId)),page,confirmed:hashes.length>0}
 })}
-export async function requestProfileTransfer(db:PrismaClient,a:ProfileActor,input:z.infer<typeof agencyTransferInput>){return db.$transaction(async tx=>{
+export async function requestProfileTransfer(db:PrismaClient,a:ProfileActor,input:z.infer<typeof agencyTransferInput>){const {result,created}=await db.$transaction(async tx=>{
  await personal(tx,a);await tx.$queryRaw`SELECT id FROM users WHERE id=${a.ownerId} AND "tenantId"=${a.tenantId} FOR UPDATE`
  const {hashes}=await personal(tx,a);if(!hashes.length)throw new ProfileError(403,'Confirme seu e-mail antes de transferir.')
  await tx.$queryRaw`SELECT id FROM profiles WHERE id=${input.profileId} AND "tenantId"=${a.tenantId} FOR UPDATE`
  const page=await tx.profile.findFirst({where:{id:input.profileId,tenantId:a.tenantId,ownerId:a.ownerId}});if(!page)throw new ProfileError(404,'Página não encontrada.');if(page.version!==input.expectedVersion)throw new ProfileError(409,'A página mudou. Atualize os dados antes de transferir.')
  const recipientHash=recipientDigest(input.recipientEmail,env.JWT_SECRET);if(hashes.includes(recipientHash))throw new ProfileError(422,'Escolha o e-mail do novo titular.')
- const existing=(await tx.$queryRaw<Transfer[]>`SELECT * FROM agency_profile_transfers WHERE "sourceOwnerId"=${a.ownerId} AND "requestKey"=${input.requestKey}::uuid`)[0];if(existing){if(existing.profileId!==page.id||existing.recipientHash!==recipientHash||existing.profileVersion!==input.expectedVersion)throw new ProfileError(409,'Identificador de pedido já utilizado.');return dto(existing,a.ownerId)}
+ const existing=(await tx.$queryRaw<Transfer[]>`SELECT * FROM agency_profile_transfers WHERE "sourceOwnerId"=${a.ownerId} AND "requestKey"=${input.requestKey}::uuid`)[0];if(existing){if(existing.profileId!==page.id||existing.recipientHash!==recipientHash||existing.profileVersion!==input.expectedVersion)throw new ProfileError(409,'Identificador de pedido já utilizado.');return {result:dto(existing,a.ownerId),created:false}}
  const now=profileNow();await tx.$executeRaw`UPDATE agency_profile_transfers SET status='EXPIRED',version=version+1,"updatedAt"=${now} WHERE "profileId"=${page.id} AND status='PENDING' AND "expiresAt"<=${now}`
  if((await tx.$queryRaw<Array<{id:string}>>`SELECT id FROM agency_profile_transfers WHERE "profileId"=${page.id} AND status='PENDING'`).length)throw new ProfileError(409,'Já existe uma transferência pendente. Cancele ou aguarde a decisão.')
  const rows=await tx.$queryRaw<Transfer[]>`INSERT INTO agency_profile_transfers(id,"tenantId","profileId","sourceOwnerId","recipientHash","profileVersion","requestKey","expiresAt","pageName","pageSlug") VALUES(${randomUUID()}::uuid,${a.tenantId},${page.id},${a.ownerId},${recipientHash},${page.version},${input.requestKey}::uuid,${new Date(+now+7*86400000)},${page.name},${page.slug}) RETURNING *`
- await tx.auditLog.create({data:{tenantId:a.tenantId,actorId:a.ownerId,action:'profile.transfer.requested',entityType:'Profile',entityId:page.id,after:{transferId:rows[0]!.id,version:page.version}}});return dto(rows[0]!,a.ownerId)
-})}
+ await tx.auditLog.create({data:{tenantId:a.tenantId,actorId:a.ownerId,action:'profile.transfer.requested',entityType:'Profile',entityId:page.id,after:{transferId:rows[0]!.id,version:page.version}}});return {result:dto(rows[0]!,a.ownerId),created:true}
+});return {...result,emailDelivery:created?await sendInvitationEmail(db,{tenantId:a.tenantId,kind:'ownership_transfer',email:input.recipientEmail,requestId:result.id}):null}}
 type Ownership={relation:string;column:string;hasProfileId:boolean;ready:boolean}
 /** Follow owner-bearing FK columns, so later page features cannot silently leave data behind. */
 async function transferOwnershipRows(tx:Prisma.TransactionClient,profileId:string,tenantId:string,source:string,target:string){

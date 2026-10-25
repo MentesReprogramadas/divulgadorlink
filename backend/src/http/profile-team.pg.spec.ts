@@ -7,6 +7,8 @@ import {setProfilesForTest} from '@/http/controllers/@Profiles/routes'
 import {setProfileBillingForTest} from '@/lib/profile-billing'
 import {BASE_PROFILE_CAPABILITIES} from '@/domain/billing/profile-plans'
 import type {ProfileContent} from '@/domain/profiles/profile'
+import {readOutbound,resetOutboundForTest} from '@/adapters/notifications/outbound-mail'
+import sharp from 'sharp'
 const url=process.env.ANALYTICS_DATABASE_URL
 if(!url||!['127.0.0.1','localhost'].includes(new URL(url).hostname))throw new Error('Disposable local PG required')
 const db=new PrismaClient({datasources:{db:{url}}})
@@ -14,12 +16,14 @@ let tenant:string,foreign:string,owner:string,other:string,foreignOwner:string
 const probe=vi.fn(async()=>200),judge=vi.fn(async()=>({pass:true,confidence:.99,reasons:[] as string[]}))
 beforeAll(async()=>{setTenantsRepositoryForTest({async findByHost(host){return db.tenant.findUnique({where:{host}})}});await app.ready()})
 beforeEach(async()=>{
+ process.env.EMAIL_OUTBOX='1';resetOutboundForTest()
  tenant=randomUUID();foreign=randomUUID();owner=randomUUID();other=randomUUID();foreignOwner=randomUUID();probe.mockClear();judge.mockReset();judge.mockResolvedValue({pass:true,confidence:.99,reasons:[]})
  for(const id of [tenant,foreign]){await db.tenant.create({data:{id,host:id+'.test',name:'F38 fixture'}});await db.config.create({data:{tenantId:id,key:'MODERATION_AUTO_APPROVE_THRESHOLD',value:'.85'}})}
  for(const [id,tenantId] of [[owner,tenant],[other,tenant],[foreignOwner,foreign]])await db.user.create({data:{id,tenantId,name:'F38-PRIVATE-NAME',passwordHash:'fixture',role:id===other?'ADMIN':'USER',identifiers:{create:{tenantId,kind:'EMAIL',normalizedValue:id+'@fixture.test',confirmedAt:new Date()}}}})
  setProfilesForTest(db,{probe,judge});setProfileBillingForTest(db,{enabled:false,production:false,gateway:null,webhookReady:false,delivered:new Set(BASE_PROFILE_CAPABILITIES)})
 })
 afterEach(async()=>{
+ delete process.env.EMAIL_OUTBOX;resetOutboundForTest()
  for(const tenantId of [tenant,foreign]){const where={tenantId};await db.operationalMessage.deleteMany({where});await db.contentReview.deleteMany({where});await db.profile.deleteMany({where});await db.auditLog.deleteMany({where});await db.redirectHandle.deleteMany({where});await db.link.deleteMany({where});await db.niche.deleteMany({where});await db.network.deleteMany({where});await db.config.deleteMany({where});await db.userIdentifier.deleteMany({where});await db.user.deleteMany({where});await db.tenant.deleteMany({where:{id:tenantId}})}
 })
 afterAll(async()=>{setProfilesForTest(null);setProfileBillingForTest(null,null);await db.$disconnect()})
@@ -30,6 +34,34 @@ async function save(value=content(),expectedVersion=0){const r=await call('PATCH
 async function invite(role='EDITOR',requestKey=randomUUID()){const p=await db.profile.findUniqueOrThrow({where:{tenantId_ownerId:{tenantId:tenant,ownerId:owner}}});const r=await call('POST','me/profile/invitations',{resourceId:p.id,email:other+'@fixture.test',role,requestKey});expect(r.statusCode,r.body).toBe(200);return {...r.json(),profileId:p.id,requestKey}}
 const accept=(token:string,actor=other)=>call('POST','invitations/accept',{token},actor)
 const shared=(method:'GET'|'PATCH'|'POST',id:string,path='',body?:unknown,actor=other)=>call(method,'me/profile'+path,body,actor,tenant,tenant,{'x-profile-id':id})
+it('conta sem e-mail confirmado não usa convites de página para enviar mensagens',async()=>{
+ await save();await db.userIdentifier.updateMany({where:{userId:owner,tenantId:tenant},data:{confirmedAt:null}})
+ const profile=await db.profile.findUniqueOrThrow({where:{tenantId_ownerId:{tenantId:tenant,ownerId:owner}}})
+ expect((await call('POST','me/profile/invitations',{resourceId:profile.id,email:other+'@fixture.test',role:'EDITOR',requestKey:randomUUID()})).statusCode).toBe(403)
+ expect(readOutbound(other+'@fixture.test')).toHaveLength(0)
+ expect(await db.profileInvitation.count({where:{tenantId:tenant}})).toBe(0)
+})
+it('foto nova passa com pixels pela mesma aprovação da página e não vaza antes de aprovar',async()=>{
+ const bytes=await sharp({create:{width:16,height:16,channels:3,background:'navy'}}).webp().toBuffer()
+ const uploaded=await call('POST','me/profile/avatar',{base64:bytes.toString('base64')});expect(uploaded.statusCode,uploaded.body).toBe(200)
+ const value={...content(),avatarAssetId:uploaded.json().avatarAssetId};await save(value)
+ judge.mockResolvedValueOnce({pass:false,confidence:.99,reasons:['Conferir imagem']})
+ const published=await call('POST','me/profile/publish',{expectedVersion:1});expect(published.statusCode,published.body).toBe(200)
+ expect(published.json().review.status).toBe('PENDING')
+ expect(judge).toHaveBeenCalledWith(expect.objectContaining({images:[expect.objectContaining({mimeType:'image/webp',label:'Foto da página',base64:expect.any(String)})]}))
+ expect((await call('GET','profiles/'+value.slug+'/avatar/'+value.avatarAssetId,undefined,null)).statusCode).toBe(404)
+})
+it('convite de página envia o link por e-mail sem duplicar em repetição',async()=>{
+ await save();const created=await invite()
+ expect(created.emailDelivery).toBe('sent')
+ const mail=readOutbound(other+'@fixture.test')
+ expect(mail).toHaveLength(1)
+ expect(mail[0].kind).toBe('profile_invitation')
+ expect(mail[0].text).toContain(tenant+'.test/equipe/convite?token='+created.token)
+ expect(mail[0].text).not.toContain('scope=workspace')
+ await invite('EDITOR',created.requestKey)
+ expect(readOutbound(other+'@fixture.test')).toHaveLength(1)
+})
 it('F20-T01/T02/T03/I01 concurrent acceptance creates one membership, scoped editing and actual actor audit',async()=>{
  const value=await save(),i=await invite();expect(new Date(i.invitation.expiresAt).getTime()-Date.now()).toBeGreaterThan(6.9*86400000)
  expect((await Promise.all([accept(i.token),accept(i.token)])).map(r=>r.statusCode).sort()).toEqual([200,409]);expect(await db.profileMembership.count({where:{profileId:i.profileId}})).toBe(1)

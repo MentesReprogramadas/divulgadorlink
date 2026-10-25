@@ -5,6 +5,8 @@ import { app } from '@/app'
 import { resetLoginAttemptsForTest } from '@/http/controllers/@auth/routes'
 import { resetAccountDeletionForTest, testAccountDeletion } from '@/use-cases/@Auth/delete-account'
 import { resetPasswordResetForTest, testPasswordAccounts } from '@/use-cases/@Auth/password-reset'
+import { setTenantsRepositoryForTest } from '@/http/tenant'
+import { InMemoryTenantsRepository } from '@/repositories/tenants-repository'
 
 const HOST = 'temlinkaqui.com'
 
@@ -14,6 +16,10 @@ describe('e-mail HTTP', () => {
   })
 
   beforeEach(() => {
+    setTenantsRepositoryForTest(new InMemoryTenantsRepository([
+      { id: 'seed-temlinkaqui', host: HOST, name: 'Tem Link Aqui' },
+      { id: 'foreign-tenant', host: 'tenant-b.localhost', name: 'Outro tenant' },
+    ]))
     resetLoginAttemptsForTest()
     resetPasswordResetForTest()
     resetAccountDeletionForTest()
@@ -58,6 +64,14 @@ describe('e-mail HTTP', () => {
     expect(email?.kind).toBe('password_reset')
     const tokenValue = email?.text.match(/token=([A-Za-z0-9_-]+)/)?.[1]
     expect(tokenValue).toBeTruthy()
+
+    const foreignReset = await app.inject({
+      method: 'POST', url: '/api/v1/auth/reset-password',
+      headers: { host: 'tenant-b.localhost' },
+      payload: { token: tokenValue, password: 'senha-estrangeira' },
+    })
+    expect(foreignReset.statusCode).toBe(400)
+    expect(testPasswordAccounts().users.get('ana')?.passwordHash).toBe('antiga')
 
     const reset = await app.inject({
       method: 'POST',

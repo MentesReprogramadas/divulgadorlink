@@ -58,7 +58,7 @@ export function ModerationSettings() {
   }
 
   return <div className={styles.root}>
-    <p>Defina a confiança mínima para a aprovação automática de links, alterações de texto, páginas, convites e coleções.</p>
+    <p>Defina a confiança mínima para aprovar automaticamente todo conteúdo público: links, páginas, textos, fotos e anexos, convites permanentes, campanhas e coleções.</p>
     {loading ? <p role="status">Carregando limiar de aprovação…</p> : saved !== null ? <form className={styles.form} onSubmit={event => { event.preventDefault(); void save() }}>
       <div className={styles.label}><label htmlFor={id}>Limiar de aprovação da IA</label><output htmlFor={id}>{draft}%</output></div>
       <input id={id} className={styles.range} type="range" min={0} max={100} step={1} value={draft} aria-valuetext={`${draft}%${draft === 0 ? ', análise da IA desativada' : ''}`} aria-describedby={`${id}-rule`} disabled={saving} onChange={event => { setDraft(Number(event.target.value)); setNotice('') }} />

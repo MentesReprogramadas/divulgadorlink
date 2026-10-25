@@ -25,16 +25,25 @@ describe('recuperação de senha', () => {
   })
 
   it('troca a senha uma vez e esquece o token', async () => {
-    await store.save('ana', hashResetToken('token-1'), 60)
-    expect(await store.consume(hashResetToken('token-1'))).toBe('ana')
-    expect(await store.consume(hashResetToken('token-1'))).toBeNull()
+    await store.save('tenant', 'ana', hashResetToken('token-1'), 60)
+    expect(await store.consume('tenant', hashResetToken('token-1'))).toBe('ana')
+    expect(await store.consume('tenant', hashResetToken('token-1'))).toBeNull()
   })
 
   it('um pedido novo invalida o token anterior', async () => {
-    await store.save('ana', hashResetToken('velho'), 60)
-    await store.save('ana', hashResetToken('novo'), 60)
-    expect(await store.consume(hashResetToken('velho'))).toBeNull()
-    expect(await store.consume(hashResetToken('novo'))).toBe('ana')
+    await store.save('tenant', 'ana', hashResetToken('velho'), 60)
+    await store.save('tenant', 'ana', hashResetToken('novo'), 60)
+    expect(await store.consume('tenant', hashResetToken('velho'))).toBeNull()
+    expect(await store.consume('tenant', hashResetToken('novo'))).toBe('ana')
+  })
+
+  it('token expirado ou de outro tenant não troca a senha', async () => {
+    let now = 0
+    const expiring = new MemoryPasswordResetStore(() => now)
+    await expiring.save('tenant-a', 'ana', hashResetToken('one'), 60)
+    expect(await expiring.consume('tenant-b', hashResetToken('one'))).toBeNull()
+    now = 60_000
+    expect(await expiring.consume('tenant-a', hashResetToken('one'))).toBeNull()
   })
 
   it('e-mail desconhecido não envia e o conhecido recebe o link', async () => {
@@ -65,8 +74,8 @@ describe('recuperação de senha', () => {
     expect(sent[0]?.text).toContain('token-ana-com-mais-de-vinte')
     expect(sent[0]?.kind).toBe('password_reset')
 
-    expect(await resetPassword({ token: 'token-ana-com-mais-de-vinte', passwordHash: 'nova' })).toBe(true)
+    expect(await resetPassword({ tenantId: 'tenant', token: 'token-ana-com-mais-de-vinte', passwordHash: 'nova' })).toBe(true)
     expect(testPasswordAccounts().users.get('ana')?.passwordHash).toBe('nova')
-    expect(await resetPassword({ token: 'token-ana-com-mais-de-vinte', passwordHash: 'outra' })).toBe(false)
+    expect(await resetPassword({ tenantId: 'tenant', token: 'token-ana-com-mais-de-vinte', passwordHash: 'outra' })).toBe(false)
   })
 })
