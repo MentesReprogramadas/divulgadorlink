@@ -1,60 +1,22 @@
-import { cache, Suspense } from 'react'
+import { Suspense } from 'react'
 import { RelatedSkeleton } from '@/features/catalog/components/catalog-skeleton'
 import { RelatedLinksSection } from '@/features/catalog/server/related-links'
-import { headers } from 'next/headers'
+import { loadPublicLink } from '@/features/catalog/server/load-link'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { Impression } from '@/components/domain/impression'
 import { trackedGoPath } from '@/domain/tracked-go'
 import { metadataFromSeo } from '@/domain/crawler-policy'
 import { jsonLdScript } from '@/domain/json-ld'
-import { tenantHost, forward } from '@/lib/upstream'
 import { BackButton } from '@/components/ui/back-button'
-import type { LinkDiscovery } from '@/components/domain/link-meta'
 import { LinkDetail } from '@/features/catalog/components/link-detail'
 import styles from '@/features/catalog/components/ondas-catalog.module.css'
 import { LiquidLens } from '@/components/ui/liquid-lens'
 import { AgeWall } from '@/components/domain/age-gate'
 
-type FacetRef = { name?: string; slug?: string; requiresAge?: boolean }
-
-type PublicLink = {
-  discovery?: LinkDiscovery
-  available: boolean
-  name?: string
-  description?: string
-  iconUrl?: string | null
-  imageUrl?: string | null
-  imageAlt?: string | null
-  network?: FacetRef
-  niche?: FacetRef
-  surfaceToken?: string
-  goPath?: string
-  seo?: {
-    title: string
-    description: string
-    canonical: string
-    robots: string
-    openGraph?: { title: string; description: string; url: string }
-    structuredData?: Record<string, string>
-  }
-}
-
-const loadLink = cache(async (id: string): Promise<{ status: number; link: PublicLink | null }> => {
-  const hostHeader = (await headers()).get('host') ?? 'localhost'
-  const result = await forward({
-    method: 'GET',
-    path: `/api/v1/links/${id}`,
-    host: tenantHost(hostHeader.split(':')[0] || 'localhost'),
-  })
-  if (result.status === 404) return { status: 404, link: null }
-  if (result.status !== 200) throw new Error(`Link upstream returned ${result.status}`)
-  return { status: result.status, link: JSON.parse(result.body.toString()) as PublicLink }
-})
-
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
-  const loaded = await loadLink(id)
+  const loaded = await loadPublicLink(id)
   if (loaded.status === 404 || !loaded.link) notFound()
   const seo = loaded.link.seo
   if (!seo) return {}
@@ -79,7 +41,7 @@ export default async function Page({
 }) {
   const { id } = await params
   const query = await searchParams
-  const loaded = await loadLink(id)
+  const loaded = await loadPublicLink(id)
   if (loaded.status === 404 || !loaded.link) notFound()
   const link = loaded.link
   if (!link.available) {

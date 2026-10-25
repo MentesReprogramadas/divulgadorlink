@@ -1,4 +1,5 @@
 import {headers} from 'next/headers'
+import { loadPublicLink } from '@/features/catalog/server/load-link'
 import {personalHostTarget,personalHostOrigin} from '@/features/profile-hosts/host-routing'
 import type { Metadata } from 'next'
 import { Suspense, type CSSProperties } from 'react'
@@ -32,6 +33,9 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const requestHeaders=await headers(),hostHeader=requestHeaders.get('host')??'',personal=personalHostTarget(hostHeader),personalHost=Boolean(personal)
+  const linkId = /^\/link\/([^/]+)\/?$/.exec(requestHeaders.get('x-pathname') ?? '')?.[1]
+  // Resolve the link before the shell streams so metadata can set its HTTP status.
+  if (linkId) await loadPublicLink(linkId)
   const personalOrigin=personal?personalHostOrigin(personal.tenantHost,hostHeader.split(':')[1]??''):undefined
   const jar = await cookies()
   const role = jar.get('catalogo_role')?.value
@@ -56,7 +60,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="pt-BR" className={`${sourceSans.variable} ${outfit.variable}`}>
       <body style={publicBackground ? { backgroundColor: publicBackground, ...(profilePreview ? {'--profile-preview-background':publicBackground,'--profile-preview-ink':readableInk(publicBackground)} : {}) } as CSSProperties : undefined} data-personal-origin={personalOrigin} data-personal-host={personalHost?'true':undefined} data-support={!personalHost&&support?'true':undefined}>
         {/* Keep async children off the host replay path until Next bundles https://github.com/react/react/pull/35494. */}
-        <SiteShell personalHost={personalHost} role={personalHost?undefined:role} support={!personalHost&&support}><Suspense fallback={<RoutePending variant={requestHeaders.get('x-pathname')?.startsWith('/link/')?'detail':'page'} />}>{children}</Suspense></SiteShell>
+        <SiteShell personalHost={personalHost} role={personalHost?undefined:role} support={!personalHost&&support}>{linkId ? children : <Suspense fallback={<RoutePending variant="page" />}>{children}</Suspense>}</SiteShell>
         <Consent pending={pending} />
         {personalHost?null:<SiteVisits />}
       </body>

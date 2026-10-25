@@ -6,8 +6,6 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   reactStrictMode: true,
   poweredByHeader: false,
-  // Resolve metadata before streaming so missing public resources retain HTTP 404.
-  htmlLimitedBots: /.*/,
   allowedDevOrigins: ['tenant-a.localhost', 'tenant-b.localhost', 'localhost', '192.168.15.56', 'temlinkaqui.com', `divulguelinkaqui.com.br`],
   async redirects() {
     return [{
