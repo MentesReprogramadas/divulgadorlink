@@ -26,6 +26,8 @@ As medidas do fundo descontam a área reservada às barras de rolagem, exposta d
 
 A primeira execução do CI no commit `8b40ad2` aprovou 19 das 20 verificações, incluindo catálogo e revisões visuais. A única falha foi a comparação de dois `boundingBox()` sequenciais em favoritos: leituras iniciadas com 28 ms de diferença produziram um desvio de 3 px; a captura posterior mostrou os cards alinhados. O teste agora mede ambos no mesmo `evaluateAll`, preservando o limite de 2 px. A jornada completa de favoritos passou em desktop e mobile após esse ajuste (três casos com setup); tipos também passaram. Isso não altera o layout nem a lógica de favoritos. A publicação aguarda a validação integral do commit final.
 
+Uma execução posterior encontrou um segundo problema de sincronização em `loading-layout.spec.ts`: a primeira caixa do formulário era `null`, embora um skeleton da página já estivesse visível. As capturas seguintes mostraram o formulário carregando e pronto. O teste agora aguarda a visibilidade do próprio formulário antes de medi-lo; os mesmos limites de geometria foram mantidos. Três casos locais passaram (setup, desktop e mobile), sem mudança de produção.
+
 Extração incremental local do Graphify: 41 arquivos reavaliados, 1.512 reutilizados, 7.797 nós e 27.948 relações; sem LLM, API ou clustering. Inclui trabalho paralelo na árvore compartilhada, portanto o índice global não integra este commit. CSS e capturas dependem da inspeção própria.
 
 ## Limites e reversão

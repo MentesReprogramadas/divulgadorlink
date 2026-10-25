@@ -119,6 +119,7 @@ test('L04 sessão lenta preserva a geometria do formulário de publicar e respei
     await expect.poll(() => received).toBe(true)
     await expect(page.locator('[data-skeleton]:visible').first()).toBeVisible()
     await page.evaluate(() => document.fonts.ready)
+    await expect(page.locator('[data-layout="submission-form"]')).toBeVisible()
     const before = await page.locator('[data-layout="submission-form"]').boundingBox()
     await page.emulateMedia({ reducedMotion: 'reduce' })
     expect(await page.locator('[data-skeleton-block]').first().evaluate(el => getComputedStyle(el).animationName)).toBe('none')
