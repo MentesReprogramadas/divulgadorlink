@@ -1,0 +1,13 @@
+import {cleanup,fireEvent,render,screen,waitFor} from '@testing-library/react'
+import {afterEach,beforeEach,expect,it,vi} from 'vitest'
+import {DiagnosticsScreen,diagnosticPeriod} from './diagnostics-screen'
+import {profileRequest} from '@/features/profiles/profile-api'
+vi.mock('@/features/profiles/profile-api',async original=>({...await original<typeof import('@/features/profiles/profile-api')>(),profileRequest:vi.fn()}))
+vi.mock('@/components/ui/select',()=>({Select:({children,...props}:import('react').SelectHTMLAttributes<HTMLSelectElement>)=><select {...props}>{children}</select>}))
+const request=vi.mocked(profileRequest),finding={key:'a'.repeat(64),code:'DUPLICATE_TITLE',title:'Títulos repetidos: Site',reason:'Dois botões usam o mesmo título.',actionPath:'/painel/perfil/links',actionLabel:'Revisar grupos e links',position:null,ruleVersion:1,evidence:{count:2}},value={page:{id:'page',name:'Minha página',version:1},findings:[finding],ignored:0,coverage:'NO_DATA',range:null,revision:null,unverifiedUrls:1}
+afterEach(cleanup)
+beforeEach(()=>{vi.clearAllMocks();request.mockResolvedValue(value)})
+it('F40-C01 motivo, limite de dados e ação claros; ignorar só depois de confirmar na API',async()=>{render(<DiagnosticsScreen/>);await screen.findByRole('article',{name:finding.title});expect(screen.getByText(/Ainda não há dados suficientes/)).toBeTruthy();expect(screen.getByRole('link',{name:'Revisar grupos e links'}).getAttribute('href')).toBe('/painel/perfil/links');request.mockResolvedValueOnce({ok:true}).mockResolvedValueOnce({...value,findings:[],ignored:1});fireEvent.click(screen.getByRole('button',{name:'Ignorar sugestão'}));await screen.findByText(/Sua página não foi alterada/);expect(screen.queryByRole('article')).toBeNull();expect(request).toHaveBeenCalledWith('/diagnostics/'+finding.key+'/dismiss',expect.objectContaining({method:'POST'}))})
+it('F40-C02 falha conserva seleção, motivo e ação recuperável',async()=>{render(<DiagnosticsScreen/>);await screen.findByRole('article');request.mockRejectedValueOnce(new Error('Sem conexão'));fireEvent.change(screen.getByLabelText('Período da interação'),{target:{value:'7'}});await screen.findByRole('alert');expect((screen.getByLabelText('Período da interação') as HTMLSelectElement).value).toBe('7');expect(screen.getByRole('article')).toBeTruthy();fireEvent.click(screen.getByRole('button',{name:'Tentar de novo'}));await waitFor(()=>expect(screen.queryByRole('alert')).toBeNull())})
+
+it('F40-C03 período respeita o dia de São Paulo depois da meia-noite UTC',()=>{expect(diagnosticPeriod(7,new Date('2026-10-22T01:00:00Z'))).toEqual({from:'2026-10-15',to:'2026-10-21'})})

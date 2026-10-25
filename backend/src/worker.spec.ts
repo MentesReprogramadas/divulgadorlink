@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { handlers } from '@/worker'
+import { handlers,startWebhookWorker } from '@/worker'
 
 describe('worker moderate-link', () => {
+  it('recusa o consumidor local fora do ambiente de desenvolvimento antes de abrir a fila',async()=>{
+    await expect(startWebhookWorker()).rejects.toThrow('NODE_ENV=dev')
+  })
   it('usa o limiar de readConfig e manda null para ADMIN', () => {
     const threshold = 0.72
     const run = handlers['moderate-link']

@@ -1,6 +1,7 @@
 import { expect, type Locator } from '@playwright/test'
 
 export async function selectOption(control: Locator, option: string | { label: string }) {
+  await control.waitFor({ state: 'attached' })
   const area = control.locator('xpath=ancestor::*[@data-responsive-area][1]')
   if (await area.count() && !await control.isVisible()) {
     const tab = typeof option === 'string' ? area.getByRole('tab').and(control.page().locator(`[data-value=${JSON.stringify(option)}]`)) : area.getByRole('tab', { name: option.label, exact: true })

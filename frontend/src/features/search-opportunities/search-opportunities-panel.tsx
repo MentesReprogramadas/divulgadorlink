@@ -4,7 +4,8 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { api } from '@/lib/api'
 import { ActionIcon } from '@/components/ui/action-icon'
 import { Button } from '@/components/ui/button'
-import { Field, Input, Select } from '@/components/ui/input'
+import { Field, Select } from '@/components/ui/input'
+import { DatePicker } from '@/components/ui/date-picker'
 import { WorkspaceActions, WorkspaceFilters } from '@/components/layout/workspace-controls'
 import { EmptyState } from '@/components/feedback/empty-state'
 import { ErrorState } from '@/components/feedback/error-state'
@@ -13,6 +14,7 @@ import {MetricCards} from '@/components/ui/metric-cards'
 import {MetricChart} from '@/components/ui/metric-chart'
 import {ReportView} from '@/components/ui/report-view'
 import styles from './search-opportunities.module.css'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 
 type Row = { term: string; searches: number; empty: number; exits: number; withResults: number; exitRate: number; opportunity: 'NO_RESULTS' | 'LOW_INTERACTION' | 'OBSERVE' }
 type Facet = { id: string; name: string }
@@ -27,7 +29,7 @@ function SearchCard({ row, loading = false }: { row?: Row; loading?: boolean }) 
     <div className={styles.heading}><h3>{row ? value(row.term) : <Skeleton width={180} height={26} />}</h3><span className={styles.badge}>{row ? value(LABELS[row.opportunity]) : <Skeleton width={104} height={21} />}</span></div>
     <dl className={styles.metrics}>{[['Buscas', row?.searches], ['Sem resultado', row?.empty], ['Saídas', row?.exits]].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{row ? (loading ? <span data-skeleton-block className={styles.ghost}>{Number(value).toLocaleString('pt-BR')}</span> : Number(value).toLocaleString('pt-BR')) : <Skeleton width={55} height={29} />}</dd></div>)}</dl>
     <p className={styles.policy}>{row ? value(`${row.exitRate.toLocaleString('pt-BR')}% das buscas com resultado geraram uma saída.`) : <Skeleton height={21} />}</p>
-  </article>
+  <LiquidLens radius={16} /></article>
 }
 export function SearchOpportunitiesPanel() {
   const [report, setReport] = useState<SearchOpportunityReport | null>(null)
@@ -64,8 +66,8 @@ export function SearchOpportunitiesPanel() {
   return <section ref={filterRegion} className={styles.panel} aria-label="Oportunidades de busca" aria-busy={loading}>
     <WorkspaceActions label="Ações das oportunidades"><Button variant="secondary" aria-label="Atualizar oportunidades" onClick={() => setRevision(value => value + 1)}><ActionIcon name="refresh" /></Button></WorkspaceActions>
     <WorkspaceFilters id="search-opportunity-filters" label="Filtrar oportunidades" onSubmit={event => { event.preventDefault(); apply() }}>
-      <Field label="De"><Input type="date" value={from} onChange={event => setFrom(event.target.value)} /></Field>
-      <Field label="Até"><Input type="date" value={to} min={from || undefined} onChange={event => setTo(event.target.value)} /></Field>
+      <Field label="De"><DatePicker value={from} onChange={event => setFrom(event.target.value)} /></Field>
+      <Field label="Até"><DatePicker value={to} min={from || undefined} onChange={event => setTo(event.target.value)} /></Field>
       <Field label="Oportunidade"><Select value={opportunity} onChange={event => setOpportunity(event.target.value)}><option value="">Todas</option><option value="NO_RESULTS">Sem oferta</option><option value="LOW_INTERACTION">Pouca interação</option></Select></Field>
       <Field label="Rede nos resultados"><Select value={networkId} onChange={event => setNetworkId(event.target.value)}><option value="">Todas</option>{report?.networks.map(row => <option key={row.id} value={row.id}>{row.name}</option>)}</Select></Field>
       <Field label="Nicho nos resultados"><Select value={nicheId} onChange={event => setNicheId(event.target.value)}><option value="">Todos</option>{report?.niches.map(row => <option key={row.id} value={row.id}>{row.name}</option>)}</Select></Field>
@@ -79,7 +81,7 @@ export function SearchOpportunitiesPanel() {
         {report.items.length ? <ReportView title="Oportunidades nesta página" rows={report.items} rowKey={row=>row.term} pageSize={25} columns={[{label:'Termo',render:row=>row.term},{label:'Oportunidade',render:row=>LABELS[row.opportunity]},{label:'Buscas',render:row=>row.searches.toLocaleString('pt-BR'),numeric:true},{label:'Sem resultado',render:row=>row.empty.toLocaleString('pt-BR'),numeric:true},{label:'Saídas',render:row=>row.exits.toLocaleString('pt-BR'),numeric:true},{label:'Taxa de saída',render:row=>row.exitRate.toLocaleString('pt-BR')+'%',numeric:true}]} chart={<MetricChart kind="ranking" label="Buscas por termo nesta página" rows={report.items.map(row=>({label:row.term,value:row.searches}))}/>}/> : <EmptyState>Sem buscas suficientes neste período e filtros.</EmptyState>}
       </div> : null}
     {report && !denied && !failed ? <>
-        <details className={styles.coverage}><summary>Como interpretar</summary><p className={styles.policy}>Pouca interação: até 10% das buscas com resultado geraram saída. Rede e nicho filtram os links exibidos; buscas vazias aparecem somente sem esses filtros. Falhas e restrições de idade ficam fora das oportunidades.</p><ul>{report.coverage.map(row => <li key={row.outcome}>{({ SUCCESS: 'Buscas concluídas', FAILED: 'Falhas técnicas', GATED: 'Restrição de idade' } as Record<string, string>)[row.outcome]}: {row.count === null ? 'amostra insuficiente' : row.count.toLocaleString('pt-BR')}</li>)}</ul></details>
+        <div className={styles.coverageFrame}><LiquidLens radius={12}/><details className={styles.coverage}><summary>Como interpretar</summary><p className={styles.policy}>Pouca interação: até 10% das buscas com resultado geraram saída. Rede e nicho filtram os links exibidos; buscas vazias aparecem somente sem esses filtros. Falhas e restrições de idade ficam fora das oportunidades.</p><ul>{report.coverage.map(row => <li key={row.outcome}>{({ SUCCESS: 'Buscas concluídas', FAILED: 'Falhas técnicas', GATED: 'Restrição de idade' } as Record<string, string>)[row.outcome]}: {row.count === null ? 'amostra insuficiente' : row.count.toLocaleString('pt-BR')}</li>)}</ul></details></div>
         {page > 1 || report.total > 25 ? <WorkspaceActions><Button variant="secondary" disabled={loading || page === 1} onClick={() => setPage(value => value - 1)}><ActionIcon name="back" />Anterior</Button><span aria-live="polite">Página {page}</span><Button disabled={loading || page * 25 >= report.total} onClick={() => setPage(value => value + 1)}>Próxima<ActionIcon name="next" /></Button></WorkspaceActions> : null}
     </> : null}
   </section>

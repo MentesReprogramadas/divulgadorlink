@@ -6,13 +6,13 @@
 .filters button { display: inline-flex; align-items: center; justify-content: space-between; gap: var(--space-2); min-height: 44px; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-default); border-radius: var(--radius); background: var(--surface-raised); color: var(--text-primary); font: inherit; font-size: var(--text-sm); cursor: pointer; }
 .filters button span { min-width: 1.5rem; padding: 0 var(--space-1); border-radius: var(--radius); background: var(--surface-subtle); font-variant-numeric: tabular-nums; text-align: center; }
 .filters button[aria-pressed="true"] { background: var(--action-primary-bg); color: var(--color-primary-ink); border-color: var(--action-primary-bg); }
-.filters button[aria-pressed="true"] span { background: rgb(255 255 255 / 18%); }
+.filters button[aria-pressed="true"] span { background: color-mix(in srgb, currentColor 12%, transparent); }
 .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); min-width: 0; }
-.card { --status-ink: var(--text-secondary); --status-bg: var(--surface-subtle); display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-3); min-width: 0; padding: var(--space-6); border: 1px solid var(--border-default); border-top: 3px solid var(--status-ink); border-radius: var(--radius-md); background: var(--surface-raised); }
-.published { --status-ink: var(--status-success-text); --status-bg: #e8f3ee; }
-.pending { --status-ink: #815000; --status-bg: #fff4d6; }
-.rejected { --status-ink: var(--status-error-text); --status-bg: #fff0ee; }
-.unavailable { --status-ink: var(--neutral-700); }
+.card { --status-ink: var(--text-secondary); --status-bg: var(--surface-subtle); position: relative; isolation: isolate; display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-3); min-width: 0; padding: var(--space-6); border-radius: 24px; }
+.published { --status-ink: var(--status-success-text); --status-bg: var(--status-success-bg); }
+.pending { --status-ink: var(--status-warning-text); --status-bg: var(--status-warning-bg); }
+.rejected { --status-ink: var(--status-error-text); --status-bg: var(--status-error-bg); }
+.unavailable { --status-ink: var(--text-secondary); }
 .draft { --status-ink: var(--text-secondary); }
 .badge { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-1) var(--space-2); border: 1px solid currentColor; border-radius: var(--radius); background: var(--status-bg); color: var(--status-ink); font-size: var(--text-sm); font-weight: 650; }
 .badge > span { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }

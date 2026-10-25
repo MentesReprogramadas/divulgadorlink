@@ -10,7 +10,7 @@ const profiles:PermissionProfile[]=[
  {id:'finance',label:'Financeiro',description:'Gerencia pedidos e assinatura. Sem acesso às demais áreas.',icon:'permissionFinance',readGroups:['Financeiro'],writeGroups:['Financeiro']},
  {id:'reader',label:'Leitor',description:'Visualiza conteúdo, ferramentas, acompanhamento e financeiro. Não edita nem acessa a administração.',icon:'eye',readGroups:['Conteúdo','Ferramentas','Acompanhamento','Financeiro'],writeGroups:[]},
 ]
-export function permissionProfiles(sections:PermissionSection[]){return profiles.filter(profile=>sections.some(row=>profile.readGroups==='all'||profile.readGroups.includes(row.group)))}
+export function permissionProfiles(sections:PermissionSection[]){return profiles.filter(profile=>sections.some(row=>profile.readGroups==='all'||profile.readGroups.includes(row.group))).map(profile=>profile.id==='admin'&&!sections.some(row=>row.id.startsWith('admin'))?{...profile,label:'Gestor da conta',description:'Acesso completo às áreas desta conta. Não concede administração do Tem Link Aqui.'}:profile)}
 export function profileGrants(sections:PermissionSection[],id:string):Grants{
  const profile=profiles.find(row=>row.id===id)
  if(!profile)return {}

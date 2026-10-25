@@ -11,6 +11,8 @@ import { Button } from '@/components/ui/button'
 import { Field, Input } from '@/components/ui/input'
 import { readSession, writeSession } from '@/domain/session'
 import { api } from '@/lib/api'
+import {LiquidLens} from '@/components/ui/liquid-lens'
+import styles from '@/components/forms/public-account.module.css'
 
 type ConfirmBody = {
   message?: string
@@ -178,7 +180,7 @@ export default function Page() {
       </p>
       {phase === 'loading' ? <VerificationSkeleton /> : null}
       {phase === 'code' ? (
-        <form className="auth-form" onSubmit={(event) => void submit(event)}>
+        <form className={`auth-form ${styles.form}`} onSubmit={(event) => void submit(event)}><LiquidLens radius={16}/>
           <p className="verify-target">
             {masked ? <>Código enviado para <strong>{masked}</strong></> : null}
             <button type="button" className="quiet-button" onClick={openChange}><ActionIcon name="edit" />Trocar e-mail</button>
@@ -191,7 +193,7 @@ export default function Page() {
         </form>
       ) : null}
       {phase === 'change' ? (
-        <form className="auth-form" onSubmit={(event) => void changeEmail(event)}>
+        <form className={`auth-form ${styles.form}`} onSubmit={(event) => void changeEmail(event)}><LiquidLens radius={16}/>
           <Field label="Novo e-mail">
             <Input name="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
           </Field>

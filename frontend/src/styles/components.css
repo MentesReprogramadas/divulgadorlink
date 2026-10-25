@@ -29,7 +29,7 @@
   font: inherit;
   cursor: pointer;
 }
-.pager button[aria-current="page"] { border-color: var(--color-brand-navy); color: var(--color-brand-navy); font-weight: 600; }
+.pager button[aria-current="page"] { border-color: var(--color-link); color: var(--color-link); font-weight: 600; }
 .pager button:disabled { opacity: 0.45; cursor: not-allowed; }
 
 .suggest { position: relative; }
@@ -79,7 +79,7 @@ main.panel-page {
   font-weight: 600;
   text-decoration: none;
 }
-.panel-nav a[aria-current="page"] { color: var(--color-brand-navy); border-bottom-color: var(--color-brand-navy); }
+.panel-nav a[aria-current="page"] { color: var(--color-link); border-bottom-color: var(--color-brand-navy); }
 
 .summary-grid, .order-grid, .link-board-grid, .account-grid {
   display: grid;
@@ -130,32 +130,38 @@ main.panel-page {
 .link-card-actions .button svg { flex: none; }
 
 .link-card-actions .action-open {
-  background: #e7eef6;
-  color: var(--color-brand-navy);
-  border-color: #c5d3e6;
+  background: var(--surface-subtle);
+  color: var(--color-link);
+  border-color: var(--border-default);
 }
-.link-card-actions .action-open:hover { background: #d5e3f2; }
+.link-card-actions .action-open:hover { background: var(--surface-subtle); }
 
 .link-card-actions .action-edit {
-  background: var(--color-brand-navy);
-  color: var(--color-brand-white);
+  --button-glass-tint: var(--action-primary-bg);
+  --button-glass-hover: var(--action-primary-hover);
+  background: transparent;
+  color: var(--color-primary-ink);
   border-color: transparent;
 }
-.link-card-actions .action-edit:hover { background: var(--color-primary-hover); }
+.link-card-actions .action-edit:hover { background: transparent; color: var(--color-primary-ink); }
 
 .link-card-actions .action-feature {
-  background: #daf8f4;
-  color: #0b5c4a;
-  border-color: #8edfd4;
+  --button-glass-tint: var(--status-success-bg);
+  --button-glass-hover: var(--status-success-bg);
+  background: transparent;
+  color: var(--status-success-text);
+  border-color: var(--status-success-border);
 }
-.link-card-actions .action-feature:hover { background: #c8f3ed; }
+.link-card-actions .action-feature:hover { background: transparent; }
 
 .link-card-actions .action-contest {
-  background: #f8ebe6;
-  color: var(--color-clay);
-  border-color: #e3c2b6;
+  --button-glass-tint: var(--status-error-bg);
+  --button-glass-hover: var(--status-error-bg);
+  background: transparent;
+  color: var(--status-error-text);
+  border-color: var(--status-error-border);
 }
-.link-card-actions .action-contest:hover { background: #f3ddd6; }
+.link-card-actions .action-contest:hover { background: transparent; }
 
 @media (width < 720px) {
   .panel-link-grid { grid-template-columns: minmax(0, 1fr); }
@@ -186,7 +192,7 @@ main.panel-page {
   font: inherit;
   cursor: pointer;
 }
-.filter-row button[aria-selected="true"] { border-color: var(--color-brand-navy); color: var(--color-brand-navy); }
+.filter-row button[aria-selected="true"] { border-color: var(--color-link); color: var(--color-link); }
 .overview-split { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: var(--space-8); margin-top: var(--space-8); }
 
 @media (width < 1119px) {
@@ -273,7 +279,7 @@ textarea:disabled {
 }
 
 .site-header nav a {
-  color: var(--color-brand-navy);
+  color: var(--color-link);
   white-space: nowrap;
   text-decoration: none;
 }
@@ -315,3 +321,7 @@ textarea:disabled {
   .site-header nav { gap: var(--space-2) var(--space-4); }
   main { padding: var(--space-6) var(--space-4) var(--space-8); }
 }
+
+
+.summary-card, .order-card, .link-card, .suggest-pop { box-shadow: var(--glass-shadow); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); }
+.suggest-pop { background: var(--surface-popup); }

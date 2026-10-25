@@ -1,5 +1,6 @@
 'use client'
 
+import { LinkMediaEditor } from '@/features/link-media/link-media-editor'
 import { useEffect, useLayoutEffect, useState } from 'react'
 import { Button, ButtonLink } from '@/components/ui/button'
 import { ActionIcon } from '@/components/ui/action-icon'
@@ -15,6 +16,7 @@ import { WorkspaceActions, WorkspaceFilters } from '@/components/layout/workspac
 import { EmptyState } from '@/components/feedback/empty-state'
 import { LinkDiscoveryContent, useLinkDiscovery } from '@/features/catalog/discovery/link-discovery-editor'
 import { Skeleton } from '@/components/feedback/skeleton'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 
 export type PanelLink = {
   id: string
@@ -67,7 +69,7 @@ function formatNumber(value: number): string {
 }
 
 function LinkMetrics({ numbers }: { numbers: Stats | null | undefined }) {
-  if (numbers === undefined) return <div className="panel-stats" role="status" aria-label="Contando métricas">{['Impressões', 'Cliques', 'Taxa de cliques'].map(label => <div className="metric" key={label}><Skeleton width={48} height={24} /><span className="metric-label">{label}</span></div>)}</div>
+  if (numbers === undefined) return <div className="panel-stats" role="status" aria-label="Contando métricas">{['Impressões', 'Cliques', 'Taxa de cliques'].map(label => <div className={`metric ${styles.linkMetric}`} key={label}><LiquidLens radius={12} /><Skeleton width={48} height={24} /><span className="metric-label">{label}</span></div>)}</div>
   if (numbers === null) return <p className="panel-meta">Contagem indisponível</p>
   const rows = [
     { key: 'impressions', label: 'Impressões', value: formatNumber(numbers.impressions), live: numbers.impressions > 0, icon: 'eye' },
@@ -77,7 +79,8 @@ function LinkMetrics({ numbers }: { numbers: Stats | null | undefined }) {
   return (
     <div className="panel-stats">
       {rows.map((row) => (
-        <div key={row.key} className="metric">
+        <div key={row.key} className={`metric ${styles.linkMetric}`}>
+          <LiquidLens radius={12} />
           <strong className={row.live ? 'metric-value is-live' : 'metric-value'}>{row.value}</strong>
           <span className="metric-label"><Glyph name={row.icon} />{row.label}</span>
         </div>
@@ -134,7 +137,8 @@ export function LinkList({
           const numbers = stats[link.id]
           const editable = (link.status === 'PUBLISHED' || link.status === 'PENDING_MODERATION') && !banned
           return (
-            <article key={link.id} id={`link-${link.id}`} className="link-card">
+            <article key={link.id} id={`link-${link.id}`} className={`link-card ${styles.card}`}>
+              <LiquidLens radius={16} />
               <h3>{link.name}</h3>
               {description ? <p className="panel-description">{description}</p> : null}
               <LinkMeta
@@ -153,7 +157,7 @@ export function LinkList({
                 ) : null}
                 {link.status === 'PRE_REJECTED' ? <ButtonLink className="action-contest" variant="secondary" href={`/painel/links/${link.id}/contestar`}><ActionIcon name="appeal" width={14} height={14} />Contestar</ButtonLink> : null}
                 {link.status === 'PUBLISHED' && !banned ? <ButtonLink className="action-feature" variant="secondary" href={`/painel/links/${link.id}/destaque`}><ActionIcon name="promotion" width={14} height={14} />Destacar</ButtonLink> : null}
-                <details className={styles.moreActions}><summary>Mais opções</summary><div>{!banned ? <ButtonLink variant="ghost" href={`/painel/links/${link.id}/disponibilidade`}><ActionIcon name="availability" />Disponibilidade</ButtonLink> : null}<ButtonLink variant="secondary" href={`/link/${link.id}`}><Glyph name="external" />Acessar</ButtonLink></div></details>
+                <details className={styles.moreActions}><summary><LiquidLens radius={12} />Mais opções</summary><div className={styles.morePanel}><LiquidLens radius={12} /><div className={styles.moreOptions}>{!banned ? <ButtonLink variant="ghost" href={`/painel/links/${link.id}/disponibilidade`}><ActionIcon name="availability" />Disponibilidade</ButtonLink> : null}<ButtonLink variant="secondary" href={`/link/${link.id}`}><Glyph name="external" />Acessar</ButtonLink></div></div></details>
               </div>
             </article>
           )
@@ -230,6 +234,7 @@ export function LinkEditor({
       ) : (
         <p className="panel-empty">Este link não pode ser editado agora.</p>
       )}
+      {editable ? <LinkMediaEditor linkId={link.id} /> : null}
     </div>
   )
 }
@@ -257,6 +262,7 @@ export function useMyLinks() {
   const [stats, setStats] = useState<Record<string, Stats | null>>({})
   const [error, setError] = useState('')
   const [ready, setReady] = useState(false)
+  const [attempt, setAttempt] = useState(0)
 
   useLayoutEffect(() => {
     if (!mineCache) return
@@ -290,7 +296,12 @@ export function useMyLinks() {
       }))
     })()
     return () => { current = false }
-  }, [])
+  }, [attempt])
 
-  return { links, stats, error, ready }
+  function reload() {
+    setError('')
+    setReady(false)
+    setAttempt(value => value + 1)
+  }
+  return { links, stats, error, ready, reload }
 }

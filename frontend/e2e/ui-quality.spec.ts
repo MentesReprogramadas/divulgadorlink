@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { expect, test } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
+import { settleAnimations } from './capture-page'
 
 type Fixture = { receitas: string; bia: string; admin: string; password: string }
 const origin = (e2eRuntime.web('tenant-a.localhost'))
@@ -24,6 +25,7 @@ for (const role of ['public', 'user', 'admin'] as const) {
       await page.getByLabel('Senha', { exact: true }).fill(fixture.password)
       await page.getByRole('button', { name: 'Entrar', exact: true }).click()
       await expect(page).toHaveURL(/\/painel/)
+      await expect(page.getByRole('button', { name: 'Menu', exact: true, includeHidden: true })).toBeEnabled()
     }
     const routes = role === 'public' ? [...publicRoutes, `/link/${fixture.receitas}`] : role === 'user'
       ? ['/painel', '/painel/links', '/painel/links/novo', `/painel/links/${fixture.receitas}/editar`, `/painel/links/${fixture.receitas}/destaque`, `/painel/links/${fixture.receitas}/contestar`, '/painel/pedidos', '/painel/conta']
@@ -33,7 +35,7 @@ for (const role of ['public', 'user', 'admin'] as const) {
         const response = await page.goto(`${origin}${route}`)
         expect(response?.status()).toBe(200)
         await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
-        await page.waitForLoadState('networkidle')
+        await page.waitForLoadState('networkidle'); await settleAnimations(page)
         await page.evaluate(() => document.fonts.ready)
         if (route === '/admin/planos') {
           const edit = page.getByRole('button', { name: 'Editar', exact: true }).first()
@@ -49,15 +51,29 @@ for (const role of ['public', 'user', 'admin'] as const) {
           for (let index = 0; index < sections.length; index += 1) {
             const sectionLabel = sections[index]!.label
             await selectOption(selector, sections[index]!.value)
-            await page.waitForLoadState('networkidle')
-            if (role === 'admin' && (sectionLabel === 'Tráfego' || sectionLabel === 'Financeiro')) {
-              await expect(page.locator('[role="tablist"]:not([aria-label="Área de gestão em abas"])')).toBeVisible()
+            await page.waitForLoadState('networkidle'); await settleAnimations(page)
+            const insightTabs = page.getByRole('tablist', { name: sectionLabel, exact: true }).getByRole('tab')
+            const insightCount = await insightTabs.count()
+            if (sectionLabel === 'Tráfego' || sectionLabel === 'Financeiro') {
+              await expect(insightTabs.first()).toBeVisible()
             }
-            const tabs = page.locator('[role="tab"]:not([id^="office-area-"])')
-            for (let tabIndex = 0; tabIndex < await tabs.count(); tabIndex += 1) {
-              await tabs.nth(tabIndex).click()
-              await expect(tabs.nth(tabIndex)).toHaveAttribute('aria-selected', 'true')
-              await page.waitForLoadState('networkidle')
+            for (let tabIndex = 0; tabIndex < Math.max(1, insightCount); tabIndex += 1) {
+              if (insightCount) {
+                await insightTabs.nth(tabIndex).click()
+                await expect(insightTabs.nth(tabIndex)).toHaveAttribute('aria-selected', 'true')
+              }
+              await page.waitForLoadState('networkidle'); await settleAnimations(page)
+              const reportLists = page.getByRole('tablist', { name: /^Visualização: / })
+              for (let reportIndex = 0; reportIndex < await reportLists.count(); reportIndex += 1) {
+                const reportTabs = reportLists.nth(reportIndex).getByRole('tab')
+                for (let viewIndex = 0; viewIndex < await reportTabs.count(); viewIndex += 1) {
+                  await reportTabs.nth(viewIndex).click()
+                  await expect(reportTabs.nth(viewIndex)).toHaveAttribute('aria-selected', 'true')
+                  await settleAnimations(page)
+                  const reportAccessibility = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze()
+                  expect.soft(reportAccessibility.violations.map(violation => ({ id: violation.id, nodes: violation.nodes.map(node => node.target) })), `${route}: seção ${index}, aba ${tabIndex}, relatório ${reportIndex}, visão ${viewIndex}`).toEqual([])
+                }
+              }
               expect.soft(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), `${route}: aba ${tabIndex}`).toBe(true)
               const tabAccessibility = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze()
               expect.soft(tabAccessibility.violations.map(violation => ({ id: violation.id, nodes: violation.nodes.map(node => node.target) })), `${route}: seção ${index}, aba ${tabIndex}`).toEqual([])

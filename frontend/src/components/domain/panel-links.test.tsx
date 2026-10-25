@@ -1,12 +1,22 @@
 import {afterEach,expect,it,vi} from 'vitest'
-import {cleanup,render,screen,waitFor} from '@testing-library/react'
+import {cleanup,render,screen,waitFor,within} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {chooseSelect} from '@/test-select'
 import {api} from '@/lib/api'
-import {LinkEditor} from './panel-links'
+import {LinkEditor,LinkList} from './panel-links'
 
 vi.mock('@/lib/api',()=>({api:vi.fn()}))
 afterEach(()=>{cleanup();vi.resetAllMocks()})
+it('distinguishes loading, unavailable and recorded link metrics without losing the accessible labels',()=>{
+ const links=[{id:'loading',name:'Aguardando contagem',status:'PUBLISHED'},{id:'missing',name:'Contagem indisponível no momento',status:'PUBLISHED'},{id:'ready',name:'Leitura em grupo',status:'PUBLISHED'}]
+ render(<LinkList links={links} banned={false} stats={{loading:undefined,missing:null,ready:{impressions:1280,clicks:64,ctr:5}}}/>)
+ expect(screen.getByRole('status',{name:'Contando métricas'}).textContent).toContain('ImpressõesCliquesTaxa de cliques')
+ expect(screen.getByText('Contagem indisponível')).toBeTruthy()
+ const ready=within(screen.getByRole('heading',{name:'Leitura em grupo'}).closest('article')!)
+ for(const label of ['Impressões','Cliques','Taxa de cliques'])expect(ready.getByText(label)).toBeTruthy()
+ for(const value of ['1.280','64','5%'])expect(ready.getByText(value)).toBeTruthy()
+ expect(ready.getByRole('link',{name:'Ver resultado'}).getAttribute('href')).toBe('/painel/links/ready/resultado')
+})
 it('keeps text unsent when optional data fails and saves both through one action on retry',async()=>{
  let fail=true
  const patches:string[]=[]

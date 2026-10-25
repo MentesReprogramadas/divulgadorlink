@@ -60,7 +60,7 @@ test('F08-E01 consented search unlocks only at ten; personal terms and privacy o
   await page.screenshot({ path: info.outputPath('search-opportunities.png'), fullPage: true, animations: 'disabled' })
     const accessibility = await new AxeBuilder({ page }).include('[aria-label="Oportunidades de busca"]').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze(); expect(accessibility.violations).toEqual([])
     if (info.project.name.includes('mobile')) { await panel.getByRole('button', { name: 'Ver mais filtros' }).click(); await expect(panel.getByRole('combobox', { name: 'Rede nos resultados' })).toBeVisible(); await panel.getByRole('button', { name: 'Ver menos filtros' }).click() }
-    const applied = page.waitForResponse(response=>response.url().includes('from=2026-10-01')); await panel.getByLabel('De',{exact:true}).fill('2026-10-01'); await applied; await expect(card).toBeVisible()
+    const applied = page.waitForResponse(response=>response.url().includes('from=2026-10-01')); await panel.getByLabel('De',{exact:true}).fill('01/10/2026'); await applied; await expect(card).toBeVisible()
     await page.setViewportSize({ width: 320, height: 844 }); await page.evaluate(() => { document.documentElement.style.fontSize = '200%' }); expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(321)
     await page.evaluate(() => window.scrollTo(0, 0))
     await page.evaluate(() => window.scrollTo(0, 0))

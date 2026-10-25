@@ -1,5 +1,5 @@
 import {afterEach,beforeEach,expect,it,vi} from 'vitest'
-import {cleanup,render,screen,waitFor} from '@testing-library/react'
+import {cleanup,render,screen,waitFor,within} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {useState} from 'react'
 import {Field} from '@/components/ui/input'
@@ -8,6 +8,7 @@ import {LinkDiscoveryEditor} from './link-discovery-editor'
 import {DiscoveryFields} from './discovery-fields'
 import {emptyDiscovery} from './discovery-contract'
 import {api} from '@/lib/api'
+import {chooseSelect} from '@/test-select'
 vi.mock('@/lib/api',()=>({api:vi.fn()}))
 const mocked=vi.mocked(api),city={id:'3550308',name:'São Paulo',state:'SP'},options={cities:[city],selectedCity:null,languages:[{code:'pt',name:'português'}],modalities:[]}
 beforeEach(()=>{mocked.mockReset();mocked.mockResolvedValue({status:200,body:options})})
@@ -16,6 +17,10 @@ function CityForm(){const [value,setValue]=useState<string|null>(null);return <f
 it('F27-C01 explicit city selection supports keyboard; typing alone is invalid and never infers a location',async()=>{
  const user=userEvent.setup();render(<CityForm/>);expect(mocked).not.toHaveBeenCalled()
  const input=screen.getByRole('combobox',{name:'Cidade no Brasil'});await user.type(input,'sao paulo');await screen.findByRole('option',{name:'São Paulo / SP'})
+ const list=screen.getByRole('listbox',{name:'Cidades encontradas'})
+ expect(list.parentElement?.querySelector(':scope > [data-optics]')).toBeTruthy()
+ expect(within(list).getAllByRole('option')).toHaveLength(1)
+ expect(list.querySelector('[data-optics]')).toBeNull()
  expect((input as HTMLInputElement).validity.customError).toBe(true);expect(screen.getByLabelText('Cidade selecionada').textContent).toBe('nenhuma')
  await user.keyboard('{ArrowDown}{Enter}');expect((input as HTMLInputElement).value).toBe('São Paulo / SP');expect(screen.getByLabelText('Cidade selecionada').textContent).toBe('3550308');expect((input as HTMLInputElement).validity.valid).toBe(true)
  await user.clear(input);expect(screen.getByLabelText('Cidade selecionada').textContent).toBe('nenhuma');expect((input as HTMLInputElement).validity.valid).toBe(true)
@@ -33,9 +38,9 @@ it('F27-C03 owner edit keeps the submitted draft on connection failure and repla
   return {status:200,body:{metadata:empty,version:0}}
  })
  const user=userEvent.setup();render(<LinkDiscoveryEditor linkId="own-link"/>);await waitFor(()=>expect((screen.getByRole('button',{name:'Salvar dados'}) as HTMLButtonElement).disabled).toBe(false))
- await user.click(screen.getByRole('combobox',{name:'Forma de participação (Opcional)'}));await user.click(screen.getByRole('option',{name:'Online'}));await user.click(screen.getByRole('button',{name:'Salvar dados'}));await screen.findByRole('alert')
+ await chooseSelect(screen.getByRole('combobox',{name:'Forma de participação (Opcional)'}),'ONLINE');await user.click(screen.getByRole('button',{name:'Salvar dados'}));await screen.findByRole('alert')
  await user.click(screen.getByRole('button',{name:'Salvar dados'}));await screen.findByText('Dados salvos.')
- const requests=mocked.mock.calls.filter(([,init])=>init?.method==='PATCH');expect(requests).toHaveLength(2);expect(requests[0][1]?.body).toBe(requests[1][1]?.body)
+ const requests=mocked.mock.calls.filter(([,init])=>init?.method==='PATCH');expect(requests).toHaveLength(2);expect(requests[0][1]?.body).toBe(requests[1][1]?.body);expect(JSON.parse(String(requests[0][1]?.body))).toMatchObject({modality:'ONLINE',expectedVersion:0})
 })
 it('F27-C05 optional fields stay inline and update the creation draft without submitting it',async()=>{
  const user=userEvent.setup(),submit=vi.fn(),change=vi.fn()

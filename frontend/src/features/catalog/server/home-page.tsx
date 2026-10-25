@@ -1,21 +1,23 @@
 import { cache } from 'react'
-import { headers } from 'next/headers'
 import type { Metadata } from 'next'
-import { HomeExplore } from '@/components/domain/facet-filters'
 import { HomeSearch } from '@/components/domain/home-search'
+import { ActionIcon } from '@/components/ui/action-icon'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 import { metadataFromSeo } from '@/domain/crawler-policy'
 import { homeStructuredData } from '@/domain/home-structured-data'
 import { jsonLdScript } from '@/domain/json-ld'
-import { forward, tenantHost } from '@/lib/upstream'
+import { loadCatalog } from '@/lib/catalog-page'
 import { DiscoveryFilters } from '@/features/catalog/discovery/discovery-filters'
 import { discoveryQueryRecord, emptyDiscovery, type DiscoveryValues } from '@/features/catalog/discovery/discovery-contract'
 import { InvalidDiscovery } from '@/features/catalog/discovery/invalid-discovery'
-import styles from '@/app/home.module.css'
+import styles from '@/features/catalog/components/ondas-catalog.module.css'
 import { HomeCatalog } from '@/features/catalog/components/home-catalog'
+import { HomeTopics, HomeNetworkLinks, HomeNetworkSelect } from '@/features/catalog/components/home-navigation'
+import { HomeCollections } from '@/features/catalog/components/home-collections'
 
 
 type Facet = { name?: string; slug?: string } | null
-type Card = { id: string; name: string; description: string; surfaceToken: string; impressions?: number; niche?: Facet; network?: Facet; indexable?: boolean }
+type Card = { id: string; name: string; description: string; surfaceToken: string; iconUrl?: string | null; imageUrl?: string | null; imageAlt?: string | null; impressions?: number; niche?: Facet; network?: Facet; indexable?: boolean }
 type Home = {
   activeFilters?: DiscoveryValues
   seo: {
@@ -35,15 +37,10 @@ type Home = {
 }
 
 const loadHome = cache(async (query = ''): Promise<Home | null> => {
-  const hostHeader = (await headers()).get('host') ?? 'localhost'
-  const result = await forward({
-    method: 'GET',
-    path: `/api/v1/home${query ? `?${query}` : ""}`,
-    host: tenantHost(hostHeader.split(':')[0] || 'localhost'),
-  })
+  const result = await loadCatalog(`/api/v1/home${query ? `?${query}` : ""}`)
   if (result.status === 400) return null
   if (result.status !== 200) throw new Error(`Home upstream returned ${result.status}`)
-  return JSON.parse(result.body.toString()) as Home
+  return result.body as Home
 })
 
 export async function generateHomeMetadata({searchParams}:{searchParams:Promise<Record<string,string|string[]|undefined>>}): Promise<Metadata> {
@@ -61,7 +58,7 @@ export async function HomeContent({ searchParams }: { searchParams: Promise<Reco
   if (Array.isArray(query.cursor)) query.cursor.forEach(value=>filtersQuery.append('cursor',value))
   else if (typeof query.cursor === 'string') filtersQuery.set('cursor',query.cursor)
   const home = await loadHome(filtersQuery.toString())
-  if (!home) return <main className={styles.page}><InvalidDiscovery href="/"/></main>
+  if (!home) return <main className={styles.publicPage}><InvalidDiscovery href="/"/></main>
   const filters = home.activeFilters ?? emptyDiscovery()
   return (
     <>
@@ -75,22 +72,21 @@ export async function HomeContent({ searchParams }: { searchParams: Promise<Reco
           )),
         }}
       />
-      <main className={styles.page}>
-        <div className={styles.layout}>
-          <section className={`home-masthead ${styles.masthead}`}>
-            <div>
-              <h1 className="entry-title">Encontre o que você procura.</h1>
-              <p className="home-description">Links, comunidades e serviços organizados por tema e rede.</p>
+      <main className={styles.publicPage}>
+          <section className={styles.hero} aria-labelledby="home-title">
+            <div className={styles.heroCopy}>
+              <h1 id="home-title">Encontre seu <em>próximo link.</em></h1>
+              <p>Grupos, canais e conteúdos do seu interesse.</p>
             </div>
             <HomeSearch discoveryQuery={discoveryQueryRecord(query).toString()}/>
+            <HomeNetworkLinks networks={home.networks} discoveryQuery={discoveryQueryRecord(query).toString()} />
           </section>
-          <section className={`home-explore ${styles.explore}`} aria-labelledby="home-explore">
-            <h2 id="home-explore" className="home-explore-title">Explorar</h2>
-            <HomeExplore niches={home.niches} networks={home.networks} discoveryQuery={discoveryQueryRecord(query).toString()}/>
-          </section>
-          <DiscoveryFilters initial={filters}/>
-          <HomeCatalog filters={filters} key={filtersQuery.toString()} initial={{ sponsored: home.sponsored, organic: home.organic, nextCursor: home.nextCursor, showImpressions: home.showImpressions }} />
-        </div>
+          <HomeTopics niches={home.niches} discoveryQuery={discoveryQueryRecord(query).toString()} />
+          <HomeCatalog filters={filters} key={filtersQuery.toString()} initial={{ sponsored: home.sponsored, organic: home.organic, nextCursor: home.nextCursor, showImpressions: home.showImpressions }}>
+            <div className={styles.filterBar}><HomeNetworkSelect networks={home.networks} discoveryQuery={discoveryQueryRecord(query).toString()} /><span>Seu próximo interesse pode estar aqui.</span></div>
+            <details className={styles.discoveryPanel} open={Object.values(filters).some(Boolean) || undefined}><summary><LiquidLens radius={12} /><ActionIcon name="filter" width={18} height={18} />Localização e preferências</summary><DiscoveryFilters initial={filters}/></details>
+          </HomeCatalog>
+          <HomeCollections links={[...home.sponsored, ...home.organic]} discoveryQuery={discoveryQueryRecord(query).toString()} />
       </main>
     </>
   )

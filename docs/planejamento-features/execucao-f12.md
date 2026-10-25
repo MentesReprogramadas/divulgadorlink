@@ -108,3 +108,8 @@ Autorização específica posterior: assinatura pequena e ciclo IA → aprovaç�
 Por novo pedido expresso, revisões humanas de F09/F12 e suas contestações também usam o grupo Evolution configurado, a mesma autorização por operador ADMIN e a mesma operação de decisão do painel. O aviso citado identifica a versão exata; expiração, substituição e contestação invalidam mensagens anteriores. Decisão e registro do aviso de confirmação são atômicos, sem alterar aprovação automática, regras de segurança ou cobrança. Avisos ganham símbolos distintos por evento e mantêm seções curtas.
 
 Contrato, critérios, limites, evidências e resultados no [complemento da implementação](../frontend-profissional/revisao-paginas-convites.md#complemento-autorizado--aprovação-pelo-whatsapp).
+
+
+## Nomenclatura e navegação posterior — 21/10/2026
+
+Revisão autorizada: recurso público chamado Links permanentes; distribuição chamada Distribuir acessos. Telas, campos, erros, QR e avisos atualizados. Convites de equipe permanecem distintos; URLs, grants e regras não mudaram. [Mapa e evidências](../frontend-profissional/sidebar-por-contexto-2026-10-21.md).

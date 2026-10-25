@@ -16,6 +16,7 @@ it('F13-I01/T01 exports actual PNG and SVG with correct MIME, size and stable sa
 it('F13-I03 repeat generation is deterministic and never puts untrusted labels or temporary destinations in the file name',async()=>{
   const first=await generateQr({...target,name:'../private@example.test'},'png',256),second=await generateQr(target,'png',256)
   expect(first.filename).toBe('temlinkaqui-pagina-pagina-publicada-256.png');expect(first.preview).toBe(second.preview)
+  const permanent=await generateQr(stableQrTarget('https://temlinkaqui.com',{kind:'REDIRECT',path:'/r/12345678-1234-1234-1234-123456789abc'}),'png',256);expect(permanent.filename).toBe('temlinkaqui-link-permanente-12345678-1234-1234-1234-123456789abc-256.png')
   await expect(generateQr({...target,url:target.url+'?token=private'},'png',512)).rejects.toThrow()
   await expect(generateQr(target,'html',512)).rejects.toThrow();await expect(generateQr(target,'png',-1)).rejects.toThrow()
 })

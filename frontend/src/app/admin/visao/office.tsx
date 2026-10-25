@@ -4,11 +4,14 @@ import { OfficeSkeleton } from '@/features/administration/components/insight-ske
 import { SupportEntry, SUPPORT_RETURN_KEY } from '@/features/support/support-entry'
 
 import { ActionIcon } from '@/components/ui/action-icon'
+import { LiquidLens } from '@/components/ui/liquid-lens'
+import { MetricCards } from '@/components/ui/metric-cards'
+import surfaces from '@/features/administration/components/admin-surfaces.module.css'
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ErrorState } from '@/components/feedback/error-state'
 import { Button } from '@/components/ui/button'
-import { Field, Input, Select } from '@/components/ui/input'
+import { Field, Input, Select, TextArea } from '@/components/ui/input'
 import { ResponsiveTabs } from '@/components/ui/responsive-tabs'
 import { WorkspaceSection } from '@/components/layout/workspace-section'
 import { WorkspaceActions, WorkspaceFilters } from '@/components/layout/workspace-controls'
@@ -200,15 +203,16 @@ export function OfficeBoard() {
 
   return (
     <div className={styles.dashboard}>
-      {section !== 'buscas' ? <WorkspaceActions>
+
+        <ResponsiveTabs value={section} onChange={setSection} label="Área de gestão" idPrefix="office-area" actions={section !== 'buscas' ? <WorkspaceActions>
         <RefreshButton onClick={() => void load(q)} />
         {section === 'contas' || section === 'links' ? <><Button type="submit" form="office-filters"><ActionIcon name="search" />Buscar</Button><Button variant="secondary" onClick={() => { setDraft(''); setQ(''); setLinkStatus('ALL') }}><ActionIcon name="resetFilters" />Limpar busca</Button></> : null}
-      </WorkspaceActions> : null}
-      <WorkspaceFilters id="office-filters" label="Filtrar gestão" onSubmit={event => { event.preventDefault(); setQ(draft.trim()) }}>
-        <ResponsiveTabs value={section} onChange={setSection} label="Área de gestão" idPrefix="office-area" items={SECTION_ITEMS} />
+      </WorkspaceActions> : null} items={SECTION_ITEMS} />
+      {section === 'contas' || section === 'links' ? <WorkspaceFilters id="office-filters" label="Filtrar gestão" onSubmit={event => { event.preventDefault(); setQ(draft.trim()) }}>
+
         {section === 'contas' || section === 'links' ? <Field label="Buscar contas e links"><Input value={draft} onChange={event => setDraft(event.target.value)} placeholder="Nome, e-mail ou link" /></Field> : null}
         {section === 'links' ? <Field label="Situação dos links"><Select value={linkStatus} onChange={event => setLinkStatus(event.target.value as AdminLinkFilter)}><option value="ALL">Todos</option>{LINK_STATUSES.map(status => <option key={status.value} value={status.value}>{status.filter}</option>)}</Select></Field> : null}
-      </WorkspaceFilters>
+      </WorkspaceFilters> : null}
       <div className={styles.dashboard} role="tabpanel" id={`office-area-panel-${section}`} aria-labelledby={`office-area-${section}`} tabIndex={0}>
       {section === 'buscas' ? <SearchOpportunitiesPanel /> : null}
       {section === 'retencao' ? <RetentionPanel /> : null}
@@ -221,25 +225,25 @@ export function OfficeBoard() {
         <>
           {section === 'metricas' ? (
             <div className={styles.dashboard}>
-              <dl className={styles.metrics} aria-label="Métricas">
-                <div><dt>Contas</dt><dd>{count(office.metrics.users)}<small>{count(office.metrics.bannedUsers)} suspensas</small></dd></div>
-                <div><dt>Links publicados</dt><dd>{count(office.metrics.publishedLinks)}<small>{count(office.metrics.pendingLinks)} na fila</small></dd></div>
-                <div><dt>Cliques no catálogo</dt><dd>{count(office.metrics.clicks)}<small>{count(office.metrics.impressions)} impressões · {percent(office.metrics.ctr)}</small></dd></div>
-                <div><dt>Receita confirmada</dt><dd>{formatCents(office.metrics.paidCents)}<small>{count(office.metrics.paidOrders)} pedidos pagos</small></dd></div>
-              </dl>
+              <MetricCards label="Métricas" items={[
+                {label:'Contas',value:count(office.metrics.users),note:`${count(office.metrics.bannedUsers)} suspensas`},
+                {label:'Links publicados',value:count(office.metrics.publishedLinks),note:`${count(office.metrics.pendingLinks)} na fila`},
+                {label:'Cliques no catálogo',value:count(office.metrics.clicks),note:`${count(office.metrics.impressions)} impressões · ${percent(office.metrics.ctr)}`},
+                {label:'Receita confirmada',value:formatCents(office.metrics.paidCents),note:`${count(office.metrics.paidOrders)} pedidos pagos`},
+              ]}/>
               <div className={styles.columns}>
                 <div>
                   <ReportView title="Publicação no catálogo" rows={Object.entries(office.linkStatusCounts).map(([id,value])=>({id,value}))} rowKey={row=>row.id} columns={[{label:"Situação",render:row=>LINK_STATUS[row.id]??row.id},{label:"Links",render:row=>count(row.value),numeric:true}]} chart={<MetricChart kind="ranking" label="Links por situação" rows={Object.entries(office.linkStatusCounts).map(([id,value])=>({label:LINK_STATUS[id]??id,value}))}/>}/>
                 </div>
                 <WorkspaceSection title="Próximas ações">
-                  <ul className={styles.tasks}><li><a href="/admin/moderacao">Revisar envios →</a><span>{count(office.metrics.pendingLinks)} links aguardando revisão</span></li><li><a href="/admin/denuncias">Conferir denúncias →</a><span>Analise os relatos recebidos.</span></li><li><a href="/admin/disponibilidade">Ver correções →</a><span>Convites atualizados pelos responsáveis.</span></li><li><a href="/admin/estornos">Acompanhar estornos →</a><span>Devoluções e tentativas de pagamento.</span></li></ul>
+                  <ul className={styles.tasks}><li><a href="/admin/moderacao">Revisar envios →</a><span>{count(office.metrics.pendingLinks)} links aguardando revisão</span></li><li><a href="/admin/denuncias">Conferir denúncias →</a><span>Analise os relatos recebidos.</span></li><li><a href="/admin/disponibilidade">Ver correções →</a><span>Links de acesso atualizados pelos responsáveis.</span></li><li><a href="/admin/estornos">Acompanhar estornos →</a><span>Devoluções e tentativas de pagamento.</span></li></ul>
                 </WorkspaceSection>
               </div>
             </div>
           ) : null}
 
-          {section === 'cliques' ? <ReportView title="Links mais clicados" rows={office.topLinks} rowKey={row=>row.id} columns={[{label:'Link',render:row=>row.name},{label:'Situação',render:row=>LINK_STATUS[row.status]??row.status},{label:'Cliques',render:row=>count(row.clicks),numeric:true},{label:'Impressões',render:row=>count(row.impressions),numeric:true},{label:'CTR',render:row=>percent(row.ctr),numeric:true}]} chart={<MetricChart kind="ranking" label="Cliques por link no catálogo" rows={office.topLinks.map(row=>({label:row.name,value:row.clicks}))}/>}/>:null}
-          {section === 'pagadores' ? <ReportView title="Quem mais pagou" rows={office.topPayers} rowKey={row=>row.userId} columns={[{label:'Nome',render:row=>row.name||'Sem nome'},{label:'E-mail',render:row=>row.email||row.userId},{label:'Total pago',render:row=>formatCents(row.paidCents),numeric:true},{label:'Pedidos',render:row=>count(row.orders),numeric:true},{label:'Situação',render:row=>USER_STATUS[row.status]??row.status}]} chart={<MetricChart kind="ranking" format="money" label="Total por pagador" rows={office.topPayers.map(row=>({label:row.name||'Sem nome',value:row.paidCents}))}/>}/>:null}
+          {section === 'cliques' ? office.topLinks.length ? <ReportView title="Links mais clicados" rows={office.topLinks} rowKey={row=>row.id} columns={[{label:'Link',render:row=>row.name},{label:'Situação',render:row=>LINK_STATUS[row.status]??row.status},{label:'Cliques',render:row=>count(row.clicks),numeric:true},{label:'Impressões',render:row=>count(row.impressions),numeric:true},{label:'CTR',render:row=>percent(row.ctr),numeric:true}]} chart={<MetricChart kind="ranking" label="Cliques por link no catálogo" rows={office.topLinks.map(row=>({label:row.name,value:row.clicks}))}/>}/>:<EmptyState>Ainda não há links com cliques neste período.</EmptyState>:null}
+          {section === 'pagadores' ? office.topPayers.length ? <ReportView title="Quem mais pagou" rows={office.topPayers} rowKey={row=>row.userId} columns={[{label:'Nome',render:row=>row.name||'Sem nome'},{label:'E-mail',render:row=>row.email||row.userId},{label:'Total pago',render:row=>formatCents(row.paidCents),numeric:true},{label:'Pedidos',render:row=>count(row.orders),numeric:true},{label:'Situação',render:row=>USER_STATUS[row.status]??row.status}]} chart={<MetricChart kind="ranking" format="money" label="Total por pagador" rows={office.topPayers.map(row=>({label:row.name||'Sem nome',value:row.paidCents}))}/>}/>:<EmptyState>Ainda não há pagamentos confirmados neste período.</EmptyState>:null}
           {notice && (section === 'contas' || section === 'links') ? <p role="status">{notice}</p> : null}
 
           {section === 'contas' ? (
@@ -248,7 +252,8 @@ export function OfficeBoard() {
               {office.users.length === 0 ? <EmptyState /> : (
                 <div className="refund-grid">
                   {office.users.map((row) => (
-                    <article key={row.id} id={`support-user-${row.id}`} tabIndex={-1} className="summary-card">
+                    <article key={row.id} id={`support-user-${row.id}`} tabIndex={-1} className={`summary-card ${surfaces.card}`}>
+                      <LiquidLens radius={24} />
                       <h2>{row.name || 'Sem nome'}</h2>
                       <p>{row.email || row.id}</p>
                       <p className="moderation-kicker">{USER_STATUS[row.status] ?? row.status} · {row.role === 'ADMIN' ? 'Admin' : 'Usuário'} · {count(row.links)} links</p>
@@ -273,7 +278,8 @@ export function OfficeBoard() {
       </>}
       </div>
 
-      <dialog ref={dialogRef} className="plan-dialog" aria-labelledby="office-dialog-title">
+      <dialog ref={dialogRef} className={`plan-dialog ${surfaces.dialog}`} aria-labelledby="office-dialog-title">
+        <LiquidLens radius={24} />
         {prompt ? (
           <form method="dialog" onSubmit={(event) => { event.preventDefault(); void confirm() }}>
             <h2 id="office-dialog-title">{prompt.kind === 'ban' ? 'Suspender conta' : prompt.status === 'PUBLISHED' ? 'Tirar link do ar' : 'Retirar envio'}</h2>
@@ -283,10 +289,7 @@ export function OfficeBoard() {
                 : prompt.status === 'PUBLISHED' ? `${prompt.name} sai do catálogo e o destaque deste link é cancelado. A conta continua ativa. O dono não é avisado. Não dá para publicar de novo.` : `${prompt.name} será retirado do fluxo de publicação e ficará fora do ar. A conta continua ativa. O dono não é avisado. Esta ação não pode ser desfeita.`}
             </p>
             {prompt.kind === 'ban' ? (
-              <label className="field-block">
-                <span className="field-label">Motivo</span>
-                <textarea className="field" value={reason} onChange={(event) => setReason(event.target.value)} rows={3} />
-              </label>
+              <Field label="Motivo"><TextArea value={reason} onChange={(event) => setReason(event.target.value)} rows={3} /></Field>
             ) : null}
             <div className="moderation-actions">
               <Button type="submit" variant="danger" disabled={busy}><ActionIcon name="trash" />{prompt.kind === 'ban' ? 'Suspender' : prompt.status === 'PUBLISHED' ? 'Tirar do ar' : 'Retirar envio'}</Button>

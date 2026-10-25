@@ -2,7 +2,9 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 import { api } from '@/lib/api'
+import styles from './age-gate.module.css'
 
 const AGE_KEY = 'catalogo.age'
 
@@ -63,10 +65,11 @@ export function AgePrompt({
   }
 
   return (
-    <dialog ref={ref} className="age-dialog" aria-labelledby="age-title">
+    <dialog ref={ref} className={styles.dialog} aria-labelledby="age-title">
+      <LiquidLens radius={24} />
       <h2 id="age-title">Conteúdo para maiores de 18 anos</h2>
       <p>Confirme sua idade para ver este conteúdo.</p>
-      <div className="age-dialog-actions">
+      <div className={styles.actions}>
         <Button type="button" disabled={pending} onClick={() => void choose('yes')}>Tenho 18 anos ou mais</Button>
         <Button type="button" variant="secondary" disabled={pending} onClick={() => void choose('no')}>Não tenho</Button>
       </div>

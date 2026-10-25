@@ -1,3 +1,4 @@
+import {contentBlockInput} from './content-block'
 import {buttonTestInput} from './button-test'
 import {eventBlockInput} from './event-block'
 import {profileTranslationInput,pruneTranslations} from './profile-translations'
@@ -8,6 +9,7 @@ import { profileScheduleInput } from './profile-schedule'
 const id = z.string().uuid()
 export const profileVersion = z.number().int().min(0).max(2147483646)
 export const profileInput = z.object({
+  contentBlocks:z.array(contentBlockInput).max(12).refine(blocks=>new Set(blocks.map(block=>block.id)).size===blocks.length,'Use identificadores únicos para os blocos.').optional(),
   buttonTest:buttonTestInput.nullable().optional(),
   translations:profileTranslationInput.optional(),
   appearance: appearanceInput.optional(),

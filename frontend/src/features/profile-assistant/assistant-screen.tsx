@@ -1,34 +1,68 @@
-'use client'
-import {useEffect,useRef,useState} from 'react'
-import {Button,ButtonLink} from '@/components/ui/button'
-import {ActionIcon} from '@/components/ui/action-icon'
-import {Badge} from '@/components/ui/badge'
-import {ErrorState} from '@/components/feedback/error-state'
-import {WorkspaceActions} from '@/components/layout/workspace-controls'
-import {Skeleton,SkeletonRegion} from '@/components/feedback/skeleton'
-import {useReadOnly} from '@/components/ui/interaction-policy'
-import {useWorkspaceIdentity} from '@/features/workspace-team/workspace-access'
-import {ProfileDevicePreview} from '@/features/profiles/components/profile-device-preview'
-import {loadProfileTemplates} from '@/features/profile-templates/template-api'
-import type {ProfileState,ProfileContent} from '@/features/profiles/profile-contract'
-import type {ProfileTemplate} from '@/features/profile-templates/template-contract'
-import {useAreaSession} from '@/features/account/components/area-frame'
-import {AssistantInput} from './assistant-input'
-import {AssistantReview} from './assistant-review'
-import {assistantRequest,AssistantRequestError} from './assistant-api'
-import {emptyAssistant,assistantApplyBody,type AssistantInput as InputValue,type AssistantChoice,type AssistantSuggestion,type AssistantList} from './assistant-contract'
-import styles from './assistant.module.css'
-export function AssistantScreen({pendingOnly=false}:{pendingOnly?:boolean}){
- const readOnly=useReadOnly(),workspace=useWorkspaceIdentity(),canEditPage=!workspace?.ownerId||workspace.grants?.page?.read===true,session=useAreaSession(),[input,setInput]=useState<InputValue>(emptyAssistant),[profile,setProfile]=useState<ProfileState|null>(null),[list,setList]=useState<AssistantList|null>(null),[templates,setTemplates]=useState<ProfileTemplate[]>([]),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[step,setStep]=useState(0),[error,setError]=useState(''),[suggestion,setSuggestion]=useState<AssistantSuggestion|null>(null),[choice,setChoice]=useState<AssistantChoice|null>(null),[preview,setPreview]=useState<ProfileContent|null>(null),[dirty,setDirty]=useState(false),[applied,setApplied]=useState(false),[notice,setNotice]=useState(''),key=useRef<string|null>(null),lock=useRef(false),initialized=useRef(false),status=useRef<HTMLParagraphElement>(null)
- async function load(){if(pendingOnly)return;setLoading(true);setError('');try{const [available,t]=await Promise.all([assistantRequest<AssistantList>(),loadProfileTemplates()]);const state=available.profile;setProfile(state);setList(available);setTemplates(t);if(!initialized.current){setInput({...emptyAssistant(),name:state.draft?.name??'',slug:state.draft?.slug??'',expectedVersion:state.draft?.version??0,linkIds:(state.draft?.items??[]).filter(i=>i.visible&&!i.templateExample).slice(0,20).map(i=>i.id)});initialized.current=true}}catch(e){setError(e instanceof Error?e.message:'Sem conexão.')}finally{setLoading(false)}}
- useEffect(()=>{void load()},[pendingOnly])
- async function limits(){try{setList(await assistantRequest<AssistantList>())}catch{/* keep known limits; server still enforces every attempt */}}
- function ready(result:AssistantSuggestion){setNotice('');setSuggestion(result);setChoice({selectedFields:['bio','groups','order','appearance'],bio:result.bio,templateVersionId:result.templateVersionId});setPreview(result.content);setDirty(false);setError('');setStep(2)}
- async function generate(){if(lock.current)return;const facts=input.providedFactsText.split(/\r?\n/).map(v=>v.trim()).filter(Boolean);if(facts.length>3||facts.some(v=>v.length>100)){setError('Informe até 3 fatos, com até 100 caracteres por linha.');return}lock.current=true;setBusy(true);setError('');key.current??=crypto.randomUUID();try{const result=await assistantRequest<AssistantSuggestion>('',{method:'POST',body:JSON.stringify({name:input.name,slug:input.slug,activity:input.activity,providedFacts:facts,linkIds:input.linkIds,linksText:input.linksText,expectedVersion:input.expectedVersion,requestKey:key.current})});ready(result);await limits()}catch(e){if(e instanceof AssistantRequestError&&[400,422,503].includes(e.status))key.current=null;setError(e instanceof Error?e.message:'Não foi possível gerar.');await limits()}finally{lock.current=false;setBusy(false)}}
- async function resume(id:string){if(lock.current)return;lock.current=true;setBusy(true);setError('');try{ready(await assistantRequest<AssistantSuggestion>('/'+id))}catch(e){setError(e instanceof Error?e.message:'Não foi possível abrir.')}finally{setBusy(false);lock.current=false}}
- async function refreshPreview(){if(lock.current||!suggestion||!choice)return;lock.current=true;setBusy(true);setError('');try{const result=await assistantRequest<{content:ProfileContent}>('/'+suggestion.id+'/preview',{method:'POST',body:JSON.stringify(assistantApplyBody(suggestion,choice))});setPreview(result.content);setDirty(false)}catch(e){setError(e instanceof Error?e.message:'Não foi possível atualizar.')}finally{lock.current=false;setBusy(false)}}
- async function apply(){if(lock.current||!suggestion||!choice||dirty)return;lock.current=true;setBusy(true);setError('');try{const result=await assistantRequest<ProfileState>('/'+suggestion.id+'/apply',{method:'POST',body:JSON.stringify(assistantApplyBody(suggestion,choice))});setProfile(result);setApplied(true);setNotice('Sugestões aplicadas ao rascunho. Sua página publicada não foi alterada.');requestAnimationFrame(()=>status.current?.focus())}catch(e){setError(e instanceof Error?e.message:'Não foi possível aplicar.')}finally{lock.current=false;setBusy(false)}}
- async function discard(){if(lock.current||!suggestion)return;lock.current=true;setBusy(true);try{await assistantRequest('/'+suggestion.id,{method:'DELETE'});setSuggestion(null);setChoice(null);setPreview(null);setStep(1);setNotice('Sugestão descartada. Seu rascunho foi mantido.');requestAnimationFrame(()=>status.current?.focus());key.current=null;await limits()}catch(e){setError(e instanceof Error?e.message:'Não foi possível descartar.')}finally{setBusy(false);lock.current=false}}
- const pending=pendingOnly||loading,canGenerate=Boolean(list?.available&&list.quota.remaining&&session?.canSubmit&&!readOnly),body=<AssistantInput value={input} onChange={v=>{key.current=null;setInput(v)}} step={step===2?1:step} onStep={setStep} onGenerate={()=>void generate()} pending={pending||busy} existing={Boolean(profile?.draft)} error={error} links={profile?.draft?.items??[]} canGenerate={canGenerate}/>
- return <section className={styles.page} aria-label="Assistente de criação da página" aria-busy={pending||undefined}><WorkspaceActions><ButtonLink variant="secondary" href={canEditPage?"/painel/perfil":"/painel"}><ActionIcon name="back"/>Voltar</ButtonLink></WorkspaceActions>{notice?<p role="status" ref={status} tabIndex={-1}>{notice}</p>:null}<div className={styles.card}><div className={styles.row}><h2>Crie sua página com ajuda</h2>{pending?<Skeleton width={150} height={24}/>:<Badge tone={list?.available?'neutral':'warn'}>{list?.available?(list.quota.remaining+' de '+list.quota.limit+' tentativas disponíveis hoje'):'IA indisponível'}</Badge>}</div><p className={styles.hint}>Conte sua atividade, escolha os links e revise as sugestões antes de aplicar.</p></div>{applied?<article className={styles.card}><h2>Seu rascunho está pronto para revisão</h2><p>Confira textos e links. A publicação continua sendo uma escolha sua.</p>{canEditPage?<ButtonLink href="/painel/perfil"><ActionIcon name="preview"/>Revisar minha página</ButtonLink>:null}{profile?.draft?<ProfileDevicePreview content={profile.draft}/>:null}</article>:suggestion&&choice&&preview?<AssistantReview readOnly={readOnly} suggestion={suggestion} choice={choice} onChange={v=>{setChoice(v);setDirty(true)}} templates={templates} pending={busy} error={error} preview={preview} previewDirty={dirty} onPreview={()=>void refreshPreview()} onApply={()=>void apply()} onDiscard={()=>void discard()}/>:<>{error&&!profile&&!pending?<ErrorState message={error} onRetry={()=>void load()}/>:null}{pending?<SkeletonRegion>{body}</SkeletonRegion>:readOnly?<p>Abra uma sugestão recente para consultar a prévia.</p>:body}{!pending&&list?.items.length?<details className={styles.details}><summary>Retomar sugestão recente</summary><div className={styles.form}>{list.items.map(item=><Button readOnlyAllowed key={item.id} variant="secondary" disabled={busy} onClick={()=>void resume(item.id)}><ActionIcon name="history"/>Abrir sugestão de {new Date(item.createdAt).toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'})}</Button>)}</div></details>:null}{!pending&&list&&!list.available?<p className={styles.hint}>O assistente está temporariamente indisponível. Você pode editar a página manualmente.</p>:null}{!pending&&session&&!session.canSubmit?<ButtonLink href="/painel/verificar"><ActionIcon name="email"/>Confirmar e-mail para continuar</ButtonLink>:null}</>}</section>
-}
+'use client'
+
+import {useEffect,useRef,useState} from 'react'
+
+import {Button,ButtonLink} from '@/components/ui/button'
+
+import {ActionIcon} from '@/components/ui/action-icon'
+
+import {Badge} from '@/components/ui/badge'
+
+import {ErrorState} from '@/components/feedback/error-state'
+
+import {WorkspaceActions} from '@/components/layout/workspace-controls'
+
+import {Skeleton,SkeletonRegion} from '@/components/feedback/skeleton'
+
+import {useReadOnly} from '@/components/ui/interaction-policy'
+
+import {useWorkspaceIdentity} from '@/features/workspace-team/workspace-access'
+
+import {ProfileDevicePreview} from '@/features/profiles/components/profile-device-preview'
+
+import {loadProfileTemplates} from '@/features/profile-templates/template-api'
+
+import type {ProfileState,ProfileContent} from '@/features/profiles/profile-contract'
+
+import type {ProfileTemplate} from '@/features/profile-templates/template-contract'
+
+import {useAreaSession} from '@/features/account/components/area-frame'
+
+import {AssistantInput} from './assistant-input'
+
+import {AssistantReview} from './assistant-review'
+
+import {assistantRequest,AssistantRequestError} from './assistant-api'
+
+import {emptyAssistant,assistantApplyBody,type AssistantInput as InputValue,type AssistantChoice,type AssistantSuggestion,type AssistantList} from './assistant-contract'
+
+import styles from './assistant.module.css'
+import { LiquidLens } from '@/components/ui/liquid-lens'
+
+export function AssistantScreen({pendingOnly=false}:{pendingOnly?:boolean}){
+
+ const readOnly=useReadOnly(),workspace=useWorkspaceIdentity(),canEditPage=!workspace?.ownerId||workspace.grants?.page?.read===true,session=useAreaSession(),[input,setInput]=useState<InputValue>(emptyAssistant),[profile,setProfile]=useState<ProfileState|null>(null),[list,setList]=useState<AssistantList|null>(null),[templates,setTemplates]=useState<ProfileTemplate[]>([]),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[step,setStep]=useState(0),[error,setError]=useState(''),[suggestion,setSuggestion]=useState<AssistantSuggestion|null>(null),[choice,setChoice]=useState<AssistantChoice|null>(null),[preview,setPreview]=useState<ProfileContent|null>(null),[dirty,setDirty]=useState(false),[applied,setApplied]=useState(false),[notice,setNotice]=useState(''),key=useRef<string|null>(null),lock=useRef(false),initialized=useRef(false),status=useRef<HTMLParagraphElement>(null)
+
+ async function load(){if(pendingOnly)return;setLoading(true);setError('');try{const [available,t]=await Promise.all([assistantRequest<AssistantList>(),loadProfileTemplates()]);const state=available.profile;setProfile(state);setList(available);setTemplates(t);if(!initialized.current){setInput({...emptyAssistant(),name:state.draft?.name??'',slug:state.draft?.slug??'',expectedVersion:state.draft?.version??0,linkIds:(state.draft?.items??[]).filter(i=>i.visible&&!i.templateExample).slice(0,20).map(i=>i.id)});initialized.current=true}}catch(e){setError(e instanceof Error?e.message:'Sem conexão.')}finally{setLoading(false)}}
+
+ useEffect(()=>{void load()},[pendingOnly])
+
+ async function limits(){try{setList(await assistantRequest<AssistantList>())}catch{/* keep known limits; server still enforces every attempt */}}
+
+ function ready(result:AssistantSuggestion){setNotice('');setSuggestion(result);setChoice({selectedFields:['bio','groups','order','appearance'],bio:result.bio,templateVersionId:result.templateVersionId});setPreview(result.content);setDirty(false);setError('');setStep(2)}
+
+ async function generate(){if(lock.current)return;const facts=input.providedFactsText.split(/\r?\n/).map(v=>v.trim()).filter(Boolean);if(facts.length>3||facts.some(v=>v.length>100)){setError('Informe até 3 fatos, com até 100 caracteres por linha.');return}lock.current=true;setBusy(true);setError('');key.current??=crypto.randomUUID();try{const result=await assistantRequest<AssistantSuggestion>('',{method:'POST',body:JSON.stringify({name:input.name,slug:input.slug,activity:input.activity,providedFacts:facts,linkIds:input.linkIds,linksText:input.linksText,expectedVersion:input.expectedVersion,requestKey:key.current})});ready(result);await limits()}catch(e){if(e instanceof AssistantRequestError&&[400,422,503].includes(e.status))key.current=null;setError(e instanceof Error?e.message:'Não foi possível gerar.');await limits()}finally{lock.current=false;setBusy(false)}}
+
+ async function resume(id:string){if(lock.current)return;lock.current=true;setBusy(true);setError('');try{ready(await assistantRequest<AssistantSuggestion>('/'+id))}catch(e){setError(e instanceof Error?e.message:'Não foi possível abrir.')}finally{setBusy(false);lock.current=false}}
+
+ async function refreshPreview(){if(lock.current||!suggestion||!choice)return;lock.current=true;setBusy(true);setError('');try{const result=await assistantRequest<{content:ProfileContent}>('/'+suggestion.id+'/preview',{method:'POST',body:JSON.stringify(assistantApplyBody(suggestion,choice))});setPreview(result.content);setDirty(false)}catch(e){setError(e instanceof Error?e.message:'Não foi possível atualizar.')}finally{lock.current=false;setBusy(false)}}
+
+ async function apply(){if(lock.current||!suggestion||!choice||dirty)return;lock.current=true;setBusy(true);setError('');try{const result=await assistantRequest<ProfileState>('/'+suggestion.id+'/apply',{method:'POST',body:JSON.stringify(assistantApplyBody(suggestion,choice))});setProfile(result);setApplied(true);setNotice('Sugestões aplicadas ao rascunho. Sua página publicada não foi alterada.');requestAnimationFrame(()=>status.current?.focus())}catch(e){setError(e instanceof Error?e.message:'Não foi possível aplicar.')}finally{lock.current=false;setBusy(false)}}
+
+ async function discard(){if(lock.current||!suggestion)return;lock.current=true;setBusy(true);try{await assistantRequest('/'+suggestion.id,{method:'DELETE'});setSuggestion(null);setChoice(null);setPreview(null);setStep(1);setNotice('Sugestão descartada. Seu rascunho foi mantido.');requestAnimationFrame(()=>status.current?.focus());key.current=null;await limits()}catch(e){setError(e instanceof Error?e.message:'Não foi possível descartar.')}finally{setBusy(false);lock.current=false}}
+
+ const pending=pendingOnly||loading,canGenerate=Boolean(list?.available&&list.quota.remaining&&session?.canSubmit&&!readOnly),body=<AssistantInput value={input} onChange={v=>{key.current=null;setInput(v)}} step={step===2?1:step} onStep={setStep} onGenerate={()=>void generate()} pending={pending||busy} existing={Boolean(profile?.draft)} error={error} links={profile?.draft?.items??[]} canGenerate={canGenerate}/>
+
+ return <section className={styles.page} aria-label="Assistente de criação da página" aria-busy={pending||undefined}><WorkspaceActions><ButtonLink variant="secondary" href={canEditPage?"/painel/perfil":"/painel"}><ActionIcon name="back"/>Voltar</ButtonLink></WorkspaceActions>{notice?<p role="status" ref={status} tabIndex={-1}>{notice}</p>:null}<div className={styles.card}><div className={styles.row}><h2>Crie sua página com ajuda</h2>{pending?<Skeleton width={150} height={24}/>:<Badge tone={list?.available?'neutral':'warn'}>{list?.available?(list.quota.remaining+' de '+list.quota.limit+' tentativas disponíveis hoje'):'IA indisponível'}</Badge>}</div><p className={styles.hint}>Conte sua atividade, escolha os links e revise as sugestões antes de aplicar.</p><LiquidLens radius={16} /></div>{applied?<article className={styles.card}><h2>Seu rascunho está pronto para revisão</h2><p>Confira textos e links. A publicação continua sendo uma escolha sua.</p>{canEditPage?<ButtonLink href="/painel/perfil"><ActionIcon name="preview"/>Revisar minha página</ButtonLink>:null}{profile?.draft?<ProfileDevicePreview content={profile.draft}/>:null}<LiquidLens radius={16} /></article>:suggestion&&choice&&preview?<AssistantReview readOnly={readOnly} suggestion={suggestion} choice={choice} onChange={v=>{setChoice(v);setDirty(true)}} templates={templates} pending={busy} error={error} preview={preview} previewDirty={dirty} onPreview={()=>void refreshPreview()} onApply={()=>void apply()} onDiscard={()=>void discard()}/>:<>{error&&!profile&&!pending?<ErrorState message={error} onRetry={()=>void load()}/>:null}{pending?<SkeletonRegion>{body}</SkeletonRegion>:readOnly?<p>Abra uma sugestão recente para consultar a prévia.</p>:body}{!pending&&list?.items.length?<div className={styles.detailFrame}><LiquidLens radius={16}/><details className={styles.details}><summary>Retomar sugestão recente</summary><div className={styles.form}>{list.items.map(item=><Button readOnlyAllowed key={item.id} variant="secondary" disabled={busy} onClick={()=>void resume(item.id)}><ActionIcon name="history"/>Abrir sugestão de {new Date(item.createdAt).toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'})}</Button>)}</div></details></div>:null}{!pending&&list&&!list.available?<p className={styles.hint}>O assistente está temporariamente indisponível. Você pode editar a página manualmente.</p>:null}{!pending&&session&&!session.canSubmit?<ButtonLink href="/painel/verificar"><ActionIcon name="email"/>Confirmar e-mail para continuar</ButtonLink>:null}</>}</section>
+
+}

@@ -84,3 +84,15 @@ it('F34-I02 session-cookie mutations keep the existing CSRF boundary',async()=>{
  expect((await call('POST','me/profile/checklist/actions',{action:'PREVIEW_REQUESTED',expectedVersion:1},null,tenant,tenant,{cookie})).statusCode).toBe(403);expect(await audits()).toBe(0)
  expect((await call('POST','me/profile/checklist/actions',{action:'PREVIEW_REQUESTED',expectedVersion:1},null,tenant,tenant,{cookie,'x-csrf-token':csrf})).statusCode).toBe(200);expect(await audits()).toBe(1)
 })
+
+it('F40-PG01/T01/T03/T04 explica sugestões, ignora idempotente, não altera rascunho e não revela outro dono',async()=>{
+ const value=content();value.items.push({...value.items[0],id:randomUUID(),destination:'https://example.com/outro'});await save(value)
+ const response=await call('GET','me/profile/diagnostics');expect(response.statusCode,response.body).toBe(200);expect(response.json()).toMatchObject({coverage:'NO_PLAN',findings:[{code:'DUPLICATE_TITLE',evidence:{count:2}}]});const finding=response.json().findings[0]
+ for(let repeat=0;repeat<2;repeat++)expect((await call('POST','me/profile/diagnostics/'+finding.key+'/dismiss',{ruleVersion:1})).statusCode).toBe(200)
+ expect((await call('GET','me/profile/diagnostics')).json()).toMatchObject({findings:[],ignored:1});expect(await db.auditLog.count({where:{tenantId:tenant,action:'profile.diagnostic.dismissed'}})).toBe(1)
+ await db.auditLog.updateMany({where:{tenantId:tenant,action:'profile.diagnostic.dismissed'},data:{createdAt:new Date(Date.now()-32*86400000)}});expect((await call('GET','me/profile/diagnostics')).json().findings).toHaveLength(1)
+ expect((await db.profile.findUniqueOrThrow({where:{tenantId_ownerId:{tenantId:tenant,ownerId:owner}}})).version).toBe(1)
+ const otherResult=await call('GET','me/profile/diagnostics',undefined,other);expect(otherResult.body).not.toContain('F34-PRIVATE-TITLE');expect((await call('POST','me/profile/diagnostics/'+finding.key+'/dismiss',{ruleVersion:1},other)).statusCode).toBe(404)
+ const invalid=await call('GET','me/profile/diagnostics?from=bad&to=bad');expect(invalid.statusCode,invalid.body).toBe(422)
+ await save({...value,bio:'Nova versão'},1);expect((await call('GET','me/profile/diagnostics')).json().findings).toHaveLength(1)
+})

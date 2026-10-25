@@ -20,4 +20,13 @@ describe('assets de redes', () => {
   it('não inventa um logo para redes genéricas ou desconhecidas', () => {
     for (const slug of ['site', 'outro', 'desconhecida', 'toString', '__proto__']) expect(networkLogo(slug)).toBeNull()
   })
+
+  it('preserva os vazados de Kwai e Privacy em máscaras monocromáticas', () => {
+    for (const slug of ['kwai', 'privacy']) {
+      const svg = readFileSync(resolve('public', networkLogo(slug)!.slice(1)), 'utf8')
+      expect(svg).toContain('<path')
+      expect(svg).toContain('fill-rule="evenodd"')
+      expect(svg).not.toMatch(/<image|data:image|<rect|<filter/i)
+    }
+  })
 })

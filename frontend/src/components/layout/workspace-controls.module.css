@@ -1,9 +1,11 @@
 .actions { display: flex; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: var(--space-3); min-width: 0; width: 100%; }
-.actions > :is(button, a):only-child:not([data-variant='danger']) { background: var(--action-primary-bg); color: var(--surface-raised); border-color: var(--action-primary-bg); }
-.filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: var(--space-4); align-items: end; min-width: 0; width: 100%; max-width: none; margin: 0; padding: var(--space-6); border: 1px solid var(--border-default); border-radius: var(--radius-lg); background: var(--surface-raised); }
+.actions > :is(button, a):only-child:not([data-variant='danger']) { --button-glass-tint: var(--action-primary-bg); --button-glass-hover: var(--action-primary-hover); background: transparent; color: var(--color-primary-ink); border-color: transparent; }
+.filters { --glass-tint: var(--surface-glass); position: relative; isolation: isolate; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: var(--space-4); align-items: end; min-width: 0; width: 100%; max-width: none; margin: 0; padding: var(--space-6); border: 0; border-radius: var(--radius-lg); background: transparent; }
 .filters > * { min-width: 0; }
 .filters input { min-height: 48px; margin-bottom: 0; }
-.filters :global([data-select-control]) { margin-bottom: 0; }
+.filters :global([data-select-control]), .filters :global([data-control-frame]) { margin-bottom: 0; }
+/* Compact controls have no bottom margin to offset the usual negative feedback margin. */
+.filters :global(.field-hint), .filters :global(.field-error) { margin-top: var(--space-2); margin-bottom: 0; }
 .filters button { align-self: end; }
 .additional { display: contents; }
 .toggle { display: none; }

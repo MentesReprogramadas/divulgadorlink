@@ -2,7 +2,7 @@
 
 Data da análise inicial: 14 de outubro de 2026. Atualização de prioridade: 15 de outubro de 2026.
 
-**Situação atual — 21/10/2026:** 40/42 implementações locais registradas. F24, F30, F35, F39, F26 e F36 validadas localmente. Execução encerrada após F36 por pedido do usuário. Restam F40 e F41, não iniciadas. F10 continua com TLS/DNS real e S7 pendentes. Migrações locais aplicadas com backup em novo pedido de 21/10; commit/push do lote autorizados nesta branch. CI e deploy continuam separados. [Como testar/configurar](testar-lote-2026-10-21.md), [F36 e evidências](execucao-f36.md).
+**Situação atual — revisão de 21/10/2026:** 41/42 implementações locais. F24/F30/F35/F39/F26/F36 revalidadas e F40 implementada e validada localmente por pedido explícito de revisão das sete áreas. F41 não iniciada. S7/CI/liberação e DNS/TLS real da F10 continuam pendentes. Revisão na árvore local `codex/roadmap-f37-testes`, sem novo commit/push/deploy. [Revisão e evidências](../frontend-profissional/revisao-fluxos-2026-10-21.md), [F40](execucao-f40.md), [como testar](testar-lote-2026-10-21.md).
 
 Refinamento solicitado após F21: [importação, resumos, navegação, campanhas, equipe global e apresentação](refinamento-f05-f15-f20-f21-f38.md). Ampliação anterior implementada e validada localmente. Pedido posterior implementou F22 → F23 → F25, conforme situação atual acima.
 
@@ -21,7 +21,7 @@ A fonte foi ampliada por solicitação do usuário com F42; as seções anterior
 7. Specs e planos individuais na tabela abaixo.
 8. [Auditoria documental realizada](auditoria-documental.md).
 
-As decisões não resolvidas são propostas de desenho, nunca fatos aprovados. Não há preços, SLAs ou estimativas de calendário inventados. Ordem de dependência é obrigatória; prioridade de negócio pode ser revista com registro. A implementação atual parou após F36 em 21/10/2026. As notas datadas anteriores preservam o histórico de autorizações e paradas. F09 e F12 concluídas na branch, com decisões registradas em [execução F12](execucao-f12.md). Ver também [execução F09](execucao-f09.md). Evidências e decisões ficam em [execução contínua](execucao-roadmap.md). Deploy e cobrança reais não são consequência automática dos commits nessa branch.
+As decisões não resolvidas são propostas de desenho, nunca fatos aprovados. Não há preços, SLAs ou estimativas de calendário inventados. Ordem de dependência é obrigatória; prioridade de negócio pode ser revista com registro. A revisão atual encerra as sete áreas solicitadas, incluindo F40, em 21/10/2026. As notas datadas anteriores preservam o histórico de autorizações e paradas. F09 e F12 concluídas na branch, com decisões registradas em [execução F12](execucao-f12.md). Ver também [execução F09](execucao-f09.md). Evidências e decisões ficam em [execução contínua](execucao-roadmap.md). Deploy e cobrança reais não são consequência automática dos commits nessa branch.
 
 ## Índice e sequência única
 
@@ -67,7 +67,7 @@ As decisões não resolvidas são propostas de desenho, nunca fatos aprovados. N
 | 38 | F39 | 5 | [Página em vários idiomas](specs/f39-multilingue.md) | [Implementação](planos/f39-multilingue.md) | F42 (prioridade); F09, F19 | S0–S6 LOCAL; S7 EM REVISÃO |
 | 39 | F26 | 6 | [Teste de versões de botões](specs/f26-teste-botoes.md) | [Implementação](planos/f26-teste-botoes.md) | F42 (prioridade); F09, F31 | S0–S6 LOCAL; S7 EM REVISÃO |
 | 40 | F36 | 6 | [Pacotes para agências](specs/f36-agencias.md) | [Implementação](planos/f36-agencias.md) | F42 (prioridade); F20, F11, F21 | S0–S6 LOCAL; S7 EM REVISÃO |
-| 41 | F40 | 6 | [Diagnóstico da página](specs/f40-diagnostico.md) | [Implementação](planos/f40-diagnostico.md) | F42 (prioridade); F09, F07, F31 | NÃO INICIADA |
+| 41 | F40 | 6 | [Diagnóstico da página](specs/f40-diagnostico.md) | [Implementação](planos/f40-diagnostico.md) | F42 (prioridade); F09, F07, F31 | VALIDADA LOCALMENTE; S7 EM REVISÃO |
 | 42 | F41 | 6 | [App instalável](specs/f41-pwa.md) | [Implementação](planos/f41-pwa.md) | F42 (prioridade); F09 | NÃO INICIADA |
 
 ## Regras de rastreabilidade

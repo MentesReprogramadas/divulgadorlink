@@ -48,6 +48,31 @@ Para avanço incremental use a mesma configuração e run, inicialmente `--throu
 
 ## Persistência, custos e reversão
 
+### Cron gradual — 21/10/2026
+
+O usuário ampliou explicitamente a autorização para produção nesta data. O executável `src/scripts/simulate-scheduled-metrics.ts` aceita produção somente com `--allow-production` e atende exclusivamente o tenant `cmuvlp9th0000o7014v8mxerz`. O CLI antigo continua bloqueando produção.
+
+O agendamento proposto é `*/15 * * * *`, com timeout de 300 segundos. Cada execução revela somente visitas planejadas até agora. Os lotes `scheduled-metrics-v1-AAAA-MM-DD` têm horizonte fixo por dia de São Paulo, evitando duplicação ao repetir a tarefa. Um lote do dia anterior já iniciado é concluído na próxima execução; dias inteiros ausentes não são recuperados. Em 21/10 o início foi fixado em 13:00 UTC (10h de São Paulo), para não preencher retroativamente a manhã na ativação.
+
+**Ativado em produção:** aplicação `divulgador-api` (`3rzvngm8sz51yjj4i3jmtr1i`), tarefa `osq2irzgpvlbak8yc1vjr5wq`, enabled=true, frequência de 15 minutos, timeout 300. Comando: `node /app/metrics-scheduled-v1.cjs --allow-production --apply`. Primeira execução registrada pela Coolify: `yvymq9hanw8d45qpkijio3id`, 21/10/2026 às 13:09:01–13:09:03 UTC (10:09 em São Paulo), status success, 82 links processados, 127 impressões e 5 cliques inseridos, zero exclusões. A prévia da versão final tinha retornado 104/3 minutos antes; o relógio continuou avançando entre as execuções.
+
+Mantidos 180–300 views por dia completo com orçamento disponível, criação proporcional ao tempo de existência, CTR variável, patrocínio, teto comum de 3500 e tetos individuais de destaque inferiores a 4000. Ao alcançar o teto, o gerador para de acrescentar views nesse link. Não há promessa de crescimento infinito. Eventos reais continuam preservados; os novos eventos gerados entram nos agregados normais conforme solicitado anteriormente.
+
+O build inclui `build/scripts/simulate-scheduled-metrics.js`. A instalação na Coolify usa um arquivo gerenciado `/app/metrics-scheduled-v1.cjs` e comando curto, pois a coluna de comando de tarefas da versão 4.4.6 é varchar(255). O arquivo gerenciado contém o bundle compilado comprimido; não contém credenciais e não baixa código externo. O conteúdo fica fixado na configuração da Coolify, permitindo retomada mesmo após deploy de imagens anteriores. Alterações futuras do modelo exigem revisar a versão do lote e atualizar o arquivo gerenciado.
+
+Montagem gerenciada `rmipm2pxmivp5skjgcqjwadm`, destino `/app/metrics-scheduled-v1.cjs`. Conteúdo salvo foi relido após recarregar a UI e comparado ao artefato local. Bundle descomprimido instalado no container atual: SHA-256 `75a9f596009592ad701e9b4c1283741c84a812511b19b9c4c75451cbe325bf6c`. A imagem/API não foi reiniciada nem reimplantada; a montagem gerenciada cobre futuros containers. Não foi provocado um redeploy apenas para testar sua remontagem. Nenhum ambiente dev separado foi encontrado na Coolify; não foi criado outro serviço. O comando também funciona em dev/test com o banco configurado e sem --allow-production.
+
+```sh
+# Prévia dentro do container configurado
+node /app/metrics-scheduled-v1.cjs --allow-production
+# Comando recorrente, após verificar a prévia
+node /app/metrics-scheduled-v1.cjs --allow-production --apply
+```
+
+Reversão: primeiro desativar a tarefa em Scheduled Tasks da API. Para remover eventos de um dia, recuperar a configuração imutável no manifesto de auditoria desse lote e usar o rollback existente com a mesma run/configuração; remover somente suas sessões. Remover a tarefa e o arquivo gerenciado não apaga eventos já gravados.
+
+Validação local: 11 testes afetados, lint, typecheck e build passaram. A prévia local não conectou ao banco de desenvolvimento em localhost:5437; a validação de banco foi realizada no container autorizado da API, inicialmente em dry-run. O grafo foi atualizado localmente com extração de código, sem LLM/API. O relatório de comunidades/HTML permanece histórico.
+
 ### Correção dos destaques concentrados em 4000 — 19/10/2026
 
 O piso anterior de 3800 mais o complemento diário levou os destaques ao mesmo teto acumulado. `sponsoredCeilingMinViews` permite sortear um teto individual estável entre esse valor e `maxViews`, com seed/tenant/link e maturação de sete dias ao quadrado. A faixa superior permanece reservada aos destaques; a idade influencia o teto, e a geração diária continua proporcional ao tempo de existência. O teto individual é aplicado também ao orçamento de inserção, evitando nova concentração em 4000 quando esta configuração for usada.
@@ -116,5 +141,17 @@ Logs JSON mostram volumes novos por link e totais; dry-run mostra a previsão na
 Rollback exclui somente sessões com o prefixo derivado de tenant/run e preserva auditoria e eventos anteriores. Exclusões são transacionais por lote; ao começar a reversão a run é encerrada para novas inserções. Repita rollback após interrupção para terminar. Para gerar de novo, escolha outro run. O prefixo `dev-metrics:` é reservado ao script; não o use como sessão de visitantes.
 
 ## Validação
+
+### Cron: desaceleração e retomada (23/10/2026)
+
+A cron do tenant `cmuvlp9th0000o7014v8mxerz` passa a usar `growth.softLimit: true` a partir de 23/10/2026 às 00h de São Paulo (03h UTC). Até esse corte, preserva o lote v1 do dia; depois usa runs diárias v2. A frequência continua em 15 minutos. Esta política substitui os tetos totais da cron: 3500 nos comuns e a faixa individual dos patrocinados tornam-se marcos de desaceleração, permitindo ultrapassá-los.
+
+Ao atingir o marco, o volume fica em 8%–18% do habitual por 2–4 dias e recupera gradualmente durante mais 2–4 dias, usando smoothstep. Seed, tenant e link determinam duração e intensidade diferentes. Depois retorna ao ritmo diário normal, ainda sujeito à idade, horários, sazonalidade e plano diário de 180–300 visitas antes da redução. Esse intervalo não é um piso durante a desaceleração. Há uma desaceleração inicial por link, sem reiniciar o ciclo a cada consulta.
+
+O instante do marco fica registrado em `audit_logs` como `METRICS_RECOVERY_STARTED`, sob chave estável por seed/tenant/link. Para links já acima dele, consulta-se o evento da impressão que cruzou o marco. O checkpoint evita que repetições mudem a curva; dry-run não o grava. O sorteio determinístico mantém ou descarta a visita inteira, preservando clique/impressão. Rollback remove somente os eventos da run e mantém a auditoria, incluindo o marco de recuperação. Configurações sem `softLimit` preservam os limites anteriores.
+
+Validação desta alteração: 13 testes unitários, integração PostgreSQL descartável com 71 migrations (dry-run sem escrita, ultrapassagem do antigo teto, repetição sem novos eventos e rollback), lint, typecheck e build do backend passaram. O ciclo completo de vários dias é verificado pelos testes determinísticos; sua passagem em produção depende do tempo real.
+
+Atualização na Coolify em 22/10: arquivo persistente salvo e bundle montado no container conferido por SHA256 `0d867b7fcad0a779e38559cf651bd693e6d95ba13f7b7e02c88ac4ec76d913c9`, sem reiniciar a API. Dry-run remoto terminou com código 0, 110 links, previsão de 252 impressões e 19 cliques para o intervalo pendente do dia 22 (ainda v1), sem gravar eventos. A nova política v2 entra no corte acima. Para suspender futuras inserções, desativar a tarefa `osq2irzgpvlbak8yc1vjr5wq`; reversões de eventos continuam exigindo a configuração e run originais.
 
 Testes unitários verificam limites, datas, seeds, diversidade de população e bloqueio de ambiente. O teste PostgreSQL `src/use-cases/@Analytics/simulate-traffic.pg.spec.ts` verifica dry-run sem escrita, agregação por repositório real, teto com evento preexistente, repetição, concorrência, incremento, vínculo clique/impressão, rejeição de configuração diferente e rollback repetível. Execute com `PG_SPECS=1` e `ANALYTICS_DATABASE_URL` de um banco descartável com migrations aplicadas.

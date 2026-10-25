@@ -4,9 +4,10 @@ import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
 import { Popover } from '@base-ui/react/popover'
 import { ActionIcon } from './action-icon'
 import styles from './date-picker.module.css'
+import { LiquidLens } from './liquid-lens'
 
 export type DatePickerProps = {
-  id?: string; name?: string; value?: string; defaultValue?: string
+  id?: string; name?: string; value?: string; defaultValue?: string; min?: string; max?: string
   onChange?: (event: { target: { value: string } }) => void
   withTime?: boolean; required?: boolean; disabled?: boolean; invalid?: boolean; className?: string
   'aria-label'?: string; 'aria-describedby'?: string
@@ -37,11 +38,25 @@ function shiftMonth(date: Date, amount: number) {
   return next
 }
 const weekdays = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado']
+function limit(value: string | undefined, withTime: boolean) { return value && parse(display(value), withTime) === value ? value : '' }
+function boundedDay(date: Date, minimum: string, maximum: string) {
+  const day = iso(date)
+  return minimum && day < minimum.slice(0, 10) ? dateOf(minimum) : maximum && day > maximum.slice(0, 10) ? dateOf(maximum) : date
+}
+function dateError(text: string, withTime: boolean, minimum: string, maximum: string) {
+  if (!text) return ''
+  const parsed = parse(text, withTime)
+  if (!parsed) return `Use uma data válida no formato ${withTime ? 'dd/mm/aaaa hh:mm' : 'dd/mm/aaaa'}.`
+  if (minimum && parsed < minimum) return `Use uma data a partir de ${display(minimum)}.`
+  if (maximum && parsed > maximum) return `Use uma data até ${display(maximum)}.`
+  return ''
+}
 
-export function DatePicker({ value, defaultValue = '', onChange, withTime = false, required, disabled, invalid, className, id, ...aria }: DatePickerProps) {
+export function DatePicker({ value, defaultValue = '', min, max, onChange, withTime = false, required, disabled, invalid, className, id, ...aria }: DatePickerProps) {
   const generatedId = useId(), inputId = id ?? generatedId
   const [local, setLocal] = useState(defaultValue)
   const current = value ?? local
+  const minimum = limit(min, withTime), maximum = limit(max, withTime)
   const [draft, setDraft] = useState(display(current))
   const [open, setOpen] = useState(false)
   const [focusDay, setFocusDay] = useState(() => current ? dateOf(current) : new Date())
@@ -50,7 +65,7 @@ export function DatePicker({ value, defaultValue = '', onChange, withTime = fals
   const emitted = useRef(current)
   const format = withTime ? 'dd/mm/aaaa hh:mm' : 'dd/mm/aaaa'
   useEffect(() => { if (current !== emitted.current) { setDraft(display(current)); emitted.current = current } }, [current])
-  useEffect(() => { input.current?.setCustomValidity(draft && !parse(draft, withTime) ? `Use uma data válida no formato ${format}.` : '') }, [draft, format, withTime])
+  useEffect(() => { input.current?.setCustomValidity(dateError(draft, withTime, minimum, maximum)) }, [draft, withTime, minimum, maximum])
   useEffect(() => {
     const form = input.current?.form
     function reset() { if (value === undefined) { setLocal(defaultValue); setDraft(display(defaultValue)) } }
@@ -63,7 +78,7 @@ export function DatePicker({ value, defaultValue = '', onChange, withTime = fals
     if (!field) return
     // Notify the surrounding Field through the same input event used by typing.
     // This also clears a previous native validation error after calendar selection.
-    field.setCustomValidity('')
+    field.setCustomValidity(dateError(display(next), withTime, minimum, maximum))
     Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(field, display(next))
     field.dispatchEvent(new Event('input', { bubbles: true }))
   }
@@ -73,7 +88,7 @@ export function DatePicker({ value, defaultValue = '', onChange, withTime = fals
   }
   function move(date: Date) {
     if (date.getFullYear() < 1 || date.getFullYear() > 9999) return
-    setFocusDay(date)
+    setFocusDay(boundedDay(date, minimum, maximum))
     requestAnimationFrame(() => activeDay.current?.focus())
   }
   function navigate(event: KeyboardEvent<HTMLButtonElement>, day: Date) {
@@ -87,26 +102,30 @@ export function DatePicker({ value, defaultValue = '', onChange, withTime = fals
   const month = focusDay.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
   return <div className={styles.control}>
     <input type="hidden" name={aria.name} value={current} disabled={disabled} />
-    <Popover.Root open={open} onOpenChange={next => { setOpen(next); if (next) { setFocusDay(current ? dateOf(current) : new Date()); setContainer(input.current?.closest('dialog') ?? null) } }}>
-      <div className={styles.field}>
+    <Popover.Root open={open} onOpenChange={next => { setOpen(next); if (next) { setFocusDay(boundedDay(current ? dateOf(current) : new Date(), minimum, maximum)); setContainer(input.current?.closest('dialog') ?? null) } }}>
+      <div className={styles.field} data-control-frame>
+        <LiquidLens radius={12} />
         <input {...aria} name={undefined} ref={input} id={inputId} type="text" className={['field', styles.input, className].filter(Boolean).join(' ')} value={draft} placeholder={format} required={required} disabled={disabled} aria-invalid={invalid || undefined} autoComplete="off" maxLength={withTime ? 16 : 10}
-          onChange={event => { const text = event.target.value; setDraft(text); change(parse(text, withTime)) }} />
+          onChange={event => { const text = event.target.value; event.currentTarget.setCustomValidity(dateError(text, withTime, minimum, maximum)); setDraft(text); change(parse(text, withTime)) }} />
         <Popover.Trigger className={styles.trigger} disabled={disabled} aria-label="Abrir calendário" aria-describedby={inputId} title="Abrir calendário"><ActionIcon name="calendar" /></Popover.Trigger>
       </div>
-      <Popover.Portal container={container ?? undefined}><Popover.Positioner sideOffset={6} align="end" collisionPadding={8} className={styles.positioner}>
+      <Popover.Portal container={container ?? undefined}><Popover.Positioner positionMethod={container ? 'fixed' : 'absolute'} sideOffset={6} align="end" collisionPadding={8} className={styles.positioner}>
         <Popover.Popup className={styles.popup} aria-label="Escolher data" initialFocus={activeDay}>
+          <LiquidLens radius={16} />
+          <div className={styles.viewport}>
           <header className={styles.header}><button type="button" aria-label="Mês anterior" onClick={() => move(shiftMonth(focusDay, -1))}>‹</button><Popover.Title className={styles.title} aria-live="polite">{month}</Popover.Title><button type="button" aria-label="Próximo mês" onClick={() => move(shiftMonth(focusDay, 1))}>›</button></header>
           <table role="grid" aria-label={month} className={styles.calendar}><thead><tr>{weekdays.map(day => <th key={day} scope="col" abbr={day}>{day.slice(0, 3)}</th>)}</tr></thead><tbody>
             {Array.from({ length: Math.ceil((first.getDay() + count) / 7) }, (_, week) => <tr key={week}>{Array.from({ length: 7 }, (_, weekday) => {
               const number = week * 7 + weekday - first.getDay() + 1
               if (number < 1 || number > count) return <td key={weekday} />
               const day = new Date(focusDay); day.setDate(number)
-              const selected = iso(day) === current.slice(0, 10), today = iso(day) === iso(new Date())
-              return <td key={weekday} aria-selected={selected}><button type="button" ref={number === focusDay.getDate() ? activeDay : undefined} tabIndex={number === focusDay.getDate() ? 0 : -1} aria-label={day.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })} aria-current={today ? 'date' : undefined} data-selected={selected || undefined} onKeyDown={event => navigate(event, day)} onClick={() => select(day)}>{number}</button></td>
+              const selected = iso(day) === current.slice(0, 10), today = iso(day) === iso(new Date()), unavailable = iso(boundedDay(day, minimum, maximum)) !== iso(day)
+              return <td key={weekday} aria-selected={selected}><button type="button" disabled={unavailable} ref={number === focusDay.getDate() ? activeDay : undefined} tabIndex={!unavailable && number === focusDay.getDate() ? 0 : -1} aria-label={day.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })} aria-current={today ? 'date' : undefined} data-selected={selected || undefined} onKeyDown={event => navigate(event, day)} onClick={() => select(day)}>{number}</button></td>
             })}</tr>)}
           </tbody></table>
           <p className={styles.help}>Use as setas para navegar entre os dias.</p>
-          <footer className={styles.footer}><button type="button" onClick={() => select(new Date())}>Hoje</button><button type="button" onClick={() => { commit(''); setOpen(false) }}>Limpar</button><Popover.Close className={styles.close}>Fechar</Popover.Close></footer>
+          <footer className={styles.footer}><button type="button" disabled={iso(boundedDay(new Date(), minimum, maximum)) !== iso(new Date())} onClick={() => select(new Date())}>Hoje</button><button type="button" onClick={() => { commit(''); setOpen(false) }}>Limpar</button><Popover.Close className={styles.close}>Fechar</Popover.Close></footer>
+          </div>
         </Popover.Popup>
       </Popover.Positioner></Popover.Portal>
     </Popover.Root>

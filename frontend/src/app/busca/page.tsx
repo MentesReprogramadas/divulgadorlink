@@ -18,6 +18,7 @@ import { ErrorState } from '@/components/feedback/error-state'
 import { CatalogCardsSkeleton, SearchSkeleton } from '@/features/catalog/components/catalog-skeleton'
 import { api } from '@/lib/api'
 import styles from './search-results.module.css'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 
 type Facet = { name?: string; slug?: string } | null
 type Card = {
@@ -25,6 +26,9 @@ type Card = {
   name: string
   description: string
   surfaceToken: string
+  iconUrl?: string | null
+  imageUrl?: string | null
+  imageAlt?: string | null
   impressions?: number
   niche?: Facet
   discovery?: LinkDiscovery
@@ -41,6 +45,7 @@ function SearchContext({ target, filters }: { target: SearchTarget; filters: Dis
     : `/rede/${encodeURIComponent(target.slug)}`
   return (
     <div className={styles.context}>
+      <LiquidLens radius={16} />
       <p className="search-context-label">{target.kind === 'niche' ? 'Nicho encontrado' : 'Rede encontrada'}</p>
       <a href={discoveryHref(href,filters)}>Explorar {name ?? target.slug} <span aria-hidden="true">→</span></a>
     </div>
@@ -71,14 +76,18 @@ function SearchResults() {
   const displayState=filtering || loadedKey!==resultKey ? 'loading' : state
 
   const loadSequence = useRef(0)
+  const request = useRef<AbortController | null>(null)
   async function load() {
     const sequence = ++loadSequence.current
+    request.current?.abort()
+    const controller = new AbortController()
+    request.current = controller
     setState('loading')
     setLoadedKey(resultKey)
     setQueryId(undefined);setInvalid(!discovery.valid)
     if (!discovery.valid) {setState('error');return}
     let result: Awaited<ReturnType<typeof api<SearchBody>>>
-    try { result = await api<SearchBody>(`/v1/search?q=${encodeURIComponent(q)}${filterQuery ? `&${filterQuery}` : ''}`) } catch { if (sequence === loadSequence.current) setState('error'); return }
+    try { result = await api<SearchBody>(`/v1/search?q=${encodeURIComponent(q)}${filterQuery ? `&${filterQuery}` : ''}`, { signal: controller.signal }) } catch { if (sequence === loadSequence.current) setState('error'); return }
     if (sequence !== loadSequence.current) return
     if (result.status !== 200) {
       setInvalid(result.status === 400)
@@ -103,7 +112,7 @@ function SearchResults() {
     if (await confirmAge('yes')) await load()
   }
 
-  useEffect(() => { void load(); return () => { loadSequence.current++ } }, [q,filterQuery,discovery.valid])
+  useEffect(() => { void load(); return () => { loadSequence.current++; request.current?.abort() } }, [q,filterQuery,discovery.valid])
 
   const showEmpty = displayState === 'ready'
     && !ageRequired
@@ -122,8 +131,9 @@ function SearchResults() {
       </form>
       {!invalid && discovery.valid ? <DiscoveryFilters initial={discovery.value} onPending={setFiltering}/> : null}
       {displayState === 'loading' ? <CatalogCardsSkeleton count={Math.max(organic.length + sponsored.length, 3)} /> : null}
-      {displayState === 'error' ? invalid ? <InvalidDiscovery href={`/busca?q=${encodeURIComponent(q)}`}/> : <ErrorState onRetry={() => void load()} /> : null}
-      {showEmpty ? <EmptyState>Nenhum link encontrado</EmptyState> : null}
+      {displayState === 'error' ? invalid ? <InvalidDiscovery href={`/busca?q=${encodeURIComponent(q)}`} headingLevel={2}/> : <ErrorState onRetry={() => void load()} /> : null}
+      <p className={styles.summary} role="status" aria-label="Resultados da busca">{displayState === 'ready' && !ageRequired && sponsored.length + organic.length > 0 ? `${sponsored.length + organic.length} ${sponsored.length + organic.length === 1 ? 'link encontrado.' : 'links encontrados.'}` : ''}</p>
+      {showEmpty ? <EmptyState action={filterQuery ? <a href={`/busca?q=${encodeURIComponent(q)}`}>Limpar filtros</a> : <a href="/">Explorar o catálogo</a>}>Nenhum link encontrado</EmptyState> : null}
       {displayState === 'ready' && ageRequired ? <AgePrompt onYes={() => void answer('yes')} onNo={() => void answer('no')} /> : null}
       {displayState === 'ready' && target ? <SearchContext target={target} filters={discovery.value} /> : null}
       {displayState === 'ready' && sponsored.length > 0 ? (
@@ -131,7 +141,7 @@ function SearchResults() {
           <h2 id="search-patrocinados">Patrocinados</h2>
           <CatalogGrid>
             {sponsored.map((row) => (
-              <LinkRow cornerAction={<FavoriteButton linkId={row.id} />} key={row.id} id={row.id} name={row.name} description={row.description} href={rowHref(row, queryId)} placement="sponsored" niche={row.niche} network={row.network} discovery={row.discovery} impressions={row.impressions} showImpressions={showImpressions} />
+              <LinkRow cornerAction={<FavoriteButton linkId={row.id} />} key={row.id} id={row.id} name={row.name} description={row.description} iconUrl={row.iconUrl} imageUrl={row.imageUrl} imageAlt={row.imageAlt} href={rowHref(row, queryId)} placement="sponsored" niche={row.niche} network={row.network} discovery={row.discovery} impressions={row.impressions} showImpressions={showImpressions} />
             ))}
           </CatalogGrid>
         </section>
@@ -141,7 +151,7 @@ function SearchResults() {
           <h2 id="search-organicos">Links encontrados</h2>
           <CatalogGrid>
             {organic.map((row) => (
-              <LinkRow cornerAction={<FavoriteButton linkId={row.id} />} key={row.id} id={row.id} name={row.name} description={row.description} href={rowHref(row, queryId)} placement="organic" niche={row.niche} network={row.network} discovery={row.discovery} impressions={row.impressions} showImpressions={showImpressions} />
+              <LinkRow cornerAction={<FavoriteButton linkId={row.id} />} key={row.id} id={row.id} name={row.name} description={row.description} iconUrl={row.iconUrl} imageUrl={row.imageUrl} imageAlt={row.imageAlt} href={rowHref(row, queryId)} placement="organic" niche={row.niche} network={row.network} discovery={row.discovery} impressions={row.impressions} showImpressions={showImpressions} />
             ))}
           </CatalogGrid>
         </section>

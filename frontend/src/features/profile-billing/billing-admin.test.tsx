@@ -15,7 +15,7 @@ it('F11-C07 plan authoring starts only on action and requires an additional capa
   request.mockResolvedValue(data);render(<BillingAdmin/>);await screen.findByText('Vendas desativadas');expect(screen.queryByLabelText('Código do preço na Stripe')).toBeNull()
   fireEvent.click(screen.getAllByRole('button',{name:'Configurar plano'})[0]);fireEvent.change(screen.getByLabelText('Valor mensal em reais'),{target:{value:'12.90'}});fireEvent.change(screen.getByLabelText('Código do preço na Stripe'),{target:{value:'price_fixture'}});fireEvent.click(screen.getByRole('button',{name:'Continuar'}));fireEvent.click(screen.getByRole('button',{name:'Salvar configuração'}))
   expect((await screen.findByRole('alert')).textContent).toContain('pelo menos um recurso adicional');expect(request.mock.calls.filter(([,init])=>init)).toHaveLength(0)
-  fireEvent.click(screen.getByLabelText('Estatísticas dos botões · em preparação'));request.mockRejectedValueOnce(new Error('Recursos ainda indisponíveis.'));fireEvent.click(screen.getByRole('button',{name:'Salvar configuração'}));expect((await screen.findByRole('alert')).textContent).toContain('indisponíveis')
+  fireEvent.click(screen.getByLabelText('Estatísticas dos botões · indisponível neste ambiente'));request.mockRejectedValueOnce(new Error('Recursos ainda indisponíveis.'));fireEvent.click(screen.getByRole('button',{name:'Salvar configuração'}));expect((await screen.findByRole('alert')).textContent).toContain('indisponíveis')
   expect(JSON.parse(request.mock.calls.at(-1)![1].body)).toMatchObject({amountCents:1290,expectedVersion:0,enabled:false,tier:'PRO',providerPriceId:'price_fixture'})
 })
 it('F11-C08 failure recovery is explicit and limited to cancellation and canonical confirmation',async()=>{

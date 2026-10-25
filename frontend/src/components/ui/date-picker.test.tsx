@@ -6,6 +6,42 @@ import { DatePicker } from './date-picker'
 
 afterEach(cleanup)
 describe('DatePicker', () => {
+  it('preserva limites ISO inclusivos, required e mudanças externas dos limites', () => {
+    const view = render(<form aria-label="Filtro"><Field label="Data"><DatePicker name="from" required min="2026-10-10" max="2026-10-20" /></Field></form>)
+    const input = screen.getByLabelText('Data') as HTMLInputElement
+    expect(input.checkValidity()).toBe(false)
+    fireEvent.change(input, { target: { value: '09/10/2026' } })
+    expect(input.checkValidity()).toBe(false)
+    expect(input.validationMessage).toContain('10/10/2026')
+    fireEvent.change(input, { target: { value: '10/10/2026' } })
+    expect(input.checkValidity()).toBe(true)
+    fireEvent.change(input, { target: { value: '20/10/2026' } })
+    expect(input.checkValidity()).toBe(true)
+    expect(new FormData(screen.getByRole('form') as HTMLFormElement).get('from')).toBe('2026-10-20')
+    view.rerender(<form aria-label="Filtro"><Field label="Data"><DatePicker name="from" required min="2026-10-10" max="2026-10-18" /></Field></form>)
+    expect(input.checkValidity()).toBe(false)
+    expect(input.validationMessage).toContain('18/10/2026')
+  })
+  it('calendário desabilita dias fora do intervalo e mantém o foco no limite pelo teclado', async () => {
+    render(<Field label="Data"><DatePicker defaultValue="2026-10-10" min="2026-10-10" max="2026-10-20" /></Field>)
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }))
+    const first = await screen.findByRole('button', { name: '10 de outubro de 2026' }) as HTMLButtonElement
+    expect((screen.getByRole('button', { name: '9 de outubro de 2026' }) as HTMLButtonElement).disabled).toBe(true)
+    expect((screen.getByRole('button', { name: '21 de outubro de 2026' }) as HTMLButtonElement).disabled).toBe(true)
+    first.focus(); fireEvent.keyDown(first, { key: 'ArrowLeft' })
+    await waitFor(() => expect(document.activeElement).toBe(first))
+    fireEvent.click(screen.getByRole('button', { name: '20 de outubro de 2026' }))
+    expect((screen.getByLabelText('Data') as HTMLInputElement).value).toBe('20/10/2026')
+  })
+  it('limites com horário local conservam minutos e não convertem fuso', () => {
+    render(<form aria-label="Filtro"><Field label="Fim"><DatePicker name="end" withTime min="2026-10-17T14:30" max="2026-10-17T16:00" /></Field></form>)
+    const input = screen.getByLabelText('Fim') as HTMLInputElement
+    for (const [text, valid] of [['17/10/2026 14:29', false], ['17/10/2026 14:30', true], ['17/10/2026 16:00', true], ['17/10/2026 16:01', false]] as const) {
+      fireEvent.change(input, { target: { value: text } })
+      expect(input.checkValidity(), text).toBe(valid)
+    }
+    expect(new FormData(screen.getByRole('form') as HTMLFormElement).get('end')).toBe('2026-10-17T16:01')
+  })
   it('valida dias reais e envia ISO sem converter fuso horário', () => {
     render(<form aria-label="Filtro"><Field label="Data"><DatePicker name="from" required /></Field></form>)
     const input = screen.getByLabelText('Data') as HTMLInputElement

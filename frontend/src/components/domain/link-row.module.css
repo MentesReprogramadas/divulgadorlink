@@ -1,130 +1,30 @@
-.card {
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  width: 100%;
-  min-width: 0;
-  padding: var(--space-6);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius);
-  background: var(--surface-raised);
-  transition: transform 160ms ease, box-shadow 160ms ease;
-}
-
-.card[data-placement="sponsored"] {
-  border-color: color-mix(in srgb, var(--color-brand-navy) 24%, var(--color-brand-turquoise));
-  background: color-mix(in srgb, var(--color-brand-turquoise) 5%, var(--surface-raised));
-  box-shadow: var(--shadow);
-}
-
-.card:hover,
-.card:focus-within {
-  border-color: var(--color-brand-navy);
-  box-shadow: 0 8px 16px rgb(10 25 47 / 10%);
-  transform: translateY(-2px);
-}
-
-.name {
-  display: block;
-  min-width: 0;
-  color: var(--color-brand-navy);
-  font-family: var(--font-serif);
-  font-size: 20px;
-  font-weight: 600;
-  line-height: var(--leading-name);
-  text-decoration: none;
-}
-
-.name:hover {
-  color: var(--color-brand-navy);
-  text-decoration: none;
-}
-
-.name::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  border-radius: inherit;
-}
-
-.name:focus-visible {
-  outline: none;
-}
-
-.name:focus-visible::before {
-  outline: 2px solid var(--color-brand-navy);
-  outline-offset: 3px;
-}
-
-.description {
-  margin: var(--space-1) 0 0;
-  color: var(--text-secondary);
-  font-family: var(--font-sans);
-  font-size: 15px;
-  line-height: 1.4;
-  overflow-wrap: anywhere;
-}
-
-.footer {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: 24px;
-  margin-top: auto;
-  padding-top: var(--space-3);
-  pointer-events: none;
-}
-
-.footer :global(.impression-mark) {
-  margin-top: 0;
-  font-size: 14px;
-}
-
-.footer :global(.impression-mark) svg {
-  width: 16px;
-  height: 16px;
-}
-
-.action {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin-left: auto;
-  color: var(--color-brand-navy);
-  font-size: 14px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.action svg { flex: none; }
-.cornerAction { position: absolute; z-index: 1; top: var(--space-3); right: var(--space-3); }
-.withCorner { padding-right: 44px; min-height: 44px; }
-.cardActions { position: relative; z-index: 1; margin-top: var(--space-4); padding-top: var(--space-4); border-top: 1px solid var(--border-default); }
-.card:has(.cornerAction) :global(.sponsored-kicker) { padding-right: 44px; }
-
-.card:hover .action,
-.card:focus-within .action {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.card :global(.link-meta),
-.card :global(.sponsored-kicker),
-.card :global(.impression-mark) {
-  pointer-events: none;
-}
-
-.card :global(.sponsored-kicker) {
-  margin-bottom: var(--space-3);
-}
-
-@media (max-width: 599px) {
-  .card { padding: var(--space-4); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .card { transition: none; }
-  .card:hover,
-  .card:focus-within { transform: none; }
-}
+.card { composes: card from '../../features/catalog/components/ondas-catalog.module.css'; --wave-line: var(--border-default); align-self: start; }
+.image { grid-column: 1; grid-row: 1; display: block; width: 100%; aspect-ratio: 1.6; object-fit: cover; border-radius: 24px 24px 0 0; transition: transform 220ms cubic-bezier(.16, 1, .3, 1); }
+.body { composes: cardCopy from '../../features/catalog/components/ondas-catalog.module.css'; display: flex; flex-direction: column; min-width: 0; }
+.labels { composes: cardLabels from '../../features/catalog/components/ondas-catalog.module.css'; flex-wrap: wrap; gap: 7px; }
+.labels :global(.link-meta), .metadata :global(.link-meta) { margin: 0; gap: 7px 12px; }
+.labels :global(.facet), .labels :global(.ad-mark) { display: inline-flex; align-items: center; gap: 6px; min-height: 26px; padding: 6px 10px; border: 0; border-radius: 30px; background: #b9fff010; color: #dcf7f6; font-size: 11px; line-height: 1.25; box-shadow: inset 0 1px #dcfff34a; }
+.labels :global(.sponsored-kicker) { margin: 0; }
+.card[data-featured] .labels :global(.ad-mark) { background: #4af9eb; color: #0a192f; font-weight: 700; }
+.metadata { composes: cardMeta from '../../features/catalog/components/ondas-catalog.module.css'; }
+.metadata :global(.facet) { min-height: 0; padding: 0; border: 0; background: none; color: inherit; font-size: 11px; font-weight: 400; }
+.metadata :global(.facet-icon) { width: 14px; height: 14px; }
+.heading { margin: 0; min-width: 0; }
+.name { display: flex; align-items: flex-start; gap: 10px; min-width: 0; color: #f0fafb; font-family: var(--font-product); font-weight: 500; line-height: 1.2; text-decoration: none; }
+.name:hover { color: #f0fafb; text-decoration: none; }
+.hitArea { position: absolute; inset: 0; z-index: 4; border-radius: inherit; }
+.hitArea:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: -5px; }
+.srOnly { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.title { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; min-width: 0; overflow: hidden; white-space: normal; overflow-wrap: anywhere; }
+.icon { flex: none; width: 32px; height: 32px; object-fit: cover; border-radius: 10px; }
+.description { margin: 12px 0 20px; }
+.footer { composes: cardFoot from '../../features/catalog/components/ondas-catalog.module.css'; margin-top: auto; pointer-events: none; }
+.footer :global(.impression-mark) { margin-top: 0; color: inherit; font-size: inherit; }
+.footer :global(.impression-mark) svg { width: 14px; height: 14px; }
+.action { display: inline-flex; align-items: center; gap: 12px; margin-left: auto; color: #dcf9f6; white-space: nowrap; }
+.cornerAction { position: relative; grid-column: 1; grid-row: 2; justify-self: end; align-self: start; z-index: 5; width: 42px; height: 42px; margin: 18px 22px 0 0; }
+.cornerAction > button { width: 100%; height: 100%; }
+.withCorner { padding-right: 48px; }
+.cardActions { position: relative; grid-column: 1; grid-row: 3; z-index: 5; padding: 16px 22px; border-top: 1px solid var(--border-default); }
+.card :global(.link-meta), .card :global(.sponsored-kicker), .card :global(.impression-mark) { pointer-events: none; }
+@media (max-width: 600px) { .cornerAction { margin-right: 20px; } .metadata :global(.facet) { font-size: 12px; } }

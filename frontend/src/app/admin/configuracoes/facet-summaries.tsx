@@ -5,7 +5,9 @@ import { api } from '@/lib/api'
 import { OverlayDialog } from '@/components/ui/overlay-dialog'
 import { ActionIcon } from '@/components/ui/action-icon'
 import { WorkspaceFilters } from '@/components/layout/workspace-controls'
-import { Field, Input, Select } from '@/components/ui/input'
+import { Field, Input, Select, TextArea } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 import { FacetSummariesSkeleton } from '@/features/administration/components/settings-skeleton'
 import { EmptyState } from '@/components/feedback/empty-state'
 import styles from '@/features/administration/components/facet-summaries.module.css'
@@ -83,9 +85,8 @@ function FacetEditor({
   return (
     <div className="catalog-copy-editor">
       <label className="field-label" htmlFor={'resumo-' + row.id}>Resumo de {row.name}</label>
-      <textarea
+      <TextArea
         id={'resumo-' + row.id}
-        className="field"
         rows={5}
         aria-label={`Resumo de ${row.name}`}
         aria-describedby={`resumo-${row.id}-tamanho`}
@@ -93,9 +94,9 @@ function FacetEditor({
         onChange={(event) => onChange(event.target.value)}
       />
       <p id={`resumo-${row.id}-tamanho`} className="setting-copy">{lengthHint(row, count)}</p>
-      <button type="button" className="button button-primary" disabled={saving} onClick={() => void save()}>
+      <Button type="button" disabled={saving} onClick={() => void save()}>
         <ActionIcon name="save" />{`Salvar ${row.name}`}
-      </button>
+      </Button>
       {error ? <p>{error}</p> : null}
     </div>
   )
@@ -165,7 +166,7 @@ export function FacetSummaries() {
                     className={styles.item}
                     aria-current={selected?.id === row.id ? 'true' : undefined}
                     onClick={() => { setSelectedId(row.id); setEditing(true) }}
-                  ><ActionIcon name="edit" />
+                  ><LiquidLens radius={24} /><ActionIcon name="edit" />
                     <span>Editar {row.name}</span>
                     <span className="catalog-copy-status">{searchLabel(row)}</span>
                   </button>

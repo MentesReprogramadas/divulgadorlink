@@ -4,6 +4,8 @@ import { formatWhen } from '@/domain/format'
 import { orderStatusLabel, orderStatusTone, surfaceLabel } from '@/domain/labels'
 import type { PanelLink } from './panel-links'
 import { EmptyState } from '@/components/feedback/empty-state'
+import { LiquidLens } from '@/components/ui/liquid-lens'
+import styles from '@/components/layout/workspace-dashboard.module.css'
 
 export type PanelOrder = {
   id: string
@@ -24,7 +26,8 @@ export function OrderGrid({ orders, links }: { orders: PanelOrder[]; links: Pane
         const surfaces = (order.surfaces ?? []).map(surfaceLabel).filter((label): label is string => Boolean(label))
         const when = formatWhen(order.createdAt)
         return (
-          <article key={order.id} className="order-card">
+          <article key={order.id} className={`order-card ${styles.card}`}>
+            <LiquidLens radius={16} />
             <div className="order-card-top">
               <p className="panel-amount">{formatCents(order.amountCents)}</p>
               <Badge kind="status" tone={orderStatusTone(order.status)}>{orderStatusLabel(order.status)}</Badge>

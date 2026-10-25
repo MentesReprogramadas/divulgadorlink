@@ -5,6 +5,7 @@ import { api } from '@/lib/api'
 import { clearSession } from '@/domain/session'
 import { Button } from '@/components/ui/button'
 import styles from './support-banner.module.css'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 
 export function SupportBanner() {
   const [busy, setBusy] = useState(false)
@@ -37,6 +38,7 @@ export function SupportBanner() {
     }
   }
   return <aside className={styles.banner} aria-label="Modo de suporte">
+    <LiquidLens radius={12} />
     <div className={styles.inner}>
       <p><strong>Modo de suporte{name ? ` · ${name}` : ''}</strong><span>{expired ? 'Sessão indisponível ou expirada. Saia para voltar ao admin.' : 'Somente leitura · até 15 minutos'}</span></p>
       <Button variant="secondary" disabled={busy} onClick={() => void exit()}>{busy ? 'Saindo…' : 'Sair do suporte'}</Button>

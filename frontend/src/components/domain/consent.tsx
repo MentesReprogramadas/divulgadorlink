@@ -1,11 +1,14 @@
 'use client'
+import { Checkbox } from '@/components/ui/checkbox'
 
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 import { trackMeta } from '@/domain/meta-pixel'
 import { installGoogleAds, setGoogleAdsConsent, trackGoogleAdsPageView } from '@/domain/google-ads'
 import { api } from '@/lib/api'
+import { syncCampaignTouch } from '@/lib/campaign-touch'
 import {profileMeasurementConsent,writeProfileMeasurementConsent} from '@/domain/profile-measurement-consent'
 import preferenceStyles from './consent-preferences.module.css'
 
@@ -25,14 +28,6 @@ function writeConsent(value: Exclude<Choice, null>) {
 
 function countChoice(choice: Exclude<Choice, null>) {
   void api('/v1/analytics/consent', { method: 'POST', body: JSON.stringify({ choice }) }).catch(() => undefined)
-}
-
-async function syncTouch() {
-  try {
-    await fetch('/anuncio/toque', { method: 'POST' })
-  } catch {
-    return
-  }
 }
 
 type PixelQueue = {
@@ -67,21 +62,21 @@ function installPixel(pixelId: string) {
 
 export const COOKIE_REVIEW = 'tla-cookie-review'
 
-export function CookieSettings() {
+export function CookieSettings({label='Gerenciar cookies'}:{label?:string}) {
   return (
     <button type="button" className="quiet-button" onClick={() => window.dispatchEvent(new Event(COOKIE_REVIEW))}>
-      Gerenciar cookies
+      {label}
     </button>
   )
 }
 
 export function Consent({ pending }: { pending: boolean }) {
-  const [choice, setChoice] = useState<Choice | undefined>(pending ? null : undefined)
+  const [choice, setChoice] = useState<Choice | undefined>(undefined)
   const [reviewing, setReviewing] = useState(false)
   const [ads,setAds]=useState(false),[measurement,setMeasurement]=useState(false)
   const ref = useRef<HTMLElement>(null)
   const [bannerHeight, setBannerHeight] = useState(0)
-  const open = choice === null || reviewing
+  const open = choice === null || reviewing || (choice === undefined && pending)
   const pathname = usePathname()
   const lastPath = useRef(pathname)
 
@@ -107,6 +102,7 @@ export function Consent({ pending }: { pending: boolean }) {
     if (!open || !banner) return
     const measure = () => setBannerHeight(banner.getBoundingClientRect().height)
     measure()
+    if (typeof ResizeObserver === 'undefined') return
     const observer = new ResizeObserver(measure)
     observer.observe(banner)
     return () => observer.disconnect()
@@ -135,7 +131,7 @@ export function Consent({ pending }: { pending: boolean }) {
     setGoogleAdsConsent(value === 'marketing')
     setChoice(value)
     setReviewing(false)
-    void syncTouch().finally(() => {
+    void syncCampaignTouch().finally(() => {
       if (changing) location.reload()
     })
   }
@@ -145,17 +141,20 @@ export function Consent({ pending }: { pending: boolean }) {
   return (
     <div className="cookie-consent" style={{ height: bannerHeight || undefined }}>
       <section ref={ref} className="cookie-banner" aria-labelledby="cookie-title" aria-describedby="cookie-description">
+        <LiquidLens radius={0} edge="none" />
+        <div className="cookie-banner-viewport">
         <div className="cookie-banner-inner">
           <div className="cookie-banner-copy">
             <h2 id="cookie-title">Este site usa cookies</h2>
             <p id="cookie-description">Usamos cookies para o site funcionar e, com seu aceite, medir anúncios e a interação com páginas. Veja a{' '}<a href="/privacidade">Política de Privacidade</a>.</p>
-            {reviewing?<fieldset className={preferenceStyles.preferences}><legend>Cookies opcionais</legend><label><input type="checkbox" checked={ads} onChange={event=>setAds(event.target.checked)}/>Medição de anúncios</label><label><input type="checkbox" checked={measurement} onChange={event=>setMeasurement(event.target.checked)}/>Medição da página visitada</label></fieldset>:null}
+            {reviewing?<fieldset className={preferenceStyles.preferences}><legend>Cookies opcionais</legend><label><Checkbox checked={ads} onChange={event=>setAds(event.target.checked)}/>Medição de anúncios</label><label><Checkbox checked={measurement} onChange={event=>setMeasurement(event.target.checked)}/>Medição da página visitada</label></fieldset>:null}
           </div>
           <div className="cookie-banner-actions">
-            <Button type="button" onClick={() => choose('marketing')}>Aceitar</Button>
-            <Button type="button" variant="secondary" onClick={() => choose('denied')}>Recusar</Button>
-            {reviewing?<Button type="button" onClick={()=>choose(ads?'marketing':'denied',measurement)}>Salvar preferências</Button>:<Button type="button" variant="secondary" onClick={()=>{setAds(false);setMeasurement(false);setReviewing(true)}}>Ajustar preferências</Button>}
+            <Button type="button" disabled={choice === undefined} onClick={() => choose('marketing')}>Aceitar</Button>
+            <Button type="button" disabled={choice === undefined} variant="secondary" onClick={() => choose('denied')}>Recusar</Button>
+            {reviewing?<Button type="button" disabled={choice === undefined} onClick={()=>choose(ads?'marketing':'denied',measurement)}>Salvar preferências</Button>:<Button type="button" disabled={choice === undefined} variant="secondary" onClick={()=>{setAds(false);setMeasurement(false);setReviewing(true)}}>Ajustar preferências</Button>}
           </div>
+        </div>
         </div>
       </section>
     </div>

@@ -20,6 +20,19 @@ function editor(content: ProfileContent) {
   render(<Harness />)
   return changed
 }
+it('cancelar edição e remoção de grupo devolve o foco ao acionador sem saltar ao título', () => {
+  editor({ ...emptyProfile(), categories: [{ id: 'g', name: 'Comunidade', visible: true }] })
+  fireEvent.click(screen.getByRole('button', { name: 'Comunidade Abrir grupo' }))
+  for (const name of ['Editar grupo', 'Remover grupo']) {
+    const trigger = screen.getByRole('button', { name })
+    trigger.focus(); fireEvent.click(trigger)
+    const dialog = screen.getByRole('dialog', { name })
+    screen.getByRole('button', { name: 'Fechar janela' }).focus()
+    fireEvent(dialog, new Event('cancel', { bubbles: true, cancelable: true }))
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(document.activeElement).toBe(trigger)
+  }
+})
 it('canceling creation leaves no empty group; completing opens only the new group', () => {
   const changed = editor(emptyProfile())
   fireEvent.click(screen.getByRole('button', { name: 'Adicionar grupo' }))
@@ -58,6 +71,7 @@ it('requires confirmation to remove a group and clears its primary link without 
   fireEvent.click(screen.getByRole('button', { name: 'Remover grupo' }))
   fireEvent.click(screen.getByRole('button', { name: 'Confirmar remoção' }))
   expect(changed.mock.calls[0][0]).toMatchObject({ categories: [{ id: 'b', name: 'B', visible: true }], items: [], primaryItemId: null })
+  expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Adicionar grupo' }))
 })
 
 it('choosing the main button uses a modal and only applies when confirmed', async () => {

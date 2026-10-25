@@ -4,6 +4,22 @@ import { EvolutionDeliveryError, evolutionConnection, renderOperationalMessage, 
 
 const config = { baseUrl: 'https://evolution.example.com', instance: 'Test bot', group: 'fixture@g.us', apiKey: 'synthetic-secret' }
 describe('F42 contrato de entrega', () => {
+  it('distingue revisão e decisão de anexo sem alegar que o link foi publicado', () => {
+    const payload={resourceType:'LINK_MEDIA',mediaKind:'IMAGE',linkId:'link-a',name:'Clube de leitura',alt:'Pessoas lendo',version:3,canonicalUrl:'https://example.com/livros',bytes:'never-send',privateUrl:'/api/private'}
+    const review=renderOperationalMessage({id:'media-review',kind:'REVIEW_MEDIA',payload},'secret','https://tenant.test')
+    expect(review).toContain('IMAGEM EM REVISÃO')
+    expect(review).toContain('Pessoas lendo')
+    expect(review).toContain('tab=attachments')
+    expect(review).toContain('Responda: *APROVAR* ou *RECUSAR motivo*.')
+    expect(review).not.toContain('never-send');expect(review).not.toContain('/api/private')
+    const approved=renderOperationalMessage({id:'media-decision',kind:'DECISION',payload:{...payload,decision:'APPROVE',linkStatus:'PENDING_MODERATION'}},'secret','https://tenant.test')
+    expect(approved).toContain('Anexo aprovado.')
+    expect(approved).toContain('publicação do link')
+    expect(approved).not.toContain('Link publicado.')
+    const rejected=renderOperationalMessage({id:'media-decision',kind:'DECISION',payload:{...payload,decision:'REJECT',previousApproved:true,reason:'Envie outra imagem.'}},'secret','https://tenant.test')
+    expect(rejected).toContain('Anexo anterior aprovado mantido.')
+    expect(rejected).not.toContain('Contestação')
+  })
   it('mostra pagamento recebido com usuário, link e pedido sem dados bancários ou segredos', () => {
     const render = (late = false) => renderOperationalMessage({ id: 'notice', resourceId: 'order-1', kind: 'PAYMENT_RECEIVED', payload: { ownerName: 'Ana', userId: 'user-1', linkOwnerName: 'Maria', name: 'Grupo', canonicalUrl: 'https://example.test/grupo', amountCents: 1990, method: 'PIX', gatewayChargeId: 'charge-1', productCode: 'SEARCH', durationDays: 7, surfaces: ['SEARCH'], renewal: true, confirmedAt: '2026-10-16T18:30:00.000Z', late, brCode: 'private-pix', email: 'private@example.test', clientSecret: 'private-secret' } }, 'secret', 'https://tenant.test')
     const text = render()
@@ -82,7 +98,7 @@ describe('F42 contrato de entrega', () => {
    const render = (kind: string, payload = {}) => renderOperationalMessage({ id: 'review', kind, payload }, 'secret', 'https://tenant.test')
    expect(render('REVIEW_CASE', { type: 'Novo link' })).toMatch(/^🔗 /)
    expect(render('REVIEW_PROFILE', { resourceType: 'PROFILE', name: 'Minha página', version: 2 })).toMatch(/^🪪 /)
-   expect(render('REVIEW_REDIRECT', { resourceType: 'REDIRECT' })).toMatch(/^🎟️ /)
+   expect(render('REVIEW_REDIRECT', { resourceType: 'REDIRECT' })).toMatch(/^🔁 \*LINK PERMANENTE EM REVISÃO\*/)
    expect(render('REVIEW_TEXT')).toMatch(/^✏️ /)
    expect(render('REVIEW_PROFILE', { resourceType: 'PROFILE', appeal: 'Reavalie' })).toMatch(/^📣 /)
    expect(render('DECISION', { resourceType: 'PROFILE', decision: 'APPROVE' })).toContain('Página publicada.')

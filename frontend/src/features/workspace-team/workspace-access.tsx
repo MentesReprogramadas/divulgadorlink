@@ -5,6 +5,7 @@ import {api,bindApiWorkspace} from '@/lib/api'
 import {Button} from '@/components/ui/button'
 import styles from './workspace-team.module.css'
 import {ActionIcon} from '@/components/ui/action-icon'
+import {LiquidLens} from '@/components/ui/liquid-lens'
 export type Grants=Record<string,{read:boolean;write:boolean}|undefined>
 export type WorkspaceContext={ownerId:string|null;name?:string;grants:Grants|null}
 export const WorkspaceIdentity=createContext<WorkspaceContext|null>(null)
@@ -34,7 +35,7 @@ export function workspaceSection(path:string){
 }
 export function workspaceAdminPath(context:WorkspaceContext|null){return Object.entries(adminRoutes).find(([,section])=>context?.grants?.[section]?.read)?.[0]??'/admin/visao'}
 export function hasWorkspaceAdmin(context:WorkspaceContext|null){return Boolean(context?.ownerId&&Object.entries(context.grants??{}).some(([key,value])=>key.startsWith('admin')&&value?.read))}
-export function workspaceVisible(context:WorkspaceContext|null,path:string){if(!context?.ownerId)return true;const section=workspaceSection(path);if(/\/(?:novo|editar|destaque|contestar|importar|aparencia|dados)$/.test(path)||path==='/painel/perfil/links')return context.grants?.[section]?.write===true;return section==='overview'||context.grants?.[section]?.read===true}
+export function workspaceVisible(context:WorkspaceContext|null,path:string){if(context?.ownerId&&path==='/painel/perfil/formulario')return Boolean(context.grants?.page?.write&&context.grants?.contacts?.read);if(context?.ownerId&&path==='/painel/perfil/descoberta')return context.grants?.page?.write===true;if(!context?.ownerId)return true;const section=workspaceSection(path);if(/\/(?:novo|editar|destaque|contestar|importar|aparencia|conteudo|dados)$/.test(path)||path==='/painel/perfil/links')return context.grants?.[section]?.write===true;return section==='overview'||context.grants?.[section]?.read===true}
 export function useWorkspaceAccess(enabled=true){
  const [context,setContext]=useState<WorkspaceContext|null>(null),[ready,setReady]=useState(false),[error,setError]=useState('')
  useEffect(()=>{if(!enabled)return;let cancelled=false;function load(){api<WorkspaceContext&{message?:string}>('/v1/team/context').then(response=>{if(cancelled)return;if(response.status!==200){setError(response.body.message??'Não foi possível conferir seu acesso.');setReady(false);return}setError('');bindApiWorkspace(response.body.ownerId);setContext(response.body);setReady(true)}).catch(()=>{if(!cancelled)setError('Sem conexão para conferir seu acesso.')})}load();window.addEventListener('focus',load);window.addEventListener('workspace-access-changed',load);return()=>{cancelled=true;window.removeEventListener('focus',load);window.removeEventListener('workspace-access-changed',load)}},[enabled])
@@ -42,4 +43,4 @@ export function useWorkspaceAccess(enabled=true){
  return {context,ready,error}
 }
 export async function selectWorkspace(ownerId:string|null,destination?:string){if(destination&&(ownerId!==null||destination!=='/painel/clientes/transferencias'&&!/^\/painel\/equipe\/[a-f0-9-]{36}\/(editar|metricas)$/.test(destination)))throw new Error('Destino do espaço inválido.');await prepareWorkspaceSwitch();const response=await api<{message?:string}>('/v1/team/select',{method:'POST',body:JSON.stringify({ownerId})});if(response.status!==200)throw new Error(response.body.message??'Não foi possível abrir o espaço.');window.location.assign(destination??(ownerId?'/painel':'/painel/equipe'))}
-export function WorkspaceBanner({context}:{context:WorkspaceContext}){const [error,setError]=useState('');return <div role="region" aria-label="Espaço compartilhado" className={styles.workspaceBanner}><strong>Espaço de {context.name}</strong><Button variant="secondary" onClick={()=>void selectWorkspace(null).catch(reason=>setError(reason.message))}><ActionIcon name="back"/>Voltar ao meu espaço</Button>{error?<p role="alert">{error}</p>:null}</div>}
+export function WorkspaceBanner({context}:{context:WorkspaceContext}){const [error,setError]=useState('');return <div role="region" aria-label="Espaço compartilhado" className={styles.workspaceBanner}><strong>Espaço de {context.name}</strong><Button variant="secondary" onClick={()=>void selectWorkspace(null).catch(reason=>setError(reason.message))}><ActionIcon name="back"/>Voltar ao meu espaço</Button>{error?<p role="alert">{error}</p>:null}<LiquidLens radius={16}/></div>}

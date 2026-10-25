@@ -10,6 +10,7 @@ import { formatRate } from '@/domain/format'
 import { formatCents } from '@/domain/money'
 import type { PerformanceFilters, PerformanceReport as Report } from '../performance-contract'
 import styles from './performance-report.module.css'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 
 export { PerformanceFiltersForm } from './performance-filters-form'
 function day(value: string) { return value.split('-').reverse().join('/') }
@@ -31,13 +32,13 @@ export function PerformanceReport({ report, filters, onRefresh, refreshing, onFi
   return <div className={styles.report} aria-busy={refreshing || undefined}>
     <header className={styles.header}><div><h2>{report.link.name}</h2><p className={styles.note}>{day(report.from)} a {day(report.to)} <span className={styles.badge}>{report.days} dias</span></p></div>{onRefresh ? <Button variant="secondary" disabled={refreshing} onClick={onRefresh}><ActionIcon name="refresh" />Atualizar relatório</Button> : null}</header>
     <PerformanceFiltersForm report={report} filters={filters} onFiltersChange={onFiltersChange} />
-    {coverage.status !== 'COMPLETE' ? <p role="status" className={styles.warning}>Dados {coverage.status === 'UNAVAILABLE' ? 'fora do prazo de retenção' : 'parcialmente disponíveis'}. Cobertura a partir de {day(coverage.availableFrom)}. Ausência de histórico não significa zero.</p> : null}
-    {metrics.length ? <section className={styles.section} aria-labelledby="performance-summary"><h3 id="performance-summary">Visão geral</h3><dl className={styles.metrics} aria-label="Resumo do período">{metrics.map(item => <div key={item.label} data-primary={item.primary}><dt>{item.label}</dt><dd>{item.value}{'before' in item && comparison.coverage !== 'UNAVAILABLE' && report.dataState === 'RECORDED' ? <p>Anterior: {item.before}</p> : 'note' in item ? <p>{item.note}</p> : null}</dd></div>)}</dl></section> : null}
-    {coverage.investment === 'UNLINKED_HISTORY' ? <p className={styles.warning}>Há campanhas antigas sem pagamento vinculado.</p> : null}
+    {coverage.status !== 'COMPLETE' ? <p role="status" className={styles.warning}><LiquidLens radius={16}/>Dados {coverage.status === 'UNAVAILABLE' ? 'fora do prazo de retenção' : 'parcialmente disponíveis'}. Cobertura a partir de {day(coverage.availableFrom)}. Ausência de histórico não significa zero.</p> : null}
+    {metrics.length ? <section className={styles.section} aria-labelledby="performance-summary"><h3 id="performance-summary">Visão geral</h3><dl className={styles.metrics} aria-label="Resumo do período">{metrics.map(item => <div key={item.label} className={styles.metric} data-primary={item.primary}><dt>{item.label}</dt><dd>{item.value}{'before' in item && comparison.coverage !== 'UNAVAILABLE' && report.dataState === 'RECORDED' ? <p>Anterior: {item.before}</p> : 'note' in item ? <p>{item.note}</p> : null}</dd><LiquidLens radius={16}/></div>)}</dl></section> : null}
+    {coverage.investment === 'UNLINKED_HISTORY' ? <p className={styles.warning}><LiquidLens radius={16}/>Há campanhas antigas sem pagamento vinculado.</p> : null}
     {hasEvents ? <section className={styles.detailCard} aria-labelledby="performance-detail"><h3 id="performance-detail">Detalhamento dos resultados</h3><Tabs value={view} onChange={setView} label="Visualização dos resultados" items={[
       { id: 'charts', label: 'Gráficos', content: <PerformanceDetails report={report} view="charts" /> },
       { id: 'table', label: 'Tabela', content: <PerformanceDetails key={`${report.from}-${report.to}-${report.promotionId}`} report={report} view="table" /> },
-    ]} /></section> : null}
-    {hasEvents || metrics.length ? <details className={styles.method}><summary>Como os resultados são calculados</summary><p className={styles.note}>Investimento rateado por superfície e tempo. Cliques observados durante o destaque não comprovam entradas, vendas ou efeito causado pela promoção.</p><p className={styles.note}>Fuso: São Paulo. Eventos deduplicados por sessão, link, superfície, dia e tipo.</p></details> : null}
+    ]} /><LiquidLens radius={16} /></section> : null}
+    {hasEvents || metrics.length ? <div className={styles.methodSurface}><LiquidLens radius={12}/><details className={styles.method}><summary>Como os resultados são calculados</summary><p className={styles.note}>Investimento rateado por superfície e tempo. Cliques observados durante o destaque não comprovam entradas, vendas ou efeito causado pela promoção.</p><p className={styles.note}>Fuso: São Paulo. Eventos deduplicados por sessão, link, superfície, dia e tipo.</p></details></div> : null}
   </div>
 }

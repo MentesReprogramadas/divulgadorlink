@@ -1,0 +1,23 @@
+[
+  {
+    "numero": "01",
+    "nome": "Nexo",
+    "pasta": "01-nexo",
+    "origem": "logos-01-04.png",
+    "metodo": "Símbolo reconstruído em curvas Bézier; lettering geométrico refinado em contornos; cores planas da marca."
+  },
+  {
+    "numero": "09",
+    "nome": "TLA",
+    "pasta": "09-tla",
+    "origem": "logos-09-12.png",
+    "metodo": "Símbolo reconstruído em curvas Bézier; lettering geométrico refinado em contornos; cores planas da marca."
+  },
+  {
+    "numero": "19",
+    "nome": "Confluência",
+    "pasta": "19-confluencia",
+    "origem": "logos-17-20.png",
+    "metodo": "Símbolo reconstruído em curvas Bézier; lettering geométrico refinado em contornos; cores planas da marca."
+  }
+]

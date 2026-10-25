@@ -17,6 +17,7 @@ import {TemplateGrid} from './template-grid'
 import {TemplatesSkeleton} from './templates-skeleton'
 import {TemplatePreviewDialog} from './template-preview-dialog'
 import styles from './templates.module.css'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 export function TemplatesScreen(){
   const [templates,setTemplates]=useState<ProfileTemplate[]>([]),[state,setState]=useState<ProfileState|null>(null),[loading,setLoading]=useState(true),[refreshing,setRefreshing]=useState(false),[error,setError]=useState(''),[dialogError,setDialogError]=useState(''),[notice,setNotice]=useState('')
   const [activity,setActivity]=useState(''),[selected,setSelected]=useState<ProfileTemplate|null>(null),[pending,setPending]=useState(false),busy=useRef(false),trigger=useRef<HTMLElement|null>(null),status=useRef<HTMLParagraphElement>(null)
@@ -37,7 +38,7 @@ export function TemplatesScreen(){
   const filtered=templates.filter(template=>!activity||template.activity===activity),configured=Boolean(state?.draft&&(state.draft.categories.length||state.draft.items.length))
   const grid=<TemplateGrid templates={filtered} loading={refreshing} disabled={pending} onPreview={(template,button)=>{trigger.current=button;setSelected(template);setDialogError('')}}/>
   return <section className={styles.page} aria-label="Modelos da minha página"><WorkspaceActions><ButtonLink variant="secondary" href="/painel/perfil"><ActionIcon name="back"/>Voltar à edição</ButtonLink>{notice?<ButtonLink href="/painel/perfil/previa"><ActionIcon name="preview"/>Ver prévia</ButtonLink>:null}<RefreshButton disabled={pending||refreshing} onClick={()=>void load()}/></WorkspaceActions>
-    {error?<ErrorState message={error} onRetry={()=>void load()}/>:null}{notice?<p ref={status} tabIndex={-1} role="status" className={styles.notice}>{notice}</p>:null}
+    {error?<ErrorState message={error} onRetry={()=>void load()}/>:null}{notice?<p ref={status} tabIndex={-1} role="status" className={styles.notice}>{notice}<LiquidLens radius={16} /></p>:null}
     {state?.draft?<><WorkspaceFilters label="Filtros de modelos"><Field label="Tipo de página"><Select value={activity} disabled={refreshing||pending} onChange={event=>setActivity(event.target.value)}><option value="">Todos os modelos</option>{templates.map(template=><option key={template.versionId} value={template.activity}>{template.title}</option>)}</Select></Field></WorkspaceFilters>{!filtered.length&&!error?<EmptyState>Não há modelos para esta seleção.</EmptyState>:refreshing?<SkeletonRegion label="Atualizando modelos">{grid}</SkeletonRegion>:grid}</>:!error?<EmptyState action={<ButtonLink href="/painel/perfil"><ActionIcon name="edit"/>Criar minha página</ButtonLink>}>Complete o nome e o endereço da página para aplicar um modelo.</EmptyState>:null}
     {selected?<TemplatePreviewDialog key={selected.versionId} template={selected} configured={configured} unpublished={Boolean(state?.draft&&hasUnpublishedProfile(state.draft,state.publishedContent??null))} pending={pending} error={dialogError} trigger={trigger.current} onClose={()=>{if(!busy.current)setSelected(null)}} onApply={(preserve,confirmed)=>void apply(preserve,confirmed)}/>:null}
   </section>

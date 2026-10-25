@@ -1,0 +1,5 @@
+.boxes { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: clamp(4px, 1.5vw, 8px); width: min(100%, 20.5rem); margin: 0 0 var(--space-4); }
+.boxes > :global([data-control-frame]) { min-width: 0; margin: 0; }
+.boxes .digit { width: 100%; min-width: 0; height: 52px; padding: 0; color: var(--text-primary); font-family: var(--font-product); font-size: 22px; font-weight: 600; line-height: 1; text-align: center; font-variant-numeric: tabular-nums; }
+.boxes .digit[data-filled] { border-color: var(--color-link); }
+@media (width < 24rem) { .boxes .digit { height: 46px; font-size: 20px; } }

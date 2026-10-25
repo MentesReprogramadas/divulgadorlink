@@ -1,3 +1,4 @@
+import {readProfileDiagnostics,dismissProfileDiagnostic,diagnosticsQuery} from '@/repositories/profile-diagnostics'
 import * as agency from '@/repositories/agency-clients'
 import * as transfers from '@/repositories/profile-ownership-transfer'
 import {agencyClientInput,agencyAccessInput,agencyTransferInput} from '@/domain/access/agency'
@@ -169,6 +170,8 @@ export async function profilesRoutes(app: FastifyInstance) {
     if('available' in result&&result.available){r.code(302).header('location',result.destinationUrl);return null}
     return result
   }))
+  app.get('/me/profile/diagnostics',(q,r)=>run(q,r,true,(db,a)=>readProfileDiagnostics(db,{...a,auditActorId:q.workspaceActor?.id},diagnosticsQuery.parse(q.query))))
+  app.post('/me/profile/diagnostics/:key/dismiss',(q,r)=>run(q,r,true,(db,a)=>{const {key}=z.object({key:z.string().regex(/^[a-f0-9]{64}$/)}).strict().parse(q.params),body=z.object({ruleVersion:z.number().int().positive(),from:z.string().optional(),to:z.string().optional()}).strict().parse(q.body);return dismissProfileDiagnostic(db,{...a,auditActorId:q.workspaceActor?.id},key,body.ruleVersion,{from:body.from,to:body.to})}))
   app.get('/me/profile/checklist',(q,r)=>run(q,r,true,(db,actor)=>{z.object({}).strict().parse(q.query);return profiles.readProfileChecklist(db,actor)}))
   app.post('/me/profile/checklist/actions',(q,r)=>run(q,r,true,(db,actor)=>profiles.recordProfileChecklistAction(db,actor,z.object({action:z.enum(['PREVIEW_REQUESTED','LINK_COPIED']),expectedVersion:profileVersion}).strict().parse(q.body))))
   app.patch('/me/profile', (q, r) => run(q, r, true, (db, actor) => {
@@ -191,4 +194,5 @@ export async function profilesRoutes(app: FastifyInstance) {
     return result.restricted?result:{...localizeProfile(result,locale),measurement:await profileMeasurementDescriptor(db,actor.tenantId,slug,result.publishedRevisionId)}
   }))
   app.get('/profiles/:slug/avatar/:id', (q, r) => run(q, r, false, async (db, actor) => { const p = slugParams.extend({ id: asset }).parse(q.params); const bytes = await profiles.profileAvatar(db, actor, p.id, p.slug); return r.type(avatarContentType(bytes)).send(bytes) }))
+  app.get('/profiles/:slug/media/:id', (q, r) => run(q, r, false, async (db, actor) => { const p = slugParams.extend({ id: asset }).parse(q.params); const bytes = await profiles.profileAvatar(db, actor, p.id, p.slug,true); return r.type(avatarContentType(bytes)).send(bytes) }))
 }

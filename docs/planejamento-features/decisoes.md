@@ -159,3 +159,15 @@ Este registro substitui a indicação de pendência técnica dessas decisões pa
 | D41/F39 | pt-BR/en/es manual, fallback original, URL locale com canonical da página | Tradução externa paga, destino alternativo por idioma e rastreamento de preferência descartados | [F39](execucao-f39.md) |
 | D28/F26 | 50/50 por sessão consentida; 7/14/28d, mínimo 100–10000/variante, α5%, efeito mínimo 2pp; inconclusivo sem validade/amostra | Vencedor por cliques brutos, parar cedo e aplicar automaticamente descartados | [F26](execucao-f26.md) |
 | D38/F36 | Dez clientes técnicos sem cobrança adicional, contas reais e plano individual; colaboração aprovada pelo cliente, transferência com dois titulares/7d | Preço/pacote agregado, contas fictícias, OWNER implícito, mover cobrança e substituir página do destino descartados | [F36](execucao-f36.md) |
+
+
+## D42 — Diagnóstico e escolhas da revisão de 21/10/2026
+
+F40 implementa regras v1 determinísticas: título repetido, mais de vinte botões visíveis como sugestão de organização, indisponibilidade conhecida F07 e CTR abaixo de 1% somente com cem impressões por botão/publicação/período. Ignorar usa AuditLog por versão por trinta dias; sem nova tabela, IA, requisição externa ou correção automática. Métricas respeitam reports.read além de page.read e a cobertura F31. Evidência de posição é a ordem salva na publicação, sem inferir causalidade. Valores concretizados tecnicamente conforme orientação do usuário para escolher/documentar sem perguntas rotineiras; limites e alternativas em [execução F40](execucao-f40.md).
+
+Na revisão UX, manter componentes da casa, busca após 350ms e facetas públicas existentes; alternativa de formulário Buscar descartada. Sidebar usa um grupo exclusivo por vez; seletor que escondesse toda a navegação foi descartado. F30 usa abas e três etapas; F39 recolhe configurações de idioma durante edição. Nenhuma biblioteca, quota, cobrança, consentimento ou política de moderação alterada por consequência visual.
+
+
+## D43 — Blocos Premium e apresentação de planos, 21/10/2026
+
+O usuário delegou a escolha de formatos de valor para os blocos adicionais. Implementados texto, imagem com legenda/descrição e vídeo público YouTube/Vimeo, dentro do editor e da publicação existentes. Aparência, eventos e formulário existentes continuam gratuitos. Não foi criado um segundo construtor, HTML livre, conexão automática com provedor de vídeo ou remoção da marca. Cobertura conferida no servidor; vencimento preserva o rascunho e retira os blocos da projeção pública. O backup declara imagens omitidas; transferência leva os ativos sem transferir cobrança. `profile.richBlocks` passa a ter implementação concreta; preços, fiscal, Stripe e domínio configurado continuam requisitos independentes da liberação comercial. Sem página, somente CTA central para criá-la; ofertas incompletas não aparecem ao cliente. [Implementação e limites](../frontend-profissional/assinatura-paywall-integracoes-2026-10-21.md).

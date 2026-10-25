@@ -34,6 +34,10 @@ import {ProfileRouteSkeleton} from '@/features/profiles/components/profile-route
 import {ChannelsScreen} from '@/features/profile-channels/channels-screen'
 /** Route shells and their client data boundaries use the same composition. */
 export function WorkspaceContentSkeleton({ path }: { path: string }) {
+  if(path==='/painel/perfil/conteudo')return <ProfilePageSkeleton section="content"/>
+  if(path==='/painel/perfil/busca')return <ProfilePageSkeleton section="search"/>
+  if(path==='/painel/perfil/formulario')return <ProfilePageSkeleton section="contact"/>
+  if(path==='/painel/perfil/descoberta')return <ProfilePageSkeleton section="discovery"/>
   if(['/painel/perfil/dados','/painel/perfil/links','/painel/perfil/aparencia'].includes(path))return <ProfilePageSkeleton section={path.endsWith('/dados')?'identity':path.endsWith('/links')?'groups':'appearance'}/>
   if(/^\/painel\/convites\/[^/]+\/distribuicao$/.test(path))return <PoolScreen id={path.split('/')[3]} pendingOnly/>
   if(path==='/painel/perfil/assistente')return <AssistantScreen pendingOnly/>

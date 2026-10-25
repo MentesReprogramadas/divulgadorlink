@@ -8,3 +8,6 @@
 .action{display:flex;justify-content:flex-end;max-width:100%}.action>a[aria-disabled]{pointer-events:none;opacity:.55}.reasons{margin:0;font-size:var(--text-sm);color:var(--text-secondary);line-height:1.6}.notice{margin:0;line-height:1.6}
 .ghost{color:transparent;background:var(--border-default);border-radius:var(--radius-md);box-decoration-break:clone;-webkit-box-decoration-break:clone}
 @media(max-width:640px){.task{flex-direction:column;align-items:stretch;gap:var(--space-4);min-height:0}.action{align-self:flex-end}.action>*{max-width:100%;white-space:normal;text-align:center}}
+
+/* Same optical material as Ondas; layout and state selectors stay local. */
+.card { composes: surface from '../feature-glass.module.css'; background: transparent; }

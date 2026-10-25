@@ -75,3 +75,8 @@ F42 introduz primitivas mínimas de outbox e receipt que podem ser reutilizadas 
 ## F36 — Dono da página e extensões futuras
 
 A conta da agência não substitui tenant nem owner da página; portfólio aponta a páginas F20 autorizadas. Reutilizar editor/prévia e métricas por x-profile-id; não misturar cabeçalho de página com workspace global. Transferências são pessoais e auditadas. FK nova que referencia a identidade composta de Profile com ownerId precisa ser `DEFERRABLE INITIALLY IMMEDIATE`, preservando comportamento normal imediato e permitindo transferência atômica. O guard recusa esquema incompatível (503/rollback). Snapshots continuam imutáveis: exceção controlada muda somente ownerId durante a transferência. Concessão derivada aprovada precisa manter sua prova até revogar a membership vinculada; apagar a prova antes pode transformar acesso em concessão direta. [Decisão e testes](execucao-f36.md).
+
+
+## Revisão F35/F40 — 21/10/2026
+
+F35 recebe q opcional parametrizado na listagem e exportação, antes de cursor/limite, preservando isolamento e permissões. F40 mantém regras puras em domain/profiles, composição privada em repositories e rotas no controller existente. Reutiliza readProfile, disponibilidade F07, relatório F31 e AuditLog para descarte temporário. Sem nova migration; descarte não altera página e registra ator efetivo. page.read não concede reports.read. Na UI, reutiliza WorkspaceActions/Filters, FormSteps, ResponsiveTabs, MetricCards, EmptyState e prévia existente; debounce pequeno compartilhado evita duplicação. [D42 e limites](execucao-f40.md).

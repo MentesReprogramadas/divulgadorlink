@@ -6,6 +6,13 @@ const request=vi.hoisted(()=>vi.fn())
 vi.mock('./contact-api',()=>({contactRequest:request}))
 afterEach(()=>{cleanup();vi.resetAllMocks()})
 const form={revisionId:'rev',definition:{...defaultContact,enabled:true,marketingAllowed:true}}
+it('traduz formulário e validação pelo idioma, preserva dados e consentimento',()=>{
+ render(<ContactForm form={form} slug="pagina" locale="en"/>);fireEvent.click(screen.getByRole('button',{name:'Send contact'}))
+ expect(screen.getByText('Fill out this field.')).toBeTruthy();expect(screen.getByLabelText('I want to receive updates')).toBeTruthy();expect(request).not.toHaveBeenCalled()
+})
+it('preserva a orientação de recuperação do servidor no idioma do visitante',async()=>{
+ request.mockRejectedValueOnce(new Error('O formulário mudou. Atualize a página antes de enviar.'));render(<ContactForm form={form} slug="pagina" locale="en"/>);fireEvent.change(screen.getByLabelText('Email'),{target:{value:'ana@example.com'}});fireEvent.click(screen.getByRole('button',{name:'Send contact'}));expect(await screen.findByText('The form changed. Refresh the page before sending.')).toBeTruthy();expect((screen.getByLabelText('Email') as HTMLInputElement).value).toBe('ana@example.com')
+})
 it('F22-C01 falha mantém campos e não confirma envio; recuperação confirma após persistência',async()=>{
  request.mockRejectedValueOnce(new Error('Sem conexão')).mockResolvedValueOnce({id:'lead'})
  render(<ContactForm form={form} slug="pagina"/>);fireEvent.change(screen.getByLabelText('E-mail'),{target:{value:'ana@example.com'}});expect((screen.getByRole('checkbox') as HTMLInputElement).checked).toBe(false);fireEvent.click(screen.getByRole('button',{name:'Enviar contato'}));await screen.findByRole('alert');expect((screen.getByLabelText('E-mail') as HTMLInputElement).value).toBe('ana@example.com');expect(screen.queryByText('Contato enviado')).toBeNull();fireEvent.click(screen.getByRole('button',{name:'Enviar contato'}));await screen.findByText('Contato enviado');const sent=JSON.parse(request.mock.calls[1][1].body);expect(sent.marketingOptIn).toBe(false)

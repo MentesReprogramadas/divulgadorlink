@@ -1,0 +1,518 @@
+[
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\digital\\favicon-claro.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\digital\\favicon-16.png",
+    "w": 16,
+    "h": 16
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\digital\\favicon-claro.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\digital\\favicon-32.png",
+    "w": 32,
+    "h": 32
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\digital\\favicon-claro.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\digital\\favicon-48.png",
+    "w": 48,
+    "h": 48
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\digital\\app.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\digital\\apple-touch-icon.png",
+    "w": 180,
+    "h": 180
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\digital\\app.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\digital\\icon-192.png",
+    "w": 192,
+    "h": 192
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\digital\\app.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\digital\\icon-512.png",
+    "w": 512,
+    "h": 512
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\digital\\app.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\digital\\avatar.png",
+    "w": 1024,
+    "h": 1024
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\digital\\maskable.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\digital\\maskable-512.png",
+    "w": 512,
+    "h": 512
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\logo\\horizontal-cor.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\logo\\horizontal-cor.png",
+    "w": 2070,
+    "h": 384
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\logo\\horizontal-escuro.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\logo\\horizontal-escuro.png",
+    "w": 2070,
+    "h": 384
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\logo\\horizontal-preto.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\logo\\horizontal-preto.png",
+    "w": 2070,
+    "h": 384
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\logo\\horizontal-branco.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\logo\\horizontal-branco.png",
+    "w": 2070,
+    "h": 384
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\logo\\vertical-cor.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\logo\\vertical-cor.png",
+    "w": 1152,
+    "h": 720
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\logo\\simbolo.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\logo\\simbolo.png",
+    "w": 1024,
+    "h": 1024
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\sistema\\padrao.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\sistema\\padrao.png",
+    "w": 1200,
+    "h": 1200
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\social\\post.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\social\\post.png",
+    "w": 1080,
+    "h": 1080
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\social\\story.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\social\\story.png",
+    "w": 1080,
+    "h": 1920
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\social\\capa.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\social\\capa.png",
+    "w": 1200,
+    "h": 630
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\referencia.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\referencia.png",
+    "w": 1600,
+    "h": 1000
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\print\\adesivo-60mm.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\print\\adesivo-60mm.png",
+    "w": 709,
+    "h": 709,
+    "density": 300
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\print\\camisa-costas-280mm.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\print\\camisa-costas-280mm.png",
+    "w": 3307,
+    "h": 2618,
+    "density": 300
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\print\\caneca-200x85mm.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\print\\caneca-200x85mm.png",
+    "w": 2362,
+    "h": 1004,
+    "density": 300
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\print\\cartao-frente-com-sangria.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\print\\cartao-frente-com-sangria.png",
+    "w": 1134,
+    "h": 661,
+    "density": 300
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\print\\cartao-verso-com-sangria.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\print\\cartao-verso-com-sangria.png",
+    "w": 1134,
+    "h": 661,
+    "density": 300
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\print\\ecobag-240mm.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\print\\ecobag-240mm.png",
+    "w": 2835,
+    "h": 2835,
+    "density": 300
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\print\\peito-35mm-branco.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\print\\peito-35mm-branco.png",
+    "w": 413,
+    "h": 413,
+    "density": 300
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\print\\peito-35mm.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\nexo\\print\\peito-35mm.png",
+    "w": 413,
+    "h": 413,
+    "density": 300
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\digital\\favicon-claro.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\digital\\favicon-16.png",
+    "w": 16,
+    "h": 16
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\digital\\favicon-claro.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\digital\\favicon-32.png",
+    "w": 32,
+    "h": 32
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\digital\\favicon-claro.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\digital\\favicon-48.png",
+    "w": 48,
+    "h": 48
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\digital\\app.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\digital\\apple-touch-icon.png",
+    "w": 180,
+    "h": 180
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\digital\\app.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\digital\\icon-192.png",
+    "w": 192,
+    "h": 192
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\digital\\app.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\digital\\icon-512.png",
+    "w": 512,
+    "h": 512
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\digital\\app.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\digital\\avatar.png",
+    "w": 1024,
+    "h": 1024
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\digital\\maskable.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\digital\\maskable-512.png",
+    "w": 512,
+    "h": 512
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\logo\\horizontal-cor.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\logo\\horizontal-cor.png",
+    "w": 2070,
+    "h": 384
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\logo\\horizontal-escuro.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\logo\\horizontal-escuro.png",
+    "w": 2070,
+    "h": 384
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\logo\\horizontal-preto.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\logo\\horizontal-preto.png",
+    "w": 2070,
+    "h": 384
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\logo\\horizontal-branco.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\logo\\horizontal-branco.png",
+    "w": 2070,
+    "h": 384
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\logo\\vertical-cor.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\logo\\vertical-cor.png",
+    "w": 1152,
+    "h": 720
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\logo\\simbolo.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\logo\\simbolo.png",
+    "w": 1024,
+    "h": 1024
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\sistema\\padrao.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\sistema\\padrao.png",
+    "w": 1200,
+    "h": 1200
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\social\\post.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\social\\post.png",
+    "w": 1080,
+    "h": 1080
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\social\\story.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\social\\story.png",
+    "w": 1080,
+    "h": 1920
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\social\\capa.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\social\\capa.png",
+    "w": 1200,
+    "h": 630
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\referencia.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\referencia.png",
+    "w": 1600,
+    "h": 1000
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\print\\adesivo-60mm.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\print\\adesivo-60mm.png",
+    "w": 709,
+    "h": 709,
+    "density": 300
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\print\\camisa-costas-280mm.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\print\\camisa-costas-280mm.png",
+    "w": 3307,
+    "h": 2618,
+    "density": 300
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\print\\caneca-200x85mm.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\print\\caneca-200x85mm.png",
+    "w": 2362,
+    "h": 1004,
+    "density": 300
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\print\\cartao-frente-com-sangria.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\print\\cartao-frente-com-sangria.png",
+    "w": 1134,
+    "h": 661,
+    "density": 300
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\print\\cartao-verso-com-sangria.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\print\\cartao-verso-com-sangria.png",
+    "w": 1134,
+    "h": 661,
+    "density": 300
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\print\\ecobag-240mm.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\print\\ecobag-240mm.png",
+    "w": 2835,
+    "h": 2835,
+    "density": 300
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\print\\peito-35mm-branco.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\print\\peito-35mm-branco.png",
+    "w": 413,
+    "h": 413,
+    "density": 300
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\print\\peito-35mm.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\tla\\print\\peito-35mm.png",
+    "w": 413,
+    "h": 413,
+    "density": 300
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\digital\\favicon-claro.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\digital\\favicon-16.png",
+    "w": 16,
+    "h": 16
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\digital\\favicon-claro.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\digital\\favicon-32.png",
+    "w": 32,
+    "h": 32
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\digital\\favicon-claro.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\digital\\favicon-48.png",
+    "w": 48,
+    "h": 48
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\digital\\app.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\digital\\apple-touch-icon.png",
+    "w": 180,
+    "h": 180
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\digital\\app.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\digital\\icon-192.png",
+    "w": 192,
+    "h": 192
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\digital\\app.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\digital\\icon-512.png",
+    "w": 512,
+    "h": 512
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\digital\\app.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\digital\\avatar.png",
+    "w": 1024,
+    "h": 1024
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\digital\\maskable.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\digital\\maskable-512.png",
+    "w": 512,
+    "h": 512
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\logo\\horizontal-cor.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\logo\\horizontal-cor.png",
+    "w": 2070,
+    "h": 384
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\logo\\horizontal-escuro.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\logo\\horizontal-escuro.png",
+    "w": 2070,
+    "h": 384
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\logo\\horizontal-preto.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\logo\\horizontal-preto.png",
+    "w": 2070,
+    "h": 384
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\logo\\horizontal-branco.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\logo\\horizontal-branco.png",
+    "w": 2070,
+    "h": 384
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\logo\\vertical-cor.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\logo\\vertical-cor.png",
+    "w": 1152,
+    "h": 720
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\logo\\simbolo.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\logo\\simbolo.png",
+    "w": 1024,
+    "h": 1024
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\sistema\\padrao.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\sistema\\padrao.png",
+    "w": 1200,
+    "h": 1200
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\social\\post.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\social\\post.png",
+    "w": 1080,
+    "h": 1080
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\social\\story.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\social\\story.png",
+    "w": 1080,
+    "h": 1920
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\social\\capa.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\social\\capa.png",
+    "w": 1200,
+    "h": 630
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\referencia.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\referencia.png",
+    "w": 1600,
+    "h": 1000
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\print\\adesivo-60mm.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\print\\adesivo-60mm.png",
+    "w": 709,
+    "h": 709,
+    "density": 300
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\print\\camisa-costas-280mm.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\print\\camisa-costas-280mm.png",
+    "w": 3307,
+    "h": 2618,
+    "density": 300
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\print\\caneca-200x85mm.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\print\\caneca-200x85mm.png",
+    "w": 2362,
+    "h": 1004,
+    "density": 300
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\print\\cartao-frente-com-sangria.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\print\\cartao-frente-com-sangria.png",
+    "w": 1134,
+    "h": 661,
+    "density": 300
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\print\\cartao-verso-com-sangria.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\print\\cartao-verso-com-sangria.png",
+    "w": 1134,
+    "h": 661,
+    "density": 300
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\print\\ecobag-240mm.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\print\\ecobag-240mm.png",
+    "w": 2835,
+    "h": 2835,
+    "density": 300
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\print\\peito-35mm-branco.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\print\\peito-35mm-branco.png",
+    "w": 413,
+    "h": 413,
+    "density": 300
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\print\\peito-35mm.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\confluencia\\print\\peito-35mm.png",
+    "w": 413,
+    "h": 413,
+    "density": 300
+  },
+  {
+    "src": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\comparativo.svg",
+    "dst": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\comparativo.png",
+    "w": 1800,
+    "h": 1260
+  }
+]

@@ -1,0 +1,24 @@
+{
+  "brand": "Tem Link Aqui",
+  "direction": "Confluência",
+  "concept": "19",
+  "approval": "Escolha explícita do usuário em 23/10/2026",
+  "geometry": "Símbolo reconstruído em curvas Bézier; lettering geométrico em contornos. Sem fontes ou raster embutidos nos logos.",
+  "palette": [
+    "#0A192F",
+    "#4AF9EB",
+    "#FFFFFF"
+  ],
+  "mockup": {
+    "file": "aplicacoes/mockup.png",
+    "method": "ImageGen nativo com referência da identidade; edição posterior para impressão branca/turquesa na camiseta navy. Simulação conceitual, não fotografia de peça fabricada.",
+    "prompt": "aplicacoes/PROMPT-MOCKUP.txt",
+    "sha256": "598c7bb39b2b873e9bacee2d35a1329fc57d8ef40e4e1c851683d3b8472667d2"
+  },
+  "font": {
+    "name": "Outfit",
+    "usage": "Apresentações",
+    "license": "assets/OFL-Outfit.txt"
+  },
+  "legal": "Exclusividade jurídica e registro não verificados."
+}

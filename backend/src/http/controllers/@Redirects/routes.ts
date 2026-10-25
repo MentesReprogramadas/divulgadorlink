@@ -1,5 +1,5 @@
 import * as ownership from '@/repositories/ownership'
-import {fetchOwnershipFile,type OwnershipFetch} from '@/adapters/http/ownership-fetch'
+import {resolveOwnershipTxt,type OwnershipResolve} from '@/adapters/http/ownership-fetch'
 import {destinationPoolInput} from '@/domain/redirects/destination-pool'
 import * as pools from '@/repositories/destination-pools'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
@@ -16,8 +16,8 @@ import { RedirectError } from '@/use-cases/@Redirects/validate-destination'
 import { publicContentValidationPorts, type PublicContentValidationPorts } from '@/use-cases/public-content-validation-ports'
 import * as redirects from '@/repositories/redirects-repository'
 
-let ownershipFetch:OwnershipFetch=fetchOwnershipFile
-export function setOwnershipFetchForTest(fetcher:OwnershipFetch|null){if(process.env.NODE_ENV==='test')ownershipFetch=fetcher??fetchOwnershipFile}
+let ownershipFetch:OwnershipResolve=resolveOwnershipTxt
+export function setOwnershipResolveForTest(fetcher:OwnershipResolve|null){if(process.env.NODE_ENV==='test')ownershipFetch=fetcher??resolveOwnershipTxt}
 let testDb: PrismaClient | null = null, testPorts: PublicContentValidationPorts | null = null
 export function setRedirectsForTest(db: PrismaClient | null, ports: PublicContentValidationPorts | null = null) { if (process.env.NODE_ENV === 'test') { testDb = db; testPorts = ports } }
 type Context = redirects.RedirectActor & { age: boolean; viewerId: string | null; ports: PublicContentValidationPorts }

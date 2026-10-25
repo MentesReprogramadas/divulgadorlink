@@ -15,6 +15,6 @@ export async function validateRedirectDestination(raw: string, probe: UrlProbe):
   try { status = await probe(destination) }
   catch { throw new RedirectError(503, 'Não foi possível validar o destino. Tente novamente.') }
   if (status === null) throw new RedirectError(503, 'Não foi possível validar o destino. Tente novamente.')
-  if (status < 200 || status >= 300) throw new RedirectError(422, 'O destino está indisponível ou não é permitido. Confira o convite.')
+  if (status < 200 || status >= 300) throw new RedirectError(422, 'O destino está indisponível ou não é permitido. Confira o link permanente.')
   return destination
 }

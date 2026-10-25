@@ -1,0 +1,2793 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "e2e/workspace-layout.spec.ts",
+      "e2e/redirects.spec.ts",
+      "e2e/destination-pools.spec.ts",
+      "e2e/profile-channels.spec.ts",
+      "e2e/permanent-qr.spec.ts",
+      "e2e/content-reviews.spec.ts",
+      "--project=features",
+      "--project=features-mobile"
+    ],
+    "configFile": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\playwright.config.ts",
+    "rootDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\global-setup.ts",
+    "globalTeardown": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\global-teardown.ts",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "setup",
+        "name": "setup",
+        "testDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/auth\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features",
+        "name": "features",
+        "testDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/feature-readonly\\.spec\\.ts|profile-diagnostics\\.spec\\.ts|agency\\.spec\\.ts|button-tests\\.spec\\.ts|profile-languages\\.spec\\.ts|contact-handling\\.spec\\.ts|platform-webhooks\\.spec\\.ts|profile-discovery\\.spec\\.ts|profile-hosts\\.spec\\.ts|public-collections\\.spec\\.ts|share-kit\\.spec\\.ts|profile-events\\.spec\\.ts|ownership\\.spec\\.ts|profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features-mobile",
+        "name": "features-mobile",
+        "testDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/feature-readonly\\.spec\\.ts|profile-diagnostics\\.spec\\.ts|agency\\.spec\\.ts|button-tests\\.spec\\.ts|profile-languages\\.spec\\.ts|contact-handling\\.spec\\.ts|platform-webhooks\\.spec\\.ts|profile-discovery\\.spec\\.ts|profile-hosts\\.spec\\.ts|public-collections\\.spec\\.ts|share-kit\\.spec\\.ts|profile-events\\.spec\\.ts|ownership\\.spec\\.ts|profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "catalog",
+        "name": "catalog",
+        "testDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/catalog\\.spec\\.ts|mail\\.spec\\.ts|advertise\\.spec\\.ts|legal\\.spec\\.ts|funnel\\.spec\\.ts|signup\\.spec\\.ts|submit-link\\.spec\\.ts|security-headers\\.spec\\.ts|google-ads-submission\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "auth.setup.ts",
+      "file": "auth.setup.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "sessão da Bia para os testes do painel",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "setup",
+              "projectName": "setup",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 416,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:23:11.422Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "17e3fe6f4d9d8bd79c6b-40367c7f5b2a9e9ad033",
+          "file": "auth.setup.ts",
+          "line": 8,
+          "column": 6
+        }
+      ]
+    },
+    {
+      "title": "content-reviews.spec.ts",
+      "file": "content-reviews.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Revisão e contestação: profiles",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9171,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:23:12.293Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b08dc3e969340bb32102-b579e6586e645213a0f3",
+          "file": "content-reviews.spec.ts",
+          "line": 15,
+          "column": 60
+        },
+        {
+          "title": "Revisão e contestação: redirects",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8551,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:23:21.564Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b08dc3e969340bb32102-b0da22010e5102247819",
+          "file": "content-reviews.spec.ts",
+          "line": 15,
+          "column": 60
+        },
+        {
+          "title": "Revisão e contestação: profiles",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7983,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:28:09.554Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b08dc3e969340bb32102-49ab7d4e729170e21be6",
+          "file": "content-reviews.spec.ts",
+          "line": 15,
+          "column": 60
+        },
+        {
+          "title": "Revisão e contestação: redirects",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5256,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:28:17.649Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b08dc3e969340bb32102-33c8dab84689111c91ef",
+          "file": "content-reviews.spec.ts",
+          "line": 15,
+          "column": 60
+        }
+      ]
+    },
+    {
+      "title": "destination-pools.spec.ts",
+      "file": "destination-pools.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F23-E01/T02/T03/T04/T05 configura 1/3, encaminha ao stub real, pausa destinos e conserva endereço",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 33535,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Link permanente fixture A', exact: true })\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Link permanente fixture A', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Link permanente fixture A', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Link permanente fixture A', exact: true })\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Link permanente fixture A', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Link permanente fixture A', exact: true })\u001b[22m\n\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts:14:228",
+                    "location": {
+                      "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts",
+                      "column": 228,
+                      "line": 14
+                    },
+                    "snippet": "  12 | test('F23-E01/T02/T03/T04/T05 configura 1/3, encaminha ao stub real, pausa destinos e conserva endereço',async({page},info)=>{\n  13 |  const {base,a,b}=await prepare(page);await page.goto(roadmapOrigin+'/painel/convites');await page.getByRole('button',{name:'Distribuir acessos',exact:true}).click();await capturePage(page,info.outputPath('pool-entry.png'));await selectOption(page.getByLabel('Qual endereço você vai compartilhar?'),base.id);await page.getByRole('link',{name:'Escolher destinos'}).click();await expect(page.getByRole('dialog',{name:'Configurar distribuição'})).toBeVisible();await selectOption(page.getByLabel('Qual destino receberá visitas?'),a.destinationRevision.id);await page.getByRole('button',{name:'Incluir destino'}).click();await selectOption(page.getByLabel('Qual destino receberá visitas?'),b.destinationRevision.id);await page.getByRole('button',{name:'Incluir destino'}).click();await page.getByRole('button',{name:'Definir divisão'}).click();await page.getByRole('radio',{name:/Priorizar alguns destinos/}).check();await selectOption(page.getByLabel('Destino para ajustar'),b.destinationRevision.id);await page.getByLabel('Participação nas visitas').fill('3');await capturePage(page,info.outputPath('pool-config.png'));await page.getByRole('button',{name:'Conferir distribuição'}).click();await expect(page.getByText('25% das visitas',{exact:true})).toBeVisible();await expect(page.getByText('75% das visitas',{exact:true})).toBeVisible();expect((await roadmapApi(page,'/me/redirects/'+base.id+'/pool')).body.version).toBe(0);await capturePage(page,info.outputPath('pool-review.png'));await page.getByRole('button',{name:'Confirmar e ativar'}).click();await expect(page.getByRole('dialog',{name:'Configurar distribuição'})).not.toBeVisible();await expect(page.getByText('Distribuidor ativo',{exact:true})).toBeVisible();await capturePage(page,info.outputPath('pool-management.png'));await roadmapResponsiveCapture(page,info,'pool-management');const axe=await new AxeBuilder({page}).include('main').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(v=>v.id)).toEqual([])\n> 14 |  const visitor=await guest(info);try{for(const label of ['A','B','B','B']){await visitor.page.goto(roadmapOrigin+'/r/'+base.id);await expect(visitor.page.getByRole('heading',{name:'Link permanente fixture '+label,exact:true})).toBeVisible()}await page.reload();await expect(page.getByRole('article',{name:'Grupo B'})).toContainText('3');await page.getByRole('article',{name:'Grupo B'}).getByRole('button',{name:'Pausar destino'}).click();await expect(page.getByRole('article',{name:'Grupo B'}).getByRole('button',{name:'Retomar destino'})).toBeVisible();await visitor.page.goto(roadmapOrigin+'/r/'+base.id);await expect(visitor.page.getByRole('heading',{name:'Link permanente fixture A',exact:true})).toBeVisible();await page.getByRole('article',{name:'Grupo A'}).getByRole('button',{name:'Pausar destino'}).click();await expect(page.getByRole('article',{name:'Grupo A'}).getByRole('button',{name:'Retomar destino'})).toBeVisible();await visitor.page.goto(roadmapOrigin+'/r/'+base.id);await expect(visitor.page.getByRole('heading',{name:'Link permanente indisponível',exact:true})).toBeVisible();expect(await visitor.page.content()).not.toMatch(/f12-a|f12-b/);await capturePage(visitor.page,info.outputPath('pool-unavailable.png'));expect((await roadmapApi(page,'/me/redirects/'+base.id+'/pool')).body.stablePath).toBe('/r/'+base.id)}finally{await visitor.browser.close()}\n     |                                                                                                                                                                                                                                    ^\n  15 | })\n  16 | test('F23-E02/T01 privado nega visitante e outro dono; alvo inválido não altera distribuição',async({page,browser})=>{\n  17 |  const {base}=await prepare(page),path='/me/redirects/'+base.id+'/pool';const ctx=await browser.newContext(),other=await ctx.newPage();try{await other.goto(roadmapOrigin);expect((await roadmapApi(other,path)).status).toBe(401);await roadmapLogin(other,true);expect((await roadmapApi(other,path)).status).toBe(404);const result=await roadmapApi(page,path,'PUT',{destinations:[{revisionId:crypto.randomUUID(),weight:1,paused:false}],expectedVersion:0});expect(result.status).toBe(422);expect((await roadmapApi(page,path)).body.version).toBe(0)}finally{await ctx.close()}"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts",
+                        "column": 228,
+                        "line": 14
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Link permanente fixture A', exact: true })\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Link permanente fixture A', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Link permanente fixture A', exact: true })\u001b[22m\n\n\n  12 | test('F23-E01/T02/T03/T04/T05 configura 1/3, encaminha ao stub real, pausa destinos e conserva endereço',async({page},info)=>{\n  13 |  const {base,a,b}=await prepare(page);await page.goto(roadmapOrigin+'/painel/convites');await page.getByRole('button',{name:'Distribuir acessos',exact:true}).click();await capturePage(page,info.outputPath('pool-entry.png'));await selectOption(page.getByLabel('Qual endereço você vai compartilhar?'),base.id);await page.getByRole('link',{name:'Escolher destinos'}).click();await expect(page.getByRole('dialog',{name:'Configurar distribuição'})).toBeVisible();await selectOption(page.getByLabel('Qual destino receberá visitas?'),a.destinationRevision.id);await page.getByRole('button',{name:'Incluir destino'}).click();await selectOption(page.getByLabel('Qual destino receberá visitas?'),b.destinationRevision.id);await page.getByRole('button',{name:'Incluir destino'}).click();await page.getByRole('button',{name:'Definir divisão'}).click();await page.getByRole('radio',{name:/Priorizar alguns destinos/}).check();await selectOption(page.getByLabel('Destino para ajustar'),b.destinationRevision.id);await page.getByLabel('Participação nas visitas').fill('3');await capturePage(page,info.outputPath('pool-config.png'));await page.getByRole('button',{name:'Conferir distribuição'}).click();await expect(page.getByText('25% das visitas',{exact:true})).toBeVisible();await expect(page.getByText('75% das visitas',{exact:true})).toBeVisible();expect((await roadmapApi(page,'/me/redirects/'+base.id+'/pool')).body.version).toBe(0);await capturePage(page,info.outputPath('pool-review.png'));await page.getByRole('button',{name:'Confirmar e ativar'}).click();await expect(page.getByRole('dialog',{name:'Configurar distribuição'})).not.toBeVisible();await expect(page.getByText('Distribuidor ativo',{exact:true})).toBeVisible();await capturePage(page,info.outputPath('pool-management.png'));await roadmapResponsiveCapture(page,info,'pool-management');const axe=await new AxeBuilder({page}).include('main').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(v=>v.id)).toEqual([])\n> 14 |  const visitor=await guest(info);try{for(const label of ['A','B','B','B']){await visitor.page.goto(roadmapOrigin+'/r/'+base.id);await expect(visitor.page.getByRole('heading',{name:'Link permanente fixture '+label,exact:true})).toBeVisible()}await page.reload();await expect(page.getByRole('article',{name:'Grupo B'})).toContainText('3');await page.getByRole('article',{name:'Grupo B'}).getByRole('button',{name:'Pausar destino'}).click();await expect(page.getByRole('article',{name:'Grupo B'}).getByRole('button',{name:'Retomar destino'})).toBeVisible();await visitor.page.goto(roadmapOrigin+'/r/'+base.id);await expect(visitor.page.getByRole('heading',{name:'Link permanente fixture A',exact:true})).toBeVisible();await page.getByRole('article',{name:'Grupo A'}).getByRole('button',{name:'Pausar destino'}).click();await expect(page.getByRole('article',{name:'Grupo A'}).getByRole('button',{name:'Retomar destino'})).toBeVisible();await visitor.page.goto(roadmapOrigin+'/r/'+base.id);await expect(visitor.page.getByRole('heading',{name:'Link permanente indisponível',exact:true})).toBeVisible();expect(await visitor.page.content()).not.toMatch(/f12-a|f12-b/);await capturePage(visitor.page,info.outputPath('pool-unavailable.png'));expect((await roadmapApi(page,'/me/redirects/'+base.id+'/pool')).body.stablePath).toBe('/r/'+base.id)}finally{await visitor.browser.close()}\n     |                                                                                                                                                                                                                                    ^\n  15 | })\n  16 | test('F23-E02/T01 privado nega visitante e outro dono; alvo inválido não altera distribuição',async({page,browser})=>{\n  17 |  const {base}=await prepare(page),path='/me/redirects/'+base.id+'/pool';const ctx=await browser.newContext(),other=await ctx.newPage();try{await other.goto(roadmapOrigin);expect((await roadmapApi(other,path)).status).toBe(401);await roadmapLogin(other,true);expect((await roadmapApi(other,path)).status).toBe(404);const result=await roadmapApi(page,path,'PUT',{destinations:[{revisionId:crypto.randomUUID(),weight:1,paused:false}],expectedVersion:0});expect(result.status).toBe(422);expect((await roadmapApi(page,path)).body.version).toBe(0)}finally{await ctx.close()}\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts:14:228"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:23:30.135Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\destination-pools-F23-E01--3fe50-estinos-e-conserva-endereço-features\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\destination-pools-F23-E01--3fe50-estinos-e-conserva-endereço-features\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\destination-pools-F23-E01--3fe50-estinos-e-conserva-endereço-features\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts",
+                    "column": 228,
+                    "line": 14
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "3504af596034472359d6-e692f6b0c33ed1f70a8b",
+          "file": "destination-pools.spec.ts",
+          "line": 12,
+          "column": 5
+        },
+        {
+          "title": "F23-E02/T01 privado nega visitante e outro dono; alvo inválido não altera distribuição",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1375,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:24:04.498Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-e2b4d2bedadc0d667135",
+          "file": "destination-pools.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "F23-E03 erro mantém peso, teclado recupera sem duplicar, layout cabe em 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2146,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:24:05.968Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-a0d63d4791adce42845e",
+          "file": "destination-pools.spec.ts",
+          "line": 19,
+          "column": 5
+        },
+        {
+          "title": "F23-G05 começa sem links permanentes, cadastra entrada e um destino no fluxo, confirma divisão igual e testa URL real",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 26019,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Link permanente fixture B', exact: true })\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Link permanente fixture B', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Link permanente fixture B', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Link permanente fixture B', exact: true })\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Link permanente fixture B', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Link permanente fixture B', exact: true })\u001b[22m\n\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts:24:2136",
+                    "location": {
+                      "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts",
+                      "column": 2136,
+                      "line": 24
+                    },
+                    "snippet": "  22 |\n  23 | test('F23-G05 começa sem links permanentes, cadastra entrada e um destino no fluxo, confirma divisão igual e testa URL real',async({page},info)=>{\n> 24 |  await roadmapLogin(page);await page.goto(roadmapOrigin+'/painel/convites');await page.getByRole('button',{name:'Distribuir acessos',exact:true}).click();await expect(page.getByRole('link',{name:'Escolher destinos'})).toHaveCount(0);await page.getByRole('button',{name:'Cadastrar link permanente',exact:true}).click();await page.getByLabel('Nome do link',{exact:true}).fill('Meu endereço de entrada');await page.getByLabel('Link de destino',{exact:true}).fill('https://example.com/f12-a');await page.getByRole('button',{name:'Validar e cadastrar'}).click();await expect(page.getByRole('dialog',{name:'Um link, vários destinos'})).toBeVisible();await page.getByRole('link',{name:'Escolher destinos'}).click();await expect(page.getByRole('button',{name:'Definir divisão'})).toBeDisabled();await page.getByRole('button',{name:'Criar outro link permanente'}).click();await page.getByLabel('Nome do link',{exact:true}).fill('Grupo de destino');await page.getByLabel('Link de destino',{exact:true}).fill('https://example.com/f12-b');await page.getByRole('button',{name:'Validar e cadastrar'}).click();await expect(page.getByRole('dialog',{name:'Configurar distribuição'}).getByText('Grupo de destino',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Definir divisão'}).click();await expect(page.getByRole('radio',{name:/Dividir por igual/})).toBeChecked();await page.getByRole('button',{name:'Conferir distribuição'}).click();await expect(page.getByText('100% das visitas',{exact:true})).toBeVisible();await capturePage(page,info.outputPath('pool-single-review.png'));await page.getByRole('button',{name:'Confirmar e ativar'}).click();await expect(page.getByText('Distribuidor ativo',{exact:true})).toBeVisible();const id=new URL(page.url()).pathname.split('/')[3],list=(await roadmapApi(page,'/me/redirects')).body;expect(list.items).toHaveLength(2);expect((await roadmapApi(page,'/me/redirects/'+id+'/pool')).body.destinations).toHaveLength(1);const visitor=await guest(info);try{await visitor.page.goto(roadmapOrigin+'/r/'+id);await expect(visitor.page.getByRole('heading',{name:'Link permanente fixture B',exact:true})).toBeVisible()}finally{await visitor.browser.close()}\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ^\n  25 | })\n  26 |\n  27 | test('F23-G06 cadastro em revisão não entra como destino e mantém seleção anterior; cancelar retorna ao formulário',async({page},info)=>{"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts",
+                        "column": 2136,
+                        "line": 24
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Link permanente fixture B', exact: true })\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Link permanente fixture B', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Link permanente fixture B', exact: true })\u001b[22m\n\n\n  22 |\n  23 | test('F23-G05 começa sem links permanentes, cadastra entrada e um destino no fluxo, confirma divisão igual e testa URL real',async({page},info)=>{\n> 24 |  await roadmapLogin(page);await page.goto(roadmapOrigin+'/painel/convites');await page.getByRole('button',{name:'Distribuir acessos',exact:true}).click();await expect(page.getByRole('link',{name:'Escolher destinos'})).toHaveCount(0);await page.getByRole('button',{name:'Cadastrar link permanente',exact:true}).click();await page.getByLabel('Nome do link',{exact:true}).fill('Meu endereço de entrada');await page.getByLabel('Link de destino',{exact:true}).fill('https://example.com/f12-a');await page.getByRole('button',{name:'Validar e cadastrar'}).click();await expect(page.getByRole('dialog',{name:'Um link, vários destinos'})).toBeVisible();await page.getByRole('link',{name:'Escolher destinos'}).click();await expect(page.getByRole('button',{name:'Definir divisão'})).toBeDisabled();await page.getByRole('button',{name:'Criar outro link permanente'}).click();await page.getByLabel('Nome do link',{exact:true}).fill('Grupo de destino');await page.getByLabel('Link de destino',{exact:true}).fill('https://example.com/f12-b');await page.getByRole('button',{name:'Validar e cadastrar'}).click();await expect(page.getByRole('dialog',{name:'Configurar distribuição'}).getByText('Grupo de destino',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Definir divisão'}).click();await expect(page.getByRole('radio',{name:/Dividir por igual/})).toBeChecked();await page.getByRole('button',{name:'Conferir distribuição'}).click();await expect(page.getByText('100% das visitas',{exact:true})).toBeVisible();await capturePage(page,info.outputPath('pool-single-review.png'));await page.getByRole('button',{name:'Confirmar e ativar'}).click();await expect(page.getByText('Distribuidor ativo',{exact:true})).toBeVisible();const id=new URL(page.url()).pathname.split('/')[3],list=(await roadmapApi(page,'/me/redirects')).body;expect(list.items).toHaveLength(2);expect((await roadmapApi(page,'/me/redirects/'+id+'/pool')).body.destinations).toHaveLength(1);const visitor=await guest(info);try{await visitor.page.goto(roadmapOrigin+'/r/'+id);await expect(visitor.page.getByRole('heading',{name:'Link permanente fixture B',exact:true})).toBeVisible()}finally{await visitor.browser.close()}\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ^\n  25 | })\n  26 |\n  27 | test('F23-G06 cadastro em revisão não entra como destino e mantém seleção anterior; cancelar retorna ao formulário',async({page},info)=>{\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts:24:2136"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:24:08.120Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\destination-pools-F23-G05--b3472-isão-igual-e-testa-URL-real-features\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\destination-pools-F23-G05--b3472-isão-igual-e-testa-URL-real-features\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\destination-pools-F23-G05--b3472-isão-igual-e-testa-URL-real-features\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts",
+                    "column": 2136,
+                    "line": 24
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "3504af596034472359d6-6c6a2b8f58030671f51b",
+          "file": "destination-pools.spec.ts",
+          "line": 23,
+          "column": 5
+        },
+        {
+          "title": "F23-G06 cadastro em revisão não entra como destino e mantém seleção anterior; cancelar retorna ao formulário",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3030,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:24:34.994Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-aeae256dfe0f8f78145a",
+          "file": "destination-pools.spec.ts",
+          "line": 27,
+          "column": 5
+        },
+        {
+          "title": "F23-E01/T02/T03/T04/T05 configura 1/3, encaminha ao stub real, pausa destinos e conserva endereço",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 25189,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Link permanente fixture A', exact: true })\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Link permanente fixture A', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Link permanente fixture A', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Link permanente fixture A', exact: true })\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Link permanente fixture A', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Link permanente fixture A', exact: true })\u001b[22m\n\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts:14:228",
+                    "location": {
+                      "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts",
+                      "column": 228,
+                      "line": 14
+                    },
+                    "snippet": "  12 | test('F23-E01/T02/T03/T04/T05 configura 1/3, encaminha ao stub real, pausa destinos e conserva endereço',async({page},info)=>{\n  13 |  const {base,a,b}=await prepare(page);await page.goto(roadmapOrigin+'/painel/convites');await page.getByRole('button',{name:'Distribuir acessos',exact:true}).click();await capturePage(page,info.outputPath('pool-entry.png'));await selectOption(page.getByLabel('Qual endereço você vai compartilhar?'),base.id);await page.getByRole('link',{name:'Escolher destinos'}).click();await expect(page.getByRole('dialog',{name:'Configurar distribuição'})).toBeVisible();await selectOption(page.getByLabel('Qual destino receberá visitas?'),a.destinationRevision.id);await page.getByRole('button',{name:'Incluir destino'}).click();await selectOption(page.getByLabel('Qual destino receberá visitas?'),b.destinationRevision.id);await page.getByRole('button',{name:'Incluir destino'}).click();await page.getByRole('button',{name:'Definir divisão'}).click();await page.getByRole('radio',{name:/Priorizar alguns destinos/}).check();await selectOption(page.getByLabel('Destino para ajustar'),b.destinationRevision.id);await page.getByLabel('Participação nas visitas').fill('3');await capturePage(page,info.outputPath('pool-config.png'));await page.getByRole('button',{name:'Conferir distribuição'}).click();await expect(page.getByText('25% das visitas',{exact:true})).toBeVisible();await expect(page.getByText('75% das visitas',{exact:true})).toBeVisible();expect((await roadmapApi(page,'/me/redirects/'+base.id+'/pool')).body.version).toBe(0);await capturePage(page,info.outputPath('pool-review.png'));await page.getByRole('button',{name:'Confirmar e ativar'}).click();await expect(page.getByRole('dialog',{name:'Configurar distribuição'})).not.toBeVisible();await expect(page.getByText('Distribuidor ativo',{exact:true})).toBeVisible();await capturePage(page,info.outputPath('pool-management.png'));await roadmapResponsiveCapture(page,info,'pool-management');const axe=await new AxeBuilder({page}).include('main').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(v=>v.id)).toEqual([])\n> 14 |  const visitor=await guest(info);try{for(const label of ['A','B','B','B']){await visitor.page.goto(roadmapOrigin+'/r/'+base.id);await expect(visitor.page.getByRole('heading',{name:'Link permanente fixture '+label,exact:true})).toBeVisible()}await page.reload();await expect(page.getByRole('article',{name:'Grupo B'})).toContainText('3');await page.getByRole('article',{name:'Grupo B'}).getByRole('button',{name:'Pausar destino'}).click();await expect(page.getByRole('article',{name:'Grupo B'}).getByRole('button',{name:'Retomar destino'})).toBeVisible();await visitor.page.goto(roadmapOrigin+'/r/'+base.id);await expect(visitor.page.getByRole('heading',{name:'Link permanente fixture A',exact:true})).toBeVisible();await page.getByRole('article',{name:'Grupo A'}).getByRole('button',{name:'Pausar destino'}).click();await expect(page.getByRole('article',{name:'Grupo A'}).getByRole('button',{name:'Retomar destino'})).toBeVisible();await visitor.page.goto(roadmapOrigin+'/r/'+base.id);await expect(visitor.page.getByRole('heading',{name:'Link permanente indisponível',exact:true})).toBeVisible();expect(await visitor.page.content()).not.toMatch(/f12-a|f12-b/);await capturePage(visitor.page,info.outputPath('pool-unavailable.png'));expect((await roadmapApi(page,'/me/redirects/'+base.id+'/pool')).body.stablePath).toBe('/r/'+base.id)}finally{await visitor.browser.close()}\n     |                                                                                                                                                                                                                                    ^\n  15 | })\n  16 | test('F23-E02/T01 privado nega visitante e outro dono; alvo inválido não altera distribuição',async({page,browser})=>{\n  17 |  const {base}=await prepare(page),path='/me/redirects/'+base.id+'/pool';const ctx=await browser.newContext(),other=await ctx.newPage();try{await other.goto(roadmapOrigin);expect((await roadmapApi(other,path)).status).toBe(401);await roadmapLogin(other,true);expect((await roadmapApi(other,path)).status).toBe(404);const result=await roadmapApi(page,path,'PUT',{destinations:[{revisionId:crypto.randomUUID(),weight:1,paused:false}],expectedVersion:0});expect(result.status).toBe(422);expect((await roadmapApi(page,path)).body.version).toBe(0)}finally{await ctx.close()}"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts",
+                        "column": 228,
+                        "line": 14
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Link permanente fixture A', exact: true })\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Link permanente fixture A', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Link permanente fixture A', exact: true })\u001b[22m\n\n\n  12 | test('F23-E01/T02/T03/T04/T05 configura 1/3, encaminha ao stub real, pausa destinos e conserva endereço',async({page},info)=>{\n  13 |  const {base,a,b}=await prepare(page);await page.goto(roadmapOrigin+'/painel/convites');await page.getByRole('button',{name:'Distribuir acessos',exact:true}).click();await capturePage(page,info.outputPath('pool-entry.png'));await selectOption(page.getByLabel('Qual endereço você vai compartilhar?'),base.id);await page.getByRole('link',{name:'Escolher destinos'}).click();await expect(page.getByRole('dialog',{name:'Configurar distribuição'})).toBeVisible();await selectOption(page.getByLabel('Qual destino receberá visitas?'),a.destinationRevision.id);await page.getByRole('button',{name:'Incluir destino'}).click();await selectOption(page.getByLabel('Qual destino receberá visitas?'),b.destinationRevision.id);await page.getByRole('button',{name:'Incluir destino'}).click();await page.getByRole('button',{name:'Definir divisão'}).click();await page.getByRole('radio',{name:/Priorizar alguns destinos/}).check();await selectOption(page.getByLabel('Destino para ajustar'),b.destinationRevision.id);await page.getByLabel('Participação nas visitas').fill('3');await capturePage(page,info.outputPath('pool-config.png'));await page.getByRole('button',{name:'Conferir distribuição'}).click();await expect(page.getByText('25% das visitas',{exact:true})).toBeVisible();await expect(page.getByText('75% das visitas',{exact:true})).toBeVisible();expect((await roadmapApi(page,'/me/redirects/'+base.id+'/pool')).body.version).toBe(0);await capturePage(page,info.outputPath('pool-review.png'));await page.getByRole('button',{name:'Confirmar e ativar'}).click();await expect(page.getByRole('dialog',{name:'Configurar distribuição'})).not.toBeVisible();await expect(page.getByText('Distribuidor ativo',{exact:true})).toBeVisible();await capturePage(page,info.outputPath('pool-management.png'));await roadmapResponsiveCapture(page,info,'pool-management');const axe=await new AxeBuilder({page}).include('main').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(v=>v.id)).toEqual([])\n> 14 |  const visitor=await guest(info);try{for(const label of ['A','B','B','B']){await visitor.page.goto(roadmapOrigin+'/r/'+base.id);await expect(visitor.page.getByRole('heading',{name:'Link permanente fixture '+label,exact:true})).toBeVisible()}await page.reload();await expect(page.getByRole('article',{name:'Grupo B'})).toContainText('3');await page.getByRole('article',{name:'Grupo B'}).getByRole('button',{name:'Pausar destino'}).click();await expect(page.getByRole('article',{name:'Grupo B'}).getByRole('button',{name:'Retomar destino'})).toBeVisible();await visitor.page.goto(roadmapOrigin+'/r/'+base.id);await expect(visitor.page.getByRole('heading',{name:'Link permanente fixture A',exact:true})).toBeVisible();await page.getByRole('article',{name:'Grupo A'}).getByRole('button',{name:'Pausar destino'}).click();await expect(page.getByRole('article',{name:'Grupo A'}).getByRole('button',{name:'Retomar destino'})).toBeVisible();await visitor.page.goto(roadmapOrigin+'/r/'+base.id);await expect(visitor.page.getByRole('heading',{name:'Link permanente indisponível',exact:true})).toBeVisible();expect(await visitor.page.content()).not.toMatch(/f12-a|f12-b/);await capturePage(visitor.page,info.outputPath('pool-unavailable.png'));expect((await roadmapApi(page,'/me/redirects/'+base.id+'/pool')).body.stablePath).toBe('/r/'+base.id)}finally{await visitor.browser.close()}\n     |                                                                                                                                                                                                                                    ^\n  15 | })\n  16 | test('F23-E02/T01 privado nega visitante e outro dono; alvo inválido não altera distribuição',async({page,browser})=>{\n  17 |  const {base}=await prepare(page),path='/me/redirects/'+base.id+'/pool';const ctx=await browser.newContext(),other=await ctx.newPage();try{await other.goto(roadmapOrigin);expect((await roadmapApi(other,path)).status).toBe(401);await roadmapLogin(other,true);expect((await roadmapApi(other,path)).status).toBe(404);const result=await roadmapApi(page,path,'PUT',{destinations:[{revisionId:crypto.randomUUID(),weight:1,paused:false}],expectedVersion:0});expect(result.status).toBe(422);expect((await roadmapApi(page,path)).body.version).toBe(0)}finally{await ctx.close()}\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts:14:228"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:28:22.923Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\destination-pools-F23-E01--3fe50-estinos-e-conserva-endereço-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\destination-pools-F23-E01--3fe50-estinos-e-conserva-endereço-features-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\destination-pools-F23-E01--3fe50-estinos-e-conserva-endereço-features-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts",
+                    "column": 228,
+                    "line": 14
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "3504af596034472359d6-5728a34e410abe9a9096",
+          "file": "destination-pools.spec.ts",
+          "line": 12,
+          "column": 5
+        },
+        {
+          "title": "F23-E02/T01 privado nega visitante e outro dono; alvo inválido não altera distribuição",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 8,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1270,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:28:48.903Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-7a973f620ef26840c05e",
+          "file": "destination-pools.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "F23-E03 erro mantém peso, teclado recupera sem duplicar, layout cabe em 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 8,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2060,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:28:50.275Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-e737362e1c36c8f24f38",
+          "file": "destination-pools.spec.ts",
+          "line": 19,
+          "column": 5
+        },
+        {
+          "title": "F23-G05 começa sem links permanentes, cadastra entrada e um destino no fluxo, confirma divisão igual e testa URL real",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 8,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 24133,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Link permanente fixture B', exact: true })\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Link permanente fixture B', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Link permanente fixture B', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Link permanente fixture B', exact: true })\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Link permanente fixture B', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Link permanente fixture B', exact: true })\u001b[22m\n\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts:24:2136",
+                    "location": {
+                      "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts",
+                      "column": 2136,
+                      "line": 24
+                    },
+                    "snippet": "  22 |\n  23 | test('F23-G05 começa sem links permanentes, cadastra entrada e um destino no fluxo, confirma divisão igual e testa URL real',async({page},info)=>{\n> 24 |  await roadmapLogin(page);await page.goto(roadmapOrigin+'/painel/convites');await page.getByRole('button',{name:'Distribuir acessos',exact:true}).click();await expect(page.getByRole('link',{name:'Escolher destinos'})).toHaveCount(0);await page.getByRole('button',{name:'Cadastrar link permanente',exact:true}).click();await page.getByLabel('Nome do link',{exact:true}).fill('Meu endereço de entrada');await page.getByLabel('Link de destino',{exact:true}).fill('https://example.com/f12-a');await page.getByRole('button',{name:'Validar e cadastrar'}).click();await expect(page.getByRole('dialog',{name:'Um link, vários destinos'})).toBeVisible();await page.getByRole('link',{name:'Escolher destinos'}).click();await expect(page.getByRole('button',{name:'Definir divisão'})).toBeDisabled();await page.getByRole('button',{name:'Criar outro link permanente'}).click();await page.getByLabel('Nome do link',{exact:true}).fill('Grupo de destino');await page.getByLabel('Link de destino',{exact:true}).fill('https://example.com/f12-b');await page.getByRole('button',{name:'Validar e cadastrar'}).click();await expect(page.getByRole('dialog',{name:'Configurar distribuição'}).getByText('Grupo de destino',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Definir divisão'}).click();await expect(page.getByRole('radio',{name:/Dividir por igual/})).toBeChecked();await page.getByRole('button',{name:'Conferir distribuição'}).click();await expect(page.getByText('100% das visitas',{exact:true})).toBeVisible();await capturePage(page,info.outputPath('pool-single-review.png'));await page.getByRole('button',{name:'Confirmar e ativar'}).click();await expect(page.getByText('Distribuidor ativo',{exact:true})).toBeVisible();const id=new URL(page.url()).pathname.split('/')[3],list=(await roadmapApi(page,'/me/redirects')).body;expect(list.items).toHaveLength(2);expect((await roadmapApi(page,'/me/redirects/'+id+'/pool')).body.destinations).toHaveLength(1);const visitor=await guest(info);try{await visitor.page.goto(roadmapOrigin+'/r/'+id);await expect(visitor.page.getByRole('heading',{name:'Link permanente fixture B',exact:true})).toBeVisible()}finally{await visitor.browser.close()}\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ^\n  25 | })\n  26 |\n  27 | test('F23-G06 cadastro em revisão não entra como destino e mantém seleção anterior; cancelar retorna ao formulário',async({page},info)=>{"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts",
+                        "column": 2136,
+                        "line": 24
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Link permanente fixture B', exact: true })\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Link permanente fixture B', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Link permanente fixture B', exact: true })\u001b[22m\n\n\n  22 |\n  23 | test('F23-G05 começa sem links permanentes, cadastra entrada e um destino no fluxo, confirma divisão igual e testa URL real',async({page},info)=>{\n> 24 |  await roadmapLogin(page);await page.goto(roadmapOrigin+'/painel/convites');await page.getByRole('button',{name:'Distribuir acessos',exact:true}).click();await expect(page.getByRole('link',{name:'Escolher destinos'})).toHaveCount(0);await page.getByRole('button',{name:'Cadastrar link permanente',exact:true}).click();await page.getByLabel('Nome do link',{exact:true}).fill('Meu endereço de entrada');await page.getByLabel('Link de destino',{exact:true}).fill('https://example.com/f12-a');await page.getByRole('button',{name:'Validar e cadastrar'}).click();await expect(page.getByRole('dialog',{name:'Um link, vários destinos'})).toBeVisible();await page.getByRole('link',{name:'Escolher destinos'}).click();await expect(page.getByRole('button',{name:'Definir divisão'})).toBeDisabled();await page.getByRole('button',{name:'Criar outro link permanente'}).click();await page.getByLabel('Nome do link',{exact:true}).fill('Grupo de destino');await page.getByLabel('Link de destino',{exact:true}).fill('https://example.com/f12-b');await page.getByRole('button',{name:'Validar e cadastrar'}).click();await expect(page.getByRole('dialog',{name:'Configurar distribuição'}).getByText('Grupo de destino',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Definir divisão'}).click();await expect(page.getByRole('radio',{name:/Dividir por igual/})).toBeChecked();await page.getByRole('button',{name:'Conferir distribuição'}).click();await expect(page.getByText('100% das visitas',{exact:true})).toBeVisible();await capturePage(page,info.outputPath('pool-single-review.png'));await page.getByRole('button',{name:'Confirmar e ativar'}).click();await expect(page.getByText('Distribuidor ativo',{exact:true})).toBeVisible();const id=new URL(page.url()).pathname.split('/')[3],list=(await roadmapApi(page,'/me/redirects')).body;expect(list.items).toHaveLength(2);expect((await roadmapApi(page,'/me/redirects/'+id+'/pool')).body.destinations).toHaveLength(1);const visitor=await guest(info);try{await visitor.page.goto(roadmapOrigin+'/r/'+id);await expect(visitor.page.getByRole('heading',{name:'Link permanente fixture B',exact:true})).toBeVisible()}finally{await visitor.browser.close()}\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ^\n  25 | })\n  26 |\n  27 | test('F23-G06 cadastro em revisão não entra como destino e mantém seleção anterior; cancelar retorna ao formulário',async({page},info)=>{\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts:24:2136"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:28:52.340Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\destination-pools-F23-G05--b3472-isão-igual-e-testa-URL-real-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\destination-pools-F23-G05--b3472-isão-igual-e-testa-URL-real-features-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\destination-pools-F23-G05--b3472-isão-igual-e-testa-URL-real-features-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts",
+                    "column": 2136,
+                    "line": 24
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "3504af596034472359d6-93cdbb60680f926d506f",
+          "file": "destination-pools.spec.ts",
+          "line": 23,
+          "column": 5
+        },
+        {
+          "title": "F23-G06 cadastro em revisão não entra como destino e mantém seleção anterior; cancelar retorna ao formulário",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 9,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2742,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:29:17.258Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-9566d840abe1f22406d9",
+          "file": "destination-pools.spec.ts",
+          "line": 27,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "permanent-qr.spec.ts",
+      "file": "permanent-qr.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F13-E01/T01/T03 published page exports real readable PNG/SVG; loading, keyboard, revalidation and private data stay safe",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 23949,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:24:38.179Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d0b1af1336fc78253fdd-2c28e50a7816fe01e522",
+          "file": "permanent-qr.spec.ts",
+          "line": 19,
+          "column": 5
+        },
+        {
+          "title": "F13-E02/T02/T04 replacing a destination preserves the actual decoded QR, owner isolation and unavailable-handle restrictions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10447,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:25:02.134Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d0b1af1336fc78253fdd-44b8ab54f14942d2d02d",
+          "file": "permanent-qr.spec.ts",
+          "line": 52,
+          "column": 5
+        },
+        {
+          "title": "F13-E01/T01/T03 published page exports real readable PNG/SVG; loading, keyboard, revalidation and private data stay safe",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 9,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 17594,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:29:20.124Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d0b1af1336fc78253fdd-9fe6b727bce4185d194b",
+          "file": "permanent-qr.spec.ts",
+          "line": 19,
+          "column": 5
+        },
+        {
+          "title": "F13-E02/T02/T04 replacing a destination preserves the actual decoded QR, owner isolation and unavailable-handle restrictions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 9,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7761,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:29:37.724Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d0b1af1336fc78253fdd-e679826ba60f161bb2c9",
+          "file": "permanent-qr.spec.ts",
+          "line": 52,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "profile-channels.spec.ts",
+      "file": "profile-channels.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F37-E01/T01/T02/T03/T04/T06 create labelled choices, private preview, keyboard choice, pause and unavailable recovery",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9391,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:25:12.595Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "184ed9701b54d977af05-d791b285dba17b97ff42",
+          "file": "profile-channels.spec.ts",
+          "line": 23,
+          "column": 5
+        },
+        {
+          "title": "F37-E02 hidden choices and private groups never leak to anonymous, another admin or tenant; forged choices fail",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2062,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:25:21.992Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "184ed9701b54d977af05-ac1760720f6144f21a8d",
+          "file": "profile-channels.spec.ts",
+          "line": 34,
+          "column": 5
+        },
+        {
+          "title": "F37-E03 exact refresh skeleton, recoverable error, keyboard, mobile filters, conflict and 200% text",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4169,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:25:24.061Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "184ed9701b54d977af05-de4da433f44fd446d305",
+          "file": "profile-channels.spec.ts",
+          "line": 38,
+          "column": 5
+        },
+        {
+          "title": "F37-E04 metadata-only changes appear in F19 comparison, restore stays draft and preview reuses the personal page",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4436,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:25:28.234Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "184ed9701b54d977af05-a009f43b86beaced4db5",
+          "file": "profile-channels.spec.ts",
+          "line": 44,
+          "column": 5
+        },
+        {
+          "title": "F37-E05 unified group creates direct access without prior invitation, retries safely and toggles only channel titles",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10210,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:25:32.675Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "184ed9701b54d977af05-9ac11ca325c0fdfcf919",
+          "file": "profile-channels.spec.ts",
+          "line": 49,
+          "column": 5
+        },
+        {
+          "title": "F37-E06 pending direct destinations stay in the group draft after reload and cannot be published",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4295,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:25:42.891Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "184ed9701b54d977af05-b9ea7116f6f9fc53bdb0",
+          "file": "profile-channels.spec.ts",
+          "line": 69,
+          "column": 5
+        },
+        {
+          "title": "F37-E07 compact link tabs, inline invitation refresh and quick visibility and pause actions persist",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10043,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:25:47.192Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "184ed9701b54d977af05-afde0fb625d5236dc969",
+          "file": "profile-channels.spec.ts",
+          "line": 73,
+          "column": 5
+        },
+        {
+          "title": "F37-E01/T01/T02/T03/T04/T06 create labelled choices, private preview, keyboard choice, pause and unavailable recovery",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 9,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8370,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:29:45.498Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "184ed9701b54d977af05-3e5fb3a55dab562b2909",
+          "file": "profile-channels.spec.ts",
+          "line": 23,
+          "column": 5
+        },
+        {
+          "title": "F37-E02 hidden choices and private groups never leak to anonymous, another admin or tenant; forged choices fail",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 9,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1961,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:29:53.874Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "184ed9701b54d977af05-7bb1c507cfc4475f6696",
+          "file": "profile-channels.spec.ts",
+          "line": 34,
+          "column": 5
+        },
+        {
+          "title": "F37-E03 exact refresh skeleton, recoverable error, keyboard, mobile filters, conflict and 200% text",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 9,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4056,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:29:55.840Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "184ed9701b54d977af05-445ba4a8de09ce65d15d",
+          "file": "profile-channels.spec.ts",
+          "line": 38,
+          "column": 5
+        },
+        {
+          "title": "F37-E04 metadata-only changes appear in F19 comparison, restore stays draft and preview reuses the personal page",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 9,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3632,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:29:59.901Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "184ed9701b54d977af05-5344e3285116d7e21a19",
+          "file": "profile-channels.spec.ts",
+          "line": 44,
+          "column": 5
+        },
+        {
+          "title": "F37-E05 unified group creates direct access without prior invitation, retries safely and toggles only channel titles",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 9,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9845,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:30:03.538Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "184ed9701b54d977af05-ae6ef014bf00b7a4f0c1",
+          "file": "profile-channels.spec.ts",
+          "line": 49,
+          "column": 5
+        },
+        {
+          "title": "F37-E06 pending direct destinations stay in the group draft after reload and cannot be published",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 9,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3977,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:30:13.388Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "184ed9701b54d977af05-b9360f32aaf4f01f7741",
+          "file": "profile-channels.spec.ts",
+          "line": 69,
+          "column": 5
+        },
+        {
+          "title": "F37-E07 compact link tabs, inline invitation refresh and quick visibility and pause actions persist",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 9,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9777,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:30:17.371Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "184ed9701b54d977af05-197b9ab2d932ac2f6638",
+          "file": "profile-channels.spec.ts",
+          "line": 73,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "redirects.spec.ts",
+      "file": "redirects.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F12-E01/T01/T03/T04/T05 endereço fixo, cópia, destino A/B, validação pendente e indisponibilidade",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 22257,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Link permanente fixture A', exact: true })\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Link permanente fixture A', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Link permanente fixture A', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Link permanente fixture A', exact: true })\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Link permanente fixture A', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Link permanente fixture A', exact: true })\u001b[22m\n\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\redirects.spec.ts:39:124",
+                    "location": {
+                      "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\redirects.spec.ts",
+                      "column": 124,
+                      "line": 39
+                    },
+                    "snippet": "  37 |   try {\n  38 |     const guest = external.page\n> 39 |     await guest.goto(stable); await expect(guest.getByRole('heading', { name: 'Link permanente fixture A', exact: true })).toBeVisible()\n     |                                                                                                                            ^\n  40 |     await fill(page, 'LentoFixture', 'https://example.com/f12-b'); await page.getByRole('button', { name: 'Validar e salvar destino', exact: true }).click()\n  41 |     await expect.poll(async () => (await (await page.request.get(runtime.stubOrigin + '/redirect-validation/pending')).json()).count).toBe(1)\n  42 |     await expect(page.getByRole('button', { name: 'Validar e salvar destino', exact: true })).toBeDisabled()"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\redirects.spec.ts",
+                        "column": 124,
+                        "line": 39
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Link permanente fixture A', exact: true })\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Link permanente fixture A', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Link permanente fixture A', exact: true })\u001b[22m\n\n\n  37 |   try {\n  38 |     const guest = external.page\n> 39 |     await guest.goto(stable); await expect(guest.getByRole('heading', { name: 'Link permanente fixture A', exact: true })).toBeVisible()\n     |                                                                                                                            ^\n  40 |     await fill(page, 'LentoFixture', 'https://example.com/f12-b'); await page.getByRole('button', { name: 'Validar e salvar destino', exact: true }).click()\n  41 |     await expect.poll(async () => (await (await page.request.get(runtime.stubOrigin + '/redirect-validation/pending')).json()).count).toBe(1)\n  42 |     await expect(page.getByRole('button', { name: 'Validar e salvar destino', exact: true })).toBeDisabled()\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\redirects.spec.ts:39:124"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:25:57.247Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\redirects-F12-E01-T01-T03--8397d-endente-e-indisponibilidade-features\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\redirects-F12-E01-T01-T03--8397d-endente-e-indisponibilidade-features\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\redirects-F12-E01-T01-T03--8397d-endente-e-indisponibilidade-features\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\redirects.spec.ts",
+                    "column": 124,
+                    "line": 39
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-b2f613899c676b55152a",
+          "file": "redirects.spec.ts",
+          "line": 31,
+          "column": 5
+        },
+        {
+          "title": "F12-E02/T02 sessão e outro ADMIN não liberam acesso; conteúdo suspeito e provedor mantêm destino anterior",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3348,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:26:20.386Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-fa381e1201e431d07029",
+          "file": "redirects.spec.ts",
+          "line": 60,
+          "column": 5
+        },
+        {
+          "title": "F12-E03 offline mantém campos, teclado confirma, conflito entre abas e reflow 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3457,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:26:23.852Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-b3e0f1483cd1a64fdaac",
+          "file": "redirects.spec.ts",
+          "line": 78,
+          "column": 5
+        },
+        {
+          "title": "F12-E04 restrição de idade oculta destino no HTML e API até o aceite",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 22162,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Link permanente fixture A', exact: true })\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Link permanente fixture A', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Link permanente fixture A', exact: true })\u001b[22m\n\u001b[2m    - waiting for \"https://example.com/f12-adulto\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"https://example.com/f12-adulto\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Link permanente fixture A', exact: true })\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Link permanente fixture A', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Link permanente fixture A', exact: true })\u001b[22m\n\u001b[2m    - waiting for \"https://example.com/f12-adulto\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"https://example.com/f12-adulto\"\u001b[22m\n\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\redirects.spec.ts:105:187",
+                    "location": {
+                      "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\redirects.spec.ts",
+                      "column": 187,
+                      "line": 105
+                    },
+                    "snippet": "  103 |     await expect(guest.getByRole('dialog')).toBeVisible(); expect(await guest.content()).not.toMatch(/PrivadoSentinelaF12|f12-adulto/)\n  104 |     expect(await guest.evaluate(async id => (await fetch('/bff/v1/r/' + id)).json(), id)).toEqual({ restricted: true })\n> 105 |     await guest.getByRole('button', { name: 'Tenho 18 anos ou mais', exact: true }).click(); await expect(guest.getByRole('heading', { name: 'Link permanente fixture A', exact: true })).toBeVisible()\n      |                                                                                                                                                                                           ^\n  106 |   } finally { await external.browser.close() }\n  107 | })\n  108 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\redirects.spec.ts",
+                        "column": 187,
+                        "line": 105
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Link permanente fixture A', exact: true })\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Link permanente fixture A', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Link permanente fixture A', exact: true })\u001b[22m\n\u001b[2m    - waiting for \"https://example.com/f12-adulto\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"https://example.com/f12-adulto\"\u001b[22m\n\n\n  103 |     await expect(guest.getByRole('dialog')).toBeVisible(); expect(await guest.content()).not.toMatch(/PrivadoSentinelaF12|f12-adulto/)\n  104 |     expect(await guest.evaluate(async id => (await fetch('/bff/v1/r/' + id)).json(), id)).toEqual({ restricted: true })\n> 105 |     await guest.getByRole('button', { name: 'Tenho 18 anos ou mais', exact: true }).click(); await expect(guest.getByRole('heading', { name: 'Link permanente fixture A', exact: true })).toBeVisible()\n      |                                                                                                                                                                                           ^\n  106 |   } finally { await external.browser.close() }\n  107 | })\n  108 |\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\redirects.spec.ts:105:187"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:26:27.315Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\redirects-F12-E04-restriçã-03c29--no-HTML-e-API-até-o-aceite-features\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\redirects-F12-E04-restriçã-03c29--no-HTML-e-API-até-o-aceite-features\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\redirects-F12-E04-restriçã-03c29--no-HTML-e-API-até-o-aceite-features\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\redirects.spec.ts",
+                    "column": 187,
+                    "line": 105
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-774497cc715390533be7",
+          "file": "redirects.spec.ts",
+          "line": 97,
+          "column": 5
+        },
+        {
+          "title": "F12-E05 cards, abas, foco e alertas separam endereço de histórico",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3471,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:26:50.131Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-5edb480dea5980f63135",
+          "file": "redirects.spec.ts",
+          "line": 109,
+          "column": 5
+        },
+        {
+          "title": "F12-E01/T01/T03/T04/T05 endereço fixo, cópia, destino A/B, validação pendente e indisponibilidade",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 9,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 23609,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Link permanente fixture A', exact: true })\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Link permanente fixture A', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Link permanente fixture A', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Link permanente fixture A', exact: true })\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Link permanente fixture A', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Link permanente fixture A', exact: true })\u001b[22m\n\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\redirects.spec.ts:39:124",
+                    "location": {
+                      "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\redirects.spec.ts",
+                      "column": 124,
+                      "line": 39
+                    },
+                    "snippet": "  37 |   try {\n  38 |     const guest = external.page\n> 39 |     await guest.goto(stable); await expect(guest.getByRole('heading', { name: 'Link permanente fixture A', exact: true })).toBeVisible()\n     |                                                                                                                            ^\n  40 |     await fill(page, 'LentoFixture', 'https://example.com/f12-b'); await page.getByRole('button', { name: 'Validar e salvar destino', exact: true }).click()\n  41 |     await expect.poll(async () => (await (await page.request.get(runtime.stubOrigin + '/redirect-validation/pending')).json()).count).toBe(1)\n  42 |     await expect(page.getByRole('button', { name: 'Validar e salvar destino', exact: true })).toBeDisabled()"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\redirects.spec.ts",
+                        "column": 124,
+                        "line": 39
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Link permanente fixture A', exact: true })\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Link permanente fixture A', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Link permanente fixture A', exact: true })\u001b[22m\n\n\n  37 |   try {\n  38 |     const guest = external.page\n> 39 |     await guest.goto(stable); await expect(guest.getByRole('heading', { name: 'Link permanente fixture A', exact: true })).toBeVisible()\n     |                                                                                                                            ^\n  40 |     await fill(page, 'LentoFixture', 'https://example.com/f12-b'); await page.getByRole('button', { name: 'Validar e salvar destino', exact: true }).click()\n  41 |     await expect.poll(async () => (await (await page.request.get(runtime.stubOrigin + '/redirect-validation/pending')).json()).count).toBe(1)\n  42 |     await expect(page.getByRole('button', { name: 'Validar e salvar destino', exact: true })).toBeDisabled()\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\redirects.spec.ts:39:124"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:30:27.160Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\redirects-F12-E01-T01-T03--8397d-endente-e-indisponibilidade-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\redirects-F12-E01-T01-T03--8397d-endente-e-indisponibilidade-features-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\redirects-F12-E01-T01-T03--8397d-endente-e-indisponibilidade-features-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\redirects.spec.ts",
+                    "column": 124,
+                    "line": 39
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-a46542e44f4829162d36",
+          "file": "redirects.spec.ts",
+          "line": 31,
+          "column": 5
+        },
+        {
+          "title": "F12-E02/T02 sessão e outro ADMIN não liberam acesso; conteúdo suspeito e provedor mantêm destino anterior",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 10,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4228,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:30:52.753Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-04f6b9bf241069d4ac36",
+          "file": "redirects.spec.ts",
+          "line": 60,
+          "column": 5
+        },
+        {
+          "title": "F12-E03 offline mantém campos, teclado confirma, conflito entre abas e reflow 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 10,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3610,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:30:57.289Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-f7da661aef84093e8cd2",
+          "file": "redirects.spec.ts",
+          "line": 78,
+          "column": 5
+        },
+        {
+          "title": "F12-E04 restrição de idade oculta destino no HTML e API até o aceite",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 10,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 22623,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Link permanente fixture A', exact: true })\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Link permanente fixture A', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Link permanente fixture A', exact: true })\u001b[22m\n\u001b[2m    - waiting for \"https://example.com/f12-adulto\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"https://example.com/f12-adulto\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Link permanente fixture A', exact: true })\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Link permanente fixture A', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Link permanente fixture A', exact: true })\u001b[22m\n\u001b[2m    - waiting for \"https://example.com/f12-adulto\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"https://example.com/f12-adulto\"\u001b[22m\n\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\redirects.spec.ts:105:187",
+                    "location": {
+                      "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\redirects.spec.ts",
+                      "column": 187,
+                      "line": 105
+                    },
+                    "snippet": "  103 |     await expect(guest.getByRole('dialog')).toBeVisible(); expect(await guest.content()).not.toMatch(/PrivadoSentinelaF12|f12-adulto/)\n  104 |     expect(await guest.evaluate(async id => (await fetch('/bff/v1/r/' + id)).json(), id)).toEqual({ restricted: true })\n> 105 |     await guest.getByRole('button', { name: 'Tenho 18 anos ou mais', exact: true }).click(); await expect(guest.getByRole('heading', { name: 'Link permanente fixture A', exact: true })).toBeVisible()\n      |                                                                                                                                                                                           ^\n  106 |   } finally { await external.browser.close() }\n  107 | })\n  108 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\redirects.spec.ts",
+                        "column": 187,
+                        "line": 105
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Link permanente fixture A', exact: true })\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Link permanente fixture A', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Link permanente fixture A', exact: true })\u001b[22m\n\u001b[2m    - waiting for \"https://example.com/f12-adulto\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"https://example.com/f12-adulto\"\u001b[22m\n\n\n  103 |     await expect(guest.getByRole('dialog')).toBeVisible(); expect(await guest.content()).not.toMatch(/PrivadoSentinelaF12|f12-adulto/)\n  104 |     expect(await guest.evaluate(async id => (await fetch('/bff/v1/r/' + id)).json(), id)).toEqual({ restricted: true })\n> 105 |     await guest.getByRole('button', { name: 'Tenho 18 anos ou mais', exact: true }).click(); await expect(guest.getByRole('heading', { name: 'Link permanente fixture A', exact: true })).toBeVisible()\n      |                                                                                                                                                                                           ^\n  106 |   } finally { await external.browser.close() }\n  107 | })\n  108 |\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\redirects.spec.ts:105:187"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:31:00.905Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\redirects-F12-E04-restriçã-03c29--no-HTML-e-API-até-o-aceite-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\redirects-F12-E04-restriçã-03c29--no-HTML-e-API-até-o-aceite-features-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\redirects-F12-E04-restriçã-03c29--no-HTML-e-API-até-o-aceite-features-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\redirects.spec.ts",
+                    "column": 187,
+                    "line": 105
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-86961d02627f9bb0f658",
+          "file": "redirects.spec.ts",
+          "line": 97,
+          "column": 5
+        },
+        {
+          "title": "F12-E05 cards, abas, foco e alertas separam endereço de histórico",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 11,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3028,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:31:24.111Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-42b1ce8719277d2cda2d",
+          "file": "redirects.spec.ts",
+          "line": 109,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "workspace-layout.spec.ts",
+      "file": "workspace-layout.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "W09 painel e admin aproveitam a largura da tela como o catálogo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7319,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:26:53.775Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-bf484a90f3c0faa22097",
+          "file": "workspace-layout.spec.ts",
+          "line": 26,
+          "column": 5
+        },
+        {
+          "title": "W10 sidebar separa contextos, mantém conta e não aninha menus",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 29490,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('navigation', { name: 'Áreas do painel', exact: true }).visible().getByLabel('Área do painel')\nExpected: focused\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" getByRole('navigation', { name: 'Áreas do painel', exact: true }).visible().getByLabel('Área do painel') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('navigation', { name: 'Áreas do painel', exact: true }).visible().getByLabel('Área do painel')\u001b[22m\n\u001b[2m    - locator resolved to <button id=\"_r_7_\" tabindex=\"0\" type=\"button\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" data-popup-side=\"bottom\" class=\"select_trigger__ZwMOJ\">…</button>\u001b[22m\n\u001b[2m    - unexpected value \"inactive\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('navigation', { name: 'Áreas do painel', exact: true }).visible().getByLabel('Área do painel')\nExpected: focused\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" getByRole('navigation', { name: 'Áreas do painel', exact: true }).visible().getByLabel('Área do painel') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('navigation', { name: 'Áreas do painel', exact: true }).visible().getByLabel('Área do painel')\u001b[22m\n\u001b[2m    - locator resolved to <button id=\"_r_7_\" tabindex=\"0\" type=\"button\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" data-popup-side=\"bottom\" class=\"select_trigger__ZwMOJ\">…</button>\u001b[22m\n\u001b[2m    - unexpected value \"inactive\"\u001b[22m\n\n    at selectOption (C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\select-control.ts:24:25)\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts:61:3",
+                    "location": {
+                      "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\select-control.ts",
+                      "column": 25,
+                      "line": 24
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39mselect-control.ts:24\n\n  22 |   const choice = typeof option === 'string' ? choices.and(control.page().locator(`[data-value=${JSON.stringify(option)}]`)) : control.page().getByRole('option', { name: option.label, exact: true })\n  23 |   await choice.click()\n> 24 |   await expect(control).toBeFocused()\n     |                         ^\n  25 | }\n  26 |\n  27 | export async function expectSelected(control: Locator, value: string) {"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\select-control.ts",
+                        "column": 25,
+                        "line": 24
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('navigation', { name: 'Áreas do painel', exact: true }).visible().getByLabel('Área do painel')\nExpected: focused\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" getByRole('navigation', { name: 'Áreas do painel', exact: true }).visible().getByLabel('Área do painel') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('navigation', { name: 'Áreas do painel', exact: true }).visible().getByLabel('Área do painel')\u001b[22m\n\u001b[2m    - locator resolved to <button id=\"_r_7_\" tabindex=\"0\" type=\"button\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" data-popup-side=\"bottom\" class=\"select_trigger__ZwMOJ\">…</button>\u001b[22m\n\u001b[2m    - unexpected value \"inactive\"\u001b[22m\n\n\n   at select-control.ts:24\n\n  22 |   const choice = typeof option === 'string' ? choices.and(control.page().locator(`[data-value=${JSON.stringify(option)}]`)) : control.page().getByRole('option', { name: option.label, exact: true })\n  23 |   await choice.click()\n> 24 |   await expect(control).toBeFocused()\n     |                         ^\n  25 | }\n  26 |\n  27 | export async function expectSelected(control: Locator, value: string) {\n    at selectOption (C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\select-control.ts:24:25)\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts:61:3"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:27:01.099Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\workspace-layout-W10-sideb-7966c-ém-conta-e-não-aninha-menus-features\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\workspace-layout-W10-sideb-7966c-ém-conta-e-não-aninha-menus-features\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\workspace-layout-W10-sideb-7966c-ém-conta-e-não-aninha-menus-features\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\select-control.ts",
+                    "column": 25,
+                    "line": 24
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-3377414e889e6e4c8886",
+          "file": "workspace-layout.spec.ts",
+          "line": 55,
+          "column": 5
+        },
+        {
+          "title": "W05 ícones distinguem destinos e grupos no painel e admin",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1661,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:27:31.660Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-9f6beb909db6ab8ecf10",
+          "file": "workspace-layout.spec.ts",
+          "line": 73,
+          "column": 5
+        },
+        {
+          "title": "W04 saída fica no cabeçalho ou no final da sidebar e encerra a sessão",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1159,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:27:33.426Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-85492ba51272e29a0df6",
+          "file": "workspace-layout.spec.ts",
+          "line": 97,
+          "column": 5
+        },
+        {
+          "title": "W01 painel: resumo sem abas, menu acessível e filtros combinados recuperáveis",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10120,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:27:34.589Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-9d129eda158d8a230d04",
+          "file": "workspace-layout.spec.ts",
+          "line": 126,
+          "column": 5
+        },
+        {
+          "title": "W03 formulário em etapas valida antes de avançar e mantém os campos ao voltar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2601,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:27:44.713Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-ec44bcf40533a62e7015",
+          "file": "workspace-layout.spec.ts",
+          "line": 198,
+          "column": 5
+        },
+        {
+          "title": "W02 admin: áreas separadas, filtros de fila e navegação em todas as jornadas",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 13689,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:27:47.318Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-87393c4b43ba0a9b925d",
+          "file": "workspace-layout.spec.ts",
+          "line": 237,
+          "column": 5
+        },
+        {
+          "title": "W06 menu só aceita interação quando a hidratação está pronta",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 767,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:28:01.012Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-00f9e735576a0cbdb3d7",
+          "file": "workspace-layout.spec.ts",
+          "line": 271,
+          "column": 5
+        },
+        {
+          "title": "W07 métricas do admin: linha temporal, tabelas paginadas e filtros automáticos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4502,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:28:01.787Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-fb50ed5326fbc7a398c6",
+          "file": "workspace-layout.spec.ts",
+          "line": 287,
+          "column": 5
+        },
+        {
+          "title": "W08 Meu Painel apresenta comparação de links com gráfico e tabela",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2510,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:28:06.294Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-8641e302c4139cc8d69e",
+          "file": "workspace-layout.spec.ts",
+          "line": 327,
+          "column": 5
+        },
+        {
+          "title": "W09 painel e admin aproveitam a largura da tela como o catálogo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 11,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6403,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:31:27.244Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-863624fb42ad6ba7e2dd",
+          "file": "workspace-layout.spec.ts",
+          "line": 26,
+          "column": 5
+        },
+        {
+          "title": "W10 sidebar separa contextos, mantém conta e não aninha menus",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 11,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 8811,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  -  1\u001b[39m\n\u001b[31m+ Received  + 10\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"id\": \"document-title\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Array [\u001b[39m\n\u001b[31m+         \"html\",\u001b[39m\n\u001b[31m+       ],\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+ ]\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  -  1\u001b[39m\n\u001b[31m+ Received  + 10\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"id\": \"document-title\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Array [\u001b[39m\n\u001b[31m+         \"html\",\u001b[39m\n\u001b[31m+       ],\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+ ]\u001b[39m\n    at checkLayout (C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts:23:89)\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts:69:228",
+                    "location": {
+                      "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts",
+                      "column": 89,
+                      "line": 23
+                    },
+                    "snippet": "  21 |   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize()!.width + 1)\n  22 |   const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze()\n> 23 |   expect(result.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) }))).toEqual([])\n     |                                                                                         ^\n  24 | }\n  25 |\n  26 | test('W09 painel e admin aproveitam a largura da tela como o catálogo', async ({ page }, info) => {"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts",
+                        "column": 89,
+                        "line": 23
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  -  1\u001b[39m\n\u001b[31m+ Received  + 10\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"id\": \"document-title\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Array [\u001b[39m\n\u001b[31m+         \"html\",\u001b[39m\n\u001b[31m+       ],\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n  21 |   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize()!.width + 1)\n  22 |   const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze()\n> 23 |   expect(result.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) }))).toEqual([])\n     |                                                                                         ^\n  24 | }\n  25 |\n  26 | test('W09 painel e admin aproveitam a largura da tela como o catálogo', async ({ page }, info) => {\n    at checkLayout (C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts:23:89)\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts:69:228"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:31:33.653Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\workspace-layout-W10-sideb-7966c-ém-conta-e-não-aninha-menus-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\workspace-layout-W10-sideb-7966c-ém-conta-e-não-aninha-menus-features-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\workspace-layout-W10-sideb-7966c-ém-conta-e-não-aninha-menus-features-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts",
+                    "column": 89,
+                    "line": 23
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-ee4a02c94bba4fb4ac3e",
+          "file": "workspace-layout.spec.ts",
+          "line": 55,
+          "column": 5
+        },
+        {
+          "title": "W05 ícones distinguem destinos e grupos no painel e admin",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 12,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2121,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:31:43.566Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-fd516768a54c2ef81cfb",
+          "file": "workspace-layout.spec.ts",
+          "line": 73,
+          "column": 5
+        },
+        {
+          "title": "W04 saída fica no cabeçalho ou no final da sidebar e encerra a sessão",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 12,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1165,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:31:45.834Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-81504ca24c22d5d41891",
+          "file": "workspace-layout.spec.ts",
+          "line": 97,
+          "column": 5
+        },
+        {
+          "title": "W01 painel: resumo sem abas, menu acessível e filtros combinados recuperáveis",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 12,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 21598,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Meu espaço', exact: true }).getByLabel('Área do painel')\nExpected: focused\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" getByRole('dialog', { name: 'Meu espaço', exact: true }).getByLabel('Área do painel') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Meu espaço', exact: true }).getByLabel('Área do painel')\u001b[22m\n\u001b[2m    - locator resolved to <button id=\"_r_7_\" tabindex=\"0\" type=\"button\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" data-popup-side=\"bottom\" class=\"select_trigger__ZwMOJ\">…</button>\u001b[22m\n\u001b[2m    - unexpected value \"inactive\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Meu espaço', exact: true }).getByLabel('Área do painel')\nExpected: focused\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" getByRole('dialog', { name: 'Meu espaço', exact: true }).getByLabel('Área do painel') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Meu espaço', exact: true }).getByLabel('Área do painel')\u001b[22m\n\u001b[2m    - locator resolved to <button id=\"_r_7_\" tabindex=\"0\" type=\"button\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" data-popup-side=\"bottom\" class=\"select_trigger__ZwMOJ\">…</button>\u001b[22m\n\u001b[2m    - unexpected value \"inactive\"\u001b[22m\n\n    at selectOption (C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\select-control.ts:24:25)\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts:148:5",
+                    "location": {
+                      "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\select-control.ts",
+                      "column": 25,
+                      "line": 24
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39mselect-control.ts:24\n\n  22 |   const choice = typeof option === 'string' ? choices.and(control.page().locator(`[data-value=${JSON.stringify(option)}]`)) : control.page().getByRole('option', { name: option.label, exact: true })\n  23 |   await choice.click()\n> 24 |   await expect(control).toBeFocused()\n     |                         ^\n  25 | }\n  26 |\n  27 | export async function expectSelected(control: Locator, value: string) {"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\select-control.ts",
+                        "column": 25,
+                        "line": 24
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Meu espaço', exact: true }).getByLabel('Área do painel')\nExpected: focused\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" getByRole('dialog', { name: 'Meu espaço', exact: true }).getByLabel('Área do painel') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Meu espaço', exact: true }).getByLabel('Área do painel')\u001b[22m\n\u001b[2m    - locator resolved to <button id=\"_r_7_\" tabindex=\"0\" type=\"button\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" data-popup-side=\"bottom\" class=\"select_trigger__ZwMOJ\">…</button>\u001b[22m\n\u001b[2m    - unexpected value \"inactive\"\u001b[22m\n\n\n   at select-control.ts:24\n\n  22 |   const choice = typeof option === 'string' ? choices.and(control.page().locator(`[data-value=${JSON.stringify(option)}]`)) : control.page().getByRole('option', { name: option.label, exact: true })\n  23 |   await choice.click()\n> 24 |   await expect(control).toBeFocused()\n     |                         ^\n  25 | }\n  26 |\n  27 | export async function expectSelected(control: Locator, value: string) {\n    at selectOption (C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\select-control.ts:24:25)\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts:148:5"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:31:47.003Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\workspace-layout-W01-paine-89626-ros-combinados-recuperáveis-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\workspace-layout-W01-paine-89626-ros-combinados-recuperáveis-features-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\workspace-layout-W01-paine-89626-ros-combinados-recuperáveis-features-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\select-control.ts",
+                    "column": 25,
+                    "line": 24
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-677b23d9f83f012414f8",
+          "file": "workspace-layout.spec.ts",
+          "line": 126,
+          "column": 5
+        },
+        {
+          "title": "W03 formulário em etapas valida antes de avançar e mantém os campos ao voltar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 13,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2516,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:32:09.126Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-b9702d790a94de18e1be",
+          "file": "workspace-layout.spec.ts",
+          "line": 198,
+          "column": 5
+        },
+        {
+          "title": "W02 admin: áreas separadas, filtros de fila e navegação em todas as jornadas",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 13,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 13880,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:32:11.734Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-fd6383a559955f47dc27",
+          "file": "workspace-layout.spec.ts",
+          "line": 237,
+          "column": 5
+        },
+        {
+          "title": "W06 menu só aceita interação quando a hidratação está pronta",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 13,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1017,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:32:25.620Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-67cebc3d125b392b5b29",
+          "file": "workspace-layout.spec.ts",
+          "line": 271,
+          "column": 5
+        },
+        {
+          "title": "W07 métricas do admin: linha temporal, tabelas paginadas e filtros automáticos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 13,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5017,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:32:26.643Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-001392eec4436bf2ae8f",
+          "file": "workspace-layout.spec.ts",
+          "line": 287,
+          "column": 5
+        },
+        {
+          "title": "W08 Meu Painel apresenta comparação de links com gráfico e tabela",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 13,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2376,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:32:31.665Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-a61ef17f555ac9efb3e1",
+          "file": "workspace-layout.spec.ts",
+          "line": 327,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-21T18:22:22.345Z",
+    "duration": 613849.762,
+    "expected": 52,
+    "skipped": 0,
+    "unexpected": 11,
+    "flaky": 0
+  }
+}

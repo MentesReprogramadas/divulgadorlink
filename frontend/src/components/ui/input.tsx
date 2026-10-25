@@ -3,7 +3,8 @@
 import { cloneElement, isValidElement, useId, useState, type InputHTMLAttributes, type Ref, type ReactNode, type TextareaHTMLAttributes } from 'react'
 export { Select } from './select'
 import styles from './input.module.css'
-import {useReadOnly} from './interaction-policy'
+import { LiquidLens } from './liquid-lens'
+import { Checkbox } from './checkbox'
 
 function controlClass(invalid: boolean | undefined, className: string | undefined): string {
   return ['field', invalid ? 'field-invalid' : '', className].filter(Boolean).join(' ')
@@ -63,8 +64,10 @@ export function Input({
   className,
   ...props
 }: InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean; ref?: Ref<HTMLInputElement> }) {
-  const readOnly=useReadOnly()
-  return <input className={controlClass(invalid, [styles.control, className].filter(Boolean).join(' '))} aria-invalid={invalid || undefined} {...props} disabled={props.disabled||props.type==='checkbox'&&readOnly} />
+  if (props.type === 'checkbox') return <Checkbox aria-invalid={invalid || undefined} className={className} {...props} />
+  if (props.type === 'radio') return <input aria-invalid={invalid || undefined} className={[styles.choice, className].filter(Boolean).join(' ')} {...props} />
+  const input = <input className={controlClass(invalid, [styles.control, className].filter(Boolean).join(' '))} aria-invalid={invalid || undefined} {...props} />
+  return ['checkbox','radio','hidden','color','range'].includes(props.type ?? 'text') || props.type === 'search' && props.role === 'combobox' ? input : <span className={styles.frame} data-control-frame><LiquidLens radius={12} />{input}</span>
 }
 
 export function TextArea({
@@ -72,5 +75,5 @@ export function TextArea({
   className,
   ...props
 }: TextareaHTMLAttributes<HTMLTextAreaElement> & { invalid?: boolean }) {
-  return <textarea className={controlClass(invalid, className)} aria-invalid={invalid || undefined} {...props} />
+  return <span className={styles.frame} data-control-frame><LiquidLens radius={12} /><textarea className={controlClass(invalid, [styles.control, className].filter(Boolean).join(' '))} aria-invalid={invalid || undefined} {...props} /></span>
 }

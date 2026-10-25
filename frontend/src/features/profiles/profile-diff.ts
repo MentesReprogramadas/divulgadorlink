@@ -3,7 +3,7 @@ import { profileAppearance } from './profile-appearance'
 
 export function normalizedProfile(value: ProfileContent): ProfileContent {
   return {
-    ...(value.buttonTest!==undefined?{buttonTest:value.buttonTest}:{}),...(value.translations?{translations:value.translations}:{}),
+    ...(value.contentBlocks?{contentBlocks:value.contentBlocks}:{}),...(value.buttonTest!==undefined?{buttonTest:value.buttonTest}:{}),...(value.translations?{translations:value.translations}:{}),
     slug: value.slug.trim().toLowerCase(), name: value.name.trim(), bio: value.bio.trim(), avatarAssetId: value.avatarAssetId,
     requiresAge: value.requiresAge, primaryItemId: value.primaryItemId, appearance: profileAppearance(value.appearance),
     categories: value.categories.map(group => ({ id: group.id, name: group.name.trim(), visible: group.visible })),

@@ -1,4 +1,4 @@
-.section { display: grid; gap: var(--space-6); min-width: 0; padding: var(--space-6); border: 1px solid var(--border-default); border-radius: var(--radius-lg); background: var(--surface-raised); }
+.section { --glass-tint: #06162438; position: relative; isolation: isolate; display: grid; gap: var(--space-6); min-width: 0; padding: var(--space-6); border: 0; border-radius: var(--radius-lg); background: transparent; }
 .header { display: flex; flex-wrap: wrap; align-items: start; justify-content: space-between; gap: var(--space-4); }
 .header h2 { margin: 0; font-size: var(--text-lg); }
 .header p { margin: var(--space-2) 0 0; color: var(--text-secondary); max-width: 60ch; }

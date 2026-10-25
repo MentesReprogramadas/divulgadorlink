@@ -1,4 +1,9 @@
-.root { position: relative; min-width: 0; max-width: 100%; }
+.root[data-variant] { --glass-tint: var(--button-glass-tint, #d6fff20d); --glass-fallback: var(--button-glass-tint, #173448); position: relative; isolation: isolate; min-width: 0; max-width: 100%; border-radius: 12px; background: transparent; border-color: transparent; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+.root[data-variant='primary'] { --glass-tint: var(--button-glass-tint, var(--color-primary)); --glass-fallback: var(--button-glass-tint, var(--color-primary)); }
+.root[data-variant='danger'] { --glass-tint: var(--button-glass-tint, var(--status-error-bg)); --glass-fallback: var(--button-glass-tint, var(--status-error-bg)); }
+.root:hover:not(:disabled) { background: transparent; --glass-tint: var(--button-glass-hover, #d6fff21a); }
+.root[data-variant='primary']:hover:not(:disabled) { --glass-tint: var(--button-glass-hover, var(--color-primary-hover)); }
+.root[data-variant='danger']:hover:not(:disabled) { --glass-tint: var(--button-glass-hover, var(--status-error-bg)); }
 .content { display: inline-flex; align-items: center; justify-content: center; gap: inherit; min-width: 0; overflow-wrap: anywhere; }
 .content > svg { flex: none; }
 .content[data-loading] { opacity: 0; }

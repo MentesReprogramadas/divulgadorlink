@@ -1,0 +1,57 @@
+[
+  {
+    "path": "frontend/src/features/account/components/workspace-navigation.tsx",
+    "source": "5052c6fe5cae7ef8685bbc0a829f5ca528b5572a09b967b9575530e84f14a391",
+    "tested": "5052c6fe5cae7ef8685bbc0a829f5ca528b5572a09b967b9575530e84f14a391"
+  },
+  {
+    "path": "frontend/src/components/ui/responsive-tabs.module.css",
+    "source": "53a7865fd7a675b690237fc442f88e629073be339463176f074b77b68cfb03ff",
+    "tested": "53a7865fd7a675b690237fc442f88e629073be339463176f074b77b68cfb03ff"
+  },
+  {
+    "path": "frontend/src/features/profiles/profile-editor.tsx",
+    "source": "c053cc6b7564a0be261ef39a8fe56cff55af9a7b23780da5dab9924bc5ca09e2",
+    "tested": "c053cc6b7564a0be261ef39a8fe56cff55af9a7b23780da5dab9924bc5ca09e2"
+  },
+  {
+    "path": "frontend/src/features/profiles/profile-editor-section.ts",
+    "source": "b1ec834c4a2a3bf7847f3c2a8e076f2f65d723f0859b335b3ffb7d85a1a2ff68",
+    "tested": "b1ec834c4a2a3bf7847f3c2a8e076f2f65d723f0859b335b3ffb7d85a1a2ff68"
+  },
+  {
+    "path": "frontend/src/features/profiles/components/profile-editor-toolbar.tsx",
+    "source": "f5094195294c559ae4812299a219a9d89a4524aae83d7a96c5ff449c3b923d13",
+    "tested": "f5094195294c559ae4812299a219a9d89a4524aae83d7a96c5ff449c3b923d13"
+  },
+  {
+    "path": "frontend/src/features/profiles/components/profile-fields.tsx",
+    "source": "42cbc6841847ceb1f19475aa8b88cbd94185f7fde95a88412f582e10c71629e3",
+    "tested": "42cbc6841847ceb1f19475aa8b88cbd94185f7fde95a88412f582e10c71629e3"
+  },
+  {
+    "path": "frontend/src/features/profiles/components/profile-revision-comparison.tsx",
+    "source": "e9130a9124ec2c2c57d9abe907b6a98dc227597e5e3d0171841f1ca8336c9757",
+    "tested": "e9130a9124ec2c2c57d9abe907b6a98dc227597e5e3d0171841f1ca8336c9757"
+  },
+  {
+    "path": "frontend/src/features/profile-discovery/discovery-screen.tsx",
+    "source": "2f8c175ba50c7c42f33c7e40c23d0c6c908ba313ec988b5b2ed371036a2d1893",
+    "tested": "2f8c175ba50c7c42f33c7e40c23d0c6c908ba313ec988b5b2ed371036a2d1893"
+  },
+  {
+    "path": "frontend/src/features/profile-discovery/discovery.module.css",
+    "source": "239bc8723e13566fcd3d6d13bacf565ac9337790ef72aab77cf3d31906029a65",
+    "tested": "239bc8723e13566fcd3d6d13bacf565ac9337790ef72aab77cf3d31906029a65"
+  },
+  {
+    "path": "frontend/src/features/profile-discovery/discovery-skeleton.tsx",
+    "source": "e87b54c8de0058f83d99a688df79b25356f0ccfa8e7fabe4fa4a60da1e2c5f10",
+    "tested": "e87b54c8de0058f83d99a688df79b25356f0ccfa8e7fabe4fa4a60da1e2c5f10"
+  },
+  {
+    "path": "frontend/src/features/profiles/button-tests-screen.tsx",
+    "source": "1cf9186739609d52238183402455b7cfc65052a098dc4e9f42f318a38caa54d0",
+    "tested": "1cf9186739609d52238183402455b7cfc65052a098dc4e9f42f318a38caa54d0"
+  }
+]

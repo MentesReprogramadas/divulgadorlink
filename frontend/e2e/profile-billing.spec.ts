@@ -6,6 +6,7 @@ import AxeBuilder from '@axe-core/playwright'
 import { runtime } from './runtime.cjs'
 import { sql } from './db'
 import { capturePage } from './capture-page'
+import {selectOption} from './select-control'
 const fixture=()=>JSON.parse(readFileSync(path.join(__dirname,'state.json'),'utf8')).profiles as {tenantId:string;ownerId:string;owner:string;other:string;password:string}
 const origin=runtime.web('profiles.localhost')
 async function login(page:Page,admin=false,email?:string){await page.goto(origin+'/login');await page.getByLabel('E-mail').fill(email??(admin?fixture().other:fixture().owner));await page.getByLabel('Senha').fill(fixture().password);await page.getByRole('button',{name:'Entrar',exact:true}).click();await expect(page.getByRole('heading',{name:'Painel',exact:true})).toBeVisible();const refuse=page.getByRole('region',{name:'Este site usa cookies'}).getByRole('button',{name:'Recusar',exact:true});if(await refuse.count())await refuse.click()}
@@ -18,7 +19,7 @@ async function configure(page:Page){
   expect((await mutate(page,'/admin/profile-billing/settings',{expectedVersion:0,enabled:true,fiscalReviewed:true,publicOrigin:origin},'PUT')).status).toBe(200)
   for(const [tier,amountCents,providerPriceId,extra] of [['PRO',1290,'price_pro_fixture','profile.analytics'],['PREMIUM',2490,'price_premium_fixture','profile.richBlocks']] as const)expect((await mutate(page,'/admin/profile-billing/plans',{expectedVersion:0,tier,amountCents,currency:'BRL',interval:'month',providerPriceId,capabilities:[...base,extra],enabled:true})).status).toBe(200)
 }
-async function pageDraft(page:Page){const current=await page.evaluate(async()=>(await fetch('/bff/v1/me/profile')).json());if(!current.draft)expect((await mutate(page,'/me/profile',{expectedVersion:0,content:{slug:'pagina-billing',name:'Minha página gratuita',bio:'Conteúdo preservado',avatarAssetId:null,requiresAge:false,primaryItemId:null,categories:[],items:[]}},'PATCH')).status).toBe(200)}
+async function pageDraft(page:Page,slug='pagina-billing'){const current=await page.evaluate(async()=>(await fetch('/bff/v1/me/profile')).json());if(!current.draft)expect((await mutate(page,'/me/profile',{expectedVersion:0,content:{slug,name:'Minha página gratuita',bio:'Conteúdo preservado',avatarAssetId:null,requiresAge:false,primaryItemId:null,categories:[],items:[]}},'PATCH')).status).toBe(200)}
 async function choosePro(page:Page){await page.goto(origin+'/painel/assinatura');await page.getByRole('article',{name:'Pro',exact:true}).getByRole('button',{name:'Assinar plano'}).click();await page.getByRole('dialog').getByRole('button',{name:'Ir para pagamento'}).click();await expect(page.getByRole('heading',{name:'Checkout seguro fixture'})).toBeVisible()}
 async function localCheckout(page:Page){await page.route('https://checkout.stripe.com/c/pay/**',route=>route.fulfill({contentType:'text/html',body:'<!doctype html><html lang="pt-BR"><title>Fixture</title><h1>Checkout seguro fixture</h1></html>'}))}
 function currentSession(){return sql(`SELECT "providerCheckoutId" FROM profile_subscriptions WHERE "tenantId"='${fixture().tenantId}' ORDER BY "createdAt" DESC LIMIT 1`)}
@@ -108,4 +109,83 @@ test('F11-E05 existing account deletion automatically stops a paid renewal and k
   expect(sql(`SELECT name||':'||status FROM users WHERE id='${id}'`)).toBe('Conta excluída:ACTIVE')
   expect(sql(`SELECT count(*) FROM profiles WHERE "ownerId"='${id}'`)).toBe('0')
   expect(sql(`SELECT count(*) FROM profile_entitlements WHERE "ownerId"='${id}' AND "revokedAt" IS NULL`)).toBe('0')
+})
+
+test('F11-E06 paid navigation opens contextual plans and checkout reflows with keyboard access',async({page},info)=>{
+ await login(page,true);await configure(page);await page.context().clearCookies();await login(page);await pageDraft(page)
+ await page.goto(origin+'/painel/perfil/metricas')
+ await expect(page.getByRole('region',{name:'Recurso com assinatura'})).toBeVisible()
+ if(info.project.name.includes('mobile'))await page.getByRole('button',{name:'Menu',exact:true}).click()
+ const nav=page.getByRole('navigation',{name:'Áreas do painel'}).filter({visible:true})
+ await expect(nav.getByRole('link',{name:/Planos e assinatura/})).toBeVisible()
+ const metrics=nav.getByRole('link',{name:/Visitas e cliques/});await expect(metrics).toContainText('Requer assinatura');await metrics.click()
+ await expect(page).toHaveURL(/assinatura\?recurso=profile.analytics$/)
+ const pro=page.getByRole('article',{name:'Pro',exact:true});await expect(pro).toHaveAttribute('data-highlighted','true')
+ await capturePage(page,info.outputPath('billing-paywall.png'))
+ await pro.getByRole('button',{name:'Assinar plano'}).focus();await page.keyboard.press('Enter')
+ const checkout=page.getByRole('dialog',{name:'Confirmar assinatura'});await expect(checkout.getByRole('region',{name:'Resumo da assinatura'})).toContainText('12,90')
+ await expect(checkout).toHaveCSS('opacity','1')
+ await expect(checkout).toContainText('mensal e recorrente')
+ await expect(checkout.getByRole('button',{name:'Ir para pagamento'})).toBeInViewport({ratio:1})
+ const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(row=>row.id),JSON.stringify(axe.violations.flatMap(row=>row.nodes.map(node=>node.failureSummary)))).toEqual([])
+ await capturePage(page,info.outputPath('subscription-checkout.png'),false)
+ await page.keyboard.press('Escape');await expect(pro.getByRole('button',{name:'Assinar plano'})).toBeFocused()
+ await page.setViewportSize({width:320,height:844});await page.evaluate(()=>{document.documentElement.style.fontSize='200%'})
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(321)
+ await pro.getByRole('button',{name:'Assinar plano'}).click();await expect(checkout.getByRole('button',{name:'Ir para pagamento'})).toBeInViewport({ratio:1});await checkout.getByRole('button',{name:'Ir para pagamento'}).focus()
+ expect(await checkout.evaluate(element=>element.scrollWidth<=element.clientWidth+1)).toBe(true)
+ await capturePage(page,info.outputPath('subscription-checkout-zoom.png'),false)
+ await page.keyboard.press('Escape');await expect(checkout).toHaveCount(0)
+ expect(sql(`SELECT count(*) FROM profile_subscriptions WHERE "tenantId"='${fixture().tenantId}'`)).toBe('0')
+})
+
+test('F11-E07 sem página mostra só a criação; catálogo não configurado não exibe planos incompletos',async({page},info)=>{
+ const id=randomUUID(),email='onboarding-'+id+'@fixture.test'
+ sql(`INSERT INTO users(id,"tenantId",name,"passwordHash",role,status,"createdAt","updatedAt") SELECT '${id}',"tenantId",'Conta sem página',"passwordHash",'USER','ACTIVE',now(),now() FROM users WHERE id='${fixture().ownerId}'; INSERT INTO user_identifiers(id,"userId","tenantId",kind,"normalizedValue","confirmedAt","createdAt") VALUES ('${randomUUID()}','${id}','${fixture().tenantId}','EMAIL','${email}',now(),now());`)
+ await login(page,false,email);await page.goto(origin+'/painel/assinatura?recurso=profile.subdomain')
+ await expect(page.getByRole('heading',{name:'Primeiro, crie sua página'})).toBeVisible()
+ await expect(page.getByRole('article')).toHaveCount(0);await expect(page.getByText(/preparação|Preço ainda não definido|Nenhum plano disponível/)).toHaveCount(0)
+ await capturePage(page,info.outputPath('billing-create-page.png'))
+ await page.getByRole('link',{name:'Criar minha página',exact:true}).click();await expect(page).toHaveURL(/\/painel\/perfil$/)
+ await pageDraft(page,'onboarding-'+id.slice(0,8));await page.goto(origin+'/painel/assinatura')
+ await expect(page.getByRole('heading',{name:'Sua página continua gratuita'})).toBeVisible();await expect(page.getByRole('article')).toHaveCount(0)
+ await capturePage(page,info.outputPath('billing-no-sales.png'))
+})
+
+test('F11-E08 Premium edita texto, imagem e vídeo; publicação, consentimento e expiração preservam a página gratuita',async({page,browser},info)=>{
+ await login(page,true);await configure(page)
+ const owner=await browser.newContext({locale:'pt-BR',viewport:info.project.use.viewport}),editor=await owner.newPage()
+ try{
+  await login(editor);await pageDraft(editor);await localCheckout(editor)
+  await editor.goto(origin+'/painel/assinatura?recurso=profile.richBlocks')
+  await editor.getByRole('article',{name:'Premium',exact:true}).getByRole('button',{name:'Assinar plano'}).click()
+  const checkout=editor.getByRole('dialog'),viewport=editor.viewportSize()!
+  await expect(checkout).toHaveCSS('opacity','1');await capturePage(editor,info.outputPath('subscription-checkout.png'),false)
+  await editor.setViewportSize({width:320,height:844});await editor.evaluate(()=>{document.documentElement.style.fontSize='200%'})
+  await expect(checkout.getByRole('button',{name:'Ir para pagamento'})).toBeInViewport({ratio:1});await capturePage(editor,info.outputPath('subscription-checkout-zoom.png'),false)
+  await editor.evaluate(()=>{document.documentElement.style.fontSize=''});await editor.setViewportSize(viewport)
+  await checkout.getByRole('button',{name:'Ir para pagamento'}).click();await expect(editor.getByRole('heading',{name:'Checkout seguro fixture'})).toBeVisible();await pay(editor)
+  await editor.goto(origin+'/painel/perfil/conteudo');await expect(editor.getByRole('heading',{name:'Conteúdo além dos links'})).toBeVisible()
+  const previous=await editor.evaluate(async()=>(await fetch('/bff/v1/me/profile')).json()),{version:previousVersion,...clean}=previous.draft
+  expect((await mutate(editor,'/me/profile',{expectedVersion:previousVersion,content:{...clean,contentBlocks:[]}},'PATCH')).status).toBe(200);await editor.reload();await expect(editor.getByRole('heading',{name:'Blocos de conteúdo',exact:true})).toBeVisible()
+  await editor.getByRole('button',{name:'Adicionar bloco',exact:true}).click();await editor.getByLabel('Título',{exact:true}).fill('Serviços sob medida');await editor.getByLabel('Texto',{exact:true}).fill('Consultoria para tirar seu projeto do papel.');await editor.getByRole('button',{name:'Salvar bloco',exact:true}).click()
+  await selectOption(editor.getByRole('combobox',{name:'Adicionar bloco'}),'IMAGE');await editor.getByRole('button',{name:'Adicionar bloco',exact:true}).click();await editor.getByLabel('Título',{exact:true}).fill('Meu portfólio');await editor.getByLabel('Imagem',{exact:true}).setInputFiles(path.join(__dirname,'../../backend/src/domain/profiles/avatar.fixture.png'));await editor.getByLabel('Descrição da imagem',{exact:true}).fill('Projeto de exemplo');await editor.getByLabel('Legenda (opcional)',{exact:true}).fill('Um projeto feito com cuidado.');await expect(editor.getByText('Imagem enviada.',{exact:false})).toBeVisible();await editor.getByRole('button',{name:'Salvar bloco',exact:true}).click()
+  await selectOption(editor.getByRole('combobox',{name:'Adicionar bloco'}),'VIDEO');await editor.getByRole('button',{name:'Adicionar bloco',exact:true}).click();await editor.getByLabel('Título',{exact:true}).fill('Conheça meu trabalho');await editor.getByLabel('Endereço do vídeo',{exact:true}).fill('https://youtu.be/dQw4w9WgXcQ');await editor.getByRole('button',{name:'Salvar bloco',exact:true}).click()
+  await expect.poll(()=>sql(`SELECT jsonb_array_length(content) FROM profile_content_blocks WHERE "tenantId"='${fixture().tenantId}' AND "ownerId"='${fixture().ownerId}'`)).toBe('3')
+  await expect.poll(()=>editor.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true)
+  const axe=await new AxeBuilder({page:editor}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(row=>row.id),JSON.stringify(axe.violations.flatMap(row=>row.nodes.map(node=>node.failureSummary)))).toEqual([])
+  await capturePage(editor,info.outputPath('premium-content-editor.png'))
+  const state=await editor.evaluate(async()=>(await fetch('/bff/v1/me/profile')).json()),{version,...content}=state.draft,group=randomUUID()
+  content.categories=[{id:group,name:'Acesse',visible:true}];content.items=[{id:randomUUID(),categoryId:group,type:'URL',label:'Meu site gratuito',destination:'https://example.com/portfolio',visible:true}];content.primaryItemId=null
+  const saved=await mutate(editor,'/me/profile',{expectedVersion:version,content},'PATCH');expect(saved.status).toBe(200)
+  const published=await mutate(editor,'/me/profile/publish',{expectedVersion:saved.body.draft.version});expect(published.status).toBe(200)
+  if(published.body.review)expect((await mutate(page,'/admin/content-reviews/'+published.body.review.id+'/decision',{decision:'APPROVE'})).status).toBe(200)
+  const slug=content.slug,assetId=content.contentBlocks.find((block:{type:string})=>block.type==='IMAGE').assetId
+  await editor.goto(origin+'/p/'+slug);await expect(editor.getByRole('heading',{name:'Serviços sob medida'})).toBeVisible();await expect(editor.getByAltText('Projeto de exemplo')).toBeVisible();await expect(editor.locator('iframe')).toHaveCount(0)
+  await capturePage(editor,info.outputPath('premium-content-public.png'))
+  await editor.route('https://www.youtube-nocookie.com/embed/**',route=>route.fulfill({contentType:'text/html',body:'<!doctype html><title>Vídeo fixture</title>'}));await editor.getByRole('button',{name:'Carregar vídeo'}).click();await expect(editor.locator('iframe')).toHaveCount(1)
+  sql(`UPDATE profile_entitlements SET "revokedAt"=now() WHERE "tenantId"='${fixture().tenantId}';`)
+  await editor.reload();await expect(editor.getByRole('heading',{name:'Serviços sob medida'})).toHaveCount(0);await expect(editor.getByRole('link',{name:/Meu site gratuito/})).toBeVisible();expect(await editor.evaluate(async path=>(await fetch(path)).status,'/bff/v1/profiles/'+slug+'/media/'+assetId)).toBe(404)
+  await editor.goto(origin+'/painel/perfil/conteudo');await expect(editor.getByRole('region',{name:'Recurso com assinatura'})).toBeVisible();await expect(editor.getByRole('region',{name:'Blocos de conteúdo',exact:true}).getByRole('heading',{name:'Serviços sob medida',exact:true})).toBeVisible()
+ }finally{await owner.close()}
 })

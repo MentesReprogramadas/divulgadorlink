@@ -39,14 +39,14 @@ export function AvailabilityScreen({ linkId }: { linkId: string }) {
 
     {state.kind === 'loading' ? <AvailabilitySkeleton /> : null}
     {state.kind === 'error' ? <ErrorState onRetry={() => setAttempt(value => value + 1)} /> : null}
-    {state.kind === 'denied' ? <p role="alert">Disponibilidade indisponível para esta conta.</p> : null}
+    {state.kind === 'denied' ? <ErrorState message="Disponibilidade indisponível para esta conta." /> : null}
     {state.kind === 'ready' ? <>
       <WorkspaceSection title={state.data.link.name}>
       <dl className={styles.context}><div><dt>Checagem</dt><dd>{AVAILABILITY_LABEL[state.data.availability.state]}</dd></div><div><dt>Última verificação</dt><dd>{state.data.availability.checkedAt ? availabilityDate(state.data.availability.checkedAt) : 'Ainda não realizada'}</dd></div><div><dt>URL atual</dt><dd>{state.data.link.canonicalUrl}</dd></div></dl>
       {state.data.availability.disabledAt ? <p className={styles.notice}>O link saiu do catálogo após falhas repetidas. Envie a correção para análise.</p> : null}
       <p className={styles.note}>A checagem indica acesso ao destino; não confirma vagas ou conteúdo do grupo.</p>
       </WorkspaceSection>
-      {state.data.pausedPromotions.length ? <section aria-label="Saldo pago pausado"><h3>Tempo pago pausado</h3><ul>{state.data.pausedPromotions.map(promotion => <li key={promotion.id}>{surface[promotion.surface] ?? promotion.surface}: {remainingTime(promotion.remainingMs)}</li>)}</ul><p className={styles.note}>O saldo será retomado após aprovar a correção.</p></section> : null}
+      {state.data.pausedPromotions.length ? <WorkspaceSection title="Tempo pago pausado"><ul>{state.data.pausedPromotions.map(promotion => <li key={promotion.id}>{surface[promotion.surface] ?? promotion.surface}: {remainingTime(promotion.remainingMs)}</li>)}</ul><p className={styles.note}>O saldo será retomado após aprovar a correção.</p></WorkspaceSection> : null}
       {state.data.canPropose ? <OverlayDialog open={editing} title="Corrigir link de acesso" onClose={() => setEditing(false)}><UrlCorrectionForm key={attempt} onSubmit={submit} /></OverlayDialog> : null}
       <WorkspaceSection title="Histórico de correções">{state.data.proposals.length ? <ul className={styles.history}>{state.data.proposals.map(proposal => <li key={proposal.id}><p><strong>{REVISION_LABEL[proposal.status]}</strong> · {availabilityDate(proposal.createdAt)}</p><p>{proposal.canonicalUrl}</p>{proposal.decisionReason ? <p>Justificativa: {proposal.decisionReason}</p> : null}</li>)}</ul> : <EmptyState />}</WorkspaceSection>
     </> : null}

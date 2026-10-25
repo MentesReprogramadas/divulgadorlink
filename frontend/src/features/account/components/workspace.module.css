@@ -1,11 +1,10 @@
 .shell { display: grid; grid-template-columns: clamp(17.5rem, 22vw, 20rem) minmax(0, 1fr); gap: var(--space-8); width: 100%; max-width: none; padding: var(--space-8) clamp(16px, 2.5vw, 48px) var(--space-12); margin: 0; align-items: start; }
-.sidebar { position: sticky; top: var(--space-6); min-width: 0; max-height: calc(100dvh - 9rem); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
-.sidebarTitle { margin: 0 0 var(--space-6); padding: 0 var(--space-3); font-family: var(--font-product); font-size: var(--text-lg); font-weight: 600; }
-.sidebarTitle small { display: block; font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 400; color: var(--text-secondary); margin-top: var(--space-1); }
-.navigation { display: grid; gap: var(--space-6); min-width: 0; overflow-wrap: break-word; }
+.sidebar { --glass-tint: #06162438; position: sticky; top: var(--space-6); isolation: isolate; min-width: 0; max-height: calc(100dvh - 9rem); padding: var(--space-4); border-radius: var(--radius-lg); background: transparent; }
+.desktopMenu { min-width: 0; max-height: calc(100dvh - 9rem - 2 * var(--space-4)); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.navigation { display: grid; gap: var(--space-2); min-width: 0; overflow-wrap: break-word; }
 .navigation a { min-height: 48px; padding-block: var(--space-3); line-height: 1.5; }
 .navGroup { display: grid; gap: var(--space-1); }
-.groupLabel { margin: 0 0 var(--space-1); padding: 0 var(--space-3); font-size: var(--text-sm); font-weight: 500; color: var(--text-secondary); }
+.groupLabel { margin: var(--space-4) 0 var(--space-1); padding: 0 var(--space-3); font-size: var(--text-sm); font-weight: 500; color: var(--text-secondary); }
 .navigation svg { flex: none; }
 .submenu { min-width: 0; }
 .submenu summary { display: flex; align-items: center; gap: var(--space-3); min-height: 48px; padding: var(--space-3); border-radius: var(--radius-md); font-weight: 600; line-height: 1.5; cursor: pointer; list-style: none; color: var(--text-primary); }
@@ -36,11 +35,11 @@
 .stage form { max-width: none; }
 .stage > :global(.panel-section-title) { margin: 0; font-size: var(--text-lg); }
 .stage > :global(.panel-section-description) { margin: calc(-1 * var(--space-4)) 0 0; }
-.stage > :global(.form-grid), .stage > :global(.plan-admin), .stage > :global(.account-grid), .stage > :global(.catalog-copy) { padding: var(--space-6); background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg); min-width: 0; }
+.stage > :global(.form-grid), .stage > :global(.plan-admin), .stage > :global(.account-grid), .stage > :global(.catalog-copy) { padding: var(--space-6); border: 1px solid var(--border-default); border-radius: var(--radius-lg); min-width: 0; }
 .stage > :global(.account-grid) { background: transparent; padding: 0; border: 0; }
 .stage :global(.form-grid) { gap: var(--space-6); }
 .stage :global(.moderation-grid), .stage :global(.refund-grid) { gap: var(--space-6); }
-.stage :global(.link-card), .stage :global(.order-card), .stage :global(.summary-card) { padding: var(--space-6); background: var(--surface-raised); }
+.stage :global(.link-card), .stage :global(.order-card), .stage :global(.summary-card) { padding: var(--space-6); }
 .stage :global(.link-card-actions) { padding-top: var(--space-4); border-top: 1px solid var(--border-default); margin-top: var(--space-4); }
 .stage :global(.insight-tabs) { flex-wrap: wrap; overflow: visible; }
 .stage :global(.office-note) { max-width: 75ch; line-height: 1.6; }
@@ -54,3 +53,22 @@
 @media (width < 30rem) { .navigation { grid-template-columns: minmax(0, 1fr); } .stage > :global(.form-grid), .stage > :global(.catalog-copy) { padding: var(--space-4); } }
 
 .readOnlyContent{border:0;padding:0;margin:0;min-width:0}
+
+.contextPicker { padding: var(--space-3); margin-bottom: var(--space-2); border: 1px solid var(--border-default); border-radius: var(--radius-lg); background: var(--surface-subtle); }
+.contextNavigation { display: grid; gap: var(--space-1); }
+.accountNavigation { display: grid; gap: var(--space-1); border-top: 1px solid var(--border-default); margin-top: var(--space-4); padding-top: var(--space-4); }
+.areaLinks a { gap: var(--space-1); }
+.helpButton { justify-content: flex-start; min-height: 48px; padding-inline: var(--space-3); border: 0; background: transparent; color: var(--text-secondary); font-weight: 600; box-shadow: none; }
+.helpButton:hover:not(:disabled) { background: var(--surface-subtle); color: var(--text-primary); }
+.helpContent { display: grid; gap: var(--space-4); }
+.helpContent p { margin: 0; }
+.navigationError { color: var(--status-error-text); font-size: var(--text-sm); margin-bottom: 0; }
+.paidLock { margin-left:auto; display:inline-flex; flex:none; }
+.visuallyHidden { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
+.stage > :global(.form-grid), .stage > :global(.plan-admin), .stage > :global(.catalog-copy), .stage :global(.link-card), .stage :global(.order-card), .stage :global(.summary-card) { box-shadow: var(--glass-shadow); }
+
+@supports selector(::-webkit-scrollbar) { .desktopMenu { scrollbar-width: auto; } }
+.suspension { composes: surface from '../../feature-glass.module.css'; padding: var(--space-6); border-radius: var(--radius-lg); }
+.suspension h2 { margin-top: 0; }
+.suspension p { margin-bottom: 0; overflow-wrap: anywhere; }

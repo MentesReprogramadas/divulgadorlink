@@ -5,7 +5,7 @@ import { touchDecision } from '@/domain/campaign-touch'
 
 function withPath(request: NextRequest): { headers: Headers; csp: string } {
   const requestHeaders = new Headers(request.headers)
-  for(const name of ['x-profile-tenant-host','x-profile-hostname'])requestHeaders.delete(name)
+  for(const name of ['x-profile-tenant-host','x-profile-hostname','x-profile-slug'])requestHeaders.delete(name)
   requestHeaders.set('x-pathname', request.nextUrl.pathname)
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
   const devEval = process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''
@@ -18,7 +18,7 @@ function withPath(request: NextRequest): { headers: Headers; csp: string } {
     `img-src 'self' data: blob: https://www.facebook.com ${googleAds}`,
     "font-src 'self'",
     `connect-src 'self' https://api.stripe.com https://www.facebook.com https://connect.facebook.net ${googleAds} https://ad.doubleclick.net`,
-    "frame-src https://js.stripe.com https://hooks.stripe.com https://www.googletagmanager.com",
+    "frame-src https://js.stripe.com https://hooks.stripe.com https://www.googletagmanager.com https://www.youtube-nocookie.com https://player.vimeo.com",
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",
@@ -76,7 +76,7 @@ export async function middleware(request: NextRequest) {
     if(new RegExp('^/p/'+resolved.slug+'/(?:canais/(?:[a-f0-9-]{36}|estado)|midia-kit|c/[a-z0-9-]+)$').test(path)||['/divulgar','/termos','/privacidade'].includes(path)||/^\/(?:link|r|go)\/[a-zA-Z0-9_-]+$/.test(path))return finish(request,NextResponse.redirect(new URL(path+request.nextUrl.search,central),307),csp)
     if(path!=='/'&&path!=='/p/'+resolved.slug)return denied()
     if(resolved.mode==='FALLBACK')return finish(request,NextResponse.redirect(new URL('/p/'+resolved.slug,central),307),csp)
-    headers.set('x-profile-tenant-host',personal.tenantHost);headers.set('x-profile-hostname',personal.hostname)
+    headers.set('x-profile-tenant-host',personal.tenantHost);headers.set('x-profile-hostname',personal.hostname);headers.set('x-profile-slug',resolved.slug)
     const next=new URL('/p/'+resolved.slug+request.nextUrl.search,request.url)
     const output=NextResponse.rewrite(next,{request:{headers}});output.headers.set('cache-control','private, no-store');output.headers.set('x-robots-tag','noindex, follow');return finish(request,output,csp)
   }

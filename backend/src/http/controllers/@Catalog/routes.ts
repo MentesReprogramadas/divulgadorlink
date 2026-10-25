@@ -1,3 +1,4 @@
+import { approvedMediaForCards } from '@/http/link-media-projection'
 import {ZodError} from 'zod'
 import {cityById,parseDiscovery,matchesDiscovery,type DiscoveryMetadata} from '@/domain/catalog/discovery-metadata'
 import {discoveryCursorContext,tagDiscoveryCursor} from '@/http/catalog-page'
@@ -97,8 +98,10 @@ async function counted(
   nicheOkBySlug: Map<string, boolean>,
 ) {
   const counts = await getAnalyticsRepository().impressionTotals(tenantId, rows.map((row) => row.id))
+  const media = await approvedMediaForCards(tenantId, rows)
   return rows.map((row) => ({
     ...card(tenantId, row, origin),
+    ...media.get(row.id),
     impressions: counts.get(row.id) ?? 0,
     indexable: cardIndexable(row, nicheOkBySlug),
   }))

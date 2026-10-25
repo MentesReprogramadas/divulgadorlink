@@ -9,6 +9,7 @@ import { ActionIcon } from '@/components/ui/action-icon'
 
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 import { Field, Select } from '@/components/ui/input'
 import { api } from '@/lib/api'
 import styles from './link-promotion-editor.module.css'
@@ -111,6 +112,8 @@ function PromotionControls({ linkId, linkName }: LinkPromotionEditorProps) {
       <Button readOnlyAllowed type="button" variant="secondary" onClick={start}><ActionIcon name="promotion" />Gerenciar destaque</Button>
       <p role="status" className={styles.notice}>{notice}</p>
       <dialog ref={dialogRef} className={styles.dialog} aria-labelledby={`promotion-title-${linkId}`} onCancel={event => { event.preventDefault(); if (!pendingRef.current) setOpen(false) }}>
+        <div className={styles.panel}>
+        <LiquidLens radius={24} />
         <form className={styles.form} onSubmit={event => { event.preventDefault(); void save() }}>
           <header>
             <p className={styles.kicker}>Destaque administrativo</p>
@@ -144,6 +147,7 @@ function PromotionControls({ linkId, linkName }: LinkPromotionEditorProps) {
             {admin.length ? <Button type="button" variant="danger" disabled={busy||readOnly} onClick={() => void save(true)}><ActionIcon name="trash" />Remover destaque</Button> : null}
           </div>
         </form>
+        </div>
       </dialog>
     </div>
   )

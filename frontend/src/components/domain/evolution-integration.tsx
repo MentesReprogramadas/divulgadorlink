@@ -13,11 +13,12 @@ import { RefreshButton } from '@/components/layout/workspace-actions'
 import { EmptyState } from '@/components/feedback/empty-state'
 import styles from './evolution-integration.module.css'
 import { ErrorState } from '@/components/feedback/error-state'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 
 type Message = { id: string; kind: string; state: string; attempts: number; lastErrorCode: string | null; createdAt: string }
 type Status = { configured: boolean; enabled: boolean; actionsEnabled: boolean; instance: string; group: string; connection?: string; backlog: number; version: string | null; messages: Message[]; operators: { phone: string; enabled: boolean }[]; allowedPhones: string[] }
 const STATES: Record<string, string> = { PENDING: 'Aguardando', PROCESSING: 'Enviando', SENT: 'Enviado', RETRY: 'Nova tentativa agendada', UNCERTAIN: 'Entrega incerta', DEAD: 'Precisa de atenção', CANCELLED: 'Revisão desatualizada' }
-const KINDS: Record<string, string> = { REVIEW_CASE: 'Revisão de link', REVIEW_TEXT: 'Revisão de texto', DECISION: 'Decisão de moderação', REFUND_FAILED: 'Falha de estorno', COMMAND_RESULT: 'Resposta ao comando', RECOVERY: 'Integração recuperada' }
+const KINDS: Record<string, string> = { REVIEW_CASE: 'Revisão de link', REVIEW_TEXT: 'Revisão de texto', REVIEW_MEDIA: 'Revisão de anexo', DECISION: 'Decisão de moderação', REFUND_FAILED: 'Falha de estorno', COMMAND_RESULT: 'Resposta ao comando', RECOVERY: 'Integração recuperada' }
 
 export function EvolutionIntegration() {
   const [data, setData] = useState<Status | null>(null)
@@ -60,12 +61,12 @@ export function EvolutionIntegration() {
     <p>Os números permitidos são definidos no servidor. Ao vincular, o número passa a usar sua conta administradora; revogar impede novos comandos imediatamente.</p>
     {data.allowedPhones.length === 0 ? <EmptyState /> : <ul className={styles.operators}>{data.allowedPhones.map(phone => {
       const bound = data.operators.find(o => o.phone === phone && o.enabled)
-      return <li key={phone}>Final {phone.slice(-4)} — {bound ? 'Vinculado' : 'Não vinculado'} <Button variant="secondary" disabled={busy} onClick={() => void mutate(`/v1/admin/integrations/evolution/operators/${phone}`, { enabled: !bound })}><ActionIcon name="access" />{bound ? `Revogar final ${phone.slice(-4)}` : `Vincular final ${phone.slice(-4)}`}</Button></li>
+      return <li key={phone}><LiquidLens radius={16} /><span>Final {phone.slice(-4)} — {bound ? 'Vinculado' : 'Não vinculado'}</span><Button variant="secondary" disabled={busy} onClick={() => void mutate(`/v1/admin/integrations/evolution/operators/${phone}`, { enabled: !bound })}><ActionIcon name="access" />{bound ? `Revogar final ${phone.slice(-4)}` : `Vincular final ${phone.slice(-4)}`}</Button></li>
     })}</ul>}
     </WorkspaceSection>
     <WorkspaceSection title="Histórico de entregas">
     <p>Enviado indica aceite pelo provedor, sem confirmar leitura. Em uma entrega incerta, confira o grupo antes de reenviar.</p>
-    {data.messages.length === 0 ? <EmptyState /> : <div className="link-list">{data.messages.map(message => <article key={message.id} className="link-card">
+    {data.messages.length === 0 ? <EmptyState /> : <div className="link-list">{data.messages.map(message => <article key={message.id} className={`link-card ${styles.delivery}`}><LiquidLens radius={16} />
       <h4>{KINDS[message.kind] ?? 'Aviso operacional'}</h4><p>{STATES[message.state] ?? message.state} · {message.attempts} tentativa(s)</p>
       {message.lastErrorCode ? <p>Código: {message.lastErrorCode}</p> : null}
       {['RETRY', 'DEAD', 'UNCERTAIN'].includes(message.state) ? uncertain === message.id ? <div><p>Você conferiu o grupo? Reenviar pode duplicar uma mensagem já entregue.</p><Button disabled={busy} onClick={() => void mutate(`/v1/admin/integrations/evolution/deliveries/${message.id}/retry`, { confirmUncertain: true })}><ActionIcon name="check" />Confirmar reenvio</Button><Button variant="ghost" disabled={busy} onClick={() => setUncertain(null)}><ActionIcon name="close" />Cancelar</Button></div> : <Button variant="secondary" disabled={busy} onClick={() => message.state === 'UNCERTAIN' ? setUncertain(message.id) : void mutate(`/v1/admin/integrations/evolution/deliveries/${message.id}/retry`, {})}><ActionIcon name="refresh" />Reprocessar entrega</Button> : null}

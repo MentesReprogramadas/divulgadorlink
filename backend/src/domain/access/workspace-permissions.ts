@@ -1,7 +1,7 @@
 import {z} from 'zod'
 
 export const permissionSections=[
- {id:'agency',label:'Clientes da agência',group:'Conteúdo'},
+ {id:'agency',label:'Gerenciar outras páginas',group:'Conteúdo'},
 
  {id:'links',label:'Links do catálogo',group:'Conteúdo'},
 
@@ -15,7 +15,7 @@ export const permissionSections=[
 
  {id:'presentation',label:'Apresentação para parceiros',group:'Conteúdo'},
 
- {id:'invitations',label:'Convites permanentes',group:'Conteúdo'},
+ {id:'invitations',label:'Links permanentes',group:'Conteúdo'},
 
  {id:'assistant',label:'Assistente: ler e alterar o rascunho',group:'Ferramentas'},
 
@@ -66,7 +66,7 @@ export function canWorkspace(grants:WorkspaceGrants,section:WorkspaceSection,wri
 
 export function publicWorkspaceAction(method:string,path:string){
 
- if(method==='GET')return /^\/links\/(?!mine$|submission-started$)[^/]+\/?$/.test(path)
+ if(method==='GET')return /^\/links\/[^/]+\/media\/(?!private(?:\/|$))[^/]+\/?$/.test(path)||/^\/links\/(?!mine$|submission-started$)[^/]+\/?$/.test(path)
 
  return method==='POST'&&(/^\/profiles\/[a-z0-9-]+\/button-test\/(assignment|events)$/.test(path)||/^\/profiles\/[a-z0-9-]+\/contact-form\/submissions$/.test(path)||/^\/analytics\/(consent|visits|impressions)$/.test(path)||/^\/analytics\/profiles\/(events|campaigns\/[^/]+\/events)$/.test(path)||/^\/links\/[^/]+\/reports$/.test(path)||path==='/age')
 
@@ -124,6 +124,7 @@ export function workspaceRoute(path:string,method='GET'):WorkspaceSection|null{
 
  if(/^\/me\/(favorites|collections)(\/|$)/.test(path))return 'favorites'
 
+ if(/^\/me\/profile\/diagnostics(?:\/|$)/.test(path))return 'page'
  if(path==='/me/profile/discovery')return 'page'
  if(/^\/me\/(followed-profiles|followed-niches|niche-digest-preferences)(\/|$)/.test(path))return 'interests'
 
@@ -133,7 +134,7 @@ export function workspaceRoute(path:string,method='GET'):WorkspaceSection|null{
 
  if(/^\/analytics\/links\/[^/]+(?:\/performance)?$/.test(path)||/^\/links\/[^/]+\/performance/.test(path))return 'reports'
 
- if(/^\/links(?:\/mine|\/submission-started|\/[^/]+(?:\/(availability|url-proposals|appeal|discovery))?)?\/?$/.test(path))return 'links'
+ if(/^\/links(?:\/mine|\/submission-started|\/[^/]+(?:\/(availability|url-proposals|appeal|discovery|media(?:\/[^/]+|\/private\/[^/]+)?))?)?\/?$/.test(path))return 'links'
 
  return null
 

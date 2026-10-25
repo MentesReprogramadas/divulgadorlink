@@ -1,4 +1,4 @@
-.page { min-height: 100svh; display: flex; flex-direction: column; padding: clamp(44px, 7vw, 88px) 24px 20px; color: var(--page-ink); background: var(--page-bg); font-family: var(--page-font); overflow-wrap: anywhere; }
+.page { color-scheme: light; --surface-page: var(--page-bg); --surface-raised: color-mix(in srgb,var(--page-bg),var(--page-shade) 4%); --surface-subtle: color-mix(in srgb,var(--page-bg),var(--page-shade) 8%); --text-primary: var(--page-ink); --text-secondary: color-mix(in srgb,var(--page-ink),var(--page-bg) 20%); --border-default: color-mix(in srgb,var(--page-ink) 25%,transparent); --field-background: var(--surface-raised); --field-border: color-mix(in srgb,var(--page-ink) 60%,var(--page-bg)); --color-control-bg: var(--surface-raised); --color-ink: var(--page-ink); --color-muted: var(--text-secondary); --color-line: var(--border-default); --color-paper: var(--page-bg); --color-bg: var(--page-bg); --color-lift: var(--surface-raised); --surface-popup: var(--surface-raised); --color-link: var(--page-ink); --color-primary: var(--button-bg); --color-primary-hover: var(--button-bg); --color-primary-ink: var(--button-ink); --action-primary-bg: var(--button-bg); --action-primary-hover: var(--button-bg); --focus-ring: var(--page-ink); --status-error-text: #a32e28; --status-success-text: #0b684b; --status-warning-text: #70450c; --status-error-bg: color-mix(in srgb,var(--page-bg),var(--status-error-text) 8%); --status-error-border: color-mix(in srgb,var(--page-bg),var(--status-error-text) 45%); --status-success-bg: color-mix(in srgb,var(--page-bg),var(--status-success-text) 8%); --status-success-border: color-mix(in srgb,var(--page-bg),var(--status-success-text) 45%); --status-warning-bg: color-mix(in srgb,var(--page-bg),var(--status-warning-text) 8%); --status-warning-border: color-mix(in srgb,var(--page-bg),var(--status-warning-text) 45%); --color-danger: var(--status-error-text); --color-clay: var(--status-error-text); --color-moss: var(--status-success-text); min-height: 100svh; display: flex; flex-direction: column; padding: clamp(44px, 7vw, 88px) 24px 20px; color: var(--page-ink); background: var(--page-bg); font-family: var(--page-font); overflow-wrap: anywhere; }
 .page[data-background="gradient"] { background: linear-gradient(165deg, var(--page-bg), color-mix(in srgb, var(--page-bg), var(--page-shade) 5%)); }
 .profile { width: min(100%, 600px); margin: 0 auto; display: grid; gap: 32px; }
 .pendingLink { position: relative; }
@@ -25,7 +25,7 @@
 .brand { margin: auto auto 0; padding-top: 56px; display: grid; justify-items: center; gap: 8px; }
 .brand button { font: 11px/1.2 var(--font-source-sans), sans-serif; color: var(--page-ink); border: 0; background: transparent; padding: 8px 12px; min-height: 32px; text-decoration: underline; cursor: pointer; }
 .brand a { display: flex; align-items: center; gap: 4px; min-height: 24px; padding: 2px 4px; color: var(--page-ink); font: 9px/1.2 var(--font-source-sans), sans-serif; text-decoration: none; }
-.brand img { width: 66px; height: auto; opacity: .75; }
+.brand img { width: 90px; height: auto; opacity: .75; }
 .brand a:focus-visible { outline: 3px solid var(--page-ink); outline-offset: 4px; }
 .embedded { min-height: 560px; padding: 32px 20px 16px; border-radius: 28px; }
 .embedded .identity h3 { font-size: 26px; }
@@ -37,8 +37,11 @@
 .note { margin: 0; text-align: center; }
 
 .brand a:hover, .brand a:focus-visible { opacity: 1; }
+.page[data-ink="light"] { color-scheme: dark; --status-error-text: #ffb4ab; --status-success-text: #79e0ad; --status-warning-text: #f2ce88; }
 .page[data-ink="light"] .brand img { filter: brightness(0) invert(1); }
 
 .cover { width:100%; height:clamp(112px,28vw,176px); margin-bottom:-68px; border-radius:var(--radius-lg,20px) var(--radius-lg,20px) 8px 8px; background:radial-gradient(circle at 18% 28%,color-mix(in srgb,var(--button-bg),#ffffff 50%),transparent 55%),linear-gradient(125deg,var(--button-bg),color-mix(in srgb,var(--button-bg),var(--page-bg) 65%)); }
 .cover + .identity { position:relative; }
 .cover + .identity .initial,.cover + .identity .avatar { background-color:var(--page-bg); }
+
+.page { --glass-tint: var(--surface-raised); --glass-fallback: var(--surface-raised); --field-glass-tint: var(--surface-raised); --popup-glass-tint: var(--surface-raised); --scrollbar-thumb: color-mix(in srgb,var(--page-ink) 40%,transparent); --scrollbar-track: var(--page-bg); }

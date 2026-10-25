@@ -3,7 +3,9 @@
 import { DashboardSummarySkeleton, ListSkeleton } from '@/components/layout/workspace-skeleton'
 import { DashboardShortcuts } from '@/features/account/components/dashboard-shortcuts'
 import { Skeleton, SkeletonRegion } from '@/components/feedback/skeleton'
+import { ErrorState } from '@/components/feedback/error-state'
 import { ActionIcon } from '@/components/ui/action-icon'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 
 import { useEffect, useLayoutEffect, useState } from "react";
 import {
@@ -66,7 +68,7 @@ function ConfirmedToast() {
     return () => window.clearTimeout(timer);
   }, [text]);
   if (!text) return null;
-  return <p className="toast" role="status">{text}</p>;
+  return <p className="toast" role="status"><LiquidLens radius={12}/>{text}</p>;
 }
 
 export function UserDesk() {
@@ -94,10 +96,10 @@ export function UserDesk() {
     <ConfirmedToast />
     {!ready ? <DashboardSummarySkeleton /> : error ? <p role="alert">{error}</p> : <>
       <dl className={styles.metrics} aria-label="Métricas">
-        <div><dt>Links publicados</dt><dd>{amount(count(links,"PUBLISHED"))}<small>{pieces(links.length,"link no total","links no total")}</small></dd></div>
-        <div><dt>Em revisão</dt><dd>{amount(count(links,"PENDING_MODERATION"))}<small>{pieces(count(links,"PRE_REJECTED"),"rejeitado","rejeitados")}</small></dd></div>
-        <div><dt>Cliques nos links</dt><dd>{known.length ? amount(clicks) : waiting ? <Skeleton width="45%" height="1lh" /> : unavailable ? "—" : "0"}<small>{waiting ? <Skeleton height="1lh" /> : unavailable ? "Contagem parcial: alguns dados indisponíveis" : `${pieces(impressions,"impressão","impressões")} · ${rate(clicks,impressions)}`}</small></dd></div>
-        <div><dt>Total pago</dt><dd>{paidCents === undefined ? orderError ? "—" : <Skeleton width="55%" height="1lh" /> : formatCents(paidCents)}<small>{orderError ? "Pedidos indisponíveis" : orders ? pieces(orders.filter(order => order.status === "PENDING_PAYMENT").length,"pagamento pendente","pagamentos pendentes") : <Skeleton height="1lh" />}</small></dd></div>
+        <div><dt>Links publicados</dt><dd><LiquidLens radius={16} />{amount(count(links,"PUBLISHED"))}<small>{pieces(links.length,"link no total","links no total")}</small></dd></div>
+        <div><dt>Em revisão</dt><dd><LiquidLens radius={16} />{amount(count(links,"PENDING_MODERATION"))}<small>{pieces(count(links,"PRE_REJECTED"),"rejeitado","rejeitados")}</small></dd></div>
+        <div><dt>Cliques nos links</dt><dd><LiquidLens radius={16} />{known.length ? amount(clicks) : waiting ? <Skeleton width="45%" height="1lh" /> : unavailable ? "—" : "0"}<small>{waiting ? <Skeleton height="1lh" /> : unavailable ? "Contagem parcial: alguns dados indisponíveis" : `${pieces(impressions,"impressão","impressões")} · ${rate(clicks,impressions)}`}</small></dd></div>
+        <div><dt>Total pago</dt><dd><LiquidLens radius={16} />{paidCents === undefined ? orderError ? "—" : <Skeleton width="55%" height="1lh" /> : formatCents(paidCents)}<small>{orderError ? "Pedidos indisponíveis" : orders ? pieces(orders.filter(order => order.status === "PENDING_PAYMENT").length,"pagamento pendente","pagamentos pendentes") : <Skeleton height="1lh" />}</small></dd></div>
       </dl>
       <div className={styles.columns}>
         <WorkspaceSection title="Precisa de atenção" action={<a href="/painel/links">Ver todos</a>}>
@@ -113,7 +115,7 @@ export function UserDesk() {
 }
 
 export function LinksArea({ banned }: { banned: boolean }) {
-  const { links, stats, error, ready } = useMyLinks();
+  const { links, stats, error, ready, reload } = useMyLinks();
   if (!ready)
     return (
       <ListSkeleton filters={4} />
@@ -121,11 +123,7 @@ export function LinksArea({ banned }: { banned: boolean }) {
   return (
     <>
 
-      {error ? (
-        <p className="panel-note" role="alert">
-          {error}
-        </p>
-      ) : null}
+      {error ? <ErrorState message={error} onRetry={reload} /> : null}
       {!error ? (
         <LinkList links={links} banned={banned} stats={stats} />
       ) : null}
@@ -140,6 +138,7 @@ export function OrdersArea() {
   const [links, setLinks] = useState<PanelLink[]>([]);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
+  const [attempt, setAttempt] = useState(0);
   useLayoutEffect(() => {
     if (!orderCache) return;
     setOrders(orderCache.orders);
@@ -147,43 +146,52 @@ export function OrdersArea() {
     setReady(true);
   }, []);
   useEffect(() => {
+    let current = true;
     void (async () => {
-      const [orderList, mine] = await Promise.all([
-        api<{ orders?: PanelOrder[]; message?: string }>("/v1/orders/mine"),
-        api<{ links?: PanelLink[] }>("/v1/links/mine?pageSize=24"),
-      ]);
-      if (orderList.status !== 200)
-        setError(
-          orderList.body.message ?? "Não foi possível carregar os pedidos.",
-        );
-      else setOrders(orderList.body.orders ?? []);
-      const nextLinks = mine.body.links ?? [];
-      setLinks(nextLinks);
-      if (orderList.status === 200) {
-        orderCache = { orders: orderList.body.orders ?? [], links: nextLinks };
+      try {
+        const [orderList, mine] = await Promise.all([
+          api<{ orders?: PanelOrder[]; message?: string }>("/v1/orders/mine"),
+          api<{ links?: PanelLink[] }>("/v1/links/mine?pageSize=24"),
+        ]);
+        if (!current) return;
+        if (orderList.status !== 200) {
+          setError(orderList.body.message ?? "Não foi possível carregar os pedidos.");
+          return;
+        }
+        const nextOrders = orderList.body.orders ?? [];
+        const nextLinks = mine.status === 200 ? mine.body.links ?? [] : orderCache?.links ?? [];
+        setOrders(nextOrders);
+        setLinks(nextLinks);
+        setError("");
+        orderCache = { orders: nextOrders, links: nextLinks };
+      } catch {
+        if (current) setError("Não foi possível carregar os pedidos.");
+      } finally {
+        if (current) setReady(true);
       }
-      setReady(true);
     })();
-  }, []);
+    return () => { current = false; };
+  }, [attempt]);
+  function retry() {
+    setError("");
+    if (!orders.length) setReady(false);
+    setAttempt(value => value + 1);
+  }
   const filteredOrders = orders.filter(order => (status === "ALL" || order.status === status) && `${order.id} ${links.find(link => link.id === order.linkId)?.name ?? ""}`.toLocaleLowerCase("pt-BR").includes(query.toLocaleLowerCase("pt-BR").trim()));
   if (!ready)
     return (
       <ListSkeleton kind="orders" />
     );
+  if (error && !orders.length) return <ErrorState message={error} onRetry={retry} />;
   return (
     <>
-
-      {error ? (
-        <p className="panel-note" role="alert">
-          {error}
-        </p>
-      ) : null}
+      {error ? <ErrorState message={error} onRetry={retry} /> : null}
       <WorkspaceActions><Button variant="secondary" onClick={() => { setQuery(''); setStatus('ALL') }}><ActionIcon name="resetFilters" />Limpar filtros</Button></WorkspaceActions>
       <WorkspaceFilters label="Filtrar pedidos">
         <Field label="Buscar pedido ou link"><Input type="search" value={query} onChange={event => setQuery(event.target.value)} /></Field>
         <Field label="Situação do pagamento"><Select value={status} onChange={event => setStatus(event.target.value)}><option value="ALL">Todos os pagamentos</option>{Array.from(new Set(orders.map(order => order.status))).map(value => <option key={value} value={value}>{orderStatusLabel(value)}</option>)}</Select></Field>
       </WorkspaceFilters>
-      <OrderGrid orders={filteredOrders} links={links} />
+      {!error || filteredOrders.length ? <OrderGrid orders={filteredOrders} links={links} /> : null}
     </>
   );
 }

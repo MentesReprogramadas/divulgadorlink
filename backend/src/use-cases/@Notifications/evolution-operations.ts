@@ -10,8 +10,11 @@ import { logDomainEvent } from '@/observability/logger'
 import { CONTENT_REVIEW_KINDS, contentReviewHash, queueContentReview } from './content-review-events'
 import { ContentReviewError, decideContentReview } from '@/use-cases/@Moderation/review-public-content'
 import { publicContentValidationPorts, type PublicContentValidationPorts } from '@/use-cases/public-content-validation-ports'
+import { MEDIA_REVIEW_KIND, mediaReviewHash, mediaReviewInclude, queueLinkMediaReview } from './link-media-events'
+import { mutateLinkMedia } from '@/repositories/link-media'
+import { LinkMediaError } from '@/domain/links/link-media'
 
-const REVIEW_KINDS = ['REVIEW_CASE', 'REVIEW_TEXT', ...CONTENT_REVIEW_KINDS]
+const REVIEW_KINDS = ['REVIEW_CASE', 'REVIEW_TEXT', MEDIA_REVIEW_KIND, ...CONTENT_REVIEW_KINDS]
 
 const settingsSchema = z.object({ enabled: z.boolean().default(true), actionsEnabled: z.boolean().default(true) }).strict()
 export const EVOLUTION_SETTINGS_KEY = 'EVOLUTION_INTEGRATION'
@@ -91,6 +94,10 @@ export async function queueTextReview(tx: Prisma.TransactionClient, tenantId: st
 
 async function reviewStillCurrent(db: PrismaClient, event: OperationalMessage) {
   if (event.consumedAt || !event.expiresAt || event.expiresAt <= new Date()) return false
+  if (event.kind === MEDIA_REVIEW_KIND) {
+    const row = await db.linkMediaAsset.findFirst({ where: { id: event.resourceId, tenantId: event.tenantId, status: 'PENDING' }, include: mediaReviewInclude })
+    return Boolean(row && ['PUBLISHED', 'PENDING_MODERATION'].includes(row.link.status) && row.link.owner?.status !== 'BANNED' && event.snapshotHash === mediaReviewHash(row))
+  }
   if (CONTENT_REVIEW_KINDS.includes(event.kind)) {
     const row = await db.contentReview.findFirst({ where: { id: event.resourceId, tenantId: event.tenantId, status: 'PENDING', owner: { status: 'ACTIVE' } }, include: { profile: true, redirectRevision: { include: { handle: true } } } })
     return Boolean(row && event.snapshotHash === contentReviewHash(row) && (row.kind === 'PROFILE' ? row.profile?.version === row.version : row.redirectRevision?.handle.version === row.version && !row.redirectRevision.handle.disabled))
@@ -109,10 +116,12 @@ async function reviewStillCurrent(db: PrismaClient, event: OperationalMessage) {
 export function renderOperationalMessage(event: Pick<OperationalMessage, 'id' | 'kind' | 'payload'> & { resourceId?: string }, _secret: string, origin: string): string {
   const p = event.payload as Record<string, unknown>
   const name = safeText(String(p.name ?? ''))
-  const panel = `${origin.replace(/\/$/, '')}/admin/moderacao`
+  const isMedia = p.resourceType === 'LINK_MEDIA'
+  const mediaLink = typeof p.linkId === 'string' && /^[a-zA-Z0-9_-]{1,128}$/.test(p.linkId) ? p.linkId : null
+  const panel = `${origin.replace(/\/$/, '')}/admin/moderacao${isMedia ? '?' + new URLSearchParams({ ...(mediaLink ? { link: mediaLink } : {}), tab: 'attachments' }) : ''}`
   const url = notificationUrl(p.canonicalUrl)
-  const type = p.resourceType === 'PROFILE' ? 'PÁGINA' : p.resourceType === 'REDIRECT' ? 'CONVITE' : 'LINK'
-  const symbol = p.resourceType === 'PROFILE' ? '🪪' : p.resourceType === 'REDIRECT' ? '🎟️' : '🔗'
+  const type = isMedia ? p.mediaKind === 'ICON' ? 'ÍCONE' : 'IMAGEM' : p.resourceType === 'PROFILE' ? 'PÁGINA' : p.resourceType === 'REDIRECT' ? 'LINK PERMANENTE' : 'LINK'
+  const symbol = isMedia ? '🖼️' : p.resourceType === 'PROFILE' ? '🪪' : p.resourceType === 'REDIRECT' ? '🔁' : '🔗'
   const pageUrl = typeof p.publicPath === 'string' && /^\/p\/[a-z0-9-]+$/.test(p.publicPath) ? origin.replace(/\/$/, '') + p.publicPath : null
   const groups = Array.isArray(p.groups) ? p.groups.slice(0, 4).map(group => {
     if (!group || typeof group !== 'object' || Array.isArray(group)) return ''
@@ -127,11 +136,11 @@ export function renderOperationalMessage(event: Pick<OperationalMessage, 'id' | 
   }).filter(Boolean).join('\n\n').slice(0, 1400) : ''
   const details = [
     p.ownerName ? `*Usuário*\n${safeText(String(p.ownerName), 100)}` : '',
-    name || url || pageUrl ? [p.resourceType === 'PROFILE' ? '*Página*' : p.resourceType === 'REDIRECT' ? '*Convite*' : '*Link*', name ? `*${name}*` : '', p.description ? safeText(String(p.description)) : '', url ?? pageUrl ?? ''].filter(Boolean).join('\n') : '',
+    name || url || pageUrl ? [p.resourceType === 'PROFILE' ? '*Página*' : p.resourceType === 'REDIRECT' ? '*Link permanente*' : '*Link*', name ? `*${name}*` : '', p.description ? safeText(String(p.description)) : '', url ?? pageUrl ?? ''].filter(Boolean).join('\n') : '',
     p.niche || p.network ? `*Classificação*\nCategoria: ${safeText(String(p.niche ?? '—'), 100)}\nRede: ${safeText(String(p.network ?? '—'), 100)}` : '',
     Array.isArray(p.translationLocales)&&p.translationLocales.length?`🌐 *Traduções*\n${p.translationLocales.map(locale=>safeText(String(locale),10)).join(', ')} • Textos no painel`:'',
     groups ? `*Grupos e links*\n${groups}${Array.isArray(p.groups) && p.groups.length > 4 ? '\nMais grupos no painel.' : ''}` : '',
-    p.resourceType ? `*Envio*\nVersão ${Number(p.version) || 1} • Adulto: ${p.requiresAge === true ? 'Sim' : 'Não'}` : '',
+    isMedia ? `*Anexo*\n${type} • Versão ${Number(p.version) || 1}${p.alt ? '\n' + safeText(String(p.alt), 250) : ''}\nVisualização privada no painel.` : p.resourceType ? `*Envio*\nVersão ${Number(p.version) || 1} • Adulto: ${p.requiresAge === true ? 'Sim' : 'Não'}` : '',
     p.note ? `*Observação*\n${safeText(String(p.note), 200)}` : '',
   ].filter(Boolean)
   if (event.kind === 'PAYMENT_RECEIVED') {
@@ -160,7 +169,8 @@ export function renderOperationalMessage(event: Pick<OperationalMessage, 'id' | 
   if (event.kind.startsWith('REVIEW_')) {
     return [p.appeal ? `📣 *CONTESTAÇÃO • ${type}*` : event.kind === 'REVIEW_TEXT' ? '✏️ *ALTERAÇÃO DE TEXTO*' : `${symbol} *${p.resourceType ? type + ' EM REVISÃO' : safeText(String(p.type ?? 'Novo link')).toUpperCase()}*`, ...details, p.appeal ? `*Contestação*\n${safeText(String(p.appeal), 240)}` : '', '*Ação*\nResponda: *APROVAR* ou *RECUSAR motivo*.', `Revisão: ${event.id}\nValidade: 24h\nPainel: ${panel}`].filter(Boolean).join('\n\n')
   }
-  if (event.kind === 'DECISION') return [p.decision === 'APPROVE' ? `✅ *${p.resourceType ? type + ' • ' : ''}APROVADO*` : `❌ *${p.resourceType ? type + ' • ' : ''}RECUSADO*`, ...details, `*Resultado*\n${p.resourceType ? p.decision === 'APPROVE' ? (p.resourceType === 'PROFILE' ? 'Página publicada.' : 'Destino do convite liberado.') : [p.previousPublished ? 'Publicação anterior mantida.' : 'Envio não publicado.', p.canAppeal ? 'Contestação disponível.' : 'Contestação já utilizada; corrija e envie nova versão.'].join(' ') : p.status === 'PUBLISHED' ? (p.decision === 'REJECT' ? 'Link continua publicado com o texto anterior.' : 'Link publicado.') : p.status === 'PRE_REJECTED' ? 'Não publicado • contestação disponível.' : 'Decisão registrada.'}`, p.reason ? `*Motivo*\n${safeText(String(p.reason))}` : '', `*Decidido por*\n${safeText(String(p.operator ?? 'Administrador'), 100)} • ${p.channel === 'WHATSAPP' ? 'WhatsApp' : 'Painel'}`, [p.reviewMessageId ? `Revisão: ${safeText(String(p.reviewMessageId), 100)}` : '', `Painel: ${panel}`].filter(Boolean).join('\n')].filter(Boolean).join('\n\n')
+  if (event.kind === 'DECISION' && isMedia) return [p.decision === 'APPROVE' ? `✅ *${type} • APROVADO*` : `❌ *${type} • RECUSADO*`, ...details, `*Resultado*\n${p.decision === 'APPROVE' ? 'Anexo aprovado. A exibição pública depende da publicação do link e das restrições de acesso.' : ['Anexo recusado.', p.previousApproved ? 'Anexo anterior aprovado mantido.' : 'O anexo recusado não será exibido.', 'Envie outro anexo pelo painel.'].join(' ')}`, p.reason ? `*Motivo*\n${safeText(String(p.reason))}` : '', `*Decidido por*\n${safeText(String(p.operator ?? 'Administrador'), 100)} • ${p.channel === 'WHATSAPP' ? 'WhatsApp' : 'Painel'}`, [p.reviewMessageId ? `Revisão: ${safeText(String(p.reviewMessageId), 100)}` : '', `Painel: ${panel}`].filter(Boolean).join('\n')].filter(Boolean).join('\n\n')
+  if (event.kind === 'DECISION') return [p.decision === 'APPROVE' ? `✅ *${p.resourceType ? type + ' • ' : ''}APROVADO*` : `❌ *${p.resourceType ? type + ' • ' : ''}RECUSADO*`, ...details, `*Resultado*\n${p.resourceType ? p.decision === 'APPROVE' ? (p.resourceType === 'PROFILE' ? 'Página publicada.' : 'Link de destino liberado.') : [p.previousPublished ? 'Publicação anterior mantida.' : 'Envio não publicado.', p.canAppeal ? 'Contestação disponível.' : 'Contestação já utilizada; corrija e envie nova versão.'].join(' ') : p.status === 'PUBLISHED' ? (p.decision === 'REJECT' ? 'Link continua publicado com o texto anterior.' : 'Link publicado.') : p.status === 'PRE_REJECTED' ? 'Não publicado • contestação disponível.' : 'Decisão registrada.'}`, p.reason ? `*Motivo*\n${safeText(String(p.reason))}` : '', `*Decidido por*\n${safeText(String(p.operator ?? 'Administrador'), 100)} • ${p.channel === 'WHATSAPP' ? 'WhatsApp' : 'Painel'}`, [p.reviewMessageId ? `Revisão: ${safeText(String(p.reviewMessageId), 100)}` : '', `Painel: ${panel}`].filter(Boolean).join('\n')].filter(Boolean).join('\n\n')
   if (event.kind === 'REFUND_FAILED') return ['💸 *FALHA NO ESTORNO*', ...details, ['*Pedido*', safeText(event.resourceId ?? event.id, 100), typeof p.amountCents === 'number' && Number.isFinite(p.amountCents) ? `Valor: ${(p.amountCents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} • ${p.method === 'CARD' ? 'Cartão' : p.method === 'PIX' ? 'Pix' : 'Pagamento'}` : '', typeof p.attempts === 'number' ? `Tentativas: ${p.attempts}` : ''].filter(Boolean).join('\n'), `*Ação*\nVerificar estorno\n${origin.replace(/\/$/, '')}/admin/estornos`].join('\n\n')
   if (event.kind === 'COMMAND_RESULT') {
     const explanations: Record<string, string> = { review_already_resolved: 'Essa revisão já foi decidida. A decisão anterior foi mantida.', review_reference_expired: 'Esse aviso expirou ou o conteúdo mudou. Abra a revisão atual no painel.', review_not_found: 'Essa revisão não está mais disponível.', reason_required: 'Para recusar, responda ao aviso com RECUSAR e o motivo.', review_validation_failed: 'O conteúdo não passou nas validações de segurança ou disponibilidade. Peça a correção pelo painel.', review_validation_unavailable: 'Não foi possível revalidar agora. Tente novamente mais tarde; nada foi publicado.' }
@@ -211,7 +221,17 @@ export async function processEvolutionReceipt(db: PrismaClient, id: string, port
     if (!matchesReference(receipt.reference, eventId, config.secret)) throw new ReviewError(403, 'invalid_reference')
     const event = await db.operationalMessage.findFirst({ where: { id: eventId, tenantId: receipt.tenantId, kind: { in: REVIEW_KINDS } } })
     if (!event) throw new ReviewError(404, 'review_not_found')
-    if (CONTENT_REVIEW_KINDS.includes(event.kind)) {
+    if (event.kind === MEDIA_REVIEW_KIND) {
+      if (receipt.decision === 'REJECT' && !receipt.reason?.trim()) throw new ReviewError(400, 'reason_required')
+      const asset = await db.linkMediaAsset.findFirst({ where: { id: event.resourceId, tenantId: receipt.tenantId, status: 'PENDING' }, select: { linkId: true, link: { select: { mediaVersion: true } } } })
+      if (!asset) throw new ReviewError(409, 'review_already_resolved')
+      try {
+        await mutateLinkMedia(db, { tenantId: receipt.tenantId, ownerId: actor.id, admin: true }, asset.linkId, asset.link.mediaVersion, { type: 'DECIDE', assetId: event.resourceId, decision: receipt.decision as 'APPROVE' | 'REJECT', reason: receipt.reason ?? undefined }, { messageId: event.id, operatorPhone: receipt.sender, receiptId: receipt.id })
+      } catch (error) {
+        if (error instanceof LinkMediaError) throw new ReviewError(error.status, error.status === 400 ? 'reason_required' : error.status === 409 ? 'review_reference_expired' : 'review_validation_failed')
+        throw error
+      }
+    } else if (CONTENT_REVIEW_KINDS.includes(event.kind)) {
       if (receipt.decision === 'REJECT' && !receipt.reason?.trim()) throw new ReviewError(400, 'reason_required')
       try {
         await decideContentReview(db, { tenantId: receipt.tenantId, ownerId: actor.id }, event.resourceId, receipt.decision as 'APPROVE' | 'REJECT', receipt.reason ?? undefined, ports ?? publicContentValidationPorts(config.tenant.host), { messageId: event.id, operatorPhone: receipt.sender, receiptId: receipt.id })
@@ -285,6 +305,8 @@ export async function runEvolutionCycle(db: PrismaClient, transport: typeof fetc
       for (const row of cases) await queueCaseReview(db, row.id)
       const contents = await db.contentReview.findMany({ where: { tenantId: tenant.id, status: 'PENDING', owner: { status: 'ACTIVE' } }, select: { id: true }, take: 200, orderBy: { createdAt: 'asc' } })
       for (const row of contents) await queueContentReview(db, row.id)
+      const attachments = await db.linkMediaAsset.findMany({ where: { tenantId: tenant.id, status: 'PENDING', link: { status: { in: ['PUBLISHED', 'PENDING_MODERATION'] }, OR: [{ ownerId: null }, { owner: { status: 'ACTIVE' } }] } }, select: { id: true }, take: 200, orderBy: { createdAt: 'asc' } })
+      for (const row of attachments) await queueLinkMediaReview(db, tenant.id, row.id)
       const proposals = await db.auditLog.findMany({ where: { tenantId: tenant.id, action: 'link.text.verdict', after: { path: ['decision'], equals: 'ADMIN' } }, orderBy: { createdAt: 'desc' }, take: 100 })
       for (const row of proposals) await queueTextReview(db, tenant.id, row.entityId)
     }

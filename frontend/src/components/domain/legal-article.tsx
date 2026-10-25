@@ -1,3 +1,4 @@
+import styles from './legal-article.module.css'
 import type { LegalDocument } from '@/domain/legal'
 
 export function LegalArticle({
@@ -10,7 +11,7 @@ export function LegalArticle({
   other: { href: string; label: string }
 }) {
   return (
-    <main className="legal-page">
+    <main className={`legal-page ${styles.page}`}>
       <h1 className="entry-title">{title}</h1>
       <p className="auth-lead">{document.updated}</p>
       {document.sections.map((section) => (

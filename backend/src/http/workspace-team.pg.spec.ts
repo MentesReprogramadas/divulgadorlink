@@ -8,6 +8,7 @@ import {setProfilesForTest} from '@/http/controllers/@Profiles/routes'
 import {setProfileBillingForTest} from '@/lib/profile-billing'
 import {BASE_PROFILE_CAPABILITIES} from '@/domain/billing/profile-plans'
 import type {ProfileContent} from '@/domain/profiles/profile'
+import {permissionSections} from '@/domain/access/workspace-permissions'
 const url=process.env.ANALYTICS_DATABASE_URL
 if(!url||!['127.0.0.1','localhost'].includes(new URL(url).hostname))throw new Error('Disposable local PG required')
 const db=new PrismaClient({datasources:{db:{url}}})
@@ -80,6 +81,37 @@ it('only an ADMIN can grant administrative sections; delegation never changes gl
  expect((await db.user.findUniqueOrThrow({where:{id:owner}})).role).toBe('USER')
  expect((await call('GET','admin/profile-billing',undefined,owner)).statusCode).toBe(403)
  await db.user.update({where:{id:other},data:{role:'USER'}});expect((await call('GET','admin/profile-billing',undefined,owner,tenant,tenant,headers)).statusCode).toBe(403)
+})
+
+it('ordinary accounts cannot list, invite or add any administrative grant, even with an ADMIN token',async()=>{
+ // The helper issues an ADMIN token for other; the database remains authoritative.
+ await db.user.update({where:{id:other},data:{role:'USER'}})
+ expect((await call('GET','team',undefined,other)).json().sections.some((row:{id:string})=>row.id.startsWith('admin'))).toBe(false)
+ const invited=await call('POST','team/invitations',{email:owner+'@fixture.test',grants,requestKey:randomUUID()},other)
+ expect(invited.statusCode,invited.body).toBe(200)
+ expect((await call('POST','team/accept',{token:invited.json().token})).statusCode).toBe(200)
+ const member=(await call('GET','team',undefined,other)).json().members[0]
+ for(const section of permissionSections.filter(row=>row.id.startsWith('admin'))){
+ for(const write of [false,true]){
+ const elevated={[section.id]:{read:true,write}}
+ expect((await call('POST','team/invitations',{email:owner+'@fixture.test',grants:elevated,requestKey:randomUUID()},other)).statusCode,section.id).toBe(403)
+ expect((await call('PATCH','team/members/'+member.id,{grants:elevated,expectedVersion:member.version},other)).statusCode,section.id).toBe(403)
+ }
+ }
+ expect((await call('GET','team',undefined,other)).json().members[0]).toMatchObject({version:member.version,grants})
+ expect(await db.$queryRaw`SELECT id FROM workspace_invitations WHERE "tenantId"=${tenant}`).toHaveLength(1)
+ expect((await db.user.findUniqueOrThrow({where:{id:owner}})).role).toBe('USER')
+})
+
+it('administrative invitations cannot be accepted after the owner loses ADMIN, and remain unused',async()=>{
+ const created=await call('POST','team/invitations',{email:owner+'@fixture.test',grants:{adminSettings:{read:true,write:true}},requestKey:randomUUID()},other)
+ expect(created.statusCode,created.body).toBe(200)
+ await db.user.update({where:{id:other},data:{role:'USER'}})
+ const accepted=await call('POST','team/accept',{token:created.json().token})
+ expect(accepted.statusCode,accepted.body).toBe(403)
+ expect(await db.$queryRaw`SELECT id FROM workspace_memberships WHERE "tenantId"=${tenant}`).toHaveLength(0)
+ expect(await db.$queryRaw`SELECT "usedAt" FROM workspace_invitations WHERE "tenantId"=${tenant}`).toEqual([{usedAt:null}])
+ expect(await db.auditLog.count({where:{tenantId:tenant,action:'workspace.accepted'}})).toBe(0)
 })
 
 it('explicit workspace selector remains authorized and cannot cross tenant or override a legacy profile scope',async()=>{

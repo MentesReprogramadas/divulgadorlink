@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { config, middleware } from '@/middleware'
+import { videoEmbedUrl } from '@/features/profiles/content-block'
 
 function run(path: string, cookie?: string) {
   const headers = cookie ? { cookie } : undefined
@@ -8,6 +9,15 @@ function run(path: string, cookie?: string) {
 }
 
 afterEach(() => {vi.unstubAllEnvs();vi.unstubAllGlobals()})
+
+it('a paleta pessoal usa apenas o slug resolvido pelo host, nunca um cabeçalho forjado',async()=>{
+ const forged=await middleware(new NextRequest('http://localhost/login',{headers:{'x-profile-slug':'evil'}}))
+ expect(forged.headers.get('x-middleware-request-x-profile-slug')).toBeNull()
+ vi.stubEnv('PROFILE_HOST_BASES','{"pages.test":"tenant.test"}')
+ vi.stubGlobal('fetch',vi.fn().mockResolvedValue(Response.json({mode:'PAGE',slug:'ana',tenantHost:'tenant.test'})))
+ const personal=await middleware(new NextRequest('https://ana.pages.test/',{headers:{host:'ana.pages.test','x-profile-slug':'evil'}}))
+ expect(personal.headers.get('x-middleware-request-x-profile-slug')).toBe('ana')
+})
 
 describe('middleware', () => {
   it('inicializa a sessão operacional antes dos pedidos paralelos de analytics', async () => {
@@ -67,6 +77,25 @@ describe('middleware', () => {
     expect(directives.get('connect-src')).toContain('https://googleads.g.doubleclick.net')
     expect(directives.get('img-src')).toContain('https://www.google.com.br')
     expect(directives.get('frame-src')).toContain('https://www.googletagmanager.com')
+  })
+
+  it('permite somente os players exatos dos provedores VIDEO validados, sem liberar scripts ou conexões da página', async () => {
+    const policy = (await run('/p/comunidade')).headers.get('content-security-policy') ?? ''
+    const directives = new Map(policy.split('; ').map(directive => {
+      const [name, ...sources] = directive.split(' ')
+      return [name, sources]
+    }))
+    const players = ['https://youtu.be/dQw4w9WgXcQ', 'https://vimeo.com/123456789'].map(input => new URL(videoEmbedUrl(input)!).origin)
+    expect(players).toEqual(['https://www.youtube-nocookie.com', 'https://player.vimeo.com'])
+    expect(directives.get('frame-src')).toEqual([
+      'https://js.stripe.com', 'https://hooks.stripe.com', 'https://www.googletagmanager.com', ...players,
+    ])
+    for (const origin of players) {
+      expect(directives.get('script-src')).not.toContain(origin)
+      expect(directives.get('connect-src')).not.toContain(origin)
+    }
+    expect(directives.get('frame-src')).not.toContain('*')
+    expect(directives.get('frame-src')).not.toContain('https:')
   })
 
   it('admin sem papel continua na página escondida', async () => {

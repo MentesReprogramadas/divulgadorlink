@@ -12,6 +12,7 @@ import { RefreshButton } from "@/components/layout/workspace-actions";
 import { OverlayDialog } from "@/components/ui/overlay-dialog";
 import { EmptyState } from "@/components/feedback/empty-state";
 import { ErrorState } from "@/components/feedback/error-state";
+import { Skeleton } from "@/components/feedback/skeleton";
 import {
   PermissionEditor,
   PermissionSummary,
@@ -22,6 +23,7 @@ import { selectWorkspace, type Grants } from "./workspace-access";
 import { Tabs } from "@/components/ui/tabs";
 import { TeamScreen } from "@/features/profile-team/team-screen";
 import styles from "./workspace-team.module.css";
+import { LiquidLens } from '@/components/ui/liquid-lens'
 type Member = { id: string; name: string; version: number; grants: Grants };
 type Team = {
   sections: PermissionSection[];
@@ -163,21 +165,11 @@ export function WorkspaceTeamScreen({
       ) : null}
       {notice ? <p role="status">{notice}</p> : null}
       <Tabs
+        disabled={pendingOnly}
         value={tab}
         onChange={setTab}
         label="Visualizações da equipe"
-        items={[
-          {
-            id: "team",
-            label: "Minha equipe",
-            content: (
-              <div className={styles.tabContent}>
-                <header className={styles.teamHeader}>
-                  <div className={styles.intro}>
-                    <h2>Pessoas que colaboram com você</h2>
-                    <p>Escolha quem pode acessar conteúdo, métricas, financeiro e outras áreas da conta.</p>
-                  </div>
-                <WorkspaceActions>
+        actions={tab==='team'?<WorkspaceActions>
                   <Button
                     disabled={skeleton || pending}
                     onClick={(event) => {
@@ -197,7 +189,19 @@ export function WorkspaceTeamScreen({
                     disabled={skeleton || pending}
                     onClick={() => void load()}
                   />
-                </WorkspaceActions>
+                </WorkspaceActions>:undefined}
+        items={[
+          {
+            id: "team",
+            label: "Minha equipe",
+            content: (
+              <div className={styles.tabContent}>
+                <header className={styles.teamHeader}>
+                  <div className={styles.intro}>
+                    <h2>Pessoas que colaboram com você</h2>
+                    <p>Escolha quem pode acessar conteúdo, métricas, financeiro e outras áreas da conta.</p>
+                  </div>
+
                 </header>
                 <WorkspaceFilters label="Filtrar colaboradores">
                   <Field label="Buscar pessoa">
@@ -215,7 +219,7 @@ export function WorkspaceTeamScreen({
                           key={id}
                           className={[styles.card, styles.pending].join(" ")}
                           aria-hidden
-                        />
+                        ><Skeleton width="55%" height={24} /><Skeleton width="80%" height={18} /><Skeleton width={112} height={44} /><LiquidLens radius={16} /></div>
                       ))
                     : team?.members
                         .filter((row) =>
@@ -269,10 +273,10 @@ export function WorkspaceTeamScreen({
                                 Revogar
                               </Button>
                             </div>
-                          </article>
+                          <LiquidLens radius={16} /></article>
                         ))}
                 </div>
-                {!skeleton && !team?.members.length ? (
+                {!skeleton && !error && team && !team.members.length ? (
                   <EmptyState>
                     Convide pessoas e escolha o que cada uma pode acessar.
                   </EmptyState>
@@ -280,9 +284,9 @@ export function WorkspaceTeamScreen({
                 {team?.invitations.some((row) => row.status === "PENDING") ? (
                   <section
                     className={styles.card}
-                    aria-label="Convites pendentes"
+                    aria-label="Convites para equipe"
                   >
-                    <h2>Convites pendentes</h2>
+                    <h2>Convites para equipe</h2>
                     {team.invitations
                       .filter((row) => row.status === "PENDING")
                       .map((row) => (
@@ -303,7 +307,7 @@ export function WorkspaceTeamScreen({
                           </Button>
                         </div>
                       ))}
-                  </section>
+                  <LiquidLens radius={16} /></section>
                 ) : null}
               </div>
             ),
@@ -335,11 +339,11 @@ export function WorkspaceTeamScreen({
                           <ActionIcon name="teamAccess" />
                           Abrir espaço compartilhado
                         </Button>
-                      </article>
+                      <LiquidLens radius={16} /></article>
                     ))}
                   </section>
                 ) : null}
-                {!skeleton && !spaces.length ? (
+                {!skeleton && !error && team && !spaces.length ? (
                   <EmptyState>
                     Nenhuma conta compartilhada com você no momento.
                   </EmptyState>

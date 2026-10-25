@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Field, Input } from '@/components/ui/input'
 import { api } from '@/lib/api'
+import {LiquidLens} from '@/components/ui/liquid-lens'
+import styles from '@/components/forms/public-account.module.css'
 
 export function ResetForm({ token }: { token: string }) {
   const [message, setMessage] = useState('')
@@ -41,7 +43,7 @@ export function ResetForm({ token }: { token: string }) {
   }
 
   return (
-    <form className="auth-form" onSubmit={(event) => void onSubmit(event)}>
+    <form method="post" className={`auth-form ${styles.form}`} onSubmit={(event) => void onSubmit(event)}><LiquidLens radius={16}/>
       <Field label="Nova senha">
         <Input name="password" type="password" autoComplete="new-password" minLength={8} required />
       </Field>

@@ -348,7 +348,7 @@ test('F09-E02/T02/T06 sessão real, admin não ganha dono, suspeita/provedor seg
     await expect(page.getByLabel('Descrição', { exact: true })).toHaveValue(text)
     const live = await page.evaluate(async () => (await fetch('/bff/v1/profiles/ana-estudos')).text()); expect(live).not.toContain(text)
   }
-  const context = await browser.newContext()
+  const context = await browser.newContext({locale:'pt-BR'})
   try { const other = await context.newPage(); await login(other, state().other); await other.goto(A + '/painel/perfil?secao=pagina'); await expect(other.getByLabel('Nome da página')).toHaveValue(''); expect((await privateCall(other)).text).not.toContain('FalhaProvedorFixture'); expect((await privateCall(other, '/preview')).status).toBe(404) } finally { await context.close() }
   await page.getByLabel('Mais opções da página', { exact: true }).click(); await page.getByRole('button', { name: 'Retirar do ar', exact: true }).click(); await page.getByRole('button', { name: 'Confirmar retirada', exact: true }).click(); await expect(page.getByRole('status').filter({ hasText: 'Perfil retirado do ar.' })).toBeVisible()
   expect(await page.evaluate(async () => (await fetch('/bff/v1/profiles/ana-estudos')).status)).toBe(404)

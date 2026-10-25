@@ -1,6 +1,8 @@
 'use client'
 
 import { ActionIcon } from '@/components/ui/action-icon'
+import { LiquidLens } from '@/components/ui/liquid-lens'
+import surfaces from '@/features/administration/components/admin-surfaces.module.css'
 import { PlanCardsSkeleton } from '@/features/promotions/components/plans-skeleton'
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
@@ -113,7 +115,8 @@ function PlanDialog({
   }
 
   return (
-    <dialog ref={ref} className="plan-dialog" aria-labelledby="plan-edit-title">
+    <dialog ref={ref} className={`plan-dialog ${surfaces.dialog}`} aria-labelledby="plan-edit-title">
+      <LiquidLens radius={24} />
       <h2 id="plan-edit-title">Editar {offer.name}</h2>
       <form className="form-grid" onSubmit={(event) => void save(event)}>
         <Field label="Nome">
@@ -129,7 +132,7 @@ function PlanDialog({
           </Field>
         ))}
         <label className="featured-choice">
-          <input type="checkbox" checked={featured} onChange={(event) => setFeatured(event.target.checked)} />
+          <Input type="checkbox" checked={featured} onChange={(event) => setFeatured(event.target.checked)} />
           Card em destaque no checkout
         </label>
         {error ? <p role="alert">{error}</p> : null}
@@ -206,8 +209,9 @@ export function PlanEditor() {
       <p className="pay-quiet">Os cards são os do checkout. Arraste ou use as setas para cima e para baixo no botão Arrastar para mudar a ordem. Editar abre o preço e o destaque.</p>
       <div className="duration-tabs" role="radiogroup" aria-label="Duração">
         {([7, 14, 28] as const).map((value) => (
-          <label key={value} className={days === value ? 'duration-tab is-on' : 'duration-tab'}>
-            <input
+          <label key={value} className={`${days === value ? 'duration-tab is-on' : 'duration-tab'} ${surfaces.choice}`}>
+            <LiquidLens radius={12} />
+            <Input
               type="radio"
               name="admin-duration"
               aria-label={`${value} dias`}
@@ -225,15 +229,17 @@ export function PlanEditor() {
           return (
             <article
               key={offer.code}
-              className={offer.featured ? 'plan-card is-selected' : 'plan-card'}
+              className={`${offer.featured ? 'plan-card is-selected' : 'plan-card'} ${surfaces.card}`}
               onDragOver={(event) => {
                 event.preventDefault()
                 const from = dragCode.current
                 if (from && from !== offer.code) reorder(from, offer.code)
               }}
             >
-              <button
+              <LiquidLens radius={24} />
+              <Button
                 type="button"
+                variant="ghost"
                 className="plan-drag"
                 draggable
                 aria-label={`Arrastar para mover ${offer.name}`}
@@ -260,7 +266,7 @@ export function PlanEditor() {
                 }}
               ><ActionIcon name="grip" />
                 Arrastar
-              </button>
+              </Button>
               {offer.featured ? <span className="plan-mark">Em destaque</span> : <span className="plan-mark">Plano</span>}
               <span className="plan-name">{offer.name}</span>
               <span className="plan-price">{price !== null ? formatCents(price) : '—'}</span>

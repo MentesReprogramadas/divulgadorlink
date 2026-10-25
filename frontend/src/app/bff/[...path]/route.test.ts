@@ -7,6 +7,26 @@ vi.mock('@/lib/upstream', () => ({ tenantHost: (host: string) => host, forward: 
 const mockedForward = vi.mocked(forward)
 beforeEach(() => { vi.resetAllMocks(); mockedForward.mockResolvedValue({ status: 200, headers: {}, body: Buffer.from('{}') }) })
 describe('BFF de destaque administrativo', () => {
+  it('impede cache compartilhado de resposta privada sem política do upstream', async () => {
+    mockedForward.mockResolvedValue({ status: 200, headers: { 'set-cookie': 'accessToken=renewed; Path=/; HttpOnly' }, body: Buffer.from('{"name":"Conta privada"}') })
+    const response = await GET(new Request('http://tenant-a.localhost/bff/v1/auth/session', { headers: { host: 'tenant-a.localhost:3000', cookie: 'accessToken=fixture', 'x-workspace-owner': 'owner-a' } }), { params: Promise.resolve({ path: ['v1', 'auth', 'session'] }) })
+    expect(response.headers.get('cache-control')).toBe('private, no-store')
+    expect(response.headers.get('set-cookie')).toBe('accessToken=renewed; Path=/; HttpOnly')
+    expect(await response.json()).toEqual({ name: 'Conta privada' })
+    expect(mockedForward).toHaveBeenCalledWith(expect.objectContaining({ host: 'tenant-a.localhost', cookie: 'accessToken=fixture', workspaceTarget: 'owner-a' }))
+  })
+  it('aplica o mesmo padrão privado a respostas sem conteúdo', async () => {
+    mockedForward.mockResolvedValue({ status: 204, headers: {}, body: Buffer.alloc(0) })
+    const response = await DELETE(new Request('http://tenant-a.localhost/bff/v1/auth/session', { method: 'DELETE' }), { params: Promise.resolve({ path: ['v1', 'auth', 'session'] }) })
+    expect(response.headers.get('cache-control')).toBe('private, no-store')
+    expect(response.status).toBe(204)
+    expect(await response.text()).toBe('')
+  })
+  it('preserva cache público explicitamente autorizado pelo upstream', async () => {
+    mockedForward.mockResolvedValue({ status: 200, headers: { 'cache-control': 'public, max-age=60' }, body: Buffer.from('{}') })
+    const response = await GET(new Request('http://tenant-a.localhost/bff/v1/catalog'), { params: Promise.resolve({ path: ['v1', 'catalog'] }) })
+    expect(response.headers.get('cache-control')).toBe('public, max-age=60')
+  })
   it('F01 preserva a política de cache privada do relatório', async () => {
     mockedForward.mockResolvedValue({ status: 200, headers: { 'cache-control': 'private, no-store' }, body: Buffer.from('{}') })
     const response = await GET(new Request('http://tenant-a.localhost/bff/v1/analytics/links/own/performance'), { params: Promise.resolve({ path: ['v1', 'analytics', 'links', 'own', 'performance'] }) })

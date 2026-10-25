@@ -11,6 +11,6 @@ export async function generateQr(target:StableQrTarget,format:unknown,size:unkno
   const preview=await QR.toDataURL(safe.url,{...settings,type:'image/png'})
   if(!preview.startsWith('data:image/png;base64,'))throw new Error('Não foi possível gerar o QR Code. Tente novamente.')
   const binary=options.format==='svg'?await QR.toString(safe.url,{...settings,type:'svg'}):Uint8Array.from(atob(preview.split(',')[1]),character=>character.charCodeAt(0))
-  return{url:safe.url,format:options.format,size:options.size,mime:options.mime,filename:'temlinkaqui-'+(safe.kind==='PROFILE'?'pagina-':'convite-')+safe.name+'-'+options.size+'.'+options.format,preview,blob:new Blob([binary],{type:options.mime})}
+  return{url:safe.url,format:options.format,size:options.size,mime:options.mime,filename:'temlinkaqui-'+(safe.kind==='PROFILE'?'pagina-':'link-permanente-')+safe.name+'-'+options.size+'.'+options.format,preview,blob:new Blob([binary],{type:options.mime})}
 }
 export function downloadQr(artifact:QrArtifact){downloadBlob(artifact.blob,artifact.filename)}

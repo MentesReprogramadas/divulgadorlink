@@ -43,7 +43,8 @@ for (const admin of [false, true]) {
         if (formBefore) {
           // Group management preserves its page width while its data is loading.
           await expect(page.locator('[data-skeleton] [data-skeleton-block]').first()).toBeVisible()
-          await expect(page.locator('[data-skeleton] input:not(:disabled)')).toHaveCount(0)
+          // Base UI keeps an aria-hidden proxy for form submission, outside the accessible controls.
+          await expect(page.locator('[data-skeleton] input:not(:disabled):not([aria-hidden="true"])')).toHaveCount(0)
         }
         expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize()!.width + 1)
         const name = url.split('?')[0].replaceAll('/', '-').replace(id, 'link').slice(1)
@@ -71,6 +72,7 @@ test('L02 atualização da disponibilidade mantém o conteúdo e bloqueia atuali
   await login(page, false)
   await page.goto(origin + `/painel/links/${fixture().receitas}/disponibilidade`)
   await expect(page.getByText('Histórico de correções', { exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Atualizar dados', exact: true })).toBeEnabled()
   let release = () => {}; let received = false
   const held = new Promise<void>(resolve => { release = resolve })
   await page.route('**/bff/v1/links/*/availability', async route => { received = true; await held; await route.continue() })
@@ -150,7 +152,7 @@ test('L05 navegação entre abas mostra somente o skeleton de destino, sem a vis
   })
   try {
     if (info.project.name.includes('mobile')) await page.getByRole('button', { name: 'Menu', exact: true }).click()
-    await page.locator('nav[aria-label="Áreas do painel"]:visible').getByRole('link', { name: 'Pedidos', exact: true }).click()
+    await page.locator('nav[aria-label="Áreas do painel"]:visible').getByRole('link', { name: 'Pedidos e pagamentos', exact: true }).click()
     await expect.poll(() => received).toBe(true)
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Meus pedidos')
     await expect(page.locator('[data-skeleton]:visible').first()).toBeVisible()

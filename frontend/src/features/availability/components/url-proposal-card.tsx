@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Field, Select, TextArea } from '@/components/ui/input'
 import { availabilityDate, type UrlDecision, type UrlProposal } from '../availability-contract'
 import styles from './availability.module.css'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 
 export function UrlProposalCard({ proposal, onDecision }: { proposal: UrlProposal; onDecision: (input: UrlDecision) => Promise<void> }) {
   const [pending, setPending] = useState(false), [error, setError] = useState('')
@@ -29,5 +30,5 @@ export function UrlProposalCard({ proposal, onDecision }: { proposal: UrlProposa
       {error ? <p role="alert" ref={alert} tabIndex={-1}>{error}</p> : null}
       <Button type="submit" loading={pending}><ActionIcon name="save" />Salvar decisão</Button>
     </form></div>}
-  </article>
+  <LiquidLens radius={16} /></article>
 }

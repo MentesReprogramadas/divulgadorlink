@@ -101,7 +101,7 @@ it('falha ao copiar permite tentar novamente e conserva o endereço público', a
 
 it('visão geral recupera abas e cards de ações e preserva a edição dedicada', async () => {
  catalog.mockResolvedValue([]);request.mockResolvedValue(live);render(<ProfileEditor/>);
- await screen.findByRole('region',{name:'Resumo do rascunho'});expect(screen.getByRole('tab',{name:'Visão geral'})).toBeTruthy();expect(screen.getByRole('region',{name:'O que você quer fazer?'})).toBeTruthy();expect(screen.getByRole('button',{name:/Campanhas Organize páginas/})).toBeTruthy();fireEvent.click(screen.getByRole('button',{name:'Editar grupos e links'}));await waitFor(()=>expect(push).toHaveBeenCalledWith('/painel/perfil/links'))
+ await screen.findByRole('region',{name:'Resumo do rascunho'});expect(screen.getByLabelText('Seções da minha página').textContent).toContain('Visão geral');expect(screen.getByRole('region',{name:'O que você quer fazer?'})).toBeTruthy();expect(screen.getByRole('button',{name:/Campanhas Organize páginas/})).toBeTruthy();fireEvent.click(screen.getByRole('button',{name:'Editar grupos e links'}));await waitFor(()=>expect(push).toHaveBeenCalledWith('/painel/perfil/links'))
 })
 it('edição de aparência abre diretamente sem recriar a visão geral',async()=>{
  catalog.mockResolvedValue([]);request.mockResolvedValue(live);render(<ProfileEditor initialSection="appearance"/>);await screen.findByRole('region',{name:'Editor do perfil'});await waitFor(()=>expect(screen.queryByRole('region',{name:'Resumo do rascunho'})).toBeNull());expect(screen.queryByRole('button',{name:/Histórico Consulte/})).toBeNull()
@@ -109,4 +109,8 @@ it('edição de aparência abre diretamente sem recriar a visão geral',async()=
 
 it('a sidebar destination waits for saving; offline failure keeps the editor and typed content',async()=>{
  catalog.mockResolvedValue([]);request.mockResolvedValueOnce(live);request.mockRejectedValue(new Error('Sem conexão.'));render(<ProfileEditor initialSection="identity"/>);await screen.findByLabelText('Descrição');fireEvent.change(screen.getByLabelText('Descrição'),{target:{value:'Não perder esta alteração'}});const link=document.createElement('a');link.href='/painel/perfil/aparencia';link.textContent='Aparência';document.body.append(link);try{fireEvent.click(link);await screen.findByRole('alert');expect(push).not.toHaveBeenCalled();expect((screen.getByLabelText('Descrição') as HTMLTextAreaElement).value).toBe('Não perder esta alteração')}finally{link.remove()}
+})
+
+it('separa apresentação da busca sem perder o contrato de salvamento',async()=>{
+ catalog.mockResolvedValue([]);request.mockResolvedValue(live);const view=render(<ProfileEditor initialSection="identity"/>);await screen.findByLabelText('Nome da página');expect(screen.queryByRole('checkbox',{name:'Exibir busca na minha página'})).toBeNull();expect(screen.queryByRole('button',{name:'Configurar formulário'})).toBeNull();view.rerender(<ProfileEditor initialSection="search"/>);const search=await screen.findByRole('checkbox',{name:'Exibir busca na minha página'});expect(screen.queryByRole('textbox',{name:'Nome da página'})).toBeNull();fireEvent.click(search);await waitFor(()=>expect(request.mock.calls.some(([path,init])=>path===''&&init?.method==='PATCH'&&JSON.parse(init.body).content.appearance.searchEnabled===true)).toBe(true))
 })

@@ -39,6 +39,8 @@ CSS Modules para componentes novos/migrados; tokens e fundamentos globais perman
 
 ## Design e ferramentas
 
+Aplicar Taste de frontend (`C:/Users/ferna/.codex/skills/taste-skill/SKILL.md`), Impeccable (`C:/Users/ferna/.codex/skills/impeccable/SKILL.md`) e Emil Kowalski (`C:/Users/ferna/.codex/skills/emil-design-eng/SKILL.md`) em trabalho visual, conforme as regras permanentes do Codex. Usar Playwright MCP para inspeção quando disponível e Playwright Test para regressão. Na galeria experimental, opções múltiplas e materiais/animações pedidos pelo usuário prevalecem sobre preferências estéticas das skills; não consolidar essas hipóteses como tokens da home pública.
+
 Ao escolher, alterar ou revisar ícones, aplicar [.agents/skills/temlink-icons/SKILL.md](.agents/skills/temlink-icons/SKILL.md): contextos diferentes nunca compartilham o mesmo desenho; repetição só é permitida para o mesmo significado.
 
 Consultar [design-system.md](docs/frontend-profissional/design-system.md) e [ferramentas.md](docs/frontend-profissional/ferramentas.md). Tokens propostos só viram contrato após validação do piloto.

@@ -1,0 +1,25 @@
+'use client'
+import Link from 'next/link'
+import { useState } from 'react'
+import { ActionIcon } from '@/components/ui/action-icon'
+import { GlassLinkCard, PreviewNetworkBadge, PreviewPhoto, PreviewViews } from './glass-link-card'
+import { networkLabels, previewLinks, type PreviewLink } from './preview-data'
+import { PreviewFrame } from './preview-frame'
+import { usePreviewFavorites } from './use-preview-favorites'
+import styles from './home-preview.module.css'
+
+export function PreviewLinkDetail({ link, backHref = '/dev/home-preview' }: { link: PreviewLink; backHref?: string }) {
+  const { favorites, toggle } = usePreviewFavorites()
+  const [notice, setNotice] = useState('')
+  const saved = favorites.includes(link.slug)
+  const related = previewLinks.filter(item => item.slug !== link.slug && !item.sponsored).slice(0, 3)
+  function favorite(slug: string) { if (!toggle(slug)) setNotice('Não foi possível salvar o favorito neste navegador.') }
+  return <PreviewFrame><div className={styles.detailBody}>
+    <nav className={styles.breadcrumb} aria-label="Caminho do link"><Link href={backHref}><ActionIcon name="back" width="17" height="17" /> Catálogo</Link><span>/</span><span>{link.niche}</span></nav>
+    <section className={styles.detailHero} aria-labelledby="detail-title"><div className={styles.detailImage}><PreviewPhoto link={link} priority />{link.sponsored ? <span className={styles.detailSponsored}><ActionIcon name="promotion" width="15" height="15" />Patrocinado</span> : null}<div className={styles.imageCaption}><span>Uma imagem. Um novo interesse.</span><span>{link.niche}</span></div></div>
+      <div className={styles.detailSummary}><div className={styles.detailIdentity}><span className={styles.detailAvatar} style={{ background: link.accent }}>{link.initials}</span><PreviewNetworkBadge link={link} /></div><span className={styles.detailCategory}>{link.category} · {link.niche}</span><h1 id="detail-title">{link.title}</h1><p>{link.description.split('. ')[0]}.</p><div className={styles.detailFacts}><span><ActionIcon name="city" width="16" height="16" />{link.location}</span><span><ActionIcon name="language" width="16" height="16" />Português</span><PreviewViews value={link.views} /></div><div className={styles.detailActions}><button type="button" className={styles.primaryAction} onClick={() => setNotice(`Esta é uma demonstração. O acesso ao ${networkLabels[link.network]} não abre um destino real.`)}>Acessar {link.category === 'Comunidade' ? 'comunidade' : link.category === 'Canal' ? 'canal' : 'conteúdo'} <ActionIcon name="external" width="19" height="19" /></button><button type="button" className={styles.detailFavorite} aria-label={`${saved ? 'Remover' : 'Salvar'} ${link.title} ${saved ? 'dos' : 'nos'} favoritos`} aria-pressed={saved} onClick={() => favorite(link.slug)}><ActionIcon name="star" fill={saved ? 'currentColor' : 'none'} /></button></div><p className={styles.detailHint}>Você sairia do Tem Link Aqui para acessar este link.</p><p className={styles.detailStatus} role="status">{notice}</p></div>
+    </section>
+    <div className={styles.detailInformation}><section className={styles.aboutLink} aria-labelledby="about-title"><span className={styles.sectionKicker}>Antes de conhecer</span><h2 id="about-title">Um pouco sobre este espaço.</h2><p>{link.description}</p><h3>O que você encontra por lá</h3><ul>{link.highlights.map(item => <li key={item}><ActionIcon name="check" width="16" height="16" />{item}</li>)}</ul></section><aside className={styles.linkInformation} aria-label="Informações do link"><h2>Sobre o link</h2><dl><div><dt>Nicho</dt><dd>{link.niche}</dd></div><div><dt>Categoria</dt><dd>{link.category}</dd></div><div><dt>Rede</dt><dd>{networkLabels[link.network]}</dd></div><div><dt>Imagem</dt><dd>Anexo ilustrativo do publicador</dd></div></dl><div className={styles.utilityActions}><button type="button" onClick={async () => { try { await navigator.clipboard.writeText(window.location.href); setNotice('Link desta demonstração copiado.') } catch { setNotice('Não foi possível copiar. Você pode copiar o endereço do navegador.') } }}><ActionIcon name="copy" width="16" height="16" />Copiar link</button><button type="button" onClick={() => setNotice('Na versão real, este caminho abre a denúncia do link. Nenhuma denúncia foi enviada nesta demo.')}><ActionIcon name="report" width="16" height="16" />Denunciar</button></div><p>Dados e contagens ilustrativos. Esta prévia não confirma disponibilidade, moderação ou elegibilidade comercial.</p></aside></div>
+    <section className={styles.relatedSection} aria-labelledby="related-title"><div className={styles.sectionHeading}><div><div><h2 id="related-title">A curiosidade continua.</h2><p>Outros links para descobrir</p></div></div><Link href="/dev/home-preview">Explorar catálogo <ActionIcon name="next" width="17" height="17" /></Link></div><div className={styles.linkGrid}>{related.map(item => <GlassLinkCard key={item.slug} link={item} saved={favorites.includes(item.slug)} onFavorite={() => favorite(item.slug)} />)}</div></section>
+  </div></PreviewFrame>
+}

@@ -99,15 +99,21 @@
   },
   {
     "slug": "kwai",
-    "asset": "https://cdn-static.kwai.net/kos/s101/nlav11312/kwai-www-resource/icon/Kwai-Account-Logo.png",
+    "asset": "https://cdn-static.kwai.net/kos/s101/nlav11312/kwai-www/resource/new/download-2/download.zip",
     "source": "https://www.kwai.com/id/brand-resource",
-    "provider": "Official app asset"
+    "provider": "Official brand download",
+    "file": "Kwai_Download/Kwai_AppLogo/Kwai_RGB.sketch",
+    "transformation": "Original symbol paths and cubic control points extracted from the official Sketch; app background omitted for monochrome alpha masking.",
+    "license": "Proprietary trademark; official brand guidelines apply."
   },
   {
     "slug": "privacy",
     "asset": "https://privacy.com.br/icons/apple-icon-180.png",
     "source": "https://privacy.com.br/brand",
-    "provider": "Official app asset"
+    "provider": "Official app asset",
+    "transformation": "Monochrome vector contour of the existing official app asset, with its background removed and wordmark preserved as transparent cutouts.",
+    "originalSha256": "fd5de9a8280bb2da179c9dc1082b5f76782d807859992d2e8c62efe00fdc89f6",
+    "license": "Proprietary trademark; no open-source license asserted."
   },
   {
     "slug": "fansly",

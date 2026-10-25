@@ -1,10 +1,12 @@
 'use client'
+import { Input } from '@/components/ui/input'
 
 import { ActionIcon } from '@/components/ui/action-icon'
 
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { PlanCardsSkeleton, CheckoutSkeleton } from '@/features/promotions/components/plans-skeleton'
 import { Skeleton, SkeletonRegion } from '@/components/feedback/skeleton'
+import { EmptyState } from '@/components/feedback/empty-state'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
@@ -12,6 +14,8 @@ import { Button } from '@/components/ui/button'
 import { orderParams, trackMeta } from '@/domain/meta-pixel'
 import { formatCents } from '@/domain/money'
 import { api } from '@/lib/api'
+import {LiquidLens} from '@/components/ui/liquid-lens'
+import glass from '@/features/promotions/components/checkout-surfaces.module.css'
 
 const POLL_MS = 3_000
 const POLL_ATTEMPTS = 20
@@ -274,8 +278,8 @@ function CheckoutPage() {
         <>
           <div className="duration-tabs" role="radiogroup" aria-label="Duração">
             {([7, 14, 28] as const).map((value) => (
-              <label key={value} className={days === value ? 'duration-tab is-on' : 'duration-tab'}>
-                <input
+              <label key={value} className={`${days === value ? 'duration-tab is-on' : 'duration-tab'} ${glass.choice}`}><LiquidLens radius={16}/>
+                <Input
                   type="radio"
                   name="duration"
                   aria-label={`${value} dias`}
@@ -287,12 +291,13 @@ function CheckoutPage() {
             ))}
           </div>
           {!offersReady ? <PlanCardsSkeleton /> : null}
+          {offersReady && !message && !offers.length ? <EmptyState>Não há opções de destaque disponíveis para este link no momento.</EmptyState> : null}
           <div className="plan-grid" role="radiogroup" aria-label="Plano" aria-busy={!offersReady}>
             {offers.map((offer) => {
               const price = priceOf(offer, days)
               return (
-                <label key={offer.code} className={selected === offer.code ? 'plan-card is-selected' : 'plan-card'}>
-                  <input
+                <label key={offer.code} className={`${selected === offer.code ? 'plan-card is-selected' : 'plan-card'} ${glass.choice}`}><LiquidLens radius={16}/>
+                  <Input
                     type="radio"
                     name="plan"
                     aria-label={offer.name}
@@ -311,19 +316,19 @@ function CheckoutPage() {
       ) : null}
 
       {step === 'method' ? (
-        <section className="pay-step">
+        <section className={`pay-step ${glass.step}`}><LiquidLens radius={16}/>
           <p className="pay-summary">{current?.name} · {days} dias · {shownAmount !== null ? formatCents(shownAmount) : ''}</p>
           {orderId && status === 'PENDING_PAYMENT' && amount !== null ? (
             <p className="pay-quiet">Há uma cobrança pendente de {formatCents(amount)}. Pagar volta para ela, sem abrir outra.</p>
           ) : null}
           <div className="method-grid" role="radiogroup" aria-label="Pagamento">
-            <label className={method === 'PIX' ? 'method-card is-on' : 'method-card'}>
-              <input type="radio" name="pay" aria-label="Pix" checked={method === 'PIX'} onChange={() => setMethod('PIX')} />
+            <label className={`${method === 'PIX' ? 'method-card is-on' : 'method-card'} ${glass.choice}`}><LiquidLens radius={16}/>
+              <Input type="radio" name="pay" aria-label="Pix" checked={method === 'PIX'} onChange={() => setMethod('PIX')} />
               <span className="plan-name">Pix</span>
               <span className="plan-mark">QR e copia e cola</span>
             </label>
-            <label className={method === 'CARD' ? 'method-card is-on' : 'method-card'} aria-disabled={!cardEnabled}>
-              <input
+            <label className={`${method === 'CARD' ? 'method-card is-on' : 'method-card'} ${glass.choice}`} aria-disabled={!cardEnabled}><LiquidLens radius={16}/>
+              <Input
                 type="radio"
                 name="pay"
                 aria-label="Cartão"
@@ -347,7 +352,7 @@ function CheckoutPage() {
       ) : null}
 
       {step === 'pix' ? (
-        <section className="pay-step pix-panel">
+        <section className={`pay-step pix-panel ${glass.step}`}><LiquidLens radius={16}/>
           {shownAmount !== null ? <p className="panel-amount">{formatCents(shownAmount)}</p> : null}
           {qr ? <img className="pix-qr" src={qr} alt="QR Code Pix" /> : <SkeletonRegion label="Carregando QR Code"><div className="pix-qr"><Skeleton width="100%" height="100%" /></div></SkeletonRegion>}
           {brCode ? (
@@ -363,7 +368,7 @@ function CheckoutPage() {
       ) : null}
 
       {step === 'card' && clientSecret && stripePromise ? (
-        <section className="pay-step">
+        <section className={`pay-step ${glass.step}`}><LiquidLens radius={16}/>
           <Elements stripe={stripePromise} options={{ clientSecret }}>
             <CardConfirm
               onBack={() => setStep('method')}
@@ -377,7 +382,7 @@ function CheckoutPage() {
       ) : null}
 
       {step === 'done' ? (
-        <section className="pay-step">
+        <section className={`pay-step ${glass.step}`}><LiquidLens radius={16}/>
           <p className="panel-amount" role="status">Concluído</p>
           <p className="pay-quiet">Voltando para os seus links.</p>
         </section>

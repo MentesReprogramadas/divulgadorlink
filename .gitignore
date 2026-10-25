@@ -1,4 +1,5 @@
 node_modules/
+/output/ci-investigation/
 .worktrees/
 build/
 .env
@@ -35,6 +36,8 @@ yarn.lock
 /output/roadmap-f37/
 
 # Disposable UI validation copies and Playwright runtime artifacts
+/frontend/.next-ondas-demo/
+/output/ondas-demo/
 /output/group-access-unified/
 /output/history-preview-e2e/
 /output/history-preview-final/
@@ -52,3 +55,12 @@ output/roadmap-f15/
 /output/roadmap-f20/
 
 /output/roadmap-f21/
+
+# Local execution evidence, caches and browser sessions stay on this machine.
+/output/
+/.playwright-mcp/
+/test-results/
+/graphify-out/cache/
+**/.next*/
+**/.runtime/
+**/*.storage.json

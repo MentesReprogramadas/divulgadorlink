@@ -16,6 +16,7 @@ import { ReminderPreferenceForm } from './components/reminder-preference-form'
 import { ReminderList } from './components/reminder-list'
 import type { ReminderPreferences, RenewalRemindersData } from './reminder-contract'
 import styles from './components/renewal-reminders.module.css'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 
 type State = { kind: 'loading' | 'error' | 'denied' } | { kind: 'ready'; data: RenewalRemindersData }
 export function RenewalRemindersScreen() {
@@ -45,7 +46,7 @@ export function RenewalRemindersScreen() {
 export function RenewalReminderNotice() {
   const [count, setCount] = useState<number | null>(null)
   useEffect(() => { let live = true; void api<RenewalRemindersData>('/v1/promotions/mine/reminders').then(r => { if (live) setCount(r.status === 200 ? r.body.reminders.length : 0) }).catch(() => { if (live) setCount(0) }); return () => { live = false } }, [])
-  if (count === null) return <aside className={styles.notice}><SkeletonRegion><Skeleton height={26} /></SkeletonRegion></aside>
+  if (count === null) return <aside className={styles.notice}><SkeletonRegion><Skeleton height={26} /></SkeletonRegion><LiquidLens radius={16} /></aside>
   if (!count) return null
-  return <aside className={styles.notice} aria-label="Aviso de vencimento"><p>{count === 1 ? 'Um destaque está perto de terminar.' : `${count} destaques estão perto de terminar.`} <a href="/painel/lembretes">Ver lembretes de renovação</a></p></aside>
+  return <aside className={styles.notice} aria-label="Aviso de vencimento"><p>{count === 1 ? 'Um destaque está perto de terminar.' : `${count} destaques estão perto de terminar.`} <a href="/painel/lembretes">Ver lembretes de renovação</a></p><LiquidLens radius={16} /></aside>
 }

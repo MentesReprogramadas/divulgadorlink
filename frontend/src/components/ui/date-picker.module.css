@@ -1,12 +1,13 @@
 .control { min-width: 0; width: 100%; }
-.field { position: relative; }
-.input { padding-right: 48px; border-radius: var(--radius-md); font-variant-numeric: tabular-nums; }
+.field { --glass-tint: var(--field-glass-tint); position: relative; isolation: isolate; border-radius: var(--radius-md); margin: var(--space-2) 0 var(--space-4); }
+.field .input { margin: 0; padding-right: 48px; border-radius: var(--radius-md); font-variant-numeric: tabular-nums; background: transparent; border-color: transparent; }
 .input[aria-invalid='true'] { border-color: var(--status-error-text); }
 .trigger { position: absolute; right: 2px; top: 50%; transform: translateY(-50%); display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: var(--radius-md); color: var(--text-secondary); background: transparent; cursor: pointer; }
 .trigger:hover { color: var(--text-primary); background: var(--surface-subtle); }
 .trigger:disabled { opacity: .5; cursor: not-allowed; }
 .positioner { z-index: 120; outline: none; }
-.popup { width: min(336px, calc(100vw - 16px)); max-height: var(--available-height); overflow: auto; padding: 12px; border: 1px solid var(--border-default); border-radius: var(--radius-lg); color: var(--text-primary); background: var(--surface-raised); box-shadow: 0 12px 32px #0a192f26; }
+.popup { --lens-frost: 8px; --glass-tint: var(--popup-glass-tint); position: relative; isolation: isolate; width: min(336px, calc(100vw - 16px)); max-height: var(--available-height); overflow: hidden; padding: 0; border: 0; border-radius: var(--radius-lg); color: var(--text-primary); background: transparent; box-shadow: 0 18px 36px #02152140; }
+.viewport { max-height: var(--available-height); overflow-y: auto; overscroll-behavior: contain; padding: 12px; }
 .header { display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-bottom: 8px; }
 .title { margin: 0; font: 600 1rem var(--font-sans); text-transform: capitalize; }
 .popup button { min-height: 44px; border: 1px solid transparent; border-radius: var(--radius-md); background: transparent; color: inherit; font: inherit; cursor: pointer; }
@@ -15,7 +16,8 @@
 .calendar th { height: 32px; padding: 0; border: 0; color: var(--text-secondary); font-size: .875rem; font-weight: 400; text-align: center; }
 .calendar td { padding: 0; border: 0; text-align: center; }
 .calendar button { width: 100%; padding: 0; font-variant-numeric: tabular-nums; }
-.popup button:hover { background: var(--surface-subtle); }
+.popup button:disabled { opacity: .35; cursor: not-allowed; }
+.popup button:where(:hover:not(:disabled)) { background: var(--surface-subtle); }
 .calendar button[aria-current='date'] { border-color: var(--text-secondary); }
 .calendar button[data-selected] { background: var(--action-primary-bg); color: var(--color-primary-ink); font-weight: 700; }
 .control :focus-visible, .popup :focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }

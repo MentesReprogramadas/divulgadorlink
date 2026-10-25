@@ -1,0 +1,3 @@
+/* Private feature surfaces keep their own layout, semantic borders and overflow. */
+.surface { position: relative; isolation: isolate; --glass-tint: var(--surface-glass); background: transparent; }
+.surface:focus-within { z-index: 1; }

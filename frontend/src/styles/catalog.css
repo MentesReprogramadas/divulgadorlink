@@ -32,7 +32,7 @@
   right: 0;
   bottom: 0;
   left: 0;
-  height: 3px;
+  height: 1px;
   background: var(--color-brand-turquoise);
 }
 
@@ -71,7 +71,7 @@
   font-size: clamp(2rem, 3vw, 2.5rem);
   font-weight: 600;
   line-height: var(--leading-title);
-  color: var(--color-brand-navy);
+  color: var(--color-link);
   letter-spacing: -0.03em;
 }
 
@@ -114,7 +114,7 @@
   bottom: 0;
   left: 0;
   z-index: 2;
-  height: 3px;
+  height: 1px;
   background: var(--color-brand-turquoise);
   opacity: 0;
   pointer-events: none;
@@ -206,20 +206,9 @@ main.search-page {
   left: var(--space-4);
   z-index: 1;
   display: flex;
-  color: var(--color-brand-navy);
+  color: var(--color-link);
   pointer-events: none;
   transform: translateY(-50%);
-}
-
-.search-form .field {
-  min-height: 56px;
-  margin: 0;
-  padding: 0 var(--space-4) 0 44px;
-  border: 1px solid var(--color-line);
-  border-bottom: 2px solid var(--color-brand-turquoise);
-  border-radius: 6px;
-  font-size: var(--text-body);
-  appearance: none;
 }
 
 .search-form .field::placeholder {
@@ -233,7 +222,7 @@ main.search-page {
 }
 
 .search-form .field:focus-visible {
-  border-color: var(--color-brand-navy);
+  border-color: var(--color-link);
   border-bottom-color: var(--color-brand-turquoise);
 }
 
@@ -249,7 +238,7 @@ main.search-page {
 
 .search-suggestions a {
   font-size: var(--text-body);
-  color: var(--color-brand-navy);
+  color: var(--color-link);
   overflow-wrap: break-word;
 }
 
@@ -286,14 +275,14 @@ main.search-page {
   font-size: 28px;
   font-weight: 600;
   line-height: 1.15;
-  color: var(--color-brand-navy);
+  color: var(--color-link);
   overflow-wrap: anywhere;
 }
 
 .search-context-slug {
   font-size: 22px;
   font-weight: 600;
-  color: var(--color-brand-navy);
+  color: var(--color-link);
   overflow-wrap: anywhere;
 }
 
@@ -362,7 +351,7 @@ main.rede-page {
   font-size: 15px;
   font-weight: 400;
   line-height: 1.2;
-  color: var(--color-brand-navy);
+  color: var(--color-link);
   text-decoration: none;
 }
 

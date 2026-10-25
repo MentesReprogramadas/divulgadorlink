@@ -1,6 +1,8 @@
 'use client'
 
 import { ActionIcon } from '@/components/ui/action-icon'
+import { LiquidLens } from '@/components/ui/liquid-lens'
+import surfaces from '@/features/administration/components/admin-surfaces.module.css'
 
 import { useEffect, useLayoutEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -109,7 +111,8 @@ export default function Page() {
           const user = [row.userName, row.userEmail].filter(Boolean).join(' · ') || row.userId || 'Usuário removido'
           const plan = `${PRODUCT[row.productCode] ?? row.productCode} · ${row.durationDays} dias · ${row.method === 'CARD' ? 'Cartão' : 'Pix'}`
           return (
-            <article key={row.orderId} className="order-card">
+            <article key={row.orderId} className={`order-card ${surfaces.card}`}>
+              <LiquidLens radius={24} />
               <p className="moderation-kicker">{orderStatusLabel(row.status)}</p>
               <h2>{row.linkName || 'Link removido'}</h2>
               <p className="panel-amount">{formatCents(row.amountCents)}</p>

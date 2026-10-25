@@ -10,6 +10,7 @@ import {profileRequest,ProfileRequestError} from './profile-api'
 import {OverlayDialog} from '@/components/ui/overlay-dialog'
 import type {ProfileContent} from './profile-contract'
 import styles from './profile-export-screen.module.css'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 export function ProfileExportScreen({pendingOnly=false}:{pendingOnly?:boolean}){
  const [revision,setRevision]=useState('draft'),[pending,setPending]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState(''),[missing,setMissing]=useState(false),busy=useRef(false)
  const [backup,setBackup]=useState<unknown>(null),[preview,setPreview]=useState<{content:ProfileContent;expectedVersion:number}|null>(null),[importError,setImportError]=useState(''),[fileError,setFileError]=useState(''),fileInput=useRef<HTMLInputElement>(null)
@@ -41,13 +42,13 @@ export function ProfileExportScreen({pendingOnly=false}:{pendingOnly?:boolean}){
     <Field label="O que deseja baixar?"><Select value={revision} disabled={pending||pendingOnly} onChange={event=>{setRevision(event.target.value);setNotice('');setError('')}}><option value="draft">Conteúdo em edição</option><option value="published">Página que está no ar</option></Select></Field>
     <Button readOnlyAllowed disabled={pending||pendingOnly} loading={pending} onClick={()=>void download()}><ActionIcon name="download"/>Baixar arquivo</Button>
     {error?missing?<EmptyState action={<ButtonLink href="/painel/perfil"><ActionIcon name="edit"/>Editar minha página</ButtonLink>}>{error}</EmptyState>:<ErrorState message={error} onRetry={()=>void download()}/>:null}
-   </section>
+   <LiquidLens radius={16} /></section>
    <section className={styles.card} aria-labelledby="import-page-title"><header><ActionIcon name="importLinks"/><h2 id="import-page-title">Importar uma página</h2><p>Use um arquivo que você baixou aqui.</p></header>
     <FileUpload inputRef={fileInput} label="Arquivo da página" accept="application/json,.json" hint="Arquivo .json de até 900 KB" error={fileError} disabled={pending||pendingOnly} onChoose={file=>void inspect(file)}/>
-   </section>
+   <LiquidLens radius={16} /></section>
   </div>
   <OverlayDialog open={!!preview} title="Importar página" onClose={()=>{if(!pending){setPreview(null);setBackup(null)}}} closeDisabled={pending} returnFocusTo={fileInput.current}>
-   {preview?<div className={styles.confirmation}><strong>{preview.content.name}</strong><dl className={styles.summary}><div><dt>Grupos</dt><dd>{preview.content.categories.length}</dd></div><div><dt>Links</dt><dd>{preview.content.items.length}</dd></div></dl><p>O conteúdo em edição será substituído.</p><ul><li>Seu endereço e a página publicada não mudam.</li><li>A foto atual será removida.</li><li>Convites serão importados como links comuns.</li></ul>{importError?<p role="alert">{importError}</p>:null}<Button disabled={pending} loading={pending} onClick={()=>void restore()}><ActionIcon name="restore"/>Importar e substituir</Button></div>:null}
+   {preview?<div className={styles.confirmation}><strong>{preview.content.name}</strong><dl className={styles.summary}><div><dt>Grupos</dt><dd>{preview.content.categories.length}</dd></div><div><dt>Links</dt><dd>{preview.content.items.length}</dd></div></dl><p>O conteúdo em edição será substituído.</p><ul><li>Seu endereço e a página publicada não mudam.</li><li>A foto atual será removida.</li><li>Links permanentes serão importados como links comuns.</li></ul>{importError?<p role="alert">{importError}</p>:null}<Button disabled={pending} loading={pending} onClick={()=>void restore()}><ActionIcon name="restore"/>Importar e substituir</Button></div>:null}
   </OverlayDialog>
  </section>
 }

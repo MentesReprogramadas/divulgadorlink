@@ -11,7 +11,7 @@ import { createWorker, type TextJudge } from '@/worker'
 
 const url = process.env.CHECKOUT_DATABASE_URL
 if (!url) throw new Error('CHECKOUT_DATABASE_URL ausente')
-const redisUrl = 'redis://127.0.0.1:6380'
+const redisUrl = process.env.REDIS_URL || 'redis://127.0.0.1:6380'
 
 const db = new PrismaClient({ datasources: { db: { url } } })
 let connection: Redis

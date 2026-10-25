@@ -1,3 +1,6 @@
+import { registerLinkMediaRoutes } from './media'
+import { submissionMedia, prepareLinkMedia, LinkMediaError } from '@/domain/links/link-media'
+import { approvedMediaForCards } from '@/http/link-media-projection'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
 import { signSurface } from '@/domain/analytics/surface-token'
@@ -46,6 +49,7 @@ export const submitLinkBodySchema = z
     nicheId: z.string().min(1),
     otherNote: z.string().optional(),
     ...discoveryFields,
+    media: submissionMedia.optional(),
   })
   .strict()
 
@@ -257,6 +261,7 @@ async function createLink(request: FastifyRequest, reply: FastifyReply) {
       terms,
     })
 
+    const media = await Promise.all([...(body.media?.icon ? [prepareLinkMedia('ICON', body.media.icon)] : []), ...(body.media?.image ? [prepareLinkMedia('IMAGE', body.media.image)] : [])])
     let decision: ReturnType<typeof decideSubmission> | undefined
     const link = await repo.createWithinQuota(
       {
@@ -269,6 +274,7 @@ async function createLink(request: FastifyRequest, reply: FastifyReply) {
         nicheId: niche.id,
         otherNote: body.otherNote ?? null,
         ...parseDiscovery(body),
+        ...(media.length ? { media } : {}),
       },
       (openSlots) => {
         try {
@@ -324,6 +330,7 @@ async function createLink(request: FastifyRequest, reply: FastifyReply) {
       ...(link.status === 'PRE_REJECTED' ? { message: 'Envio não aceito.' } : {}),
     })
   } catch (error) {
+    if (error instanceof LinkMediaError) return reply.status(error.status).send({ message: error.message })
     if (error instanceof DuplicateLinkError) {
       return reply.status(409).send(
         buildError({ code: business_rule, message: 'Esse link já está no catálogo.', request_id: request.id }),
@@ -417,6 +424,7 @@ async function getPublicLink(request: FastifyRequest, reply: FastifyReply) {
     return reply.status(200).send({
       id: link.id,
       available: true,
+      ...(await approvedMediaForCards(tenant.id, [link])).get(link.id),
       name: link.name,
       description: link.description,
       discovery:{city:cityById(link.cityId),languageTag:link.languageTag??null,modality:link.modality??null},
@@ -644,7 +652,7 @@ async function submissionStarted(request: FastifyRequest, reply: FastifyReply) {
 }
 
 export async function linksRoutes(app: FastifyInstance) {
-  app.post('/', { preHandler: [verifyJWT] }, createLink)
+  app.post('/', { bodyLimit: 2097152, preHandler: [verifyJWT] }, createLink)
   app.get('/submission-started', { onRequest: [verifyJWT] }, submissionStarted)
   app.get('/mine', { onRequest: [verifyJWT] }, listMine)
   app.get('/:id', getPublicLink)
@@ -652,4 +660,5 @@ export async function linksRoutes(app: FastifyInstance) {
   app.post('/account/phone', { onRequest: [verifyJWT] }, (request, reply) => changeIdentifier(request, reply, 'PHONE'))
   app.patch('/:id', { onRequest: [verifyJWT] }, patchLink)
   await registerAppealRoute(app)
+  await registerLinkMediaRoutes(app)
 }

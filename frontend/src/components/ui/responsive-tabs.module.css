@@ -1,3 +1,7 @@
 .root { position: relative; grid-column: 1 / -1; min-width: 0; width: 100%; }
-.tabs { width: fit-content; max-width: 100%; }
-.measure { position: absolute; visibility: hidden; pointer-events: none; width: 100%; overflow: hidden; }
+.tabs { width: max-content; max-width: 100%; }
+.measure { position: absolute; visibility: hidden; pointer-events: none; width: 100%; overflow:hidden; }
+.root :global([role='tablist']) { max-width:100%; }
+.toolbar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:var(--space-4); min-width:0; }
+.toolbar > .root { flex:1 1 22rem; width:auto; max-width:100%; }
+.actions { min-width:0; max-width:100%; margin-left:auto; }

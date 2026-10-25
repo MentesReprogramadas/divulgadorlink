@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useId, useRef, useState } from 'react'
-import { FacetBadge } from '@/components/ui/facet-badge'
+import { FacetBadge, FacetIcon } from '@/components/ui/facet-badge'
+import { Button, ButtonLink } from '@/components/ui/button'
 import { exploreNetworks, exploreNiches, leadFirst, NETWORK_LEAD, NICHE_LEAD } from '@/domain/facets'
 import styles from './home-explore.module.css'
 
@@ -11,12 +12,14 @@ export function FacetFilters({
   items,
   active,
   hrefFor,
+  onSelect,
 }: {
   label?: string
   kind: 'niche' | 'network'
-  items: Array<{ slug: string; name: string; requiresAge?: boolean }>
+  items: Array<{ slug: string; name: string; requiresAge?: boolean; iconSlug?:string }>
   active: string | null
   hrefFor: (slug: string | null) => string
+  onSelect?: (slug: string | null) => void
 }) {
   const row = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
@@ -28,6 +31,7 @@ export function FacetFilters({
     if (!element) return
     const measure = () => setOverflow(element.scrollWidth > element.clientWidth + 1)
     measure()
+    if (typeof ResizeObserver === 'undefined') return
     const observer = new ResizeObserver(measure)
     observer.observe(element)
     return () => observer.disconnect()
@@ -41,22 +45,18 @@ export function FacetFilters({
       <div ref={row} className={open ? 'facet-line is-open' : 'facet-line'}>
         {ordered.map((item) => {
           const selected = item.slug === active
-          return (
-            <FacetBadge
-              key={item.slug}
-              kind={kind}
-              slug={item.slug}
-              name={item.requiresAge ? `${item.name} 18+` : item.name}
-              href={hrefFor(selected ? null : item.slug)}
-              current={selected}
-            />
+          const content = <><FacetIcon kind={kind} slug={item.iconSlug ?? item.slug} /><span>{item.name}{item.requiresAge ? ' 18+' : ''}</span></>
+          return onSelect ? (
+            <Button key={item.slug} type="button" variant={selected ? 'primary' : 'secondary'} className={styles.filterChip} aria-pressed={selected} onClick={() => onSelect(selected ? null : item.slug)}>{content}</Button>
+          ) : (
+            <ButtonLink key={item.slug} variant={selected ? 'primary' : 'secondary'} className={styles.filterChip} href={hrefFor(selected ? null : item.slug)} aria-current={selected ? 'true' : undefined}>{content}</ButtonLink>
           )
         })}
       </div>
       {overflow || open ? (
-        <button type="button" className="facet-more" aria-expanded={open} onClick={() => setOpen((current) => !current)}>
+        <Button type="button" variant="secondary" readOnlyAllowed className={styles.filterMore} aria-expanded={open} onClick={() => setOpen((current) => !current)}>
           {open ? 'Ver menos' : 'Ver mais'}
-        </button>
+        </Button>
       ) : null}
     </section>
   )
@@ -87,9 +87,9 @@ export function HomeExplore({
 
   return (
     <>
-      <div className={open ? 'home-explore-columns is-open' : 'home-explore-columns'}>
+      <div className={styles.groups}>
         {groups.map((group) => (
-          <section key={group.kind} aria-labelledby={`${groupId}-${group.kind}-title`}>
+          <section className={styles.group} key={group.kind} aria-labelledby={`${groupId}-${group.kind}-title`}>
             <h3 id={`${groupId}-${group.kind}-title`}>{group.name}</h3>
             <div id={`${groupId}-${group.kind}`} className={styles.grid}>
               {(open ? group.items : group.items.slice(0, HOME_PREVIEW)).map((item) => (

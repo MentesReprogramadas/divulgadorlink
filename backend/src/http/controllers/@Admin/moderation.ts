@@ -1,3 +1,4 @@
+import { registerAdminLinkMediaRoutes } from '@/http/controllers/@Links/media'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
 import { hitsBlocklist } from '@/domain/links/blocklist'
@@ -465,6 +466,7 @@ export async function getModerationQueue(request: FastifyRequest, reply: Fastify
 }
 
 export async function registerModerationRoutes(app: FastifyInstance) {
+  await registerAdminLinkMediaRoutes(app)
   app.get('/admin/moderation', { onRequest: [verifyJWT] }, getModerationQueue)
   app.post('/admin/moderation/:id', { onRequest: [verifyJWT] }, postAdminModerationDecision)
 }

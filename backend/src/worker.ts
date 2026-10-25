@@ -401,8 +401,18 @@ export async function startWorker(): Promise<void> {
   retention.unref()
 }
 
+export async function startWebhookWorker():Promise<void>{
+  if(env.NODE_ENV!=='dev')throw new Error('O consumidor local de integrações exige NODE_ENV=dev.')
+  const connection=createRedis(env.REDIS_URL,{maxRetriesPerRequest:null})
+  createWorker(connection,{textJudge:null},PLATFORM_WEBHOOK_QUEUE)
+  await enqueueWebhookCycle()
+  const drain=setInterval(()=>{void enqueueWebhookCycle().catch(()=>logDomainEvent('webhook.drain.failed',{result:'queue_unavailable'}))},30_000)
+  drain.unref()
+  logDomainEvent('webhook.worker.started',{queue:PLATFORM_WEBHOOK_QUEUE})
+}
+
 if (require.main === module) {
-  startWorker().catch((err) => {
+  (process.argv.includes('--webhooks-only')?startWebhookWorker():startWorker()).catch((err) => {
     const error = err instanceof Error ? err.stack ?? err.message : String(err)
     logDomainEvent('worker.start_failed', { error })
     process.exit(1)

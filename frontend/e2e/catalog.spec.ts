@@ -1,9 +1,10 @@
 import { selectOption } from './select-control'
 import { runtime as e2eRuntime } from './runtime.cjs'
-import { createSign, generateKeyPairSync } from 'node:crypto'
+import { createHash, createSign, generateKeyPairSync } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { expect, test, type Browser, type Page } from '@playwright/test'
+import sharp from '../../backend/node_modules/sharp'
 import { signWooviTestBody } from '../../backend/src/adapters/payments/woovi-test-signing'
 import { getRaw, postRaw, promoteJob, redisScan, sql } from './db'
 
@@ -25,6 +26,80 @@ const state = JSON.parse(readFileSync(path.join(__dirname, 'state.json'), 'utf8'
 }
 
 type Call = { status: number; text: string }
+
+test('home masonry preenche espaços entre capas e cards sem imagem', async ({ page }, info) => {
+  test.setTimeout(120_000)
+  const prefix = 'home-masonry-'
+  const filterKey = createHash('sha256').update(JSON.stringify([[state.tenantA, 'unknown', 'HOME', null, null], { cityId: null, languageTag: 'ja', modality: 'ONLINE' }])).digest('hex')
+  const cursor = Buffer.from(JSON.stringify({ kind: 'sponsored', activatedAt: null, id: prefix + 'start', seed: '0'.repeat(32), filterKey })).toString('base64url')
+  const raster = (await sharp(readFileSync(path.join(__dirname, '../../backend/src/domain/profiles/avatar.fixture.png'))).resize(800, 500, { fit: 'fill' }).png().toBuffer()).toString('hex')
+  sql(`INSERT INTO links(id,"tenantId","canonicalUrl",name,description,"networkId","nicheId",status,"languageTag",modality,"updatedAt")
+    SELECT '${prefix}' || i, "tenantId", 'https://example.com/masonry/' || i, 'Masonry ' || i,
+      'Comunidade de conversas e novidades.', "networkId", "nicheId", 'PUBLISHED', 'ja', 'ONLINE', NOW()
+    FROM links CROSS JOIN generate_series(1,28) i WHERE id='${state.receitas}';
+    INSERT INTO link_media_assets(id,"tenantId","linkId",kind,status,bytes,alt,revision)
+    SELECT id || '-image', "tenantId", id, 'IMAGE', 'APPROVED', decode('${raster}','hex'), 'Capa masonry', 1
+    FROM links WHERE id LIKE '${prefix}%' AND substring(id from ${prefix.length + 1})::int % 2 = 1;`)
+  await page.context().addCookies([{ name: 'tla_consent', value: 'denied', domain: 'tenant-a.localhost', path: '/' }])
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  const region = page.getByRole('region', { name: 'Catálogo de links' })
+  const cards = region.getByRole('article')
+  const geometry = () => cards.evaluateAll(elements => elements.map(element => {
+    const rect = element.getBoundingClientRect()
+    return { id: element.querySelector('a')?.getAttribute('href'), x: rect.x, top: rect.top + scrollY, bottom: rect.bottom + scrollY }
+  }))
+  const gaps = async () => {
+    const boxes = await geometry()
+    return boxes.flatMap((box, index) => {
+      const previous = boxes.slice(0, index).filter(other => Math.abs(other.x - box.x) < 1).at(-1)
+      return previous ? [box.top - previous.bottom] : []
+    })
+  }
+  const maxGap = async () => Math.max(0, ...await gaps())
+  try {
+    await page.goto(A + '/?languageTag=ja&modality=ONLINE&cursor=' + cursor)
+    await expect(cards.first()).toBeVisible()
+    await page.evaluate(() => document.fonts.ready)
+    for (const width of [1440, 800, 720, 390, 320]) {
+      await page.setViewportSize({ width, height: 900 })
+      await cards.locator('img').first().scrollIntoViewIfNeeded()
+      await expect.poll(() => cards.locator('img').first().evaluate(image => (image as HTMLImageElement).naturalWidth > 0)).toBe(true)
+      await cards.first().evaluate(element => window.scrollTo(0, element.getBoundingClientRect().top + scrollY - 100))
+      await expect.poll(maxGap).toBeLessThanOrEqual(width > 1100 ? 24 : width > 600 ? 17 : 22)
+      expect(Math.min(...await gaps())).toBeGreaterThanOrEqual(width > 1100 ? 22 : width > 600 ? 15 : 20)
+      await page.screenshot({ path: info.outputPath(`masonry-${width}.png`), animations: 'disabled' })
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+      const boxes = await geometry()
+      expect(new Set(boxes.map(box => Math.round(box.x))).size).toBe(width > 850 ? 3 : width > 600 ? 2 : 1)
+      for (let index = 1; index < boxes.length; index++) expect(boxes[index].top).toBeGreaterThanOrEqual(boxes[index - 1].top - 1)
+    }
+    await page.setViewportSize({ width: 1440, height: 900 })
+    const before = await geometry()
+    await page.getByRole('button', { name: 'Mostrar mais' }).click()
+    await expect(cards).toHaveCount(28)
+    await expect.poll(maxGap).toBeLessThanOrEqual(24)
+    expect((await geometry()).slice(0, before.length)).toEqual(before)
+    const image = cards.locator('img').first()
+    const imagesBefore = await cards.locator('img').count()
+    await image.evaluate(element => element.dispatchEvent(new Event('error')))
+    await expect(cards.locator('img')).toHaveCount(imagesBefore - 1)
+    await expect.poll(maxGap).toBeLessThanOrEqual(24)
+    await cards.first().getByRole('link').focus()
+    await page.keyboard.press('Tab')
+    await expect(cards.first().getByRole('button', { name: 'Salvar favorito' })).toBeFocused()
+    await page.keyboard.press('Tab')
+    await expect(cards.nth(1).getByRole('link')).toBeFocused()
+    await page.evaluate(() => { document.body.style.zoom = '2' })
+    await expect.poll(maxGap).toBeLessThanOrEqual(48)
+    expect(Math.min(...await gaps())).toBeGreaterThanOrEqual(44)
+    expect(await page.locator('#home-catalog-results').evaluate(element => element.scrollWidth <= element.clientWidth + 1)).toBe(true)
+    await page.evaluate(() => { document.body.style.zoom = '' })
+    await cards.first().scrollIntoViewIfNeeded()
+    await page.screenshot({ path: info.outputPath('masonry-image-error.png'), animations: 'disabled' })
+  } finally {
+    sql(`DELETE FROM link_media_assets WHERE "linkId" LIKE '${prefix}%'; DELETE FROM links WHERE id LIKE '${prefix}%';`)
+  }
+})
 
 async function login(page: Page, origin: string, email: string): Promise<void> {
   await page.goto(`${origin}/login`)
@@ -91,12 +166,12 @@ test('home, SEO, cards e isolamento visual', async ({ browser }) => {
   expect(jsonLd).not.toContain('t.me')
   await expect(page.getByRole('link', { name: 'Receitas' })).toBeVisible()
   await expect(page.locator('article', { has: page.getByRole('link', { name: 'Receitas' }) }).locator('.impression-mark')).toHaveAttribute('aria-label', /\d+ impress/)
-  const explore = page.getByRole('region', { name: 'Explorar' })
+  const explore = page.getByRole('navigation', { name: 'Explorar por nicho' })
   await expect(explore.getByRole('link', { name: 'Jogos', exact: true })).toBeVisible()
-  await expect(explore.getByRole('link', { name: 'Telegram', exact: true })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Telegram', exact: true }).first()).toBeVisible()
   await expect(page.getByText('SegredoDoB')).toHaveCount(0)
   await expect(page.getByText('NomeSecretoIndisponivel')).toHaveCount(0)
-  await expect(page.getByText('<script>alert(1)</script>')).toBeVisible()
+  await expect(page.getByRole('link', { name: '<script>alert(1)</script>', exact: true })).toBeVisible()
   const html = await page.content()
   expect(html).not.toContain('<script>alert(1)</script>')
   expect(html).not.toMatch(/ownerId|passwordHash|gatewayChargeId|WOOVI|JWT_SECRET/)
@@ -319,12 +394,13 @@ test('criação, SSRF, payload e edição publicada', async ({ browser }) => {
 
   await page.goto(`${A}/painel/links`)
   const card = page.locator('article', { has: page.getByRole('heading', { name: 'Receitas' }) })
-  await card.getByRole('button', { name: 'Editar' }).click()
-  const dialog = page.getByRole('dialog', { name: 'Editar link' })
-  await dialog.getByLabel('Título do link', { exact: true }).fill('Receitas novas')
-  await dialog.getByLabel('Nova descrição').fill('proposta')
-  await dialog.getByRole('button', { name: 'Salvar texto' }).click()
-  await expect(dialog.getByText('Proposta registrada')).toBeVisible()
+  await card.getByRole('link', { name: 'Editar', exact: true }).click()
+  await expect(page).toHaveURL(`${A}/painel/links/${state.receitas}/editar`)
+  const editor = page.getByRole('form', { name: 'Editar dados do link' })
+  await editor.getByLabel('Título do link', { exact: true }).fill('Receitas novas')
+  await editor.getByLabel('Nova descrição').fill('proposta')
+  await editor.getByRole('button', { name: 'Salvar alterações', exact: true }).click()
+  await expect(editor.getByRole('status')).toHaveText('Proposta registrada')
   const proposal = sql(`SELECT count(*) FROM audit_logs WHERE action = 'link.text.proposed' AND "entityId" = '${state.receitas}'`)
   expect(proposal).toBe('1')
   const guest = await browser.newPage()

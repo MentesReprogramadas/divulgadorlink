@@ -48,7 +48,7 @@ export async function assertChannelPublication(tx:Prisma.TransactionClient,profi
    const item=content.items.find(row=>row.id===binding.id&&row.categoryId===group.id)
    if(binding.paused||!item?.visible)continue
    const source=facts.destinations.find(row=>row.id===binding.revisionId&&row.handleId===binding.handleId&&row.activeRevisionId===binding.revisionId&&row.status==='APPROVED'&&!row.disabled&&row.ownerActive)
-   if(!source||source.destinationUrl!==item.destination)throw new ProfileError(422,'Um canal precisa de um convite próprio e aprovado na versão atual. Revise as alternativas antes de publicar.')
+   if(!source||source.destinationUrl!==item.destination)throw new ProfileError(422,'Um canal precisa de um link permanente próprio e aprovado na versão atual. Revise as alternativas antes de publicar.')
    const network=binding.networkId?facts.networks.find(row=>row.id===binding.networkId):null
    if(binding.networkId&&!network)throw new ProfileError(422,'A rede de um canal não está mais disponível. Revise as alternativas.')
    channelNetwork(network??null,source.destinationUrl)

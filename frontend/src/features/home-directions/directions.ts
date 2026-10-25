@@ -1,0 +1,24 @@
+import { newHomeDirections } from './new-home-directions'
+
+export const directionIds = ['aurora', 'metal', 'holografica', 'magnetica', 'organica', 'ondas', 'editorial', 'brutalista', 'galeria', 'orbita', 'cinetica', 'minimalista', 'portal', 'seda', 'constelacao', 'prisma', 'cromatica', 'oceano', 'cartoes-postais', 'arquivo', 'zine', 'atlas', 'cinema', 'vitrine', 'discos', 'mosaico', 'bauhaus', 'recortes', 'isometrica', 'terminal', 'jardim', 'duotone'] as const
+export type DirectionId = typeof directionIds[number]
+export type HomeDirection = { id: DirectionId; name: string; family: string; description: string; headline: readonly [string, string]; invitation: string; motion: string }
+
+export const homeDirections: readonly HomeDirection[] = [
+  { id: 'aurora', name: 'Aurora', family: 'Luz e atmosfera', description: 'Luz em movimento, bento de descobertas e um portal para novos interesses.', headline: ['Seu próximo', 'mundo começa aqui.'], invitation: 'Encontre comunidades, canais e ideias que acendem a sua curiosidade.', motion: 'Aurora e halo luminoso' },
+  { id: 'metal', name: 'Metal', family: 'Material e textura', description: 'Prata, relevos cromados e links apresentados em faixas de conteúdo.', headline: ['Boas conexões.', 'Sem fronteiras.'], invitation: 'Um catálogo para cruzar assuntos, conhecer pessoas e descobrir caminhos.', motion: 'Reflexos cromados' },
+  { id: 'holografica', name: 'Holográfica', family: 'Material e textura', description: 'Reflexos espectrais, prisma flutuante e cards de acabamento holográfico.', headline: ['Há mais de um jeito', 'de ver o seu mundo.'], invitation: 'Mude o ângulo. Descubra grupos, canais e conteúdos do seu interesse.', motion: 'Prisma e grade em perspectiva' },
+  { id: 'magnetica', name: 'Magnética', family: 'Interação e física', description: 'Fotografias em composição livre e cards que respondem ao seu ponteiro.', headline: ['Interesses que', 'aproximam.'], invitation: 'De um assunto que você ama a uma comunidade que ainda vai conhecer.', motion: 'Atração pelo ponteiro' },
+  { id: 'organica', name: 'Orgânica', family: 'Interação e física', description: 'Formas que se encontram, superfícies macias e um catálogo com ritmo orgânico.', headline: ['As boas ideias', 'encontram companhia.'], invitation: 'Explore assuntos, encontre seu espaço e deixe a curiosidade crescer.', motion: 'Blobs unidos por SVG' },
+  { id: 'ondas', name: 'Ondas', family: 'Luz e atmosfera', description: 'Ondas de luz e Liquid Glass. Home completa, cards com fotografia e detalhes no mesmo universo.', headline: ['Encontre gente', 'na mesma onda.'], invitation: 'Grupos, canais e conteúdos para quem compartilha os seus interesses.', motion: 'Shader de ondas e reflexos de vidro' },
+  { id: 'editorial', name: 'Editorial', family: 'Fotografia e conteúdo', description: 'A curadoria visual de uma revista, com fotografia e leitura no primeiro plano.', headline: ['O mundo tem', 'muitos assuntos.'], invitation: 'Grupos, canais e conteúdos para quem sempre tem algo novo para descobrir.', motion: 'Revelação e fotografia' },
+  { id: 'brutalista', name: 'Brutalista', family: 'Tipografia e contraste', description: 'Tipografia de cartaz, recortes diretos e turquesa em alto contraste.', headline: ['TEM LINK.', 'TEM ENCONTRO.'], invitation: 'Escolha um assunto. Encontre a sua turma. Descubra o que vem depois.', motion: 'Faixa e resposta de pressão' },
+  { id: 'galeria', name: 'Galeria', family: 'Fotografia e conteúdo', description: 'Imagens em grande escala, cartões imersivos e um mosaico de interesses.', headline: ['Um olhar novo.', 'Muitos caminhos.'], invitation: 'Explore um catálogo feito de comunidades, histórias e boas descobertas.', motion: 'Panorâmica da capa' },
+  { id: 'orbita', name: 'Órbita', family: 'Interação e física', description: 'Fotografias em camadas 3D, anéis orbitais e novas conexões ao redor.', headline: ['Encontre o que', 'orbita o seu mundo.'], invitation: 'Tecnologia, música, viagens e tudo o que faz parte dos seus interesses.', motion: 'Profundidade e órbitas' },
+  { id: 'cinetica', name: 'Cinética', family: 'Tipografia e contraste', description: 'Letras em movimento, faixas contínuas e uma home com energia de cartaz.', headline: ['GENTE. IDEIAS.', 'NOVAS CONEXÕES.'], invitation: 'O próximo assunto que vai mover você pode estar a um link de distância.', motion: 'Tipografia em faixa' },
+  { id: 'minimalista', name: 'Minimalista', family: 'Clareza e espaço', description: 'Respiro, navegação direta e fotografia, com o conteúdo conduzindo a experiência.', headline: ['Um bom link', 'faz a diferença.'], invitation: 'Encontre grupos, canais e conteúdos. Organizados por assunto, prontos para explorar.', motion: 'Respostas sutis à interação' },
+  ...newHomeDirections,
+]
+
+export function findHomeDirection(id: string) { return homeDirections.find(direction => direction.id === id) }
+export function directionHref(id: DirectionId) { return `/dev/homes/${id}` }

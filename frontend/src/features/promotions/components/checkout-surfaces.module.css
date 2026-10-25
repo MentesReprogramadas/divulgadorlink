@@ -1,0 +1,7 @@
+.choice { composes: surface from '../../feature-glass.module.css'; }
+.choice:global(.duration-tab), .choice:global(.plan-card), .choice:global(.method-card), .choice:global(.plan-card.is-selected) { background:transparent; color:var(--text-primary); }
+.choice:global(.plan-card.is-selected) { --glass-tint:var(--surface-glass); }
+.choice:focus-within { outline:3px solid var(--focus-ring); outline-offset:3px; }
+.step { composes: surface from '../../feature-glass.module.css'; padding:var(--space-6); border:1px solid var(--glass-border); border-radius:var(--radius-lg); }
+.step > form { width:100%; min-width:0; }
+@media(width<40rem){.step{padding:var(--space-4)}}

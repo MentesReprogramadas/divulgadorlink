@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 import { api } from '@/lib/api'
 import styles from './moderation-settings.module.css'
 
@@ -63,6 +64,7 @@ export function ModerationSettings() {
       <input id={id} className={styles.range} type="range" min={0} max={100} step={1} value={draft} aria-valuetext={`${draft}%${draft === 0 ? ', análise da IA desativada' : ''}`} aria-describedby={`${id}-rule`} disabled={saving} onChange={event => { setDraft(Number(event.target.value)); setNotice('') }} />
       <div className={styles.scale} aria-hidden="true"><span>0% · Sem análise da IA</span><span>100% · Confiança máxima</span></div>
       <div id={`${id}-rule`} className={draft === 0 ? styles.warning : styles.rule}>
+        <LiquidLens radius={18} />
         {draft === 0 ? <p><strong>Aprovação automática sem IA.</strong> Ao salvar em 0%, todos os conteúdos elegíveis passam sem consultar a IA, inclusive quando ela está indisponível.</p> : <p><strong>Como a decisão funciona:</strong> a IA precisa aprovar o conteúdo e informar confiança igual ou superior a {draft}%. Parecer negativo, confiança menor ou falha da IA encaminham para revisão humana.</p>}
         <p>Bloqueios de conteúdo e destino, verificação, suspensão, permissões e demais validações continuam valendo. Encaminhar para revisão não é uma recusa definitiva. Coleções não aprovadas permanecem privadas.</p>
       </div>

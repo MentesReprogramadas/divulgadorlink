@@ -165,3 +165,12 @@ F22/F23/F25 compõem Field/Input/Select/Button, WorkspaceActions, FormSteps, Bad
 Manter apenas tokens existentes: space-6, surface-subtle e text-xl. A inspeção encontrou referências inexistentes a space-5/surface-muted/text-2xl e as corrigiu nas novas composições, preservando o restante da folha global. Read-only consulta sugestões com readOnlyAllowed, sem geração/descarte/aplicação. [Evidências e limites](../planejamento-features/execucao-f25.md): capturas desktop/mobile, 1440/768/390, reflow 320px/200%, teclado, foco e Axe nos escopos alterados. Não equivale a certificação global nem aprovação automática de novos baselines.
 
 Complemento do formulário público: Field aceita align=center mantendo start como padrão. Checkbox tem variante page baseada nas variáveis do tema; conserva input nativo, foco visível e fallback de cores forçadas. ContactForm centraliza campos/rótulos, usa a mesma fonte, cores, cantos e botão da página e aparece na simulação do editor. Metadados vêm do GET de prévia existente; falha tem retry e cancelar configuração restaura a simulação salva. Não há envio na prévia nem mudança nas regras de retenção/aceite.
+
+
+## Marca Confluência — aprovada em 23/10/2026
+
+O usuário escolheu o conceito 19 Confluência como identidade do Tem Link Aqui e autorizou aplicar a marca na branch codex/roadmap-f37-testes. Nome, navy #0A192F e turquesa #4AF9EB permanecem. Os símbolos de navegação/ações não mudam: a marca identifica somente o produto.
+
+Fonte canônica do site: frontend/public/logo.svg; consumidores existentes incluem SiteShell, menu móvel e renderShareKit. PersonalPageBrand usa /brand/confluencia/assinatura-claro.svg em 90 px, sem símbolo, para preservar leitura no rodapé. Cabeçalho usa logo a 40 px de altura em desktop e 32 px em mobile; menu usa 172×32. Ícones de metadata por convenção App Router: src/app/icon1.svg, icon.png, favicon.ico e apple-icon.png. Alternativas explícitas ficam em public/brand/confluencia/. Não escolher a logo escura pela preferência do navegador quando a superfície real é branca; o tema global continua claro. O favicon SVG adapta sua tinta à preferência do navegador.
+
+Kit e manual: branding/tem-link-aqui-2026-10-23/marca-confluencia/. Lettering em contornos, SVG sem fontes externas; fundos transparentes e versões em branco, navy e turquesa. Aprovação visual não equivale a pesquisa de registro de marca ou homologação industrial. Não foram alterados preços, elegibilidade, conteúdo, URLs ou regras de negócio.

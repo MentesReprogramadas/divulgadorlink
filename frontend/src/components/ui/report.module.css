@@ -1,19 +1,22 @@
 .metrics { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,190px),1fr)); gap: var(--space-4); margin: 0; }
-.metrics > div { background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-6); min-width: 0; }
-.metrics > div[data-primary] { border-top: 3px solid var(--color-brand-navy); }
+.metrics > div { --glass-tint: #06162438; position: relative; isolation: isolate; background: transparent; border: 0; border-radius: var(--radius-lg); padding: var(--space-6); min-width: 0; }
+.metrics > div[data-primary] { --glass-tint: #4af9eb24; }
 .metrics dt { color: var(--text-secondary); font-size: var(--text-sm); }
-.metrics dd { margin: var(--space-2) 0 0; font-family: var(--font-product); font-size: clamp(1.5rem,3vw,2rem); font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.metrics dd { border-radius: inherit; margin: var(--space-2) 0 0; font-family: var(--font-product); font-size: clamp(1.5rem,3vw,2rem); font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .metrics small { display: block; margin-top: var(--space-2); font-family: var(--font-sans); font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.6; font-weight: 400; }
-.report { display: grid; gap: var(--space-4); padding: var(--space-6); background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg); min-width: 0; }
+.report { --glass-tint: #06162438; position: relative; isolation: isolate; display: grid; gap: var(--space-4); padding: var(--space-6); background: transparent; border: 0; border-radius: var(--radius-lg); min-width: 0; }
 .report h2 { margin: 0; font-size: var(--text-lg); }
 .report header { display: grid; gap: var(--space-2); }
-.chart { height: 320px; min-width: 0; }
+/* Recharts retains the previous pixel width until ResizeObserver runs after a resize. */
+.chart { height: 320px; min-width: 0; overflow: clip; }
 .chart :global(.recharts-surface):focus-visible { outline: 3px solid var(--focus-ring); outline-offset: -3px; }
+.chart :global(.recharts-tooltip-wrapper) { max-width: 100%; }
 .tableBlock { display: grid; gap: var(--space-3); min-width: 0; }
 .tableWrap { border: 1px solid var(--border-default); border-radius: var(--radius); overflow-x: auto; }
 .tableWrap:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 3px; }
 .tableWrap table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
-.tableWrap th,.tableWrap td { text-align: left; padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--border-default); overflow-wrap: anywhere; min-width: 6rem; }
+.tableWrap th,.tableWrap td { text-align: left; padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--border-default); overflow-wrap: break-word; min-width: 8rem; }
+.tableWrap thead th { white-space: nowrap; }
 .tableWrap th[data-numeric],.tableWrap td[data-numeric] { text-align: right; white-space: nowrap; }
 .tableWrap thead { background: var(--surface-subtle); }
 .tableWrap tbody th { font-weight: 500; }
@@ -25,3 +28,7 @@
 @media (max-width:700px) { .report,.metrics > div { padding: var(--space-4); } .chart { height: 300px; } }
 @media (max-width:700px) { .metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media (max-width:360px) { .metrics { grid-template-columns:minmax(0,1fr); } }
+
+
+
+.tableWrap { background: var(--field-background); }

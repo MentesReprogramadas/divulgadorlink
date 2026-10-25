@@ -1,0 +1,2303 @@
+{
+ "url": "branding/tem-link-aqui-2026-10-23/index.html",
+ "at": "2026-10-23T10:27:49.150Z",
+ "allow": [
+  "still-page",
+  "eyebrow",
+  "icon-cards"
+ ],
+ "viewports": [
+  {
+   "width": 1440,
+   "height": 900,
+   "load": "load",
+   "screens": 7,
+   "filled": [
+    0.86,
+    0.62,
+    0.93,
+    0.93,
+    0.53,
+    0.93,
+    1
+   ],
+   "motion": {
+    "elements": 0,
+    "css": 0,
+    "transitions": 0,
+    "scripted": 0,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "page": {
+     "height": 5568,
+     "screens": 6.2,
+     "words": 381,
+     "img": 20,
+     "video": 0,
+     "canvas": 0,
+     "svg": 0,
+     "sections": 4,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 9,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "mockup.webp",
+      "mockup.webp",
+      "mockup.webp",
+      "mockup.webp",
+      "mockup.webp",
+      "mockup.webp",
+      "post.png",
+      "story.png"
+     ],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "A marca sai da tela.",
+     "words": 5,
+     "chars": 20,
+     "lines": 2,
+     "size": 96,
+     "vw": 6.7,
+     "font": "Outfit",
+     "weight": 500,
+     "tracking": -0.03,
+     "leading": 1.04,
+     "upper": false,
+     "italic": false,
+     "mono": false,
+     "align": "left",
+     "position": "left",
+     "widthRatio": 0.36,
+     "top": 204,
+     "tag": "h1",
+     "kind": "heading"
+    },
+    "h1": {
+     "text": "A marca sai da tela.",
+     "words": 5,
+     "lines": 2,
+     "size": 96,
+     "font": "Outfit"
+    },
+    "headings": [
+     {
+      "text": "A marca sai da tela.",
+      "words": 5,
+      "chars": 20,
+      "lines": 2,
+      "size": 96,
+      "vw": 6.7,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": -0.03,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.36,
+      "top": 204,
+      "tag": "h1",
+      "kind": "heading"
+     },
+     {
+      "text": "Mesmas cores. Novas formas.",
+      "words": 4,
+      "chars": 27,
+      "lines": 2,
+      "size": 57.6,
+      "vw": 4,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": -0.03,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.4,
+      "top": 808,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Ponte",
+      "words": 1,
+      "chars": 5,
+      "lines": 1,
+      "size": 56,
+      "vw": 3.9,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": -0.03,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.29,
+      "top": 1190,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "As quatro em uso.",
+      "words": 4,
+      "chars": 17,
+      "lines": 1,
+      "size": 57.6,
+      "vw": 4,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": -0.03,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.4,
+      "top": 1985,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Também vive na tela.",
+      "words": 4,
+      "chars": 20,
+      "lines": 1,
+      "size": 57.6,
+      "vw": 4,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": -0.03,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.4,
+      "top": 3652,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "O que faz a marca inteira.",
+      "words": 6,
+      "chars": 26,
+      "lines": 2,
+      "size": 57.6,
+      "vw": 4,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": -0.03,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.33,
+      "top": 4689,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "tem link aqui",
+      "words": 3,
+      "chars": 13,
+      "lines": 1,
+      "size": 168.5,
+      "vw": 11.7,
+      "font": "Outfit",
+      "weight": 400,
+      "tracking": -0.04,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.9,
+      "top": 5285,
+      "tag": "p",
+      "kind": "statement"
+     }
+    ],
+    "headingSummary": {
+     "count": 7,
+     "maxLines": 2,
+     "over2Lines": 0,
+     "statements": 1,
+     "centered": 0,
+     "medianWords": 4,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Outfit",
+       "share": 1,
+       "mono": false
+      }
+     ],
+     "familyCount": 1,
+     "sizes": [
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      20,
+      27,
+      56,
+      58,
+      96,
+      169
+     ],
+     "sizeCount": 12,
+     "notLoaded": [],
+     "body": {
+      "font": "Outfit",
+      "size": 18,
+      "leading": 1.55,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": 16.5
+     },
+     "measureChars": 63,
+     "max": {
+      "size": 168.5,
+      "vw": 11.7,
+      "font": "Outfit",
+      "text": "tem link aqui"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0,
+     "centerShare": 0,
+     "smallText": 0
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#f6f8fb",
+     "bodyBgHsl": {
+      "h": 216,
+      "s": 0.38,
+      "l": 0.97
+     },
+     "dark": false,
+     "sectionBgs": [
+      {
+       "color": "#0a192f",
+       "top": 0,
+       "hsl": {
+        "h": 216,
+        "s": 0.65,
+        "l": 0.11
+       }
+      },
+      {
+       "color": "#ffffff",
+       "top": 1885,
+       "hsl": {
+        "h": 0,
+        "s": 0,
+        "l": 1
+       }
+      },
+      {
+       "color": "#edf1f6",
+       "top": 4589,
+       "hsl": {
+        "h": 213,
+        "s": 0.33,
+        "l": 0.95
+       }
+      }
+     ],
+     "textColors": [
+      {
+       "color": "#0a192f",
+       "share": 0.68
+      },
+      {
+       "color": "#34445a",
+       "share": 0.14
+      },
+      {
+       "color": "#dce3ec",
+       "share": 0.09
+      },
+      {
+       "color": "#ffffff",
+       "share": 0.07
+      },
+      {
+       "color": "#4af9eb",
+       "share": 0.01
+      }
+     ],
+     "button": {
+      "bg": "#0a192f",
+      "hsl": {
+       "h": 216,
+       "s": 0.65,
+       "l": 0.11
+      },
+      "fg": "#ffffff"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 3,
+     "inHero": 1,
+     "radius": 0,
+     "height": 49,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Baixar o branding"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 0,
+     "shadowOverlay": 0,
+     "shadowSamples": [],
+     "gradients": 0,
+     "scrims": 0,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 0,
+     "hairlineSamples": [],
+     "outlinedBoxes": 0,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 0,
+     "boxRadius": 0,
+     "squareMedia": 9,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 0,
+     "cardRows": [
+      {
+       "count": 4,
+       "iconTopped": false,
+       "rounded": false,
+       "top": 1023
+      }
+     ]
+    },
+    "heroMedia": [
+     {
+      "type": "img",
+      "ratio": 0.27
+     }
+    ],
+    "nav": {
+     "links": 5,
+     "fixed": false,
+     "height": 708,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "outfit"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "pageH": 5568,
+    "margins": {
+     "left": 72,
+     "right": 72
+    },
+    "sections": [
+     {
+      "sel": "header.masthead",
+      "tag": "header",
+      "top": 0,
+      "height": 708,
+      "words": 41,
+      "media": 1,
+      "middle": 105,
+      "heading": {
+       "text": "A marca sai",
+       "size": 96,
+       "tag": "h1"
+      },
+      "left": 72,
+      "right": 72,
+      "textLeft": 72,
+      "textRight": 92,
+      "fullBleed": false,
+      "footer": false,
+      "hero": true,
+      "continues": false,
+      "pinned": false
+     },
+     {
+      "sel": "section#direcoes.directions.section",
+      "tag": "section",
+      "top": 708,
+      "height": 1177,
+      "words": 80,
+      "media": 3,
+      "middle": 0,
+      "heading": {
+       "text": "Mesmas cores.",
+       "size": 58,
+       "tag": "h2"
+      },
+      "left": 72,
+      "right": 72,
+      "textLeft": 72,
+      "textRight": 72,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#aplicacoes.applications.section",
+      "tag": "section",
+      "top": 1885,
+      "height": 1667,
+      "words": 76,
+      "media": 4,
+      "middle": 0,
+      "heading": {
+       "text": "As quatro em uso.",
+       "size": 58,
+       "tag": "h2"
+      },
+      "left": 72,
+      "right": 72,
+      "textLeft": 72,
+      "textRight": 72,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section.digital.section",
+      "tag": "section",
+      "top": 3552,
+      "height": 1037,
+      "words": 50,
+      "media": 3,
+      "middle": 42,
+      "heading": {
+       "text": "Também vive na tela.",
+       "size": 58,
+       "tag": "h2"
+      },
+      "left": 72,
+      "right": 72,
+      "textLeft": 72,
+      "textRight": 127,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#manual.manual.section",
+      "tag": "section",
+      "top": 4589,
+      "height": 562,
+      "words": 121,
+      "media": 0,
+      "middle": 205,
+      "heading": {
+       "text": "O que faz",
+       "size": 58,
+       "tag": "h2"
+      },
+      "left": 72,
+      "right": 77,
+      "textLeft": 72,
+      "textRight": 77,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "footer",
+      "tag": "footer",
+      "top": 5151,
+      "height": 416,
+      "words": 28,
+      "media": 0,
+      "middle": 254,
+      "heading": {
+       "text": "tem link aqui",
+       "size": 168,
+       "tag": "p"
+      },
+      "left": 72,
+      "right": 72,
+      "textLeft": 72,
+      "textRight": 72,
+      "fullBleed": false,
+      "footer": true,
+      "hero": false,
+      "continues": false,
+      "pinned": false
+     }
+    ],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "A marca sai da tela.",
+      "size": 96,
+      "top": 204,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [],
+    "edges": [
+     {
+      "x": 72,
+      "n": 11
+     },
+     {
+      "x": 792,
+      "n": 3
+     },
+     {
+      "x": 955,
+      "n": 1
+     }
+    ],
+    "leftBlocks": 15,
+    "bodySize": 18,
+    "stage": false,
+    "explains": true,
+    "slivers": [],
+    "voidShare": 0.13,
+    "voidBox": {
+     "x": 0,
+     "y": 660,
+     "w": 1440,
+     "h": 120
+    }
+   },
+   "app": null,
+   "consoleErrors": []
+  },
+  {
+   "width": 768,
+   "height": 1024,
+   "load": "load",
+   "screens": 6,
+   "filled": [
+    0.81,
+    0.53,
+    1,
+    0.43,
+    0.93,
+    1
+   ],
+   "motion": {
+    "elements": 0,
+    "css": 0,
+    "transitions": 0,
+    "scripted": 0,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 768,
+     "h": 1024
+    },
+    "page": {
+     "height": 5479,
+     "screens": 5.4,
+     "words": 375,
+     "img": 20,
+     "video": 0,
+     "canvas": 0,
+     "svg": 0,
+     "sections": 4,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 9,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "mockup.webp",
+      "mockup.webp",
+      "mockup.webp",
+      "mockup.webp",
+      "mockup.webp",
+      "mockup.webp",
+      "post.png",
+      "story.png"
+     ],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "A marca sai da tela.",
+     "words": 5,
+     "chars": 20,
+     "lines": 2,
+     "size": 48,
+     "vw": 6.3,
+     "font": "Outfit",
+     "weight": 500,
+     "tracking": -0.03,
+     "leading": 1.04,
+     "upper": false,
+     "italic": false,
+     "mono": false,
+     "align": "left",
+     "position": "left",
+     "widthRatio": 0.4,
+     "top": 143,
+     "tag": "h1",
+     "kind": "heading"
+    },
+    "h1": {
+     "text": "A marca sai da tela.",
+     "words": 5,
+     "lines": 2,
+     "size": 48,
+     "font": "Outfit"
+    },
+    "headings": [
+     {
+      "text": "A marca sai da tela.",
+      "words": 5,
+      "chars": 20,
+      "lines": 2,
+      "size": 48,
+      "vw": 6.3,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": -0.03,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.4,
+      "top": 143,
+      "tag": "h1",
+      "kind": "heading"
+     },
+     {
+      "text": "Mesmas cores. Novas formas.",
+      "words": 4,
+      "chars": 27,
+      "lines": 2,
+      "size": 35.2,
+      "vw": 4.6,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": -0.03,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.4,
+      "top": 655,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Ponte",
+      "words": 1,
+      "chars": 5,
+      "lines": 1,
+      "size": 27,
+      "vw": 3.5,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": 0,
+      "leading": 1.15,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.14,
+      "top": 939,
+      "tag": "span",
+      "kind": "heading"
+     },
+     {
+      "text": "Rota",
+      "words": 1,
+      "chars": 4,
+      "lines": 1,
+      "size": 27,
+      "vw": 3.5,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": 0,
+      "leading": 1.15,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.14,
+      "top": 939,
+      "tag": "span",
+      "kind": "heading"
+     },
+     {
+      "text": "Farol",
+      "words": 1,
+      "chars": 5,
+      "lines": 1,
+      "size": 27,
+      "vw": 3.5,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": 0,
+      "leading": 1.15,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.14,
+      "top": 949,
+      "tag": "span",
+      "kind": "heading"
+     },
+     {
+      "text": "Liga",
+      "words": 1,
+      "chars": 4,
+      "lines": 1,
+      "size": 27,
+      "vw": 3.5,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": 0,
+      "leading": 1.15,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.14,
+      "top": 949,
+      "tag": "span",
+      "kind": "heading"
+     },
+     {
+      "text": "Ponte",
+      "words": 1,
+      "chars": 5,
+      "lines": 1,
+      "size": 32,
+      "vw": 4.2,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": -0.03,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.36,
+      "top": 1085,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "As quatro em uso.",
+      "words": 4,
+      "chars": 17,
+      "lines": 1,
+      "size": 35.2,
+      "vw": 4.6,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": -0.03,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.4,
+      "top": 1907,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Ponte",
+      "words": 1,
+      "chars": 5,
+      "lines": 1,
+      "size": 27,
+      "vw": 3.5,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": -0.03,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.51,
+      "top": 2278,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "Farol",
+      "words": 1,
+      "chars": 5,
+      "lines": 1,
+      "size": 27,
+      "vw": 3.5,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": -0.03,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.36,
+      "top": 2338,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "Liga",
+      "words": 1,
+      "chars": 4,
+      "lines": 1,
+      "size": 27,
+      "vw": 3.5,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": -0.03,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.36,
+      "top": 2730,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "Rota",
+      "words": 1,
+      "chars": 4,
+      "lines": 1,
+      "size": 27,
+      "vw": 3.5,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": -0.03,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.51,
+      "top": 2910,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "Também vive na tela.",
+      "words": 4,
+      "chars": 20,
+      "lines": 2,
+      "size": 35.2,
+      "vw": 4.6,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": -0.03,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.4,
+      "top": 3327,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "O que faz a marca inteira.",
+      "words": 6,
+      "chars": 26,
+      "lines": 2,
+      "size": 35.2,
+      "vw": 4.6,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": -0.03,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.33,
+      "top": 4294,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "tem link aqui",
+      "words": 3,
+      "chars": 13,
+      "lines": 1,
+      "size": 89.9,
+      "vw": 11.7,
+      "font": "Outfit",
+      "weight": 400,
+      "tracking": -0.04,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.9,
+      "top": 5262,
+      "tag": "p",
+      "kind": "statement"
+     }
+    ],
+    "headingSummary": {
+     "count": 15,
+     "maxLines": 2,
+     "over2Lines": 0,
+     "statements": 1,
+     "centered": 0,
+     "medianWords": 1,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Outfit",
+       "share": 1,
+       "mono": false
+      }
+     ],
+     "familyCount": 1,
+     "sizes": [
+      14,
+      15,
+      16,
+      17,
+      18,
+      20,
+      27,
+      32,
+      35,
+      48,
+      90
+     ],
+     "sizeCount": 11,
+     "notLoaded": [],
+     "body": {
+      "font": "Outfit",
+      "size": 18,
+      "leading": 1.55,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": 16.5
+     },
+     "measureChars": 24,
+     "max": {
+      "size": 89.9,
+      "vw": 11.7,
+      "font": "Outfit",
+      "text": "tem link aqui"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0,
+     "centerShare": 0,
+     "smallText": 0
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#f6f8fb",
+     "bodyBgHsl": {
+      "h": 216,
+      "s": 0.38,
+      "l": 0.97
+     },
+     "dark": false,
+     "sectionBgs": [
+      {
+       "color": "#0a192f",
+       "top": 0,
+       "hsl": {
+        "h": 216,
+        "s": 0.65,
+        "l": 0.11
+       }
+      },
+      {
+       "color": "#ffffff",
+       "top": 1732,
+       "hsl": {
+        "h": 0,
+        "s": 0,
+        "l": 1
+       }
+      },
+      {
+       "color": "#edf1f6",
+       "top": 4194,
+       "hsl": {
+        "h": 213,
+        "s": 0.33,
+        "l": 0.95
+       }
+      }
+     ],
+     "textColors": [
+      {
+       "color": "#0a192f",
+       "share": 0.68
+      },
+      {
+       "color": "#34445a",
+       "share": 0.14
+      },
+      {
+       "color": "#dce3ec",
+       "share": 0.1
+      },
+      {
+       "color": "#ffffff",
+       "share": 0.07
+      },
+      {
+       "color": "#4af9eb",
+       "share": 0.01
+      }
+     ],
+     "button": {
+      "bg": "#0a192f",
+      "hsl": {
+       "h": 216,
+       "s": 0.65,
+       "l": 0.11
+      },
+      "fg": "#ffffff"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 3,
+     "inHero": 1,
+     "radius": 0,
+     "height": 49,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Baixar o branding"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 0,
+     "shadowOverlay": 0,
+     "shadowSamples": [],
+     "gradients": 0,
+     "scrims": 0,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 0,
+     "hairlineSamples": [],
+     "outlinedBoxes": 0,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 0,
+     "boxRadius": 0,
+     "squareMedia": 8,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 0,
+     "cardRows": [
+      {
+       "count": 4,
+       "iconTopped": false,
+       "rounded": false,
+       "top": 823
+      }
+     ]
+    },
+    "heroMedia": [
+     {
+      "type": "img",
+      "ratio": 0.11
+     }
+    ],
+    "nav": {
+     "links": 5,
+     "fixed": false,
+     "height": 517,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "outfit"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 768,
+     "h": 1024
+    },
+    "pageH": 5479,
+    "margins": {
+     "left": 38,
+     "right": 38
+    },
+    "sections": [
+     {
+      "sel": "header.masthead",
+      "tag": "header",
+      "top": 0,
+      "height": 517,
+      "words": 41,
+      "media": 1,
+      "middle": 7,
+      "heading": {
+       "text": "A marca sai",
+       "size": 48,
+       "tag": "h1"
+      },
+      "left": 38,
+      "right": 38,
+      "textLeft": 38,
+      "textRight": 58,
+      "fullBleed": false,
+      "footer": false,
+      "hero": true,
+      "continues": false,
+      "pinned": false
+     },
+     {
+      "sel": "section#direcoes.directions.section",
+      "tag": "section",
+      "top": 517,
+      "height": 1215,
+      "words": 74,
+      "media": 1,
+      "middle": 0,
+      "heading": {
+       "text": "Mesmas cores.",
+       "size": 35,
+       "tag": "h2"
+      },
+      "left": 38,
+      "right": 38,
+      "textLeft": 38,
+      "textRight": 62,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#aplicacoes.applications.section",
+      "tag": "section",
+      "top": 1732,
+      "height": 1457,
+      "words": 76,
+      "media": 4,
+      "middle": 0,
+      "heading": {
+       "text": "As quatro em uso.",
+       "size": 35,
+       "tag": "h2"
+      },
+      "left": 38,
+      "right": 38,
+      "textLeft": 38,
+      "textRight": 40,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section.digital.section",
+      "tag": "section",
+      "top": 3188,
+      "height": 1005,
+      "words": 50,
+      "media": 3,
+      "middle": 31,
+      "heading": {
+       "text": "Também vive na tela.",
+       "size": 35,
+       "tag": "h2"
+      },
+      "left": 38,
+      "right": 38,
+      "textLeft": 38,
+      "textRight": 42,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#manual.manual.section",
+      "tag": "section",
+      "top": 4194,
+      "height": 904,
+      "words": 121,
+      "media": 0,
+      "middle": 86,
+      "heading": {
+       "text": "O que faz",
+       "size": 35,
+       "tag": "h2"
+      },
+      "left": 38,
+      "right": 39,
+      "textLeft": 38,
+      "textRight": 39,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "footer",
+      "tag": "footer",
+      "top": 5098,
+      "height": 381,
+      "words": 28,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "tem link aqui",
+       "size": 90,
+       "tag": "p"
+      },
+      "left": 38,
+      "right": 277,
+      "textLeft": 38,
+      "textRight": 277,
+      "fullBleed": false,
+      "footer": true,
+      "hero": false,
+      "continues": false,
+      "pinned": false
+     }
+    ],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "A marca sai da tela.",
+      "size": 48,
+      "top": 143,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [],
+    "edges": [
+     {
+      "x": 38,
+      "n": 11
+     },
+     {
+      "x": 422,
+      "n": 3
+     },
+     {
+      "x": 454,
+      "n": 1
+     }
+    ],
+    "leftBlocks": 15,
+    "bodySize": 18,
+    "stage": false,
+    "explains": true,
+    "slivers": [],
+    "voidShare": 0,
+    "voidBox": null
+   },
+   "app": null,
+   "consoleErrors": []
+  },
+  {
+   "width": 390,
+   "height": 844,
+   "load": "load",
+   "screens": 9,
+   "filled": [
+    0.93,
+    0.65,
+    0.66,
+    1,
+    1,
+    0.71,
+    0.74,
+    1,
+    1
+   ],
+   "motion": {
+    "elements": 0,
+    "css": 0,
+    "transitions": 0,
+    "scripted": 0,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 390,
+     "h": 844
+    },
+    "page": {
+     "height": 6839,
+     "screens": 8.1,
+     "words": 381,
+     "img": 20,
+     "video": 0,
+     "canvas": 0,
+     "svg": 0,
+     "sections": 4,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 9,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "mockup.webp",
+      "mockup.webp",
+      "mockup.webp",
+      "mockup.webp",
+      "mockup.webp",
+      "mockup.webp",
+      "post.png",
+      "story.png"
+     ],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "A marca sai da tela.",
+     "words": 5,
+     "chars": 20,
+     "lines": 2,
+     "size": 51.2,
+     "vw": 13.1,
+     "font": "Outfit",
+     "weight": 500,
+     "tracking": -0.03,
+     "leading": 1.04,
+     "upper": false,
+     "italic": false,
+     "mono": false,
+     "align": "left",
+     "position": "center",
+     "widthRatio": 0.9,
+     "top": 164,
+     "tag": "h1",
+     "kind": "heading"
+    },
+    "h1": {
+     "text": "A marca sai da tela.",
+     "words": 5,
+     "lines": 2,
+     "size": 51.2,
+     "font": "Outfit"
+    },
+    "headings": [
+     {
+      "text": "A marca sai da tela.",
+      "words": 5,
+      "chars": 20,
+      "lines": 2,
+      "size": 51.2,
+      "vw": 13.1,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": -0.03,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.9,
+      "top": 164,
+      "tag": "h1",
+      "kind": "heading"
+     },
+     {
+      "text": "Mesmas cores. Novas formas.",
+      "words": 4,
+      "chars": 27,
+      "lines": 2,
+      "size": 35.2,
+      "vw": 9,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": -0.03,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.9,
+      "top": 846,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Ponte",
+      "words": 1,
+      "chars": 5,
+      "lines": 1,
+      "size": 22,
+      "vw": 5.6,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": 0,
+      "leading": 1.15,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.2,
+      "top": 1113,
+      "tag": "span",
+      "kind": "heading"
+     },
+     {
+      "text": "Farol",
+      "words": 1,
+      "chars": 5,
+      "lines": 1,
+      "size": 22,
+      "vw": 5.6,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": 0,
+      "leading": 1.15,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.2,
+      "top": 1113,
+      "tag": "span",
+      "kind": "heading"
+     },
+     {
+      "text": "Liga",
+      "words": 1,
+      "chars": 4,
+      "lines": 1,
+      "size": 22,
+      "vw": 5.6,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": 0,
+      "leading": 1.15,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.2,
+      "top": 1227,
+      "tag": "span",
+      "kind": "heading"
+     },
+     {
+      "text": "Rota",
+      "words": 1,
+      "chars": 4,
+      "lines": 1,
+      "size": 22,
+      "vw": 5.6,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": 0,
+      "leading": 1.15,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.2,
+      "top": 1227,
+      "tag": "span",
+      "kind": "heading"
+     },
+     {
+      "text": "Ponte",
+      "words": 1,
+      "chars": 5,
+      "lines": 1,
+      "size": 42,
+      "vw": 10.8,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": -0.03,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.9,
+      "top": 1644,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "As quatro em uso.",
+      "words": 4,
+      "chars": 17,
+      "lines": 1,
+      "size": 35.2,
+      "vw": 9,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": -0.03,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.9,
+      "top": 2358,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Ponte",
+      "words": 1,
+      "chars": 5,
+      "lines": 1,
+      "size": 28,
+      "vw": 7.2,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": -0.03,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.61,
+      "top": 2810,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "Farol",
+      "words": 1,
+      "chars": 5,
+      "lines": 1,
+      "size": 28,
+      "vw": 7.2,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": -0.03,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.62,
+      "top": 3206,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "Liga",
+      "words": 1,
+      "chars": 4,
+      "lines": 1,
+      "size": 28,
+      "vw": 7.2,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": -0.03,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.63,
+      "top": 3603,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "Rota",
+      "words": 1,
+      "chars": 4,
+      "lines": 1,
+      "size": 28,
+      "vw": 7.2,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": -0.03,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.63,
+      "top": 4000,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "Também vive na tela.",
+      "words": 4,
+      "chars": 20,
+      "lines": 1,
+      "size": 35.2,
+      "vw": 9,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": -0.03,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.9,
+      "top": 4286,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "O que faz a marca inteira.",
+      "words": 6,
+      "chars": 26,
+      "lines": 2,
+      "size": 35.2,
+      "vw": 9,
+      "font": "Outfit",
+      "weight": 500,
+      "tracking": -0.03,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.9,
+      "top": 5444,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "tem link aqui",
+      "words": 3,
+      "chars": 13,
+      "lines": 1,
+      "size": 45.6,
+      "vw": 11.7,
+      "font": "Outfit",
+      "weight": 400,
+      "tracking": -0.04,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.9,
+      "top": 6666,
+      "tag": "p",
+      "kind": "statement"
+     }
+    ],
+    "headingSummary": {
+     "count": 15,
+     "maxLines": 2,
+     "over2Lines": 0,
+     "statements": 1,
+     "centered": 0,
+     "medianWords": 1,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Outfit",
+       "share": 1,
+       "mono": false
+      }
+     ],
+     "familyCount": 1,
+     "sizes": [
+      13,
+      14,
+      16,
+      17,
+      18,
+      22,
+      28,
+      35,
+      42,
+      46,
+      51
+     ],
+     "sizeCount": 11,
+     "notLoaded": [],
+     "body": {
+      "font": "Outfit",
+      "size": 16,
+      "leading": 1.55,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": 15.5
+     },
+     "measureChars": 44,
+     "max": {
+      "size": 51.2,
+      "vw": 13.1,
+      "font": "Outfit",
+      "text": "A marca saida tela."
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0,
+     "centerShare": 0,
+     "smallText": 0
+    },
+    "eyebrows": [
+     {
+      "text": "Simulação visual por IA.",
+      "above": "Ponte",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": false,
+      "size": 13,
+      "top": 1592
+     }
+    ],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#f6f8fb",
+     "bodyBgHsl": {
+      "h": 216,
+      "s": 0.38,
+      "l": 0.97
+     },
+     "dark": false,
+     "sectionBgs": [
+      {
+       "color": "#0a192f",
+       "top": 0,
+       "hsl": {
+        "h": 216,
+        "s": 0.65,
+        "l": 0.11
+       }
+      },
+      {
+       "color": "#ffffff",
+       "top": 2294,
+       "hsl": {
+        "h": 0,
+        "s": 0,
+        "l": 1
+       }
+      },
+      {
+       "color": "#edf1f6",
+       "top": 5380,
+       "hsl": {
+        "h": 213,
+        "s": 0.33,
+        "l": 0.95
+       }
+      }
+     ],
+     "textColors": [
+      {
+       "color": "#0a192f",
+       "share": 0.68
+      },
+      {
+       "color": "#34445a",
+       "share": 0.14
+      },
+      {
+       "color": "#dce3ec",
+       "share": 0.09
+      },
+      {
+       "color": "#ffffff",
+       "share": 0.07
+      },
+      {
+       "color": "#4af9eb",
+       "share": 0.01
+      }
+     ],
+     "button": {
+      "bg": "#0a192f",
+      "hsl": {
+       "h": 216,
+       "s": 0.65,
+       "l": 0.11
+      },
+      "fg": "#ffffff"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 3,
+     "inHero": 1,
+     "radius": 0,
+     "height": 49,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Baixar o branding"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 0,
+     "shadowOverlay": 0,
+     "shadowSamples": [],
+     "gradients": 0,
+     "scrims": 0,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 0,
+     "hairlineSamples": [],
+     "outlinedBoxes": 0,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 0,
+     "boxRadius": 0,
+     "squareMedia": 7,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 0,
+     "cardRows": [
+      {
+       "count": 4,
+       "iconTopped": true,
+       "rounded": false,
+       "top": 1097
+      }
+     ]
+    },
+    "heroMedia": [
+     {
+      "type": "img",
+      "ratio": 0.25
+     }
+    ],
+    "nav": {
+     "links": 5,
+     "fixed": false,
+     "height": 782,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "outfit"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 390,
+     "h": 844
+    },
+    "pageH": 6839,
+    "margins": {
+     "left": 20,
+     "right": 20
+    },
+    "sections": [
+     {
+      "sel": "header.masthead",
+      "tag": "header",
+      "top": 0,
+      "height": 782,
+      "words": 41,
+      "media": 1,
+      "middle": 0,
+      "heading": {
+       "text": "A marca sai",
+       "size": 51,
+       "tag": "h1"
+      },
+      "left": 20,
+      "right": 20,
+      "textLeft": 20,
+      "textRight": 30,
+      "fullBleed": false,
+      "footer": false,
+      "hero": true,
+      "continues": false,
+      "pinned": false
+     },
+     {
+      "sel": "div.section-heading",
+      "tag": "div",
+      "top": 846,
+      "height": 176,
+      "words": 26,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Novas formas.",
+       "size": 35,
+       "tag": "h2"
+      },
+      "left": 20,
+      "right": 20,
+      "textLeft": 20,
+      "textRight": 20,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "fieldset.selector",
+      "tag": "fieldset",
+      "top": 1055,
+      "height": 258,
+      "words": 21,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Ponte",
+       "size": 22,
+       "tag": "span"
+      },
+      "left": 20,
+      "right": 20,
+      "textLeft": 22,
+      "textRight": 52,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "div#selected-direction.selected",
+      "tag": "div",
+      "top": 1344,
+      "height": 886,
+      "words": 31,
+      "media": 1,
+      "middle": 0,
+      "heading": {
+       "text": "Ponte",
+       "size": 42,
+       "tag": "h3"
+      },
+      "left": 20,
+      "right": 20,
+      "textLeft": 20,
+      "textRight": 20,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "div.section-heading",
+      "tag": "div",
+      "top": 2358,
+      "height": 166,
+      "words": 22,
+      "media": 0,
+      "middle": 0,
+      "heading": null,
+      "left": 20,
+      "right": 72,
+      "textLeft": 20,
+      "textRight": 72,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "div.photo-wall",
+      "tag": "div",
+      "top": 2556,
+      "height": 1514,
+      "words": 34,
+      "media": 4,
+      "middle": 0,
+      "heading": {
+       "text": "Ponte",
+       "size": 28,
+       "tag": "h3"
+      },
+      "left": 20,
+      "right": 20,
+      "textLeft": 20,
+      "textRight": 20,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section.digital.section",
+      "tag": "section",
+      "top": 4222,
+      "height": 1158,
+      "words": 50,
+      "media": 3,
+      "middle": 0,
+      "heading": {
+       "text": "Também vive na tela.",
+       "size": 35,
+       "tag": "h2"
+      },
+      "left": 20,
+      "right": 20,
+      "textLeft": 20,
+      "textRight": 23,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#manual.manual.section",
+      "tag": "section",
+      "top": 5380,
+      "height": 1123,
+      "words": 121,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "O que faz",
+       "size": 35,
+       "tag": "h2"
+      },
+      "left": 20,
+      "right": 24,
+      "textLeft": 20,
+      "textRight": 24,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "footer",
+      "tag": "footer",
+      "top": 6502,
+      "height": 337,
+      "words": 28,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "tem link aqui",
+       "size": 46,
+       "tag": "p"
+      },
+      "left": 20,
+      "right": 73,
+      "textLeft": 20,
+      "textRight": 73,
+      "fullBleed": false,
+      "footer": true,
+      "hero": false,
+      "continues": false,
+      "pinned": false
+     }
+    ],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "A marca sai da tela.",
+      "size": 51,
+      "top": 164,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [],
+    "edges": [
+     {
+      "x": 20,
+      "n": 14
+     }
+    ],
+    "leftBlocks": 14,
+    "bodySize": 16,
+    "stage": false,
+    "explains": true,
+    "slivers": [],
+    "voidShare": 0,
+    "voidBox": null
+   },
+   "app": null,
+   "consoleErrors": []
+  }
+ ],
+ "findings": [
+  {
+   "level": "WARN",
+   "id": "size-count",
+   "width": 1440,
+   "message": "12 different font sizes (13, 14, 15, 16, 17, 18, 20, 27, 56, 58, 96, 169).",
+   "fix": "A page needs about five: display, heading, lead, body, small.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "no-footage",
+   "width": 1440,
+   "message": "No video anywhere on the page.",
+   "fix": "Look for one honest clip with scripts/assets.mjs --video (the place, the material, the process) and use it as a muted loop with a poster frame. Defend its absence only if no clip fits the subject."
+  }
+ ],
+ "images": [
+  {
+   "viewport": "desktop",
+   "width": 1440,
+   "fold": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\research\\taste\\inspect-final\\desktop-fold.jpg",
+   "pages": [
+    "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\research\\taste\\inspect-final\\desktop-page-01.jpg",
+    "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\research\\taste\\inspect-final\\desktop-page-02.jpg"
+   ],
+   "film": []
+  },
+  {
+   "viewport": "tablet",
+   "width": 768,
+   "fold": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\research\\taste\\inspect-final\\tablet-fold.jpg",
+   "pages": [
+    "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\research\\taste\\inspect-final\\tablet-page-01.jpg"
+   ],
+   "film": []
+  },
+  {
+   "viewport": "mobile",
+   "width": 390,
+   "fold": "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\research\\taste\\inspect-final\\mobile-fold.jpg",
+   "pages": [
+    "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\research\\taste\\inspect-final\\mobile-page-01.jpg",
+    "C:\\VSCODE\\divulgadorlinks\\branding\\tem-link-aqui-2026-10-23\\research\\taste\\inspect-final\\mobile-page-02.jpg"
+   ],
+   "film": []
+  }
+ ]
+}

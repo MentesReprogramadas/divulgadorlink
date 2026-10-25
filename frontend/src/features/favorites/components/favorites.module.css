@@ -10,16 +10,16 @@
 .collectionGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr)); gap: var(--space-6); list-style: none; padding: 0; margin: 0; }
 .collectionGrid > li { min-width: 0; display: grid; }
 .collectionCard { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-4); min-height: 188px; width: 100%; padding: var(--space-6); border: 1px solid var(--border-default); border-radius: var(--radius); background: var(--surface-raised); color: var(--text-primary); text-align: left; cursor: pointer; }
-.collectionCard:hover { border-color: var(--color-brand-navy); box-shadow: var(--shadow); }
-.collectionCard:focus-visible { outline: 2px solid var(--color-brand-navy); outline-offset: 3px; }
+.collectionCard:hover { border-color: var(--color-link); box-shadow: var(--shadow); }
+.collectionCard:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
 .collectionCard:disabled { opacity: .6; cursor: wait; }
 .collectionCard strong { font-family: var(--font-product); font-size: var(--text-lg); overflow-wrap: anywhere; }
-.collectionFolder { display: grid; place-items: center; width: 56px; height: 56px; border-radius: var(--radius-md); background: var(--surface-subtle); color: var(--color-brand-navy); }
+.collectionFolder { display: grid; place-items: center; width: 56px; height: 56px; border-radius: var(--radius-md); background: var(--surface-subtle); color: var(--color-link); }
 .openCollection { display: flex; align-items: center; gap: var(--space-2); margin-top: auto; font-size: var(--text-sm); color: var(--text-secondary); }
 .collectionHeader { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4); }
 .collectionHeading { display: flex; align-items: center; gap: var(--space-4); min-width: 0; flex: 1 1 20rem; }
 .collectionHeading h2 { min-width: 0; overflow-wrap: anywhere; font-size: var(--text-lg); }
-.collectionHeading h2:focus { outline: 2px solid var(--color-brand-navy); outline-offset: 4px; }
+.collectionHeading h2:focus { outline: 2px solid var(--focus-ring); outline-offset: 4px; }
 .collectionHeading > button { flex: none; }
 .collectionHeaderActions { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-3); min-width: 0; max-width: 100%; }
 .list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr)); gap: var(--space-6); list-style: none; padding: 0; margin: 0; }
@@ -29,7 +29,7 @@
 .orderActions { min-width: 0; }
 .orderActions summary { display: flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: 44px; padding: var(--space-2); border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--surface-subtle); color: var(--text-primary); font-size: var(--text-sm); font-weight: 600; cursor: pointer; list-style: none; }
 .orderActions summary::-webkit-details-marker { display: none; }
-.orderActions summary:focus-visible { outline: 2px solid var(--color-brand-navy); outline-offset: 3px; }
+.orderActions summary:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
 .orderActions > div { display: grid; gap: var(--space-2); margin-top: var(--space-2); }
 .unavailable { padding: var(--space-6); border: 1px dashed var(--border-default); border-radius: var(--radius); }
 .select { display: grid; gap: var(--space-2); max-width: 380px; }
@@ -39,13 +39,43 @@
 .collectionChoices button span { flex-wrap: wrap; overflow-wrap: anywhere; }
 .collectionChoices small { color: var(--text-secondary); }
 .save { position: relative; }
-.favorite { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; color: #a66b00; background: transparent; cursor: pointer; }
+.favorite { --glass-tint: #b0fdef12; position: relative; isolation: isolate; display: grid; place-items: center; width: 42px; height: 42px; padding: 0; border: 0; border-radius: 50%; color: #e1f7f7; background: transparent; cursor: pointer; }
+.favorite[aria-pressed='true'] { --glass-tint: #4af9eb30; color: #adfff4; }
 .favorite:hover svg { stroke-width: 2.2; }
 .favorite:disabled { opacity: .6; cursor: wait; }
-.saveError { position: absolute; right: 0; top: 100%; z-index: 2; width: min(16rem, 65vw); padding: var(--space-3); background: var(--surface-raised); border: 1px solid #b4233b; border-radius: var(--radius-md); color: #b4233b; }
-.danger { color: #b4233b; border-color: #e8a4ae; }
+.saveError {
+  --glass-tint: #0a192ff2;
+  --glass-fallback: #0a192f;
+  --lens-frost: 12px;
+  position: absolute;
+  isolation: isolate;
+  right: 0;
+  top: 100%;
+  z-index: 2;
+  width: min(16rem, 65vw);
+  margin: var(--space-2) 0 0;
+  padding: var(--space-3);
+  background: transparent;
+  border: 1px solid var(--status-error-border);
+  border-radius: 12px;
+  box-shadow: var(--glass-shadow);
+  -webkit-backdrop-filter: blur(12px) saturate(1.15);
+  backdrop-filter: blur(12px) saturate(1.15);
+  color: var(--status-error-text);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.danger { color: var(--status-error-text); border-color: var(--status-error-border); }
 .status:empty { display: none; }
-.status:focus { outline: 2px solid var(--color-brand-navy); outline-offset: 4px; }
+.status:focus { outline: 2px solid var(--focus-ring); outline-offset: 4px; }
 @media (max-width: 480px) { .actions > button { flex: 1 1 auto; } .collection { padding: var(--space-4); } }
+@media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+  .saveError { -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
 
 .publicPage { padding-block:var(--space-8); }
+
+/* Same optical material as Ondas; layout and state selectors stay local. */
+.collection { composes: surface from '../../feature-glass.module.css'; background: transparent; }
+.collectionCard { composes: surface from '../../feature-glass.module.css'; background: transparent; }
+.unavailable { composes: surface from '../../feature-glass.module.css'; background: transparent; }

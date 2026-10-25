@@ -1,0 +1,452 @@
+[
+  {
+    "file": "simbolo.svg",
+    "bytes": 246,
+    "viewBox": [
+      0.0,
+      0.0,
+      256.0,
+      256.0
+    ],
+    "aspect": 1.0,
+    "aspect_class": "square",
+    "colors": [
+      "#0a192f",
+      "#4af9eb"
+    ],
+    "gradients": 0,
+    "anchors": 14,
+    "library_anchor_percentiles": {
+      "p10": 21.0,
+      "p25": 31.0,
+      "median": 53.0,
+      "p75": 95.5,
+      "p90": 194.0,
+      "p95": 274.0
+    },
+    "content_bbox": [
+      32.0,
+      32.0,
+      232.0,
+      224.0
+    ],
+    "margins": {
+      "left": 32.0,
+      "right": 24.0,
+      "top": 32.0,
+      "bottom": 32.0
+    },
+    "bbox_fill_ratio": 0.586,
+    "score": 99,
+    "findings": [
+      {
+        "level": "INFO",
+        "code": "off-centre-x",
+        "message": "Horizontal margins differ (left 32.0, right 24.0). Intentional optical centring? Otherwise centre it."
+      }
+    ]
+  },
+  {
+    "file": "logo-horizontal-cor.svg",
+    "bytes": 4867,
+    "viewBox": [
+      0.0,
+      0.0,
+      1256.0,
+      256.0
+    ],
+    "aspect": 4.906,
+    "aspect_class": "extra-wide",
+    "colors": [
+      "#0a192f",
+      "#4af9eb"
+    ],
+    "gradients": 0,
+    "anchors": 177,
+    "library_anchor_percentiles": {
+      "p10": 23.0,
+      "p25": 37.0,
+      "median": 75.0,
+      "p75": 155.0,
+      "p90": 257.8,
+      "p95": 379.45
+    },
+    "content_bbox": [
+      32.0,
+      32.0,
+      1225.19,
+      224.0
+    ],
+    "margins": {
+      "left": 32.0,
+      "right": 30.8,
+      "top": 32.0,
+      "bottom": 32.0
+    },
+    "bbox_fill_ratio": 0.712,
+    "score": 98,
+    "findings": [
+      {
+        "level": "INFO",
+        "code": "complexity",
+        "message": "177 anchor points (library median 75.0, p75 155.0). Check every point earns its place."
+      },
+      {
+        "level": "INFO",
+        "code": "extra-wide",
+        "message": "Extra-wide lockup (>4.5:1) shrinks badly; provide a stacked lockup and a standalone symbol."
+      }
+    ]
+  },
+  {
+    "file": "logo-horizontal-branco.svg",
+    "bytes": 4867,
+    "viewBox": [
+      0.0,
+      0.0,
+      1256.0,
+      256.0
+    ],
+    "aspect": 4.906,
+    "aspect_class": "extra-wide",
+    "colors": [
+      "#ffffff"
+    ],
+    "gradients": 0,
+    "anchors": 177,
+    "library_anchor_percentiles": {
+      "p10": 23.0,
+      "p25": 37.0,
+      "median": 75.0,
+      "p75": 155.0,
+      "p90": 257.8,
+      "p95": 379.45
+    },
+    "content_bbox": [
+      32.0,
+      32.0,
+      1225.19,
+      224.0
+    ],
+    "margins": {
+      "left": 32.0,
+      "right": 30.8,
+      "top": 32.0,
+      "bottom": 32.0
+    },
+    "bbox_fill_ratio": 0.712,
+    "score": 98,
+    "findings": [
+      {
+        "level": "INFO",
+        "code": "complexity",
+        "message": "177 anchor points (library median 75.0, p75 155.0). Check every point earns its place."
+      },
+      {
+        "level": "INFO",
+        "code": "extra-wide",
+        "message": "Extra-wide lockup (>4.5:1) shrinks badly; provide a stacked lockup and a standalone symbol."
+      }
+    ]
+  },
+  {
+    "file": "simbolo.svg",
+    "bytes": 336,
+    "viewBox": [
+      0.0,
+      0.0,
+      256.0,
+      256.0
+    ],
+    "aspect": 1.0,
+    "aspect_class": "square",
+    "colors": [
+      "#0a192f",
+      "#4af9eb"
+    ],
+    "gradients": 0,
+    "anchors": 20,
+    "library_anchor_percentiles": {
+      "p10": 21.0,
+      "p25": 31.0,
+      "median": 53.0,
+      "p75": 95.5,
+      "p90": 194.0,
+      "p95": 274.0
+    },
+    "content_bbox": [
+      32.0,
+      32.0,
+      232.0,
+      224.0
+    ],
+    "margins": {
+      "left": 32.0,
+      "right": 24.0,
+      "top": 32.0,
+      "bottom": 32.0
+    },
+    "bbox_fill_ratio": 0.586,
+    "score": 99,
+    "findings": [
+      {
+        "level": "INFO",
+        "code": "off-centre-x",
+        "message": "Horizontal margins differ (left 32.0, right 24.0). Intentional optical centring? Otherwise centre it."
+      }
+    ]
+  },
+  {
+    "file": "logo-horizontal-cor.svg",
+    "bytes": 4957,
+    "viewBox": [
+      0.0,
+      0.0,
+      1256.0,
+      256.0
+    ],
+    "aspect": 4.906,
+    "aspect_class": "extra-wide",
+    "colors": [
+      "#0a192f",
+      "#4af9eb"
+    ],
+    "gradients": 0,
+    "anchors": 183,
+    "library_anchor_percentiles": {
+      "p10": 23.0,
+      "p25": 37.0,
+      "median": 75.0,
+      "p75": 155.0,
+      "p90": 257.8,
+      "p95": 379.45
+    },
+    "content_bbox": [
+      32.0,
+      32.0,
+      1225.19,
+      224.0
+    ],
+    "margins": {
+      "left": 32.0,
+      "right": 30.8,
+      "top": 32.0,
+      "bottom": 32.0
+    },
+    "bbox_fill_ratio": 0.712,
+    "score": 98,
+    "findings": [
+      {
+        "level": "INFO",
+        "code": "complexity",
+        "message": "183 anchor points (library median 75.0, p75 155.0). Check every point earns its place."
+      },
+      {
+        "level": "INFO",
+        "code": "extra-wide",
+        "message": "Extra-wide lockup (>4.5:1) shrinks badly; provide a stacked lockup and a standalone symbol."
+      }
+    ]
+  },
+  {
+    "file": "logo-horizontal-branco.svg",
+    "bytes": 4957,
+    "viewBox": [
+      0.0,
+      0.0,
+      1256.0,
+      256.0
+    ],
+    "aspect": 4.906,
+    "aspect_class": "extra-wide",
+    "colors": [
+      "#ffffff"
+    ],
+    "gradients": 0,
+    "anchors": 183,
+    "library_anchor_percentiles": {
+      "p10": 23.0,
+      "p25": 37.0,
+      "median": 75.0,
+      "p75": 155.0,
+      "p90": 257.8,
+      "p95": 379.45
+    },
+    "content_bbox": [
+      32.0,
+      32.0,
+      1225.19,
+      224.0
+    ],
+    "margins": {
+      "left": 32.0,
+      "right": 30.8,
+      "top": 32.0,
+      "bottom": 32.0
+    },
+    "bbox_fill_ratio": 0.712,
+    "score": 98,
+    "findings": [
+      {
+        "level": "INFO",
+        "code": "complexity",
+        "message": "183 anchor points (library median 75.0, p75 155.0). Check every point earns its place."
+      },
+      {
+        "level": "INFO",
+        "code": "extra-wide",
+        "message": "Extra-wide lockup (>4.5:1) shrinks badly; provide a stacked lockup and a standalone symbol."
+      }
+    ]
+  },
+  {
+    "file": "simbolo.svg",
+    "bytes": 300,
+    "viewBox": [
+      0.0,
+      0.0,
+      256.0,
+      256.0
+    ],
+    "aspect": 1.0,
+    "aspect_class": "square",
+    "colors": [
+      "#0a192f",
+      "#4af9eb"
+    ],
+    "gradients": 0,
+    "anchors": 22,
+    "library_anchor_percentiles": {
+      "p10": 21.0,
+      "p25": 31.0,
+      "median": 53.0,
+      "p75": 95.5,
+      "p90": 194.0,
+      "p95": 274.0
+    },
+    "content_bbox": [
+      40.0,
+      32.0,
+      232.0,
+      224.0
+    ],
+    "margins": {
+      "left": 40.0,
+      "right": 24.0,
+      "top": 32.0,
+      "bottom": 32.0
+    },
+    "bbox_fill_ratio": 0.562,
+    "score": 99,
+    "findings": [
+      {
+        "level": "INFO",
+        "code": "off-centre-x",
+        "message": "Horizontal margins differ (left 40.0, right 24.0). Intentional optical centring? Otherwise centre it."
+      }
+    ]
+  },
+  {
+    "file": "logo-horizontal-cor.svg",
+    "bytes": 4921,
+    "viewBox": [
+      0.0,
+      0.0,
+      1256.0,
+      256.0
+    ],
+    "aspect": 4.906,
+    "aspect_class": "extra-wide",
+    "colors": [
+      "#0a192f",
+      "#4af9eb"
+    ],
+    "gradients": 0,
+    "anchors": 185,
+    "library_anchor_percentiles": {
+      "p10": 23.0,
+      "p25": 37.0,
+      "median": 75.0,
+      "p75": 155.0,
+      "p90": 257.8,
+      "p95": 379.45
+    },
+    "content_bbox": [
+      40.0,
+      32.0,
+      1225.19,
+      224.0
+    ],
+    "margins": {
+      "left": 40.0,
+      "right": 30.8,
+      "top": 32.0,
+      "bottom": 32.0
+    },
+    "bbox_fill_ratio": 0.708,
+    "score": 98,
+    "findings": [
+      {
+        "level": "INFO",
+        "code": "complexity",
+        "message": "185 anchor points (library median 75.0, p75 155.0). Check every point earns its place."
+      },
+      {
+        "level": "INFO",
+        "code": "extra-wide",
+        "message": "Extra-wide lockup (>4.5:1) shrinks badly; provide a stacked lockup and a standalone symbol."
+      }
+    ]
+  },
+  {
+    "file": "logo-horizontal-branco.svg",
+    "bytes": 4921,
+    "viewBox": [
+      0.0,
+      0.0,
+      1256.0,
+      256.0
+    ],
+    "aspect": 4.906,
+    "aspect_class": "extra-wide",
+    "colors": [
+      "#ffffff"
+    ],
+    "gradients": 0,
+    "anchors": 185,
+    "library_anchor_percentiles": {
+      "p10": 23.0,
+      "p25": 37.0,
+      "median": 75.0,
+      "p75": 155.0,
+      "p90": 257.8,
+      "p95": 379.45
+    },
+    "content_bbox": [
+      40.0,
+      32.0,
+      1225.19,
+      224.0
+    ],
+    "margins": {
+      "left": 40.0,
+      "right": 30.8,
+      "top": 32.0,
+      "bottom": 32.0
+    },
+    "bbox_fill_ratio": 0.708,
+    "score": 98,
+    "findings": [
+      {
+        "level": "INFO",
+        "code": "complexity",
+        "message": "185 anchor points (library median 75.0, p75 155.0). Check every point earns its place."
+      },
+      {
+        "level": "INFO",
+        "code": "extra-wide",
+        "message": "Extra-wide lockup (>4.5:1) shrinks badly; provide a stacked lockup and a standalone symbol."
+      }
+    ]
+  }
+]

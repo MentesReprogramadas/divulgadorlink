@@ -3,6 +3,7 @@ import {Prisma,type PrismaClient} from '@prisma/client'
 import type {z} from 'zod'
 import {ProfileError} from '@/domain/profiles/profile'
 import {profileInput} from '@/domain/profiles/profile-input'
+import {contentBlockInput} from '@/domain/profiles/content-block'
 import {agencyTransferInput,agencyTransferReady} from '@/domain/access/agency'
 import {recipientDigest,type ProfileActor} from '@/domain/access/profile-access'
 import {env} from '@/env'
@@ -62,7 +63,11 @@ export async function decideProfileTransfer(db:PrismaClient,a:ProfileActor,id:st
   const source=await personal(tx,{tenantId:a.tenantId,ownerId:row.sourceOwnerId,age:a.age});if(!source.hashes.length)throw new ProfileError(409,'O titular atual precisa confirmar novamente o e-mail.')
   const page=await tx.profile.findFirst({where:{id:row.profileId,tenantId:a.tenantId,ownerId:row.sourceOwnerId,owner:{status:'ACTIVE'}}}),targetPage=await tx.profile.findUnique({where:{tenantId_ownerId:{tenantId:a.tenantId,ownerId:a.ownerId}}})
   if(!page||!agencyTransferReady(row,now,page.version,Boolean(targetPage)))throw new ProfileError(409,'A página foi alterada ou sua conta já tem uma página. Peça uma nova transferência após ajustar.')
-  const assets=new Set<string>();if(page.avatarAssetId)assets.add(page.avatarAssetId);for(const raw of [page.publication,page.publishedDraft]){const parsed=profileInput.safeParse(raw);if(parsed.success&&parsed.data.avatarAssetId)assets.add(parsed.data.avatarAssetId)}
+  const blocks=await tx.$queryRaw<Array<{content:unknown}>>`SELECT content FROM profile_content_blocks WHERE "profileId"=${page.id} AND "tenantId"=${a.tenantId} AND "ownerId"=${row.sourceOwnerId}`
+  const history=await tx.profileRevision.findMany({where:{profileId:page.id,tenantId:a.tenantId,ownerId:row.sourceOwnerId},select:{snapshot:true}})
+  const assets=new Set<string>();if(page.avatarAssetId)assets.add(page.avatarAssetId)
+  for(const block of contentBlockInput.array().parse(blocks[0]?.content??[]))if(block.type==='IMAGE')assets.add(block.assetId)
+  for(const raw of [page.publication,page.publishedDraft,...history.map(revision=>revision.snapshot)]){const parsed=profileInput.safeParse(raw);if(parsed.success){if(parsed.data.avatarAssetId)assets.add(parsed.data.avatarAssetId);for(const block of parsed.data.contentBlocks??[])if(block.type==='IMAGE')assets.add(block.assetId)}}
   const photos=await tx.profileAsset.findMany({where:{tenantId:a.tenantId,ownerId:row.sourceOwnerId,id:{in:[...assets]}}});if(photos.length)await tx.profileAsset.createMany({data:photos.map(photo=>({...photo,ownerId:a.ownerId})),skipDuplicates:true})
   await tx.profileMembership.deleteMany({where:{profileId:page.id,tenantId:a.tenantId,userId:a.ownerId}})
   await tx.profileMembership.updateMany({where:{profileId:page.id,tenantId:a.tenantId,status:'ACTIVE'},data:{status:'REVOKED',version:{increment:1}}})

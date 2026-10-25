@@ -1,3 +1,4 @@
+import { readApprovedLinkMedia } from './link-media'
 import { randomUUID } from 'node:crypto'
 import { Prisma, type PrismaClient } from '@prisma/client'
 import { PUBLIC_LINK_FILTER } from '@/domain/catalog/public-link'
@@ -25,10 +26,10 @@ export async function favoritesOperation(db: PrismaClient, scope: Scope, operati
     const actors = await tx.$queryRaw<Array<{ status: string }>>`SELECT status::text FROM users WHERE id=${userId} AND "tenantId"=${tenantId} ${write ? Prisma.sql`FOR UPDATE` : Prisma.empty}`
     if (!actors[0] || actors[0].status !== 'ACTIVE') throw new FavoritesError(403, 'Conta indisponível para esta ação.')
     const owner = { tenantId, userId }
-    const view = (favorite: { id: string; linkId: string; link: Prisma.LinkGetPayload<{ include: typeof linkInclude }> }) => {
+    const view = (favorite: { id: string; linkId: string; link: Prisma.LinkGetPayload<{ include: typeof linkInclude }> }, media: Awaited<ReturnType<typeof readApprovedLinkMedia>>) => {
       const l = favorite.link
       const visible = l.status === 'PUBLISHED' && l.tenantId === tenantId && l.niche.tenantId === tenantId && l.network.tenantId === tenantId && (!l.ownerId || (l.owner?.status !== 'BANNED' && l.owner?.tenantId === tenantId)) && (scope.age || !(l.niche.requiresAge || l.network.requiresAge))
-      return favoriteView({ ...favorite, visible, name: l.name, description: l.description, niche: { name: l.niche.name, slug: l.niche.slug }, network: { name: l.network.name, slug: l.network.slug } })
+      return { ...favoriteView({ ...favorite, visible, name: l.name, description: l.description, niche: { name: l.niche.name, slug: l.niche.slug }, network: { name: l.network.name, slug: l.network.slug } }), ...(visible ? media.get(l.id) : {}) }
     }
     if (operation.kind === 'favorite') {
       const where = { tenantId_userId_linkId: { ...owner, linkId: operation.linkId } }
@@ -52,7 +53,8 @@ export async function favoritesOperation(db: PrismaClient, scope: Scope, operati
     if (operation.kind === 'list-favorites') {
       if (operation.cursor && !await tx.favorite.findFirst({ where: { ...owner, id: operation.cursor } })) throw notFound()
       const rows = await tx.favorite.findMany({ where: { ...owner, ...(operation.cursor ? { id: { gt: operation.cursor } } : {}) }, orderBy: { id: 'asc' }, take: 21, include: { link: { include: linkInclude }, items: { select: { collectionId: true } } } })
-      return { items: rows.slice(0, 20).map(row => ({ ...view(row), collectionIds: row.items.map(i => i.collectionId) })), nextCursor: rows.length > 20 ? rows[19]!.id : null }
+      const media = await readApprovedLinkMedia(tx, tenantId, rows.slice(0,20).map(row => row.linkId))
+      return { items: rows.slice(0, 20).map(row => ({ ...view(row, media), collectionIds: row.items.map(i => i.collectionId) })), nextCursor: rows.length > 20 ? rows[19]!.id : null }
     }
     if (operation.kind === 'list-collections') {
       if (operation.cursor && !await tx.collection.findFirst({ where: { ...owner, id: operation.cursor } })) throw notFound()
@@ -76,7 +78,8 @@ export async function favoritesOperation(db: PrismaClient, scope: Scope, operati
       const cursor = operation.cursor ? await tx.collectionItem.findFirst({ where: { collectionId: collection.id, favoriteId: operation.cursor, ...owner } }) : null
       if (operation.cursor && !cursor) throw notFound()
       const rows = await tx.collectionItem.findMany({ where: { collectionId: collection.id, ...owner, ...(cursor ? { OR: [{ position: { gt: cursor.position } }, { position: cursor.position, favoriteId: { gt: cursor.favoriteId } }] } : {}) }, orderBy: [{ position: 'asc' }, { favoriteId: 'asc' }], take: 21, include: { favorite: { include: { link: { include: linkInclude } } } } })
-      return { collection, items: rows.slice(0, 20).map(row => ({ ...view(row.favorite), position: row.position })), nextCursor: rows.length > 20 ? rows[19]!.favoriteId : null }
+      const media = await readApprovedLinkMedia(tx, tenantId, rows.slice(0,20).map(row => row.favorite.linkId))
+      return { collection, items: rows.slice(0, 20).map(row => ({ ...view(row.favorite, media), position: row.position })), nextCursor: rows.length > 20 ? rows[19]!.favoriteId : null }
     }
     if (operation.kind === 'item') {
       const favorite = await tx.favorite.findFirst({ where: { id: operation.favoriteId, ...owner } })

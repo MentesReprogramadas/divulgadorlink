@@ -24,9 +24,12 @@ export function forward(input: {
   analyticsTest?: string
   timeoutMs?: number
 }): Promise<{ status: number; headers: NodeJS.Dict<string | string[]>; body: Buffer }> {
-  // Match the API's existing Fastify 1 MiB body limit before writing to a socket.
+  const pathname = input.path.split('?', 1)[0]
+  const mediaUpload = input.method === 'PUT' && /^\/api\/v1\/links\/[A-Za-z0-9_-]+\/media\/(?:icon|image)$/.exec(pathname)?.[0] === pathname
+  const bodyLimit = mediaUpload || input.method === 'POST' && pathname === '/api/v1/links' ? 2 * 1024 * 1024 : 1024 * 1024
+  // Match the API's route-specific Fastify body limits before writing to a socket.
   // An early upstream 413 may close that socket while a larger body is still being sent.
-  if (input.body && input.body.length > 1024 * 1024) return Promise.resolve({
+  if (input.body && input.body.length > bodyLimit) return Promise.resolve({
     status: 413,
     headers: { 'content-type': 'application/json' },
     body: Buffer.from(JSON.stringify({ code: 'validation', message: 'Corpo grande demais.', request_id: randomUUID() })),

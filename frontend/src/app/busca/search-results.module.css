@@ -5,12 +5,15 @@
 }
 
 .context {
+  --glass-tint: var(--surface-glass);
+  position: relative;
+  isolation: isolate;
   max-width: 900px;
   margin-bottom: var(--space-8);
   padding: var(--space-4);
-  border: 1px solid var(--border-default);
+  border: 0;
   border-radius: var(--radius);
-  background: var(--surface-raised);
+  background: transparent;
 }
 
 .context p {
@@ -25,7 +28,7 @@
   justify-content: space-between;
   gap: var(--space-4);
   min-height: 44px;
-  color: var(--color-brand-navy);
+  color: var(--color-link);
   font-weight: 600;
   text-underline-offset: 3px;
 }

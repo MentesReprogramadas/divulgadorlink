@@ -1,3 +1,4 @@
+import { readApprovedLinkMedia } from './link-media'
 import {cityById,type DiscoveryMetadata} from '@/domain/catalog/discovery-metadata'
 import { randomBytes } from 'node:crypto'
 import { Prisma, type PrismaClient } from '@prisma/client'
@@ -30,6 +31,7 @@ export async function readRelatedLinks(db: PrismaClient, input: { tenantId: stri
   const selected = selectRelated(rows, source, input.age, seed), page = selected.slice(0, RELATED_PAGE_SIZE), last = page.at(-1)
   const config = await new PrismaConfigsRepository(tx).findByTenantAndKey(input.tenantId, 'SHOW_IMPRESSIONS'), showImpressions = impressionsEnabled(config?.value)
   const counts = showImpressions ? await new PrismaAnalyticsRepository(tx).impressionTotals(input.tenantId, page.map(r => r.id)) : new Map<string, number>()
-  return { items: page.map(r => ({ id: r.id, name: r.name, description: r.description, discovery:{city:cityById(r.cityId),languageTag:r.languageTag,modality:r.modality}, niche: { name: r.nicheName, slug: r.nicheSlug }, network: { name: r.networkName, slug: r.networkSlug }, sponsored: false, surfaceToken: signSurface(input.tenantId, r.id, 'related', input.secret), ...(showImpressions ? { impressions: counts.get(r.id) ?? 0 } : {}) })), showImpressions, nextCursor: selected.length > RELATED_PAGE_SIZE && last ? encodeRelatedCursor({ rank: relatedRank(source, last)!, id: last.id, seed }, context, input.secret) : null }
+  const media = await readApprovedLinkMedia(tx, input.tenantId, page.map(row => row.id))
+  return { items: page.map(r => ({ ...media.get(r.id), id: r.id, name: r.name, description: r.description, discovery:{city:cityById(r.cityId),languageTag:r.languageTag,modality:r.modality}, niche: { name: r.nicheName, slug: r.nicheSlug }, network: { name: r.networkName, slug: r.networkSlug }, sponsored: false, surfaceToken: signSurface(input.tenantId, r.id, 'related', input.secret), ...(showImpressions ? { impressions: counts.get(r.id) ?? 0 } : {}) })), showImpressions, nextCursor: selected.length > RELATED_PAGE_SIZE && last ? encodeRelatedCursor({ rank: relatedRank(source, last)!, id: last.id, seed }, context, input.secret) : null }
   }, { isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead })
 }

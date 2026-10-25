@@ -32,7 +32,7 @@ async function target(tx: Prisma.TransactionClient, row: ContentReview) {
     return { profile, redirect: null }
   }
   const redirect = await tx.redirectDestination.findFirst({ where: { id: row.redirectRevisionId!, tenantId: row.tenantId, number: row.version, handle: { tenantId: row.tenantId, ownerId: row.ownerId, version: row.version, disabled: false } } })
-  if (!redirect) throw new ContentReviewError(409, 'O convite mudou. Analise o envio mais recente.')
+  if (!redirect) throw new ContentReviewError(409, 'O link permanente mudou. Analise o envio mais recente.')
   return { profile: null, redirect }
 }
 export async function listContentReviews(db: PrismaClient, actor: ReviewActor, kind: 'PROFILE' | 'REDIRECT') {
@@ -88,6 +88,7 @@ export async function decideContentReview(db: PrismaClient, actor: ReviewActor, 
       const refs = [...new Set(profile.items.filter(item => item.type === 'CATALOG').map(item => item.destination))]
       const links = await tx.link.findMany({ where: { id: { in: refs }, tenantId: row.tenantId, ownerId: row.ownerId, status: 'PUBLISHED', niche: { tenantId: row.tenantId }, network: { tenantId: row.tenantId } }, select: { id: true } })
       if (links.length !== refs.length) throw new ContentReviewError(422, 'Um link do catálogo mudou. Peça a correção antes de aprovar.')
+      for(const block of profile.contentBlocks??[])if(block.type==='IMAGE'&&!await tx.profileAsset.findUnique({where:{tenantId_ownerId_id:{tenantId:row.tenantId,ownerId:row.ownerId,id:block.assetId}}}))throw new ContentReviewError(422,'Uma imagem não está mais disponível. Peça um novo envio.')
       if (profile.avatarAssetId && !await tx.profileAsset.findUnique({ where: { tenantId_ownerId_id: { tenantId: row.tenantId, ownerId: row.ownerId, id: profile.avatarAssetId } } })) throw new ContentReviewError(422, 'A foto não está mais disponível. Peça um novo envio.')
       await tx.profile.update({ where: { id: resource.profile.id }, data: { publication: visibleProfile(profile, new Set(links.map(link => link.id))), publishedDraft: profileInput.parse(row.snapshot), publishedVersion: row.version } })
       await recordProfileRevision(tx, resource.profile, profileInput.parse(row.snapshot))

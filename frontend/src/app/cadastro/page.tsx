@@ -1,11 +1,14 @@
 'use client'
 
+import styles from '@/components/forms/public-account.module.css'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Field, Input } from '@/components/ui/input'
 import { trackMeta } from '@/domain/meta-pixel'
 import { writeSession } from '@/domain/session'
 import { api } from '@/lib/api'
+import { syncCampaignTouch } from '@/lib/campaign-touch'
+import {LiquidLens} from '@/components/ui/liquid-lens'
 
 export default function Page() {
   const [error, setError] = useState('')
@@ -18,6 +21,7 @@ export default function Page() {
     setError('')
     const data = new FormData(event.currentTarget)
     try {
+      if (document.cookie.split('; ').includes('tla_consent=marketing')) await syncCampaignTouch()
       const result = await api<{ role?: string; user?: { id: string; status: string; canSubmitLink: boolean }; message?: string }>('/v1/auth/register', {
         method: 'POST',
         body: JSON.stringify({
@@ -59,10 +63,10 @@ export default function Page() {
   }
 
   return (
-    <main className="auth-page">
+    <main className={`auth-page ${styles.page}`}>
       <h1 className="entry-title">Criar conta</h1>
       <p className="auth-lead">O e-mail precisa ser confirmado antes de enviar um link.</p>
-      <form className="auth-form form-grid" onSubmit={onSubmit}>
+      <form method="post" className={`auth-form form-grid ${styles.form}`} onSubmit={onSubmit}><LiquidLens radius={16}/>
         <Field label="Nome"><Input name="name" autoComplete="name" required /></Field>
         <Field label="E-mail"><Input name="email" type="email" autoComplete="email" required /></Field>
         <Field label="Senha"><Input name="password" type="password" autoComplete="new-password" minLength={8} required /></Field>

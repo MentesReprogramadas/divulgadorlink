@@ -217,3 +217,13 @@ Pedido posterior do usuário: concluir a feature atual, atualizar documentação
 ## Migração e publicação da branch — 21/10/2026
 
 Por novo pedido explícito do usuário, as seis migrations do lote foram aplicadas ao banco **local** `localhost:5437/divulgador`. O container existente `backend-postgres-1`, confirmado como pertencente a este projeto, estava parado e foi iniciado preservando seu volume. Backup PostgreSQL custom foi salvo fora do repositório em `C:/Users/ferna/.codex/backups/divulgadorlinks/before-roadmap-f36-20261021.dump` e seu índice foi conferido antes de migrar. `prisma migrate deploy`, `prisma migrate status` (67 migrations, atualizado) e `prisma generate`: exit 0. Nenhum reset, seed ou migração em produção. O pedido também autoriza commit e push deste lote para `codex/roadmap-f37-testes`; CI/produção permanecem gates separados. Chave mestra da F30 continua pendente de configuração.
+
+
+## Revisão das sete áreas e F40 — 21/10/2026
+
+Novo pedido explícito: revalidar F24/F30/F35/F39/F26/F36/F40, simplificar jornadas, usar padrões existentes e reorganizar sidebar. Seis features revalidadas; F40 implementada e validada localmente. Total 41/42 implementações locais; F41 não iniciada. [Revisão/evidências](../frontend-profissional/revisao-fluxos-2026-10-21.md), [D42/F40](execucao-f40.md). O commit/push anterior d97efed publicou o lote até F36; a revisão posterior permanece em WORKTREE, sem autorização de nova publicação. CI/produção continuam pendentes.
+
+
+## Segunda revisão da sidebar — 21/10/2026
+
+Proposta aprovada pelo usuário: contextos Minha página/Meus links/Clientes, conta/equipe comuns e Links permanentes em toda a apresentação do recurso, com Distribuir acessos. Sem nova feature comercial, migração, commit/push/deploy. [Estrutura, escolhas e testes](../frontend-profissional/sidebar-por-contexto-2026-10-21.md). Esse mapa substitui somente a organização visual Publicar/Cuidar e crescer; as entregas anteriores e os gates remotos não mudaram.

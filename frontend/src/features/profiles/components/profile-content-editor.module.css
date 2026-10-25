@@ -1,0 +1,17 @@
+.editor,.fields,.list { display:grid;gap:20px;min-width:0; }
+.editor > header { display:grid;gap:8px; }
+.editor h2,.editor h3,.editor p { margin:0; }
+.editor > header p { color:var(--text-secondary);line-height:1.6;max-width:65ch; }
+.actions { display:flex;align-items:end;flex-wrap:wrap;gap:10px; }
+.fields { margin:0;padding:20px;border:1px solid var(--border-default);border-radius:16px; }
+.fields legend { padding:0 8px;font-weight:600; }
+.card { display:grid;gap:16px;padding:20px;border:1px solid var(--border-default);border-radius:16px;background:var(--surface-raised);min-width:0; }
+.card > div:first-child { display:grid;gap:8px;min-width:0; }
+.card span { font-size:.8rem;color:var(--text-secondary); }
+.card p { overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow-wrap:anywhere;line-height:1.5; }
+.card h3 { font-size:1.05rem;overflow-wrap:anywhere; }
+@media(max-width:480px){.fields,.card{padding:16px}.actions>button{flex-grow:1}}
+
+/* Same optical material as Ondas; layout and state selectors stay local. */
+.fields { composes: surface from '../../feature-glass.module.css'; background: transparent; }
+.card { composes: surface from '../../feature-glass.module.css'; background: transparent; }

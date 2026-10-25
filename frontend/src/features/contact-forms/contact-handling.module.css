@@ -8,3 +8,19 @@
 .answers dt { font-weight:600; }
 .answers dd { margin:0; overflow-wrap:anywhere; }
 .entry p { margin:0; }
+.note { display:grid; gap:var(--space-4); }
+.history { grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr)); gap:var(--space-4); }
+.entry { display:grid; align-content:start; justify-items:start; gap:var(--space-3); }
+.entryTitle { display:flex; align-items:center; gap:var(--space-3); }
+.entryIcon { display:grid; place-items:center; padding:var(--space-2); border-radius:var(--radius-md); background:var(--surface-subtle); color:var(--text-primary); flex:none; }
+.entry[data-kind='note.created'] .entryIcon { color:var(--status-success-text); background:var(--surface-subtle); }
+.entry[data-kind='note.deleted'] .entryIcon { color:var(--status-error-text); background:var(--surface-subtle); }
+.confirm { display:grid; gap:var(--space-4); min-width:0; padding:var(--space-4); border:1px solid var(--border-default); border-radius:var(--radius-md); }
+.confirm h3,.confirm p { margin:0; }
+.pagination { display:flex; justify-content:space-between; align-items:center; gap:var(--space-3); flex-wrap:wrap; }
+
+/* Same optical material as Ondas; layout and state selectors stay local. */
+.note { composes: surface from '../feature-glass.module.css'; background: transparent; }
+.entry { composes: surface from '../feature-glass.module.css'; background: transparent; }
+.confirm { composes: surface from '../feature-glass.module.css'; background: transparent; }
+.entry[data-kind] .entryIcon { color:var(--text-primary); }

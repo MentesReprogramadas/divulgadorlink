@@ -27,11 +27,11 @@ export async function inviteWorkspace(db:PrismaClient,a:Actor,input:{email:strin
 export async function acceptWorkspace(db:PrismaClient,a:Actor,token:string){return db.$transaction(async tx=>{
  const lookup=await tx.$queryRaw<Invite[]>`SELECT * FROM workspace_invitations WHERE "tokenHash"=${tokenDigest(token)} AND "tenantId"=${a.tenantId}`
  if(!lookup[0])throw new ProfileError(404,'Convite não encontrado.')
- const found=lookup[0];await lock(tx,{...a,sub:found.ownerId})
+ const found=lookup[0],owner=await lock(tx,{...a,sub:found.ownerId})
  const rows=await tx.$queryRaw<Invite[]>`SELECT * FROM workspace_invitations WHERE id=${found.id} FOR UPDATE`,row=rows[0],user=await active(tx,a)
  if(!invitationAvailable(row,new Date()))throw new ProfileError(409,'Convite expirado, revogado ou já utilizado.')
  if(found.ownerId===a.sub||!user.identifiers.some(id=>id.kind==='EMAIL'&&id.confirmedAt&&recipientDigest(id.normalizedValue,env.JWT_SECRET)===row.recipientHash))throw new ProfileError(403,'Entre com o e-mail confirmado convidado.')
- const grants=workspaceGrants.parse(row.grants)
+ const grants=validateGrants(row.grants,owner.role)
  await tx.$executeRaw`INSERT INTO workspace_memberships(id,"tenantId","ownerId","userId",grants) VALUES(${randomUUID()},${a.tenantId},${row.ownerId},${a.sub},${JSON.stringify(grants)}::jsonb) ON CONFLICT("tenantId","ownerId","userId") DO UPDATE SET grants=EXCLUDED.grants,"revokedAt"=NULL,version=workspace_memberships.version+1`
  await tx.$executeRaw`UPDATE workspace_invitations SET "usedAt"=CURRENT_TIMESTAMP WHERE id=${row.id}`
  await audit(tx,a,'workspace.accepted',row.ownerId,{invitationId:row.id});return {ownerId:row.ownerId}

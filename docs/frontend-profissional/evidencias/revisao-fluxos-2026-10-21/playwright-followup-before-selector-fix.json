@@ -1,0 +1,700 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "e2e/profile-discovery.spec.ts",
+      "e2e/profile-diagnostics.spec.ts",
+      "e2e/feature-readonly.spec.ts",
+      "--project=features",
+      "--project=features-mobile"
+    ],
+    "configFile": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\playwright.config.ts",
+    "rootDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\global-setup.ts",
+    "globalTeardown": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\global-teardown.ts",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "setup",
+        "name": "setup",
+        "testDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/auth\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features",
+        "name": "features",
+        "testDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/feature-readonly\\.spec\\.ts|profile-diagnostics\\.spec\\.ts|agency\\.spec\\.ts|button-tests\\.spec\\.ts|profile-languages\\.spec\\.ts|contact-handling\\.spec\\.ts|platform-webhooks\\.spec\\.ts|profile-discovery\\.spec\\.ts|profile-hosts\\.spec\\.ts|public-collections\\.spec\\.ts|share-kit\\.spec\\.ts|profile-events\\.spec\\.ts|ownership\\.spec\\.ts|profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features-mobile",
+        "name": "features-mobile",
+        "testDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/feature-readonly\\.spec\\.ts|profile-diagnostics\\.spec\\.ts|agency\\.spec\\.ts|button-tests\\.spec\\.ts|profile-languages\\.spec\\.ts|contact-handling\\.spec\\.ts|platform-webhooks\\.spec\\.ts|profile-discovery\\.spec\\.ts|profile-hosts\\.spec\\.ts|public-collections\\.spec\\.ts|share-kit\\.spec\\.ts|profile-events\\.spec\\.ts|ownership\\.spec\\.ts|profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "catalog",
+        "name": "catalog",
+        "testDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/catalog\\.spec\\.ts|mail\\.spec\\.ts|advertise\\.spec\\.ts|legal\\.spec\\.ts|funnel\\.spec\\.ts|signup\\.spec\\.ts|submit-link\\.spec\\.ts|security-headers\\.spec\\.ts|google-ads-submission\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "auth.setup.ts",
+      "file": "auth.setup.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "sessão da Bia para os testes do painel",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "setup",
+              "projectName": "setup",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 414,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T17:49:58.413Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "17e3fe6f4d9d8bd79c6b-40367c7f5b2a9e9ad033",
+          "file": "auth.setup.ts",
+          "line": 8,
+          "column": 6
+        }
+      ]
+    },
+    {
+      "title": "feature-readonly.spec.ts",
+      "file": "feature-readonly.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F30/F35/F39/F26 leitura permite consultar, trocar etapas e recuperar rede sem conceder escrita",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 120134,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\feature-readonly.spec.ts",
+                        "column": 11,
+                        "line": 18
+                      },
+                      "message": "Error: browserContext.close: Protocol error (Target.disposeBrowserContext): Failed to find context with id 6CB0421DA7933FF3993993A2D8FAC8A2\n\n  16 |   await reader.goto(roadmapOrigin+'/painel/integracoes');await expect(reader.getByRole('button',{name:'Nova integração'})).toHaveCount(0);await expect(reader.getByRole('button',{name:'Atualizar integrações'})).toBeEnabled();await reader.route('**/bff/v1/me/integrations/endpoints',route=>route.abort('failed'));await reader.getByRole('button',{name:'Atualizar integrações'}).click();await expect(reader.getByRole('main').getByRole('alert')).toContainText('Sem conexão');await reader.unrouteAll({behavior:'wait'});await reader.getByRole('button',{name:'Tentar de novo'}).click();await expect(reader.getByRole('main').getByRole('alert')).toHaveCount(0)\n  17 |   await reader.goto(roadmapOrigin+'/painel/perfil/testes');await expect(reader.getByRole('button',{name:'Atualizar testes'})).toBeEnabled();await expect(reader.getByRole('button',{name:'Comparar um botão'})).toHaveCount(0);await capturePage(reader,info.outputPath('readonly-comparison.png'));expect((await roadmapApi(page,'/me/profile')).body.draft.version).toBe(2)\n> 18 |  }finally{await context.close();sql(`DELETE FROM workspace_memberships WHERE \"tenantId\"='${f.tenantId}' AND \"ownerId\"='${f.ownerId}'`)}\n     |           ^\n  19 | })\n  20 |\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\feature-readonly.spec.ts:18:11"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T17:49:59.269Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\feature-readonly-F30-F35-F-25b56-r-rede-sem-conceder-escrita-features\\test-failed-1.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\feature-readonly-F30-F35-F-25b56-r-rede-sem-conceder-escrita-features\\test-failed-2.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\feature-readonly-F30-F35-F-25b56-r-rede-sem-conceder-escrita-features\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\feature-readonly-F30-F35-F-25b56-r-rede-sem-conceder-escrita-features\\trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "d87c937728f765fc1d1d-c89873a153f227c8b1ff",
+          "file": "feature-readonly.spec.ts",
+          "line": 8,
+          "column": 5
+        },
+        {
+          "title": "F30/F35/F39/F26 leitura permite consultar, trocar etapas e recuperar rede sem conceder escrita",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 120130,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\feature-readonly.spec.ts",
+                        "column": 11,
+                        "line": 18
+                      },
+                      "message": "Error: browserContext.close: Test ended.\nBrowser logs:\n\n<launching> C:\\Users\\ferna\\AppData\\Local\\ms-playwright\\chromium_headless_shell-1243\\chrome-headless-shell-win64\\chrome-headless-shell.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=C:\\Users\\ferna\\AppData\\Local\\Temp\\playwright_chromiumdev_profile-nYsNos --remote-debugging-pipe --no-startup-window\n<launched> pid=57804\n[pid=57804] <gracefully close start>\n\n  16 |   await reader.goto(roadmapOrigin+'/painel/integracoes');await expect(reader.getByRole('button',{name:'Nova integração'})).toHaveCount(0);await expect(reader.getByRole('button',{name:'Atualizar integrações'})).toBeEnabled();await reader.route('**/bff/v1/me/integrations/endpoints',route=>route.abort('failed'));await reader.getByRole('button',{name:'Atualizar integrações'}).click();await expect(reader.getByRole('main').getByRole('alert')).toContainText('Sem conexão');await reader.unrouteAll({behavior:'wait'});await reader.getByRole('button',{name:'Tentar de novo'}).click();await expect(reader.getByRole('main').getByRole('alert')).toHaveCount(0)\n  17 |   await reader.goto(roadmapOrigin+'/painel/perfil/testes');await expect(reader.getByRole('button',{name:'Atualizar testes'})).toBeEnabled();await expect(reader.getByRole('button',{name:'Comparar um botão'})).toHaveCount(0);await capturePage(reader,info.outputPath('readonly-comparison.png'));expect((await roadmapApi(page,'/me/profile')).body.draft.version).toBe(2)\n> 18 |  }finally{await context.close();sql(`DELETE FROM workspace_memberships WHERE \"tenantId\"='${f.tenantId}' AND \"ownerId\"='${f.ownerId}'`)}\n     |           ^\n  19 | })\n  20 |\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\feature-readonly.spec.ts:18:11"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T17:52:11.609Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\feature-readonly-F30-F35-F-25b56-r-rede-sem-conceder-escrita-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\feature-readonly-F30-F35-F-25b56-r-rede-sem-conceder-escrita-features-mobile\\test-failed-2.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\feature-readonly-F30-F35-F-25b56-r-rede-sem-conceder-escrita-features-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\feature-readonly-F30-F35-F-25b56-r-rede-sem-conceder-escrita-features-mobile\\trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "d87c937728f765fc1d1d-62623829073cc7720c52",
+          "file": "feature-readonly.spec.ts",
+          "line": 8,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "profile-diagnostics.spec.ts",
+      "file": "profile-diagnostics.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F40-E01 motivo e ação, descarte persistido e mudança de versão sem editar automaticamente",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2323,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T17:52:00.149Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a3e704134c52e2830ad5-33c0ae1cf6eb10ff5770",
+          "file": "profile-diagnostics.spec.ts",
+          "line": 9,
+          "column": 5
+        },
+        {
+          "title": "F40-E02 filtros sem buscar, erro preserva seleção, teclado e 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1452,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T17:52:02.570Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a3e704134c52e2830ad5-ffb35dedfff85483985e",
+          "file": "profile-diagnostics.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "F40-E01 motivo e ação, descarte persistido e mudança de versão sem editar automaticamente",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2191,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T17:54:12.488Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a3e704134c52e2830ad5-6525682db16960aefb1e",
+          "file": "profile-diagnostics.spec.ts",
+          "line": 9,
+          "column": 5
+        },
+        {
+          "title": "F40-E02 filtros sem buscar, erro preserva seleção, teclado e 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2132,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T17:54:14.809Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a3e704134c52e2830ad5-260ea9a544d16d9e82d6",
+          "file": "profile-diagnostics.spec.ts",
+          "line": 16,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "profile-discovery.spec.ts",
+      "file": "profile-discovery.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F24-E01/T01/T04 publica, habilita descoberta, segue, remove e deixa de seguir",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3677,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T17:52:04.033Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "47842c4bac96a5abe807-d3dac98146ac0d0eef68",
+          "file": "profile-discovery.spec.ts",
+          "line": 7,
+          "column": 5
+        },
+        {
+          "title": "F24-E02 rascunho, categorias ocultas e tenant alheio não aparecem; mutação exige sessão",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1260,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T17:52:07.716Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "47842c4bac96a5abe807-717fdb154c441cc6da70",
+          "file": "profile-discovery.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "F24-E03 falha recuperável, teclado e 320px sem overflow",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2157,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T17:52:08.983Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "47842c4bac96a5abe807-3128f55d357cbbf26324",
+          "file": "profile-discovery.spec.ts",
+          "line": 22,
+          "column": 5
+        },
+        {
+          "title": "F24-E01/T01/T04 publica, habilita descoberta, segue, remove e deixa de seguir",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4369,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T17:54:16.950Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "47842c4bac96a5abe807-27dc117d476d5d56e6fd",
+          "file": "profile-discovery.spec.ts",
+          "line": 7,
+          "column": 5
+        },
+        {
+          "title": "F24-E02 rascunho, categorias ocultas e tenant alheio não aparecem; mutação exige sessão",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1111,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T17:54:21.325Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "47842c4bac96a5abe807-2d268090c7fc2c153b41",
+          "file": "profile-discovery.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "F24-E03 falha recuperável, teclado e 320px sem overflow",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1991,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T17:54:22.443Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "47842c4bac96a5abe807-469a9e9aa3446890bbc6",
+          "file": "profile-discovery.spec.ts",
+          "line": 22,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-21T17:49:16.954Z",
+    "duration": 309025.082,
+    "expected": 11,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

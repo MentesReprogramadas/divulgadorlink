@@ -6,6 +6,24 @@ import { Field, Input, Select, TextArea } from './input'
 afterEach(cleanup)
 
 describe('campos acessíveis', () => {
+  it('mantém checkbox e radio como escolhas nativas compactas, sem estilo de campo de texto', () => {
+    const ref = { current: null as HTMLInputElement | null }
+    render(<><label><Input ref={ref} type="checkbox" name="featured" />Destacar</label><label><Input type="radio" name="mode" value="equal" />Dividir por igual</label></>)
+    const checkbox = screen.getByRole('checkbox', { name: 'Destacar' }) as HTMLInputElement
+    expect(ref.current).toBe(checkbox)
+    expect(checkbox.classList.contains('field')).toBe(false)
+    expect(screen.getByRole('radio').classList.contains('field')).toBe(false)
+    fireEvent.click(checkbox)
+    expect(checkbox.checked).toBe(true)
+  })
+  it('mantém label, valor e referência no campo nativo dentro do material', () => {
+    const ref = { current: null as HTMLInputElement | null }
+    const { container } = render(<form><Field label="Nome"><Input name="name" defaultValue="Ana" ref={ref} /></Field><Input type="hidden" name="version" value="3" /></form>)
+    const input = screen.getByLabelText('Nome') as HTMLInputElement
+    expect(ref.current).toBe(input)
+    expect(new FormData(container.querySelector('form')!).get('name')).toBe('Ana')
+    expect(new FormData(container.querySelector('form')!).get('version')).toBe('3')
+  })
   it('preserva o valor digitado ao corrigir um campo controlado que estava vazio', () => {
     function ControlledField() { const [value, setValue] = useState(''); return <Field label="Título"><Input required value={value} onChange={event => setValue(event.target.value)} /></Field> }
     render(<ControlledField />)

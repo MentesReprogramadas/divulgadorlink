@@ -1,0 +1,484 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "e2e/page-refinements.spec.ts",
+      "--project=features",
+      "--project=features-mobile"
+    ],
+    "configFile": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\playwright.config.ts",
+    "rootDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\global-setup.ts",
+    "globalTeardown": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\global-teardown.ts",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "setup",
+        "name": "setup",
+        "testDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/auth\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features",
+        "name": "features",
+        "testDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/page-refinements\\.spec\\.ts|feature-readonly\\.spec\\.ts|profile-diagnostics\\.spec\\.ts|agency\\.spec\\.ts|button-tests\\.spec\\.ts|profile-languages\\.spec\\.ts|contact-handling\\.spec\\.ts|platform-webhooks\\.spec\\.ts|profile-discovery\\.spec\\.ts|profile-hosts\\.spec\\.ts|public-collections\\.spec\\.ts|share-kit\\.spec\\.ts|profile-events\\.spec\\.ts|ownership\\.spec\\.ts|profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features-mobile",
+        "name": "features-mobile",
+        "testDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/page-refinements\\.spec\\.ts|feature-readonly\\.spec\\.ts|profile-diagnostics\\.spec\\.ts|agency\\.spec\\.ts|button-tests\\.spec\\.ts|profile-languages\\.spec\\.ts|contact-handling\\.spec\\.ts|platform-webhooks\\.spec\\.ts|profile-discovery\\.spec\\.ts|profile-hosts\\.spec\\.ts|public-collections\\.spec\\.ts|share-kit\\.spec\\.ts|profile-events\\.spec\\.ts|ownership\\.spec\\.ts|profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "catalog",
+        "name": "catalog",
+        "testDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/catalog\\.spec\\.ts|mail\\.spec\\.ts|advertise\\.spec\\.ts|legal\\.spec\\.ts|funnel\\.spec\\.ts|signup\\.spec\\.ts|submit-link\\.spec\\.ts|security-headers\\.spec\\.ts|google-ads-submission\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "auth.setup.ts",
+      "file": "auth.setup.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "sessão da Bia para os testes do painel",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "setup",
+              "projectName": "setup",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 440,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:16:30.593Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "17e3fe6f4d9d8bd79c6b-40367c7f5b2a9e9ad033",
+          "file": "auth.setup.ts",
+          "line": 8,
+          "column": 6
+        }
+      ]
+    },
+    {
+      "title": "page-refinements.spec.ts",
+      "file": "page-refinements.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "UX01 abas separam conteúdo, recursos e prévia do histórico usa o mesmo iPhone",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6189,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:16:31.525Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "314bdb34dcd821783570-3fc96b900ec54ccac823",
+          "file": "page-refinements.spec.ts",
+          "line": 11,
+          "column": 5
+        },
+        {
+          "title": "UX02 descoberta com muitas categorias não expande a página; busca continua automática",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1799,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\page-refinements.spec.ts:21:670",
+                    "location": {
+                      "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\page-refinements.spec.ts",
+                      "column": 670,
+                      "line": 21
+                    },
+                    "snippet": "  19 | test('UX02 descoberta com muitas categorias não expande a página; busca continua automática',async({page},info)=>{\n  20 |  const f=roadmapFixture(),ids=Array.from({length:36},()=>randomUUID());sql(`INSERT INTO niches(id,\"tenantId\",name,slug,\"updatedAt\")VALUES ${ids.map((id,i)=>`('${id}','${f.tenantId}','Categoria ${i} com um nome longo para conferir a largura','refino-${id}',now())`).join(',')}`)\n> 21 |  try{await roadmapLogin(page);for(const width of [1920,1440,390,320]){await page.setViewportSize({width,height:900});await page.goto(roadmapOrigin+'/paginas');await expect(page.getByLabel('Buscar páginas')).toBeVisible();await expect(page.locator('[data-skeleton]:visible')).toHaveCount(0);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);const more=page.getByRole('button',{name:'Ver mais',exact:true});await expect(more).toBeVisible();await more.click();await expect(page.getByRole('button',{name:'Ver menos',exact:true})).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await page.getByRole('button',{name:'Ver menos',exact:true}).click();await page.getByLabel('Buscar páginas').fill('Sem resultado');await expect(page.getByRole('button',{name:'Buscar',exact:true})).toHaveCount(0);await expect(page.getByText('Nenhuma página encontrada. Tente outro nome ou categoria.')).toBeVisible();await capturePage(page,info.outputPath('directory-many-'+width+'.png'))}}\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^\n  22 |  finally{sql(`DELETE FROM niches WHERE \"tenantId\"='${f.tenantId}' AND id IN(${ids.map(id=>`'${id}'`).join(',')})`)}\n  23 | })\n  24 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\page-refinements.spec.ts",
+                        "column": 670,
+                        "line": 21
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n  19 | test('UX02 descoberta com muitas categorias não expande a página; busca continua automática',async({page},info)=>{\n  20 |  const f=roadmapFixture(),ids=Array.from({length:36},()=>randomUUID());sql(`INSERT INTO niches(id,\"tenantId\",name,slug,\"updatedAt\")VALUES ${ids.map((id,i)=>`('${id}','${f.tenantId}','Categoria ${i} com um nome longo para conferir a largura','refino-${id}',now())`).join(',')}`)\n> 21 |  try{await roadmapLogin(page);for(const width of [1920,1440,390,320]){await page.setViewportSize({width,height:900});await page.goto(roadmapOrigin+'/paginas');await expect(page.getByLabel('Buscar páginas')).toBeVisible();await expect(page.locator('[data-skeleton]:visible')).toHaveCount(0);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);const more=page.getByRole('button',{name:'Ver mais',exact:true});await expect(more).toBeVisible();await more.click();await expect(page.getByRole('button',{name:'Ver menos',exact:true})).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await page.getByRole('button',{name:'Ver menos',exact:true}).click();await page.getByLabel('Buscar páginas').fill('Sem resultado');await expect(page.getByRole('button',{name:'Buscar',exact:true})).toHaveCount(0);await expect(page.getByText('Nenhuma página encontrada. Tente outro nome ou categoria.')).toBeVisible();await capturePage(page,info.outputPath('directory-many-'+width+'.png'))}}\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^\n  22 |  finally{sql(`DELETE FROM niches WHERE \"tenantId\"='${f.tenantId}' AND id IN(${ids.map(id=>`'${id}'`).join(',')})`)}\n  23 | })\n  24 |\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\page-refinements.spec.ts:21:670"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:16:37.811Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\page-refinements-UX02-desc-e0238-a-busca-continua-automática-features\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\page-refinements-UX02-desc-e0238-a-busca-continua-automática-features\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\page-refinements-UX02-desc-e0238-a-busca-continua-automática-features\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\page-refinements.spec.ts",
+                    "column": 670,
+                    "line": 21
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "314bdb34dcd821783570-36740c5c9084aa3cbafb",
+          "file": "page-refinements.spec.ts",
+          "line": 19,
+          "column": 5
+        },
+        {
+          "title": "UX03 requisitos para comparar botões ficam destacados em amarelo e início bloqueado",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1379,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:16:40.108Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "314bdb34dcd821783570-06d9684eb068b12ca3b0",
+          "file": "page-refinements.spec.ts",
+          "line": 25,
+          "column": 5
+        },
+        {
+          "title": "UX01 abas separam conteúdo, recursos e prévia do histórico usa o mesmo iPhone",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6422,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:16:41.964Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "314bdb34dcd821783570-adf7597b7b5b97d8e6a4",
+          "file": "page-refinements.spec.ts",
+          "line": 11,
+          "column": 5
+        },
+        {
+          "title": "UX02 descoberta com muitas categorias não expande a página; busca continua automática",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1784,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByLabel('Buscar páginas')\nExpected: visible\nError: strict mode violation: getByLabel('Buscar páginas') resolved to 2 elements:\n    1) <input disabled id=\"_R_bbfiv3b_\" class=\"field input_control__Nfi04 skeleton_control___BdZy\"/> aka getByRole('status', { name: 'Carregando páginas' }).getByLabel('Buscar páginas')\n    2) <input value=\"\" type=\"search\" maxlength=\"100\" id=\"_R_15fiv3b_\" class=\"field input_control__Nfi04\" placeholder=\"Nome ou descrição da página\"/> aka getByPlaceholder('Nome ou descrição da página')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByLabel('Buscar páginas') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByLabel('Buscar páginas')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByLabel('Buscar páginas')\nExpected: visible\nError: strict mode violation: getByLabel('Buscar páginas') resolved to 2 elements:\n    1) <input disabled id=\"_R_bbfiv3b_\" class=\"field input_control__Nfi04 skeleton_control___BdZy\"/> aka getByRole('status', { name: 'Carregando páginas' }).getByLabel('Buscar páginas')\n    2) <input value=\"\" type=\"search\" maxlength=\"100\" id=\"_R_15fiv3b_\" class=\"field input_control__Nfi04\" placeholder=\"Nome ou descrição da página\"/> aka getByPlaceholder('Nome ou descrição da página')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByLabel('Buscar páginas') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByLabel('Buscar páginas')\u001b[22m\n\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\page-refinements.spec.ts:21:208",
+                    "location": {
+                      "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\page-refinements.spec.ts",
+                      "column": 208,
+                      "line": 21
+                    },
+                    "snippet": "  19 | test('UX02 descoberta com muitas categorias não expande a página; busca continua automática',async({page},info)=>{\n  20 |  const f=roadmapFixture(),ids=Array.from({length:36},()=>randomUUID());sql(`INSERT INTO niches(id,\"tenantId\",name,slug,\"updatedAt\")VALUES ${ids.map((id,i)=>`('${id}','${f.tenantId}','Categoria ${i} com um nome longo para conferir a largura','refino-${id}',now())`).join(',')}`)\n> 21 |  try{await roadmapLogin(page);for(const width of [1920,1440,390,320]){await page.setViewportSize({width,height:900});await page.goto(roadmapOrigin+'/paginas');await expect(page.getByLabel('Buscar páginas')).toBeVisible();await expect(page.locator('[data-skeleton]:visible')).toHaveCount(0);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);const more=page.getByRole('button',{name:'Ver mais',exact:true});await expect(more).toBeVisible();await more.click();await expect(page.getByRole('button',{name:'Ver menos',exact:true})).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await page.getByRole('button',{name:'Ver menos',exact:true}).click();await page.getByLabel('Buscar páginas').fill('Sem resultado');await expect(page.getByRole('button',{name:'Buscar',exact:true})).toHaveCount(0);await expect(page.getByText('Nenhuma página encontrada. Tente outro nome ou categoria.')).toBeVisible();await capturePage(page,info.outputPath('directory-many-'+width+'.png'))}}\n     |                                                                                                                                                                                                                ^\n  22 |  finally{sql(`DELETE FROM niches WHERE \"tenantId\"='${f.tenantId}' AND id IN(${ids.map(id=>`'${id}'`).join(',')})`)}\n  23 | })\n  24 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\page-refinements.spec.ts",
+                        "column": 208,
+                        "line": 21
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByLabel('Buscar páginas')\nExpected: visible\nError: strict mode violation: getByLabel('Buscar páginas') resolved to 2 elements:\n    1) <input disabled id=\"_R_bbfiv3b_\" class=\"field input_control__Nfi04 skeleton_control___BdZy\"/> aka getByRole('status', { name: 'Carregando páginas' }).getByLabel('Buscar páginas')\n    2) <input value=\"\" type=\"search\" maxlength=\"100\" id=\"_R_15fiv3b_\" class=\"field input_control__Nfi04\" placeholder=\"Nome ou descrição da página\"/> aka getByPlaceholder('Nome ou descrição da página')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByLabel('Buscar páginas') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByLabel('Buscar páginas')\u001b[22m\n\n\n  19 | test('UX02 descoberta com muitas categorias não expande a página; busca continua automática',async({page},info)=>{\n  20 |  const f=roadmapFixture(),ids=Array.from({length:36},()=>randomUUID());sql(`INSERT INTO niches(id,\"tenantId\",name,slug,\"updatedAt\")VALUES ${ids.map((id,i)=>`('${id}','${f.tenantId}','Categoria ${i} com um nome longo para conferir a largura','refino-${id}',now())`).join(',')}`)\n> 21 |  try{await roadmapLogin(page);for(const width of [1920,1440,390,320]){await page.setViewportSize({width,height:900});await page.goto(roadmapOrigin+'/paginas');await expect(page.getByLabel('Buscar páginas')).toBeVisible();await expect(page.locator('[data-skeleton]:visible')).toHaveCount(0);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);const more=page.getByRole('button',{name:'Ver mais',exact:true});await expect(more).toBeVisible();await more.click();await expect(page.getByRole('button',{name:'Ver menos',exact:true})).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await page.getByRole('button',{name:'Ver menos',exact:true}).click();await page.getByLabel('Buscar páginas').fill('Sem resultado');await expect(page.getByRole('button',{name:'Buscar',exact:true})).toHaveCount(0);await expect(page.getByText('Nenhuma página encontrada. Tente outro nome ou categoria.')).toBeVisible();await capturePage(page,info.outputPath('directory-many-'+width+'.png'))}}\n     |                                                                                                                                                                                                                ^\n  22 |  finally{sql(`DELETE FROM niches WHERE \"tenantId\"='${f.tenantId}' AND id IN(${ids.map(id=>`'${id}'`).join(',')})`)}\n  23 | })\n  24 |\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\page-refinements.spec.ts:21:208"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:16:48.479Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\page-refinements-UX02-desc-e0238-a-busca-continua-automática-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\page-refinements-UX02-desc-e0238-a-busca-continua-automática-features-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\page-refinements-UX02-desc-e0238-a-busca-continua-automática-features-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\page-refinements.spec.ts",
+                    "column": 208,
+                    "line": 21
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "314bdb34dcd821783570-b67b665ce9313826e140",
+          "file": "page-refinements.spec.ts",
+          "line": 19,
+          "column": 5
+        },
+        {
+          "title": "UX03 requisitos para comparar botões ficam destacados em amarelo e início bloqueado",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1740,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:16:51.203Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "314bdb34dcd821783570-7d98fa93091ef251d987",
+          "file": "page-refinements.spec.ts",
+          "line": 25,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-21T19:15:42.888Z",
+    "duration": 72351.098,
+    "expected": 5,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

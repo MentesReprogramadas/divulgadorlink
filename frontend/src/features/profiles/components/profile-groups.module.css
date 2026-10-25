@@ -11,8 +11,8 @@
 .sectionHeading h2 { margin-bottom: var(--space-2); }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr)); gap: var(--space-6); margin: 0; padding: 0; list-style: none; }
 .card { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); border: 1px solid var(--border-default); border-radius: var(--radius-md); min-width: 0; background: var(--surface-raised); }
-.card:hover { border-color: var(--color-brand-navy); }
-.card[data-unpublished], .link[data-unpublished] { border-left: 4px solid #a96a14; background: #fff8e9; }
+.card:hover { border-color: var(--color-link); }
+.card[data-unpublished], .link[data-unpublished] { border-color: var(--status-warning-border); --glass-tint:color-mix(in srgb,var(--status-warning-bg) 42%,var(--surface-glass)); background:transparent; }
 .openGroup { display: grid; gap: var(--space-6); flex: 1; padding: var(--space-2) 0; border: 0; text-align: left; background: transparent; color: var(--text-primary); cursor: pointer; font: inherit; min-width: 0; }
 .openGroup strong { font-family: var(--font-product); font-size: var(--text-lg); overflow-wrap: anywhere; }
 .openGroup span { display: flex; gap: var(--space-2); align-items: center; color: var(--text-secondary); font-size: var(--text-sm); }
@@ -40,8 +40,13 @@
 .empty { display: grid; justify-items: start; gap: var(--space-3); border: 1px dashed var(--border-default); border-radius: var(--radius-md); padding: var(--space-8); background: var(--surface-raised); }
 .empty p { color: var(--text-secondary); max-width: 55ch; margin: 0; }
 .empty h3 { font-size: var(--text-lg); }
-.warning { padding: var(--space-4); border: 1px solid #b97419; border-left-width: 4px; border-radius: var(--radius); background: #fff7e8; color: #70450c; line-height: 1.6; margin: 0; }
+.warning { composes:surface from '../../feature-glass.module.css'; --glass-tint:color-mix(in srgb,var(--status-warning-bg) 42%,var(--surface-glass)); padding: var(--space-4); border: 1px solid var(--status-warning-border); border-radius: var(--radius); background:transparent; color: var(--status-warning-text); line-height: 1.6; margin: 0; }
 .announcement { margin: 0; color: var(--status-success-text); }
 .announcement:empty { display: none; }
 .srOnly { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; overflow: hidden; clip-path: inset(50%); }
 @media (max-width: 480px) { .empty { padding: var(--space-6); } .groupIdentity { flex-basis: 100%; } .actions { gap: var(--space-2); } }
+
+/* Same optical material as Ondas; layout and state selectors stay local. */
+.card { composes: surface from '../../feature-glass.module.css'; background: transparent; }
+.link { composes: surface from '../../feature-glass.module.css'; background: transparent; }
+.empty { composes: surface from '../../feature-glass.module.css'; background: transparent; }

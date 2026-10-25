@@ -10,3 +10,11 @@
 
 .publicForm .check{justify-content:center}
 .publicForm .form{max-width:none;grid-template-columns:minmax(0,1fr)}
+
+/* The optical layer follows the publisher's button style as well as its paint. */
+.publicForm .submit{--button-glass-tint:var(--button-bg,var(--action-primary-bg));--button-glass-hover:var(--button-bg,var(--action-primary-bg))}
+[data-style=outline] .publicForm .submit{--button-glass-tint:var(--page-bg,var(--surface-raised));--button-glass-hover:color-mix(in srgb,var(--page-ink) 8%,var(--page-bg))}
+
+/* Same optical material as Ondas; layout and state selectors stay local. */
+.card { composes: surface from '../feature-glass.module.css'; background: transparent; }
+.fieldRow { composes: surface from '../feature-glass.module.css'; background: transparent; }

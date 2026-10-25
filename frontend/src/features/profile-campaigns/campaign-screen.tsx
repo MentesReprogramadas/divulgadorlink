@@ -1,6 +1,7 @@
 'use client'
 import {useCallback,useEffect,useRef,useState} from 'react'
 import {Button,ButtonLink} from '@/components/ui/button'
+import {SubscriptionLink} from '@/features/profile-billing/billing-access'
 import {ActionIcon} from '@/components/ui/action-icon'
 import {Badge} from '@/components/ui/badge'
 import {Field,Input,Select} from '@/components/ui/input'
@@ -15,6 +16,7 @@ import type {ProfileRevision,ProfileRevisionDetail} from '@/features/profiles/pr
 import {CampaignEditorDialog} from './campaign-editor-dialog'
 import type {CampaignRow,CampaignDetail,CampaignList,CampaignEditorDraft} from './campaign-contract'
 import styles from './campaign.module.css'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 const status=(row:CampaignRow)=>row.state==='ARCHIVED'?'Arquivada':row.state==='DRAFT'?'Rascunho':row.changed?'Alterações não publicadas':'Publicada'
 export function CampaignScreen({pendingOnly=false}:{pendingOnly?:boolean}){
  const [list,setList]=useState<CampaignList|null>(null),[revisions,setRevisions]=useState<ProfileRevision[]>([]),[loading,setLoading]=useState(true),[pending,setPending]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState(''),[editor,setEditor]=useState<CampaignEditorDraft|null>(null),[editorError,setEditorError]=useState(''),[confirmError,setConfirmError]=useState(''),[confirm,setConfirm]=useState<{row:CampaignRow;kind:'archive'|'delete'}|null>(null)
@@ -44,11 +46,11 @@ export function CampaignScreen({pendingOnly=false}:{pendingOnly?:boolean}){
   <WorkspaceFilters label="Filtrar campanhas"><Field label="Buscar campanha"><Input value={query} disabled={pendingOnly||pending} onChange={event=>{setQuery(event.target.value);setPage(1)}}/></Field><Field label="Situação"><Select value={filter} disabled={pendingOnly||pending} onChange={event=>{setFilter(event.target.value);setPage(1)}}><option value="ALL">Todas</option><option value="DRAFT">Rascunhos</option><option value="PUBLISHED">Publicadas</option><option value="ARCHIVED">Arquivadas</option></Select></Field></WorkspaceFilters>
   <ul className={styles.list}>{(skeleton?(rows.length?rows:placeholders):rows).map(row=><li key={row.id} aria-hidden={skeleton||undefined} inert={skeleton||undefined}><article className={styles.card} aria-label={row.name}>
    <div className={styles.heading}><h2 className={skeleton?styles.skeleton:undefined}>{row.name}</h2><Badge tone={row.state==='PUBLISHED'?'ok':row.state==='ARCHIVED'?'muted':'neutral'}>{status(row)}</Badge></div><p className={styles.meta}>{row.publicPath||'/p/sua-pagina/c/campanha'} · Base: publicação {row.sourceVersion}</p>
-   <div className={styles.actions}><Button variant="secondary" disabled={disabled} aria-label={'Editar '+row.name} onClick={event=>void openEditor(row,event.currentTarget)}><ActionIcon name="edit"/>Editar</Button><ButtonLink variant="secondary" href={'/painel/perfil/campanhas/'+row.id+'/previa'}><ActionIcon name="preview"/>Ver prévia</ButtonLink><ButtonLink variant="secondary" href={'/painel/perfil/campanhas/'+row.id+'/metricas'}><ActionIcon name="interaction"/>Métricas</ButtonLink>
+   <div className={styles.actions}><Button variant="secondary" disabled={disabled} aria-label={'Editar '+row.name} onClick={event=>void openEditor(row,event.currentTarget)}><ActionIcon name="edit"/>Editar</Button><ButtonLink variant="secondary" href={'/painel/perfil/campanhas/'+row.id+'/previa'}><ActionIcon name="preview"/>Ver prévia</ButtonLink><SubscriptionLink feature="profile.analytics" variant="secondary" href={'/painel/perfil/campanhas/'+row.id+'/metricas'}><ActionIcon name="interaction"/>Métricas</SubscriptionLink>
     {row.state==='PUBLISHED'?<>{row.changed?<Button disabled={disabled} aria-label={'Publicar '+row.name} onClick={()=>void mutate(row,'publish')}><ActionIcon name="publish"/>Publicar alterações</Button>:null}<ButtonLink variant="secondary" href={row.publicPath}><ActionIcon name="external"/>Abrir campanha</ButtonLink><Button variant="danger" disabled={disabled} aria-label={'Arquivar '+row.name} onClick={event=>{focus.current=event.currentTarget;setConfirmError('');setConfirm({row,kind:'archive'})}}><ActionIcon name="disable"/>Arquivar</Button></>:<Button disabled={disabled} aria-label={'Publicar '+row.name} onClick={()=>void mutate(row,'publish')}><ActionIcon name="publish"/>Publicar</Button>}
     {row.state!=='PUBLISHED'?<Button variant="danger" disabled={disabled} aria-label={'Excluir '+row.name} onClick={event=>{focus.current=event.currentTarget;setConfirmError('');setConfirm({row,kind:'delete'})}}><ActionIcon name="trash"/>Excluir</Button>:null}
    </div>
-  </article></li>)}</ul>
+  <LiquidLens radius={16} /></article></li>)}</ul>
   {!skeleton&&!rows.length&&!error?<EmptyState action={!revisions.length?<ButtonLink href="/painel/perfil"><ActionIcon name="edit"/>Editar minha página</ButtonLink>:undefined}>{revisions.length?'Crie uma campanha a partir de uma publicação sua.':'Publique sua página para começar as campanhas.'}</EmptyState>:null}
   {!skeleton&&list?<Pagination variant="compact" page={page} pages={Math.ceil(list.total/list.pageSize)} onPage={setPage}/>:null}
   {editor?<CampaignEditorDialog key={editor.id??editor.sourceRevisionId} draft={editor} revisions={revisions} pending={pending} error={editorError} returnFocusTo={focus.current} onChange={setEditor} onSource={id=>void changeSource(id)} onSave={()=>void save()} onClose={()=>{if(!pending)setEditor(null)}}/>:null}

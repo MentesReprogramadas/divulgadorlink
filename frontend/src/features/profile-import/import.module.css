@@ -4,7 +4,7 @@
 .card p { margin: 0; }
 .list { display: grid; gap: var(--space-4); }
 .row { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: start; gap: var(--space-4); }
-.row h2 { margin: 0; font-size: var(--text-base); }
+.row h2 { margin: 0; font-size: var(--text-body); }
 .rowInfo { display: grid; gap: var(--space-2); min-width: 0; }
 .address { color: var(--text-secondary); overflow-wrap: anywhere; font-size: var(--text-sm); }
 .choice { display: flex; align-items: baseline; gap: var(--space-3); min-width: 0; cursor: pointer; }
@@ -28,3 +28,7 @@
 @keyframes import-loading { from { background-position: 100% 0; } to { background-position: -100% 0; } }
 @media(prefers-reduced-motion: reduce) { .loading .paste { animation: none; } }
 @media(max-width: 600px) { .card { padding: var(--space-4); } .row { grid-template-columns: minmax(0,1fr); } }
+
+/* Same optical material as Ondas; layout and state selectors stay local. */
+.card { composes: surface from '../feature-glass.module.css'; background: transparent; }
+.notice { composes: surface from '../feature-glass.module.css'; background: transparent; }

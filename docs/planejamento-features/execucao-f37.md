@@ -101,3 +101,8 @@ S7 em revisão: REG-F03-001 global preexistente continua visível; CI Node22, pl
 Evidências: output/roadmap-f37/*-red.log/*-green.log, backend-unit.log, frontend-unit-final.log, pg-regression-final.log, pg-billing-regression.log, pg-availability-final.log, e2e-regression-final.log/JSON, source-manifest.json, upgrade-proof.json, local-upgrade-proof.json e reversal-proof-final.log/reversal-query-plan.json; capturas em docs/frontend-profissional/evidencias/f37-2026-10-18. Oito próprios estão contidos nos 81, sem somar como 89.
 
 Auditoria final: 336 etapas e 226 ACs preservados; seis ACs F37 verificados e todas as etapas de F38/F25/posteriores sem iniciar. Hashes de src/scripts/prisma/E2E/configs/manifestos do snapshot validado conferem com o código local. Harness removeu seus containers; banco descartável deste lote (container próprio da porta 5742) removido após os ensaios. Banco local 5437 e serviços baseline 5433/6380 preservados. HEAD continua a7aad9c; sem novo commit/push/deploy. Registros em output/roadmap-f37/final-audit.json.
+
+
+## Nomenclatura e navegação posterior — 21/10/2026
+
+Revisão autorizada: recurso público chamado Links permanentes; distribuição chamada Distribuir acessos. Telas, campos, erros, QR e avisos atualizados. Convites de equipe permanecem distintos; URLs, grants e regras não mudaram. [Mapa e evidências](../frontend-profissional/sidebar-por-contexto-2026-10-21.md).

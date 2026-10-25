@@ -1,0 +1,33 @@
+{
+  "brand": "Tem Link Aqui",
+  "colors": [
+    {
+      "name": "Navy",
+      "hex": "#0A192F",
+      "rgb": [
+        10,
+        25,
+        47
+      ]
+    },
+    {
+      "name": "Turquesa",
+      "hex": "#4AF9EB",
+      "rgb": [
+        74,
+        249,
+        235
+      ]
+    },
+    {
+      "name": "Branco",
+      "hex": "#FFFFFF",
+      "rgb": [
+        255,
+        255,
+        255
+      ]
+    }
+  ],
+  "print": "CMYK/Pantone dependem de perfil e prova; não definidos."
+}

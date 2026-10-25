@@ -108,3 +108,8 @@ it('F22-T05 configuração pública é allowlist sem contatos; configuração co
  await call('PUT','me/forms',{definition:{...definition,enabled:false},expectedVersion:1});expect((await submit(revisionId)).statusCode).toBe(409)
  await call('POST','me/profile/unpublish',{expectedVersion:1});expect((await call('GET','profiles/pagina-f22/contact-form',undefined,null)).statusCode).toBe(404)
 })
+
+it('F35-PG09 busca global encontra contato fora da primeira página e exporta somente o filtro',async()=>{
+ const form=await prepare();for(let i=0;i<27;i++)expect((await submit(form.revisionId,{email:'busca'+i+'@example.test',message:i===26?'ALVO-ULTIMA-PAGINA':'outro'})).statusCode).toBe(200)
+ const found=await call('GET','me/forms/submissions?q=alvo-ultima-pagina');expect(found.statusCode,found.body).toBe(200);expect(found.json().items).toHaveLength(1);expect(found.json().items[0].answers.message).toBe('ALVO-ULTIMA-PAGINA');const exported=await call('GET','me/forms/submissions/export?q=alvo-ultima-pagina');expect(exported.json().csv).toContain('ALVO-ULTIMA-PAGINA');expect(exported.json().csv).not.toContain(',outro,')
+})

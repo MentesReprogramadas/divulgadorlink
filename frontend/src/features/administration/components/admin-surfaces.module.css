@@ -1,0 +1,8 @@
+.card.card { position: relative; isolation: isolate; border: 0; border-radius: 24px; background: transparent; }
+.dialog.dialog { isolation: isolate; border: 0; border-radius: 24px; background: transparent; }
+.choice.choice { position: relative; isolation: isolate; border: 0; background: transparent; }
+.toggle.toggle { position: relative; isolation: isolate; border: 0; background: transparent; }
+.toggle[aria-checked="true"] { --glass-tint: #ffffff20; }
+.explanation { position: relative; isolation: isolate; padding: var(--space-4) var(--space-6); border-radius: 20px; line-height: 1.65; overflow-wrap: anywhere; }
+.explanation summary { cursor: pointer; font-weight: 600; }
+.explanation p { margin-block: var(--space-3) 0; }

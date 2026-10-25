@@ -27,6 +27,7 @@ export const simulationConfig = z.object({
     dailyMin: z.number().int().min(0).max(2000).optional(),
     warmupDays: z.number().positive().default(14),
     sponsoredMultiplier: z.number().min(1).max(5).default(1.6),
+    softLimit: z.literal(true).optional(),
   }).strict().optional(),
 }).strict().refine(c => c.minViews <= c.maxViews && c.minCtr <= c.maxCtr, 'Limites invertidos')
   .refine(c => c.commonMaxViews === undefined || (c.commonMaxViews >= c.minViews && c.commonMaxViews < (c.sponsoredMinViews ?? c.maxViews)), 'Faixas comuns/patrocinados inválidas')
@@ -40,7 +41,7 @@ export function trafficConfigForLink(config: SimulationConfig, sponsored: boolea
     if (!link) throw new Error('Link necessário para calcular teto individual')
     const rng = random(`${config.seed}:${link.tenantId}:${link.id}:capacity`)
     const age = Math.max(0, (Date.parse(config.until) - link.createdAt.getTime()) / 86400000)
-    const maturity = 1 - Math.exp(-age / 7)
+    const maturity = config.growth?.softLimit ? 1 : 1 - Math.exp(-age / 7)
     const maxViews = Math.floor(config.sponsoredCeilingMinViews + (config.maxViews - config.sponsoredCeilingMinViews) * (0.25 + 0.75 * maturity ** 2) * (0.35 + 0.65 * rng()))
     config = { ...config, maxViews }
   }
@@ -101,6 +102,15 @@ export type SimulatedVisit = { sessionId: string; at: Date; day: string; click: 
 
 export function simulationHash(value: string): string {
   return createHash('sha256').update(value).digest('hex')
+}
+
+export function trafficRecoveryFactor(link: SimulationLink, seed: string, crossedAt: Date, at: Date): number {
+  const rng = random(`${seed}:${link.tenantId}:${link.id}:recovery`)
+  const slowDays = 2 + 2 * rng(), recoveryDays = 2 + 2 * rng(), low = 0.08 + 0.1 * rng()
+  const elapsed = (at.getTime() - crossedAt.getTime()) / 86400000
+  if (elapsed < 0) return 1
+  const progress = Math.max(0, Math.min(1, (elapsed - slowDays) / recoveryDays))
+  return low + (1 - low) * progress * progress * (3 - 2 * progress)
 }
 
 function random(seed: string): () => number {

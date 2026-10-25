@@ -21,6 +21,8 @@ import {useWorkspaceAccess,workspaceVisible,workspaceSection,WorkspaceBanner,sel
 import {Button} from '@/components/ui/button';
 import {InteractionPolicy} from '@/components/ui/interaction-policy';
 import {WorkspaceHome} from '@/features/workspace-team/workspace-home';
+import {BillingAccessProvider} from '@/features/profile-billing/billing-access';
+import {LiquidLens} from '@/components/ui/liquid-lens';
 
 const AreaSession = createContext<Session | null>(null);
 
@@ -67,13 +69,12 @@ export function SuspendedAccount({ reason }: { reason?: string }) {
   return (
     <main className="auth-page">
       <h1 className="entry-title">Conta suspensa</h1>
-      <p className="auth-lead">Você não pode enviar links, comprar destaque nem alterar a conta.</p>
-      {reason ? (
+      <section className={styles.suspension} aria-label="Situação da conta"><LiquidLens radius={20}/><p className="auth-lead">Você não pode enviar links, comprar destaque nem alterar a conta.</p>{reason ? (
         <>
           <h2>Motivo</h2>
           <p>{reason}</p>
         </>
-      ) : null}
+      ) : null}</section>
     </main>
   );
 }
@@ -132,7 +133,7 @@ export function AreaFrame({
       </main>
     );
   }
-  if(!access.ready){if(access.error)return <main className="panel-page"><p role="alert">{access.error}</p><Button onClick={()=>void selectWorkspace(null)}>Voltar ao meu espaço</Button></main>;return <WorkspacePending path={path} title={title} admin={admin} create={create}/>}
+  if(!access.ready){if(access.error)return <main className="panel-page"><p role="alert">{access.error}</p><Button onClick={()=>void selectWorkspace(null)}>Voltar ao meu espaço</Button></main>;if(sharedPreview||path==='/painel/perfil/previa')return <ProfilePreviewSkeleton/>;return <WorkspacePending path={path} title={title} admin={admin} create={create}/>}
   const home=Boolean(access.context?.ownerId&&(path==='/painel'||path==='/painel/visao'));
   const readonly=Boolean(access.context?.ownerId&&!home&&!access.context.grants?.[workspaceSection(path)]?.write);
   if(readonly&&(/\/(?:novo|editar|destaque|contestar|importar|aparencia|dados)$/.test(path)||path==='/painel/perfil/links'))return <main className="panel-page"><h1>Acesso somente de leitura</h1><WorkspaceBanner context={access.context!}/></main>;
@@ -140,9 +141,10 @@ export function AreaFrame({
   if (path === "/painel/perfil/previa"||campaignPreview||sharedPreview||mediaPreview) return <AreaSession.Provider value={session}>{children}</AreaSession.Provider>;
   return (
     <AreaSession.Provider value={session}>
+      <BillingAccessProvider enabled={!admin} canReadBilling={!access.context?.ownerId||access.context.grants?.billing?.read===true} ownerId={access.context?.ownerId??null}>
       <main className={styles.shell}>
         <aside className={styles.sidebar}>
-          <p className={styles.sidebarTitle}>{admin ? "Administração" : "Meu espaço"}<small>Tem Link Aqui</small></p>
+          <LiquidLens radius={20}/>
           <div className={styles.desktopMenu}><WorkspaceNavigation area={admin ? "admin" : "panel"} role={session.role} /></div>
         </aside>
         <div className={styles.content}>
@@ -150,6 +152,7 @@ export function AreaFrame({
           <div className={styles.stage}><WorkspaceIdentity.Provider value={access.context}>{access.context?.ownerId?<WorkspaceBanner context={access.context}/>:null}{home?<WorkspaceHome context={access.context!}/>:readonly?<><p role="status">Somente leitura neste espaço.</p><InteractionPolicy readOnly>{children}</InteractionPolicy></>:children}</WorkspaceIdentity.Provider></div>
         </div>
       </main>
+      </BillingAccessProvider>
     </AreaSession.Provider>
   );
 }

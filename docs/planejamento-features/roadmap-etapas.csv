@@ -319,14 +319,14 @@ F36,Pacotes para agências,40,6,F36-S4,F36-S3,CONCLUIDA_LOCAL,Codex,WORKTREE,Loc
 F36,Pacotes para agências,40,6,F36-S5,F36-S4,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartável,2026-10-21,Ver execucao-f36.md,0,execucao-f36.md,,Verificação local aprovada
 F36,Pacotes para agências,40,6,F36-S6,F36-S5,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartável,2026-10-21,Ver execucao-f36.md,0,execucao-f36.md,,Verificação local aprovada
 F36,Pacotes para agências,40,6,F36-S7,F36-S6,EM_REVISAO,Codex,WORKTREE,Local descartável,2026-10-21,Ver execucao-f36.md,,execucao-f36.md,CI e liberação remotos pendentes,S7 pendente
-F40,Diagnóstico da página,41,6,F40-S0,F42 G00 F09 F07 F31,NAO_INICIADA,,,,,,,,,
-F40,Diagnóstico da página,41,6,F40-S1,F40-S0,NAO_INICIADA,,,,,,,,,
-F40,Diagnóstico da página,41,6,F40-S2,F40-S1,NAO_INICIADA,,,,,,,,,
-F40,Diagnóstico da página,41,6,F40-S3,F40-S2,NAO_INICIADA,,,,,,,,,
-F40,Diagnóstico da página,41,6,F40-S4,F40-S3,NAO_INICIADA,,,,,,,,,
-F40,Diagnóstico da página,41,6,F40-S5,F40-S4,NAO_INICIADA,,,,,,,,,
-F40,Diagnóstico da página,41,6,F40-S6,F40-S5,NAO_INICIADA,,,,,,,,,
-F40,Diagnóstico da página,41,6,F40-S7,F40-S6,NAO_INICIADA,,,,,,,,,
+F40,Diagnóstico da página,41,6,F40-S0,F42 G00 F09 F07 F31,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartável,2026-10-21,Ver execucao-f40.md,0,execucao-f40.md,,Verificação local aprovada
+F40,Diagnóstico da página,41,6,F40-S1,F40-S0,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartável,2026-10-21,Ver execucao-f40.md,0,execucao-f40.md,,Verificação local aprovada
+F40,Diagnóstico da página,41,6,F40-S2,F40-S1,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartável,2026-10-21,Ver execucao-f40.md,0,execucao-f40.md,,Verificação local aprovada
+F40,Diagnóstico da página,41,6,F40-S3,F40-S2,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartável,2026-10-21,Ver execucao-f40.md,0,execucao-f40.md,,Verificação local aprovada
+F40,Diagnóstico da página,41,6,F40-S4,F40-S3,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartável,2026-10-21,Ver execucao-f40.md,0,execucao-f40.md,,Verificação local aprovada
+F40,Diagnóstico da página,41,6,F40-S5,F40-S4,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartável,2026-10-21,Ver execucao-f40.md,0,execucao-f40.md,,Verificação local aprovada
+F40,Diagnóstico da página,41,6,F40-S6,F40-S5,CONCLUIDA_LOCAL,Codex,WORKTREE,Local descartável,2026-10-21,Ver execucao-f40.md,0,execucao-f40.md,,Verificação local aprovada
+F40,Diagnóstico da página,41,6,F40-S7,F40-S6,EM_REVISAO,Codex,WORKTREE,Local descartável,2026-10-21,Ver execucao-f40.md,,execucao-f40.md,CI e liberação remotos pendentes,S7 pendente
 F41,App instalável,42,6,F41-S0,F42 G00 F09,NAO_INICIADA,,,,,,,,,
 F41,App instalável,42,6,F41-S1,F41-S0,NAO_INICIADA,,,,,,,,,
 F41,App instalável,42,6,F41-S2,F41-S1,NAO_INICIADA,,,,,,,,,

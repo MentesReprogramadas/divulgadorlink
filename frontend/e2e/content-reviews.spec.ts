@@ -4,6 +4,7 @@ import { expect, test, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { runtime } from './runtime.cjs'
 import { sql } from './db'
+import {selectOption} from './select-control'
 type Kind = 'profiles' | 'redirects'
 const fixtures = () => JSON.parse(readFileSync(path.join(__dirname, 'state.json'), 'utf8')) as Record<Kind, { tenantId: string; owner: string; other: string; password: string }>
 async function login(page: Page, kind: Kind, admin = false) {
@@ -26,17 +27,23 @@ for (const kind of ['profiles', 'redirects'] as const) test('Revisão e contesta
     await page.getByRole('button', { name: 'Adicionar link', exact: true }).click(); await page.getByLabel('Título do link', { exact: true }).fill('Meu site'); await page.getByLabel('Link de acesso', { exact: true }).fill('https://example.com/revisao'); await page.getByRole('button', { name: 'Concluir link', exact: true }).click()
     await page.getByRole('button', { name: 'Publicar', exact: true }).click()
   } else {
-    await page.getByRole('button', { name: 'Novo link permanente', exact: true }).click(); await page.getByLabel('Título do convite', { exact: true }).fill(title); await page.getByLabel('Destino do convite', { exact: true }).fill('https://example.com/revisao'); await page.getByRole('button', { name: 'Validar e salvar destino', exact: true }).click()
+    await page.getByRole('button', { name: 'Criar link permanente', exact: true }).click(); await page.getByLabel('Nome do link', { exact: true }).fill(title); await page.getByLabel('Link de destino', { exact: true }).fill('https://example.com/revisao'); await page.getByRole('button', { name: 'Validar e salvar destino', exact: true }).click()
   }
   await expect(page.getByRole('region', { name: 'Situação da revisão' })).toContainText('Em revisão humana')
   await expect(page.getByRole('dialog')).toHaveCount(0)
   await page.screenshot({ path: info.outputPath(kind + '-pending-owner.png'), fullPage: true, animations: 'disabled' })
-  const context = await browser.newContext({ viewport: info.project.use.viewport, isMobile: info.project.use.isMobile, hasTouch: info.project.use.hasTouch })
+  const context = await browser.newContext({ locale:'pt-BR', viewport: info.project.use.viewport, isMobile: info.project.use.isMobile, hasTouch: info.project.use.hasTouch })
   try {
-    const admin = await context.newPage(); await login(admin, kind, true); await admin.goto(origin + '/admin/moderacao'); await admin.getByRole('tab', { name: kind === 'profiles' ? 'Minha página' : 'Convites', exact: true }).click()
+    const admin = await context.newPage(); await login(admin, kind, true); await admin.goto(origin + '/admin/moderacao')
+    const previousPanel = admin.getByRole('tabpanel',{name:'Links',exact:true})
+    await expect(previousPanel).toBeVisible()
+    const target=admin.getByRole('tab', { name: kind === 'profiles' ? 'Minha página' : 'Links permanentes', exact: true })
+    if(await target.isVisible()){await target.click();await expect(target).toBeFocused()}else await selectOption(admin.getByRole('combobox',{name:'Tipo de publicação'}),kind)
     const card = admin.getByRole('article').filter({ has: admin.getByRole('heading', { name: title, exact: true }) })
     await expect(card).toBeVisible()
-    const accessibility = await new AxeBuilder({ page: admin }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze(); expect(accessibility.violations.map(item => item.id)).toEqual([])
+    await expect(admin.getByRole('tabpanel', { name: kind === 'profiles' ? 'Minha página' : 'Links permanentes', exact: true })).toHaveCSS('opacity', '1')
+    await expect(previousPanel).toBeHidden()
+    const accessibility = await new AxeBuilder({ page: admin }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze(); expect(accessibility.violations.map(item => item.id), JSON.stringify(accessibility.violations)).toEqual([])
     await admin.screenshot({ path: info.outputPath(kind + '-admin-review.png'), fullPage: true, animations: 'disabled' })
     await card.getByRole('button', { name: 'Recusar', exact: true }).click(); await admin.getByLabel('Motivo da recusa', { exact: true }).fill('Explique a finalidade educativa.'); await admin.getByRole('button', { name: 'Confirmar recusa', exact: true }).click(); await expect(card).toHaveCount(0)
     await page.reload()

@@ -4,7 +4,7 @@ import {ChannelChoices} from './channel-choices'
 const channel={id:'tg',label:'Avisos da comunidade',network:{name:'Telegram',slug:'telegram'},href:'/p/comunidade/canais/tg?token=bound-fixture'}
 afterEach(cleanup)
 it('F37-C01/T01/T04 labels identify the network separately and the native choice is keyboard focusable',()=>{
- render(<ChannelChoices group={{id:'g',name:'Escolha um canal',channels:[channel]}}/>);const link=screen.getByRole('link',{name:'Telegram: Avisos da comunidade'});expect(link.getAttribute('href')).toBe(channel.href);link.focus();expect(document.activeElement).toBe(link);expect(screen.queryByText(/conteúdo e participantes podem variar/i)).toBeNull()
+ render(<ChannelChoices group={{id:'g',name:'Escolha um canal',channels:[channel]}}/>);const link=screen.getByRole('link',{name:'Telegram: Avisos da comunidade'});expect(link.getAttribute('href')).toBe(channel.href);expect(link.textContent).toContain('Telegram Avisos da comunidade');link.focus();expect(document.activeElement).toBe(link);expect(screen.queryByText(/conteúdo e participantes podem variar/i)).toBeNull()
 })
 it('hides only the custom title when disabled, retaining the network, icon, destination and stable block',()=>{
  render(<ChannelChoices group={{id:'g',name:'Comunidade',channels:[{...channel,showLabel:false}]}}/>);const link=screen.getByRole('link',{name:'Telegram'});expect(link.textContent).not.toContain(channel.label);expect(link.getAttribute('href')).toBe(channel.href);expect(link.getAttribute('data-profile-block-id')).toBe(channel.id)

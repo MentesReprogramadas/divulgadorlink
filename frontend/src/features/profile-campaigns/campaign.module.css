@@ -3,3 +3,7 @@
 
 .sourceChoice{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:var(--space-3)}.sourceChoice>div{min-width:0}
 @media(width<22rem){.sourceChoice{grid-template-columns:minmax(0,1fr)}.sourceChoice>button{justify-self:end}}
+
+/* Same optical material as Ondas; layout and state selectors stay local. */
+.card { composes: surface from '../feature-glass.module.css'; background: transparent; }
+.choice { composes: surface from '../feature-glass.module.css'; background: transparent; }

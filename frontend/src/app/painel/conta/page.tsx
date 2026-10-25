@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button'
 import { Field, Input } from '@/components/ui/input'
 import { clearSession } from '@/domain/session'
 import { api } from '@/lib/api'
+import {LiquidLens} from '@/components/ui/liquid-lens'
+import styles from '@/components/forms/public-account.module.css'
 
 export default function Page() {
   const session = useAreaSession()
@@ -62,13 +64,13 @@ function Account({ session }: { session: { status: string; role: string; canSubm
         {note ? <p className="panel-note" role="status">{note}</p> : null}
         {!banned ? (
           <div className="account-grid">
-            <form onSubmit={(event) => void changeIdentifier(event, 'email')}>
+            <form method="post" className={`auth-form ${styles.form}`} onSubmit={(event) => void changeIdentifier(event, 'email')}><LiquidLens radius={16}/>
               <Field label="Novo e-mail">
                 <Input name="email" type="email" autoComplete="email" aria-label="Novo e-mail" />
               </Field>
               <Button type="submit" variant="secondary" disabled={saving === 'email'}><ActionIcon name="edit" />Trocar e-mail</Button>
             </form>
-            <form onSubmit={(event) => void changeIdentifier(event, 'phone')}>
+            <form method="post" className={`auth-form ${styles.form}`} onSubmit={(event) => void changeIdentifier(event, 'phone')}><LiquidLens radius={16}/>
               <Field label="Novo telefone">
                 <Input name="phone" type="tel" autoComplete="tel" aria-label="Novo telefone" />
               </Field>
@@ -76,7 +78,7 @@ function Account({ session }: { session: { status: string; role: string; canSubm
             </form>
           </div>
         ) : null}
-        <form className="auth-form" onSubmit={(event) => void removeAccount(event)}>
+        <form method="post" className={`auth-form ${styles.form}`} onSubmit={(event) => void removeAccount(event)}><LiquidLens radius={16}/>
           <h3>Excluir conta</h3>
           <p className="page-header-note">O e-mail e o telefone saem da conta. Esta senha deixa de entrar.</p>
           <Field label="Senha atual">

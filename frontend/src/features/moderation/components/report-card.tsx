@@ -1,6 +1,7 @@
 'use client'
 
 import { ActionIcon } from '@/components/ui/action-icon'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -26,6 +27,7 @@ export function ReportCard({ report, onDecision }: { report: ReportQueueRow; onD
     finally { running.current = false; setPending(false) }
   }
   return <article className={styles.card} aria-label={'Denúncia ' + report.id}>
+    <LiquidLens radius={24} />
     <header><h3><a href={'/link/' + encodeURIComponent(report.linkId)}>{report.link.name}</a></h3><p className={styles.meta}>Protocolo: {report.id} · {formatWhen(report.createdAt)}</p></header>
     <div className={styles.context}><strong>{report.kind === 'AVAILABILITY' ? 'Disponibilidade' : 'Conteúdo'}</strong><span>{REPORT_REASONS[report.reason]}</span><span>{REPORT_STATUS[report.status]}</span></div>
     <blockquote className={styles.comment}>{report.comment || 'Sem comentário.'}</blockquote>

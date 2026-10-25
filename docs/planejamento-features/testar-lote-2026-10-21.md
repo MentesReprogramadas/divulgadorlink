@@ -1,6 +1,8 @@
 # Testar o lote concluído em 21/10/2026
 
-Estado: implementação local na branch `codex/roadmap-f37-testes`. Novo pedido de 21/10 autorizou migração local, commit e push do lote; deploy não solicitado. Execução encerrada após F36 por pedido do usuário. F40 e F41 não foram iniciadas. São 40/42 implementações locais; isso não equivale a 40 liberações em produção. S7 continua em revisão.
+**Navegação mais recente:** a segunda revisão separa o painel pelo seletor **Área do painel: Minha página / Meus links / Clientes**. Os caminhos abaixo continuam válidos, mas as seções Cuidar e crescer/Publicar foram substituídas. Links permanentes fica em Meus links; contatos, resultados, divulgação e ferramentas ficam em Minha página. [Mapa completo e testes](../frontend-profissional/sidebar-por-contexto-2026-10-21.md).
+
+**Situação atual — revisão de 21/10/2026:** 41/42 implementações locais. F24/F30/F35/F39/F26/F36 revalidadas e F40 implementada e validada localmente por pedido explícito de revisão das sete áreas. F41 não iniciada. S7/CI/liberação e DNS/TLS real da F10 continuam pendentes. Revisão na árvore local `codex/roadmap-f37-testes`, sem novo commit/push/deploy. [Revisão e evidências](../frontend-profissional/revisao-fluxos-2026-10-21.md), [F40](execucao-f40.md), [como testar](testar-lote-2026-10-21.md).
 
 ## Preparação local
 
@@ -16,12 +18,24 @@ F36 não exige provedor, DNS, chave externa ou plano comercial novo. A limpeza d
 
 | Feature | Local | Ensaio mínimo |
 | --- | --- | --- |
-| F24 — Descoberta de páginas | Menu público **Páginas** (`/paginas`); opt-in em Minha página → Dados da página | Publicar uma página elegível, ativar **Encontrar minha página** e consultar com outra conta. Filtrar, seguir, deixar de seguir. Desativar descoberta e confirmar que some. Rascunhos não aparecem. |
-| F30 — Integrações e avisos | Painel → **Integrações e avisos** (`/painel/integracoes`) | Criar destino HTTPS público, escolher eventos, guardar o segredo mostrado uma única vez e usar **Testar envio**. Conferir entregas e desativar. O receptor deve validar assinatura e deduplicar o evento. |
+| F24 — Descoberta de páginas | Menu público **Páginas** (`/paginas`); opt-in em Minha página → Editar página → Informações | Publicar uma página elegível, ativar **Encontrar minha página** e consultar com outra conta. Filtrar, seguir, deixar de seguir. Desativar descoberta e confirmar que some. Rascunhos não aparecem. |
+| F30 — Integrações e avisos | Minha página → Ferramentas → **Integrações e avisos** (`/painel/integracoes`) | Criar destino HTTPS público, escolher eventos, guardar o segredo mostrado uma única vez e usar **Testar envio**. Conferir entregas e desativar. O receptor deve validar assinatura e deduplicar o evento. |
 | F35 — Atendimento de contatos | Minha página → **Contatos recebidos** → **Atender** | Enviar formulário pela página pública, abrir contato, mudar Novo → Em atendimento → Concluído, incluir nota interna, reabrir e conferir filtros/histórico. Exportar exige permissão própria. |
-| F39 — Idiomas | Minha página → Edição → **Idiomas** (`/painel/perfil/idiomas`) | Configurar idioma principal e traduções manuais em inglês/espanhol; testar prévia, publicar e trocar idioma na página pública. Campo vazio usa o texto original. Não traduz URLs nem usa IA externa. |
-| F26 — Comparar botões | Minha página → Resultados e divulgação → **Comparar botões** (`/painel/perfil/testes`) | Com plano elegível e medição ativa, escolher botão comum, definir dois textos, salvar e publicar pela moderação habitual; iniciar teste. Duas sessões com consentimento podem receber variantes. Interromper e aplicar uma opção altera só o rascunho. Não forçar vencedor: há prazo e amostra mínimos. |
-| F36 — Clientes e agência | Painel → **Clientes** (`/painel/clientes`), **Acessos por cliente**, **Transferir página** | Seguir os três ensaios abaixo. |
+| F39 — Idiomas | Minha página → Editar página → **Idiomas** (`/painel/perfil/idiomas`) | Configurar idioma principal e traduções manuais em inglês/espanhol; testar prévia, publicar e trocar idioma na página pública. Campo vazio usa o texto original. Não traduz URLs nem usa IA externa. |
+| F26 — Comparar botões | Minha página → Resultados → **Comparar botões** (`/painel/perfil/testes`) | Com plano elegível e medição ativa, escolher botão comum, definir dois textos, salvar e publicar pela moderação habitual; iniciar teste. Duas sessões com consentimento podem receber variantes. Interromper e aplicar uma opção altera só o rascunho. Não forçar vencedor: há prazo e amostra mínimos. |
+| F36 — Clientes e agência | Área Clientes → **Meus clientes** (`/painel/clientes`), **Acessos por cliente**, **Transferir página** | Seguir os três ensaios abaixo. |
+
+### F40: entender e resolver sugestões
+
+1. Abrir **Minha página → Resultados → Melhorar minha página** (`/painel/perfil/diagnostico`). Não exige migration ou segredo novo; reiniciar API/frontend para carregar o código.
+2. Salvar no rascunho dois botões visíveis com o mesmo título. O diagnóstico mostra motivo, quantidade e **Revisar grupos e links**. Não altera a página automaticamente.
+3. Clicar em **Ignorar sugestão**, atualizar e conferir que continua ignorada. Uma nova versão salva reavalia; descartes vencem após trinta dias.
+4. Alterar período/tipo aplica o filtro imediatamente. Métricas de baixa interação exigem publicação atual, plano com analytics, medição, permissão de relatórios e pelo menos cem impressões por botão. Sem isso, aparece a falta de cobertura/dados; não um desempenho inventado.
+5. URLs próprias não recebem checagem externa nesta consulta. A tela declara essa cobertura; indisponibilidade conhecida vem do catálogo/F07.
+
+### Navegação e filtros revisados
+
+A sidebar usa o seletor **Área do painel**, separando Minha página, Meus links e Clientes. Um grupo aberto por vez; conta e equipe ficam no final. Todos os destinos continuam sujeitos às permissões. Em **Páginas**, digitar e parar aplica a busca; categoria e seguidas são imediatas. Contatos e clientes usam busca após pausa, sem botão Buscar. Integrações separa sistemas e entregas em abas; criar passa por Endereço → Avisos → Conferir. Em Idiomas, o seletor recolhe após escolher uma tradução e a prévia salva o rascunho antes de abrir. Em Comparar botões, seguir Configurar → Publicar → Iniciar.
 
 ### F36: organizar e alternar clientes
 
@@ -59,4 +73,4 @@ Testes automatizados usaram receptor sintético local. Nenhum aviso foi enviado 
 
 ## Limites e retomada
 
-Os resultados de checks e as capturas ficam nos registros `execucao-f24.md`, `execucao-f30.md`, `execucao-f35.md`, `execucao-f39.md`, `execucao-f26.md` e `execucao-f36.md`. A próxima implementação é **F40**, seguida de **F41**, somente após nova autorização para continuar. Não confundir S0–S6 local com CI, liberação S7 ou produção.
+Os resultados de checks e as capturas ficam nos registros `execucao-f24.md`, `execucao-f30.md`, `execucao-f35.md`, `execucao-f39.md`, `execucao-f26.md` e `execucao-f36.md`. F40 está incluída na revisão posterior das sete áreas. A única implementação ainda não iniciada é **F41**, dependente de novo pedido. Não confundir S0–S6 local com CI, liberação S7 ou produção.

@@ -13,7 +13,7 @@
 .location dd{font-size:.95em;white-space:pre-wrap}
 .description{font-size:.95em;line-height:1.6;white-space:pre-wrap}
 .actions{display:grid}
-.signup{display:flex;align-items:center;justify-content:center;gap:var(--space-3);min-height:48px;padding:var(--space-3);font:inherit;font-weight:600;border-radius:var(--page-radius,var(--radius-md));text-decoration:none;background:var(--button-bg,var(--action-primary-bg));color:var(--button-ink,#fff);border:2px solid var(--button-bg,var(--action-primary-bg))}
+.signup{display:flex;align-items:center;justify-content:center;gap:var(--space-3);min-height:48px;padding:var(--space-3);font:inherit;font-weight:600;border-radius:var(--page-radius,var(--radius-md));text-decoration:none;background:var(--button-bg,var(--action-primary-bg));color:var(--button-ink,var(--color-primary-ink));border:2px solid var(--button-bg,var(--action-primary-bg))}
 .signup svg{flex-shrink:0}
 .card a:focus-visible{outline:3px solid currentColor;outline-offset:3px}
 [data-style=outline] .signup{background:transparent;color:var(--page-ink)}

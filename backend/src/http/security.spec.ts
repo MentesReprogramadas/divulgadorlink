@@ -36,14 +36,16 @@ describe('segurança', () => {
     expect(webhook.statusCode).toBe(400)
   })
 
-  it('não estoura a página', async () => {
+  it('limita anexos a 2 MiB e preserva o limite global de 1 MiB', async () => {
     const huge = await app.inject({
       method: 'POST',
       url: '/api/v1/links',
       headers: { host: 'temlinkaqui.com', authorization: 'Bearer token-da-bia' },
-      payload: { url: 'https://t.me/x', name: 'n'.repeat(2_000_000), description: 'x', networkId: 'telegram', nicheId: 'jogos' },
+      payload: { url: 'https://t.me/x', name: 'n'.repeat(2 * 1024 * 1024 + 1), description: 'x', networkId: 'telegram', nicheId: 'jogos' },
     })
     expect(huge.statusCode).toBe(413)
+    const ordinary = await app.inject({ method: 'POST', url: '/api/v1/auth/login', headers: { host: 'temlinkaqui.com' }, payload: { email: 'n'.repeat(1024 * 1024 + 1), password: 'x' } })
+    expect(ordinary.statusCode).toBe(413)
   })
 
   it('não trava o login quando a senha nem chega a ser conferida', async () => {

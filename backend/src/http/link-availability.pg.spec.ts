@@ -71,7 +71,7 @@ async function decisionInput(now: Date) {
 describe('F07 PostgreSQL, probes e HTTP', () => {
   it('F07-W01 worker BullMQ real respeita o vencimento entre reentregas', async () => {
     await db.linkAvailability.update({ where: { linkId: link }, data: { nextCheckAt: new Date('2000-01-01T00:00Z') } })
-    const connection = new Redis('redis://127.0.0.1:6380', { maxRetriesPerRequest: null })
+    const connection = new Redis(process.env.REDIS_URL || 'redis://127.0.0.1:6380', { maxRetriesPerRequest: null })
     const queueName = 'f07-worker-' + randomUUID(), queue = new Queue(queueName, { connection }), events = new QueueEvents(queueName, { connection })
     const worker = createWorker(connection, { textJudge: null, db, availability: { now: base, policy, probe: async url => url.includes(tenant) ? 404 : 200, deliver: async () => {} } }, queueName)
     try {

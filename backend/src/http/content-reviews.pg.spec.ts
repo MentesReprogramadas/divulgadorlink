@@ -123,8 +123,8 @@ it('IA indisponível segue para humano; aprovação revalida segurança e não p
   expect((await decide(id, 'APPROVE')).statusCode).toBe(409)
   expect((await call('GET', 'admin/content-reviews?kind=PROFILE', undefined, admin)).json().cases).toEqual([])
 })
-it('convite: aprovação, recusa com destino anterior preservado, contestação e concorrência', async () => {
-  const input = { label: 'Meu convite', destinationUrl: 'https://example.com/a', requiresAge: false, requestKey: randomUUID(), expectedRevision: 0 }
+it('link permanente: aprovação, recusa com destino anterior preservado, contestação e concorrência', async () => {
+  const input = { label: 'Meu link permanente', destinationUrl: 'https://example.com/a', requiresAge: false, requestKey: randomUUID(), expectedRevision: 0 }
   const first = await call('POST', 'me/redirects', input); expect(first.statusCode, first.body).toBe(200); expect(first.json().destinationRevision.status).toBe('PENDING_REVIEW')
   const handle = first.json().id, detail = () => call('GET', 'me/redirects/' + handle)
   const id = (await detail()).json().revisions[0].review.id
@@ -138,7 +138,7 @@ it('convite: aprovação, recusa com destino anterior preservado, contestação 
   expect(await db.link.count({ where: { tenantId: tenant } })).toBe(0)
   expect(await db.auditLog.count({ where: { tenantId: tenant, action: 'content.review.decide' } })).toBe(3)
 })
-it('conta suspensa ou não confirmada não é publicada; FK do convite impede tenant cruzado', async () => {
+it('conta suspensa ou não confirmada não é publicada; FK do link permanente impede tenant cruzado', async () => {
   const { id } = await queuedProfile()
   await db.user.update({ where: { id: owner }, data: { status: 'BANNED' } })
   expect((await decide(id, 'APPROVE')).statusCode).toBe(403)
@@ -146,11 +146,11 @@ it('conta suspensa ou não confirmada não é publicada; FK do convite impede te
   await db.userIdentifier.updateMany({ where: { userId: owner }, data: { confirmedAt: null } })
   expect((await decide(id, 'APPROVE')).statusCode).toBe(403)
   await db.userIdentifier.updateMany({ where: { userId: owner }, data: { confirmedAt: new Date() } })
-  const created = await call('POST', 'me/redirects', { label: 'Convite', destinationUrl: 'https://example.com', requiresAge: false, requestKey: randomUUID(), expectedRevision: 0 })
+  const created = await call('POST', 'me/redirects', { label: 'Link permanente', destinationUrl: 'https://example.com', requiresAge: false, requestKey: randomUUID(), expectedRevision: 0 })
   const foreignOwner = await db.user.create({ data: { tenantId: foreign, name: 'Outra conta', passwordHash: 'fixture' } })
   await expect(db.contentReview.create({ data: { tenantId: foreign, ownerId: foreignOwner.id, kind: 'REDIRECT', redirectRevisionId: created.json().destinationRevision.id, version: 1, snapshot: {} } })).rejects.toThrow()
   const handle = created.json().id
-  await call('POST', 'me/redirects/' + handle + '/destinations', { label: 'Convite corrigido', destinationUrl: 'https://example.com/corrigido', requiresAge: false, requestKey: randomUUID(), expectedRevision: 1 })
+  await call('POST', 'me/redirects/' + handle + '/destinations', { label: 'Link permanente corrigido', destinationUrl: 'https://example.com/corrigido', requiresAge: false, requestKey: randomUUID(), expectedRevision: 1 })
   const history = (await call('GET', 'me/redirects/' + handle)).json().revisions
   expect(history.map((row: { status: string }) => row.status)).toEqual(['PENDING_REVIEW', 'SUPERSEDED'])
   expect((await decide(history[1].review.id, 'APPROVE')).statusCode).toBe(409)
@@ -169,9 +169,9 @@ async function notice(id: string) {
 async function receipt(eventId: string, decision: 'APPROVE' | 'REJECT', reason?: string) {
   return db.evolutionReceipt.create({ data: { tenantId: tenant, instance: 'Fixture bot', providerMessageId: randomUUID(), sender: '5511999999999', reference: actionReference(eventId, 'fixture-secret'), decision, reason } })
 }
-it('WhatsApp identifica a citação exata entre página e convite e publica somente o envio escolhido', async () => {
+it('WhatsApp identifica a citação exata entre página e link permanente e publica somente o envio escolhido', async () => {
   await whatsapp(); const page = await queuedProfile()
-  const created = await call('POST', 'me/redirects', { label: 'Convite no grupo', destinationUrl: 'https://example.com/grupo', requiresAge: false, requestKey: randomUUID(), expectedRevision: 0 })
+  const created = await call('POST', 'me/redirects', { label: 'Link permanente no grupo', destinationUrl: 'https://example.com/grupo', requiresAge: false, requestKey: randomUUID(), expectedRevision: 0 })
   const redirect = await db.contentReview.findFirstOrThrow({ where: { redirectRevisionId: created.json().destinationRevision.id } })
   const pageNotice = await notice(page.id), redirectNotice = await notice(redirect.id)
   expect(await quotedReviewReference(db, tenant, pageNotice.providerMessageId!, 'fixture-secret')).toBe(actionReference(pageNotice.id, 'fixture-secret'))

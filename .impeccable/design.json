@@ -1,0 +1,605 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-23T20:40:43.983105+00:00",
+  "title": "Design System: Tem Link Aqui",
+  "extensions": {
+    "colorMeta": {
+      "brand-navy": {
+        "displayName": "brand navy",
+        "role": "primary",
+        "tonalRamp": [
+          "oklch(0.1500 0.0483 257.95)",
+          "oklch(0.2643 0.0483 257.95)",
+          "oklch(0.3786 0.0483 257.95)",
+          "oklch(0.4929 0.0483 257.95)",
+          "oklch(0.6071 0.0483 257.95)",
+          "oklch(0.7214 0.0483 257.95)",
+          "oklch(0.8357 0.0483 257.95)",
+          "oklch(0.9500 0.0483 257.95)"
+        ]
+      },
+      "brand-turquoise": {
+        "displayName": "brand turquoise",
+        "role": "primary",
+        "tonalRamp": [
+          "oklch(0.1500 0.1399 187.07)",
+          "oklch(0.2643 0.1399 187.07)",
+          "oklch(0.3786 0.1399 187.07)",
+          "oklch(0.4929 0.1399 187.07)",
+          "oklch(0.6071 0.1399 187.07)",
+          "oklch(0.7214 0.1399 187.07)",
+          "oklch(0.8357 0.1399 187.07)",
+          "oklch(0.9500 0.1399 187.07)"
+        ]
+      },
+      "surface-page": {
+        "displayName": "surface page",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(0.1500 0.0483 257.95)",
+          "oklch(0.2643 0.0483 257.95)",
+          "oklch(0.3786 0.0483 257.95)",
+          "oklch(0.4929 0.0483 257.95)",
+          "oklch(0.6071 0.0483 257.95)",
+          "oklch(0.7214 0.0483 257.95)",
+          "oklch(0.8357 0.0483 257.95)",
+          "oklch(0.9500 0.0483 257.95)"
+        ]
+      },
+      "surface-raised": {
+        "displayName": "surface raised",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(0.1500 0.0500 242.52)",
+          "oklch(0.2643 0.0500 242.52)",
+          "oklch(0.3786 0.0500 242.52)",
+          "oklch(0.4929 0.0500 242.52)",
+          "oklch(0.6071 0.0500 242.52)",
+          "oklch(0.7214 0.0500 242.52)",
+          "oklch(0.8357 0.0500 242.52)",
+          "oklch(0.9500 0.0500 242.52)"
+        ]
+      },
+      "surface-subtle": {
+        "displayName": "surface subtle",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(0.1500 0.0732 180.08)",
+          "oklch(0.2643 0.0732 180.08)",
+          "oklch(0.3786 0.0732 180.08)",
+          "oklch(0.4929 0.0732 180.08)",
+          "oklch(0.6071 0.0732 180.08)",
+          "oklch(0.7214 0.0732 180.08)",
+          "oklch(0.8357 0.0732 180.08)",
+          "oklch(0.9500 0.0732 180.08)"
+        ]
+      },
+      "surface-glass": {
+        "displayName": "surface glass",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(0.1500 0.0500 242.52)",
+          "oklch(0.2643 0.0500 242.52)",
+          "oklch(0.3786 0.0500 242.52)",
+          "oklch(0.4929 0.0500 242.52)",
+          "oklch(0.6071 0.0500 242.52)",
+          "oklch(0.7214 0.0500 242.52)",
+          "oklch(0.8357 0.0500 242.52)",
+          "oklch(0.9500 0.0500 242.52)"
+        ]
+      },
+      "surface-popup": {
+        "displayName": "surface popup",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(0.1500 0.0500 242.52)",
+          "oklch(0.2643 0.0500 242.52)",
+          "oklch(0.3786 0.0500 242.52)",
+          "oklch(0.4929 0.0500 242.52)",
+          "oklch(0.6071 0.0500 242.52)",
+          "oklch(0.7214 0.0500 242.52)",
+          "oklch(0.8357 0.0500 242.52)",
+          "oklch(0.9500 0.0500 242.52)"
+        ]
+      },
+      "text-primary": {
+        "displayName": "text primary",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(0.1500 0.0138 219.62)",
+          "oklch(0.2643 0.0138 219.62)",
+          "oklch(0.3786 0.0138 219.62)",
+          "oklch(0.4929 0.0138 219.62)",
+          "oklch(0.6071 0.0138 219.62)",
+          "oklch(0.7214 0.0138 219.62)",
+          "oklch(0.8357 0.0138 219.62)",
+          "oklch(0.9500 0.0138 219.62)"
+        ]
+      },
+      "text-secondary": {
+        "displayName": "text secondary",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(0.1500 0.0342 225.51)",
+          "oklch(0.2643 0.0342 225.51)",
+          "oklch(0.3786 0.0342 225.51)",
+          "oklch(0.4929 0.0342 225.51)",
+          "oklch(0.6071 0.0342 225.51)",
+          "oklch(0.7214 0.0342 225.51)",
+          "oklch(0.8357 0.0342 225.51)",
+          "oklch(0.9500 0.0342 225.51)"
+        ]
+      },
+      "border-default": {
+        "displayName": "border default",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(0.1500 0.0543 202.00)",
+          "oklch(0.2643 0.0543 202.00)",
+          "oklch(0.3786 0.0543 202.00)",
+          "oklch(0.4929 0.0543 202.00)",
+          "oklch(0.6071 0.0543 202.00)",
+          "oklch(0.7214 0.0543 202.00)",
+          "oklch(0.8357 0.0543 202.00)",
+          "oklch(0.9500 0.0543 202.00)"
+        ]
+      },
+      "action-primary-bg": {
+        "displayName": "action primary bg",
+        "role": "primary",
+        "tonalRamp": [
+          "oklch(0.1500 0.1399 187.07)",
+          "oklch(0.2643 0.1399 187.07)",
+          "oklch(0.3786 0.1399 187.07)",
+          "oklch(0.4929 0.1399 187.07)",
+          "oklch(0.6071 0.1399 187.07)",
+          "oklch(0.7214 0.1399 187.07)",
+          "oklch(0.8357 0.1399 187.07)",
+          "oklch(0.9500 0.1399 187.07)"
+        ]
+      },
+      "action-primary-hover": {
+        "displayName": "action primary hover",
+        "role": "primary",
+        "tonalRamp": [
+          "oklch(0.1500 0.1131 187.12)",
+          "oklch(0.2643 0.1131 187.12)",
+          "oklch(0.3786 0.1131 187.12)",
+          "oklch(0.4929 0.1131 187.12)",
+          "oklch(0.6071 0.1131 187.12)",
+          "oklch(0.7214 0.1131 187.12)",
+          "oklch(0.8357 0.1131 187.12)",
+          "oklch(0.9500 0.1131 187.12)"
+        ]
+      },
+      "primary-ink": {
+        "displayName": "primary ink",
+        "role": "primary",
+        "tonalRamp": [
+          "oklch(0.1500 0.0483 257.95)",
+          "oklch(0.2643 0.0483 257.95)",
+          "oklch(0.3786 0.0483 257.95)",
+          "oklch(0.4929 0.0483 257.95)",
+          "oklch(0.6071 0.0483 257.95)",
+          "oklch(0.7214 0.0483 257.95)",
+          "oklch(0.8357 0.0483 257.95)",
+          "oklch(0.9500 0.0483 257.95)"
+        ]
+      },
+      "color-link": {
+        "displayName": "color link",
+        "role": "primary",
+        "tonalRamp": [
+          "oklch(0.1500 0.0897 185.36)",
+          "oklch(0.2643 0.0897 185.36)",
+          "oklch(0.3786 0.0897 185.36)",
+          "oklch(0.4929 0.0897 185.36)",
+          "oklch(0.6071 0.0897 185.36)",
+          "oklch(0.7214 0.0897 185.36)",
+          "oklch(0.8357 0.0897 185.36)",
+          "oklch(0.9500 0.0897 185.36)"
+        ]
+      },
+      "focus-ring": {
+        "displayName": "focus ring",
+        "role": "primary",
+        "tonalRamp": [
+          "oklch(0.1500 0.1399 187.07)",
+          "oklch(0.2643 0.1399 187.07)",
+          "oklch(0.3786 0.1399 187.07)",
+          "oklch(0.4929 0.1399 187.07)",
+          "oklch(0.6071 0.1399 187.07)",
+          "oklch(0.7214 0.1399 187.07)",
+          "oklch(0.8357 0.1399 187.07)",
+          "oklch(0.9500 0.1399 187.07)"
+        ]
+      },
+      "glass-border": {
+        "displayName": "glass border",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(0.1500 0.0609 177.03)",
+          "oklch(0.2643 0.0609 177.03)",
+          "oklch(0.3786 0.0609 177.03)",
+          "oklch(0.4929 0.0609 177.03)",
+          "oklch(0.6071 0.0609 177.03)",
+          "oklch(0.7214 0.0609 177.03)",
+          "oklch(0.8357 0.0609 177.03)",
+          "oklch(0.9500 0.0609 177.03)"
+        ]
+      },
+      "field-background": {
+        "displayName": "field background",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(0.1500 0.0410 245.23)",
+          "oklch(0.2643 0.0410 245.23)",
+          "oklch(0.3786 0.0410 245.23)",
+          "oklch(0.4929 0.0410 245.23)",
+          "oklch(0.6071 0.0410 245.23)",
+          "oklch(0.7214 0.0410 245.23)",
+          "oklch(0.8357 0.0410 245.23)",
+          "oklch(0.9500 0.0410 245.23)"
+        ]
+      },
+      "field-border": {
+        "displayName": "field border",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(0.1500 0.0509 205.54)",
+          "oklch(0.2643 0.0509 205.54)",
+          "oklch(0.3786 0.0509 205.54)",
+          "oklch(0.4929 0.0509 205.54)",
+          "oklch(0.6071 0.0509 205.54)",
+          "oklch(0.7214 0.0509 205.54)",
+          "oklch(0.8357 0.0509 205.54)",
+          "oklch(0.9500 0.0509 205.54)"
+        ]
+      },
+      "select-selected-background": {
+        "displayName": "select selected background",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(0.1500 0.1399 187.07)",
+          "oklch(0.2643 0.1399 187.07)",
+          "oklch(0.3786 0.1399 187.07)",
+          "oklch(0.4929 0.1399 187.07)",
+          "oklch(0.6071 0.1399 187.07)",
+          "oklch(0.7214 0.1399 187.07)",
+          "oklch(0.8357 0.1399 187.07)",
+          "oklch(0.9500 0.1399 187.07)"
+        ]
+      },
+      "status-success-text": {
+        "displayName": "status success text",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(0.1500 0.1100 166.06)",
+          "oklch(0.2643 0.1100 166.06)",
+          "oklch(0.3786 0.1100 166.06)",
+          "oklch(0.4929 0.1100 166.06)",
+          "oklch(0.6071 0.1100 166.06)",
+          "oklch(0.7214 0.1100 166.06)",
+          "oklch(0.8357 0.1100 166.06)",
+          "oklch(0.9500 0.1100 166.06)"
+        ]
+      },
+      "status-success-bg": {
+        "displayName": "status success bg",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(0.1500 0.0512 179.17)",
+          "oklch(0.2643 0.0512 179.17)",
+          "oklch(0.3786 0.0512 179.17)",
+          "oklch(0.4929 0.0512 179.17)",
+          "oklch(0.6071 0.0512 179.17)",
+          "oklch(0.7214 0.0512 179.17)",
+          "oklch(0.8357 0.0512 179.17)",
+          "oklch(0.9500 0.0512 179.17)"
+        ]
+      },
+      "status-success-border": {
+        "displayName": "status success border",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(0.1500 0.1102 171.29)",
+          "oklch(0.2643 0.1102 171.29)",
+          "oklch(0.3786 0.1102 171.29)",
+          "oklch(0.4929 0.1102 171.29)",
+          "oklch(0.6071 0.1102 171.29)",
+          "oklch(0.7214 0.1102 171.29)",
+          "oklch(0.8357 0.1102 171.29)",
+          "oklch(0.9500 0.1102 171.29)"
+        ]
+      },
+      "status-error-text": {
+        "displayName": "status error text",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(0.1500 0.0834 24.41)",
+          "oklch(0.2643 0.0834 24.41)",
+          "oklch(0.3786 0.0834 24.41)",
+          "oklch(0.4929 0.0834 24.41)",
+          "oklch(0.6071 0.0834 24.41)",
+          "oklch(0.7214 0.0834 24.41)",
+          "oklch(0.8357 0.0834 24.41)",
+          "oklch(0.9500 0.0834 24.41)"
+        ]
+      },
+      "status-error-bg": {
+        "displayName": "status error bg",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(0.1500 0.0421 347.16)",
+          "oklch(0.2643 0.0421 347.16)",
+          "oklch(0.3786 0.0421 347.16)",
+          "oklch(0.4929 0.0421 347.16)",
+          "oklch(0.6071 0.0421 347.16)",
+          "oklch(0.7214 0.0421 347.16)",
+          "oklch(0.8357 0.0421 347.16)",
+          "oklch(0.9500 0.0421 347.16)"
+        ]
+      },
+      "status-error-border": {
+        "displayName": "status error border",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(0.1500 0.1060 21.76)",
+          "oklch(0.2643 0.1060 21.76)",
+          "oklch(0.3786 0.1060 21.76)",
+          "oklch(0.4929 0.1060 21.76)",
+          "oklch(0.6071 0.1060 21.76)",
+          "oklch(0.7214 0.1060 21.76)",
+          "oklch(0.8357 0.1060 21.76)",
+          "oklch(0.9500 0.1060 21.76)"
+        ]
+      },
+      "status-warning-text": {
+        "displayName": "status warning text",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(0.1500 0.0847 83.91)",
+          "oklch(0.2643 0.0847 83.91)",
+          "oklch(0.3786 0.0847 83.91)",
+          "oklch(0.4929 0.0847 83.91)",
+          "oklch(0.6071 0.0847 83.91)",
+          "oklch(0.7214 0.0847 83.91)",
+          "oklch(0.8357 0.0847 83.91)",
+          "oklch(0.9500 0.0847 83.91)"
+        ]
+      },
+      "status-warning-bg": {
+        "displayName": "status warning bg",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(0.1500 0.0240 90.72)",
+          "oklch(0.2643 0.0240 90.72)",
+          "oklch(0.3786 0.0240 90.72)",
+          "oklch(0.4929 0.0240 90.72)",
+          "oklch(0.6071 0.0240 90.72)",
+          "oklch(0.7214 0.0240 90.72)",
+          "oklch(0.8357 0.0240 90.72)",
+          "oklch(0.9500 0.0240 90.72)"
+        ]
+      },
+      "status-warning-border": {
+        "displayName": "status warning border",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(0.1500 0.0976 86.41)",
+          "oklch(0.2643 0.0976 86.41)",
+          "oklch(0.3786 0.0976 86.41)",
+          "oklch(0.4929 0.0976 86.41)",
+          "oklch(0.6071 0.0976 86.41)",
+          "oklch(0.7214 0.0976 86.41)",
+          "oklch(0.8357 0.0976 86.41)",
+          "oklch(0.9500 0.0976 86.41)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Título fluido da home atual; composição local, não regra para todos os h1."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "h1 global; variações locais mantêm identidade."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "h2 global e títulos de cards."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Leitura e controles."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Rótulos associados aos campos."
+      }
+    },
+    "shadows": [
+      {
+        "name": "glass-shadow",
+        "value": "inset 0 1px 0 #e4fff382, inset 0 -1px 0 #abfff029, 0 16px 36px #000c1c40",
+        "purpose": "Casca iluminada de vidro; --shadow aponta para esta composição."
+      },
+      {
+        "name": "input-inset",
+        "value": "inset 0 1px 1px #d8fff01a, 0 6px 16px #00112020",
+        "purpose": "Profundidade do Input compartilhado."
+      },
+      {
+        "name": "dialog-extra",
+        "value": "0 24px 80px #000b1d99",
+        "purpose": "Sombra adicional do diálogo, somada ao vidro."
+      }
+    ],
+    "motion": [
+      {
+        "name": "catalog-card",
+        "value": "border-color 180ms ease, transform 180ms cubic-bezier(.2,.8,.2,1)",
+        "purpose": "Card clicável; deslocamento de 3px somente com hover e sem movimento reduzido."
+      },
+      {
+        "name": "select-popup",
+        "value": "opacity 150ms, transform 150ms",
+        "purpose": "Popup ancorado com deslocamento inicial de -4px; reduced-motion remove a transição."
+      },
+      {
+        "name": "select-chevron",
+        "value": "transform 180ms ease",
+        "purpose": "Indicador de abertura; reduced-motion remove a transição."
+      },
+      {
+        "name": "dialog",
+        "value": "opacity 200ms ease, transform 200ms ease",
+        "purpose": "Painel e drawer; reduced-motion remove a transição."
+      },
+      {
+        "name": "wave-lines",
+        "value": "drift 20s ease-in-out infinite alternate",
+        "purpose": "Ondas SVG decorativas; pausa e movimento reduzido interrompem o movimento."
+      },
+      {
+        "name": "button-spinner",
+        "value": "button-spin 700ms linear infinite",
+        "purpose": "Loading existente; reduced-motion usa borda pontilhada sem rotação."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "shell-drawer",
+        "value": "64rem"
+      },
+      {
+        "name": "card-body-compact",
+        "value": "37.5rem"
+      },
+      {
+        "name": "detail-columns",
+        "value": "850px"
+      },
+      {
+        "name": "form-single-column",
+        "value": "768px"
+      },
+      {
+        "name": "panel-links-single-column",
+        "value": "720px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Button primary",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Variante visual existente; não executa transporte ou autorização.",
+      "html": "<button class=\"ds-button-primary\" type=\"button\">Exemplo de ação</button>",
+      "css": ".ds-button-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:12px 16px;border:1px solid transparent;border-radius:var(--radius-sm,.375rem);font-weight:600;line-height:1.25;cursor:pointer;font-family:var(--font-sans,\"Source Sans 3\",sans-serif);font-size:1rem;box-shadow:var(--glass-shadow,inset 0 1px 0 #e4fff382,inset 0 -1px 0 #abfff029,0 16px 36px #000c1c40);backdrop-filter:blur(var(--glass-blur,14px));-webkit-backdrop-filter:blur(var(--glass-blur,14px));background:var(--action-primary-bg,#4af9eb);color:var(--color-primary-ink,#0a192f);}.ds-button-primary:hover:not(:disabled){background:var(--action-primary-hover,#83fff3);}.ds-button-primary:focus-visible{outline:3px solid var(--focus-ring,#4af9eb);outline-offset:3px;}.ds-button-primary:disabled{opacity:.5;cursor:not-allowed;}"
+    },
+    {
+      "name": "Button secondary",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Variante visual existente; não executa transporte ou autorização.",
+      "html": "<button class=\"ds-button-secondary\" type=\"button\">Exemplo de ação</button>",
+      "css": ".ds-button-secondary{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:12px 16px;border:1px solid transparent;border-radius:var(--radius-sm,.375rem);font-weight:600;line-height:1.25;cursor:pointer;font-family:var(--font-sans,\"Source Sans 3\",sans-serif);font-size:1rem;box-shadow:var(--glass-shadow,inset 0 1px 0 #e4fff382,inset 0 -1px 0 #abfff029,0 16px 36px #000c1c40);backdrop-filter:blur(var(--glass-blur,14px));-webkit-backdrop-filter:blur(var(--glass-blur,14px));background:transparent;color:var(--text-primary,#effbff);border-color:var(--border-default,#b4e9ed42);}.ds-button-secondary:hover:not(:disabled){background:var(--border-default,#b4e9ed42);}.ds-button-secondary:focus-visible{outline:3px solid var(--focus-ring,#4af9eb);outline-offset:3px;}.ds-button-secondary:disabled{opacity:.5;cursor:not-allowed;}"
+    },
+    {
+      "name": "Button ghost",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Variante visual existente; não executa transporte ou autorização.",
+      "html": "<button class=\"ds-button-ghost\" type=\"button\">Exemplo de ação</button>",
+      "css": ".ds-button-ghost{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:12px 16px;border:1px solid transparent;border-radius:var(--radius-sm,.375rem);font-weight:600;line-height:1.25;cursor:pointer;font-family:var(--font-sans,\"Source Sans 3\",sans-serif);font-size:1rem;box-shadow:var(--glass-shadow,inset 0 1px 0 #e4fff382,inset 0 -1px 0 #abfff029,0 16px 36px #000c1c40);backdrop-filter:blur(var(--glass-blur,14px));-webkit-backdrop-filter:blur(var(--glass-blur,14px));background:transparent;color:var(--text-primary,#effbff);border-color:var(--border-default,#b4e9ed42);}.ds-button-ghost:hover:not(:disabled){background:var(--border-default,#b4e9ed42);}.ds-button-ghost:focus-visible{outline:3px solid var(--focus-ring,#4af9eb);outline-offset:3px;}.ds-button-ghost:disabled{opacity:.5;cursor:not-allowed;}"
+    },
+    {
+      "name": "Button danger",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Variante visual existente; não executa transporte ou autorização.",
+      "html": "<button class=\"ds-button-danger\" type=\"button\">Exemplo de ação</button>",
+      "css": ".ds-button-danger{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:12px 16px;border:1px solid transparent;border-radius:var(--radius-sm,.375rem);font-weight:600;line-height:1.25;cursor:pointer;font-family:var(--font-sans,\"Source Sans 3\",sans-serif);font-size:1rem;box-shadow:var(--glass-shadow,inset 0 1px 0 #e4fff382,inset 0 -1px 0 #abfff029,0 16px 36px #000c1c40);backdrop-filter:blur(var(--glass-blur,14px));-webkit-backdrop-filter:blur(var(--glass-blur,14px));background:var(--status-error-bg,#452c39);color:var(--status-error-text,#ffb8b2);border-color:var(--status-error-border,#ffa6a366);}.ds-button-danger:hover:not(:disabled){background:var(--status-error-bg,#452c39);}.ds-button-danger:focus-visible{outline:3px solid var(--focus-ring,#4af9eb);outline-offset:3px;}.ds-button-danger:disabled{opacity:.5;cursor:not-allowed;}"
+    },
+    {
+      "name": "Input e label",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Rótulo associado e estados visuais de Input, sem lógica de formulário.",
+      "html": "<label class=\"ds-label\" for=\"ds-field\">Buscar links</label><input class=\"ds-field\" id=\"ds-field\" placeholder=\"Digite um assunto\">",
+      "css": ".ds-label{display:block;font-family:var(--font-sans,\"Source Sans 3\",sans-serif);font-size:15px;font-weight:600;color:var(--text-primary,#effbff);}.ds-field{display:block;width:100%;min-height:48px;margin:8px 0 16px;padding:12px;border:1px solid var(--field-border,#b7e8ee66);border-radius:var(--radius-md,.75rem);background:var(--field-background,#071b2b80);color:var(--text-primary,#effbff);box-shadow:inset 0 1px 1px #d8fff01a,0 6px 16px #00112020;font-family:var(--font-sans,\"Source Sans 3\",sans-serif);font-size:1rem;}.ds-field:hover:not(:disabled){border-color:var(--neutral-500,#5c6b7f);}.ds-field:focus-visible{border-color:var(--focus-ring,#4af9eb);outline:3px solid var(--focus-ring,#4af9eb);outline-offset:3px;}.ds-field[aria-invalid=true]{border-color:var(--status-error-text,#ffb8b2);}.ds-field:disabled{opacity:.55;cursor:not-allowed;}.ds-field::placeholder{color:var(--text-secondary,#bad6e2);opacity:1;}"
+    },
+    {
+      "name": "Badge de metadados",
+      "kind": "chip",
+      "refersTo": "badge",
+      "description": "Metadado estático; não implica filtro ou botão.",
+      "html": "<span class=\"ds-badge\">Assunto</span>",
+      "css": ".ds-badge{display:inline-flex;align-items:center;gap:4px;max-width:100%;min-height:24px;padding:2px 8px 2px 6px;border-radius:999px;border:1px solid var(--border-default,#b4e9ed42);background:var(--surface-page,#0a192f);color:var(--text-secondary,#bad6e2);font-family:var(--font-sans,\"Source Sans 3\",sans-serif);font-size:13px;font-weight:600;line-height:1.2;}"
+    },
+    {
+      "name": "Card de catálogo sem imagem",
+      "kind": "card",
+      "refersTo": "link-card",
+      "description": "Variante sem anexo: corpo no topo e nenhum placeholder. Dados desta amostra são ilustrativos.",
+      "html": "<article class=\"ds-card\"><div class=\"ds-card-body\"><h3><a class=\"ds-card-name\" href=\"#ds-example-link\">Nome ilustrativo do link</a></h3><p>Descrição ilustrativa do link, abaixo da capa quando houver anexo aprovado.</p></div></article>",
+      "css": ".ds-card{position:relative;display:flex;flex-direction:column;min-width:0;width:100%;padding:0;isolation:isolate;border:1px solid var(--glass-border,#c6fff052);border-radius:16px;background:linear-gradient(132deg,#efffff12,transparent 38%,#4af9eb09),var(--surface-glass,#102c40b8);box-shadow:var(--glass-shadow,inset 0 1px 0 #e4fff382,inset 0 -1px 0 #abfff029,0 16px 36px #000c1c40);backdrop-filter:blur(var(--glass-blur,14px)) saturate(1.35);-webkit-backdrop-filter:blur(var(--glass-blur,14px)) saturate(1.35);transition:border-color 180ms ease,transform 180ms cubic-bezier(.2,.8,.2,1);font-family:var(--font-sans,\"Source Sans 3\",sans-serif);font-size:1rem;}.ds-card-body{min-width:0;padding:24px;}.ds-card-body h3{margin:0;font-family:var(--font-product,Outfit,sans-serif);font-size:20px;font-weight:600;line-height:1.2;}.ds-card-name{color:var(--text-primary,#effbff);text-decoration:none;}.ds-card-name:before{content:\"\";position:absolute;inset:0;border-radius:16px;}.ds-card-name:focus-visible{outline:none;}.ds-card-name:focus-visible:before{outline:3px solid var(--focus-ring,#4af9eb);outline-offset:3px;}.ds-card-body p{margin:8px 0 0;color:var(--text-secondary,#bad6e2);line-height:1.5;overflow-wrap:anywhere;}.ds-card:hover,.ds-card:focus-within{border-color:var(--color-link,#a3fff3);}@media(hover:hover) and (prefers-reduced-motion:no-preference){.ds-card:hover{transform:translateY(-3px);}}@media(prefers-reduced-motion:reduce){.ds-card{transition:none;}}"
+    },
+    {
+      "name": "Navegação lateral",
+      "kind": "nav",
+      "refersTo": "sidebar-link",
+      "description": "O item atual preserva o fundo claro local e aria-current.",
+      "html": "<nav aria-label=\"Exemplo visual\"><a class=\"ds-nav\" href=\"#ds-catalog\" aria-current=\"page\">Catálogo</a><a class=\"ds-nav\" href=\"#ds-search\">Busca</a></nav>",
+      "css": ".ds-nav{display:flex;align-items:center;gap:12px;min-height:44px;padding:8px 12px;border-radius:var(--radius-md,.75rem);color:var(--text-secondary,#bad6e2);font-weight:600;text-decoration:none;font-family:var(--font-sans,\"Source Sans 3\",sans-serif);font-size:1rem;}.ds-nav:hover{background:var(--surface-subtle,#b8fff014);color:var(--text-primary,#effbff);}.ds-nav[aria-current=page]{color:var(--color-brand-navy,#0a192f);background:#eaf2f5;box-shadow:inset 3px 0 var(--color-brand-navy,#0a192f);}.ds-nav:focus-visible{outline:3px solid var(--focus-ring,#4af9eb);outline-offset:3px;}"
+    },
+    {
+      "name": "Select e popup",
+      "kind": "custom",
+      "refersTo": "select",
+      "description": "Amostra visual aberta. O produto usa Base UI para seleção, portal e teclado; esta amostra não reimplementa o comportamento.",
+      "html": "<div class=\"ds-select\"><button class=\"ds-select-trigger\" type=\"button\">Português <span aria-hidden=\"true\">⌄</span></button><div class=\"ds-select-popup\"><div class=\"ds-option ds-selected\">Português ✓</div><div class=\"ds-option\">Espanhol</div></div></div>",
+      "css": ".ds-select{width:min(100%,22rem);font-family:var(--font-sans,\"Source Sans 3\",sans-serif);font-size:1rem;}.ds-select-trigger{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:48px;padding:12px;border:1px solid var(--field-border,#b7e8ee66);border-radius:var(--radius-md,.75rem);background:var(--field-background,#071b2b80);color:var(--text-primary,#effbff);cursor:pointer;font-family:var(--font-sans,\"Source Sans 3\",sans-serif);font-size:1rem;box-shadow:var(--glass-shadow,inset 0 1px 0 #e4fff382,inset 0 -1px 0 #abfff029,0 16px 36px #000c1c40);backdrop-filter:blur(var(--glass-blur,14px));-webkit-backdrop-filter:blur(var(--glass-blur,14px));}.ds-select-trigger:hover{border-color:var(--text-secondary,#bad6e2);}.ds-select-trigger:focus-visible{outline:3px solid var(--focus-ring,#4af9eb);outline-offset:3px;}.ds-select-popup{margin-top:6px;padding:6px;border:1px solid var(--border-default,#b4e9ed42);border-radius:var(--radius-md,.75rem);background:var(--surface-popup,#102c40f5);color:var(--text-primary,#effbff);box-shadow:var(--glass-shadow,inset 0 1px 0 #e4fff382,inset 0 -1px 0 #abfff029,0 16px 36px #000c1c40);backdrop-filter:blur(var(--glass-blur,14px));-webkit-backdrop-filter:blur(var(--glass-blur,14px));}.ds-option{min-height:44px;padding:10px 12px;border-radius:6px;}.ds-option:hover{background:var(--surface-subtle,#b8fff014);}.ds-option.ds-selected{background:var(--select-selected-background,#4af9eb24);font-weight:600;}"
+    },
+    {
+      "name": "Painel de diálogo",
+      "kind": "custom",
+      "refersTo": "dialog",
+      "description": "Painel estático. Não abre modal nem substitui o foco ou a semântica do componente real.",
+      "html": "<section class=\"ds-dialog\" aria-labelledby=\"ds-dialog-title\"><header class=\"ds-dialog-header\"><h2 id=\"ds-dialog-title\">Exemplo de diálogo</h2><button type=\"button\" aria-label=\"Fechar exemplo\">×</button></header><div class=\"ds-dialog-body\">Conteúdo ilustrativo, nítido sobre a superfície de popup.</div></section>",
+      "css": ".ds-dialog{width:min(100%,40rem);border:1px solid var(--glass-border,#c6fff052);border-radius:var(--radius-lg,1rem);background:var(--surface-popup,#102c40f5);color:var(--text-primary,#effbff);box-shadow:var(--glass-shadow,inset 0 1px 0 #e4fff382,inset 0 -1px 0 #abfff029,0 16px 36px #000c1c40),0 24px 80px #000b1d99;backdrop-filter:blur(var(--glass-blur,14px));-webkit-backdrop-filter:blur(var(--glass-blur,14px));overflow:hidden;font-family:var(--font-sans,\"Source Sans 3\",sans-serif);font-size:1rem;}.ds-dialog-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 24px;border-bottom:1px solid var(--border-default,#b4e9ed42);}.ds-dialog-header h2{margin:0;font-family:var(--font-product,Outfit,sans-serif);font-size:1.25rem;font-weight:600;}.ds-dialog-header button{display:grid;place-items:center;flex:none;width:44px;height:44px;padding:0;border:1px solid var(--border-default,#b4e9ed42);border-radius:var(--radius-md,.75rem);background:var(--surface-page,#0a192f);color:var(--text-primary,#effbff);cursor:pointer;font-family:var(--font-sans,\"Source Sans 3\",sans-serif);font-size:1rem;}.ds-dialog-header button:focus-visible{outline:3px solid var(--focus-ring,#4af9eb);outline-offset:3px;}.ds-dialog-body{padding:24px;overflow-wrap:anywhere;}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Ondas",
+    "overview": "A autoridade visual aprovada é a preview /dev/homes/ondas e seu detalhe. Em 23/10/2026, o usuário rejeitou a adaptação entregue no frontend real e exigiu reutilizar sua composição e Liquid Glass, retirar ícones coloridos e o botão Pausar ondas. A aprovação da preview não valida a implementação anterior de produção. A autorização para executar a correção permanece, sem novo fluxo de aprovação.\n\nMigração e validação de paridade em andamento: os tokens, snippets e descrições remanescentes deste sidecar registram a implementação anterior, não a autoridade visual da preview. A correção atual compartilha ondas-catalog.module.css e components/ui/liquid-lens entre preview e produção; paridade pixel a pixel não foi verificada em runtime. Alcance, testes executados e pendências: docs/superpowers/2026-10-23-ondas-preview-parity.md. Páginas personalizadas preservam a escolha do proprietário.",
+    "keyCharacteristics": [
+      "Azul-marinho como fundo; turquesa para ação e realce; texto claro com papéis semânticos próprios.",
+      "Outfit em títulos e Source Sans 3 em leitura e controles.",
+      "Vidro por transparência controlada, luz nas bordas, sombra e conteúdo nítido.",
+      "Ondas decorativas com pausa; densidade e movimento discretos nas ferramentas.",
+      "Anexos opcionais e moderados, sem imagem fictícia ou espaço reservado quando ausentes.",
+      "Personalização do publicador preservada fora do tema da plataforma."
+    ],
+    "rules": [],
+    "dos": [
+      "**Do** reutilizar tokens semânticos e componentes existentes antes de criar novos estilos.",
+      "**Do** manter texto nítido, foco visível, rótulos associados e estados explícitos sobre o vidro.",
+      "**Do** preservar pausa, movimento reduzido, transparência reduzida e fallback sem GPU ou backdrop-filter.",
+      "**Do** omitir por completo a região de imagem ausente ou com falha, mantendo as ações independentes do card.",
+      "**Do** adaptar densidade à tarefa e respeitar a paleta e o layout das publicações personalizadas.",
+      "**Do** registrar verificações por rota e estado; código tematizado não equivale a jornada validada."
+    ],
+    "donts": [
+      "**Don't** usar navy como texto sobre superfícies escuras nem pastel de status sob texto claro.",
+      "**Don't** colocar texto sobre a capa do card ou inserir fotografia fictícia quando não houver anexo.",
+      "**Don't** substituir conteúdo, publicidade identificada ou estados reais por efeitos e números inventados.",
+      "**Don't** vincular aprovação de mídia à aprovação textual nem mostrar proposta pendente ao público.",
+      "**Don't** promover outras variantes da galeria a regras globais sem decisão explícita.",
+      "**Don't** tratar esta documentação ou os fallbacks implementados como validação completa de acessibilidade, desempenho ou produção."
+    ]
+  }
+}

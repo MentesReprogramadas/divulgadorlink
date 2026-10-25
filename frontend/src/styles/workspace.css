@@ -93,7 +93,7 @@
   background: var(--color-paper);
 }
 .switch.is-on {
-  border-color: var(--color-brand-navy);
+  border-color: var(--color-link);
   background: var(--color-brand-navy);
 }
 .switch-knob {
@@ -209,7 +209,7 @@
   font-size: 22px;
   font-weight: 600;
   line-height: 1.2;
-  color: var(--color-brand-navy);
+  color: var(--color-link);
   overflow-wrap: anywhere;
 }
 
@@ -243,7 +243,7 @@
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--color-brand-navy);
+  color: var(--color-link);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
@@ -264,7 +264,9 @@
   font-size: 15px;
 }
 
-.panel-edit .field {
+.panel-edit .field,
+.panel-edit [data-control-frame],
+.panel-edit [data-select-control] {
   margin-bottom: 0;
 }
 
@@ -283,7 +285,7 @@
 
 .panel-stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 7rem), 1fr));
   gap: var(--space-2);
   margin-top: var(--space-3);
 }
@@ -328,11 +330,13 @@
   max-height: min(720px, calc(100% - 32px));
   margin: auto;
   padding: var(--space-6);
-  border: 1px solid var(--color-line);
-  border-radius: 8px;
-  background: var(--color-control-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-popup);
   color: var(--color-ink);
-  box-shadow: 0 16px 48px rgb(10 25 47 / 18%);
+  box-shadow: var(--glass-shadow);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
 }
 
 .link-dialog::backdrop {
@@ -415,7 +419,7 @@
   font-family: var(--font-serif);
   font-size: 18px;
   font-weight: 600;
-  color: var(--color-brand-navy);
+  color: var(--color-link);
   overflow-wrap: anywhere;
 }
 
@@ -436,3 +440,5 @@
   line-height: 1.2;
   color: var(--color-ink);
 }
+
+.link-dialog { background: linear-gradient(130deg,#ffffff13,#ffffff03 45%,#ffffff0a),var(--surface-popup); box-shadow: inset 0 1.5px 1px #ffffffc7,inset 1.5px 0 1px #e0fff766,inset -1px -1.5px 1px #d6ffff8a,0 18px 36px #010b1659; -webkit-backdrop-filter: blur(8px) saturate(1.15); backdrop-filter: blur(8px) saturate(1.15); }

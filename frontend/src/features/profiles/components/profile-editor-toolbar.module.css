@@ -1,5 +1,5 @@
 .toolbar { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); min-width: 0; }
-.tabs { flex: 0 0 auto; min-width: 0; max-width: 100%; }
+.tabs { flex: 1 1 28rem; min-width: 0; max-width: 100%; }
 .tabs [role='tab'] { padding-inline: var(--space-3); }
 .actions, .fixed { display: flex; align-items: center; gap: var(--space-2); flex: none; }
 .actions { margin-left: auto; max-width: 100%; }
@@ -7,19 +7,24 @@
 .actions button { white-space: nowrap; }
 .fixed > button[aria-label="Atualizar dados"] { width: 44px; padding-inline: 0; }
 .menu { position: relative; }
-.menu summary { list-style: none; display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--border-default); border-radius: var(--radius); color: var(--text-primary); cursor: pointer; }
+.menu > summary { position:relative; isolation:isolate; --glass-tint:var(--surface-glass); list-style: none; display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius:12px; background:transparent; color: var(--text-primary); cursor: pointer; }
 .menu summary::-webkit-details-marker { display: none; }
 .menu summary:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 3px; }
-.popup { position: absolute; right: 0; top: calc(100% + 8px); z-index: 5; width: max-content; min-width: 14rem; max-width: min(22rem, calc(100vw - 32px)); padding: var(--space-2); display: grid; gap: var(--space-1); border: 1px solid var(--border-default); border-radius: var(--radius-md); box-shadow: var(--shadow); background: var(--surface-raised); }
-.popup button, .popup a { justify-content: flex-start; width: 100%; white-space: normal; }
+.popup { position: absolute; isolation:isolate; --glass-tint:#0a192ff2; --glass-fallback:#0a192f; --lens-frost:12px; right:calc(0px - var(--profile-menu-shift,0px)); top: calc(100% + 8px); z-index: 5; width: max-content; min-width: min(14rem, calc(100vw - 32px)); max-width: min(22rem, calc(100vw - 32px)); max-height:calc(100vh - 6rem); max-height:min(36rem,var(--profile-menu-height,calc(100dvh - 6rem))); padding:0; display:flex; flex-direction:column; border:1px solid var(--glass-border); border-radius:var(--radius-md); background:var(--glass-tint); box-shadow:0 18px 36px #010b1659; -webkit-backdrop-filter:blur(12px) saturate(1.15); backdrop-filter:blur(12px) saturate(1.15); }
+.popup[data-side='top'] { top:auto; bottom:calc(100% + 8px); }
+.popupContent { min-height:0; min-width:0; max-width:100%; padding:var(--space-2); overflow:auto; overscroll-behavior:contain; scrollbar-width:thin; display:grid; gap:var(--space-1); }
+.popupContent:focus-visible { outline:3px solid var(--focus-ring); outline-offset:-3px; border-radius:inherit; }
+.popup button, .popup a { justify-content: flex-start; width: 100%; min-width:0; max-width:100%; white-space:normal; overflow-wrap:anywhere; }
 .publication { display: grid; gap: var(--space-1); border-top: 1px solid var(--border-default); padding-top: var(--space-2); margin-top: var(--space-1); }
 .empty { padding: var(--space-2); color: var(--text-secondary); font-size: var(--text-sm); }
 .measure { position: absolute; width: max-content; visibility: hidden; pointer-events: none; height: 0; overflow: hidden; display: flex; }
 .measure button { max-width: none; flex: none; white-space: nowrap; }
 
-@media (width < 40rem) { .tabs [role='tablist'] { flex-wrap: wrap; overflow: clip; width: 100%; } .tabs [role='tab'] { flex: 1 1 auto; padding: 10px 8px; font-size: var(--text-sm); } .fixed { flex-wrap: wrap; justify-content: flex-end; } .actions { min-width: 0; max-width: 100%; flex-wrap: wrap; justify-content: flex-end; } }
+@media (width < 40rem) { .tabs [role='tablist'] { flex-wrap: nowrap; overflow: clip; width: 100%; } .tabs [role='tab'] { flex: 1 1 auto; padding: 10px 8px; font-size: var(--text-sm); } .fixed { flex-wrap: wrap; justify-content: flex-end; } .actions { min-width: 0; max-width: 100%; flex-wrap: wrap; justify-content: flex-end; } }
 
 .groupPrimary:empty, .groupOptions:empty { display: none; }
 .groupOptions { border-bottom: 1px solid var(--border-default); padding-bottom: var(--space-2); margin-bottom: var(--space-1); }
 .groupOptions > div { display: grid; }
+@media (prefers-reduced-transparency: reduce) { .popup { background:var(--glass-fallback); -webkit-backdrop-filter:none; backdrop-filter:none; } }
+@media (forced-colors: active) { .popup { --glass-tint:Canvas; --glass-fallback:Canvas; background:Canvas; color:CanvasText; border-color:CanvasText; box-shadow:none; -webkit-backdrop-filter:none; backdrop-filter:none; } }
 @media (width < 40rem) { .toolbar { gap: var(--space-2); } .fixed { gap: var(--space-1); } .fixed > button:first-of-type { padding-inline: var(--space-2); } .groupPrimary button { padding-inline: var(--space-2); } }

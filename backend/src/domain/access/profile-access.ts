@@ -11,6 +11,7 @@ export const recipientDigest=(email:string,secret:string)=>createHmac('sha256',s
 export function profilePermission(method:string,path:string):ProfilePermission{
  if(/^\/me\/profile\/button-tests(?:\/|$)/.test(path))return method==='GET'?'READ':'PUBLISH'
  if(method==='GET'&&['/me/profile/interaction','/me/profile/measurement'].includes(path))return 'READ'
+ if(/^\/me\/profile\/diagnostics(?:\/|$)/.test(path))return method==='GET'?'READ':'EDIT'
  if(path==='/me/profile/discovery')return method==='GET'?'READ':'EDIT'
  if(path==='/me/profile/hosts'||path==='/me/profile/hosts/verify')return method==='GET'?'READ':'PUBLISH'
  if(method==='GET'&&['/me/profile','/me/profile/preview','/me/profile/preview/items','/me/profile/catalog','/me/profile/channel-groups'].includes(path))return 'READ'

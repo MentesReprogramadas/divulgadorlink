@@ -1,0 +1,1284 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "e2e/page-refinements.spec.ts",
+      "e2e/profile-discovery.spec.ts",
+      "e2e/contact-forms.spec.ts",
+      "e2e/profile-history.spec.ts",
+      "e2e/agency.spec.ts",
+      "e2e/workspace-layout.spec.ts",
+      "--project=features",
+      "--project=features-mobile",
+      "--grep",
+      "UX|F36-E01|F22-G01|F19-E01|F24-|W10|W05"
+    ],
+    "configFile": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\playwright.config.ts",
+    "rootDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\global-setup.ts",
+    "globalTeardown": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\global-teardown.ts",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "setup",
+        "name": "setup",
+        "testDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/auth\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features",
+        "name": "features",
+        "testDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/page-refinements\\.spec\\.ts|feature-readonly\\.spec\\.ts|profile-diagnostics\\.spec\\.ts|agency\\.spec\\.ts|button-tests\\.spec\\.ts|profile-languages\\.spec\\.ts|contact-handling\\.spec\\.ts|platform-webhooks\\.spec\\.ts|profile-discovery\\.spec\\.ts|profile-hosts\\.spec\\.ts|public-collections\\.spec\\.ts|share-kit\\.spec\\.ts|profile-events\\.spec\\.ts|ownership\\.spec\\.ts|profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features-mobile",
+        "name": "features-mobile",
+        "testDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/page-refinements\\.spec\\.ts|feature-readonly\\.spec\\.ts|profile-diagnostics\\.spec\\.ts|agency\\.spec\\.ts|button-tests\\.spec\\.ts|profile-languages\\.spec\\.ts|contact-handling\\.spec\\.ts|platform-webhooks\\.spec\\.ts|profile-discovery\\.spec\\.ts|profile-hosts\\.spec\\.ts|public-collections\\.spec\\.ts|share-kit\\.spec\\.ts|profile-events\\.spec\\.ts|ownership\\.spec\\.ts|profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "catalog",
+        "name": "catalog",
+        "testDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/catalog\\.spec\\.ts|mail\\.spec\\.ts|advertise\\.spec\\.ts|legal\\.spec\\.ts|funnel\\.spec\\.ts|signup\\.spec\\.ts|submit-link\\.spec\\.ts|security-headers\\.spec\\.ts|google-ads-submission\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "auth.setup.ts",
+      "file": "auth.setup.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "sessão da Bia para os testes do painel",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "setup",
+              "projectName": "setup",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 537,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:33:45.349Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "17e3fe6f4d9d8bd79c6b-40367c7f5b2a9e9ad033",
+          "file": "auth.setup.ts",
+          "line": 8,
+          "column": 6
+        }
+      ]
+    },
+    {
+      "title": "agency.spec.ts",
+      "file": "agency.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F36-E01/T01/T02/T05 portfólio guia edição e métricas de dois clientes sem misturar contexto",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10674,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:33:46.622Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "81724e539cd186db3ef5-4347d2c5952d45ab064f",
+          "file": "agency.spec.ts",
+          "line": 20,
+          "column": 5
+        },
+        {
+          "title": "F36-E01/T01/T02/T05 portfólio guia edição e métricas de dois clientes sem misturar contexto",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10869,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:34:52.947Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "81724e539cd186db3ef5-a584553fda7595b8b3c6",
+          "file": "agency.spec.ts",
+          "line": 20,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "contact-forms.spec.ts",
+      "file": "contact-forms.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F22-G01 cria manualmente e configura contato pela aba própria sem publicar",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 6091,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\contact-forms.spec.ts:30:1084",
+                    "location": {
+                      "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\contact-forms.spec.ts",
+                      "column": 1084,
+                      "line": 30
+                    },
+                    "snippet": "  28 |  const axe=await new AxeBuilder({page}).include('main').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(v=>v.id)).toEqual([]);\n  29 |  await page.getByRole('link',{name:/Criar do meu jeito/}).focus();await page.keyboard.press('Enter');await expect(page.getByRole('button',{name:'Configurar formulário'})).toHaveCount(0);await page.getByLabel('Nome da página',{exact:true}).fill('Meu ateliê');await page.getByLabel('Endereço da página',{exact:true}).fill('atelie-contato');await selectOption(page.getByLabel('Seções da minha página',{exact:true}),'contact');await expect(page.getByRole('button',{name:'Configurar formulário'})).toBeEnabled();await page.getByRole('button',{name:'Configurar formulário'}).click();await expect(page.getByRole('dialog',{name:'Formulário da sua página'})).toBeVisible();await page.getByLabel('Mostrar formulário na página publicada').check();await page.getByRole('button',{name:'Escolher campos'}).click();await page.getByRole('button',{name:'Salvar formulário'}).click();await expect(page.getByText('Formulário ativado. Ele aparece quando sua página está publicada.',{exact:true})).toBeVisible();await capturePage(page,info.outputPath('page-contact-settings.png'));\n> 30 |  expect((await roadmapApi(page,'/me/profile')).body.publishedVersion).toBeNull();expect((await roadmapApi(page,'/me/forms')).body.definition.enabled).toBe(true);await expect(page.getByRole('complementary',{name:'Prévia ao vivo da página'}).locator('section[aria-label=\"Formulário de contato\"]')).toHaveCount(1);await page.goto(roadmapOrigin+'/painel/perfil');await expect(page.getByRole('region',{name:'Escolha como criar sua página'})).toHaveCount(0);await page.getByRole('button',{name:/Receber mensagens/}).click();await expect(page).toHaveURL(/perfil\\/formulario$/);await expect(page.getByRole('button',{name:'Configurar formulário'})).toBeVisible();await page.goto(roadmapOrigin+'/painel/perfil/dados#formulario-contato');await expect(page.getByRole('region',{name:'Formulário da minha página'})).toBeFocused();await page.setViewportSize({width:320,height:844});await page.addStyleTag({content:'html{font-size:200%}'});await capturePage(page,info.outputPath('contact-settings-zoom.png'),false);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true)\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ^\n  31 | })\n  32 |\n  33 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\contact-forms.spec.ts",
+                        "column": 1084,
+                        "line": 30
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n  28 |  const axe=await new AxeBuilder({page}).include('main').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(v=>v.id)).toEqual([]);\n  29 |  await page.getByRole('link',{name:/Criar do meu jeito/}).focus();await page.keyboard.press('Enter');await expect(page.getByRole('button',{name:'Configurar formulário'})).toHaveCount(0);await page.getByLabel('Nome da página',{exact:true}).fill('Meu ateliê');await page.getByLabel('Endereço da página',{exact:true}).fill('atelie-contato');await selectOption(page.getByLabel('Seções da minha página',{exact:true}),'contact');await expect(page.getByRole('button',{name:'Configurar formulário'})).toBeEnabled();await page.getByRole('button',{name:'Configurar formulário'}).click();await expect(page.getByRole('dialog',{name:'Formulário da sua página'})).toBeVisible();await page.getByLabel('Mostrar formulário na página publicada').check();await page.getByRole('button',{name:'Escolher campos'}).click();await page.getByRole('button',{name:'Salvar formulário'}).click();await expect(page.getByText('Formulário ativado. Ele aparece quando sua página está publicada.',{exact:true})).toBeVisible();await capturePage(page,info.outputPath('page-contact-settings.png'));\n> 30 |  expect((await roadmapApi(page,'/me/profile')).body.publishedVersion).toBeNull();expect((await roadmapApi(page,'/me/forms')).body.definition.enabled).toBe(true);await expect(page.getByRole('complementary',{name:'Prévia ao vivo da página'}).locator('section[aria-label=\"Formulário de contato\"]')).toHaveCount(1);await page.goto(roadmapOrigin+'/painel/perfil');await expect(page.getByRole('region',{name:'Escolha como criar sua página'})).toHaveCount(0);await page.getByRole('button',{name:/Receber mensagens/}).click();await expect(page).toHaveURL(/perfil\\/formulario$/);await expect(page.getByRole('button',{name:'Configurar formulário'})).toBeVisible();await page.goto(roadmapOrigin+'/painel/perfil/dados#formulario-contato');await expect(page.getByRole('region',{name:'Formulário da minha página'})).toBeFocused();await page.setViewportSize({width:320,height:844});await page.addStyleTag({content:'html{font-size:200%}'});await capturePage(page,info.outputPath('contact-settings-zoom.png'),false);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true)\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ^\n  31 | })\n  32 |\n  33 |\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\contact-forms.spec.ts:30:1084"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:33:57.478Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\contact-forms-F22-G01-cria-03710-la-aba-própria-sem-publicar-features\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\contact-forms-F22-G01-cria-03710-la-aba-própria-sem-publicar-features\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\contact-forms-F22-G01-cria-03710-la-aba-própria-sem-publicar-features\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\contact-forms.spec.ts",
+                    "column": 1084,
+                    "line": 30
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-933a6f8591bfc1f02040",
+          "file": "contact-forms.spec.ts",
+          "line": 26,
+          "column": 5
+        },
+        {
+          "title": "F22-G01 cria manualmente e configura contato pela aba própria sem publicar",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 120533,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\contact-forms.spec.ts",
+                        "column": 729,
+                        "line": 29
+                      },
+                      "message": "Error: locator.check: Test timeout of 120000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('Mostrar formulário na página publicada')\u001b[22m\n\u001b[2m    - locator resolved to <input type=\"checkbox\" class=\"checkbox_checkbox__vaqOd\"/>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not stable\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is not stable\u001b[22m\n\u001b[2m  2 × retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m      - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <dialog open=\"\" data-size=\"default\" data-variant=\"modal\" aria-labelledby=\"_r_3q_\" class=\"overlay-dialog_dialog__TwZOg\">…</dialog> intercepts pointer events\u001b[22m\n\u001b[2m  55 × retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <label class=\"contact_check__nOjO5\">…</label> intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <dialog open=\"\" data-size=\"default\" data-variant=\"modal\" aria-labelledby=\"_r_3q_\" class=\"overlay-dialog_dialog__TwZOg\">…</dialog> intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <dialog open=\"\" data-size=\"default\" data-variant=\"modal\" aria-labelledby=\"_r_3q_\" class=\"overlay-dialog_dialog__TwZOg\">…</dialog> intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <dialog open=\"\" data-size=\"default\" data-variant=\"modal\" aria-labelledby=\"_r_3q_\" class=\"overlay-dialog_dialog__TwZOg\">…</dialog> intercepts pointer events\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting 500ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - <label class=\"contact_check__nOjO5\">…</label> intercepts pointer events\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting 500ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - <dialog open=\"\" data-size=\"default\" data-variant=\"modal\" aria-labelledby=\"_r_3q_\" class=\"overlay-dialog_dialog__TwZOg\">…</dialog> intercepts pointer events\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting 500ms\u001b[22m\n\n\n  27 |  await roadmapLogin(page);await page.goto(roadmapOrigin+'/painel/perfil');await expect(page.getByRole('region',{name:'Escolha como criar sua página'})).toBeVisible();await capturePage(page,info.outputPath('page-creation-choice.png'));\n  28 |  const axe=await new AxeBuilder({page}).include('main').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(v=>v.id)).toEqual([]);\n> 29 |  await page.getByRole('link',{name:/Criar do meu jeito/}).focus();await page.keyboard.press('Enter');await expect(page.getByRole('button',{name:'Configurar formulário'})).toHaveCount(0);await page.getByLabel('Nome da página',{exact:true}).fill('Meu ateliê');await page.getByLabel('Endereço da página',{exact:true}).fill('atelie-contato');await selectOption(page.getByLabel('Seções da minha página',{exact:true}),'contact');await expect(page.getByRole('button',{name:'Configurar formulário'})).toBeEnabled();await page.getByRole('button',{name:'Configurar formulário'}).click();await expect(page.getByRole('dialog',{name:'Formulário da sua página'})).toBeVisible();await page.getByLabel('Mostrar formulário na página publicada').check();await page.getByRole('button',{name:'Escolher campos'}).click();await page.getByRole('button',{name:'Salvar formulário'}).click();await expect(page.getByText('Formulário ativado. Ele aparece quando sua página está publicada.',{exact:true})).toBeVisible();await capturePage(page,info.outputPath('page-contact-settings.png'));\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         ^\n  30 |  expect((await roadmapApi(page,'/me/profile')).body.publishedVersion).toBeNull();expect((await roadmapApi(page,'/me/forms')).body.definition.enabled).toBe(true);await expect(page.getByRole('complementary',{name:'Prévia ao vivo da página'}).locator('section[aria-label=\"Formulário de contato\"]')).toHaveCount(1);await page.goto(roadmapOrigin+'/painel/perfil');await expect(page.getByRole('region',{name:'Escolha como criar sua página'})).toHaveCount(0);await page.getByRole('button',{name:/Receber mensagens/}).click();await expect(page).toHaveURL(/perfil\\/formulario$/);await expect(page.getByRole('button',{name:'Configurar formulário'})).toBeVisible();await page.goto(roadmapOrigin+'/painel/perfil/dados#formulario-contato');await expect(page.getByRole('region',{name:'Formulário da minha página'})).toBeFocused();await page.setViewportSize({width:320,height:844});await page.addStyleTag({content:'html{font-size:200%}'});await capturePage(page,info.outputPath('contact-settings-zoom.png'),false);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true)\n  31 | })\n  32 |\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\contact-forms.spec.ts:29:729"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:35:03.931Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\contact-forms-F22-G01-cria-03710-la-aba-própria-sem-publicar-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\contact-forms-F22-G01-cria-03710-la-aba-própria-sem-publicar-features-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\contact-forms-F22-G01-cria-03710-la-aba-própria-sem-publicar-features-mobile\\trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1ce8a952a0e3eb0a3d47-130b70c2e54d1ddf27fc",
+          "file": "contact-forms.spec.ts",
+          "line": 26,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "page-refinements.spec.ts",
+      "file": "page-refinements.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "UX01 abas separam conteúdo, recursos e prévia do histórico usa o mesmo iPhone",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6039,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:34:04.303Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "314bdb34dcd821783570-3fc96b900ec54ccac823",
+          "file": "page-refinements.spec.ts",
+          "line": 11,
+          "column": 5
+        },
+        {
+          "title": "UX02 descoberta com muitas categorias não expande a página; busca continua automática",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3492,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:34:10.454Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "314bdb34dcd821783570-36740c5c9084aa3cbafb",
+          "file": "page-refinements.spec.ts",
+          "line": 19,
+          "column": 5
+        },
+        {
+          "title": "UX03 requisitos para comparar botões ficam destacados em amarelo e início bloqueado",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1302,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:34:13.953Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "314bdb34dcd821783570-06d9684eb068b12ca3b0",
+          "file": "page-refinements.spec.ts",
+          "line": 25,
+          "column": 5
+        },
+        {
+          "title": "UX04 cards reutilizam truncamento dos links e ações permanecem lado a lado em 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3553,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:34:15.260Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "314bdb34dcd821783570-ca113bf84e09732448a6",
+          "file": "page-refinements.spec.ts",
+          "line": 30,
+          "column": 5
+        },
+        {
+          "title": "UX01 abas separam conteúdo, recursos e prévia do histórico usa o mesmo iPhone",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 120425,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\page-refinements.spec.ts",
+                        "column": 530,
+                        "line": 14
+                      },
+                      "message": "Error: locator.click: Test timeout of 120000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Fechar janela' })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" title=\"Fechar janela\" aria-label=\"Fechar janela\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not stable\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is not stable\u001b[22m\n\u001b[2m  2 × retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m      - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <dialog open=\"\" data-size=\"default\" data-variant=\"modal\" aria-labelledby=\"_r_2b_\" class=\"overlay-dialog_dialog__TwZOg\">…</dialog> intercepts pointer events\u001b[22m\n\u001b[2m  55 × retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <h2 id=\"_r_2b_\">Formulário da sua página</h2> intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <dialog open=\"\" data-size=\"default\" data-variant=\"modal\" aria-labelledby=\"_r_2b_\" class=\"overlay-dialog_dialog__TwZOg\">…</dialog> intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <dialog open=\"\" data-size=\"default\" data-variant=\"modal\" aria-labelledby=\"_r_2b_\" class=\"overlay-dialog_dialog__TwZOg\">…</dialog> intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <dialog open=\"\" data-size=\"default\" data-variant=\"modal\" aria-labelledby=\"_r_2b_\" class=\"overlay-dialog_dialog__TwZOg\">…</dialog> intercepts pointer events\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting 500ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - <h2 id=\"_r_2b_\">Formulário da sua página</h2> intercepts pointer events\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting 500ms\u001b[22m\n\n\n  12 |  await roadmapLogin(page);await roadmapProfile(page,'refino-pagina');await page.goto(roadmapOrigin+'/painel/perfil/dados');await expect(page.getByLabel('Nome da página',{exact:true})).toBeVisible();await expect(page.getByRole('checkbox',{name:'Exibir busca na minha página'})).toHaveCount(0);await expect(page.getByRole('button',{name:'Configurar formulário'})).toHaveCount(0)\n  13 |  await page.getByLabel('Nome da página',{exact:true}).fill('Projetos atualizados');await selectOption(page.getByLabel('Seções da minha página',{exact:true}),'search');const enabled=page.getByRole('checkbox',{name:'Exibir busca na minha página',exact:true});await enabled.check();await expect(page.getByRole('region',{name:'Editor do perfil'})).toHaveAttribute('data-save-state','saved');expect((await roadmapApi(page,'/me/profile')).body.draft.name).toBe('Projetos atualizados');await capturePage(page,info.outputPath('page-search.png'))\n> 14 |  await page.goto(roadmapOrigin+'/painel/perfil/formulario');await expect(page.getByRole('button',{name:'Configurar formulário'})).toBeEnabled();await expect(page.getByRole('textbox',{name:'Nome da página',exact:true})).toHaveCount(0);await expect(page.getByRole('region',{name:'Descoberta da página'})).toHaveCount(0);await page.getByRole('button',{name:'Configurar formulário'}).click();await expect(page.getByRole('dialog',{name:'Formulário da sua página'})).toBeVisible();await page.getByRole('button',{name:'Fechar janela'}).click();await capturePage(page,info.outputPath('page-contact.png'))\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  ^\n  15 |  await page.goto(roadmapOrigin+'/painel/perfil/descoberta');const discovery=page.getByRole('region',{name:'Descoberta da página'});await expect(discovery).toBeVisible();await discovery.getByRole('checkbox',{name:'Mostrar na descoberta de páginas'}).check();await discovery.getByRole('button',{name:'Salvar descoberta'}).click();await expect(discovery.getByRole('status')).toHaveText('Descoberta atualizada.');await capturePage(page,info.outputPath('page-discovery.png'))\n  16 |  const draft=(await roadmapApi(page,'/me/profile')).body.draft;expect((await roadmapApi(page,'/me/profile/publish','POST',{expectedVersion:draft.version})).status).toBe(200);await page.goto(roadmapOrigin+'/painel/perfil/historico');await page.getByRole('article',{name:'Versão 1',exact:true}).getByRole('button',{name:'Ver diferenças'}).click();const dialog=page.getByRole('dialog',{name:'Versão 1',exact:true});await expect(dialog.locator('[data-preview-device=\"iphone\"]')).toHaveCount(2);expect((await new AxeBuilder({page}).include('dialog').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze()).violations.map(v=>v.id)).toEqual([]);await page.setViewportSize({width:320,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await capturePage(page,info.outputPath('history-iphone.png'))\n  17 | })\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\page-refinements.spec.ts:14:530"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:37:05.262Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\page-refinements-UX01-abas-2eb92-istórico-usa-o-mesmo-iPhone-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\page-refinements-UX01-abas-2eb92-istórico-usa-o-mesmo-iPhone-features-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\page-refinements-UX01-abas-2eb92-istórico-usa-o-mesmo-iPhone-features-mobile\\trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "314bdb34dcd821783570-adf7597b7b5b97d8e6a4",
+          "file": "page-refinements.spec.ts",
+          "line": 11,
+          "column": 5
+        },
+        {
+          "title": "UX02 descoberta com muitas categorias não expande a página; busca continua automática",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2678,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:39:06.369Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "314bdb34dcd821783570-b67b665ce9313826e140",
+          "file": "page-refinements.spec.ts",
+          "line": 19,
+          "column": 5
+        },
+        {
+          "title": "UX03 requisitos para comparar botões ficam destacados em amarelo e início bloqueado",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1238,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:39:09.146Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "314bdb34dcd821783570-7d98fa93091ef251d987",
+          "file": "page-refinements.spec.ts",
+          "line": 25,
+          "column": 5
+        },
+        {
+          "title": "UX04 cards reutilizam truncamento dos links e ações permanecem lado a lado em 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3444,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:39:10.390Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "314bdb34dcd821783570-1678b57e6f5fc9f06b09",
+          "file": "page-refinements.spec.ts",
+          "line": 30,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "profile-discovery.spec.ts",
+      "file": "profile-discovery.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F24-E01/T01/T04 publica, habilita descoberta, segue, remove e deixa de seguir",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4750,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:34:18.822Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "47842c4bac96a5abe807-d3dac98146ac0d0eef68",
+          "file": "profile-discovery.spec.ts",
+          "line": 7,
+          "column": 5
+        },
+        {
+          "title": "F24-E02 rascunho, categorias ocultas e tenant alheio não aparecem; mutação exige sessão",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1795,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:34:23.579Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "47842c4bac96a5abe807-717fdb154c441cc6da70",
+          "file": "profile-discovery.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "F24-E03 falha recuperável, teclado e 320px sem overflow",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2175,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:34:25.380Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "47842c4bac96a5abe807-3128f55d357cbbf26324",
+          "file": "profile-discovery.spec.ts",
+          "line": 22,
+          "column": 5
+        },
+        {
+          "title": "F24-E01/T01/T04 publica, habilita descoberta, segue, remove e deixa de seguir",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3607,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:39:13.843Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "47842c4bac96a5abe807-27dc117d476d5d56e6fd",
+          "file": "profile-discovery.spec.ts",
+          "line": 7,
+          "column": 5
+        },
+        {
+          "title": "F24-E02 rascunho, categorias ocultas e tenant alheio não aparecem; mutação exige sessão",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1178,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:39:17.456Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "47842c4bac96a5abe807-2d268090c7fc2c153b41",
+          "file": "profile-discovery.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "F24-E03 falha recuperável, teclado e 320px sem overflow",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2025,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:39:18.640Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "47842c4bac96a5abe807-469a9e9aa3446890bbc6",
+          "file": "profile-discovery.spec.ts",
+          "line": 22,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "profile-history.spec.ts",
+      "file": "profile-history.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F19-E01/E03 compare, explicit restore, existing preview and republish preserve public content until publication",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7741,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:34:27.569Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "cbcee65742cbab86bec9-45bae2f5d289619555ad",
+          "file": "profile-history.spec.ts",
+          "line": 38,
+          "column": 5
+        },
+        {
+          "title": "F19-E01/E03 compare, explicit restore, existing preview and republish preserve public content until publication",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 120473,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\profile-editor.ts",
+                        "column": 232,
+                        "line": 8
+                      },
+                      "message": "Error: locator.click: Test timeout of 120000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('navigation', { name: 'Áreas do painel' }).visible().locator('a[href=\"/painel/perfil/historico\"]').locator('xpath=ancestor::details[1]').locator(':scope > summary')\u001b[22m\n\u001b[2m    - locator resolved to <summary>…</summary>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not stable\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is not stable\u001b[22m\n\u001b[2m  2 × retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m      - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <dialog open=\"\" data-size=\"default\" data-variant=\"sidebar\" aria-labelledby=\"_R_sjb_\" class=\"overlay-dialog_dialog__TwZOg\">…</dialog> intercepts pointer events\u001b[22m\n\u001b[2m  222 × retrying click action\u001b[22m\n\u001b[2m        - waiting 500ms\u001b[22m\n\u001b[2m        - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m        - element is visible, enabled and stable\u001b[22m\n\u001b[2m        - scrolling into view if needed\u001b[22m\n\u001b[2m        - done scrolling\u001b[22m\n\u001b[2m        - <dialog open=\"\" data-size=\"default\" data-variant=\"sidebar\" aria-labelledby=\"_R_sjb_\" class=\"overlay-dialog_dialog__TwZOg\">…</dialog> intercepts pointer events\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting 500ms\u001b[22m\n\n\n   at profile-editor.ts:8\n\n   6 |  const mobile=page.getByRole('button',{name:'Menu',exact:true});if(await mobile.isVisible())await mobile.click()\n   7 |  const nav=page.getByRole('navigation',{name:'Áreas do painel'}).filter({visible:true})\n>  8 |  const link=nav.locator('a[href=\"/painel/perfil/'+destination+'\"]');const section=link.locator('xpath=ancestor::details[1]');if(!await section.evaluate(el=>(el as HTMLDetailsElement).open))await section.locator(':scope > summary').click();await expect(link).toBeVisible();await link.click()\n     |                                                                                                                                                                                                                                        ^\n   9 | }\n  10 |\n    at profileEditorTool (C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\profile-editor.ts:8:232)\n    at editorAction (C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\profile-history.spec.ts:20:26)\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\profile-history.spec.ts:48:5"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:39:20.677Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\profile-history-F19-E01-E0-b299d-c-content-until-publication-features-mobile\\test-failed-2.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\profile-history-F19-E01-E0-b299d-c-content-until-publication-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\profile-history-F19-E01-E0-b299d-c-content-until-publication-features-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\profile-history-F19-E01-E0-b299d-c-content-until-publication-features-mobile\\trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "cbcee65742cbab86bec9-323c9b2563fa2a459772",
+          "file": "profile-history.spec.ts",
+          "line": 38,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "workspace-layout.spec.ts",
+      "file": "workspace-layout.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "W10 sidebar separa contextos, mantém conta e não aninha menus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 15188,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:34:35.327Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-3377414e889e6e4c8886",
+          "file": "workspace-layout.spec.ts",
+          "line": 77,
+          "column": 5
+        },
+        {
+          "title": "W05 ícones distinguem destinos e grupos no painel e admin",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1468,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m1281\u001b[39m\nReceived:    \u001b[31m1542\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m1281\u001b[39m\nReceived:    \u001b[31m1542\u001b[39m\n    at checkLayout (C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts:26:75)\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts:110:5",
+                    "location": {
+                      "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts",
+                      "column": 75,
+                      "line": 26
+                    },
+                    "snippet": "  24 | async function checkLayout(page: Page) {\n  25 |   await page.evaluate(async () => { await Promise.all(document.getAnimations().filter(animation => animation.effect?.getTiming().iterations !== Infinity).map(animation => animation.finished.catch(() => undefined))) })\n> 26 |   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize()!.width + 1)\n     |                                                                           ^\n  27 |   const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze()\n  28 |   expect(result.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) }))).toEqual([])\n  29 | }"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts",
+                        "column": 75,
+                        "line": 26
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m1281\u001b[39m\nReceived:    \u001b[31m1542\u001b[39m\n\n  24 | async function checkLayout(page: Page) {\n  25 |   await page.evaluate(async () => { await Promise.all(document.getAnimations().filter(animation => animation.effect?.getTiming().iterations !== Infinity).map(animation => animation.finished.catch(() => undefined))) })\n> 26 |   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize()!.width + 1)\n     |                                                                           ^\n  27 |   const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze()\n  28 |   expect(result.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) }))).toEqual([])\n  29 | }\n    at checkLayout (C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts:26:75)\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts:110:5"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:34:50.521Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\workspace-layout-W05-ícone-9b1b9--e-grupos-no-painel-e-admin-features\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\workspace-layout-W05-ícone-9b1b9--e-grupos-no-painel-e-admin-features\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\workspace-layout-W05-ícone-9b1b9--e-grupos-no-painel-e-admin-features\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts",
+                    "column": 75,
+                    "line": 26
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-9f6beb909db6ab8ecf10",
+          "file": "workspace-layout.spec.ts",
+          "line": 95,
+          "column": 5
+        },
+        {
+          "title": "W10 sidebar separa contextos, mantém conta e não aninha menus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 14676,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:41:21.910Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-ee4a02c94bba4fb4ac3e",
+          "file": "workspace-layout.spec.ts",
+          "line": 77,
+          "column": 5
+        },
+        {
+          "title": "W05 ícones distinguem destinos e grupos no painel e admin",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1825,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m391\u001b[39m\nReceived:    \u001b[31m1213\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m391\u001b[39m\nReceived:    \u001b[31m1213\u001b[39m\n    at checkLayout (C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts:26:75)\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts:110:5",
+                    "location": {
+                      "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts",
+                      "column": 75,
+                      "line": 26
+                    },
+                    "snippet": "  24 | async function checkLayout(page: Page) {\n  25 |   await page.evaluate(async () => { await Promise.all(document.getAnimations().filter(animation => animation.effect?.getTiming().iterations !== Infinity).map(animation => animation.finished.catch(() => undefined))) })\n> 26 |   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize()!.width + 1)\n     |                                                                           ^\n  27 |   const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze()\n  28 |   expect(result.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) }))).toEqual([])\n  29 | }"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts",
+                        "column": 75,
+                        "line": 26
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m391\u001b[39m\nReceived:    \u001b[31m1213\u001b[39m\n\n  24 | async function checkLayout(page: Page) {\n  25 |   await page.evaluate(async () => { await Promise.all(document.getAnimations().filter(animation => animation.effect?.getTiming().iterations !== Infinity).map(animation => animation.finished.catch(() => undefined))) })\n> 26 |   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize()!.width + 1)\n     |                                                                           ^\n  27 |   const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze()\n  28 |   expect(result.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) }))).toEqual([])\n  29 | }\n    at checkLayout (C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts:26:75)\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts:110:5"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T19:41:36.685Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\workspace-layout-W05-ícone-9b1b9--e-grupos-no-painel-e-admin-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\workspace-layout-W05-ícone-9b1b9--e-grupos-no-painel-e-admin-features-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\workspace-layout-W05-ícone-9b1b9--e-grupos-no-painel-e-admin-features-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts",
+                    "column": 75,
+                    "line": 26
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-fd516768a54c2ef81cfb",
+          "file": "workspace-layout.spec.ts",
+          "line": 95,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-21T19:32:39.354Z",
+    "duration": 542576.733,
+    "expected": 19,
+    "skipped": 0,
+    "unexpected": 6,
+    "flaky": 0
+  }
+}

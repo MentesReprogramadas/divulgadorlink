@@ -53,6 +53,7 @@ function shutdown() {
 }
 
 const suggestionState = { count: 0, last: null }
+const platformWebhookState={deliveries:[],failures:0}
 const redirectValidations = []
 let profileValidationCount = 0, lastProfileValidation = null, profileValidationUnavailable = false
 let ownershipFile=''
@@ -66,6 +67,9 @@ const stub = createServer((req, res) => {
     const raw = Buffer.concat(chunks).toString()
     res.setHeader('content-type', 'application/json')
     if (await billingStub(req,res,raw,e2eRuntime)) return
+    if(req.method==='GET'&&req.url==='/platform-webhooks/state'){res.end(JSON.stringify(platformWebhookState));return}
+    if(req.method==='POST'&&req.url==='/platform-webhooks/control'){const input=JSON.parse(raw);platformWebhookState.failures=Number(input.failures)||0;if(input.reset)platformWebhookState.deliveries=[];res.end('{}');return}
+    if(req.method==='POST'&&req.url==='/platform-webhooks/receive'){platformWebhookState.deliveries.push({body:raw,headers:req.headers});if(platformWebhookState.failures>0){platformWebhookState.failures--;res.statusCode=503;res.end('{}')}else{res.statusCode=204;res.end()}return}
     if(req.method==='GET'&&req.url==='/profile-suggestions/state'){res.end(JSON.stringify(suggestionState));return}
     if(req.method==='POST'&&req.url==='/profile-suggestions'){
       const body=JSON.parse(raw),input=JSON.parse(body.messages[1].content);suggestionState.count++;suggestionState.last=body
@@ -175,7 +179,7 @@ stub.listen(e2eRuntime.stubPort, '127.0.0.1')
 // Public test certificate/key, used only by this isolated harness. Never changes Node TLS policy.
 const external = createHttpsServer({ key: readFileSync(path.join(here, 'fixtures/external-test-key.pem')), cert: readFileSync(path.join(here, 'fixtures/external-test-cert.pem')) }, (req, res) => {
   const name = req.url === '/f12-b' ? 'B' : 'A'
-  res.setHeader('content-type', 'text/html; charset=utf-8'); res.end('<h1>Convite fixture ' + name + '</h1>')
+  res.setHeader('content-type', 'text/html; charset=utf-8'); res.end('<h1>Link permanente fixture ' + name + '</h1>')
 })
 external.on('error', error => { console.error('External fixture failed:', error.message); process.exit(1) })
 external.listen(e2eRuntime.externalPort, '127.0.0.1')

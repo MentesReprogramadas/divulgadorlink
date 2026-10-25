@@ -1,9 +1,14 @@
 import {headers} from 'next/headers'
 import {personalHostTarget,personalHostOrigin} from '@/features/profile-hosts/host-routing'
 import type { Metadata } from 'next'
+import { Suspense, type CSSProperties } from 'react'
 import { cookies } from 'next/headers'
 import { Source_Sans_3, Outfit } from 'next/font/google'
 import { SiteShell } from '@/components/layout/site-shell'
+import { RoutePending } from '@/components/layout/route-pending'
+import { loadPublicProfile } from '@/features/profiles/server/load-profile'
+import { profileAppearance, readableInk } from '@/features/profiles/profile-appearance'
+import { loadPreviewAppearance } from '@/features/profiles/server/load-preview-appearance'
 import { Consent } from '@/components/domain/consent'
 import { SiteVisits } from '@/components/domain/site-visits'
 import './globals.css'
@@ -33,10 +38,25 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const support = jar.has('supportSession')
   const stored = jar.get('tla_consent')?.value
   const pending = stored !== 'marketing' && stored !== 'denied'
+  const publicSlug = requestHeaders.get('x-profile-slug') ?? /^\/p\/([a-z0-9-]{3,40})\/?$/.exec(requestHeaders.get('x-pathname') ?? '')?.[1]
+  let publicBackground: string | undefined
+  if (publicSlug) {
+    // Resolve the published palette before the first HTML paint, using the same age/tenant-aware cache as metadata.
+    const profile = await loadPublicProfile(publicSlug, undefined).catch(() => null)
+    if (profile && !profile.restricted) publicBackground = profileAppearance(profile.appearance).background
+  }
+  const previewPath=requestHeaders.get('x-pathname')??''
+  const sharedPreview=/^\/painel\/equipe\/([^/]+)\/previa$/.exec(previewPath)
+  const profilePreview=previewPath==='/painel/perfil/previa'||Boolean(sharedPreview)
+  if(profilePreview){
+    const appearance=await loadPreviewAppearance(sharedPreview?.[1])
+    publicBackground=profileAppearance(appearance).background
+  }
   return (
     <html lang="pt-BR" className={`${sourceSans.variable} ${outfit.variable}`}>
-      <body data-personal-origin={personalOrigin} data-personal-host={personalHost?'true':undefined} data-support={!personalHost&&support?'true':undefined}>
-        <SiteShell personalHost={personalHost} role={personalHost?undefined:role} support={!personalHost&&support}>{children}</SiteShell>
+      <body style={publicBackground ? { backgroundColor: publicBackground, ...(profilePreview ? {'--profile-preview-background':publicBackground,'--profile-preview-ink':readableInk(publicBackground)} : {}) } as CSSProperties : undefined} data-personal-origin={personalOrigin} data-personal-host={personalHost?'true':undefined} data-support={!personalHost&&support?'true':undefined}>
+        {/* Keep async children off the host replay path until Next bundles https://github.com/react/react/pull/35494. */}
+        <SiteShell personalHost={personalHost} role={personalHost?undefined:role} support={!personalHost&&support}><Suspense fallback={<RoutePending variant={requestHeaders.get('x-pathname')?.startsWith('/link/')?'detail':'page'} />}>{children}</Suspense></SiteShell>
         <Consent pending={pending} />
         {personalHost?null:<SiteVisits />}
       </body>

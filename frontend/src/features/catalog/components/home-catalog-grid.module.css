@@ -1,0 +1,14 @@
+.grid {
+  composes: grid from '../../../components/domain/catalog-grid.module.css';
+  row-gap: 0;
+  margin-bottom: calc(-1 * var(--catalog-gap));
+}
+
+.grid[data-packed] {
+  grid-auto-rows: 1px;
+}
+
+.item {
+  min-width: 0;
+  padding-bottom: var(--catalog-gap);
+}

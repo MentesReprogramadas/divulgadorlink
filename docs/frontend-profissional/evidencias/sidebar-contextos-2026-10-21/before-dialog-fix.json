@@ -1,0 +1,1738 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "e2e/workspace-layout.spec.ts",
+      "e2e/redirects.spec.ts",
+      "e2e/destination-pools.spec.ts",
+      "--project=features",
+      "--project=features-mobile"
+    ],
+    "configFile": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\playwright.config.ts",
+    "rootDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\global-setup.ts",
+    "globalTeardown": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\global-teardown.ts",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "setup",
+        "name": "setup",
+        "testDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/auth\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features",
+        "name": "features",
+        "testDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/feature-readonly\\.spec\\.ts|profile-diagnostics\\.spec\\.ts|agency\\.spec\\.ts|button-tests\\.spec\\.ts|profile-languages\\.spec\\.ts|contact-handling\\.spec\\.ts|platform-webhooks\\.spec\\.ts|profile-discovery\\.spec\\.ts|profile-hosts\\.spec\\.ts|public-collections\\.spec\\.ts|share-kit\\.spec\\.ts|profile-events\\.spec\\.ts|ownership\\.spec\\.ts|profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "features-mobile",
+        "name": "features-mobile",
+        "testDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/feature-readonly\\.spec\\.ts|profile-diagnostics\\.spec\\.ts|agency\\.spec\\.ts|button-tests\\.spec\\.ts|profile-languages\\.spec\\.ts|contact-handling\\.spec\\.ts|platform-webhooks\\.spec\\.ts|profile-discovery\\.spec\\.ts|profile-hosts\\.spec\\.ts|public-collections\\.spec\\.ts|share-kit\\.spec\\.ts|profile-events\\.spec\\.ts|ownership\\.spec\\.ts|profile-assistant\\.spec\\.ts|destination-pools\\.spec\\.ts|contact-forms\\.spec\\.ts|evolution-moderation\\.spec\\.ts|promotion-performance\\.spec\\.ts|link-reports\\.spec\\.ts|link-availability\\.spec\\.ts|renewal-reminders\\.spec\\.ts|related-links\\.spec\\.ts|favorites\\.spec\\.ts|profiles\\.spec\\.ts|profile-history\\.spec\\.ts|profile-billing\\.spec\\.ts|permanent-qr\\.spec\\.ts|profile-schedules\\.spec\\.ts|profile-templates\\.spec\\.ts|profile-import\\.spec\\.ts|profile-search\\.spec\\.ts|discovery-filters\\.spec\\.ts|profile-interaction\\.spec\\.ts|media-kit\\.spec\\.ts|profile-team\\.spec\\.ts|workspace-team\\.spec\\.ts|campaign-pages\\.spec\\.ts|niche-follows\\.spec\\.ts|profile-export\\.spec\\.ts|profile-checklist\\.spec\\.ts|profile-channels\\.spec\\.ts|search-opportunities\\.spec\\.ts|content-reviews\\.spec\\.ts|redirects\\.spec\\.ts|workspace-layout\\.spec\\.ts|loading-layout\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "catalog",
+        "name": "catalog",
+        "testDir": "C:/Users/ferna/AppData/Local/Temp/temlink-roadmap-20261021/frontend/e2e",
+        "testIgnore": [
+          "**/global-setup.ts",
+          "**/serve.mjs",
+          "**/.runtime/**"
+        ],
+        "testMatch": [
+          "/catalog\\.spec\\.ts|mail\\.spec\\.ts|advertise\\.spec\\.ts|legal\\.spec\\.ts|funnel\\.spec\\.ts|signup\\.spec\\.ts|submit-link\\.spec\\.ts|security-headers\\.spec\\.ts|google-ads-submission\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "auth.setup.ts",
+      "file": "auth.setup.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "sessão da Bia para os testes do painel",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "setup",
+              "projectName": "setup",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 478,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:33:56.165Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "17e3fe6f4d9d8bd79c6b-40367c7f5b2a9e9ad033",
+          "file": "auth.setup.ts",
+          "line": 8,
+          "column": 6
+        }
+      ]
+    },
+    {
+      "title": "destination-pools.spec.ts",
+      "file": "destination-pools.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F23-E01/T02/T03/T04/T05 configura 1/3, encaminha ao stub real, pausa destinos e conserva endereço",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6222,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:33:57.151Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-e692f6b0c33ed1f70a8b",
+          "file": "destination-pools.spec.ts",
+          "line": 12,
+          "column": 5
+        },
+        {
+          "title": "F23-E02/T01 privado nega visitante e outro dono; alvo inválido não altera distribuição",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1260,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:34:03.473Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-e2b4d2bedadc0d667135",
+          "file": "destination-pools.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "F23-E03 erro mantém peso, teclado recupera sem duplicar, layout cabe em 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1967,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:34:04.739Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-a0d63d4791adce42845e",
+          "file": "destination-pools.spec.ts",
+          "line": 19,
+          "column": 5
+        },
+        {
+          "title": "F23-G05 começa sem links permanentes, cadastra entrada e um destino no fluxo, confirma divisão igual e testa URL real",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1608,
+                  "error": {
+                    "message": "Error: locator.click: Error: strict mode violation: getByRole('button', { name: 'Criar link permanente', exact: true }) resolved to 2 elements:\n    1) <button data-variant=\"primary\" class=\"button button-primary button_root__6a9Zs\">…</button> aka getByRole('button', { name: 'Criar link permanente' }).first()\n    2) <button type=\"button\" data-variant=\"primary\" class=\"button button-primary button_root__6a9Zs\">…</button> aka getByRole('dialog').getByRole('button', { name: 'Criar link permanente' })\n\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Criar link permanente', exact: true })\u001b[22m\n",
+                    "stack": "Error: locator.click: Error: strict mode violation: getByRole('button', { name: 'Criar link permanente', exact: true }) resolved to 2 elements:\n    1) <button data-variant=\"primary\" class=\"button button-primary button_root__6a9Zs\">…</button> aka getByRole('button', { name: 'Criar link permanente' }).first()\n    2) <button type=\"button\" data-variant=\"primary\" class=\"button button-primary button_root__6a9Zs\">…</button> aka getByRole('dialog').getByRole('button', { name: 'Criar link permanente' })\n\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Criar link permanente', exact: true })\u001b[22m\n\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts:24:307",
+                    "location": {
+                      "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts",
+                      "column": 307,
+                      "line": 24
+                    },
+                    "snippet": "  22 |\n  23 | test('F23-G05 começa sem links permanentes, cadastra entrada e um destino no fluxo, confirma divisão igual e testa URL real',async({page},info)=>{\n> 24 |  await roadmapLogin(page);await page.goto(roadmapOrigin+'/painel/convites');await page.getByRole('button',{name:'Distribuir acessos',exact:true}).click();await expect(page.getByRole('link',{name:'Escolher destinos'})).toHaveCount(0);await page.getByRole('button',{name:'Criar link permanente',exact:true}).click();await page.getByLabel('Nome do link',{exact:true}).fill('Meu endereço de entrada');await page.getByLabel('Link de destino',{exact:true}).fill('https://example.com/f12-a');await page.getByRole('button',{name:'Validar e cadastrar'}).click();await expect(page.getByRole('dialog',{name:'Um link, vários destinos'})).toBeVisible();await page.getByRole('link',{name:'Escolher destinos'}).click();await expect(page.getByRole('button',{name:'Definir divisão'})).toBeDisabled();await page.getByRole('button',{name:'Criar outro link permanente'}).click();await page.getByLabel('Nome do link',{exact:true}).fill('Grupo de destino');await page.getByLabel('Link de destino',{exact:true}).fill('https://example.com/f12-b');await page.getByRole('button',{name:'Validar e cadastrar'}).click();await expect(page.getByRole('dialog',{name:'Configurar distribuição'}).getByText('Grupo de destino',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Definir divisão'}).click();await expect(page.getByRole('radio',{name:/Dividir por igual/})).toBeChecked();await page.getByRole('button',{name:'Conferir distribuição'}).click();await expect(page.getByText('100% das visitas',{exact:true})).toBeVisible();await capturePage(page,info.outputPath('pool-single-review.png'));await page.getByRole('button',{name:'Confirmar e ativar'}).click();await expect(page.getByText('Distribuição ativa',{exact:true})).toBeVisible();const id=new URL(page.url()).pathname.split('/')[3],list=(await roadmapApi(page,'/me/redirects')).body;expect(list.items).toHaveLength(2);expect((await roadmapApi(page,'/me/redirects/'+id+'/pool')).body.destinations).toHaveLength(1);const visitor=await guest(info);try{await visitor.page.goto(roadmapOrigin+'/r/'+id);await expect(visitor.page.getByRole('heading',{name:'Link permanente fixture B',exact:true})).toBeVisible()}finally{await visitor.browser.close()}\n     |                                                                                                                                                                                                                                                                                                                   ^\n  25 | })\n  26 |\n  27 | test('F23-G06 cadastro em revisão não entra como destino e mantém seleção anterior; cancelar retorna ao formulário',async({page},info)=>{"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts",
+                        "column": 307,
+                        "line": 24
+                      },
+                      "message": "Error: locator.click: Error: strict mode violation: getByRole('button', { name: 'Criar link permanente', exact: true }) resolved to 2 elements:\n    1) <button data-variant=\"primary\" class=\"button button-primary button_root__6a9Zs\">…</button> aka getByRole('button', { name: 'Criar link permanente' }).first()\n    2) <button type=\"button\" data-variant=\"primary\" class=\"button button-primary button_root__6a9Zs\">…</button> aka getByRole('dialog').getByRole('button', { name: 'Criar link permanente' })\n\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Criar link permanente', exact: true })\u001b[22m\n\n\n  22 |\n  23 | test('F23-G05 começa sem links permanentes, cadastra entrada e um destino no fluxo, confirma divisão igual e testa URL real',async({page},info)=>{\n> 24 |  await roadmapLogin(page);await page.goto(roadmapOrigin+'/painel/convites');await page.getByRole('button',{name:'Distribuir acessos',exact:true}).click();await expect(page.getByRole('link',{name:'Escolher destinos'})).toHaveCount(0);await page.getByRole('button',{name:'Criar link permanente',exact:true}).click();await page.getByLabel('Nome do link',{exact:true}).fill('Meu endereço de entrada');await page.getByLabel('Link de destino',{exact:true}).fill('https://example.com/f12-a');await page.getByRole('button',{name:'Validar e cadastrar'}).click();await expect(page.getByRole('dialog',{name:'Um link, vários destinos'})).toBeVisible();await page.getByRole('link',{name:'Escolher destinos'}).click();await expect(page.getByRole('button',{name:'Definir divisão'})).toBeDisabled();await page.getByRole('button',{name:'Criar outro link permanente'}).click();await page.getByLabel('Nome do link',{exact:true}).fill('Grupo de destino');await page.getByLabel('Link de destino',{exact:true}).fill('https://example.com/f12-b');await page.getByRole('button',{name:'Validar e cadastrar'}).click();await expect(page.getByRole('dialog',{name:'Configurar distribuição'}).getByText('Grupo de destino',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Definir divisão'}).click();await expect(page.getByRole('radio',{name:/Dividir por igual/})).toBeChecked();await page.getByRole('button',{name:'Conferir distribuição'}).click();await expect(page.getByText('100% das visitas',{exact:true})).toBeVisible();await capturePage(page,info.outputPath('pool-single-review.png'));await page.getByRole('button',{name:'Confirmar e ativar'}).click();await expect(page.getByText('Distribuição ativa',{exact:true})).toBeVisible();const id=new URL(page.url()).pathname.split('/')[3],list=(await roadmapApi(page,'/me/redirects')).body;expect(list.items).toHaveLength(2);expect((await roadmapApi(page,'/me/redirects/'+id+'/pool')).body.destinations).toHaveLength(1);const visitor=await guest(info);try{await visitor.page.goto(roadmapOrigin+'/r/'+id);await expect(visitor.page.getByRole('heading',{name:'Link permanente fixture B',exact:true})).toBeVisible()}finally{await visitor.browser.close()}\n     |                                                                                                                                                                                                                                                                                                                   ^\n  25 | })\n  26 |\n  27 | test('F23-G06 cadastro em revisão não entra como destino e mantém seleção anterior; cancelar retorna ao formulário',async({page},info)=>{\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts:24:307"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:34:06.711Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\destination-pools-F23-G05--b3472-isão-igual-e-testa-URL-real-features\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\destination-pools-F23-G05--b3472-isão-igual-e-testa-URL-real-features\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\destination-pools-F23-G05--b3472-isão-igual-e-testa-URL-real-features\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts",
+                    "column": 307,
+                    "line": 24
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "3504af596034472359d6-6c6a2b8f58030671f51b",
+          "file": "destination-pools.spec.ts",
+          "line": 23,
+          "column": 5
+        },
+        {
+          "title": "F23-G06 cadastro em revisão não entra como destino e mantém seleção anterior; cancelar retorna ao formulário",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2570,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:34:08.824Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-aeae256dfe0f8f78145a",
+          "file": "destination-pools.spec.ts",
+          "line": 27,
+          "column": 5
+        },
+        {
+          "title": "F23-E01/T02/T03/T04/T05 configura 1/3, encaminha ao stub real, pausa destinos e conserva endereço",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5364,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:35:46.808Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-5728a34e410abe9a9096",
+          "file": "destination-pools.spec.ts",
+          "line": 12,
+          "column": 5
+        },
+        {
+          "title": "F23-E02/T01 privado nega visitante e outro dono; alvo inválido não altera distribuição",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1219,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:35:52.265Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-7a973f620ef26840c05e",
+          "file": "destination-pools.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "F23-E03 erro mantém peso, teclado recupera sem duplicar, layout cabe em 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1944,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:35:53.491Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-e737362e1c36c8f24f38",
+          "file": "destination-pools.spec.ts",
+          "line": 19,
+          "column": 5
+        },
+        {
+          "title": "F23-G05 começa sem links permanentes, cadastra entrada e um destino no fluxo, confirma divisão igual e testa URL real",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1585,
+                  "error": {
+                    "message": "Error: locator.click: Error: strict mode violation: getByRole('button', { name: 'Criar link permanente', exact: true }) resolved to 2 elements:\n    1) <button data-variant=\"primary\" class=\"button button-primary button_root__6a9Zs\">…</button> aka getByRole('button', { name: 'Criar link permanente' }).first()\n    2) <button type=\"button\" data-variant=\"primary\" class=\"button button-primary button_root__6a9Zs\">…</button> aka getByRole('dialog').getByRole('button', { name: 'Criar link permanente' })\n\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Criar link permanente', exact: true })\u001b[22m\n",
+                    "stack": "Error: locator.click: Error: strict mode violation: getByRole('button', { name: 'Criar link permanente', exact: true }) resolved to 2 elements:\n    1) <button data-variant=\"primary\" class=\"button button-primary button_root__6a9Zs\">…</button> aka getByRole('button', { name: 'Criar link permanente' }).first()\n    2) <button type=\"button\" data-variant=\"primary\" class=\"button button-primary button_root__6a9Zs\">…</button> aka getByRole('dialog').getByRole('button', { name: 'Criar link permanente' })\n\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Criar link permanente', exact: true })\u001b[22m\n\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts:24:307",
+                    "location": {
+                      "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts",
+                      "column": 307,
+                      "line": 24
+                    },
+                    "snippet": "  22 |\n  23 | test('F23-G05 começa sem links permanentes, cadastra entrada e um destino no fluxo, confirma divisão igual e testa URL real',async({page},info)=>{\n> 24 |  await roadmapLogin(page);await page.goto(roadmapOrigin+'/painel/convites');await page.getByRole('button',{name:'Distribuir acessos',exact:true}).click();await expect(page.getByRole('link',{name:'Escolher destinos'})).toHaveCount(0);await page.getByRole('button',{name:'Criar link permanente',exact:true}).click();await page.getByLabel('Nome do link',{exact:true}).fill('Meu endereço de entrada');await page.getByLabel('Link de destino',{exact:true}).fill('https://example.com/f12-a');await page.getByRole('button',{name:'Validar e cadastrar'}).click();await expect(page.getByRole('dialog',{name:'Um link, vários destinos'})).toBeVisible();await page.getByRole('link',{name:'Escolher destinos'}).click();await expect(page.getByRole('button',{name:'Definir divisão'})).toBeDisabled();await page.getByRole('button',{name:'Criar outro link permanente'}).click();await page.getByLabel('Nome do link',{exact:true}).fill('Grupo de destino');await page.getByLabel('Link de destino',{exact:true}).fill('https://example.com/f12-b');await page.getByRole('button',{name:'Validar e cadastrar'}).click();await expect(page.getByRole('dialog',{name:'Configurar distribuição'}).getByText('Grupo de destino',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Definir divisão'}).click();await expect(page.getByRole('radio',{name:/Dividir por igual/})).toBeChecked();await page.getByRole('button',{name:'Conferir distribuição'}).click();await expect(page.getByText('100% das visitas',{exact:true})).toBeVisible();await capturePage(page,info.outputPath('pool-single-review.png'));await page.getByRole('button',{name:'Confirmar e ativar'}).click();await expect(page.getByText('Distribuição ativa',{exact:true})).toBeVisible();const id=new URL(page.url()).pathname.split('/')[3],list=(await roadmapApi(page,'/me/redirects')).body;expect(list.items).toHaveLength(2);expect((await roadmapApi(page,'/me/redirects/'+id+'/pool')).body.destinations).toHaveLength(1);const visitor=await guest(info);try{await visitor.page.goto(roadmapOrigin+'/r/'+id);await expect(visitor.page.getByRole('heading',{name:'Link permanente fixture B',exact:true})).toBeVisible()}finally{await visitor.browser.close()}\n     |                                                                                                                                                                                                                                                                                                                   ^\n  25 | })\n  26 |\n  27 | test('F23-G06 cadastro em revisão não entra como destino e mantém seleção anterior; cancelar retorna ao formulário',async({page},info)=>{"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts",
+                        "column": 307,
+                        "line": 24
+                      },
+                      "message": "Error: locator.click: Error: strict mode violation: getByRole('button', { name: 'Criar link permanente', exact: true }) resolved to 2 elements:\n    1) <button data-variant=\"primary\" class=\"button button-primary button_root__6a9Zs\">…</button> aka getByRole('button', { name: 'Criar link permanente' }).first()\n    2) <button type=\"button\" data-variant=\"primary\" class=\"button button-primary button_root__6a9Zs\">…</button> aka getByRole('dialog').getByRole('button', { name: 'Criar link permanente' })\n\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Criar link permanente', exact: true })\u001b[22m\n\n\n  22 |\n  23 | test('F23-G05 começa sem links permanentes, cadastra entrada e um destino no fluxo, confirma divisão igual e testa URL real',async({page},info)=>{\n> 24 |  await roadmapLogin(page);await page.goto(roadmapOrigin+'/painel/convites');await page.getByRole('button',{name:'Distribuir acessos',exact:true}).click();await expect(page.getByRole('link',{name:'Escolher destinos'})).toHaveCount(0);await page.getByRole('button',{name:'Criar link permanente',exact:true}).click();await page.getByLabel('Nome do link',{exact:true}).fill('Meu endereço de entrada');await page.getByLabel('Link de destino',{exact:true}).fill('https://example.com/f12-a');await page.getByRole('button',{name:'Validar e cadastrar'}).click();await expect(page.getByRole('dialog',{name:'Um link, vários destinos'})).toBeVisible();await page.getByRole('link',{name:'Escolher destinos'}).click();await expect(page.getByRole('button',{name:'Definir divisão'})).toBeDisabled();await page.getByRole('button',{name:'Criar outro link permanente'}).click();await page.getByLabel('Nome do link',{exact:true}).fill('Grupo de destino');await page.getByLabel('Link de destino',{exact:true}).fill('https://example.com/f12-b');await page.getByRole('button',{name:'Validar e cadastrar'}).click();await expect(page.getByRole('dialog',{name:'Configurar distribuição'}).getByText('Grupo de destino',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Definir divisão'}).click();await expect(page.getByRole('radio',{name:/Dividir por igual/})).toBeChecked();await page.getByRole('button',{name:'Conferir distribuição'}).click();await expect(page.getByText('100% das visitas',{exact:true})).toBeVisible();await capturePage(page,info.outputPath('pool-single-review.png'));await page.getByRole('button',{name:'Confirmar e ativar'}).click();await expect(page.getByText('Distribuição ativa',{exact:true})).toBeVisible();const id=new URL(page.url()).pathname.split('/')[3],list=(await roadmapApi(page,'/me/redirects')).body;expect(list.items).toHaveLength(2);expect((await roadmapApi(page,'/me/redirects/'+id+'/pool')).body.destinations).toHaveLength(1);const visitor=await guest(info);try{await visitor.page.goto(roadmapOrigin+'/r/'+id);await expect(visitor.page.getByRole('heading',{name:'Link permanente fixture B',exact:true})).toBeVisible()}finally{await visitor.browser.close()}\n     |                                                                                                                                                                                                                                                                                                                   ^\n  25 | })\n  26 |\n  27 | test('F23-G06 cadastro em revisão não entra como destino e mantém seleção anterior; cancelar retorna ao formulário',async({page},info)=>{\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts:24:307"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:35:55.440Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\destination-pools-F23-G05--b3472-isão-igual-e-testa-URL-real-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\destination-pools-F23-G05--b3472-isão-igual-e-testa-URL-real-features-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\destination-pools-F23-G05--b3472-isão-igual-e-testa-URL-real-features-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\destination-pools.spec.ts",
+                    "column": 307,
+                    "line": 24
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "3504af596034472359d6-93cdbb60680f926d506f",
+          "file": "destination-pools.spec.ts",
+          "line": 23,
+          "column": 5
+        },
+        {
+          "title": "F23-G06 cadastro em revisão não entra como destino e mantém seleção anterior; cancelar retorna ao formulário",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3502,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:35:57.721Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3504af596034472359d6-9566d840abe1f22406d9",
+          "file": "destination-pools.spec.ts",
+          "line": 27,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "redirects.spec.ts",
+      "file": "redirects.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "F12-E01/T01/T03/T04/T05 endereço fixo, cópia, destino A/B, validação pendente e indisponibilidade",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3907,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:34:11.494Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-b2f613899c676b55152a",
+          "file": "redirects.spec.ts",
+          "line": 31,
+          "column": 5
+        },
+        {
+          "title": "F12-E02/T02 sessão e outro ADMIN não liberam acesso; conteúdo suspeito e provedor mantêm destino anterior",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3664,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:34:15.406Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-fa381e1201e431d07029",
+          "file": "redirects.spec.ts",
+          "line": 60,
+          "column": 5
+        },
+        {
+          "title": "F12-E03 offline mantém campos, teclado confirma, conflito entre abas e reflow 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3430,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:34:19.075Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-b3e0f1483cd1a64fdaac",
+          "file": "redirects.spec.ts",
+          "line": 78,
+          "column": 5
+        },
+        {
+          "title": "F12-E04 restrição de idade oculta destino no HTML e API até o aceite",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2344,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:34:22.510Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-774497cc715390533be7",
+          "file": "redirects.spec.ts",
+          "line": 97,
+          "column": 5
+        },
+        {
+          "title": "F12-E05 cards, abas, foco e alertas separam endereço de histórico",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3113,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:34:24.859Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-5edb480dea5980f63135",
+          "file": "redirects.spec.ts",
+          "line": 109,
+          "column": 5
+        },
+        {
+          "title": "F12-E01/T01/T03/T04/T05 endereço fixo, cópia, destino A/B, validação pendente e indisponibilidade",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4647,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:36:01.384Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-a46542e44f4829162d36",
+          "file": "redirects.spec.ts",
+          "line": 31,
+          "column": 5
+        },
+        {
+          "title": "F12-E02/T02 sessão e outro ADMIN não liberam acesso; conteúdo suspeito e provedor mantêm destino anterior",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3866,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:36:06.036Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-04f6b9bf241069d4ac36",
+          "file": "redirects.spec.ts",
+          "line": 60,
+          "column": 5
+        },
+        {
+          "title": "F12-E03 offline mantém campos, teclado confirma, conflito entre abas e reflow 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3493,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:36:09.907Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-f7da661aef84093e8cd2",
+          "file": "redirects.spec.ts",
+          "line": 78,
+          "column": 5
+        },
+        {
+          "title": "F12-E04 restrição de idade oculta destino no HTML e API até o aceite",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1847,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:36:13.405Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-86961d02627f9bb0f658",
+          "file": "redirects.spec.ts",
+          "line": 97,
+          "column": 5
+        },
+        {
+          "title": "F12-E05 cards, abas, foco e alertas separam endereço de histórico",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3126,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:36:15.257Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "36b0c89a7d5741bf78ae-42b1ce8719277d2cda2d",
+          "file": "redirects.spec.ts",
+          "line": 109,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "workspace-layout.spec.ts",
+      "file": "workspace-layout.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "W09 painel e admin aproveitam a largura da tela como o catálogo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7109,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:34:27.984Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-bf484a90f3c0faa22097",
+          "file": "workspace-layout.spec.ts",
+          "line": 31,
+          "column": 5
+        },
+        {
+          "title": "W10 sidebar separa contextos, mantém conta e não aninha menus",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 31423,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('navigation', { name: 'Áreas do painel', exact: true }).visible().getByRole('button', { name: 'Ajuda', exact: true })\nExpected: focused\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" getByRole('navigation', { name: 'Áreas do painel', exact: true }).visible().getByRole('button', { name: 'Ajuda', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('navigation', { name: 'Áreas do painel', exact: true }).visible().getByRole('button', { name: 'Ajuda', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('navigation', { name: 'Áreas do painel', exact: true }).visible().getByRole('button', { name: 'Ajuda', exact: true })\nExpected: focused\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" getByRole('navigation', { name: 'Áreas do painel', exact: true }).visible().getByRole('button', { name: 'Ajuda', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('navigation', { name: 'Áreas do painel', exact: true }).visible().getByRole('button', { name: 'Ajuda', exact: true })\u001b[22m\n\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts:74:534",
+                    "location": {
+                      "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts",
+                      "column": 534,
+                      "line": 74
+                    },
+                    "snippet": "  72 |   await checkLayout(page);await page.screenshot({path:info.outputPath('sidebar-page-'+width+'.png'),animations:'disabled',fullPage:true})\n  73 |   await choosePanelArea(page,'Clientes');await expect(page).toHaveURL(/\\/painel\\/clientes$/);if(width<1024)await page.getByRole('button',{name:'Menu',exact:true}).click()\n> 74 |   await expect(nav.getByRole('link',{name:'Meus clientes'})).toBeVisible();await expect(nav.getByText('Editar página',{exact:true})).toHaveCount(0);await expect(nav.getByRole('link',{name:'Equipe e permissões'})).toBeVisible();await nav.getByRole('button',{name:'Ajuda',exact:true}).click();const help=page.getByRole('dialog',{name:'Como usar o painel',exact:true});await expect(help).toBeVisible();await page.keyboard.press('Escape');await expect(help).toHaveCount(0);await expect(nav.getByRole('button',{name:'Ajuda',exact:true})).toBeFocused();await checkLayout(page);await page.screenshot({path:info.outputPath('sidebar-clients-'+width+'.png'),animations:'disabled',fullPage:true})\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      ^\n  75 |  }\n  76 | })\n  77 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts",
+                        "column": 534,
+                        "line": 74
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('navigation', { name: 'Áreas do painel', exact: true }).visible().getByRole('button', { name: 'Ajuda', exact: true })\nExpected: focused\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" getByRole('navigation', { name: 'Áreas do painel', exact: true }).visible().getByRole('button', { name: 'Ajuda', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('navigation', { name: 'Áreas do painel', exact: true }).visible().getByRole('button', { name: 'Ajuda', exact: true })\u001b[22m\n\n\n  72 |   await checkLayout(page);await page.screenshot({path:info.outputPath('sidebar-page-'+width+'.png'),animations:'disabled',fullPage:true})\n  73 |   await choosePanelArea(page,'Clientes');await expect(page).toHaveURL(/\\/painel\\/clientes$/);if(width<1024)await page.getByRole('button',{name:'Menu',exact:true}).click()\n> 74 |   await expect(nav.getByRole('link',{name:'Meus clientes'})).toBeVisible();await expect(nav.getByText('Editar página',{exact:true})).toHaveCount(0);await expect(nav.getByRole('link',{name:'Equipe e permissões'})).toBeVisible();await nav.getByRole('button',{name:'Ajuda',exact:true}).click();const help=page.getByRole('dialog',{name:'Como usar o painel',exact:true});await expect(help).toBeVisible();await page.keyboard.press('Escape');await expect(help).toHaveCount(0);await expect(nav.getByRole('button',{name:'Ajuda',exact:true})).toBeFocused();await checkLayout(page);await page.screenshot({path:info.outputPath('sidebar-clients-'+width+'.png'),animations:'disabled',fullPage:true})\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      ^\n  75 |  }\n  76 | })\n  77 |\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts:74:534"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:34:35.097Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\workspace-layout-W10-sideb-7966c-ém-conta-e-não-aninha-menus-features\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\workspace-layout-W10-sideb-7966c-ém-conta-e-não-aninha-menus-features\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\workspace-layout-W10-sideb-7966c-ém-conta-e-não-aninha-menus-features\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts",
+                    "column": 534,
+                    "line": 74
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-3377414e889e6e4c8886",
+          "file": "workspace-layout.spec.ts",
+          "line": 60,
+          "column": 5
+        },
+        {
+          "title": "W05 ícones distinguem destinos e grupos no painel e admin",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1561,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:35:07.733Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-9f6beb909db6ab8ecf10",
+          "file": "workspace-layout.spec.ts",
+          "line": 78,
+          "column": 5
+        },
+        {
+          "title": "W04 saída fica no cabeçalho ou no final da sidebar e encerra a sessão",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 929,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:35:09.385Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-85492ba51272e29a0df6",
+          "file": "workspace-layout.spec.ts",
+          "line": 102,
+          "column": 5
+        },
+        {
+          "title": "W01 painel: resumo sem abas, menu acessível e filtros combinados recuperáveis",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9921,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:35:10.318Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-9d129eda158d8a230d04",
+          "file": "workspace-layout.spec.ts",
+          "line": 131,
+          "column": 5
+        },
+        {
+          "title": "W03 formulário em etapas valida antes de avançar e mantém os campos ao voltar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3222,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:35:20.243Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-ec44bcf40533a62e7015",
+          "file": "workspace-layout.spec.ts",
+          "line": 203,
+          "column": 5
+        },
+        {
+          "title": "W02 admin: áreas separadas, filtros de fila e navegação em todas as jornadas",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 14787,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:35:23.470Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-87393c4b43ba0a9b925d",
+          "file": "workspace-layout.spec.ts",
+          "line": 242,
+          "column": 5
+        },
+        {
+          "title": "W06 menu só aceita interação quando a hidratação está pronta",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 881,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:35:38.264Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-00f9e735576a0cbdb3d7",
+          "file": "workspace-layout.spec.ts",
+          "line": 276,
+          "column": 5
+        },
+        {
+          "title": "W07 métricas do admin: linha temporal, tabelas paginadas e filtros automáticos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4719,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:35:39.151Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-fb50ed5326fbc7a398c6",
+          "file": "workspace-layout.spec.ts",
+          "line": 292,
+          "column": 5
+        },
+        {
+          "title": "W08 Meu Painel apresenta comparação de links com gráfico e tabela",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features",
+              "projectName": "features",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2386,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:35:43.875Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-8641e302c4139cc8d69e",
+          "file": "workspace-layout.spec.ts",
+          "line": 332,
+          "column": 5
+        },
+        {
+          "title": "W09 painel e admin aproveitam a largura da tela como o catálogo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6393,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:36:18.394Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-863624fb42ad6ba7e2dd",
+          "file": "workspace-layout.spec.ts",
+          "line": 31,
+          "column": 5
+        },
+        {
+          "title": "W10 sidebar separa contextos, mantém conta e não aninha menus",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 31204,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('navigation', { name: 'Áreas do painel', exact: true }).visible().getByRole('button', { name: 'Ajuda', exact: true })\nExpected: focused\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" getByRole('navigation', { name: 'Áreas do painel', exact: true }).visible().getByRole('button', { name: 'Ajuda', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('navigation', { name: 'Áreas do painel', exact: true }).visible().getByRole('button', { name: 'Ajuda', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('navigation', { name: 'Áreas do painel', exact: true }).visible().getByRole('button', { name: 'Ajuda', exact: true })\nExpected: focused\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" getByRole('navigation', { name: 'Áreas do painel', exact: true }).visible().getByRole('button', { name: 'Ajuda', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('navigation', { name: 'Áreas do painel', exact: true }).visible().getByRole('button', { name: 'Ajuda', exact: true })\u001b[22m\n\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts:74:534",
+                    "location": {
+                      "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts",
+                      "column": 534,
+                      "line": 74
+                    },
+                    "snippet": "  72 |   await checkLayout(page);await page.screenshot({path:info.outputPath('sidebar-page-'+width+'.png'),animations:'disabled',fullPage:true})\n  73 |   await choosePanelArea(page,'Clientes');await expect(page).toHaveURL(/\\/painel\\/clientes$/);if(width<1024)await page.getByRole('button',{name:'Menu',exact:true}).click()\n> 74 |   await expect(nav.getByRole('link',{name:'Meus clientes'})).toBeVisible();await expect(nav.getByText('Editar página',{exact:true})).toHaveCount(0);await expect(nav.getByRole('link',{name:'Equipe e permissões'})).toBeVisible();await nav.getByRole('button',{name:'Ajuda',exact:true}).click();const help=page.getByRole('dialog',{name:'Como usar o painel',exact:true});await expect(help).toBeVisible();await page.keyboard.press('Escape');await expect(help).toHaveCount(0);await expect(nav.getByRole('button',{name:'Ajuda',exact:true})).toBeFocused();await checkLayout(page);await page.screenshot({path:info.outputPath('sidebar-clients-'+width+'.png'),animations:'disabled',fullPage:true})\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      ^\n  75 |  }\n  76 | })\n  77 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts",
+                        "column": 534,
+                        "line": 74
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('navigation', { name: 'Áreas do painel', exact: true }).visible().getByRole('button', { name: 'Ajuda', exact: true })\nExpected: focused\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" getByRole('navigation', { name: 'Áreas do painel', exact: true }).visible().getByRole('button', { name: 'Ajuda', exact: true }) with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('navigation', { name: 'Áreas do painel', exact: true }).visible().getByRole('button', { name: 'Ajuda', exact: true })\u001b[22m\n\n\n  72 |   await checkLayout(page);await page.screenshot({path:info.outputPath('sidebar-page-'+width+'.png'),animations:'disabled',fullPage:true})\n  73 |   await choosePanelArea(page,'Clientes');await expect(page).toHaveURL(/\\/painel\\/clientes$/);if(width<1024)await page.getByRole('button',{name:'Menu',exact:true}).click()\n> 74 |   await expect(nav.getByRole('link',{name:'Meus clientes'})).toBeVisible();await expect(nav.getByText('Editar página',{exact:true})).toHaveCount(0);await expect(nav.getByRole('link',{name:'Equipe e permissões'})).toBeVisible();await nav.getByRole('button',{name:'Ajuda',exact:true}).click();const help=page.getByRole('dialog',{name:'Como usar o painel',exact:true});await expect(help).toBeVisible();await page.keyboard.press('Escape');await expect(help).toHaveCount(0);await expect(nav.getByRole('button',{name:'Ajuda',exact:true})).toBeFocused();await checkLayout(page);await page.screenshot({path:info.outputPath('sidebar-clients-'+width+'.png'),animations:'disabled',fullPage:true})\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      ^\n  75 |  }\n  76 | })\n  77 |\n    at C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts:74:534"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:36:24.792Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\workspace-layout-W10-sideb-7966c-ém-conta-e-não-aninha-menus-features-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\workspace-layout-W10-sideb-7966c-ém-conta-e-não-aninha-menus-features-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\test-results\\workspace-layout-W10-sideb-7966c-ém-conta-e-não-aninha-menus-features-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ferna\\AppData\\Local\\Temp\\temlink-roadmap-20261021\\frontend\\e2e\\workspace-layout.spec.ts",
+                    "column": 534,
+                    "line": 74
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-ee4a02c94bba4fb4ac3e",
+          "file": "workspace-layout.spec.ts",
+          "line": 60,
+          "column": 5
+        },
+        {
+          "title": "W05 ícones distinguem destinos e grupos no painel e admin",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1847,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:36:57.327Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-fd516768a54c2ef81cfb",
+          "file": "workspace-layout.spec.ts",
+          "line": 78,
+          "column": 5
+        },
+        {
+          "title": "W04 saída fica no cabeçalho ou no final da sidebar e encerra a sessão",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1200,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:36:59.272Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-81504ca24c22d5d41891",
+          "file": "workspace-layout.spec.ts",
+          "line": 102,
+          "column": 5
+        },
+        {
+          "title": "W01 painel: resumo sem abas, menu acessível e filtros combinados recuperáveis",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12793,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:37:00.476Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-677b23d9f83f012414f8",
+          "file": "workspace-layout.spec.ts",
+          "line": 131,
+          "column": 5
+        },
+        {
+          "title": "W03 formulário em etapas valida antes de avançar e mantém os campos ao voltar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2790,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:37:13.276Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-b9702d790a94de18e1be",
+          "file": "workspace-layout.spec.ts",
+          "line": 203,
+          "column": 5
+        },
+        {
+          "title": "W02 admin: áreas separadas, filtros de fila e navegação em todas as jornadas",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 13166,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:37:16.070Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-fd6383a559955f47dc27",
+          "file": "workspace-layout.spec.ts",
+          "line": 242,
+          "column": 5
+        },
+        {
+          "title": "W06 menu só aceita interação quando a hidratação está pronta",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 674,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:37:29.241Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-67cebc3d125b392b5b29",
+          "file": "workspace-layout.spec.ts",
+          "line": 276,
+          "column": 5
+        },
+        {
+          "title": "W07 métricas do admin: linha temporal, tabelas paginadas e filtros automáticos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4797,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:37:29.920Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-001392eec4436bf2ae8f",
+          "file": "workspace-layout.spec.ts",
+          "line": 292,
+          "column": 5
+        },
+        {
+          "title": "W08 Meu Painel apresenta comparação de links com gráfico e tabela",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "features-mobile",
+              "projectName": "features-mobile",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2293,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T18:37:34.721Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "87206d496e61dcf70a84-a61ef17f555ac9efb3e1",
+          "file": "workspace-layout.spec.ts",
+          "line": 332,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-21T18:32:57.443Z",
+    "duration": 281476.289,
+    "expected": 37,
+    "skipped": 0,
+    "unexpected": 4,
+    "flaky": 0
+  }
+}

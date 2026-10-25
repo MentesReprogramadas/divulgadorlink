@@ -215,11 +215,11 @@ F39,F39-AC02,permitir selecionar o idioma manualmente,F39-T02,I/PG,specs/f39-mul
 F39,F39-AC03,indicar traduções ausentes no painel,F39-T03,C/E,specs/f39-multilingue.md,planos/f39-multilingue.md,F39-S5/S6,VERIFICADO_LOCAL,Codex,WORKTREE,2026-10-21,execucao-f39.md,APROVADO_LOCAL; S7 pendente
 F39,F39-AC04,respeitar visibilidade e agendamento em todas as versões,F39-T04,I/PG,specs/f39-multilingue.md,planos/f39-multilingue.md,F39-S5/S6,VERIFICADO_LOCAL,Codex,WORKTREE,2026-10-21,execucao-f39.md,APROVADO_LOCAL; S7 pendente
 F39,F39-AC05,definir endereços e metadados de idioma para páginas públicas.,F39-T05,ADR + I/E,specs/f39-multilingue.md,planos/f39-multilingue.md,F39-S5/S6,VERIFICADO_LOCAL,Codex,WORKTREE,2026-10-21,execucao-f39.md,APROVADO_LOCAL; S7 pendente
-F40,F40-AC01,explicar a razão de cada sugestão,F40-T01,I/PG,specs/f40-diagnostico.md,planos/f40-diagnostico.md,F40-S5/S6,PLANEJADO,,,,,NAO_EXECUTADO
-F40,F40-AC02,"considerar período, impressões e posição do botão",F40-T02,I/PG,specs/f40-diagnostico.md,planos/f40-diagnostico.md,F40-S5/S6,PLANEJADO,,,,,NAO_EXECUTADO
-F40,F40-AC03,diferenciar falta de dados de baixo desempenho,F40-T03,I/PG,specs/f40-diagnostico.md,planos/f40-diagnostico.md,F40-S5/S6,PLANEJADO,,,,,NAO_EXECUTADO
-F40,F40-AC04,permitir ignorar sugestões,F40-T04,I/PG,specs/f40-diagnostico.md,planos/f40-diagnostico.md,F40-S5/S6,PLANEJADO,,,,,NAO_EXECUTADO
-F40,F40-AC05,não prometer crescimento nem atribuir causalidade a correlações.,F40-T05,I/PG,specs/f40-diagnostico.md,planos/f40-diagnostico.md,F40-S5/S6,PLANEJADO,,,,,NAO_EXECUTADO
+F40,F40-AC01,explicar a razão de cada sugestão,F40-T01,I/PG,specs/f40-diagnostico.md,planos/f40-diagnostico.md,F40-S5/S6,VERIFICADO_LOCAL,Codex,WORKTREE,2026-10-21,execucao-f40.md,APROVADO_LOCAL; S7 pendente
+F40,F40-AC02,"considerar período, impressões e posição do botão",F40-T02,I/PG,specs/f40-diagnostico.md,planos/f40-diagnostico.md,F40-S5/S6,VERIFICADO_LOCAL,Codex,WORKTREE,2026-10-21,execucao-f40.md,APROVADO_LOCAL; S7 pendente
+F40,F40-AC03,diferenciar falta de dados de baixo desempenho,F40-T03,I/PG,specs/f40-diagnostico.md,planos/f40-diagnostico.md,F40-S5/S6,VERIFICADO_LOCAL,Codex,WORKTREE,2026-10-21,execucao-f40.md,APROVADO_LOCAL; S7 pendente
+F40,F40-AC04,permitir ignorar sugestões,F40-T04,I/PG,specs/f40-diagnostico.md,planos/f40-diagnostico.md,F40-S5/S6,VERIFICADO_LOCAL,Codex,WORKTREE,2026-10-21,execucao-f40.md,APROVADO_LOCAL; S7 pendente
+F40,F40-AC05,não prometer crescimento nem atribuir causalidade a correlações.,F40-T05,I/PG,specs/f40-diagnostico.md,planos/f40-diagnostico.md,F40-S5/S6,VERIFICADO_LOCAL,Codex,WORKTREE,2026-10-21,execucao-f40.md,APROVADO_LOCAL; S7 pendente
 F41,F41-AC01,verificar instalação e atualização nos ambientes escolhidos,F41-T01,U/C/E + M,specs/f41-pwa.md,planos/f41-pwa.md,F41-S5/S6,PLANEJADO,,,,,NAO_EXECUTADO
 F41,F41-AC02,manter o uso normal pelo navegador,F41-T02,U/C/E + M,specs/f41-pwa.md,planos/f41-pwa.md,F41-S5/S6,PLANEJADO,,,,,NAO_EXECUTADO
 F41,F41-AC03,informar quando não houver conexão,F41-T03,U/C/E + M,specs/f41-pwa.md,planos/f41-pwa.md,F41-S5/S6,PLANEJADO,,,,,NAO_EXECUTADO

@@ -1,10 +1,11 @@
 name: ci
-on: [push, pull_request]
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
-# O app GitHub do Coolify publica a main no push. Este workflow não chama a API de deploy.
-# Um job de deploy aqui publicaria o mesmo commit de novo, em paralelo com o webhook.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+# Production is deployed only after every check passes. See docs/ci-cd.md.
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -32,6 +33,8 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: backend/package-lock.json
+      - name: Test deployment safeguards and E2E lease
+        run: node --test .github/scripts/*.test.mjs frontend/e2e/run-lease.test.cjs
       - run: npm ci
         working-directory: backend
       - run: npx prisma generate
@@ -84,6 +87,8 @@ jobs:
         working-directory: frontend
       - run: npm run lint && npm run typecheck && npm test && npm run build
         working-directory: frontend
+      - run: npm run build:storybook
+        working-directory: frontend
       - run: npm audit --audit-level=high
         working-directory: frontend
   images:
@@ -94,26 +99,84 @@ jobs:
       - run: docker build -t divulgador-api backend
       - run: docker build -t divulgador-web frontend
   e2e:
-    runs-on: ubuntu-latest
+    name: e2e (${{ matrix.project }})
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - project: features
+            config: playwright.config.ts
+          - project: features-mobile
+            config: playwright.config.ts
+          - project: catalog
+            config: playwright.config.ts
+          - project: ui-desktop
+            config: playwright.visual.config.ts
+          - project: ui-mobile
+            config: playwright.visual.config.ts
+          - project: search-desktop
+            config: playwright.search.config.ts
+          - project: search-mobile
+            config: playwright.search.config.ts
+          - project: support-desktop
+            config: playwright.support.config.ts
+          - project: support-mobile
+            config: playwright.support.config.ts
+          - project: desktop
+            config: playwright.date-picker.config.ts
+          - project: mobile
+            config: playwright.date-picker.config.ts
+    env:
+      E2E_RUN_ID: f37-ci-${{ github.run_id }}-${{ github.run_attempt }}
+      E2E_PORT_OFFSET: '10000'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
       - run: npm ci
         working-directory: backend
       - run: npm ci
         working-directory: frontend
       - run: npx playwright install --with-deps chromium
         working-directory: frontend
-      - run: npm run test:e2e
+      - run: npm run test:e2e -- --config=${{ matrix.config }} --project=${{ matrix.project }}
         working-directory: frontend
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-reports
+          name: playwright-reports-${{ matrix.project }}
+          include-hidden-files: true
           path: |
             frontend/playwright-report
             frontend/test-results
+            frontend/e2e/.runtime/server.log
           retention-days: 7
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [verify, web, images, e2e]
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    environment:
+      name: production
+      url: https://temlinkaqui.com
+    concurrency:
+      group: coolify-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Deploy tested commit and verify health
+        run: node .github/scripts/deploy-coolify.mjs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          COOLIFY_URL: ${{ vars.COOLIFY_URL }}
+          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}

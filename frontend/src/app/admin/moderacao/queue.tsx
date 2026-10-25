@@ -1,4 +1,6 @@
 'use client'
+import { LiquidLens } from '@/components/ui/liquid-lens'
+import {createPortal} from 'react-dom'
 
 import { ListSkeleton } from '@/components/layout/workspace-skeleton'
 import { ActionIcon } from '@/components/ui/action-icon'
@@ -48,7 +50,7 @@ const SOURCE: Record<string, string> = {
 
 let caseCache: CaseRow[] | null = null
 
-export function ModerationQueue({ linkId }: { linkId?: string }) {
+export function ModerationQueue({ linkId,actionsTarget }: { linkId?: string;actionsTarget?:HTMLElement|null }) {
   const [cases, setCases] = useState<CaseRow[]>([])
   const [ready, setReady] = useState(false)
   const [failed, setFailed] = useState(false)
@@ -68,12 +70,12 @@ export function ModerationQueue({ linkId }: { linkId?: string }) {
       if (result.status !== 200) {
         setFailed(true)
         setCases([])
+        caseCache = null
       } else {
         caseCache = result.body.cases ?? []
         setCases(caseCache)
       }
-      setReady(true)
-    })
+    }).catch(() => { setFailed(true); setCases([]); caseCache = null }).finally(() => setReady(true))
   }
 
   useEffect(() => { load() }, [])
@@ -81,28 +83,32 @@ export function ModerationQueue({ linkId }: { linkId?: string }) {
   async function decide(id: string, decision: 'APPROVE' | 'REJECT') {
     if (pending) return
     setPending(id)
-    const result = await api(`/v1/admin/moderation/${id}`, {
-      method: 'POST',
-      body: JSON.stringify({ decision }),
-    })
-    setPending(null)
-    if (result.status !== 200) {
-      setFailed(true)
-      return
-    }
-    setCases((current) => {
-      const next = current.filter((item) => item.id !== id)
-      caseCache = next
-      return next
-    })
+    try {
+      const result = await api(`/v1/admin/moderation/${id}`, {
+        method: 'POST',
+        body: JSON.stringify({ decision }),
+      })
+      if (result.status !== 200) {
+        if (result.status === 401 || result.status === 403) { setCases([]); caseCache = null }
+        setFailed(true)
+        return
+      }
+      setCases((current) => {
+        const next = current.filter((item) => item.id !== id)
+        caseCache = next
+        return next
+      })
+    } catch { setFailed(true) }
+    finally { setPending(null) }
   }
 
   const visibleCases = (linkId ? cases.filter(row => row.linkId === linkId) : cases).filter(row =>
     (source === 'ALL' || row.source === source) && `${row.name} ${row.url} ${row.ownerName} ${row.ownerEmail} ${row.niche} ${row.network}`.toLocaleLowerCase('pt-BR').includes(query.toLocaleLowerCase('pt-BR').trim()))
 
+  const actions=<WorkspaceActions>{linkId ? <ButtonLink variant="secondary" href="/admin/moderacao"><ActionIcon name="reviews" />Ver toda a fila</ButtonLink> : null}<Button variant="secondary" onClick={() => { setQuery(''); setSource('ALL') }}><ActionIcon name="resetFilters" />Limpar filtros</Button></WorkspaceActions>
   return (
     <>
-      <WorkspaceActions>{linkId ? <ButtonLink variant="secondary" href="/admin/moderacao"><ActionIcon name="reviews" />Ver toda a fila</ButtonLink> : null}<Button variant="secondary" onClick={() => { setQuery(''); setSource('ALL') }}><ActionIcon name="resetFilters" />Limpar filtros</Button></WorkspaceActions>
+      {actionsTarget?createPortal(actions,actionsTarget):actions}
       <WorkspaceFilters label="Filtrar fila de moderação">
         <Field label="Buscar na fila"><Input type="search" value={query} placeholder="Link, responsável ou categoria" onChange={event => setQuery(event.target.value)} /></Field>
         <Field label="Origem da revisão"><Select value={source} onChange={event => setSource(event.target.value)}><option value="ALL">Todas as origens</option>{Array.from(new Set(cases.map(row => row.source))).map(value => <option key={value} value={value}>{SOURCE[value] ?? value}</option>)}</Select></Field>
@@ -116,6 +122,7 @@ export function ModerationQueue({ linkId }: { linkId?: string }) {
           const place = [row.network, row.niche].filter(Boolean).join(' · ')
           return (
             <article key={row.id} className={`link-card ${queueStyles.card}`}>
+              <LiquidLens radius={24} />
               <p className="moderation-kicker">{SOURCE[row.source] ?? row.source} · {STATUS[row.status] ?? row.status}</p>
               <h2>{row.name}</h2>
               <div className={queueStyles.content}>

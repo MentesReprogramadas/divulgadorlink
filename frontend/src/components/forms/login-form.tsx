@@ -6,6 +6,8 @@ import { Field, Input } from '@/components/ui/input'
 import { afterAuth } from '@/domain/panel-gate'
 import { writeSession } from '@/domain/session'
 import { api } from '@/lib/api'
+import { LiquidLens } from '@/components/ui/liquid-lens'
+import styles from './public-account.module.css'
 
 export function LoginForm({ returnTo }: { returnTo?: string } = {}) {
   const [error, setError] = useState('')
@@ -43,7 +45,8 @@ export function LoginForm({ returnTo }: { returnTo?: string } = {}) {
   }
 
   return (
-    <form className="auth-form" onSubmit={onSubmit}>
+    <form method="post" className={`auth-form ${styles.form}`} onSubmit={onSubmit}>
+      <LiquidLens radius={16} />
       <Field label="E-mail">
         <Input name="email" type="email" autoComplete="email" required />
       </Field>

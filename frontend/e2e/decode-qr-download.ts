@@ -1,9 +1,8 @@
-import {readFileSync} from 'node:fs'
+import {buffer} from 'node:stream/consumers'
 import jsQR from 'jsqr'
 import {expect,type Page,type Download} from '@playwright/test'
 export async function decodeQrDownload(page:Page,download:Download){
-  const local=await download.path();if(!local)throw new Error('Download file missing')
-  const bytes=readFileSync(local),mime=download.suggestedFilename().endsWith('.svg')?'image/svg+xml':'image/png'
+  const bytes=await buffer(await download.createReadStream()),mime=download.suggestedFilename().endsWith('.svg')?'image/svg+xml':'image/png'
   if(mime==='image/svg+xml'){expect(bytes.toString('utf8')).toContain('<svg');expect(bytes.toString('utf8')).not.toMatch(/<script|foreignObject|onload=/)}else expect([...bytes.subarray(0,8)]).toEqual([137,80,78,71,13,10,26,10])
   // Rasterize the actual downloaded file, then use an independent decoder. No image mocks.
   const pixels=await page.evaluate(async({base64,mime})=>{

@@ -1,0 +1,38 @@
+[
+  {
+    "direction": "Nexo",
+    "file": "nexo/mockup.png",
+    "method": "OpenAI built-in ImageGen; identity reference image supplied; photorealistic concept mockup, not a real photograph of manufactured products",
+    "reference": "nexo/referencia.png",
+    "sha256": "6efbb8c2d0774574e92a18a293dd3ee4abb89a7f3fd69abbce33022c06b80872",
+    "derivative": "nexo/mockup.webp",
+    "derivative_method": "Sharp WebP quality 90, original dimensions preserved",
+    "date": "2026-10-23",
+    "prompt_file": "nexo/PROMPT-MOCKUP.txt",
+    "content": "Navy/white cotton t-shirts, embroidered cap, hoodie, canvas tote, ceramic mug, business cards, notebook and sticker. Exact vector identity is source of truth."
+  },
+  {
+    "direction": "TLA",
+    "file": "tla/mockup.png",
+    "method": "OpenAI built-in ImageGen; identity reference image supplied; photorealistic concept mockup, not a real photograph of manufactured products",
+    "reference": "tla/referencia.png",
+    "sha256": "b12b4d1ff8755a1ef181623bf846d7094168b5af83feafaf1b178fe01753f753",
+    "derivative": "tla/mockup.webp",
+    "derivative_method": "Sharp WebP quality 90, original dimensions preserved",
+    "date": "2026-10-23",
+    "prompt_file": "tla/PROMPT-MOCKUP.txt",
+    "content": "Navy/white cotton t-shirts, embroidered cap, hoodie, canvas tote, ceramic mug, business cards, notebook and sticker. Exact vector identity is source of truth."
+  },
+  {
+    "direction": "Confluência",
+    "file": "confluencia/mockup.png",
+    "method": "OpenAI built-in ImageGen; identity reference image supplied; photorealistic concept mockup, not a real photograph of manufactured products; contrast edit: white/turquoise logo on navy shirt",
+    "reference": "confluencia/referencia.png",
+    "sha256": "598c7bb39b2b873e9bacee2d35a1329fc57d8ef40e4e1c851683d3b8472667d2",
+    "derivative": "confluencia/mockup.webp",
+    "derivative_method": "Sharp WebP quality 90, original dimensions preserved",
+    "date": "2026-10-23",
+    "prompt_file": "confluencia/PROMPT-MOCKUP.txt",
+    "content": "Navy/white cotton t-shirts, embroidered cap, hoodie, canvas tote, ceramic mug, business cards, notebook and sticker. Exact vector identity is source of truth."
+  }
+]

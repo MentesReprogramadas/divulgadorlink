@@ -150,3 +150,8 @@ A assinatura do perfil personaliza a página; a compra de destaque oferece expos
 
 **Decisões pendentes:** limites por plano, preço, cobrança, política de cancelamento, disponibilidade dos endereços e regras para mudanças de plano.
 
+
+
+## Complemento autorizado — 21/10/2026
+
+Blocos adicionais do Premium concretizados em texto, imagem com legenda/descrição e vídeo YouTube/Vimeo, por delegação expressa do usuário. Editor, publicação, moderação, cobertura, histórico e transferência reaproveitados; recursos gratuitos existentes preservados. A disponibilidade técnica não autoriza preencher preços, credenciais ou revisão fiscal. Paywall sem página orienta sua criação; catálogo incompleto é omitido. [D43](../decisoes.md#d43--blocos-premium-e-apresentação-de-planos-21102026) e [evidência/limites](../../frontend-profissional/assinatura-paywall-integracoes-2026-10-21.md).

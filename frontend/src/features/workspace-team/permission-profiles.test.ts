@@ -17,6 +17,9 @@ describe('perfis de acesso',()=>{
  expect(Object.keys(grants)).toEqual(visible.map(row=>row.id))
  expect(Object.values(grants).every(row=>row?.read&&row.write)).toBe(true)
  expect(grants.adminSettings).toBeUndefined()
+ expect(permissionProfiles(visible).find(row=>row.id==='admin')).toMatchObject({label:'Gestor da conta',description:expect.stringContaining('Não concede administração do Tem Link Aqui')})
+ expect(matchedPermissionProfile(visible,grants)?.label).toBe('Gestor da conta')
+ expect(permissionProfiles(sections).find(row=>row.id==='admin')?.label).toBe('Administrador')
  })
  it('operator edits daily operations but excludes finance and system administration',()=>{
  const grants=profileGrants(sections,'operator')

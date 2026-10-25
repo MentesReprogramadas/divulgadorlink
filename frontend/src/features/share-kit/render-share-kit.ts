@@ -15,7 +15,9 @@ export async function renderShareKit(plan:ShareKitPlan):Promise<ShareKitArtifact
  const context=canvas.getContext('2d');if(!context)throw new Error('Não foi possível gerar a imagem neste navegador.')
  const story=plan.preset==='STORY',framed=plan.template==='spotlight',width=880
  const variables=getComputedStyle(document.documentElement),font=plan.font==='classic'?'Georgia, serif':variables.getPropertyValue(plan.font==='clean'?'--font-source-sans':'--font-outfit').trim()||'sans-serif'
- await Promise.all([document.fonts.load('400 28px '+font),document.fonts.load('600 76px '+font)])
+ // Next's fallback face can require Arial, which may be absent on Linux.
+ const primaryFont=font.split(',')[0]
+ await Promise.all([document.fonts.load('400 28px '+primaryFont),document.fonts.load('600 76px '+primaryFont)])
  const title=fitShareTitle(plan.title,width,(value,size)=>{context.font='600 '+size+'px '+font;return context.measureText(value).width},story?96:76,story?40:32)
  const bio=layout(context,plan.bio,width,story?340:180,story?38:30,20,font),url=layout(context,plan.target.url,width,80,story?30:25,18,font)
  const titleHeight=title.lines.length*title.size*1.3,bioHeight=bio.lines.length*bio.size*1.3,qrSize=story?460:360

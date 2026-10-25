@@ -11,14 +11,14 @@ it('abre a pasta sem os controles gerais e Voltar devolve o foco ao card da cole
   api.mockImplementation(async (path: string) => ({ status: 200, body: path.endsWith('collections/study') ? { collection, items: [], nextCursor: null } : { items: path.endsWith('collections') ? [collection] : [], nextCursor: null } }))
   render(<FavoritesScreen />)
   fireEvent.click(await screen.findByRole('tab', { name: 'Coleções' }))
-  fireEvent.click(await screen.findByRole('button', { name: 'Estudos' }))
+  fireEvent.click(await screen.findByRole('button', { name: 'Estudos Abrir coleção' }))
   await waitFor(() => expect(screen.getByRole('button', { name: 'Editar' }).hasAttribute('disabled')).toBe(false))
   expect(screen.queryByRole('region', { name: 'Suas coleções' })).toBeNull()
   expect(screen.queryByRole('button', { name: 'Nova coleção' })).toBeNull()
   expect(screen.queryByRole('group', { name: 'Ações da página' })).toBeNull()
   expect(document.activeElement).toBe(screen.getByRole('heading', { name: 'Estudos' }))
   fireEvent.click(screen.getByRole('button', { name: 'Voltar' }))
-  await waitFor(() => expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Estudos' })))
+  await waitFor(() => expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Estudos Abrir coleção' })))
 })
 
 it('adiciona pelo card com a versão da coleção e mantém a escolha quando falha', async () => {

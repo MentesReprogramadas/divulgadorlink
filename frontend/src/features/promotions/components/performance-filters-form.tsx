@@ -5,6 +5,7 @@ import { DatePicker } from '@/components/ui/date-picker'
 import { Field, Select } from '@/components/ui/input'
 import type { PerformanceFilters, PerformanceReport } from '../performance-contract'
 import styles from './performance-report.module.css'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 
 const surfaces: Record<string, string> = { HOME: 'Início', SEARCH: 'Busca', NICHE: 'Categoria', ORGANIC: 'Orgânico', RELATED: 'Relacionados' }
 export function PerformanceFiltersForm({ report, filters, onFiltersChange }: { report?: PerformanceReport; filters: PerformanceFilters; onFiltersChange?: (filters: PerformanceFilters) => void }) {
@@ -35,5 +36,5 @@ export function PerformanceFiltersForm({ report, filters, onFiltersChange }: { r
       <option value="">Todas as campanhas</option>
       {report?.campaigns.map(item => <option key={item.id} value={item.id}>{surfaces[item.surface] ?? item.surface} · {item.activatedAt.slice(0, 10).split('-').reverse().join('/')}{item.administrative ? ' · administrativo' : ''}</option>)}
     </Select></Field>
-  </form>
+  <LiquidLens radius={16} /></form>
 }

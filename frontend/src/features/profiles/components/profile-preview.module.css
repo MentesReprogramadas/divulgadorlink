@@ -1,8 +1,11 @@
-.page { max-width: none; margin: 0; padding: 0; min-width: 0; }
-.banner { position: sticky; top: 0; z-index: 40; width: 100%; border-bottom: 1px solid #e7cd92; background: #fff8e6; box-shadow: 0 3px 12px #0a192f0d; }
+.page { position: relative; isolation: isolate; max-width: none; margin: 0; padding: 0; min-width: 0; min-height: 100svh; }
+.banner { --glass-tint: var(--surface-glass); --glass-fallback: #173448; position: sticky; isolation: isolate; top: 0; z-index: 40; width: 100%; border-bottom: 1px solid var(--glass-border); background: transparent; box-shadow: var(--shadow); }
 .bannerInner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3) var(--space-6); width: min(100%, var(--container-workspace)); margin-inline: auto; padding: var(--space-4) var(--space-6); }
 .banner strong { display: block; color: var(--text-primary); }
 .banner p { margin: var(--space-1) 0 0; color: var(--text-secondary); font-size: var(--text-sm); }
 .banner a { margin-left: auto; flex: none; }
+.page[data-variant='profile'] .banner { --text-primary: var(--profile-preview-ink, #000000); --text-secondary: color-mix(in srgb, var(--profile-preview-ink, #000000) 75%, var(--profile-preview-background, #f5f0e8)); --glass-tint: color-mix(in srgb, var(--profile-preview-background, #f5f0e8) 86%, transparent); --glass-fallback: var(--profile-preview-background, #f5f0e8); }
 .content { padding: 0; }
+.platformContent { width: min(100%, var(--container-workspace)); margin-inline: auto; padding: var(--space-6); }
+.skeletonPage[data-ink] { --page-bg: var(--profile-preview-background, #f5f0e8); --page-ink: var(--profile-preview-ink, #000000); --page-shade: var(--page-ink); --page-font: var(--font-outfit), sans-serif; background: transparent; min-height: calc(100svh - 10rem); }
 @media (width < 48rem) { .bannerInner { padding: var(--space-4); } }

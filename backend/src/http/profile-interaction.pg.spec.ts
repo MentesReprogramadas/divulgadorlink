@@ -1,5 +1,5 @@
 import {setWorkspaceDbForTest} from '@/http/workspace-access'
-import {randomUUID} from 'node:crypto'
+import {randomUUID,createHash} from 'node:crypto'
 import {Prisma,PrismaClient} from '@prisma/client'
 import {afterAll,afterEach,beforeAll,beforeEach,expect,it} from 'vitest'
 import {app} from '@/app'
@@ -181,4 +181,17 @@ it('F26-PG04 permissões globais separam leitura e escrita e auditam o operador 
  await db.$executeRaw`UPDATE workspace_memberships SET grants='{"page":{"read":true,"write":true}}'::jsonb WHERE "tenantId"=${tenant}`
  const start=await call('POST','me/profile/button-tests/start',{expectedVersion:1},other,headers);expect(start.statusCode,start.body).toBe(200);expect((await db.auditLog.findFirst({where:{tenantId:tenant,action:'PROFILE_BUTTON_TEST_START'},orderBy:{createdAt:'desc'}}))?.actorId).toBe(other)
  await db.$executeRaw`UPDATE workspace_memberships SET "revokedAt"=CURRENT_TIMESTAMP WHERE "tenantId"=${tenant}`;expect((await call('GET','me/profile/button-tests',undefined,other,headers)).statusCode).toBe(403)
+})
+
+it('F40-PG02/T02/T03/T05 usa publicação, cem impressões por botão e não confunde medição pausada com baixa taxa',async()=>{
+ await preference();const records=Array.from({length:100},(_,i)=>({id:randomUUID(),eventId:randomUUID(),tenantId:tenant,profileId,ownerId:owner,revisionId:1,blockId:block,kind:'IMPRESSION',viewportBucket:'MOBILE',scrollBucket:null,sessionKey:createHash('sha256').update('f40-session-'+i).digest('hex'),dedupeKey:createHash('sha256').update('f40-impression-'+i).digest('hex'),day:new Date('2026-10-18Z'),createdAt:now}));await db.profileInteractionEvent.createMany({data:records})
+ await db.profileInteractionEvent.createMany({data:records.map(row=>({...row,id:randomUUID(),eventId:randomUUID(),blockId:null,kind:'PAGE',dedupeKey:createHash('sha256').update(row.dedupeKey+'page').digest('hex')}))})
+ const result=await call('GET','me/profile/diagnostics?from=2026-10-01&to=2026-10-18',undefined,owner);expect(result.statusCode,result.body).toBe(200);expect(result.json()).toMatchObject({coverage:'AVAILABLE',revision:1,findings:[{code:'LOW_INTERACTION',position:1,evidence:{impressions:100,clicks:0,revision:1}}]})
+ const emptyPeriod=await call('GET','me/profile/diagnostics?from=2026-10-01&to=2026-10-17',undefined,owner);expect(emptyPeriod.json()).toMatchObject({coverage:'NO_DATA',findings:[],range:{from:'2026-10-01',to:'2026-10-17'}})
+ await preference(false,1);const paused=await call('GET','me/profile/diagnostics',undefined,owner);expect(paused.json().coverage).toBe('PAUSED');expect(paused.json().findings).toEqual([])
+})
+
+it('F40-PG03 página legível não concede relatórios do workspace nem descarte sem escrita',async()=>{
+ await preference();await db.workspaceMembership.create({data:{id:randomUUID(),tenantId:tenant,ownerId:owner,userId:other,grants:{page:{read:true,write:false}}}})
+ const headers={'x-workspace-owner':owner},result=await call('GET','me/profile/diagnostics',undefined,other,headers);expect(result.statusCode,result.body).toBe(200);expect(result.json()).toMatchObject({coverage:'NO_PERMISSION',findings:[]});expect((await call('POST','me/profile/diagnostics/'+'a'.repeat(64)+'/dismiss',{ruleVersion:1},other,headers)).statusCode).toBe(403)
 })

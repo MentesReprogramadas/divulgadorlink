@@ -1,3 +1,5 @@
+import {pageText} from '@/domain/public-page-locale';
+import type {ProfileLocale} from '@/features/profiles/profile-contract';
 import type { ProfileContent } from "@/features/profiles/profile-contract";
 import { ActionIcon } from "@/components/ui/action-icon";
 import { Skeleton } from "@/components/feedback/skeleton";
@@ -6,46 +8,47 @@ import styles from "./event.module.css";
 type Item = ProfileContent["items"][number];
 export function EventCard({
   item,
-  originalLanguage,buttonLanguage,
+  originalLanguage,buttonLanguage,locale,
   preview = false,
   pending = false,
   now = new Date().toISOString(),
   heading: Heading = "h3",
 }: {
   item: Item;
-  originalLanguage?:string;buttonLanguage?:string;
+  originalLanguage?:string;buttonLanguage?:string;locale?:ProfileLocale;
   slug: string;
   preview?: boolean;
   pending?: boolean;
   now?: string;
   heading?: "h2" | "h3" | "h4" | "h5";
 }) {
+  const t=(text:string)=>pageText(locale,text);
   const event = item.event;
   if (!event) return null;
   const status = eventStatus(event, now),
     unavailable = status === "Cancelado" || status === "Encerrado";
   const day = (value: string) =>
-    new Intl.DateTimeFormat("pt-BR", {
+    new Intl.DateTimeFormat(locale??"pt-BR", {
       day: "2-digit",
       month: "short",
       year: "numeric",
       timeZone: event.timeZone,
     }).format(new Date(value));
   const hour = (value: string) =>
-    new Intl.DateTimeFormat("pt-BR", {
+    new Intl.DateTimeFormat(locale??"pt-BR", {
       hour: "2-digit",
       minute: "2-digit",
       timeZone: event.timeZone,
     }).format(new Date(value));
   return (
     <section
-      className={styles.card} lang={originalLanguage}
-      aria-label={"Evento: " + item.label}
+      className={styles.card} lang={locale}
+      aria-label={t("Evento")+": " + item.label}
       data-event-state={event.state}
     >
       <header className={styles.header}>
-        <Heading className={styles.title}>{item.label}</Heading>
-        {unavailable ? <span className={styles.status}>{status}</span> : null}
+        <Heading lang={originalLanguage} className={styles.title}>{item.label}</Heading>
+        {unavailable ? <span className={styles.status}>{t(status)}</span> : null}
       </header>
       <dl className={styles.dates}>
         {(
@@ -55,7 +58,7 @@ export function EventCard({
           ] as const
         ).map(([label, value]) => (
           <div key={label} className={styles.date}>
-            <dt>{label}</dt>
+            <dt>{t(label)}</dt>
             <dd>
               <time dateTime={value}>
                 <span>{day(value)}</span>
@@ -67,26 +70,26 @@ export function EventCard({
       </dl>
       <dl className={styles.location}>
         <div>
-          <dt>Local</dt>
-          <dd>{event.location}</dd>
+          <dt>{t("Local")}</dt>
+          <dd lang={originalLanguage}>{event.location}</dd>
         </div>
       </dl>
       {event.description ? (
-        <p className={styles.description}>{event.description}</p>
+        <p lang={originalLanguage} className={styles.description}>{event.description}</p>
       ) : null}
       {!unavailable ? (
         <div className={styles.actions}>
           {pending ? (
             <Skeleton height="3rem" />
           ) : (
-            <a lang={buttonLanguage}
+            <a lang={event.buttonLabel?buttonLanguage:locale}
               className={styles.signup}
               href={preview ? undefined : item.destination}
               aria-disabled={preview || undefined}
               data-profile-block-id={item.id}
               rel="ugc nofollow noopener"
             >
-              {event.buttonLabel ?? "Acessar evento"}
+              {event.buttonLabel ?? t("Acessar evento")}
               <ActionIcon name="external" />
             </a>
           )}

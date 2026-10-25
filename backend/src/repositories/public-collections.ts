@@ -1,3 +1,4 @@
+import { readApprovedLinkMedia } from './link-media'
 import {Prisma,type PrismaClient} from '@prisma/client'
 import {z} from 'zod'
 import {collectionPublicationInput,publicCollectionLink,collectionPublished} from '@/domain/collections/public-collection'
@@ -34,6 +35,7 @@ export async function publicCollection(db:PrismaClient,tenantId:string,slug:stri
  const entries=await tx.collectionItem.findMany({where:{collectionId:row.id,tenantId,userId:row.userId,favoriteId:{in:content.favoriteIds}},include:{favorite:{include:{link:{include:{niche:true,network:true,owner:{select:{status:true,tenantId:true}}}}}}}});
  const ordered=new Map(entries.map(i=>[i.favoriteId,i.favorite.link]));const eligible=content.favoriteIds.flatMap(id=>{const link=ordered.get(id);return link&&publicCollectionLink(link,tenantId)?[link]:[]});
  if(!age&&(content.requiresAge||eligible.some(l=>l.niche.requiresAge||l.network.requiresAge)))return {restricted:true as const};
- return {restricted:false as const,title:content.title,description:content.description,curator:content.curator,slug:row.slug!,publishedRevision:row.publishedRevision!,items:eligible.map(l=>({id:l.id,name:l.name,description:l.description,href:'/link/'+encodeURIComponent(l.id),niche:{name:l.niche.name,slug:l.niche.slug},network:{name:l.network.name,slug:l.network.slug},publisher:l.ownerId===row.userId?'Publicado pelo curador':l.ownerId?'Publicado por outro anunciante':'Publicado pela plataforma'}))}
+ const media=await readApprovedLinkMedia(tx,tenantId,eligible.map(link=>link.id));
+ return {restricted:false as const,title:content.title,description:content.description,curator:content.curator,slug:row.slug!,publishedRevision:row.publishedRevision!,items:eligible.map(l=>({...media.get(l.id),id:l.id,name:l.name,description:l.description,href:'/link/'+encodeURIComponent(l.id),niche:{name:l.niche.name,slug:l.niche.slug},network:{name:l.network.name,slug:l.network.slug},publisher:l.ownerId===row.userId?'Publicado pelo curador':l.ownerId?'Publicado por outro anunciante':'Publicado pela plataforma'}))}
  },{isolationLevel:Prisma.TransactionIsolationLevel.RepeatableRead})
 }

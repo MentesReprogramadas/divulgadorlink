@@ -19,7 +19,7 @@ it('F19-C01 requires explicit confirmation, guards duplicate restore and offers 
   const currentPreview = screen.getByRole('region', { name: 'Prévia do rascunho atual' })
   expect(within(oldPreview).getByText('Título antigo')).toBeTruthy()
   expect(currentPreview.querySelector('[inert]')?.textContent).toContain('Rascunho atual')
-  expect(oldPreview.querySelector('[inert]')).toBeTruthy()
+  expect(oldPreview.querySelector('[data-preview-device="iphone"]')).toBeTruthy();expect(currentPreview.querySelector('[data-preview-device="iphone"]')).toBeTruthy();expect(oldPreview.querySelector('[inert]')).toBeTruthy()
   expect(currentPreview.querySelector('[inert]')).toBeTruthy()
   expect(oldPreview.querySelector<HTMLElement>('[data-background]')?.style.getPropertyValue('--page-bg')).toBe(defaultAppearance.background)
   expect(currentPreview.querySelector<HTMLElement>('[data-background]')?.style.getPropertyValue('--page-bg')).toBe('#ece5ff')

@@ -12,15 +12,15 @@ import {ErrorState} from '@/components/feedback/error-state'
 import {EmptyState} from '@/components/feedback/empty-state'
 import {Button} from '@/components/ui/button'
 import {ActionIcon} from '@/components/ui/action-icon'
-import {Field,Select} from '@/components/ui/input'
-import type {ProfileLocale} from './profile-contract'
+import {pageText} from '@/domain/public-page-locale'
 import styles from './components/profile-search.module.css'
 import {useProfileInteraction} from '@/features/profile-interaction/use-profile-interaction'
 type Navigation='push'|'replace'|'refresh'|'page'|'history'
 function writePublicQuery(slug:string,query:ProfileSearchQuery,method:'pushState'|'replaceState'){
  const url=new URL(window.location.href);url.pathname=document.body.dataset.personalHost==='true'?'/':'/p/'+encodeURIComponent(slug)
+ const explicitLocale=url.searchParams.has('locale')
  for(const name of ['q','categoryId','cursor','locale'])url.searchParams.delete(name)
- profileSearchParams(query).forEach((value,name)=>url.searchParams.set(name,value))
+ profileSearchParams(query).forEach((value,name)=>{if(name!=='locale'||explicitLocale)url.searchParams.set(name,value)})
  window.history[method](null,'',url.pathname+url.search+url.hash)
 }
 export function ProfileExplorer({initial,source,pending=false,initialNotice=''}:{initial:Extract<ProfileSearchPage,{restricted:false}>;source:ProfileSearchSource;pending?:boolean;initialNotice?:string}){
@@ -72,9 +72,10 @@ export function ProfileExplorer({initial,source,pending=false,initialNotice=''}:
   if(immediate)void request(next)
   else debounce.current=setTimeout(()=>void request(next),350)
  }
- const blocked=pending||loading||test.loading||Boolean(error),avatarUrl=profile.avatarAssetId?(origin.kind==='public'?'/bff/v1/profiles/'+encodeURIComponent(origin.slug)+'/avatar/'+profile.avatarAssetId:privateProfileAvatar(profile.avatarAssetId)):undefined
- const controls=profile.appearance?.searchEnabled===true?<ProfileSearchControls query={query} groups={profile.search.groups} pending={pending} searching={loading} onQuery={changeQuery} onSubmit={()=>void request({...query,cursor:null})} onClear={()=>changeQuery({...emptyProfileQuery(),...(query.locale?{locale:query.locale}:{})},true)}/>:undefined
- const language=profile.availableLocales&&profile.availableLocales.length>1?<div className={styles.controls}><Field label="Idioma da página"><Select value={profile.locale??profile.fallbackLocale??'pt-BR'} disabled={pending} onChange={event=>changeQuery({...query,locale:event.target.value as ProfileLocale,cursor:null},true)}>{profile.availableLocales.map(value=><option key={value} value={value}>{{'pt-BR':'Português',en:'English',es:'Español'}[value]}</option>)}</Select></Field></div>:null
- const navigation=<div className={styles.actions}>{profile.search.filters.cursor?<Button variant="secondary" disabled={pending||loading} onClick={()=>void request({...current.current,cursor:null},'page')}><ActionIcon name="back"/>Voltar ao início</Button>:null}{profile.search.nextCursor?<Button disabled={pending||loading} onClick={()=>void request({...current.current,cursor:profile.search.nextCursor},'page')}><ActionIcon name="next"/>Próximos links</Button>:null}</div>
- return <div ref={root}><ProfileView contactPreview={source.kind==='preview'} content={test.assignment?{...profile,items:profile.items.map(item=>item.id===test.assignment!.blockId?{...item,label:test.assignment!.label}:item)}:profile} pending={blocked} avatarUrl={avatarUrl} controls={<>{language}{controls}</>} navigation={navigation} empty={<EmptyState>Nenhum link encontrado.</EmptyState>} notice={<>{error?<ErrorState message={error} onRetry={()=>void request(current.current,'refresh')}/>:null}{notice?<p className={styles.notice} role="status">{notice}</p>:null}</>}/><span className={styles.announcement} role="status" aria-label="Resultado da busca">{announced&&!loading&&!error?'Links atualizados.':''}</span></div>
+ const t=(text:string)=>pageText(profile.uiLocale??profile.locale,text)
+ const blocked=pending||loading||test.loading,avatarUrl=profile.avatarAssetId?(origin.kind==='public'?'/bff/v1/profiles/'+encodeURIComponent(origin.slug)+'/avatar/'+profile.avatarAssetId:privateProfileAvatar(profile.avatarAssetId)):undefined
+ const visibleProfile=error?{...profile,items:[],channelGroups:[],contentBlocks:[]}:profile
+ const controls=profile.appearance?.searchEnabled===true?<ProfileSearchControls locale={profile.uiLocale??profile.locale} query={query} groups={profile.search.groups} pending={pending} searching={loading} onQuery={changeQuery} onSubmit={()=>void request({...query,cursor:null})} onClear={()=>changeQuery({...emptyProfileQuery(),...(query.locale?{locale:query.locale}:{})},true)}/>:undefined
+ const navigation=<div lang={profile.uiLocale??profile.locale} className={styles.actions}>{profile.search.filters.cursor?<Button variant="secondary" disabled={pending||loading||Boolean(error)} onClick={()=>void request({...current.current,cursor:null},'page')}><ActionIcon name="back"/>{t('Voltar ao início')}</Button>:null}{profile.search.nextCursor?<Button disabled={pending||loading||Boolean(error)} onClick={()=>void request({...current.current,cursor:profile.search.nextCursor},'page')}><ActionIcon name="next"/>{t('Próximos links')}</Button>:null}</div>
+ return <div ref={root}><ProfileView mediaUrls={origin.kind==='public'?undefined:Object.fromEntries((profile.contentBlocks??[]).flatMap(block=>block.type==='IMAGE'?[[block.assetId,privateProfileAvatar(block.assetId)]]:[]))} contactPreview={source.kind==='preview'} content={test.assignment?{...visibleProfile,items:visibleProfile.items.map(item=>item.id===test.assignment!.blockId?{...item,label:test.assignment!.label}:item)}:visibleProfile} pending={blocked} avatarUrl={avatarUrl} controls={controls} navigation={navigation} empty={error?<></>:<EmptyState>{t('Nenhum link encontrado.')}</EmptyState>} notice={<>{error?<ErrorState retryLabel={t('Tentar de novo')} message={t(error)} onRetry={()=>void request(current.current,'refresh')}/>:null}{notice?<p className={styles.notice} role="status">{t(notice)}</p>:null}</>}/><span className={styles.announcement} role="status" aria-label={t('Resultado da busca')}>{announced&&!loading&&!error?t('Links atualizados.') :''}</span></div>
 }

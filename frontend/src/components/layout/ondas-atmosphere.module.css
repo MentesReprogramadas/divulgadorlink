@@ -1,0 +1,9 @@
+.atmosphere { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; background: radial-gradient(ellipse at 80% 30%, #193655, #0a192f 75%); }
+.canvas { display: block; inset: 0; width: 100%; height: 100%; opacity: .78; mask-image: none; }
+.lines { position: absolute; inset: 8% auto auto -10%; width: 120%; height: 90%; fill: none; stroke: #b4fff4; stroke-width: 1.1px; opacity: .28; animation: wave-drift 18s ease-in-out infinite alternate; }
+@keyframes wave-drift { from { transform: translate3d(-3%, -4%, 0) rotate(-5deg); } to { transform: translate3d(4%, 7%, 0) rotate(5deg); } }
+.atmosphere::after { content: ''; position: absolute; inset: -20%; background: radial-gradient(ellipse at 25% 65%, #45dcca29, transparent 38%), radial-gradient(ellipse at 82% 25%, #a5fff425, transparent 34%); animation: light-current 24s ease-in-out infinite alternate; }
+@keyframes light-current { from { transform: translate3d(-6%, 4%, 0) scale(1); } to { transform: translate3d(7%, -6%, 0) scale(1.12); } }
+@media (prefers-reduced-motion: reduce) { .lines, .atmosphere::after { animation: none; } }
+@media (prefers-reduced-transparency: reduce) { .canvas, .lines, .atmosphere::after { display: none; } }
+@media (forced-colors: active) { .atmosphere { display: none; } }

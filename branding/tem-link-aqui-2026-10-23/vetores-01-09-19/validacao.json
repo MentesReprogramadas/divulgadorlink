@@ -1,0 +1,35 @@
+{
+  "svg_count": 18,
+  "embedded_images": 0,
+  "live_text": 0,
+  "palette": [
+    "#0A192F",
+    "#4AF9EB"
+  ],
+  "rendered_symbol_sizes": [
+    16,
+    32,
+    64,
+    512
+  ],
+  "files": {
+    "01-nexo\\assinatura.svg": "f80923afe11c785978ecbdd61df74ae672934df69e4ad85fa602891e2252c0cb",
+    "01-nexo\\galeria.svg": "12b40fcf099be5bec82833a163a4149c9a0b0fcfb1790876a35a16061474cf43",
+    "01-nexo\\logo-branca.svg": "2924cc6737fdde5013568ab487872417e5df93bd48d457e7a816aed937d03d8a",
+    "01-nexo\\logo-colorida.svg": "ef9c69a59433f66b833e7367001063e529625dd3494bdff45831691bec1f183e",
+    "01-nexo\\logo-preta.svg": "30e512e2c9ba657efc146c0315aaef995f6d950bcf72caf1d9feb0b738e0a70c",
+    "01-nexo\\simbolo.svg": "804683d0db7173aa956b6932e65a8db187057970bc7e71adebb38367704eeec6",
+    "09-tla\\assinatura.svg": "e6f197ce6cef2e57dcf24f79ffb88496e05a65e65b616426036d49475355a8fc",
+    "09-tla\\galeria.svg": "806330cc0c188c298ca0599875e765e433ad56020eb03bb89809400e917eced3",
+    "09-tla\\logo-branca.svg": "90edc9afd0fc973e6c6386ec49c91e9920af11023b20b00b7d1a8d04fae9b3d0",
+    "09-tla\\logo-colorida.svg": "a127117a2b83fa63a84e6bd02cb35719974bcb5abbda27c03b3fba2c9ea10475",
+    "09-tla\\logo-preta.svg": "cbbe07caee112d311186d26174b01b328d4f8b55824f1edbc1d7093be4c48692",
+    "09-tla\\simbolo.svg": "5dc7b9f0f560588f88bdfd46d1303da753839b493db1334746771535dca057ed",
+    "19-confluencia\\assinatura.svg": "38f45e71bcd9b76d74f085237dacc1f9dd13b468bc6644fc72a596d03a0b642c",
+    "19-confluencia\\galeria.svg": "406242587e46afdfad84503c2efccf9604761cb85abb351d3779ee0ac0ab7b2e",
+    "19-confluencia\\logo-branca.svg": "b4f3450d06300054e5ff6f3c23c03ebeb323149e2e006c72f4165ebb6eaceed5",
+    "19-confluencia\\logo-colorida.svg": "742931bdd51d11aecb4c3557a50e173103e3b72234ef1b662890f800ed454b5d",
+    "19-confluencia\\logo-preta.svg": "cf9a7b3e6fb66cb85dc507837cb4cf84e30d327ef6ac4fbd98a2f2eaf805ae0f",
+    "19-confluencia\\simbolo.svg": "21662c24f4f674a7d6b9a95717eab80de1d501e36793d87e9f2ade43b1aebc81"
+  }
+}

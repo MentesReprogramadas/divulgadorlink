@@ -3,11 +3,13 @@
 import { Children, Fragment, isValidElement, useRef, useState, type ReactNode } from 'react'
 import { Select as BaseSelect } from '@base-ui/react/select'
 import styles from './select.module.css'
+import { LiquidLens } from './liquid-lens'
 
 type Option = { value: string; label: string; disabled: boolean; group?: string }
 export type SelectProps = {
   children: ReactNode; id?: string; name?: string; value?: string; defaultValue?: string
   required?: boolean; disabled?: boolean; autoFocus?: boolean; invalid?: boolean; className?: string; icon?: ReactNode
+  popupClassName?: string; popupBackdrop?: ReactNode
   optionIcons?: Readonly<Record<string, ReactNode>>
   'aria-label'?: string; 'aria-labelledby'?: string; 'aria-describedby'?: string
   onChange?: (event: { target: { value: string } }) => void
@@ -26,7 +28,7 @@ function optionsFrom(children: ReactNode): Option[] {
   })
 }
 
-export function Select({ children, value, defaultValue, onChange, name, required, disabled, invalid, className, icon, optionIcons, ...triggerProps }: SelectProps) {
+export function Select({ children, value, defaultValue, onChange, name, required, disabled, invalid, className, popupClassName, popupBackdrop, icon, optionIcons, ...triggerProps }: SelectProps) {
   const options = optionsFrom(children)
   const ref = useRef<HTMLDivElement>(null)
   const [container, setContainer] = useState<HTMLElement | null>(null)
@@ -34,13 +36,14 @@ export function Select({ children, value, defaultValue, onChange, name, required
     <BaseSelect.Root<string> value={value} defaultValue={defaultValue ?? options[0]?.value ?? null} items={options} name={name} required={required} disabled={disabled} modal={false}
       onOpenChange={() => setContainer(ref.current?.closest('dialog') ?? null)} onValueChange={next => onChange?.({ target: { value: next ?? '' } })}>
       <BaseSelect.Trigger {...triggerProps} className={[styles.trigger, className].filter(Boolean).join(' ')} aria-invalid={invalid || undefined}>
+        <LiquidLens radius={12} />
         <BaseSelect.Value className={styles.value}>{current => <span className={styles.valueContent} data-select-value={String(current ?? '')}>
           {(optionIcons?.[String(current ?? '')] ?? icon) ? <span className={styles.leadingIcon} aria-hidden="true">{optionIcons?.[String(current ?? '')] ?? icon}</span> : null}
           <span className={styles.valueLabel}>{options.find(option => option.value === current)?.label ?? 'Escolha uma opção'}</span>
         </span>}</BaseSelect.Value><BaseSelect.Icon className={styles.chevron}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg></BaseSelect.Icon>
       </BaseSelect.Trigger>
       <BaseSelect.Portal container={container ?? undefined}><BaseSelect.Positioner positionMethod={container ? 'fixed' : 'absolute'} sideOffset={6} alignItemWithTrigger={false} className={styles.positioner}>
-        <BaseSelect.Popup className={styles.popup}><BaseSelect.List className={styles.list}>
+        <BaseSelect.Popup data-select-popup className={[styles.popup, popupClassName].filter(Boolean).join(' ')}>{popupBackdrop ?? <LiquidLens radius={16} />}<BaseSelect.List className={styles.list}>
           {Array.from(new Set(options.map(option => option.group ?? ''))).map(group => <BaseSelect.Group key={group}>{group ? <BaseSelect.GroupLabel className={styles.groupLabel}>{group}</BaseSelect.GroupLabel> : null}{options.filter(option => (option.group ?? '') === group).map(option => <BaseSelect.Item key={option.value} value={option.value} data-value={option.value} disabled={option.disabled} className={styles.option}>
             {optionIcons?.[option.value] ? <span className={styles.leadingIcon} aria-hidden="true">{optionIcons[option.value]}</span> : null}
             <BaseSelect.ItemText className={styles.optionLabel}>{option.label}</BaseSelect.ItemText><BaseSelect.ItemIndicator className={styles.check}>✓</BaseSelect.ItemIndicator>

@@ -1,0 +1,7 @@
+.page:global(.auth-page) { width: min(100%, 38rem); padding-inline: clamp(16px, 4vw, 32px); }
+.page :global(.entry-title) { color: var(--text-primary); font-size: clamp(30px, 4vw, 40px); line-height: 1.15; letter-spacing: -.025em; }
+.form { composes: surface from '../../features/feature-glass.module.css'; }
+.page :global(.auth-form), .form:global(.auth-form) { position: relative; isolation: isolate; padding: clamp(20px, 4vw, 32px); border: 0; border-radius: 16px; background: transparent; box-shadow: none; }
+.page :global(.auth-lead), .page :global(.auth-switch) { color: var(--text-secondary); line-height: 1.6; }
+.page a { color: var(--color-link); }
+.page :global(.auth-form) p { line-height: 1.5; }

@@ -7,7 +7,7 @@
 .card h3{margin:0;font-size:1rem;overflow-wrap:anywhere}
 .card>a,.card>button{justify-self:end}
 .card>span {color:var(--text-secondary);font-size:.9rem}
-.card[data-pending]::after{content:'';position:absolute;inset:0;background:var(--surface-raised);background-image:linear-gradient(100deg,transparent,#80808016,transparent);animation:pending 1.3s infinite}
+.card[data-pending]::after{content:'';position:absolute;inset:0;background:var(--surface-raised);background-image:linear-gradient(100deg,transparent,color-mix(in srgb,var(--text-primary) 6%,transparent),transparent);animation:pending 1.3s infinite}
 .list{margin:0;padding:0;list-style:none;display:grid;gap:.75rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr))}
 @keyframes pending{50%{opacity:.6}}
 @media(prefers-reduced-motion:reduce){.card[data-pending]::after{animation:none}}
@@ -17,3 +17,6 @@
 .teamHeader h2{margin:0;font-size:var(--text-lg)}
 .teamHeader p{margin:.35rem 0 0;color:var(--text-secondary);max-width:60ch}
 @media(width<48rem){.teamHeader{grid-template-columns:minmax(0,1fr);gap:var(--space-4)}}
+
+/* Same optical material as Ondas; layout and state selectors stay local. */
+.card { composes: surface from '../feature-glass.module.css'; background: transparent; }

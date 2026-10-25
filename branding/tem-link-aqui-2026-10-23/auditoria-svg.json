@@ -1,0 +1,341 @@
+[
+  {
+    "file": "nexo/logo/simbolo.svg",
+    "bytes": 870,
+    "viewBox": [
+      0.0,
+      0.0,
+      256.0,
+      256.0
+    ],
+    "aspect": 1.0,
+    "aspect_class": "square",
+    "colors": [
+      "#0a192f",
+      "#4af9eb"
+    ],
+    "gradients": 0,
+    "anchors": 32,
+    "library_anchor_percentiles": {
+      "p10": 21.0,
+      "p25": 31.0,
+      "median": 53.0,
+      "p75": 95.5,
+      "p90": 194.0,
+      "p95": 274.0
+    },
+    "content_bbox": [
+      33.07,
+      36.8,
+      216.53,
+      218.67
+    ],
+    "margins": {
+      "left": 33.1,
+      "right": 39.5,
+      "top": 36.8,
+      "bottom": 37.3
+    },
+    "bbox_fill_ratio": 0.509,
+    "score": 99,
+    "findings": [
+      {
+        "level": "INFO",
+        "code": "precision",
+        "message": "Coordinates with 4+ decimals: round to 0–2 decimals to reduce size and reveal misalignments."
+      }
+    ]
+  },
+  {
+    "file": "nexo/logo/horizontal-preto.svg",
+    "bytes": 3023,
+    "viewBox": [
+      0.0,
+      0.0,
+      1380.0,
+      256.0
+    ],
+    "aspect": 5.391,
+    "aspect_class": "extra-wide",
+    "colors": [
+      "#000000"
+    ],
+    "gradients": 0,
+    "anchors": 166,
+    "library_anchor_percentiles": {
+      "p10": 23.0,
+      "p25": 37.0,
+      "median": 75.0,
+      "p75": 155.0,
+      "p90": 257.8,
+      "p95": 379.45
+    },
+    "content_bbox": [
+      33.07,
+      36.8,
+      1304.24,
+      228.8
+    ],
+    "margins": {
+      "left": 33.1,
+      "right": 75.8,
+      "top": 36.8,
+      "bottom": 27.2
+    },
+    "bbox_fill_ratio": 0.691,
+    "score": 96,
+    "findings": [
+      {
+        "level": "INFO",
+        "code": "precision",
+        "message": "Coordinates with 4+ decimals: round to 0–2 decimals to reduce size and reveal misalignments."
+      },
+      {
+        "level": "INFO",
+        "code": "complexity",
+        "message": "166 anchor points (library median 75.0, p75 155.0). Check every point earns its place."
+      },
+      {
+        "level": "INFO",
+        "code": "off-centre-x",
+        "message": "Horizontal margins differ (left 33.1, right 75.8). Intentional optical centring? Otherwise centre it."
+      },
+      {
+        "level": "INFO",
+        "code": "extra-wide",
+        "message": "Extra-wide lockup (>4.5:1) shrinks badly; provide a stacked lockup and a standalone symbol."
+      }
+    ]
+  },
+  {
+    "file": "tla/logo/simbolo.svg",
+    "bytes": 741,
+    "viewBox": [
+      0.0,
+      0.0,
+      256.0,
+      256.0
+    ],
+    "aspect": 1.0,
+    "aspect_class": "square",
+    "colors": [
+      "#0a192f",
+      "#4af9eb"
+    ],
+    "gradients": 0,
+    "anchors": 37,
+    "library_anchor_percentiles": {
+      "p10": 21.0,
+      "p25": 31.0,
+      "median": 53.0,
+      "p75": 95.5,
+      "p90": 194.0,
+      "p95": 274.0
+    },
+    "content_bbox": [
+      14.4,
+      67.2,
+      248.0,
+      187.73
+    ],
+    "margins": {
+      "left": 14.4,
+      "right": 8.0,
+      "top": 67.2,
+      "bottom": 68.3
+    },
+    "bbox_fill_ratio": 0.43,
+    "score": 91,
+    "findings": [
+      {
+        "level": "INFO",
+        "code": "precision",
+        "message": "Coordinates with 4+ decimals: round to 0–2 decimals to reduce size and reveal misalignments."
+      },
+      {
+        "level": "WARN",
+        "code": "near-miss-angle",
+        "message": "3 straight edge(s) are 0.3–3° off a clean angle — they read as mistakes. Snap them: 62.7° (→60°) len 18.6 at (196,167); 118.7° (→120°) len 75.4 at (126,144); 119.0° (→120°) len 39.6 at (180,113). (Expected — and fine — for type set on a curve or deliberately rotated elements.)"
+      }
+    ]
+  },
+  {
+    "file": "tla/logo/horizontal-preto.svg",
+    "bytes": 2894,
+    "viewBox": [
+      0.0,
+      0.0,
+      1380.0,
+      256.0
+    ],
+    "aspect": 5.391,
+    "aspect_class": "extra-wide",
+    "colors": [
+      "#000000"
+    ],
+    "gradients": 0,
+    "anchors": 171,
+    "library_anchor_percentiles": {
+      "p10": 23.0,
+      "p25": 37.0,
+      "median": 75.0,
+      "p75": 155.0,
+      "p90": 257.8,
+      "p95": 379.45
+    },
+    "content_bbox": [
+      14.4,
+      67.2,
+      1289.68,
+      243.36
+    ],
+    "margins": {
+      "left": 14.4,
+      "right": 90.3,
+      "top": 67.2,
+      "bottom": 12.6
+    },
+    "bbox_fill_ratio": 0.636,
+    "score": 87,
+    "findings": [
+      {
+        "level": "INFO",
+        "code": "precision",
+        "message": "Coordinates with 4+ decimals: round to 0–2 decimals to reduce size and reveal misalignments."
+      },
+      {
+        "level": "INFO",
+        "code": "complexity",
+        "message": "171 anchor points (library median 75.0, p75 155.0). Check every point earns its place."
+      },
+      {
+        "level": "WARN",
+        "code": "near-miss-angle",
+        "message": "1 straight edge(s) are 0.3–3° off a clean angle — they read as mistakes. Snap them: 118.7° (→120°) len 75.4 at (126,144). (Expected — and fine — for type set on a curve or deliberately rotated elements.)"
+      },
+      {
+        "level": "INFO",
+        "code": "off-centre-x",
+        "message": "Horizontal margins differ (left 14.4, right 90.3). Intentional optical centring? Otherwise centre it."
+      },
+      {
+        "level": "INFO",
+        "code": "off-centre-y",
+        "message": "Vertical margins differ (top 67.2, bottom 12.6). Remember the optical centre sits slightly above the geometric centre."
+      },
+      {
+        "level": "INFO",
+        "code": "extra-wide",
+        "message": "Extra-wide lockup (>4.5:1) shrinks badly; provide a stacked lockup and a standalone symbol."
+      }
+    ]
+  },
+  {
+    "file": "confluencia/logo/simbolo.svg",
+    "bytes": 757,
+    "viewBox": [
+      0.0,
+      0.0,
+      256.0,
+      256.0
+    ],
+    "aspect": 1.0,
+    "aspect_class": "square",
+    "colors": [
+      "#0a192f",
+      "#4af9eb"
+    ],
+    "gradients": 0,
+    "anchors": 26,
+    "library_anchor_percentiles": {
+      "p10": 21.0,
+      "p25": 31.0,
+      "median": 53.0,
+      "p75": 95.5,
+      "p90": 194.0,
+      "p95": 274.0
+    },
+    "content_bbox": [
+      20.48,
+      28.16,
+      237.44,
+      227.84
+    ],
+    "margins": {
+      "left": 20.5,
+      "right": 18.6,
+      "top": 28.2,
+      "bottom": 28.2
+    },
+    "bbox_fill_ratio": 0.661,
+    "score": 99,
+    "findings": [
+      {
+        "level": "INFO",
+        "code": "precision",
+        "message": "Coordinates with 4+ decimals: round to 0–2 decimals to reduce size and reveal misalignments."
+      }
+    ]
+  },
+  {
+    "file": "confluencia/logo/horizontal-preto.svg",
+    "bytes": 2910,
+    "viewBox": [
+      0.0,
+      0.0,
+      1380.0,
+      256.0
+    ],
+    "aspect": 5.391,
+    "aspect_class": "extra-wide",
+    "colors": [
+      "#000000"
+    ],
+    "gradients": 0,
+    "anchors": 160,
+    "library_anchor_percentiles": {
+      "p10": 23.0,
+      "p25": 37.0,
+      "median": 75.0,
+      "p75": 155.0,
+      "p90": 257.8,
+      "p95": 379.45
+    },
+    "content_bbox": [
+      20.48,
+      28.16,
+      1279.28,
+      232.96
+    ],
+    "margins": {
+      "left": 20.5,
+      "right": 100.7,
+      "top": 28.2,
+      "bottom": 23.0
+    },
+    "bbox_fill_ratio": 0.73,
+    "score": 96,
+    "findings": [
+      {
+        "level": "INFO",
+        "code": "precision",
+        "message": "Coordinates with 4+ decimals: round to 0–2 decimals to reduce size and reveal misalignments."
+      },
+      {
+        "level": "INFO",
+        "code": "complexity",
+        "message": "160 anchor points (library median 75.0, p75 155.0). Check every point earns its place."
+      },
+      {
+        "level": "INFO",
+        "code": "off-centre-x",
+        "message": "Horizontal margins differ (left 20.5, right 100.7). Intentional optical centring? Otherwise centre it."
+      },
+      {
+        "level": "INFO",
+        "code": "extra-wide",
+        "message": "Extra-wide lockup (>4.5:1) shrinks badly; provide a stacked lockup and a standalone symbol."
+      }
+    ]
+  }
+]

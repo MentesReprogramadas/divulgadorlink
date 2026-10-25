@@ -1,13 +1,16 @@
 export function workspaceHeading(path: string): { title: string; hint: string } {
   if(path==='/painel/integracoes')return {title:'Integrações e avisos',hint:''}
-  if(/^\/painel\/convites\/[^/]+\/distribuicao$/.test(path))return {title:'Distribuidor de convites',hint:''}
+  if(/^\/painel\/convites\/[^/]+\/distribuicao$/.test(path))return {title:'Distribuir acessos',hint:''}
   if(/^\/painel\/equipe\/[^/]+\/metricas$/.test(path))return {title:'Métricas do cliente',hint:''}
   if(path.startsWith('/painel/equipe/'))return {title:'Página compartilhada',hint:''}
   if(path==='/painel/perfil/endereco')return {title:'Endereço próprio',hint:''}
+  if(path==='/painel/perfil/busca')return {title:'Busca e filtros da página',hint:''}
+  if(path==='/painel/perfil/formulario')return {title:'Formulário de contato',hint:''}
+  if(path==='/painel/perfil/descoberta')return {title:'Descoberta da página',hint:''}
   const titles: Record<string, [string, string]> = {
     "/painel/perfil/divulgar": ["Criar imagem de divulgação", ""],
-    "/painel/clientes": ["Clientes", ""],
-    "/painel/clientes/acessos": ["Acessos por cliente", ""],
+    "/painel/clientes": ["Páginas que gerencio", ""],
+    "/painel/clientes/acessos": ["Acessos por página", ""],
     "/painel/clientes/transferencias": ["Transferir página", ""],
     "/painel/equipe": ["Equipe e permissões", ""],
     "/painel": ["Painel", "Tudo o que você precisa para cuidar dos seus links."],
@@ -16,10 +19,12 @@ export function workspaceHeading(path: string): { title: string; hint: string } 
     "/painel/assinatura": ["Assinatura da minha página", "Seu plano e os próximos pagamentos."],
     "/painel/perfil/assistente": ["Assistente de criação", ""],
     "/painel/perfil/contatos": ["Contatos recebidos", ""],
+    "/painel/perfil/diagnostico": ["Melhorar minha página", ""],
     "/painel/perfil/testes": ["Comparar botões", ""],
     "/painel/perfil/idiomas": ["Idiomas da página", ""],
     "/painel/perfil/dados": ["Dados da página", ""],
     "/painel/perfil/links": ["Grupos e links", ""],
+    "/painel/perfil/conteudo": ["Blocos de conteúdo", ""],
     "/painel/perfil/aparencia": ["Aparência da página", ""],
     "/painel/perfil": ["Minha página de links", "Organize sua página e publique quando estiver pronta."],
     "/painel/perfil/metricas": ["Métricas da minha página", "Acompanhe a interação com os seus links."],
@@ -31,7 +36,7 @@ export function workspaceHeading(path: string): { title: string; hint: string } 
     "/painel/perfil/historico": ["Histórico da minha página", "Compare e restaure uma publicação anterior."],
     "/painel/perfil/modelos": ["Modelos da minha página", "Escolha uma estrutura e personalize no seu rascunho."],
     "/painel/perfil/importar": ["Importar links para minha página", "Revise e organize antes de adicionar ao rascunho."],
-    "/painel/convites": ["Convites permanentes", "Um endereço fixo. O destino você atualiza."],
+    "/painel/convites": ["Links permanentes", "Um endereço fixo. O destino você atualiza."],
     "/painel/favoritos": ["Favoritos", "Seus links salvos, organizados por você."],
     "/painel/interesses": ["Categorias seguidas", ""],
     "/painel/lembretes": ["Lembretes", "Escolha quais avisos quer receber."],
@@ -39,7 +44,7 @@ export function workspaceHeading(path: string): { title: string; hint: string } 
     "/admin/visao": ["Admin", "Uma visão clara da operação e dos próximos passos."],
     "/admin/moderacao": ["Moderação", "Confira cada envio antes de decidir."],
     "/admin/denuncias": ["Denúncias", "Analise os relatos e acompanhe as decisões."],
-    "/admin/disponibilidade": ["Correções de links", "Confira os convites corrigidos pelos responsáveis."],
+    "/admin/disponibilidade": ["Correções de links", "Confira os links permanentes corrigidos pelos responsáveis."],
     "/admin/destaques": ["Destaques administrativos", ""],
     "/admin/planos": ["Planos de destaque", "Organize as ofertas disponíveis no checkout."],
     "/admin/assinaturas": ["Assinaturas de páginas", "Planos mensais e pendências de cobrança."],

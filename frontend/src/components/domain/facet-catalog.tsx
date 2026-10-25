@@ -22,6 +22,9 @@ type Card = {
   name: string
   description: string
   surfaceToken: string
+  iconUrl?: string | null
+  imageUrl?: string | null
+  imageAlt?: string | null
   impressions?: number
   niche?: Facet
   discovery?: LinkDiscovery
@@ -88,6 +91,9 @@ function ResultList({
             id={row.id}
             name={row.name}
             description={row.description}
+            iconUrl={row.iconUrl}
+            imageUrl={row.imageUrl}
+            imageAlt={row.imageAlt}
             href={rowHref(row)}
             placement={placement}
             niche={row.niche}

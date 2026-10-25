@@ -13,10 +13,15 @@
 @media (width < 48rem) { .previews { grid-template-columns: minmax(0, 1fr); } }
 .fields { display: grid; gap: var(--space-3); margin: 0; }
 .field { display: grid; gap: var(--space-3); padding: var(--space-4); border: 1px solid var(--border-default); border-radius: var(--radius-md); }
-.field[data-changed] { border-left: 3px solid #a96a14; background: #fff8e9; }
+.field[data-changed] { border: 1px solid var(--status-warning-border); background: var(--status-warning-bg); }
 .field dt { font-weight: 700; }
 .field dd { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); margin: 0; }
 .value { white-space: pre-wrap; overflow-wrap: anywhere; min-width: 0; }
 .value small { display: block; color: var(--text-secondary); margin-bottom: var(--space-2); }
 .notice { margin: 0; padding: var(--space-4); border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--surface-raised); }
 @media (width < 40rem) { .field dd { grid-template-columns: minmax(0, 1fr); } .card { padding: var(--space-4); } }
+
+/* Same optical material as Ondas; layout and state selectors stay local. */
+.card { composes: surface from '../../feature-glass.module.css'; background: transparent; }
+.field { composes: surface from '../../feature-glass.module.css'; background: transparent; }
+.notice { composes: surface from '../../feature-glass.module.css'; background: transparent; }

@@ -4,9 +4,10 @@ import { useEffect, useRef, useState } from 'react'
 import { api } from '@/lib/api'
 import { readSession, SESSION_EVENT } from '@/domain/session'
 import { ActionIcon } from '@/components/ui/action-icon'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 import styles from './favorites.module.css'
 
-export function FavoriteButton({ linkId }: { linkId: string }) {
+export function FavoriteButton({ linkId, className = '' }: { linkId: string; className?: string }) {
  const readOnly=useReadOnly()
   const [saved, setSaved] = useState(false), [pending, setPending] = useState(false), [error, setError] = useState('')
   const busy = useRef(false)
@@ -28,5 +29,5 @@ export function FavoriteButton({ linkId }: { linkId: string }) {
     finally { busy.current = false; setPending(false) }
   }
   const label = saved ? 'Remover favorito' : 'Salvar favorito'
-  return <div className={styles.save}><button type="button" className={styles.favorite} aria-label={label} title={label} aria-pressed={saved} disabled={pending||readOnly} onClick={() => void toggle()}><ActionIcon name="star" width={24} height={24} fill={saved ? '#f6c343' : 'none'} /></button>{error ? <p className={styles.saveError} role="alert">{error}</p> : null}</div>
+  return <div className={styles.save}><button type="button" className={`${styles.favorite} ${className}`} aria-label={label} title={label} aria-pressed={saved} disabled={pending||readOnly} onClick={() => void toggle()}><LiquidLens radius={className ? 12 : 999} /><ActionIcon name="star" width={24} height={24} fill={saved ? 'currentColor' : 'none'} /></button>{error ? <p className={styles.saveError} role="alert"><LiquidLens radius={12} />{error}</p> : null}</div>
 }

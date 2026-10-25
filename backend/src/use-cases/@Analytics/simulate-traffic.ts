@@ -1,5 +1,5 @@
 import { Prisma, type PrismaClient } from '@prisma/client'
-import { planTraffic, planGrowthTraffic, simulationConfig, simulationHash, trafficConfigForLink, type SimulationConfig } from '@/domain/analytics/traffic-simulation'
+import { planTraffic, planGrowthTraffic, simulationConfig, simulationHash, trafficConfigForLink, trafficRecoveryFactor, type SimulationConfig } from '@/domain/analytics/traffic-simulation'
 
 export type SimulationInput = {
   tenantId: string; run: string; config: SimulationConfig; through: Date
@@ -98,16 +98,38 @@ export async function simulateTraffic(db: PrismaClient, input: SimulationInput, 
         const counts = await tx.$queryRaw<Array<{ n: number }>>`SELECT COUNT(*)::int AS n FROM analytics_events a WHERE "tenantId" = ${input.tenantId} AND "linkId" = ${link.id} AND kind = 'IMPRESSION' AND COALESCE(to_jsonb(a)->>'type', 'REAL') = 'REAL'`
         const count = counts[0].n
         const target = config.mode === 'top-up' ? visits.length : linkConfig.maxViews
-        let budget = Math.max(0, Math.min(linkConfig.maxViews, target) - count)
+        const soft = Boolean(config.growth?.softLimit)
+        const checkpointId = `metrics-recovery:${simulationHash(`${config.seed}:${link.tenantId}:${link.id}`)}`
+        const checkpoint = soft ? await tx.auditLog.findUnique({ where: { id: checkpointId } }) : null
+        let crossedAt = checkpoint ? new Date((checkpoint.after as { crossedAt: string }).crossedAt) : null
+        if (crossedAt && !Number.isFinite(crossedAt.getTime())) throw new Error('Marco de desaceleração inválido')
+        if (soft && !crossedAt && count >= linkConfig.maxViews) {
+          const crossing = await tx.$queryRaw<Array<{ createdAt: Date }>>`SELECT a."createdAt" FROM analytics_events a WHERE a."tenantId"=${link.tenantId} AND a."linkId"=${link.id} AND a.kind='IMPRESSION' AND COALESCE(to_jsonb(a)->>'type', 'REAL')='REAL' ORDER BY a."createdAt", a.id OFFSET ${linkConfig.maxViews - 1} LIMIT 1`
+          crossedAt = crossing[0]?.createdAt ?? null
+        }
+        let budget = soft ? visits.length : Math.max(0, Math.min(linkConfig.maxViews, target) - count)
+        let projected = count
         const data: Prisma.AnalyticsEventCreateManyInput[] = []
         for (const visit of visits) {
           const hasView = known.has(`${visit.sessionId}:IMPRESSION`)
           if (!hasView && budget === 0) continue
+          if (!hasView && soft && crossedAt) {
+            const sample = Number.parseInt(simulationHash(`${visit.sessionId}:recovery`).slice(0, 8), 16) / 4294967296
+            if (sample >= trafficRecoveryFactor(link, config.seed, crossedAt, visit.at)) continue
+          }
           const base = { tenantId: link.tenantId, linkId: link.id, sessionId: visit.sessionId, surface: 'ORGANIC', day: new Date(visit.day + 'T00:00:00Z'), createdAt: visit.at, updatedAt: visit.at }
-          if (!hasView) { data.push({ ...base, id: simulationHash(`${visit.sessionId}:IMPRESSION`), kind: 'IMPRESSION' }); budget-- }
+          if (!hasView) {
+            data.push({ ...base, id: simulationHash(`${visit.sessionId}:IMPRESSION`), kind: 'IMPRESSION' }); budget--; projected++
+            if (soft && !crossedAt && projected >= linkConfig.maxViews) crossedAt = visit.at
+          }
           if (visit.click && !known.has(`${visit.sessionId}:CLICK`)) data.push({ ...base, id: simulationHash(`${visit.sessionId}:CLICK`), kind: 'CLICK' })
         }
         if (!input.dryRun) {
+          // Freeze the first observed crossing so retries never move the recovery clock.
+          if (soft && crossedAt && !checkpoint) await tx.auditLog.create({ data: {
+            id: checkpointId, tenantId: link.tenantId, entityType: 'AnalyticsRecovery', entityId: link.id,
+            action: 'METRICS_RECOVERY_STARTED', after: { crossedAt: crossedAt.toISOString(), threshold: linkConfig.maxViews, observedInRun: input.run },
+          } })
           // Explicit columns support both the original schema and the optional provenance migration.
           for (let offset = 0; offset < data.length; offset += input.batchSize) {
             const rows = data.slice(offset, offset + input.batchSize).map(row => Prisma.sql`(${row.id}, ${row.tenantId}, ${row.sessionId}, ${row.linkId}, ${row.surface}, ${row.day}::date, ${row.kind}, ${row.createdAt}, ${row.updatedAt})`)

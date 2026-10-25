@@ -6,7 +6,8 @@ import { Skeleton, SkeletonRegion } from '@/components/feedback/skeleton'
 import { AdMark, FacetBadge } from '@/components/ui/facet-badge'
 import { AgePrompt, confirmAge } from '@/components/domain/age-gate'
 import { ImpressionMark } from '@/components/domain/link-row'
-import { Input } from '@/components/ui/input'
+import { LiquidLens } from '@/components/ui/liquid-lens'
+import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
 import styles from './search-box.module.css'
 
@@ -48,29 +49,56 @@ export function SearchBox({
   const listId = useId()
   const box = useRef<HTMLDivElement>(null)
   const latestRequest = useRef(0)
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const controller = useRef<AbortController | null>(null)
+  const composing = useRef(false)
+  const previousContext = useRef({ initial, discoveryQuery })
   const [value, setValue] = useState(initial)
   const [choices, setChoices] = useState<Choice[]>([])
   const [open, setOpen] = useState(false)
   const [pending, setPending] = useState(false)
   const [active, setActive] = useState(-1)
   const [none, setNone] = useState(false)
+  const [failed, setFailed] = useState(false)
   const [showImpressions, setShowImpressions] = useState(true)
   const [askAge, setAskAge] = useState(false)
 
-  useEffect(() => { setValue(initial) }, [initial])
+  useEffect(() => {
+    if (previousContext.current.initial === initial && previousContext.current.discoveryQuery === discoveryQuery) return
+    previousContext.current = { initial, discoveryQuery }
+    setValue(initial); dismiss(); setChoices([]); setNone(false); setFailed(false); setAskAge(false)
+  }, [initial, discoveryQuery])
 
   useEffect(() => {
     function close(event: MouseEvent) {
-      if (!box.current?.contains(event.target as Node)) { latestRequest.current++; setPending(false); setOpen(false) }
+      if (!box.current?.contains(event.target as Node)) dismiss()
     }
     document.addEventListener('mousedown', close)
-    return () => document.removeEventListener('mousedown', close)
+    return () => { document.removeEventListener('mousedown', close); cancelRequest() }
   }, [])
 
-  async function suggest(next: string) {
-    const requestId = ++latestRequest.current
+  function cancelRequest() {
+    latestRequest.current++
+    if (timer.current) clearTimeout(timer.current)
+    controller.current?.abort()
+  }
+
+  function dismiss() {
+    cancelRequest()
+    setPending(false)
+    setOpen(false)
+    setActive(-1)
+  }
+
+  function suggest(next: string) {
+    cancelRequest()
+    const requestId = latestRequest.current
     setValue(next)
     setActive(-1)
+    setChoices([])
+    setNone(false)
+    setFailed(false)
+    setAskAge(false)
     if (next.trim().length === 0) {
       setPending(false)
       setChoices([])
@@ -80,10 +108,16 @@ export function SearchBox({
     }
     setPending(true)
     setOpen(true)
-    const result = await api<SuggestBody>(`/v1/search/suggest?q=${encodeURIComponent(next)}${discoveryQuery ? `&${discoveryQuery}` : ""}`).catch(() => ({ status: 503, body: {} as SuggestBody }))
+    timer.current = setTimeout(() => void loadSuggestions(next, requestId), 350)
+  }
+
+  async function loadSuggestions(next: string, requestId: number) {
+    controller.current = new AbortController()
+    const result = await api<SuggestBody>(`/v1/search/suggest?q=${encodeURIComponent(next)}${discoveryQuery ? `&${discoveryQuery}` : ""}`, { signal: controller.current.signal }).catch(() => ({ status: 503, body: {} as SuggestBody }))
     if (requestId !== latestRequest.current) return
     setPending(false)
-    const body = result.status === 200 ? result.body : {}
+    if (result.status !== 200) { setFailed(true); return }
+    const body = result.body
     const items = body.items ?? []
     const rows: Choice[] = []
     if (body.facet?.slug) {
@@ -118,12 +152,13 @@ export function SearchBox({
   }
 
   function go(choice: Choice) {
-    setOpen(false)
+    dismiss()
     router.push(choice.href)
   }
 
   function onKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (event.key === 'Escape') { latestRequest.current++; setPending(false); setOpen(false); return }
+    if (event.nativeEvent.isComposing || composing.current) return
+    if (event.key === 'Escape') { dismiss(); return }
     if (pending) return
     if (!open || choices.length === 0) return
     if (event.key === 'ArrowDown') {
@@ -132,15 +167,14 @@ export function SearchBox({
     } else if (event.key === 'ArrowUp') {
       event.preventDefault()
       setActive((current) => (current <= 0 ? choices.length - 1 : current - 1))
-    } else if (event.key === 'Escape') {
-      setOpen(false)
     } else if (event.key === 'Enter' && active >= 0) {
       event.preventDefault()
       go(choices[active])
     }
   }
 
-  const activeId = active >= 0 ? `${listId}-${active}` : undefined
+  const hasOptions = open && !pending && choices.length > 0
+  const activeId = hasOptions && active >= 0 ? `${listId}-${active}` : undefined
   const groups = [
     { label: 'Nichos e redes', rows: choices.filter((choice) => choice.kind === 'facet') },
     { label: 'Links sugeridos', rows: choices.filter((choice) => choice.kind === 'link') },
@@ -151,7 +185,8 @@ export function SearchBox({
   }, [activeId])
 
   return (
-    <div className={className ? `suggest ${className}` : 'suggest'} ref={box}>
+    <div className={`suggest ${styles.search} ${className ?? ''}`} ref={box} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) dismiss() }}>
+      <LiquidLens radius={20} />
       <label className="search-label" htmlFor={id}>{label}</label>
       <span className="search-icon" aria-hidden="true">
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -159,24 +194,27 @@ export function SearchBox({
           <path d="M11.2 11.2 15.5 15.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
       </span>
-      <Input
+      <input
         id={id}
         name="q"
         type="search"
         role="combobox"
         autoComplete="off"
-        aria-expanded={open}
-        aria-controls={listId}
+        aria-expanded={hasOptions}
+        aria-controls={hasOptions ? listId : undefined}
         aria-autocomplete="list"
         aria-activedescendant={activeId}
         value={value}
-        placeholder="Buscar links, temas ou comunidades..."
-        onChange={(event) => void suggest(event.target.value)}
-        onFocus={() => { if (choices.length > 0 || none) setOpen(true) }}
+        placeholder="Busque por nome, assunto ou comunidade"
+        onChange={(event) => { if (composing.current) setValue(event.target.value); else suggest(event.target.value) }}
+        onCompositionStart={() => { composing.current = true; dismiss() }}
+        onCompositionEnd={(event) => { composing.current = false; suggest(event.currentTarget.value) }}
+        onFocus={() => { if (choices.length > 0 || none || failed) setOpen(true) }}
         onKeyDown={onKeyDown}
       />
       {open ? (
         <div className={styles.popup}>
+          <LiquidLens radius={18} />
           {pending ? <SkeletonRegion label="Carregando sugestões">{Array.from({ length: Math.max(choices.length, 3) }, (_, i) => <div className={styles.option} key={i}><Skeleton width="75%" height={26} /></div>)}</SkeletonRegion> : null}
           {!pending && choices.length > 0 ? (
             <div id={listId} className={styles.list} role="listbox" aria-label="Sugestões">
@@ -211,7 +249,9 @@ export function SearchBox({
               ))}
             </div>
           ) : null}
-          {!pending && none ? <p className="search-none">Nenhuma sugestão</p> : null}
+          {!pending && failed ? <div><p role="alert">Não foi possível carregar as sugestões.</p><Button type="button" variant="secondary" readOnlyAllowed onClick={() => { box.current?.querySelector('input')?.focus(); suggest(value) }}>Tentar novamente</Button></div> : null}
+          {!pending && none ? <p className="search-none" role="status">Nenhuma sugestão</p> : null}
+          <span className={styles.srOnly} role="status">{hasOptions ? `${choices.length} sugestões disponíveis. Use as setas para navegar.` : ''}</span>
           <a className={styles.allResults} href={`/busca?q=${encodeURIComponent(value)}${discoveryQuery ? `&${discoveryQuery}` : ""}`}>
             Ver todos os resultados <span aria-hidden="true">→</span>
           </a>

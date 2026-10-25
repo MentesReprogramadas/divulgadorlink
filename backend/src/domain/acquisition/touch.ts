@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 const required = z.string().regex(/^[a-zA-Z0-9._~-]{1,80}$/)
-const optional = z.string().regex(/^[a-zA-Z0-9._~-]{0,80}$/)
+const optional = z.string().transform(value => /^[a-zA-Z0-9._~-]{0,80}$/.test(value) ? value : '')
 
 const touchSchema = z.object({
   source: required,

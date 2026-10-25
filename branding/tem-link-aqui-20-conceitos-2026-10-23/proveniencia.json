@@ -1,0 +1,47 @@
+[
+  {
+    "concepts": "01-04",
+    "file": "logos-01-04.png",
+    "source": "C:\\Users\\ferna\\.codex\\generated_images\\01a16611-b330-7632-b81c-96e79a16d80b\\exec-f420106e-8603-4086-a27f-0af5a888466a.png",
+    "method": "OpenAI built-in ImageGen, original conceptual logo contact sheet",
+    "sha256": "9a98aa14a8c74c235d3bc26987642540241de77f689e17f1ddf0c7fbeb76fc33",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "concepts": "05-08",
+    "file": "logos-05-08.png",
+    "source": "C:\\Users\\ferna\\.codex\\generated_images\\01a16611-b330-7632-b81c-96e79a16d80b\\exec-93bbd8f4-a554-42b5-a6af-759323c09f29.png",
+    "method": "OpenAI built-in ImageGen, original conceptual logo contact sheet",
+    "sha256": "8ddf54c125601c4230da73545ee66c1327e52445168e9dd58828417a638f9903",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "concepts": "09-12",
+    "file": "logos-09-12.png",
+    "source": "C:\\Users\\ferna\\.codex\\generated_images\\01a16611-b330-7632-b81c-96e79a16d80b\\exec-b2ae583a-7223-477c-8742-7dcb8ed724f9.png",
+    "method": "OpenAI built-in ImageGen, original conceptual logo contact sheet",
+    "sha256": "d7a77eff11a36f75c3eba585c228f6851ae60d606476d8f7aaac78d9c7076fe2",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "concepts": "13-16",
+    "file": "logos-13-16.png",
+    "source": "C:\\Users\\ferna\\.codex\\generated_images\\01a16611-b330-7632-b81c-96e79a16d80b\\exec-6b186096-41c1-4bdd-9bfa-240c7c6fe550.png",
+    "method": "OpenAI built-in ImageGen, original conceptual logo contact sheet",
+    "sha256": "10d103f3a24fd6c44ce75bcc86a03c96f24796232f1c9057834d3b7e8f85248b",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "concepts": "17-20",
+    "file": "logos-17-20.png",
+    "source": "C:\\Users\\ferna\\.codex\\generated_images\\01a16611-b330-7632-b81c-96e79a16d80b\\exec-09273b5d-a735-4667-b6b6-4a79f9ef2205.png",
+    "method": "OpenAI built-in ImageGen, original conceptual logo contact sheet",
+    "sha256": "cdc6eecca62d31a31f0f34986316ad631e8bdb70e013801dbac1a04116c874f4",
+    "width": 1122,
+    "height": 1402
+  }
+]

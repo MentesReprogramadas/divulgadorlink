@@ -1,3 +1,3 @@
-.form, .section { display: grid; gap: var(--space-6); padding: var(--space-6); min-width: 0; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg); }
+.form, .section { --glass-tint: var(--surface-glass); position: relative; isolation: isolate; display: grid; gap: var(--space-6); padding: var(--space-6); min-width: 0; background: transparent; border: 0; border-radius: var(--radius-lg); }
 .record { display: grid; gap: var(--space-4); min-width: 0; }
 @media (width < 30rem) { .form, .section { padding: var(--space-4); } }

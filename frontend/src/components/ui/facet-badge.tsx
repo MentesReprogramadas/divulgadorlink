@@ -1,12 +1,6 @@
-import { contrast, markFor, paint } from '@/domain/marks'
+import styles from './facet-badge.module.css'
+import { markFor } from '@/domain/marks'
 import { networkLogo } from '@/domain/network-logos'
-import { nicheIcon } from '@/domain/niche-icons'
-
-const PAPER = '#f3f6f4'
-
-function iconColor(color: string): string {
-  return contrast(color, PAPER) >= 3 ? color : paint(color).ink
-}
 
 export function Glyph({ d, color, size = 14 }: { d: string; color?: string; size?: number }) {
   return (
@@ -17,10 +11,10 @@ export function Glyph({ d, color, size = 14 }: { d: string; color?: string; size
 }
 
 export function FacetIcon({ kind, slug, size }: { kind: 'niche' | 'network'; slug: string; size?: number }) {
-  const logo = kind === 'network' ? networkLogo(slug) : nicheIcon(slug)
-  if (logo) return <img className="facet-icon" src={logo} alt="" width={size ?? 18} height={size ?? 18} decoding="async" style={{ objectFit: 'contain' }} />
+  const logo = kind === 'network' ? networkLogo(slug) : null
+  if (logo) return <span className={`facet-icon ${styles.logo}`} aria-hidden="true" style={{ width: size ?? 18, height: size ?? 18, maskImage: `url("${logo}")`, WebkitMaskImage: `url("${logo}")` }} />
   const mark = markFor(kind, slug)
-  return mark ? <Glyph d={mark.icon} size={size} color={kind === 'network' ? iconColor(mark.color) : undefined} /> : null
+  return mark ? <Glyph d={mark.icon} size={size} /> : null
 }
 
 export function FacetBadge({
@@ -29,12 +23,14 @@ export function FacetBadge({
   name,
   href,
   current = false,
+  onSelect,
 }: {
   kind: 'niche' | 'network'
   slug: string
   name: string
   href?: string
   current?: boolean
+  onSelect?: () => void
 }) {
   const content = (
     <>
@@ -42,6 +38,7 @@ export function FacetBadge({
       <span>{name}</span>
     </>
   )
+  if (onSelect) return <button type="button" className={`facet ${styles.choice}`} aria-pressed={current} onClick={onSelect}>{content}</button>
   if (href) {
     return (
       <a className="facet" href={href} aria-current={current ? 'true' : undefined}>

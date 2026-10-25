@@ -22,6 +22,10 @@ for (const scenario of ['accepted', 'published', 'denied', 'pending-consent', 'r
       const url = new URL(route.request().url())
       if (url.pathname === '/bff/v1/auth/session') {
         await route.fulfill({ json: { role: 'USER', status: 'ACTIVE', canSubmit: true } })
+      } else if (url.pathname === '/bff/v1/team/context') {
+        await route.fulfill({ json: { ownerId: null, grants: null } })
+      } else if (url.pathname === '/bff/v1/catalog/discovery-options') {
+        await route.fulfill({ json: { languages: [], cities: [], selectedCity: null, modalities: [] } })
       } else if (url.pathname === '/bff/v1/home') {
         await route.fulfill({ json: {
           networks: [{ id: 'net', name: 'Site', slug: 'site' }],

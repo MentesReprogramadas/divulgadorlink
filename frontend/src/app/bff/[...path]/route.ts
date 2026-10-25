@@ -33,7 +33,9 @@ async function handle(request: Request, context: { params: Promise<{ path: strin
   })
   const headers = new Headers()
   const cacheControl = result.headers['cache-control']
-  if (typeof cacheControl === 'string') headers.set('cache-control', cacheControl)
+  headers.set('cache-control', typeof cacheControl === 'string' ? cacheControl : 'private, no-store')
+  const nosniff = result.headers['x-content-type-options']
+  if (typeof nosniff === 'string') headers.set('x-content-type-options', nosniff)
   const disposition = result.headers['content-disposition']
   if (typeof disposition === 'string') headers.set('content-disposition', disposition)
   const rawSetCookie = result.headers['set-cookie']

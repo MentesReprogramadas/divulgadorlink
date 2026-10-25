@@ -10,7 +10,7 @@ export async function readDiscovery(db: PrismaClient, actor: ProfileActor) {
   await assertProfileOwner(db, actor)
   const [settings, niches] = await Promise.all([
     db.$queryRaw<Settings[]>`SELECT d.enabled,d."nicheId",d.version FROM profile_discovery d WHERE d."tenantId"=${actor.tenantId} AND d."ownerId"=${actor.ownerId}`,
-    db.niche.findMany({ where: { tenantId: actor.tenantId, isPublicFacet: true }, select: { id: true, name: true }, orderBy: { name: 'asc' } }),
+    db.niche.findMany({ where: { tenantId: actor.tenantId, isPublicFacet: true }, select: { id: true, name: true, slug: true }, orderBy: { name: 'asc' } }),
   ])
   return { ...(settings[0] ?? { enabled: false, nicheId: null, version: 0 }), niches }
 }
@@ -57,7 +57,7 @@ export async function listDiscoveredProfiles(db: PrismaClient, actor: ProfileAct
       if (live.restricted) continue
       profiles.push({ id: row.id, slug: live.slug, name: live.name, bio: live.bio, avatarUrl: live.avatarAssetId ? '/bff/v1/profiles/' + encodeURIComponent(live.slug) + '/avatar/' + live.avatarAssetId : null, niche: row.nicheId ? { id: row.nicheId, name: row.nicheName! } : null, sponsored: false, following: row.following, available:true })
     }
-    const niches = await tx.niche.findMany({ where: { tenantId: actor.tenantId, isPublicFacet: true, ...(actor.age ? {} : { requiresAge: false }) }, select: { id: true, name: true }, orderBy: { name: 'asc' } })
+    const niches = await tx.niche.findMany({ where: { tenantId: actor.tenantId, isPublicFacet: true, ...(actor.age ? {} : { requiresAge: false }) }, select: { id: true, name: true, slug: true }, orderBy: { name: 'asc' } })
     return { profiles, niches, nextCursor: rows.length > 20 ? rows[19].id : null }
   }, { isolationLevel: 'RepeatableRead' })
 }

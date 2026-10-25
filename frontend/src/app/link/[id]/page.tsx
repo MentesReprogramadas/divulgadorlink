@@ -1,4 +1,3 @@
-import { FavoriteButton } from '@/features/favorites/components/favorite-button'
 import { cache, Suspense } from 'react'
 import { RelatedSkeleton } from '@/features/catalog/components/catalog-skeleton'
 import { RelatedLinksSection } from '@/features/catalog/server/related-links'
@@ -11,8 +10,10 @@ import { metadataFromSeo } from '@/domain/crawler-policy'
 import { jsonLdScript } from '@/domain/json-ld'
 import { tenantHost, forward } from '@/lib/upstream'
 import { BackButton } from '@/components/ui/back-button'
-import { LinkMeta, type LinkDiscovery } from '@/components/domain/link-meta'
-import styles from '@/features/catalog/components/link-detail.module.css'
+import type { LinkDiscovery } from '@/components/domain/link-meta'
+import { LinkDetail } from '@/features/catalog/components/link-detail'
+import styles from '@/features/catalog/components/ondas-catalog.module.css'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 import { AgeWall } from '@/components/domain/age-gate'
 
 type FacetRef = { name?: string; slug?: string; requiresAge?: boolean }
@@ -22,6 +23,9 @@ type PublicLink = {
   available: boolean
   name?: string
   description?: string
+  iconUrl?: string | null
+  imageUrl?: string | null
+  imageAlt?: string | null
   network?: FacetRef
   niche?: FacetRef
   surfaceToken?: string
@@ -34,12 +38,6 @@ type PublicLink = {
     openGraph?: { title: string; description: string; url: string }
     structuredData?: Record<string, string>
   }
-}
-
-function usableDescription(name: string, description: string | undefined): string | null {
-  const text = description?.trim() ?? ''
-  if (!text || text === name.trim()) return null
-  return text
 }
 
 const loadLink = cache(async (id: string): Promise<{ status: number; link: PublicLink | null }> => {
@@ -86,33 +84,22 @@ export default async function Page({
   const link = loaded.link
   if (!link.available) {
     return (
-      <main className={styles.page}>
+      <main className={styles.publicPage}>
         <BackButton />
-        <div className={styles.summary}><h1 className="entry-title">Link indisponível</h1></div>
+        <section className={styles.detailSummary}><LiquidLens radius={22} /><h1>Link indisponível</h1></section>
       </main>
     )
   }
   const token = query.surfaceToken || link.surfaceToken || ''
   const href = trackedGoPath(id, query.surfaceToken, link.surfaceToken, query.queryId)
-  const description = usableDescription(link.name ?? '', link.description)
   return (
-    <main className={styles.page}>
+    <main className={styles.publicPage}>
       <AgeWall required={link.niche?.requiresAge === true}>
         {link.seo?.robots.startsWith('index') && link.seo.structuredData ? (
           <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(link.seo.structuredData) }} />
         ) : null}
-        <BackButton />
-        <section className={styles.summary} aria-labelledby="link-title">
-          <h1 id="link-title" className={`entry-title ${styles.title}`}>{link.name}</h1>
-          {description ? <p className={styles.description}>{description}</p> : null}
-          <LinkMeta niche={link.niche} network={link.network} discovery={link.discovery} />
-          <Impression linkId={id} surfaceToken={token} />
-          <div className={styles.actions}>
-            <a className={styles.access} href={href}>Acessar</a>
-            <FavoriteButton linkId={id} />
-          </div>
-          <a className={styles.report} href={'/painel/denunciar/' + encodeURIComponent(id)}>Denunciar um link</a>
-        </section>
+        <LinkDetail id={id} link={link} href={href} sharePath={link.seo?.canonical ?? '/link/' + encodeURIComponent(id)} />
+        <Impression linkId={id} surfaceToken={token} />
         <Suspense fallback={<RelatedSkeleton />}><RelatedLinksSection linkId={id} requiresAge={link.niche?.requiresAge === true} /></Suspense>
       </AgeWall>
     </main>

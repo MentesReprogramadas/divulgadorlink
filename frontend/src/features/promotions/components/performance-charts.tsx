@@ -26,7 +26,7 @@ export function PerformanceCharts({ report }: { report: PerformanceReport }) {
             <XAxis dataKey="timestamp" type="number" scale="time" domain={['dataMin', 'dataMax']} tickFormatter={shortDate} minTickGap={35} tick={{ fill: 'var(--text-secondary)', fontSize: 12 }} tickLine={false} axisLine={false} />
             <YAxis allowDecimals={false} domain={[0, 'auto']} width={45} tick={{ fill: 'var(--text-secondary)', fontSize: 12 }} tickLine={false} axisLine={false} />
             <Tooltip isAnimationActive={false} filterNull={false} labelFormatter={value => fullDate(Number(value))} formatter={value => [typeof value === 'number' ? value.toLocaleString('pt-BR') : 'Indisponível', label]} contentStyle={{ border: '1px solid var(--border-default)', borderRadius: 8, background: 'var(--surface-raised)', color: 'var(--text-primary)' }} />
-            <Line type="linear" dataKey="value" name={label} stroke="var(--color-brand-navy)" strokeWidth={3} dot={{ r: 3, fill: 'var(--surface-raised)', strokeWidth: 2 }} activeDot={{ r: 6 }} connectNulls={false} isAnimationActive={false} />
+            <Line type="linear" dataKey="value" name={label} stroke="var(--color-link)" strokeWidth={3} dot={{ r: 3, fill: 'var(--surface-raised)', strokeWidth: 2 }} activeDot={{ r: 6 }} connectNulls={false} isAnimationActive={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -37,7 +37,7 @@ export function PerformanceCharts({ report }: { report: PerformanceReport }) {
         <XAxis type="number" allowDecimals={false} tick={{ fill: 'var(--text-secondary)', fontSize: 12 }} tickLine={false} axisLine={false} />
         <YAxis type="category" dataKey="name" width={85} tick={{ fill: 'var(--text-secondary)', fontSize: 12 }} tickLine={false} axisLine={false} />
         <Tooltip isAnimationActive={false} formatter={value => [typeof value === 'number' ? value.toLocaleString('pt-BR') : value, label]} contentStyle={{ border: '1px solid var(--border-default)', borderRadius: 8, background: 'var(--surface-raised)', color: 'var(--text-primary)' }} cursor={{ fill: 'var(--surface-subtle)' }} />
-        <Bar dataKey="value" name={label} fill="var(--color-brand-navy)" radius={[0, 4, 4, 0]} maxBarSize={28} isAnimationActive={false} />
+        <Bar dataKey="value" name={label} fill="var(--color-link)" radius={[0, 4, 4, 0]} maxBarSize={28} isAnimationActive={false} />
       </BarChart></ResponsiveContainer>
     </div></section> : null}
   </div>

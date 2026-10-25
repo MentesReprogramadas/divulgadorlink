@@ -1,9 +1,11 @@
 'use client'
 
+import styles from '@/components/forms/public-account.module.css'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Field, Input } from '@/components/ui/input'
 import { api } from '@/lib/api'
+import {LiquidLens} from '@/components/ui/liquid-lens'
 
 export default function Page() {
   const [message, setMessage] = useState('')
@@ -42,10 +44,10 @@ export default function Page() {
   }
 
   return (
-    <main className="auth-page">
+    <main className={`auth-page ${styles.page}`}>
       <h1 className="entry-title">Esqueci a senha</h1>
       <p className="auth-lead">O link vale por 30 minutos e só funciona uma vez.</p>
-      <form className="auth-form" onSubmit={(event) => void onSubmit(event)}>
+      <form method="post" className={`auth-form ${styles.form}`} onSubmit={(event) => void onSubmit(event)}><LiquidLens radius={16}/>
         <Field label="E-mail">
           <Input name="email" type="email" autoComplete="email" required />
         </Field>

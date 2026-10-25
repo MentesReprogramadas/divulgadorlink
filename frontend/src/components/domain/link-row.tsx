@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react'
 import { LinkMeta, type LinkContext } from './link-meta'
 import { AdMark } from '@/components/ui/facet-badge'
-import { CardDescription } from './card-description'
-import { CardTitle } from './card-title'
+import { CatalogImage } from './catalog-image'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 import styles from './link-row.module.css'
 
 export type CatalogRow = {
@@ -14,7 +14,15 @@ export type CatalogRow = {
   href: string
   placement: 'sponsored' | 'organic'
   impressions?: number
+  iconUrl?: string | null
+  imageUrl?: string | null
+  imageAlt?: string | null
 } & LinkContext
+
+export type LinkRowProps = Omit<CatalogRow, 'href'> & { showImpressions?: boolean } & (
+  | { preview: true; href?: never }
+  | { preview?: false; href: string }
+)
 
 export function ImpressionMark({ value }: { value: number }) {
   const amount = Number.isFinite(value) ? value : 0
@@ -51,25 +59,37 @@ export function LinkRow({
   showImpressions = true,
   actions,
   cornerAction,
-}: CatalogRow & { showImpressions?: boolean }) {
+  iconUrl,
+  imageUrl,
+  imageAlt,
+  preview = false,
+}: LinkRowProps) {
   const show = showImpressions !== false
   return (
-    <article className={`link-row ${styles.card}`} data-placement={placement} data-link-id={id}>
-      {cornerAction ? <div className={styles.cornerAction}>{cornerAction}</div> : null}
-      {placement === 'sponsored' ? <SponsoredKicker icon="diamond" /> : null}
-      <a className={`link-name ${styles.name} ${cornerAction ? styles.withCorner : ''}`} href={href}><CardTitle text={name} /></a>
-      <CardDescription text={description} className={`link-row-description ${styles.description}`} />
-      <LinkMeta niche={niche} network={network} discovery={discovery} />
-      {actions ? <div className={styles.cardActions}>{actions}</div> : null}
-      <div className={styles.footer}>
-        {show ? <ImpressionMark value={impressions} /> : null}
-        <span className={styles.action} aria-hidden="true">
-          Ver link
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M5 12h14m-6-6 6 6-6 6" />
-          </svg>
-        </span>
+    <article className={`link-row ${styles.card}`} data-preview={preview || undefined} data-placement={placement} data-featured={placement === 'sponsored' || undefined} data-link-id={id}>
+      <CatalogImage src={imageUrl} alt={imageAlt} className={styles.image} sizes="(max-width: 600px) calc(100vw - 36px), (max-width: 850px) calc((100vw - 64px) / 2), (max-width: 1100px) calc((100vw - 104px) / 3), (max-width: 1352px) calc((100vw - 118px) / 3), 412px" />
+      <div className={styles.body} data-card-content>
+        <LiquidLens radius={20} />
+        <div className={styles.labels}>
+          {placement === 'sponsored' ? <SponsoredKicker icon="diamond" /> : null}
+          <LinkMeta niche={niche} />
+        </div>
+        <div className={styles.metadata}><LinkMeta network={network} discovery={discovery} /></div>
+        <h3 className={styles.heading}><span className={`link-name ${styles.name}`}><CatalogImage src={iconUrl} className={styles.icon} kind="icon" sizes="32px" /><span className={styles.title} title={name}>{name}</span></span></h3>
+        <p className={`link-row-description ${styles.description}`}>{description}</p>
+        <div className={styles.footer}>
+          {show ? <ImpressionMark value={impressions} /> : null}
+          <span className={styles.action} aria-hidden="true">
+            Conhecer
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14m-6-6 6 6-6 6" />
+            </svg>
+          </span>
+        </div>
       </div>
+      {!preview ? <a className={styles.hitArea} href={href}><span className={styles.srOnly}>{name}</span></a> : null}
+      {cornerAction ? <div className={styles.cornerAction}>{cornerAction}</div> : null}
+      {actions ? <div className={styles.cardActions}>{actions}</div> : null}
     </article>
   )
 }

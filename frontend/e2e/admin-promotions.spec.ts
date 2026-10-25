@@ -52,7 +52,7 @@ test('admin define período, prazo indeterminado e remove o destaque sem cobran�
   await expect(dialog.getByLabel('Período')).toBeFocused()
   await selectOption(dialog.getByLabel('Onde destacar'), 'HOME')
   await selectOption(dialog.getByLabel('Período'), 'custom')
-  await dialog.getByLabel('Data e hora de término').fill('2030-11-10T12:00')
+  await dialog.getByLabel('Data e hora de término').fill('10/11/2030 12:00')
   await dialog.getByRole('button', { name: 'Salvar destaque', exact: true }).click()
   await expect(dialog).not.toBeVisible()
   expect(sql(`SELECT COUNT(*) FROM promotions WHERE "linkId"='${id}' AND administrative AND status='ACTIVE' AND "expiresAt" IS NOT NULL`)).toBe('1')
@@ -64,7 +64,7 @@ test('admin define período, prazo indeterminado e remove o destaque sem cobran�
   const accessibility = await new AxeBuilder({ page }).include('dialog[open]').withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()
   expect(accessibility.violations.map(row => ({ id: row.id, nodes: row.nodes.map(node => node.target) }))).toEqual([])
   await testInfo.attach('destaque-indeterminado', { body: await page.screenshot({ fullPage: true, animations: 'disabled' }), contentType: 'image/png' })
-  if (testInfo.project.name === 'admin-desktop') {
+  if (!testInfo.project.name.includes('mobile')) {
     // Half the CSS viewport exercises the reflow of 200% browser zoom.
     await page.setViewportSize({ width: 720, height: 500 })
     expect(await dialog.evaluate(element => { const box = element.getBoundingClientRect(); return box.left >= 0 && box.right <= innerWidth + 1 && box.top >= 0 && box.bottom <= innerHeight + 1 })).toBe(true)

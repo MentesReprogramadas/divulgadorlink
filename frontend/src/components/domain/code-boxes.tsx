@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { Input } from '@/components/ui/input'
+import styles from './code-boxes.module.css'
 
 const LENGTH = 6
 
@@ -69,12 +71,13 @@ export function CodeBoxes({
   }
 
   return (
-    <div className="code-boxes" role="group" aria-label="Código do e-mail">
+    <div className={styles.boxes} role="group" aria-label="Código do e-mail">
       {digits.map((digit, index) => (
-        <input
+        <Input
           key={index}
           ref={(node) => { refs.current[index] = node }}
-          className={digit ? 'code-box is-filled' : 'code-box'}
+          className={styles.digit}
+          data-filled={Boolean(digit) || undefined}
           inputMode="numeric"
           autoComplete={index === 0 ? 'one-time-code' : 'off'}
           aria-label={`Dígito ${index + 1} de 6`}

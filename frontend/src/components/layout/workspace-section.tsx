@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react'
 import styles from './workspace-section.module.css'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 
 export function WorkspaceSection({ title, description, action, children }: { title: string; description?: string; action?: ReactNode; children: ReactNode }) {
-  return <section className={styles.section} aria-label={title}><header className={styles.header}><div><h2>{title}</h2>{description ? <p>{description}</p> : null}</div>{action}</header>{children}</section>
+  return <section className={styles.section} aria-label={title}><LiquidLens radius={16}/><header className={styles.header}><div><h2>{title}</h2>{description ? <p>{description}</p> : null}</div>{action}</header>{children}</section>
 }
 
 /** A ranked comparison, never a fabricated time series. Values remain available as text. */

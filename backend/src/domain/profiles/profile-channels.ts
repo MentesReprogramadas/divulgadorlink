@@ -14,7 +14,7 @@ export type ChannelGroupEdit={id:string;name:string;visible:boolean;channels:Arr
 /** Network labeling only; F12 remains responsible for transport/content validation. */
 export function channelNetwork(network:ChannelNetwork|null,destination:string):{name:string;slug:string}{
  let hostname:string
- try{hostname=new URL(destination).hostname}catch{throw new ProfileError(422,'Confira o destino do convite.')}
+ try{hostname=new URL(destination).hostname}catch{throw new ProfileError(422,'Confira o destino do link permanente.')}
  if(!network)return{name:'Site',slug:'site'}
  if(!network.knownHosts.length||!hostMatchesNetwork(hostname,network.knownHosts))throw new ProfileError(422,'O destino não corresponde à rede escolhida. Selecione a rede correta ou Site.')
  return{name:network.name,slug:network.slug}

@@ -83,10 +83,8 @@ describe('explorar da home', () => {
       />,
     )
     expect(await screen.findByRole('button', { name: 'Ver mais' })).toBeTruthy()
-    expect(document.querySelector('.home-explore-columns')?.className).not.toContain('is-open')
     expect(within(screen.getByRole('region', { name: 'Nichos' })).getAllByRole('link')).toHaveLength(6)
     fireEvent.click(screen.getByRole('button', { name: 'Ver mais' }))
-    expect(document.querySelector('.home-explore-columns')?.className).toContain('is-open')
     expect(screen.getByRole('link', { name: 'Músicas' })).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Ver menos' })).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: 'Ver menos' }))

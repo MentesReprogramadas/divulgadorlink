@@ -1,3 +1,4 @@
+import type {ContentBlock} from './content-block'
 import type {ButtonTestConfig} from './button-test'
 import type {EventBlock} from './event-block'
 import {pruneTranslations,type ProfileTranslations} from './profile-translations'
@@ -10,14 +11,15 @@ export class ProfileError extends Error {
 }
 
 /** Public projection: never send hidden/future destinations or private schedule settings. */
-export function profileAt(content: ProfileContent, eligibleCatalog: ReadonlySet<string>, now: Date, schedulingAllowed: boolean) {
+export function profileAt(content: ProfileContent, eligibleCatalog: ReadonlySet<string>, now: Date, schedulingAllowed: boolean, richBlocksAllowed=false) {
   const eligible = visibleProfile(content, eligibleCatalog)
   const nextBoundary = schedulingAllowed ? nextScheduleBoundary(eligible.items.map(item => item.schedule), now) : null
   const items = eligible.items.filter(item => scheduleState(item.schedule, now, schedulingAllowed) === 'VISIBLE').map(item => ({ id: item.id, categoryId: item.categoryId, type: item.type, label: item.label, destination: item.destination, visible: item.visible, ...(item.event?{event:item.event}:{}) }))
   const categories=eligible.categories.filter(category=>items.some(item=>item.categoryId===category.id))
-  return { content: { ...eligible,...(eligible.translations?{translations:pruneTranslations(eligible.translations,categories,items)}:{}), categories, items, primaryItemId: items.some(item => item.id === content.primaryItemId) ? content.primaryItemId : null }, nextBoundary }
+  return { content: { ...eligible,...(eligible.contentBlocks?{contentBlocks:richBlocksAllowed?eligible.contentBlocks:[]}:{}),...(eligible.translations?{translations:pruneTranslations(eligible.translations,categories,items)}:{}), categories, items, primaryItemId: items.some(item => item.id === content.primaryItemId) ? content.primaryItemId : null }, nextBoundary }
 }
 export type ProfileContent = {
+  contentBlocks?:ContentBlock[]
   buttonTest?:ButtonTestConfig|null
   translations?:ProfileTranslations
   appearance?: ProfileAppearance
@@ -30,7 +32,7 @@ export function visibleProfile(content: ProfileContent, eligibleCatalog: Readonl
   const groups = new Set(categories.map(c => c.id))
   const items = content.items.filter(i => i.visible && !i.templateExample && groups.has(i.categoryId) && (i.type !== 'CATALOG' || eligibleCatalog.has(i.destination)))
     .map(i => ({ id: i.id, categoryId: i.categoryId, type: i.type, label: i.label, destination: i.destination, visible: true, ...(i.event?{event:i.event}:{}), ...(i.schedule ? { schedule: i.schedule } : {}) }))
-  return { ...(content.appearance ? { appearance: content.appearance } : {}),...(content.translations?{translations:pruneTranslations(content.translations,categories,items)}:{}), slug: content.slug, name: content.name, bio: content.bio, avatarAssetId: content.avatarAssetId, requiresAge: content.requiresAge, primaryItemId: items.some(i => i.id === content.primaryItemId) ? content.primaryItemId : null, categories, items }
+  return { ...(content.contentBlocks?{contentBlocks:content.contentBlocks.filter(block=>block.visible)}:{}),...(content.appearance ? { appearance: content.appearance } : {}),...(content.translations?{translations:pruneTranslations(content.translations,categories,items)}:{}), slug: content.slug, name: content.name, bio: content.bio, avatarAssetId: content.avatarAssetId, requiresAge: content.requiresAge, primaryItemId: items.some(i => i.id === content.primaryItemId) ? content.primaryItemId : null, categories, items }
 }
 
 /** Identity within the originating tenant; uniqueness must also be enforced by PostgreSQL. */

@@ -33,7 +33,7 @@ export function SiteVisits() {
   const pathname = usePathname()
 
   useEffect(() => {
-    if (!pathname || pathname.startsWith('/admin')) return
+    if (!pathname || pathname.startsWith('/admin') || /^\/dev\/(?:home-preview|homes)(?:\/|$)/.test(pathname)) return
     const body = visitPayload(pathname, location.search, firstOfSession())
     void api('/v1/analytics/visits', { method: 'POST', body: JSON.stringify(body) }).catch(() => undefined)
   }, [pathname])

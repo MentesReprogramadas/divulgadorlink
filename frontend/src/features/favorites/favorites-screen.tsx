@@ -18,6 +18,7 @@ import { CollectionPicker } from './components/collection-picker'
 import { FavoriteList } from './components/favorite-list'
 import type { CollectionPage, CollectionDetail, FavoritePage, SavedFavorite, Collection } from './favorites-contract'
 import styles from './components/favorites.module.css'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 
 export function FavoritesScreen() {
   const [favorites, setFavorites] = useState<FavoritePage>({ items: [], nextCursor: null })
@@ -114,7 +115,7 @@ export function FavoritesScreen() {
   const collectionContent = <>
     <CollectionHeader name={current?.name ?? collections.items.find(collection => collection.id === selected)?.name ?? 'Coleção'} pending={pending} canEdit={Boolean(current)} headingRef={collectionHeading} onBack={() => { setSelected(''); setQuery(''); setNotice(''); setError('') }} onEdit={() => setEditing('rename')} onDelete={() => setConfirmDelete(true)} />
     {current?<CollectionPublication key={current.id} collection={current} pending={pending} onSave={mutate}/>:null}
-    {confirmDelete && current ? <section role="group" aria-label="Confirmar exclusão" className={styles.collection}><p>Excluir esta coleção? Os favoritos e os links continuam salvos.</p><div className={styles.actions}><Button disabled={pending} onClick={() => click('collections/' + current.id + '?expectedVersion=' + current.version, 'DELETE')}><ActionIcon name="trash" />Confirmar exclusão</Button><Button variant="secondary" onClick={() => setConfirmDelete(false)}><ActionIcon name="close" />Cancelar</Button></div></section> : null}
+    {confirmDelete && current ? <section role="group" aria-label="Confirmar exclusão" className={styles.collection}><p>Excluir esta coleção? Os favoritos e os links continuam salvos.</p><div className={styles.actions}><Button disabled={pending} onClick={() => click('collections/' + current.id + '?expectedVersion=' + current.version, 'DELETE')}><ActionIcon name="trash" />Confirmar exclusão</Button><Button variant="secondary" onClick={() => setConfirmDelete(false)}><ActionIcon name="close" />Cancelar</Button></div><LiquidLens radius={16} /></section> : null}
     {error ? <Button variant="secondary" disabled={pending} onClick={() => { setError(''); void refresh().catch(e => setError(e.message)) }}>Tentar novamente</Button> : null}
     {savedList}
   </>

@@ -1,0 +1,46 @@
+[
+  {
+    "direction": "Ponte",
+    "file": "ponte/mockup.png",
+    "method": "OpenAI built-in ImageGen; identity reference image supplied; photorealistic concept mockup, not a real photograph of manufactured products",
+    "reference": "ponte/referencia.png",
+    "sha256": "dd7d8908f9f945561dd40f48a7fd354c44964ead6a9c651f5d64d3d7c50cd2b0",
+    "derivative": "ponte/mockup.webp",
+    "derivative_method": "Sharp WebP quality 90, original dimensions preserved",
+    "date": "2026-10-23",
+    "content": "Navy/white cotton t-shirts, embroidered cap, hoodie, canvas tote, ceramic mug, business cards, notebook and sticker. Exact vector identity is source of truth."
+  },
+  {
+    "direction": "Farol",
+    "file": "farol/mockup.png",
+    "method": "OpenAI built-in ImageGen; identity reference image supplied; photorealistic concept mockup, not a real photograph of manufactured products",
+    "reference": "farol/referencia.png",
+    "sha256": "0c6a800a8db2772c6e19c4f86f0114a30ec7df94540abafb1fb1cd908cdffe24",
+    "derivative": "farol/mockup.webp",
+    "derivative_method": "Sharp WebP quality 90, original dimensions preserved",
+    "date": "2026-10-23",
+    "content": "Navy/white cotton t-shirts, embroidered cap, hoodie, canvas tote, ceramic mug, business cards, notebook and sticker. Exact vector identity is source of truth."
+  },
+  {
+    "direction": "Liga",
+    "file": "liga/mockup.png",
+    "method": "OpenAI built-in ImageGen; identity reference image supplied; photorealistic concept mockup, not a real photograph of manufactured products",
+    "reference": "liga/referencia.png",
+    "sha256": "3006b88143c4d42ac1dd36d393bc49da5b8112708e9da2c000e2504381d16878",
+    "derivative": "liga/mockup.webp",
+    "derivative_method": "Sharp WebP quality 90, original dimensions preserved",
+    "date": "2026-10-23",
+    "content": "Navy/white cotton t-shirts, embroidered cap, hoodie, canvas tote, ceramic mug, business cards, notebook and sticker. Exact vector identity is source of truth."
+  },
+  {
+    "direction": "Rota",
+    "file": "rota/mockup.png",
+    "method": "OpenAI built-in ImageGen; identity reference image supplied; photorealistic concept mockup, not a real photograph of manufactured products",
+    "reference": "rota/referencia.png",
+    "sha256": "da510eb2411b2d62dc5d97b9dfdc19b9184c23bce5cef451f673ca248eb83c95",
+    "derivative": "rota/mockup.webp",
+    "derivative_method": "Sharp WebP quality 90, original dimensions preserved",
+    "date": "2026-10-23",
+    "content": "Navy/white cotton t-shirts, embroidered cap, hoodie, canvas tote, ceramic mug, business cards, notebook and sticker. Exact vector identity is source of truth."
+  }
+]

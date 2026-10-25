@@ -8,6 +8,9 @@ Construir uma base profissional de engenharia, UX/UI e Design System: fronteiras
 
 ## Documentos e autoridade
 
+- [Auditoria da experiência frontend — 23/10/2026](auditoria-experiencia-2026-10-23.md): matriz dos 34 pontos, prioridades executadas, evidências e limites.
+
+- [Refinamento de páginas e navegação](refino-paginas-2026-10-21.md): contexto padrão, abas menores, prévia compartilhada, descoberta responsiva e cards.
 - [Arquitetura e padrões](arquitetura.md): estrutura, dependências, composição, tipagem e migração.
 - [Design System](design-system.md): proposta de fundações, catálogo e registro de decisões.
 - [Ferramentas](ferramentas.md): matriz, fontes oficiais, configuração, versões e limitações.
@@ -53,3 +56,6 @@ Não estipular prazo sem medir o piloto. Cada fase pode ser dividida por jornada
 ## Autorização de execução
 
 Após revisar a preparação, o usuário autorizou implementar e percorrer todas as telas sem novas pausas de aprovação. O plano continua incremental por risco e jornada; a validação técnica de um lote antecede o seguinte. Mudanças comerciais, deploy e serviços externos pagos continuam fora desse escopo.
+
+
+- [Assinatura, paywall, blocos Premium e integrações — 21/10/2026](assinatura-paywall-integracoes-2026-10-21.md): decisões, validação, limites comerciais e reversão.

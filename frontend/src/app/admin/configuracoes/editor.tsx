@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import { api } from '@/lib/api'
 import { Skeleton } from '@/components/feedback/skeleton'
+import { LiquidLens } from '@/components/ui/liquid-lens'
+import surfaces from '@/features/administration/components/admin-surfaces.module.css'
 
 export function SettingsEditor() {
   const [on, setOn] = useState(true)
@@ -51,13 +53,14 @@ export function SettingsEditor() {
         {!ready ? <span role="status" aria-label="Carregando configuração"><Skeleton width={44} height={24} round /></span> : <button
           type="button"
           role="switch"
-          className={on ? 'switch is-on' : 'switch'}
+          className={`${on ? 'switch is-on' : 'switch'} ${surfaces.toggle}`}
           aria-checked={on}
           aria-label="Impressões no catálogo"
           aria-busy={saving || undefined}
           disabled={!ready || saving}
           onClick={() => void toggle()}
         >
+          <LiquidLens radius={20} />
           <span className="switch-knob" />
         </button>}
       </div>

@@ -8,6 +8,10 @@ vi.mock('@/lib/api', () => ({ api: (...args: unknown[]) => api(...args) }))
 afterEach(() => { cleanup(); api.mockReset() })
 
 describe('entrada da conta', () => {
+  it('usa POST nativo para não colocar credenciais na URL antes da hidratação', () => {
+    render(<LoginForm />)
+    expect(screen.getByRole('button', { name: 'Entrar' }).closest('form')?.method).toBe('post')
+  })
   it('recupera o formulário depois de uma falha de conexão', async () => {
     api.mockRejectedValue(new TypeError('Failed to fetch'))
     render(<LoginForm />)

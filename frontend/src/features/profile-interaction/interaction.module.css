@@ -10,3 +10,6 @@
 @media(max-width:480px){.totals{grid-template-columns:1fr}.metrics{grid-template-columns:1fr}.metrics>div{display:flex;justify-content:space-between;gap:1rem;min-width:0}.metrics dd{margin:0;min-width:0}.reach>div{gap:.5rem;grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-height:3rem}.reach>div>span:last-child{text-align:right;overflow-wrap:anywhere}.track{grid-column:1/-1;grid-row:2}}
 
 
+
+/* Same optical material as Ondas; layout and state selectors stay local. */
+.card { composes: surface from '../feature-glass.module.css'; background: transparent; }

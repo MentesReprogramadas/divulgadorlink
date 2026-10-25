@@ -5,7 +5,9 @@ import { InsightSkeleton } from '@/features/administration/components/insight-sk
 
 import { ActionIcon } from '@/components/ui/action-icon'
 import { WorkspaceActions, WorkspaceFilters } from '@/components/layout/workspace-controls'
-import { Field, Select } from '@/components/ui/input'
+import { Field, Input, Select } from '@/components/ui/input'
+import { LiquidLens } from '@/components/ui/liquid-lens'
+import surfaces from '@/features/administration/components/admin-surfaces.module.css'
 
 import { useEffect, useRef, useState } from 'react'
 import { MetricCards } from '@/components/ui/metric-cards'
@@ -13,7 +15,7 @@ import { MetricChart } from '@/components/ui/metric-chart'
 import { ReportView } from '@/components/ui/report-view'
 import styles from '@/components/layout/workspace-dashboard.module.css'
 import { ErrorState } from '@/components/feedback/error-state'
-import { Button } from '@/components/ui/button'
+import { Button, ButtonLink } from '@/components/ui/button'
 import { formatCents } from '@/domain/money'
 import { api } from '@/lib/api'
 import { InsightTabs, panelProps } from './insight-tabs'
@@ -219,21 +221,21 @@ export function FinancePanel() {
         <ReportView title="Campanhas" rows={view.campaigns} rowKey={row=>JSON.stringify([row.source,row.medium,row.campaign])} columns={[{label:'Campanha',render:row=>row.campaign},{label:'Origem / mídia',render:row=>`${row.source||'—'} / ${row.medium||'—'}`},{label:'Pedidos',render:row=>count(row.orders),numeric:true},{label:'Receita',render:row=>formatCents(row.revenueCents),numeric:true}]} chart={<MetricChart kind="ranking" format="money" label="Receita por campanha" rows={view.campaigns.map(row=>({label:row.campaign,value:row.revenueCents}))}/>}><p className={styles.result}>Só links de quem aceitou cookies carregam a campanha. O restante não aparece aqui.</p></ReportView>
       </div> : null}
       {tab === 'pagantes' ? <div {...panelProps('financeiro','pagantes')} className={styles.dashboard}>
-        <WorkspaceActions><a className="button button-secondary" href={`/bff/v1/admin/finance/export?${financeQuery(applied,{kind:'buyers'})}`}><ActionIcon name="download"/>Baixar pagantes (CSV)</a><a className="button button-secondary" href={`/bff/v1/admin/finance/export?${financeQuery(applied,{kind:'orders'})}`}><ActionIcon name="download"/>Baixar pedidos (CSV)</a></WorkspaceActions>
+        <WorkspaceActions><ButtonLink variant="secondary" href={`/bff/v1/admin/finance/export?${financeQuery(applied,{kind:'buyers'})}`}><ActionIcon name="download"/>Baixar pagantes (CSV)</ButtonLink><ButtonLink variant="secondary" href={`/bff/v1/admin/finance/export?${financeQuery(applied,{kind:'orders'})}`}><ActionIcon name="download"/>Baixar pedidos (CSV)</ButtonLink></WorkspaceActions>
         <p className={styles.result}>{count(view.buyersTotal)} pagantes no filtro{view.buyersTotal>view.buyers.length?`, mostrando ${view.buyers.length}`:''}.</p>
         <ReportView title="Pagantes no período" rows={view.buyers} rowKey={row=>row.userId} columns={[{label:'Nome',render:row=><>{row.name||'Sem nome'}{row.isNew?' · novo':''}<br/>{row.email}</>},{label:'Pedidos',render:row=>count(row.orders),numeric:true},{label:'Receita',render:row=>formatCents(row.revenueCents),numeric:true},{label:'Métodos',render:row=>row.methods.map(item=>METHOD_LABEL[item]).join(' + ')},{label:'Primeiro / último',render:row=>`${showDay(row.firstPaidAt)} / ${showDay(row.lastPaidAt)}`}]} chart={<MetricChart kind="ranking" format="money" label="Receita por pagante" rows={view.buyers.map(row=>({label:row.name||'Sem nome',value:row.revenueCents}))}/>}/>
       </div> : null}
       {tab === 'taxas' ? <div {...panelProps('financeiro','taxas')} className={styles.dashboard}>
         <p className={styles.result}>Pix é um valor por pagamento confirmado. No cartão, 3,99% + R$ 0,39</p>
         <form className="finance-filters" onSubmit={event=>{event.preventDefault();void saveFees()}}>
-          <Field label="Pix (%)"><input className="field" inputMode="decimal" value={fees.pix} onChange={event=>setFees({...fees,pix:event.target.value})}/></Field>
-          <Field label="Pix por pagamento (R$)"><input className="field" inputMode="decimal" value={fees.pixFixed} onChange={event=>setFees({...fees,pixFixed:event.target.value})}/></Field>
-          <Field label="Cartão (%)"><input className="field" inputMode="decimal" value={fees.card} onChange={event=>setFees({...fees,card:event.target.value})}/></Field>
-          <Field label="Cartão fixo (R$)"><input className="field" inputMode="decimal" value={fees.fixed} onChange={event=>setFees({...fees,fixed:event.target.value})}/></Field>
+          <Field label="Pix (%)"><Input inputMode="decimal" value={fees.pix} onChange={event=>setFees({...fees,pix:event.target.value})}/></Field>
+          <Field label="Pix por pagamento (R$)"><Input inputMode="decimal" value={fees.pixFixed} onChange={event=>setFees({...fees,pixFixed:event.target.value})}/></Field>
+          <Field label="Cartão (%)"><Input inputMode="decimal" value={fees.card} onChange={event=>setFees({...fees,card:event.target.value})}/></Field>
+          <Field label="Cartão fixo (R$)"><Input inputMode="decimal" value={fees.fixed} onChange={event=>setFees({...fees,fixed:event.target.value})}/></Field>
           <Button type="submit" variant="secondary"><ActionIcon name="save"/>Salvar taxas</Button>
         </form>{notice?<p role="status">{notice}</p>:null}
       </div> : null}
-      <details><summary>Sobre a amostra e os cálculos</summary><p className={styles.result}>{count(view.sample.paidOrders)} pagamentos e {count(view.sample.checkouts)} checkouts na amostra{view.sample.paidOrders<30?': poucos para tirar padrão de hora ou produto.':'.'}</p></details>
+      <div className={surfaces.explanation}><LiquidLens radius={20}/><details><summary>Sobre a amostra e os cálculos</summary><p className={styles.result}>{count(view.sample.paidOrders)} pagamentos e {count(view.sample.checkouts)} checkouts na amostra{view.sample.paidOrders<30?': poucos para tirar padrão de hora ou produto.':'.'}</p></details></div>
     </> : null}
   </section>
 }

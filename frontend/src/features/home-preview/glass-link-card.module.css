@@ -1,0 +1,52 @@
+.card { --card-x: 0deg; --card-y: 0deg; --light-x: 30%; --light-y: 0%; position: relative; min-width: 0; padding: 10px; overflow: hidden; isolation: isolate; border: 1px solid #c5f4f64f; border-radius: 27px; color: #effbff; background: #173a4b; box-shadow: inset 0 1px 0 #fff5, inset 0 -1px 0 #91d6de21, 0 14px 35px #020d1d29; transform: perspective(1000px) rotateX(var(--card-y)) rotateY(var(--card-x)); transition: transform .35s cubic-bezier(.2,.7,.2,1), box-shadow .35s; }
+@supports (backdrop-filter: blur(18px)) { .card { background: linear-gradient(135deg, #e1ffff10, #fff2 55%, #4af9eb05), #102e3fba; backdrop-filter: blur(22px) saturate(1.5); } }
+.card:hover { box-shadow: inset 0 1px 0 #fff8, inset 0 -1px 0 #a2f6ea55, 0 20px 45px #020d1d55; }
+.rim { position: absolute; z-index: 3; inset: 0; border-radius: inherit; pointer-events: none; background: radial-gradient(ellipse at var(--light-x) var(--light-y), #d8ffff50, transparent 50%); opacity: .3; transition: opacity .3s; }
+.card:hover .rim { opacity: .8; }
+.lens { position: absolute; z-index: -1; inset: 0; border-radius: inherit; background: linear-gradient(110deg, #e5ffff0c, transparent 35%, #9bebf610); pointer-events: none; }
+@supports (backdrop-filter: url('#preview-refraction')) { .lens { backdrop-filter: url('#preview-refraction'); } }
+.photo { position: relative; aspect-ratio: 1.85; border-radius: 18px; background: #173849; overflow: hidden; }
+.photo > a { display: block; width: 100%; height: 100%; }
+.photo img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .65s cubic-bezier(.2,.7,.2,1); }
+.card:hover .photo img { transform: scale(1.045); }
+.niche { position: absolute; left: 12px; bottom: 12px; padding: 6px 12px; border: 1px solid #efffff55; border-radius: 30px; background: #0a192fbc; color: #f2fcff; font-size: 11px; font-weight: 500; backdrop-filter: blur(14px); }
+.favorite { position: absolute; z-index: 4; top: 10px; right: 10px; display: grid; place-items: center; width: 42px; height: 42px; padding: 0; border: 1px solid #e9ffff80; border-radius: 50%; color: #fff; background: #0a192fb0; backdrop-filter: blur(14px); box-shadow: inset 0 1px 0 #fff5; cursor: pointer; transition: background .2s, color .2s; }
+.favorite:hover { color: #0a192f; background: #d0ffffe6; }
+.favorite[aria-pressed='true'] { color: #4af9eb; background: #0a293ee6; }
+.sponsored { position: absolute; top: 13px; left: 13px; display: inline-flex; align-items: center; gap: 5px; padding: 5px 9px; border: 1px solid #c9ffff66; border-radius: 30px; background: #092c3cde; color: #ddfffa; font-size: 10px; }
+.content { position: relative; z-index: 2; padding: 17px 12px 1px; }
+.meta { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; }
+.network { display: inline-flex; align-items: center; gap: 6px; font: 500 11px var(--font-sans); color: #dcf0f5; }
+.network img { display: block; padding: 2px; box-sizing: content-box; background: #f6ffff; border-radius: 50%; }
+.category { font-size: 11px; color: #b2cbd4; }
+.card h3 { margin: 13px 0 9px; font: 500 23px/1.17 var(--font-product); letter-spacing: -.025em; min-height: 2.34em; }
+.card h3 a { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: #f3fbff; text-decoration: none; }
+.card h3 a::after { content: ''; position: absolute; inset: 0; z-index: -1; }
+.card h3 a:hover { text-decoration: none; color: #bcfff5; }
+.description { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; min-height: 3.1em; max-height: 3.1em; overflow: hidden; margin: 0; color: #bad0d9; font: 400 13px/1.55 var(--font-sans); }
+.bottom { display: flex; align-items: center; gap: 12px; margin-top: 17px; padding-top: 10px; border-top: 1px solid #e0ffff23; }
+.views { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; color: #c3dce3; font: 400 11px var(--font-sans); }
+.language { color: #b3ced8; font-size: 10px; margin-left: auto; }
+.open { display: grid; place-items: center; flex: none; width: 35px; height: 35px; margin-left: 0; border: 1px solid #dcffff55; border-radius: 50%; background: #d9ffff0d; color: #e5fffa; text-decoration: none; transition: background .2s; }
+.open:hover { color: #0a192f; background: #a9f6ee; text-decoration: none; }
+.card[data-featured] { padding: 0; min-height: 330px; border-color: #c5f7f879; box-shadow: inset 0 1px 0 #fff9, 0 20px 40px #020f2040; }
+.card[data-featured] .photo { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; border-radius: inherit; }
+.card[data-featured] .photo::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, #051c2c05 15%, #07243360 47%, #082132f5); pointer-events: none; }
+.card[data-featured] .photo > a { position: relative; z-index: 0; }
+.card[data-featured] .favorite, .card[data-featured] .sponsored { z-index: 4; }
+.card[data-featured] .niche { display: none; }
+.card[data-featured] .content { margin: 133px 12px 12px; padding: 14px 15px 8px; border: 1px solid #e2ffff52; border-radius: 18px; background: linear-gradient(130deg, #e6ffff13, #d6f9ff04), #0c2a3bd1; box-shadow: inset 0 1px 0 #fff4, 0 5px 15px #0002; backdrop-filter: blur(16px) saturate(1.4); }
+.card[data-featured] h3 { margin-top: 10px; font-size: 25px; min-height: 1.17em; }
+.card[data-featured] .description { -webkit-line-clamp: 1; min-height: 1.55em; max-height: 1.55em; font-size: 12px; }
+.card[data-featured] .bottom { margin-top: 12px; padding-top: 7px; }
+.card[data-featured] .language { font-size: 10px; }
+.photoFallback { display: grid; place-content: center; justify-items: center; gap: 14px; width: 100%; height: 100%; min-height: 160px; background: radial-gradient(ellipse at 10% 10%, #428083, transparent 70%), #17364e; color: #d9f4f6; font-size: 13px; }
+@media (prefers-reduced-motion: reduce), (hover: none) { .card { transform: none; transition: none; } .photo img, .rim, .favorite, .open { transition: none; } .card:hover .photo img { transform: none; } }
+@media (forced-colors: active) { .card, .card[data-featured] .content { border: 1px solid CanvasText; background: Canvas; color: CanvasText; } .lens, .rim { display: none; } .card h3 a, .description, .network, .category, .views, .language { color: CanvasText; } }
+.card { border-radius: 16px; transition-duration: 220ms; }
+.card h3 { min-height: 0; }
+.photo { border-radius: 10px; }
+.photo img { transition-duration: 240ms; }
+.network, .category, .views, .language, .sponsored { font-size: 12px; }
+.card[data-featured] .content { margin-top: 160px; border-radius: 12px; }
+.card[data-featured] .language { font-size: 12px; }

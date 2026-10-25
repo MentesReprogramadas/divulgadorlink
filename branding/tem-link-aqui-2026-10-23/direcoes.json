@@ -1,0 +1,29 @@
+[
+  {
+    "id": "nexo",
+    "name": "Nexo",
+    "idea": "Duas partes se entrelaçam e criam uma conexão contínua.",
+    "tone": "Próxima, dinâmica e acolhedora.",
+    "line": "Gente e interesses.\nUma conexão puxa outra.",
+    "pattern": "Fitas entrelaçadas, curvas amplas e encontros diagonais.",
+    "risk": "O entrelaçamento exige espaço negativo claro; em tamanhos pequenos, usar uma tinta."
+  },
+  {
+    "id": "tla",
+    "name": "TLA",
+    "idea": "As iniciais da marca formam uma assinatura única e direta.",
+    "tone": "Forte, urbana e objetiva.",
+    "line": "Seu próximo interesse\ntem lugar aqui.",
+    "pattern": "Hastes largas, recortes diagonais e terminais em turquesa.",
+    "risk": "O monograma perde leitura das três letras em 16 px; priorizar 32 px ou mais."
+  },
+  {
+    "id": "confluencia",
+    "name": "Confluência",
+    "idea": "Diferentes caminhos se encontram em um mesmo ponto.",
+    "tone": "Orgânica, aberta e coletiva.",
+    "line": "Caminhos diferentes.\nInteresses em comum.",
+    "pattern": "Ramos que convergem, folhas abertas e respiros em forma de Y.",
+    "risk": "As pontas e o canal central precisam de prova em bordado e impressão pequena."
+  }
+]

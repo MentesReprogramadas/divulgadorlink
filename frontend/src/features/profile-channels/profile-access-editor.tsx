@@ -44,7 +44,7 @@ export function ProfileAccessEditor({groupId,channelId,trigger,flush,onSaved,onC
  }
  const Form=embedded?ChannelForm:ChannelDialog
  if(data&&initial)return <Form sourceProfileId={target.current??undefined} onPendingChange={onPendingChange} initial={initial} destinations={sources.items} networks={data.networks} trigger={trigger} sourcePending={sourcePending} sourceError={sourceError} hasMore={Boolean(sources.nextCursor)} onRefresh={()=>void loadSources()} onLoadMore={()=>void loadSources(sources.nextCursor??undefined)} onClose={onClose} onSave={save}/>
- const feedback=error?<ErrorState message={error} onRetry={()=>{setError('');setRetry(value=>value+1)}}/>:<p role="status">Carregando convite…</p>
+ const feedback=error?<ErrorState message={error} onRetry={()=>{setError('');setRetry(value=>value+1)}}/>:<p role="status">Carregando link permanente…</p>
  if(embedded)return feedback
- return <OverlayDialog open title="Convite" returnFocusTo={trigger} onClose={onClose}>{feedback}</OverlayDialog>
+ return <OverlayDialog open title="Link permanente" returnFocusTo={trigger} onClose={onClose}>{feedback}</OverlayDialog>
 }

@@ -1,6 +1,6 @@
 # Análise e ordem de entrega
 
-**Estado atual — 21/10/2026:** parada após F36 concluída localmente; F40/F41 não iniciadas. Total 40/42 implementações locais, S7 pendente. [Guia local](testar-lote-2026-10-21.md), [execução final](execucao-f36.md). Os registros datados abaixo preservam o histórico.
+**Situação atual — revisão de 21/10/2026:** 41/42 implementações locais. F24/F30/F35/F39/F26/F36 revalidadas e F40 implementada e validada localmente por pedido explícito de revisão das sete áreas. F41 não iniciada. S7/CI/liberação e DNS/TLS real da F10 continuam pendentes. Revisão na árvore local `codex/roadmap-f37-testes`, sem novo commit/push/deploy. [Revisão e evidências](../frontend-profissional/revisao-fluxos-2026-10-21.md), [F40](execucao-f40.md), [como testar](testar-lote-2026-10-21.md).
 
 
 ## Resultado da análise

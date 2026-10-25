@@ -1,0 +1,90 @@
+{
+  "date": "2026-10-21",
+  "branch": "codex/roadmap-f37-testes",
+  "state": "LOCAL_VALIDATED",
+  "features": [
+    "F24",
+    "F30",
+    "F35",
+    "F39",
+    "F26",
+    "F36",
+    "F40"
+  ],
+  "newFeature": "F40",
+  "frontend": {
+    "unit": {
+      "passed": 120,
+      "files": 35
+    },
+    "typecheck": 0,
+    "lint": 0,
+    "build": 0
+  },
+  "backend": {
+    "domainAndPostgres": {
+      "passed": 54,
+      "files": 7
+    },
+    "finalDirectedRepeat": {
+      "passed": 25,
+      "files": 2
+    },
+    "typecheck": 0,
+    "lint": 0,
+    "build": 0
+  },
+  "playwright": [
+    {
+      "report": "playwright-seven-features-sidebar.json",
+      "startTime": "2026-10-21T17:38:16.979Z",
+      "duration": 358766.816,
+      "expected": 53,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    {
+      "report": "playwright-final-guided-readonly.json",
+      "startTime": "2026-10-21T17:55:25.354Z",
+      "duration": 119186.474,
+      "expected": 15,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    {
+      "report": "playwright-readonly-recovery-final.json",
+      "startTime": "2026-10-21T18:01:37.219Z",
+      "duration": 57512.333999999995,
+      "expected": 3,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    }
+  ],
+  "graph": {
+    "changedCodeFiles": 12,
+    "reusedCodeFiles": 1359,
+    "nodes": 7094,
+    "edges": 24686,
+    "externalSemanticAnalysis": false
+  },
+  "newMigrations": 0,
+  "commit": false,
+  "push": false,
+  "deploy": false,
+  "limits": [
+    "Runs overlap; do not sum as unique cases",
+    "Browser emulation, no physical-device certification",
+    "No production or remote CI validation",
+    "F30 master encryption key still requires local configuration",
+    "F40 does not probe own URLs",
+    "F10 DNS/TLS real pending; F41 not started",
+    "Existing concurrent working tree changes preserved"
+  ],
+  "buildWarnings": [
+    "Existing CSS autoprefixer start/end mixed support",
+    "Next ESLint plugin not detected"
+  ]
+}

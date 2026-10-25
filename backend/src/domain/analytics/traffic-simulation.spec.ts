@@ -1,12 +1,28 @@
 import { describe, expect, it } from 'vitest'
 import { analyticsDay } from './day'
-import { planTraffic, planGrowthTraffic, simulationConfig, trafficConfigForLink } from './traffic-simulation'
+import { planTraffic, planGrowthTraffic, simulationConfig, trafficConfigForLink, trafficRecoveryFactor } from './traffic-simulation'
 import { assertDevelopment } from '@/use-cases/@Analytics/simulate-traffic'
 
 const config = simulationConfig.parse({ until: '2026-10-15T12:00:00.000Z' })
 const link = { id: 'link', tenantId: 'tenant', createdAt: new Date('2026-08-01T18:23:00Z') }
 
 describe('simulação de tráfego', () => {
+  it('desacelera por poucos dias e recupera sem reiniciar o ciclo a cada consulta', () => {
+    const crossedAt = new Date('2026-10-01T12:00Z')
+    const factor = (days: number) => trafficRecoveryFactor(link, config.seed, crossedAt, new Date(crossedAt.getTime() + days * 86400000))
+    expect(factor(-1)).toBe(1)
+    expect(factor(1)).toBeGreaterThanOrEqual(0.08)
+    expect(factor(1)).toBeLessThanOrEqual(0.18)
+    expect(factor(3)).toBeLessThanOrEqual(factor(5))
+    expect(factor(5)).toBeLessThanOrEqual(factor(8))
+    expect(factor(8)).toBe(1)
+    expect(factor(20)).toBe(1)
+    expect(factor(1)).toBe(factor(1))
+    const variations = Array.from({ length: 20 }, (_, index) => trafficRecoveryFactor({ ...link, id: `recovery-${index}` }, config.seed, crossedAt, new Date('2026-10-02T12:00Z')))
+    expect(new Set(variations).size).toBe(20)
+    const soft = simulationConfig.parse({ ...config, maxViews: 4000, sponsoredCeilingMinViews: 3501, growth: { since: '2026-10-14T00:00:00.000Z', softLimit: true } })
+    expect(trafficConfigForLink(soft, true, link).maxViews).toBe(trafficConfigForLink({ ...soft, until: '2026-10-20T12:00:00.000Z' }, true, link).maxViews)
+  })
   it('usa tetos individuais reproduzíveis para destaques sem acumular no limite global', () => {
     const settings = simulationConfig.parse({ ...config, minViews: 0, maxViews: 4000, commonMaxViews: 3500, sponsoredCeilingMinViews: 3501 })
     const ceilings = Array.from({ length: 30 }, (_, index) => trafficConfigForLink(settings, true, { ...link, id: `capacity-${index}` }).maxViews)

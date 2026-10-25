@@ -8,10 +8,12 @@ afterEach(() => { cleanup(); vi.resetAllMocks() })
 describe('F03 relacionados', () => {
   it('F03-C01/T03 omite seção vazia', () => {
     render(<RelatedLinks linkId="source" initial={{ items: [], nextCursor: null, showImpressions: true }} />)
-    expect(screen.queryByRole('heading', { name: 'Links relacionados' })).toBeNull()
+    expect(screen.queryByRole('heading', { name: 'A descoberta continua.' })).toBeNull()
   })
   it('F03-C01 usa card e marcação de patrocinado existentes quando presente no contrato', () => {
     render(<RelatedLinks linkId="source" initial={{ items: [{ ...item, sponsored: true }], nextCursor: null, showImpressions: false }} />)
+    expect(screen.getByRole('heading', { name: 'A descoberta continua.' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'Voltar ao catálogo' }).getAttribute('href')).toBe('/')
     expect(screen.getByRole('link', { name: 'Clube de livros' }).getAttribute('href')).toBe('/link/one?surfaceToken=related.token')
     expect(screen.getByText('Patrocinado')).toBeTruthy()
     expect(screen.queryByRole('img', { name: /impress/ })).toBeNull()
@@ -32,7 +34,7 @@ describe('F03 relacionados', () => {
     vi.mocked(api).mockResolvedValue({ status: 404, body: { items: [{ ...item, name: 'sentinela-privada' }] } })
     render(<RelatedLinks linkId="source" initial={null} />)
     fireEvent.click(screen.getByRole('button', { name: 'Tentar de novo' }))
-    await waitFor(() => expect(screen.queryByRole('heading', { name: 'Links relacionados' })).toBeNull())
+    await waitFor(() => expect(screen.queryByRole('heading', { name: 'A descoberta continua.' })).toBeNull())
     expect(document.body.innerHTML).not.toContain('sentinela-privada')
   })
   it('F03-C02 cursor obsoleto oferece atualização da primeira página e mantém loading acessível', async () => {

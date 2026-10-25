@@ -17,3 +17,6 @@
 .summary dd { margin: 0; font-weight: 600; }
 @media (width < 72rem) { .grid { grid-template-columns: minmax(0,1fr); } }
 @media (width < 40rem) { .card { padding: var(--space-4); } }
+
+/* Same optical material as Ondas; layout and state selectors stay local. */
+.card { composes: surface from '../feature-glass.module.css'; background: transparent; }

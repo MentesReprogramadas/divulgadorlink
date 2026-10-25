@@ -34,6 +34,7 @@ test('F06-E01/T02/T03/T05 detalhe público, login com retorno, triagem e histór
   const link = fixture('Grupo de leitura', info.project.name.endsWith('mobile'))
   await page.goto(A + '/link/' + link.id)
   await refuseCookies(page)
+  await page.getByText('Encontrou um problema?', { exact: true }).click()
   await page.getByRole('link', { name: 'Denunciar um link' }).click()
   await expect(page.getByRole('heading', { name: 'Entrar', exact: true })).toBeVisible()
   await page.getByLabel('E-mail').fill(state().reader)

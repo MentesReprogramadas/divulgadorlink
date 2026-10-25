@@ -1,6 +1,23 @@
 import type { SVGProps } from 'react'
 
 export const iconPaths = {
+  pageContent:'M3 3h18v18H3ZM7 7h10M7 11h6M7 15h4v3H7ZM14 15l4 3h-4Z',
+  subscriptionLock:'M5 10h14v12H5ZM8 10V6a4 4 0 0 1 8 0v4M12 15v3',
+  attention:'M12 3 23 21H1ZM12 9v5M12 18h.01',
+  pageResources:'M3 2h12l6 6v14H3ZM15 2v6h6M7 12h3v3H7ZM14 12h3v3h-3ZM7 18h3M14 18h3',
+  pageSearch:'M3 2h12v6h6v14H3ZM15 2l6 6M7 12a3 3 0 1 0 6 0 3 3 0 0 0-6 0M12 14l5 5',
+  pageDiscovery:'M3 3h11v18H3ZM7 7h3M7 11h3M7 15h3M18 3v9M15 6l3-3 3 3M17 16h5M19 14l3 2-3 2',
+  pageEditing:'M3 2h12v6M3 2v20h18V12M7 7h4M7 11h3M12 20l1-5 7-7 3 3-7 7ZM18 10l3 3',
+  pagePromotion:'M3 4h12v16H3ZM7 8h4M7 12h3M16 2l6 5-6 5M16 7h-4M16 16h6M19 13v6',
+  navigationHelp:'M3 2h18v16H9l-6 4ZM9 7a3 3 0 0 1 6 0c0 2-3 2-3 4M12 14h.01',
+  permanentLink:'M3 3h12v6M3 3v18h18V12M7 8h4M7 12h2M12 11l3-3a4 4 0 0 1 6 6l-3 3M17 15l-3 3a4 4 0 0 1-6-6l3-3',
+  pageDiagnostics:'M3 3h14v18H3ZM7 7h6M7 11h3M7 15h3M17 8l5 5-5 5M22 13h-9',
+  catalogPublishing:'M2 4h9v16H2ZM5 8h3M5 12h3M15 5h7M19 2l3 3-3 3M18 12v10M14 17h8',
+  pageResults:'M2 21h20M4 17v-5h4v5M10 17V8h4v9M16 17V3h4v14',
+  clientRelations:'M3 3h18v12H3ZM7 7h4M7 11h8M8 15l-3 6M16 15l3 6M5 19h14',
+  pageTools:'M3 3h7v7H3ZM14 3h7v7h-7ZM3 14h7v7H3ZM17 13v9M13 17h9',
+  accountTools:'M12 2l8 5v10l-8 5-8-5V7ZM12 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6ZM7 18c1-5 9-5 10 0',
+
   clientPortfolio:'M2 5h8l2 3h10v13H2ZM7 1h14v4M6 12h4v5H6ZM14 12h4M14 16h4',
   agencyAccess:'M2 3h8v6H2ZM2 15h8v6H2ZM6 9v6M10 6h5v12h-5M15 12h7M19 9l3 3-3 3',
   ownershipTransfer:'M2 2h8v8H2ZM14 14h8v8h-8ZM14 4h6v6M20 4l-7 7M4 14v6h6M4 20l7-7',

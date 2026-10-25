@@ -1,31 +1,53 @@
 @import './primitives.css';
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 
-  --surface-page: var(--neutral-50);
-  --surface-raised: var(--neutral-0);
-  --surface-subtle: var(--neutral-100);
-  --text-primary: var(--neutral-950);
-  --text-secondary: var(--neutral-500);
-  --border-default: var(--neutral-200);
-  --action-primary-bg: var(--brand-900);
-  --action-primary-hover: var(--brand-800);
-  --focus-ring: #146dca;
-  --status-success-text: var(--green-700);
-  --status-error-text: var(--red-700);
+  --surface-page: var(--brand-900);
+  --surface-raised: #06162438;
+  --surface-subtle: #b8fff014;
+  --text-primary: #f0fafb;
+  --text-secondary: #b7d3dc;
+  --border-default: #ffffff29;
+  --action-primary-bg: #4af9ebd9;
+  --action-primary-hover: #8cfff2ed;
+  --focus-ring: var(--brand-300);
+  --status-success-text: #8df0c8;
+  --status-error-text: #ffb8b2;
 
   --color-paper: var(--surface-page);
   --color-ink: var(--text-primary);
   --color-moss: var(--status-success-text);
-  --color-moss-hover: var(--green-800);
+  --color-moss-hover: #b4ffe0;
   --color-line: var(--border-default);
   --color-muted: var(--text-secondary);
   --color-clay: var(--status-error-text);
   --color-control-bg: var(--surface-raised);
   --color-lift: var(--surface-raised);
-  --color-primary-ink: var(--neutral-0);
+  --color-primary-ink: var(--brand-900);
 
+  --color-link: #a3fff3;
+  --surface-glass: #06162438;
+  --surface-popup: #0a192fd9;
+  --glass-border: #c6fff052;
+  --glass-shadow: inset 0 1.5px 1px #ffffffc7, inset 1.5px 0 1px #e0fff766, inset -1px -1.5px 1px #d6ffff8a, inset 0 0 12px #ffffff13, 0 8px 22px #010b1633;
+  --glass-blur: 7px;
+  --field-background: #010b1626;
+  --field-glass-tint: #010b1626;
+  --popup-glass-tint: #0a192fd9;
+  --glass-tint: #0310162e;
+  --glass-fallback: #173448;
+  --scrollbar-thumb: #d6fff05c;
+  --scrollbar-track: #03101630;
+  --field-border: #b7e8ee66;
+  --select-selected-background: #4af9eb24;
+  --status-success-bg: #103e36;
+  --status-success-border: #80eac966;
+  --status-error-bg: #452c39;
+  --status-error-border: #ffa6a366;
+  --status-warning-text: #ffe0a3;
+  --status-warning-bg: #423d2f;
+  --status-warning-border: #eaca8266;
   --color-brand-navy: var(--brand-900);
   --color-brand-turquoise: var(--brand-300);
   --color-brand-white: var(--neutral-0);
@@ -58,7 +80,23 @@
   --space-12: 48px;
   --space-16: 64px;
   --radius: var(--radius-sm);
-  --shadow: 0 4px 20px rgb(10 25 47 / 5%);
+  --shadow: var(--glass-shadow);
   --bp-md: 768px;
   --form-max: var(--container-form);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root { --surface-raised: #123448; --surface-glass: #123448; --surface-subtle: #1c4252; --surface-popup: #123448; --field-background: #0a2032; --glass-blur: 0px; --action-primary-bg: var(--brand-300); --action-primary-hover: #8cfff2; }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root { --surface-raised: #123448; --surface-glass: #123448; --field-background: #0a2032; }
+}
+
+@media (forced-colors: active) {
+  :root {
+    --surface-page: Canvas; --surface-raised: Canvas; --surface-glass: Canvas; --surface-subtle: Canvas; --surface-popup: Canvas;
+    --text-primary: CanvasText; --text-secondary: CanvasText; --border-default: CanvasText; --field-background: Canvas; --field-border: CanvasText;
+    --action-primary-bg: ButtonFace; --action-primary-hover: ButtonFace; --color-primary-ink: ButtonText; --color-link: LinkText; --focus-ring: Highlight;
+    --status-success-text: CanvasText; --status-error-text: CanvasText; --status-warning-text: CanvasText; --glass-fallback: Canvas;
+  }
 }

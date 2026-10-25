@@ -2,16 +2,34 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { afterEach, expect, it, vi } from 'vitest'
 import { RedirectScreen } from './redirect-screen'
 import { RedirectRequestError } from './redirect-api'
+import { RedirectGrid } from './components/redirect-grid'
 const request = vi.hoisted(() => vi.fn())
 vi.mock('./redirect-api', async original => ({ ...await original<typeof import('./redirect-api')>(), redirectRequest: request }))
 afterEach(() => { cleanup(); vi.restoreAllMocks(); request.mockReset() })
 const id = '0258c08c-aec0-4435-8c20-7b73d58e4d7b'
 const detail = { id, stablePath: '/r/' + id, version: 1, activeRevisionId: null, disabled: false, revisions: [] }
+it('cancelar a alteração de destino devolve o foco ao botão que abriu a janela', async () => {
+  const revision = { id: 'revision', number: 1, label: 'Comunidade', destinationUrl: 'https://example.com', requiresAge: false, status: 'APPROVED', errorMessage: null, createdAt: '2026-10-24T12:00:00Z', resolvedAt: '2026-10-24T12:00:00Z', accesses: [] }
+  request.mockImplementation(async path => path === '/' + id ? { ...detail, activeRevisionId: revision.id, revisions: [revision] } : { items: [{ ...detail, latest: revision }], nextCursor: null })
+  render(<RedirectScreen />)
+  fireEvent.click(await screen.findByRole('button', { name: /Comunidade/ }))
+  const trigger = await screen.findByRole('button', { name: 'Alterar destino' })
+  trigger.focus(); fireEvent.click(trigger)
+  const dialog = screen.getByRole('dialog', { name: 'Alterar destino' })
+  screen.getByRole('button', { name: 'Fechar janela' }).focus()
+  fireEvent(dialog, new Event('cancel', { bubbles: true, cancelable: true }))
+  expect(screen.queryByRole('dialog')).toBeNull()
+  expect(document.activeElement).toBe(trigger)
+})
+it('cartão preserva a ordem do estado e título visíveis no nome acessível',()=>{
+ render(<RedirectGrid items={[{...detail,activeRevisionId:'revision',latest:{id:'revision',number:1,label:'Canal da comunidade',destinationUrl:'https://example.com',requiresAge:false,status:'APPROVED',errorMessage:null,createdAt:'2026-10-24T12:00:00Z',resolvedAt:'2026-10-24T12:00:00Z',accesses:[]}}]} pending={false} onOpen={vi.fn()}/> )
+ expect(screen.getByRole('button',{name:'Publicado Canal da comunidade'}).textContent).toContain('Publicado')
+})
 async function fields() {
-  fireEvent.click(await screen.findByRole('button', { name: 'Novo link permanente' })); await screen.findByLabelText('Título do convite')
-  fireEvent.change(screen.getByLabelText('Título do convite'), { target: { value: 'Estudos' } })
-  fireEvent.change(screen.getByLabelText('Destino do convite'), { target: { value: 'https://example.com/convite' } })
-  return screen.getByRole('form', { name: 'Editar convite permanente' })
+  fireEvent.click(await screen.findByRole('button', { name: 'Criar link permanente' })); await screen.findByLabelText('Nome do link')
+  fireEvent.change(screen.getByLabelText('Nome do link'), { target: { value: 'Estudos' } })
+  fireEvent.change(screen.getByLabelText('Link de destino'), { target: { value: 'https://example.com/convite' } })
+  return screen.getByRole('form', { name: 'Editar link permanente' })
 }
 it('F12-C01 vazio, offline, reenvio com mesma identidade e bloqueio de duplicação até persistir', async () => {
   request.mockResolvedValue({ items: [], nextCursor: null })
@@ -19,7 +37,7 @@ it('F12-C01 vazio, offline, reenvio com mesma identidade e bloqueio de duplicaç
   expect(screen.getByText('Crie seu primeiro link permanente para compartilhar um endereço fixo.')).toBeTruthy()
   request.mockRejectedValueOnce(new RedirectRequestError('Sem conexão.'))
   fireEvent.submit(form); await screen.findByRole('alert')
-  expect((screen.getByLabelText('Título do convite') as HTMLInputElement).value).toBe('Estudos')
+  expect((screen.getByLabelText('Nome do link') as HTMLInputElement).value).toBe('Estudos')
   let resolve: (value: unknown) => void = () => {}
   request.mockImplementationOnce(() => new Promise(done => { resolve = done }))
   fireEvent.submit(form); fireEvent.submit(form)
@@ -39,14 +57,14 @@ it('F12-C01 erro de conteúdo conserva os campos e carrega o endereço reservado
   request.mockImplementation(async path => path === '/' + id ? detail : { items: [], nextCursor: null })
   fireEvent.submit(form)
   expect((await screen.findByRole('alert')).textContent).toContain('Conteúdo suspeito')
-  expect((screen.getByLabelText('Destino do convite') as HTMLInputElement).value).toBe('https://example.com/convite')
+  expect((screen.getByLabelText('Link de destino') as HTMLInputElement).value).toBe('https://example.com/convite')
   expect(request.mock.calls.some(([path]) => path === '/' + id)).toBe(true)
 })
 it('F12-C02 falha inicial não cria formulário funcional nem anuncia sucesso; recuperar é explícito', async () => {
   request.mockRejectedValueOnce(new RedirectRequestError('Acesso indisponível.'))
   render(<RedirectScreen />); await screen.findByRole('alert')
-  expect(screen.queryByLabelText('Título do convite')).toBeNull()
+  expect(screen.queryByLabelText('Nome do link')).toBeNull()
   request.mockResolvedValue({ items: [], nextCursor: null }); fireEvent.click(screen.getByRole('button', { name: 'Atualizar dados' }))
-  fireEvent.click(await screen.findByRole('button', { name: 'Novo link permanente' })); await screen.findByLabelText('Título do convite')
+  fireEvent.click(await screen.findByRole('button', { name: 'Criar link permanente' })); await screen.findByLabelText('Nome do link')
   expect(screen.queryByText(/Destino validado\./)).toBeNull()
 })

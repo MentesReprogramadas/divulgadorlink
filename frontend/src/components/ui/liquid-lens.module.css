@@ -1,0 +1,9 @@
+.lens { position: absolute; inset: 0; z-index: -1; display: block; border-radius: inherit; pointer-events: none; isolation: isolate; }
+.definitions { position: absolute; width: 0; height: 0; pointer-events: none; }
+.backdrop { position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(130deg, #ffffff13, #ffffff03 45%, #ffffff0a), var(--glass-tint, #0310162e); backdrop-filter: var(--lens-filter, blur(7px) saturate(1.15)); -webkit-backdrop-filter: var(--lens-filter, blur(7px) saturate(1.15)); }
+.rim { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; box-shadow: inset 0 1.5px 1px #ffffffc7, inset 1.5px 0 1px #e0fff766, inset -1px -1.5px 1px #d6ffff8a, inset 0 0 12px #ffffff13, 0 8px 22px #010b1633; }
+.rim::before { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 2px; background: radial-gradient(ellipse at var(--lens-light-x, 15%) var(--lens-light-y, 0%), #ffffffeb, #a3f7f05c 25%, transparent 55%), linear-gradient(140deg, #ffffff90, transparent 30% 65%, #cdfff6a6); mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); mask-composite: exclude; }
+.rim::after { content: ''; position: absolute; inset: 2px; border-radius: inherit; background: radial-gradient(ellipse at var(--lens-light-x, 20%) var(--lens-light-y, -80%), #ffffff24, transparent 65%); box-shadow: inset 0 2px 4px #ffffff2e, inset 0 -2px 3px #d3fff02e; }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { .backdrop { background: var(--glass-fallback, #173448); } }
+@media (prefers-reduced-transparency: reduce) { .backdrop { background: var(--glass-fallback, #123448); backdrop-filter: none; -webkit-backdrop-filter: none; } .rim { display: none; } }
+@media (forced-colors: active) { .backdrop { background: Canvas; border: 1px solid CanvasText; backdrop-filter: none; -webkit-backdrop-filter: none; } .rim { display: none; } }

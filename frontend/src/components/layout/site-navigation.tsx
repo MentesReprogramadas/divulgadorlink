@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import {useWorkspaceAccess,hasWorkspaceAdmin,workspaceAdminPath} from '@/features/workspace-team/workspace-access'
 import { accountLinks } from '@/domain/account-nav'
 import { WorkspaceNavigation } from '@/features/account/components/workspace-navigation'
+import {BillingAccessProvider} from '@/features/profile-billing/billing-access'
 import { LogoutButton } from '@/features/account/components/logout-button'
 import { readSession, SESSION_EVENT } from '@/domain/session'
 import { OverlayDialog } from '@/components/ui/overlay-dialog'
@@ -12,6 +13,7 @@ import { ActionIcon } from '@/components/ui/action-icon'
 import { navigationIcons, type NavigationDestination } from './navigation-icons'
 import { SidebarLink } from './sidebar-link'
 import styles from './site-shell.module.css'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 
 export function SiteNavigation({ role, support = false }: { role?: string; support?: boolean }) {
   const pathname = usePathname()
@@ -44,6 +46,7 @@ export function SiteNavigation({ role, support = false }: { role?: string; suppo
   return (
     <div className={styles.navigation}>
       <button ref={toggle} type="button" disabled={!ready} aria-busy={!ready || undefined} className={styles.menuToggle} aria-label="Menu" aria-controls="mobile-navigation" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}>
+        <LiquidLens radius={12} />
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d={open ? 'm6 6 12 12M6 18 18 6' : 'M4 6h16M4 12h16M4 18h16'} stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
         </svg>
@@ -54,6 +57,7 @@ export function SiteNavigation({ role, support = false }: { role?: string; suppo
           const primary = item.href === '/cadastro' || item.href === '/painel'
           return (
             <a key={item.href} href={item.href} className={primary ? styles.navPrimary : undefined} aria-current={active ? 'page' : undefined} onClick={() => setOpen(false)}>
+              <LiquidLens radius={12} />
               <ActionIcon name={navigationIcons[item.href as NavigationDestination]} strokeWidth={1.7} />
               <span>{item.label}</span>
             </a>
@@ -66,7 +70,7 @@ export function SiteNavigation({ role, support = false }: { role?: string; suppo
           <nav className={styles.drawerLinks} data-columns={pathname.startsWith('/painel') || pathname.startsWith('/admin') ? 2 : 1} aria-label="Navegação do site">
             {[{ href: '/', label: 'Catálogo' }, ...items].map(item => <SidebarLink key={item.href} href={item.href} active={pathname === item.href}><ActionIcon name={navigationIcons[item.href as NavigationDestination]} strokeWidth={1.7} />{item.label}</SidebarLink>)}
           </nav>
-          {showWorkspace ? <WorkspaceNavigation area={workspace} role={effectiveRole} /> : null}
+          {showWorkspace ? <BillingAccessProvider enabled={access.ready&&workspace==='panel'} canReadBilling={!access.context?.ownerId||access.context.grants?.billing?.read===true} ownerId={access.context?.ownerId??null}><WorkspaceNavigation area={workspace} role={effectiveRole} /></BillingAccessProvider> : null}
           <div className={styles.drawerFooter}>
             {signedIn && !support ? <LogoutButton /> : null}
           </div>

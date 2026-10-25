@@ -1,8 +1,8 @@
 import { ActionIcon } from '@/components/ui/action-icon'
 import { EmptyState } from '@/components/feedback/empty-state'
 import { AdminLinksSkeleton } from './admin-links-skeleton'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import { Button, ButtonLink } from '@/components/ui/button'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 import { LinkPromotionEditor } from './link-promotion-editor'
 import styles from './admin-links-board.module.css'
 
@@ -32,14 +32,15 @@ export function AdminLinksBoard({ links, onWithdraw, loading }: AdminLinksBoardP
           const canWithdraw = row.status === 'PUBLISHED' || row.status === 'PENDING_MODERATION' || row.status === 'PRE_REJECTED'
           return (
             <article key={row.id} className={`${styles.card} ${styles[status.tone]}`} aria-labelledby={`admin-link-${row.id}`}>
+              <LiquidLens radius={24} />
               <span className={styles.badge} aria-label={`Status: ${status.label}`}><span aria-hidden="true" />{status.label}</span>
               <h3 id={`admin-link-${row.id}`}>{row.name || 'Link sem nome'}</h3>
               <p className={styles.destination}><a href={row.url} target="_blank" rel="noreferrer">{row.url}</a></p>
               <p className={styles.owner}>{row.ownerName || 'Sem dono'}{row.ownerEmail ? ` · ${row.ownerEmail}` : ''}</p>
               <p className={styles.hint}>{status.hint}</p>
               <div className={styles.actions}>
-                {row.status === 'PUBLISHED' ? <><Link className="button button-secondary" href={`/link/${row.id}`}>Ver no catálogo</Link><LinkPromotionEditor linkId={row.id} linkName={row.name} /></> : null}
-                {row.status === 'PENDING_MODERATION' ? <Link className="button button-secondary" href={`/admin/moderacao?link=${encodeURIComponent(row.id)}`}>Revisar envio</Link> : null}
+                {row.status === 'PUBLISHED' ? <><ButtonLink variant="secondary" href={`/link/${row.id}`}>Ver no catálogo</ButtonLink><LinkPromotionEditor linkId={row.id} linkName={row.name} /></> : null}
+                {row.status === 'PENDING_MODERATION' ? <ButtonLink variant="secondary" href={`/admin/moderacao?link=${encodeURIComponent(row.id)}`}>Revisar envio</ButtonLink> : null}
                 {canWithdraw ? <Button type="button" variant="danger" disabled={loading} onClick={() => onWithdraw(row)}><ActionIcon name="trash" />{row.status === 'PUBLISHED' ? 'Tirar do ar' : 'Retirar envio'}</Button> : null}
               </div>
             </article>

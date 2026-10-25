@@ -1,3 +1,4 @@
+import { approvedMediaForCards } from '@/http/link-media-projection'
 import {ZodError} from 'zod'
 import {cityById,parseDiscovery,matchesDiscovery,discoverySql,type DiscoveryMetadata} from '@/domain/catalog/discovery-metadata'
 import { searchOutcome } from '@/domain/search/search-observation'
@@ -178,7 +179,8 @@ function toDto(tenantId: string, row: SearchCandidate, threshold: number) {
 
 async function withImpressions<T extends { id: string }>(tenantId: string, rows: T[]) {
   const counts = await getAnalyticsRepository().impressionTotals(tenantId, rows.map((row) => row.id))
-  return rows.map((row) => ({ ...row, impressions: counts.get(row.id) ?? 0 }))
+  const media = await approvedMediaForCards(tenantId, rows)
+  return rows.map((row) => ({ ...row, ...media.get(row.id), impressions: counts.get(row.id) ?? 0 }))
 }
 
 async function loadCandidates(
@@ -336,6 +338,7 @@ export async function getSuggest(request: FastifyRequest, reply: FastifyReply) {
     ? null
     : { kind: resolved.kind, slug: resolved.slug, name: resolved.name }
   const counts = await getAnalyticsRepository().impressionTotals(tenant.id, ids)
+  const media = await approvedMediaForCards(tenant.id, ids.map(id => ({ id })))
   return reply.status(200).send({
     showImpressions: await publicImpressions(tenant.id),
     ...(ageRequired ? { ageRequired: true } : {}),
@@ -346,6 +349,7 @@ export async function getSuggest(request: FastifyRequest, reply: FastifyReply) {
       return {
         id,
         name: row?.name ?? '',
+        ...media.get(id),
         discovery: { city: cityById(row?.cityId), languageTag: row?.languageTag ?? null, modality: row?.modality ?? null },
         surfaceToken: signSurface(tenant.id, id, 'search', env.JWT_SECRET),
         impressions: counts.get(id) ?? 0,

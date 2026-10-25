@@ -9,7 +9,7 @@ export function useChannelSource(resourceId?:string){
  const target=useRef(resourceId)
  const attempt=useRef<{fields:string;key:string;revisionId?:string}|null>(null)
  async function create(label:string,destinationUrl:string,requiresAge:boolean){
-  if(target.current)throw new Error('Peça ao proprietário para criar ou atualizar o convite. Você pode selecionar um convite aprovado ou adicionar um link à página.')
+  if(target.current)throw new Error('Peça ao proprietário para criar ou atualizar o link permanente. Você pode selecionar um link permanente aprovado ou adicionar um link à página.')
   const fields=JSON.stringify({label,destinationUrl,requiresAge})
   if(attempt.current?.fields!==fields)attempt.current={fields,key:crypto.randomUUID()}
   const current=attempt.current!

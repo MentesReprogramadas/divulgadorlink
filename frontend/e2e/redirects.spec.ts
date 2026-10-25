@@ -13,8 +13,8 @@ async function login(page: Page, email = state().owner) {
   await page.goto(A + '/painel/convites')
 }
 async function fill(page: Page, label = 'Comunidade de estudos', destination = 'https://example.com/f12-a') {
-  if (!await page.getByRole('form', { name: 'Editar convite permanente' }).count()) await page.getByRole('button', { name: await page.getByRole('button', { name: 'Editar destino', exact: true }).count() ? 'Editar destino' : 'Novo link permanente', exact: true }).click()
-  await page.getByLabel('Título do convite', { exact: true }).fill(label); await page.getByLabel('Destino do convite', { exact: true }).fill(destination)
+  if (!await page.getByRole('form', { name: 'Editar link permanente' }).count()) await page.getByRole('button', { name: await page.getByRole('button', { name: 'Alterar destino', exact: true }).count() ? 'Alterar destino' : 'Criar link permanente', exact: true }).click()
+  await page.getByLabel('Nome do link', { exact: true }).fill(label); await page.getByLabel('Link de destino', { exact: true }).fill(destination)
 }
 async function save(page: Page) { await page.getByRole('button', { name: 'Validar e salvar destino', exact: true }).click(); await expect(page.getByRole('status').filter({ hasText: 'Destino validado.' })).toBeVisible() }
 async function privateRead(page: Page, id: string) { return page.evaluate(async id => { const r = await fetch('/bff/v1/me/redirects/' + id); return { status: r.status, text: await r.text() } }, id) }
@@ -36,23 +36,23 @@ test('F12-E01/T01/T03/T04/T05 endereço fixo, cópia, destino A/B, validação p
   const external = await externalGuest(info)
   try {
     const guest = external.page
-    await guest.goto(stable); await expect(guest.getByRole('heading', { name: 'Convite fixture A', exact: true })).toBeVisible()
+    await guest.goto(stable); await expect(guest.getByRole('heading', { name: 'Link permanente fixture A', exact: true })).toBeVisible()
     await fill(page, 'LentoFixture', 'https://example.com/f12-b'); await page.getByRole('button', { name: 'Validar e salvar destino', exact: true }).click()
     await expect.poll(async () => (await (await page.request.get(runtime.stubOrigin + '/redirect-validation/pending')).json()).count).toBe(1)
     await expect(page.getByRole('button', { name: 'Validar e salvar destino', exact: true })).toBeDisabled()
-    await guest.goto(stable); await expect(guest.getByRole('heading', { name: 'Convite fixture A', exact: true })).toBeVisible(); expect(guest.url()).not.toContain('f12-b')
+    await guest.goto(stable); await expect(guest.getByRole('heading', { name: 'Link permanente fixture A', exact: true })).toBeVisible(); expect(guest.url()).not.toContain('f12-b')
     await page.request.post(runtime.stubOrigin + '/redirect-validation/release')
     await expect(page.getByRole('status').filter({ hasText: 'Destino validado.' })).toBeVisible(); expect(await page.getByLabel('Link permanente', { exact: true }).inputValue()).toBe(stable)
-    await guest.goto(stable); await expect(guest.getByRole('heading', { name: 'Convite fixture B', exact: true })).toBeVisible()
+    await guest.goto(stable); await expect(guest.getByRole('heading', { name: 'Link permanente fixture B', exact: true })).toBeVisible()
     const response = await publicResponse(guest, id); expect(response.status()).toBe(302); expect(response.headers()['cache-control']).toContain('no-store'); expect(response.headers().location).toBe('https://example.com/f12-b')
     await page.getByRole('button', { name: 'Atualizar dados', exact: true }).click(); await page.getByRole('tab', { name: 'Histórico e acessos', exact: true }).click(); await expect(page.getByRole('region', { name: 'Histórico de destinos' })).toContainText('Versão 2')
     expect(sql(`SELECT COUNT(*) FROM redirect_daily d JOIN redirect_destinations r ON r.id=d."revisionId" WHERE r."handleId"='${id}'`)).toBe('2')
     await page.request.post(runtime.stubOrigin + '/availability/status', { data: { url: 'https://example.com/f12-b', status: 404 } })
-    await guest.goto(stable); await expect(guest.getByRole('heading', { name: 'Convite indisponível', exact: true })).toBeVisible(); expect(await guest.content()).not.toContain('https://example.com/f12-b')
+    await guest.goto(stable); await expect(guest.getByRole('heading', { name: 'Link permanente indisponível', exact: true })).toBeVisible(); expect(await guest.content()).not.toContain('https://example.com/f12-b')
     await expect(guest.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/)
     const refuse = guest.getByRole('region', { name: 'Este site usa cookies' }).getByRole('button', { name: 'Recusar', exact: true }); if (await refuse.count()) await refuse.click()
     await guest.screenshot({ path: info.outputPath('unavailable.png'), fullPage: true })
-    await page.getByRole('tab', { name: 'Endereço', exact: true }).click(); await page.getByRole('button', { name: 'Editar destino', exact: true }).click(); await page.getByRole('form', { name: 'Editar convite permanente' }).screenshot({ path: info.outputPath('destination-form.png') })
+    await page.getByRole('tab', { name: 'Endereço', exact: true }).click(); await page.getByRole('button', { name: 'Alterar destino', exact: true }).click(); await page.getByRole('form', { name: 'Editar link permanente' }).screenshot({ path: info.outputPath('destination-form.png') })
   } finally { await page.request.post(runtime.stubOrigin + '/redirect-validation/release'); await external.browser.close(); await page.request.post(runtime.stubOrigin + '/availability/status', { data: { url: 'https://example.com/f12-b', status: 200 } }) }
   expect(sql(`SELECT COUNT(*) FROM links WHERE "tenantId"='${s.tenantId}'`)).toBe('0')
 })
@@ -79,15 +79,15 @@ test('F12-E03 offline mantém campos, teclado confirma, conflito entre abas e re
   fixture(); await login(page); await fill(page)
   await page.context().setOffline(true); await page.getByRole('button', { name: 'Validar e salvar destino', exact: true }).click()
   await expect(page.getByRole('dialog').getByRole('alert')).toContainText('Sem conexão.')
-  await expect(page.getByLabel('Título do convite', { exact: true })).toHaveValue('Comunidade de estudos')
-  await page.context().setOffline(false); await page.getByLabel('Destino do convite', { exact: true }).focus(); await page.keyboard.press('Enter')
+  await expect(page.getByLabel('Nome do link', { exact: true })).toHaveValue('Comunidade de estudos')
+  await page.context().setOffline(false); await page.getByLabel('Link de destino', { exact: true }).focus(); await page.keyboard.press('Enter')
   await expect(page.getByRole('status').filter({ hasText: 'Destino validado.' })).toBeFocused()
   const context = await browser.newContext({ storageState: await page.context().storageState() })
   try {
-    const other = await context.newPage(); await other.goto(A + '/painel/convites'); await other.getByRole('button', { name: 'Comunidade de estudos · Publicado', exact: true }).click(); await expect(other.getByLabel('Link permanente', { exact: true })).toBeVisible()
+    const other = await context.newPage(); await other.goto(A + '/painel/convites'); await other.getByRole('button', { name: 'Publicado Comunidade de estudos', exact: true }).click(); await expect(other.getByLabel('Link permanente', { exact: true })).toBeVisible()
     await fill(page, 'Atualização A'); await save(page)
     await fill(other, 'Atualização B'); await other.getByRole('button', { name: 'Validar e salvar destino', exact: true }).click()
-    await expect(other.getByRole('dialog').getByRole('alert')).toContainText('outra aba'); await expect(other.getByLabel('Título do convite', { exact: true })).toHaveValue('Atualização B')
+    await expect(other.getByRole('dialog').getByRole('alert')).toContainText('outra aba'); await expect(other.getByLabel('Nome do link', { exact: true })).toHaveValue('Atualização B')
   } finally { await context.close() }
   await page.setViewportSize({ width: 320, height: 844 }); await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; window.scrollTo(0, 0) })
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
@@ -102,7 +102,7 @@ test('F12-E04 restrição de idade oculta destino no HTML e API até o aceite', 
     const guest = external.page; await guest.goto(stable)
     await expect(guest.getByRole('dialog')).toBeVisible(); expect(await guest.content()).not.toMatch(/PrivadoSentinelaF12|f12-adulto/)
     expect(await guest.evaluate(async id => (await fetch('/bff/v1/r/' + id)).json(), id)).toEqual({ restricted: true })
-    await guest.getByRole('button', { name: 'Tenho 18 anos ou mais', exact: true }).click(); await expect(guest.getByRole('heading', { name: 'Convite fixture A', exact: true })).toBeVisible()
+    await guest.getByRole('button', { name: 'Tenho 18 anos ou mais', exact: true }).click(); await expect(guest.getByRole('heading', { name: 'Link permanente fixture A', exact: true })).toBeVisible()
   } finally { await external.browser.close() }
 })
 
@@ -111,7 +111,7 @@ test('F12-E05 cards, abas, foco e alertas separam endereço de histórico', asyn
   if (!info.project.use.isMobile) await page.setViewportSize({ width: 1440, height: 900 })
   fixture(); await login(page); await fill(page); await save(page)
   await page.getByRole('button', { name: 'Voltar', exact: true }).click()
-  const card = page.getByRole('button', { name: 'Comunidade de estudos · Publicado', exact: true })
+  const card = page.getByRole('button', { name: 'Publicado Comunidade de estudos', exact: true })
   await expect(card).toBeFocused()
   await page.evaluate(() => document.fonts.ready)
   await page.screenshot({ path: info.outputPath('invites-grid.png'), fullPage: true, animations: 'disabled' })
@@ -138,7 +138,7 @@ test('F12-E05 cards, abas, foco e alertas separam endereço de histórico', asyn
   await page.getByRole('button', { name: 'Desativar endereço', exact: true }).click()
   await page.getByRole('button', { name: 'Confirmar desativação', exact: true }).click()
   await expect(page.getByText('Endereço desativado definitivamente. Ele não encaminha mais visitantes.')).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Editar destino', exact: true })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Alterar destino', exact: true })).toHaveCount(0)
   await page.screenshot({ path: info.outputPath('invite-disabled.png'), fullPage: true, animations: 'disabled' })
   await page.setViewportSize({ width: 320, height: 844 }); await page.evaluate(() => { document.documentElement.style.fontSize = '200%' })
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)

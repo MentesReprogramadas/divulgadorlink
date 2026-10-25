@@ -1,30 +1,42 @@
 import { renderToString } from 'react-dom/server'
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { SiteNavigation } from './site-navigation'
 import { WorkspaceNavigation } from '@/features/account/components/workspace-navigation'
 
-const { pathname, workspaceAccess } = vi.hoisted(() => ({ pathname: vi.fn(() => '/'), workspaceAccess: vi.fn() }))
+const { pathname, workspaceAccess, push, guard } = vi.hoisted(() => ({ pathname: vi.fn(() => '/'), workspaceAccess: vi.fn(), push:vi.fn(), guard:vi.fn(async()=>{}) }))
 vi.mock('@/features/workspace-team/workspace-access',async original=>({...await original<typeof import('@/features/workspace-team/workspace-access')>(),useWorkspaceAccess:()=>workspaceAccess()??({ready:true,context:{ownerId:null,grants:null},error:''})}))
-vi.mock('next/navigation', () => ({ usePathname: pathname }))
-afterEach(() => { cleanup(); pathname.mockReturnValue('/'); workspaceAccess.mockReset() })
+vi.mock('next/navigation', () => ({ usePathname: pathname, useRouter:()=>({push}) }))
+vi.mock('@/lib/workspace-switch-guards',()=>({prepareWorkspaceSwitch:guard}))
+vi.stubGlobal('ResizeObserver',class{observe(){} unobserve(){} disconnect(){}})
+afterEach(() => { cleanup(); pathname.mockReturnValue('/'); workspaceAccess.mockReset();push.mockReset();guard.mockReset();guard.mockResolvedValue(undefined) })
 
 it('não expõe destinos de edição ou divulgação sem permissão dentro das subseções',()=>{
  workspaceAccess.mockReturnValue({ready:true,context:{ownerId:'shared-owner',grants:{page:{read:true,write:false}}},error:''});pathname.mockReturnValue('/painel/perfil');render(<WorkspaceNavigation area="panel"/>);
- expect(screen.queryByRole('link',{name:'Dados da página',hidden:true})).toBeNull();expect(screen.queryByRole('link',{name:'Aparência',hidden:true})).toBeNull();expect(screen.queryByRole('link',{name:'Importar links',hidden:true})).toBeNull();expect(screen.queryByRole('link',{name:'Campanhas',hidden:true})).toBeNull();expect(screen.queryByRole('link',{name:'Contatos recebidos',hidden:true})).toBeNull();expect(screen.queryByRole('link',{name:'Apresentação para parceiros',hidden:true})).toBeNull();expect(screen.getByRole('link',{name:'Criar imagem de divulgação',hidden:true})).toBeTruthy()
+ expect(screen.queryByRole('link',{name:'Apresentação',hidden:true})).toBeNull();expect(screen.queryByRole('link',{name:'Aparência',hidden:true})).toBeNull();expect(screen.queryByRole('link',{name:'Importar links',hidden:true})).toBeNull();expect(screen.queryByRole('link',{name:'Campanhas',hidden:true})).toBeNull();expect(screen.queryByRole('link',{name:'Contatos recebidos',hidden:true})).toBeNull();expect(screen.queryByRole('link',{name:'Apresentação para parceiros',hidden:true})).toBeNull();expect(screen.getByRole('link',{name:'Criar imagem',hidden:true})).toBeTruthy()
 })
 
-it('seleciona o submenu específico de Minha página e remove Publicação',()=>{
- pathname.mockReturnValue('/painel/perfil/modelos');const view=render(<WorkspaceNavigation area="panel" role="USER"/>);expect(screen.getByRole('link',{name:'Modelos'}).getAttribute('aria-current')).toBe('page');expect(screen.queryByText('Publicação')).toBeNull();expect(screen.getByText('Edição').closest('details')?.open).toBe(true);expect(screen.getByText('Ferramentas').closest('details')?.open).toBe(false);fireEvent.click(screen.getByText('Resultados e divulgação'));expect(screen.getByRole('link',{name:'Campanhas'})).toBeTruthy()
- pathname.mockReturnValue('/painel/perfil/historico');view.rerender(<WorkspaceNavigation area="panel" role="USER"/>);expect(screen.getByRole('link',{name:'Histórico'}).getAttribute('aria-current')).toBe('page');expect(view.container.querySelectorAll('[aria-current]').length).toBe(1)
+it('seleciona a área pela rota e abre somente seu grupo ativo',()=>{
+ pathname.mockReturnValue('/painel/perfil/modelos');const view=render(<WorkspaceNavigation area="panel"/>);expect(screen.getByRole('link',{name:'Modelos'}).getAttribute('aria-current')).toBe('page');expect(screen.getByLabelText('Área do painel').textContent).toContain('Minha página');expect(screen.getByText('Editar página').closest('details')?.open).toBe(true);expect(screen.queryByRole('link',{name:'Links permanentes',hidden:true})).toBeNull();expect(view.container.querySelector('details details')).toBeNull();expect(view.container.querySelectorAll('details[open]')).toHaveLength(1)
+ pathname.mockReturnValue('/painel/perfil/historico');view.rerender(<WorkspaceNavigation area="panel"/>);expect(screen.getByRole('link',{name:'Histórico de versões'}).getAttribute('aria-current')).toBe('page');expect(screen.getByText('Ferramentas').closest('details')?.open).toBe(true);expect(view.container.querySelectorAll('[aria-current]')).toHaveLength(1)
+})
+it('troca de contexto passa pela proteção de rascunho e mantém a área quando salvar falha',async()=>{
+ const user=userEvent.setup();pathname.mockReturnValue('/painel/perfil');render(<WorkspaceNavigation area="panel"/>);guard.mockRejectedValueOnce(new Error('Salve o rascunho antes de sair.'));await user.click(screen.getByLabelText('Área do painel'));await user.click(await screen.findByRole('option',{name:'Meus links'}));expect(await screen.findByRole('alert')).toHaveProperty('textContent','Salve o rascunho antes de sair.');expect(push).not.toHaveBeenCalled();expect(screen.getByLabelText('Área do painel').textContent).toContain('Minha página');await waitFor(()=>expect(screen.getByLabelText('Área do painel').hasAttribute('disabled')).toBe(false));await user.click(screen.getByLabelText('Área do painel'));await user.click(await screen.findByRole('option',{name:'Meus links'}));expect(guard).toHaveBeenCalledTimes(2);expect(push).toHaveBeenCalledWith('/painel')
+})
+it('mantém conta/equipe nos três contextos e não mistura suas ferramentas',()=>{
+ pathname.mockReturnValue('/painel/convites');const view=render(<WorkspaceNavigation area="panel"/>);expect(screen.getByRole('link',{name:'Links permanentes'}).getAttribute('aria-current')).toBe('page');expect(screen.queryByText('Editar página')).toBeNull();expect(screen.queryByRole('link',{name:'Criar link',hidden:true})).toBeNull();expect(screen.getByRole('link',{name:'Equipe e permissões'})).toBeTruthy();expect(screen.getByText('Minha conta')).toBeTruthy();pathname.mockReturnValue('/painel/clientes/acessos');view.rerender(<WorkspaceNavigation area="panel"/>);expect(screen.getByRole('link',{name:'Acessos por página'}).getAttribute('aria-current')).toBe('page');expect(screen.queryByRole('link',{name:'Links permanentes',hidden:true})).toBeNull();expect(screen.getByRole('link',{name:'Equipe e permissões'})).toBeTruthy()
+})
+it('não oferece contexto nem destino sem permissão e não mostra links antes de conferir acesso',()=>{
+ workspaceAccess.mockReturnValue({ready:true,context:{ownerId:'owner',grants:{invitations:{read:true,write:false}}},error:''});pathname.mockReturnValue('/painel/convites');const view=render(<WorkspaceNavigation area="panel"/>);expect(screen.getByRole('link',{name:'Links permanentes'})).toBeTruthy();expect(screen.queryByRole('link',{name:'Links no catálogo'})).toBeNull();expect(screen.queryByText('Editar página')).toBeNull();workspaceAccess.mockReturnValue({ready:false,context:null,error:''});view.rerender(<WorkspaceNavigation area="panel"/>);expect(screen.queryByRole('navigation',{name:'Áreas do painel'})).toBeNull();expect(screen.getByLabelText('Carregando navegação')).toBeTruthy()
 })
 
-it('as subseções de Minha página abrem e fecham de forma independente',()=>{
- pathname.mockReturnValue('/painel/perfil');render(<WorkspaceNavigation area="panel"/>);
- const editing=screen.getByText('Edição'),tools=screen.getByText('Ferramentas');
- expect(editing.closest('details')?.open).toBe(false);fireEvent.click(editing);expect(editing.closest('details')?.open).toBe(true);
- fireEvent.click(tools);expect(tools.closest('details')?.open).toBe(true);expect(editing.closest('details')?.open).toBe(true);
- fireEvent.click(editing);expect(editing.closest('details')?.open).toBe(false);expect(tools.closest('details')?.open).toBe(true);
+it('uma permissão de relatórios não cria acesso visual à área de links',async()=>{
+ workspaceAccess.mockReturnValue({ready:true,context:{ownerId:'owner',grants:{reports:{read:true,write:false}}},error:''});pathname.mockReturnValue('/painel/perfil/metricas');render(<WorkspaceNavigation area="panel"/>);expect(screen.getByRole('link',{name:'Visitas e cliques'})).toBeTruthy();const user=userEvent.setup();await user.click(screen.getByLabelText('Área do painel'));expect(await screen.findByRole('option',{name:'Minha página'})).toBeTruthy();expect(screen.queryByRole('option',{name:'Meus links'})).toBeNull();expect(screen.queryByRole('option',{name:'Outras páginas'})).toBeNull()
+})
+
+it('usa Meus links como padrão de conta e como primeira opção, sem trocar a área de uma rota direta',async()=>{
+ pathname.mockReturnValue('/painel/conta');render(<WorkspaceNavigation area="panel"/>);expect(screen.getByLabelText('Área do painel').textContent).toContain('Meus links');const user=userEvent.setup();await user.click(screen.getByLabelText('Área do painel'));expect((await screen.findAllByRole('option')).map(option=>option.textContent?.replace('✓',''))).toEqual(['Meus links','Minha página','Outras páginas'])
 })
 
 describe('navegação principal', () => {
@@ -32,7 +44,9 @@ describe('navegação principal', () => {
     render(<SiteNavigation />)
     const links = within(screen.getByRole('navigation', { name: 'Navegação principal' })).getAllByRole('link')
     expect(links.map((link) => link.getAttribute('href'))).toEqual(['/busca', '/paginas', '/login', '/cadastro'])
-    for (const link of links) expect(link.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true')
+    const icons = links.map(link => link.querySelector(':scope > svg'))
+    for (const icon of icons) expect(icon?.getAttribute('aria-hidden')).toBe('true')
+    expect(new Set(icons.map(icon => icon?.querySelector('path')?.getAttribute('d'))).size).toBe(links.length)
     expect(screen.queryByRole('button', { name: 'Sair' })).toBeNull()
   })
 
@@ -54,7 +68,7 @@ describe('navegação principal', () => {
     const drawer = screen.getByRole('dialog')
     const site = within(drawer).getByRole('navigation', { name: 'Navegação do site' })
     expect(within(site).getAllByRole('link').map(link => link.textContent)).toEqual(['Catálogo', 'Busca', 'Páginas', 'Painel', 'Admin'])
-    for (const link of within(site).getAllByRole('link')) expect(link.querySelector('svg')).toBeTruthy()
+    for (const link of within(site).getAllByRole('link')) expect(link.querySelector(':scope > svg')?.getAttribute('aria-hidden')).toBe('true')
     const workspace = within(drawer).getByRole('navigation', { name: 'Admin' })
     expect(site.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(within(drawer).getAllByRole('button').at(-1)?.textContent).toBe('Sair')

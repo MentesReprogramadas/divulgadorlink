@@ -24,7 +24,7 @@ it('persiste no agregado real, retoma, limita, audita e reverte sem apagar event
   const network = await db.network.create({ data: { tenantId, name: 'Network', slug: 'network', knownHosts: [] } })
   const niche = await db.niche.create({ data: { tenantId, name: 'Niche', slug: 'niche' } })
   const link = await db.link.create({ data: { tenantId, canonicalUrl: 'https://example.com', name: 'Test', description: 'Test', networkId: network.id, nicheId: niche.id, status: 'PUBLISHED', createdAt: new Date('2026-09-01T00:00Z') } })
-  const real = await db.analyticsEvent.create({ data: { tenantId, linkId: link.id, sessionId: 'real-visitor', surface: 'ORGANIC', kind: 'IMPRESSION', day: new Date('2026-09-01T00:00Z') } })
+  const real = await db.analyticsEvent.create({ data: { tenantId, linkId: link.id, sessionId: 'real-visitor', surface: 'ORGANIC', kind: 'IMPRESSION', day: new Date('2026-09-01T00:00Z'), createdAt: new Date('2026-09-01T00:00Z') } })
   const config = simulationConfig.parse({ until: '2026-10-01T00:00:00.000Z', minViews: 100, maxViews: 100, medianViews: 100, sigma: 0.05, minCtr: 0.4, maxCtr: 0.4 })
   const input: SimulationInput = { tenantId, run: 'integration', config, through: new Date('2026-09-12T00:00Z'), batchSize: 7, dryRun: true, rollback: false }
   const execute = (override: Partial<SimulationInput> = {}) => simulateTraffic(db, { ...input, ...override }, () => {})
@@ -82,6 +82,16 @@ it('persiste no agregado real, retoma, limita, audita e reverte sem apagar event
     expect((await execute(replacement)).impressions).toBeGreaterThanOrEqual(720)
     expect((await execute(replacement)).impressions).toBe(0)
     await execute({ ...replacement, rollback: true })
+    expect(await db.analyticsEvent.count({ where: { tenantId } })).toBe(1)
+    const softConfig = simulationConfig.parse({ ...stronger, maxViews: 20, until: '2026-10-05T03:00:00.000Z', growth: { ...stronger.growth, since: '2026-10-04T03:00:00.000Z', softLimit: true } })
+    const softInput = { run: 'soft-growth', config: softConfig, through: new Date(softConfig.until), dryRun: false }
+    const beforeDryRun = await db.auditLog.count({ where: { tenantId } })
+    expect((await execute({ ...softInput, dryRun: true })).impressions).toBeGreaterThan(20)
+    expect(await db.auditLog.count({ where: { tenantId } })).toBe(beforeDryRun)
+    expect((await execute(softInput)).impressions).toBeGreaterThan(20)
+    expect(await db.auditLog.count({ where: { tenantId, entityType: 'AnalyticsRecovery' } })).toBe(2)
+    expect((await execute(softInput)).impressions).toBe(0)
+    await execute({ ...softInput, rollback: true })
     expect(await db.analyticsEvent.count({ where: { tenantId } })).toBe(1)
   } finally { await db.promotion.delete({ where: { id: promotion.id } }) }
 }, 60000)

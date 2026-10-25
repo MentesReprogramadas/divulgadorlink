@@ -36,3 +36,8 @@ Lote: backend 598/frontend 413, PG novo 19 e regressões PG 78, lint/typecheck/b
 ## Refinamento de entrada e edição — 19/10/2026
 
 [Fluxos guiados F22/F23/F25, decisões, alternativas e provas](refinamento-f22-f23-f25.md). Distribuição orientada na lista de Convites; contato na criação/edição e na visão geral; escolha manual/assistida antes da primeira página. Checkbox corrigido, busca movida para Página e prévia do rascunho nas quatro abas de edição. Mantém 29/42; F28 não iniciada e S7 remoto pendente. Sem commit/push/deploy novos. O registro vinculado complementa as provas históricas, sem reescrever os resultados anteriores.
+
+
+## Nomenclatura e navegação posterior — 21/10/2026
+
+Revisão autorizada: recurso público chamado Links permanentes; distribuição chamada Distribuir acessos. Telas, campos, erros, QR e avisos atualizados. Convites de equipe permanecem distintos; URLs, grants e regras não mudaram. [Mapa e evidências](../frontend-profissional/sidebar-por-contexto-2026-10-21.md).

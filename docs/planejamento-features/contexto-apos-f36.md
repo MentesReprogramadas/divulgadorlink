@@ -1,4 +1,8 @@
-# Contexto para outro chat — parada após F36
+# Contexto histórico após F36 e atualização posterior
+
+**Situação atual — revisão de 21/10/2026:** 41/42 implementações locais. F24/F30/F35/F39/F26/F36 revalidadas e F40 implementada e validada localmente por pedido explícito de revisão das sete áreas. F41 não iniciada. S7/CI/liberação e DNS/TLS real da F10 continuam pendentes. Revisão na árvore local `codex/roadmap-f37-testes`, sem novo commit/push/deploy. [Revisão e evidências](../frontend-profissional/revisao-fluxos-2026-10-21.md), [F40](execucao-f40.md), [como testar](testar-lote-2026-10-21.md).
+
+**Histórico abaixo:** o pedido posterior de revisão das sete áreas superou a indicação de F40 não iniciada. Usar a revisão vinculada acima como estado mais recente; o bloco antigo preserva o contexto da parada anterior.
 
 Texto pronto para copiar. A retomada de implementação depende do novo pedido do usuário; este arquivo registra contexto e não inicia F40/F41 automaticamente.
 

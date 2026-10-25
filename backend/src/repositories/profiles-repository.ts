@@ -15,7 +15,7 @@ import { validateProfile, type ProfileValidationPorts } from '@/use-cases/@Profi
 import { restoreProfileContent } from '@/domain/profiles/profile-history'
 import { availableProfileRevisions, pruneProfileRevisions, recordProfileRevision } from './profile-revisions'
 import { PrismaProfileMedia } from './profile-media'
-import { profileSchedulingCoverage } from './profile-capability-coverage'
+import { profilePaidCapabilityCoverage, profileSchedulingCoverage } from './profile-capability-coverage'
 import { profileBillingRuntime } from '@/lib/profile-billing'
 import { profileNow } from '@/lib/profile-clock'
 import { createHash, randomUUID } from 'node:crypto'
@@ -33,9 +33,9 @@ import {resolveRedirect} from './redirects-repository'
 
 type Actor = ProfileActor
 const include = { reviews: { orderBy: { version: 'desc' as const }, take: 1 }, categories: { orderBy: { position: 'asc' as const } }, items: { orderBy: { position: 'asc' as const } } }
-type Stored = Prisma.ProfileGetPayload<{ include: typeof include }> & {translationContent?:unknown;buttonTestContent?:unknown}
+type Stored = Prisma.ProfileGetPayload<{ include: typeof include }> & {translationContent?:unknown;buttonTestContent?:unknown;blocksContent?:unknown}
 function draft(row: Stored): ProfileContent {
-  return profileInput.parse({...(row.buttonTestContent?{buttonTest:row.buttonTestContent}:{}), ...(row.translationContent?{translations:row.translationContent}:{}), ...(row.appearance ? { appearance: row.appearance } : {}), slug: row.slug, name: row.name, bio: row.bio, avatarAssetId: row.avatarAssetId, requiresAge: row.requiresAge, primaryItemId: row.items.some(i => i.id === row.primaryItemId) ? row.primaryItemId : null, categories: row.categories.map(c => ({ id: c.id, name: c.name, visible: c.visible })), items: row.items.map(i => ({ id: i.id, categoryId: i.categoryId, type: i.type, label: i.label, destination: i.destination, visible: i.visible, ...(i.event?{event:i.event}:{}), ...(i.templateExample ? { templateExample: true } : {}), ...(i.timeZone ? { schedule: { startsAt: i.startsAt?.toISOString() ?? null, endsAt: i.endsAt?.toISOString() ?? null, timeZone: i.timeZone, paused: i.paused } } : {}) })) })
+  return profileInput.parse({...(row.blocksContent?{contentBlocks:row.blocksContent}:{}),...(row.buttonTestContent?{buttonTest:row.buttonTestContent}:{}), ...(row.translationContent?{translations:row.translationContent}:{}), ...(row.appearance ? { appearance: row.appearance } : {}), slug: row.slug, name: row.name, bio: row.bio, avatarAssetId: row.avatarAssetId, requiresAge: row.requiresAge, primaryItemId: row.items.some(i => i.id === row.primaryItemId) ? row.primaryItemId : null, categories: row.categories.map(c => ({ id: c.id, name: c.name, visible: c.visible })), items: row.items.map(i => ({ id: i.id, categoryId: i.categoryId, type: i.type, label: i.label, destination: i.destination, visible: i.visible, ...(i.event?{event:i.event}:{}), ...(i.templateExample ? { templateExample: true } : {}), ...(i.timeZone ? { schedule: { startsAt: i.startsAt?.toISOString() ?? null, endsAt: i.endsAt?.toISOString() ?? null, timeZone: i.timeZone, paused: i.paused } } : {}) })) })
 }
 async function owner(db: Prisma.TransactionClient, actor: Actor, publishing = false) {
   await assertMembership(db,actor,publishing?'PUBLISH':actor.permission??'READ')
@@ -54,16 +54,18 @@ async function locked<T>(db: PrismaClient, actor: Actor, work: (tx: Prisma.Trans
     return result
   })
 }
-async function read(db: Prisma.TransactionClient, actor: Actor) { const row=await db.profile.findUnique({ where: { tenantId_ownerId: { tenantId: actor.tenantId, ownerId: actor.ownerId } }, include });if(!row)return null;const translations=await db.$queryRaw<Array<{content:unknown}>>`SELECT content FROM profile_translations WHERE "profileId"=${row.id} AND "tenantId"=${actor.tenantId} AND "ownerId"=${actor.ownerId}`;const tests=await db.$queryRaw<Array<{content:unknown}>>`SELECT content FROM profile_button_test_drafts WHERE "profileId"=${row.id} AND "tenantId"=${actor.tenantId} AND "ownerId"=${actor.ownerId}`;return{...row,translationContent:translations[0]?.content,buttonTestContent:tests[0]?.content} }
+async function read(db: Prisma.TransactionClient, actor: Actor) { const row=await db.profile.findUnique({ where: { tenantId_ownerId: { tenantId: actor.tenantId, ownerId: actor.ownerId } }, include });if(!row)return null;const translations=await db.$queryRaw<Array<{content:unknown}>>`SELECT content FROM profile_translations WHERE "profileId"=${row.id} AND "tenantId"=${actor.tenantId} AND "ownerId"=${actor.ownerId}`;const tests=await db.$queryRaw<Array<{content:unknown}>>`SELECT content FROM profile_button_test_drafts WHERE "profileId"=${row.id} AND "tenantId"=${actor.tenantId} AND "ownerId"=${actor.ownerId}`;const blocks=await db.$queryRaw<Array<{content:unknown}>>`SELECT content FROM profile_content_blocks WHERE "profileId"=${row.id} AND "tenantId"=${actor.tenantId} AND "ownerId"=${actor.ownerId}`;return{...row,blocksContent:blocks[0]?.content,translationContent:translations[0]?.content,buttonTestContent:tests[0]?.content} }
 function version(row: Stored | null, expected: number) { if ((row?.version ?? 0) !== expected) throw new ProfileError(409, 'O perfil mudou em outra aba. Recarregue os dados antes de salvar.') }
 async function response(db: Prisma.TransactionClient, actor: Actor, row: Stored | null) {
   const now = profileNow(), coverage = await profileSchedulingCoverage(db, actor, profileBillingRuntime().delivered, now)
+  const blocks=await profilePaidCapabilityCoverage(db,actor,profileBillingRuntime().delivered,now,'profile.richBlocks')
   const channels=row?scopedChannelSettings(await readChannelDraft(db,row),draft(row)):{groups:[]},publishedChannels=row?.publishedVersion!==null&&row?.publishedVersion!==undefined?await readChannelRevision(db,row,row.publishedVersion):{groups:[]}
   const access=actor.actorId&&actor.actorId!==actor.ownerId?await db.profileMembership.findUnique({where:{profileId_userId:{profileId:actor.profileId!,userId:actor.actorId}},select:{role:true}}):null
   const review=reviewSummary(row?.reviews[0])
-  return { ...(access?{access:{role:access.role}}:{}),draft: row ? { ...draft(row), version: row.version } : null, publishedVersion: row?.publishedVersion ?? null, publishedContent: row?.publication ? profileInput.parse(row.publishedDraft ?? row.publication) : null, review:access&&review?{...review,canAppeal:false}:review, scheduling: { allowed: coverage.enabled, serverNow: now.toISOString() },...(row&&(channels.groups.length||publishedChannels.groups.length)?{channelGroups:await channelSummary(db,row,draft(row),channels),channelChanges:JSON.stringify(channels)!==JSON.stringify(publishedChannels)}:{}) }
+  return { ...(access?{access:{role:access.role}}:{}),richBlocks:{allowed:blocks.enabled},draft: row ? { ...draft(row), version: row.version } : null, publishedVersion: row?.publishedVersion ?? null, publishedContent: row?.publication ? profileInput.parse(row.publishedDraft ?? row.publication) : null, review:access&&review?{...review,canAppeal:false}:review, scheduling: { allowed: coverage.enabled, serverNow: now.toISOString() },...(row&&(channels.groups.length||publishedChannels.groups.length)?{channelGroups:await channelSummary(db,row,draft(row),channels),channelChanges:JSON.stringify(channels)!==JSON.stringify(publishedChannels)}:{}) }
 }
 async function checkAvatar(db: Prisma.TransactionClient, actor: Actor, content: ProfileContent) {
+  for(const block of content.contentBlocks??[])if(block.type==='IMAGE'&&!await new PrismaProfileMedia(db).get({tenantId:actor.tenantId,ownerId:actor.ownerId,id:block.assetId}))throw new ProfileError(422,'Uma imagem não está disponível nesta conta. Envie novamente.')
   if (content.avatarAssetId && !await new PrismaProfileMedia(db).get({ tenantId: actor.tenantId, ownerId: actor.ownerId, id: content.avatarAssetId })) throw new ProfileError(422, 'A foto não está disponível para esta conta. Envie a imagem novamente.')
 }
 async function checkProfileReferences(db: Prisma.TransactionClient, actor: Actor, content: ProfileContent) {
@@ -72,11 +74,15 @@ async function checkProfileReferences(db: Prisma.TransactionClient, actor: Actor
 }
 async function pruneMedia(db: Prisma.TransactionClient, actor: Actor, keep: string[] = []) {
   const row = await read(db, actor)
+  for(const content of [row?draft(row):null,row?.publication?profileInput.parse(row.publication):null])for(const block of content?.contentBlocks??[])if(block.type==='IMAGE')keep.push(block.assetId)
+  if(row)for(const revision of await availableProfileRevisions(db,row,profileNow()))for(const block of profileInput.parse(revision.snapshot).contentBlocks??[])if(block.type==='IMAGE')keep.push(block.assetId)
   if (row?.avatarAssetId) keep.push(row.avatarAssetId)
   if (row?.publication) { const live = profileInput.parse(row.publication); if (live.avatarAssetId) keep.push(live.avatarAssetId) }
   await db.profileAsset.deleteMany({ where: { tenantId: actor.tenantId, ownerId: actor.ownerId, id: { notIn: keep } } })
 }
 async function writeProfileItems(tx: Prisma.TransactionClient, actor: Actor, profileId: string, content: ProfileContent) {
+  if(content.contentBlocks)await tx.$executeRaw`INSERT INTO profile_content_blocks("profileId","tenantId","ownerId",content) VALUES(${profileId},${actor.tenantId},${actor.ownerId},${JSON.stringify(content.contentBlocks)}::jsonb) ON CONFLICT("profileId") DO UPDATE SET content=EXCLUDED.content`
+  else await tx.$executeRaw`DELETE FROM profile_content_blocks WHERE "profileId"=${profileId} AND "tenantId"=${actor.tenantId} AND "ownerId"=${actor.ownerId}`
   if(content.translations)await tx.$executeRaw`INSERT INTO profile_translations("profileId","tenantId","ownerId",content) VALUES(${profileId},${actor.tenantId},${actor.ownerId},${JSON.stringify(content.translations)}::jsonb) ON CONFLICT("profileId") DO UPDATE SET content=EXCLUDED.content`
   else await tx.$executeRaw`DELETE FROM profile_translations WHERE "profileId"=${profileId} AND "tenantId"=${actor.tenantId} AND "ownerId"=${actor.ownerId}`
   if(content.buttonTest)await tx.$executeRaw`INSERT INTO profile_button_test_drafts("profileId","tenantId","ownerId",content) VALUES(${profileId},${actor.tenantId},${actor.ownerId},${JSON.stringify(content.buttonTest)}::jsonb) ON CONFLICT("profileId") DO UPDATE SET content=EXCLUDED.content`
@@ -96,12 +102,13 @@ async function projection(db: Prisma.TransactionClient, actor: Actor, content: P
   const eligible = links.filter(l => l.niche.tenantId === actor.tenantId && l.network.tenantId === actor.tenantId)
   const now = profileNow(), coverage = await profileSchedulingCoverage(db, actor, profileBillingRuntime().delivered, now)
   if (at && !coverage.enabled) throw new ProfileError(403, 'Agendamento indisponível no seu plano atual.')
-  const projected = profileAt(content, new Set(eligible.map(l => l.id)), at ?? now, coverage.enabled)
+  const blocks=await profilePaidCapabilityCoverage(db,actor,profileBillingRuntime().delivered,now,'profile.richBlocks')
+  const projected = profileAt(content, new Set(eligible.map(l => l.id)), at ?? now, coverage.enabled,blocks.enabled)
   const settings=scopedChannelSettings(channelOverride??(source==='DRAFT'?await readChannelDraft(db,profile):await readChannelRevision(db,profile,publishedRevisionId)),content),channelIds=new Set(settings.groups.flatMap(group=>group.channels.map(channel=>channel.id))),groupIds=new Set(settings.groups.map(group=>group.id))
   const channels=await projectStoredChannels(db,profile,{...projected.content,categories:content.categories.filter(category=>category.visible&&(groupIds.has(category.id)||projected.content.categories.some(row=>row.id===category.id)))},settings),activeIds=new Set(channels.flatMap(group=>group.channels.map(channel=>channel.id)))
   const items=projected.content.items.filter(item=>!channelIds.has(item.id)||activeIds.has(item.id))
   const output={...projected.content,items,categories:content.categories.filter(category=>category.visible&&(channels.some(group=>group.id===category.id)||items.some(item=>item.categoryId===category.id))),primaryItemId:items.some(item=>item.id===content.primaryItemId)?content.primaryItemId:null}
-  const boundaries = [projected.nextBoundary, coverage.until].filter((value): value is Date => value !== null && value > now)
+  const boundaries = [projected.nextBoundary, coverage.until,blocks.until].filter((value): value is Date => value !== null && value > now)
   if(source==='PUBLISHED'&&activeIds.size)boundaries.push(new Date(now.getTime()+PROFILE_CHANNEL_TOKEN_MS))
   const nextBoundary = boundaries.length ? new Date(Math.min(...boundaries.map(value => value.getTime()))) : null
   const adult = output.requiresAge || output.items.some(i => i.type === 'CATALOG' && eligible.some(l => l.id === i.destination && (l.niche.requiresAge || l.network.requiresAge)))||channels.some(group=>group.channels.some(channel=>channel.requiresAge))
@@ -141,6 +148,9 @@ export async function recordProfileChecklistAction(db:PrismaClient,actor:Actor,i
  })
 }
 async function writeDraft(tx:Prisma.TransactionClient,actor:Actor,current:Stored|null,content:ProfileContent){
+ const previous=current?draft(current).contentBlocks??[]:[]
+ const changedBlocks=(content.contentBlocks??[]).some(block=>JSON.stringify(block)!==JSON.stringify(previous.find(old=>old.id===block.id)))
+ if(changedBlocks&&!(await profilePaidCapabilityCoverage(tx,actor,profileBillingRuntime().delivered,profileNow(),'profile.richBlocks')).enabled)throw new ProfileError(403,'Seu plano não inclui blocos de conteúdo. Os blocos salvos são preservados e podem ser removidos.')
  content=reconcileProfileEvents(content,current?.publication?profileInput.parse(current.publication):undefined)
   if (current?.publication && current.slug !== content.slug) throw new ProfileError(409, 'Retire o perfil do ar antes de mudar seu endereço.')
     const changedSchedules = content.items.some(item => item.schedule && JSON.stringify(item.schedule) !== JSON.stringify(current ? draft(current).items.find(old => old.id === item.id)?.schedule : null))
@@ -157,6 +167,7 @@ async function writeDraft(tx:Prisma.TransactionClient,actor:Actor,current:Stored
 export async function saveProfile(db: PrismaClient, actor: Actor, content: ProfileContent, expectedVersion: number) {
   return locked(db, actor, async tx => {
     const current = await read(tx, actor)
+    if(content.contentBlocks===undefined&&current?.blocksContent)content=profileInput.parse({...content,contentBlocks:current.blocksContent})
     if(content.buttonTest===undefined&&current?.buttonTestContent)content=profileInput.parse({...content,buttonTest:current.buttonTestContent})
     if(content.translations===undefined&&current?.translationContent)content=profileInput.parse({...content,translations:current.translationContent})
     content = protectTemplateExamples(current ? draft(current) : null, content)
@@ -183,7 +194,7 @@ export async function readProfileChannelGroups(db:PrismaClient,actor:Actor){
     let available=Boolean(source&&source.status==='APPROVED'&&!source.handle.disabled&&source.handle.activeRevisionId===source.id&&source.destinationUrl===item.destination)
     if(binding.networkId&&!network?.knownHosts.length)available=false
     if(available)try{channelNetwork(network?{...network,tenantId:actor.tenantId}:null,item.destination)}catch{available=false}
-    return{id:item.id,label:item.label,networkId:binding.networkId,destinationRevisionId:binding.revisionId,paused:binding.paused||!item.visible,available,showLabel:binding.showLabel,destinationUrl:item.destination,handleId:source?.handleId,status:source?.status,destinationLabel:source?.label??'Convite indisponível',network:network?{name:network.name,slug:network.slug}:binding.networkId?null:{name:'Site',slug:'site'}}
+    return{id:item.id,label:item.label,networkId:binding.networkId,destinationRevisionId:binding.revisionId,paused:binding.paused||!item.visible,available,showLabel:binding.showLabel,destinationUrl:item.destination,handleId:source?.handleId,status:source?.status,destinationLabel:source?.label??'Link permanente indisponível',network:network?{name:network.name,slug:network.slug}:binding.networkId?null:{name:'Site',slug:'site'}}
    })}
   })}
  },{isolationLevel:'RepeatableRead'})
@@ -219,8 +230,8 @@ export async function saveProfileChannelGroup(db:PrismaClient,actor:Actor,id:str
    const previous=current.groups.find(group=>group.id===id)?.channels.find(binding=>binding.id===channel.id&&binding.revisionId===channel.destinationRevisionId&&binding.networkId===channel.networkId),previousItem=content.items.find(item=>item.id===channel.id&&item.categoryId===id)
    if((channel.paused||!input.visible)&&previous&&previousItem){bindings.push({...previous,paused:channel.paused,showLabel:channel.showLabel});return{id:channel.id,label:channel.label,destination:previousItem.destination,paused:channel.paused}}
    const source=revisions.find(revision=>revision.id===channel.destinationRevisionId&&!revision.handle.disabled&&(revision.status==='APPROVED'?revision.handle.activeRevisionId===revision.id:['PENDING','PENDING_REVIEW','REJECTED','BLOCKED','FAILED'].includes(revision.status)))
-   if(!source)throw new ProfileError(404,'Escolha um convite próprio com uma versão aprovada e ativa.')
-   if(actor.actorId&&actor.actorId!==actor.ownerId&&source.status!=='APPROVED'&&!current.groups.some(group=>group.channels.some(binding=>binding.revisionId===source.id)))throw new ProfileError(404,'Peça ao proprietário para aprovar este convite antes de adicioná-lo à página.')
+   if(!source)throw new ProfileError(404,'Escolha um link permanente próprio com uma versão aprovada e ativa.')
+   if(actor.actorId&&actor.actorId!==actor.ownerId&&source.status!=='APPROVED'&&!current.groups.some(group=>group.channels.some(binding=>binding.revisionId===source.id)))throw new ProfileError(404,'Peça ao proprietário para aprovar este link permanente antes de adicioná-lo à página.')
    const network=channel.networkId?networks.find(candidate=>candidate.id===channel.networkId):null
    if(channel.networkId&&!network)throw new ProfileError(404,'Rede não encontrada para esta página.')
    channelNetwork(network??null,source.destinationUrl);bindings.push({id:channel.id,networkId:channel.networkId,handleId:source.handleId,revisionId:source.id,paused:channel.paused,showLabel:channel.showLabel})
@@ -387,10 +398,10 @@ export async function resolveProfileChannel(db:PrismaClient,tenantId:string,slug
  if(current.profileId!==selected.profileId||current.revisionId!==selected.revisionId||current.binding.revisionId!==selected.binding.revisionId)return{available:false as const}
  return result
 }
-export async function profileAvatar(db: PrismaClient, actor: Actor, id: string, publicSlug?: string) {
+export async function profileAvatar(db: PrismaClient, actor: Actor, id: string, publicSlug?: string, contentImage=false) {
   if (publicSlug) {
     const live = await publicProfile(db, actor.tenantId, publicSlug, actor.age)
-    if (live.restricted || live.avatarAssetId !== id) throw new ProfileError(404, 'Foto não encontrada.')
+    if (live.restricted || (contentImage?!live.contentBlocks?.some(block=>block.type==='IMAGE'&&block.assetId===id):live.avatarAssetId !== id)) throw new ProfileError(404, 'Foto não encontrada.')
     const row = await db.profile.findUniqueOrThrow({ where: { tenantId_slug: { tenantId: actor.tenantId, slug: publicSlug } } })
     actor = { ...actor, ownerId: row.ownerId }
   } else await owner(db, actor)

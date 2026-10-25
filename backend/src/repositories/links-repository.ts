@@ -1,3 +1,5 @@
+import { insertLinkMedia } from './link-media'
+import type { PreparedLinkMedia } from '@/domain/links/link-media'
 import { randomUUID } from 'node:crypto'
 import { Prisma, PrismaClient, type Link as PrismaLink } from '@prisma/client'
 import {
@@ -145,6 +147,7 @@ export type NewLinkData = Omit<
   | 'approvedDescription'
 > & {
   ownerId: string
+  media?: PreparedLinkMedia[]
 }
 
 export interface LinksRepository {
@@ -505,7 +508,7 @@ export class InMemoryLinksRepository implements LinksRepository {
 }
 
 export class PrismaLinksRepository implements LinksRepository {
-  constructor(private readonly client: PrismaClient) {}
+  constructor(readonly client: PrismaClient) {}
 
   async findLinkById(id: string): Promise<LinkRecord | null> {
     const row = await this.client.link.findUnique({ where: { id } })
@@ -730,7 +733,9 @@ export class PrismaLinksRepository implements LinksRepository {
         })
         if (duplicate) throw new DuplicateLinkError()
         const status = decide(LINK_QUOTA - used)
-        const created = await tx.link.create({ data: { ...data, status, occupiesSlot: true } })
+        const { media, ...linkData } = data
+        const created = await tx.link.create({ data: { ...linkData, status, occupiesSlot: true } })
+        if (media?.length) await insertLinkMedia(tx, created.tenantId, created.id, media)
         if (status === 'PENDING_MODERATION') {
           const review = await tx.moderationCase.create({ data: { tenantId: created.tenantId, linkId: created.id } })
           await queueCaseReview(tx, review.id)

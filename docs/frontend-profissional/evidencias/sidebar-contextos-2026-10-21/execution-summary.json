@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-21",
+  "branch": "codex/roadmap-f37-testes",
+  "state": "VALIDATED_LOCAL",
+  "scope": [
+    "Sidebar contexts: page, links, clients",
+    "Permanent link terminology",
+    "Unique navigation icons",
+    "Nested dialog cancel/focus fix"
+  ],
+  "frontend": {
+    "unitTests": 153,
+    "files": 43,
+    "typecheck": 0,
+    "lint": 0,
+    "build": 0
+  },
+  "backend": {
+    "unitAndHttpTests": 20,
+    "files": 6,
+    "typecheck": 0,
+    "lint": 0,
+    "build": 0
+  },
+  "playwright": {
+    "report": "playwright-final.json",
+    "startTime": "2026-10-21T18:37:48.250Z",
+    "duration": 237846.133,
+    "expected": 41,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "graph": {
+    "nodes": 7123,
+    "edges": 24789,
+    "changedFiles": 9,
+    "reusedFiles": 1368,
+    "externalLLM": false
+  },
+  "newDependencies": false,
+  "newMigrations": false,
+  "commit": false,
+  "push": false,
+  "deploy": false,
+  "notes": [
+    "Historical runs overlap, do not sum as unique scenarios",
+    "Public URLs, permission identifiers and moderation prompt preserved",
+    "No messages sent to real WhatsApp group",
+    "No personal database reset or production change",
+    "Browser emulation, no physical-device certification",
+    "Concurrent working tree changes preserved"
+  ]
+}

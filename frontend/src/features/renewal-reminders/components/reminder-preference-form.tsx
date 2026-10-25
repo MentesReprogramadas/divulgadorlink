@@ -1,4 +1,5 @@
 'use client'
+import { Checkbox } from '@/components/ui/checkbox'
 import {useReadOnly} from '@/components/ui/interaction-policy'
 
 import { ActionIcon } from '@/components/ui/action-icon'
@@ -18,7 +19,7 @@ export function ReminderPreferenceForm({ enabled, onSave }: { enabled: boolean; 
     finally { busy.current = false; setPending(false) }
   }
   return <div className={styles.preference}><form aria-label="Preferência de lembretes" onSubmit={submit}>
-    <label className={styles.check}><input type="checkbox" checked={value} disabled={pending||readOnly} onChange={event => { setValue(event.target.checked); setSaved(false) }} aria-describedby="renewal-email-hint" />Receber lembretes por e-mail</label>
+    <label className={styles.check}><Checkbox checked={value} disabled={pending||readOnly} onChange={event => { setValue(event.target.checked); setSaved(false) }} aria-describedby="renewal-email-hint" />Receber lembretes por e-mail</label>
     <p id="renewal-email-hint" className={styles.note}>Um aviso por destaque e vencimento, nos três dias anteriores ao fim. Você pode desligar quando quiser.</p>
     <Button type="submit" disabled={pending||readOnly}><ActionIcon name="save" />{pending ? 'Salvando…' : 'Salvar preferência'}</Button>
     {error ? <p role="alert">{error}</p> : null}

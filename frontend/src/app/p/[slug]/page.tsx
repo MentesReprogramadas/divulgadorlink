@@ -1,3 +1,4 @@
+import {browserPageLocale} from '@/domain/public-page-locale'
 import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
@@ -21,12 +22,13 @@ export async function generateMetadata({ params,searchParams }: { params: Promis
 }
 async function invalidSearch(slug:string,message:string){
   const original=await loadPublicProfile(slug);if(!original)notFound()
-  return <main className={styles.personalPage}>{original.restricted?<ProfileAgeGate/>:<ProfileView content={{...original,items:[],categories:[],primaryItemId:null}} notice={<ErrorState message={message}/>} empty={<ButtonLink href={'/p/'+encodeURIComponent(slug)}><ActionIcon name="resetFilters"/>Limpar busca</ButtonLink>}/>}</main>
+  return <main className={styles.personalPage}>{original.restricted?<ProfileAgeGate/>:<ProfileView content={{...original,items:[],categories:[],contentBlocks:[],primaryItemId:null}} notice={<ErrorState message={message}/>} empty={<ButtonLink href={'/p/'+encodeURIComponent(slug)}><ActionIcon name="resetFilters"/>Limpar busca</ButtonLink>}/>}</main>
 }
 export default async function Page({params,searchParams}:{params:Promise<{slug:string}>;searchParams:Promise<Record<string,string|string[]|undefined>>}){
   const {slug}=await params,values=await searchParams,paramsToRead=new URLSearchParams()
   for(const key of ['q','categoryId','cursor','locale']){const value=values[key];if(Array.isArray(value))value.forEach(item=>paramsToRead.append(key,item));else if(value!==undefined)paramsToRead.set(key,value)}
   let query=emptyProfileQuery();try{query=readProfileSearch(paramsToRead)}catch(reason){return invalidSearch(slug,reason instanceof Error?reason.message:'Confira os filtros.')}
+  if(!query.locale){const locale=browserPageLocale((await headers()).get('accept-language'));if(locale)query={...query,locale}}
   let content,notice=''
   try{content=await loadPublicProfileItems(slug,profileSearchParams(query).toString())}catch(reason){
     if(reason instanceof ProfileSearchLoadError&&reason.status===409&&query.cursor){query={...query,cursor:null};content=await loadPublicProfileItems(slug,profileSearchParams(query).toString());notice='Os resultados mudaram. Mostrando a primeira página.'}

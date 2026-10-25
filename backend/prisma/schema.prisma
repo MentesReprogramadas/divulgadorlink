@@ -311,6 +311,8 @@ model Link {
   languageTag  String?
   modality     String?
   discoveryVersion Int @default(0)
+  mediaVersion Int @default(0)
+  media LinkMediaAsset[]
   status              LinkStatus
   occupiesSlot        Boolean    @default(true)
   everPublished       Boolean    @default(false)
@@ -339,6 +341,21 @@ model Link {
   @@index([tenantId, status, id])
   digestReceipts NicheDigestReceipt[]
   @@map("links")
+}
+
+model LinkMediaAsset {
+  id String @id @default(cuid())
+  tenantId String
+  linkId String
+  link Link @relation(fields: [linkId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  kind String
+  status String @default("PENDING")
+  bytes Bytes
+  alt String?
+  revision Int
+  createdAt DateTime @default(now())
+  @@index([tenantId, status, createdAt])
+  @@map("link_media_assets")
 }
 
 enum EmbeddingState {
@@ -850,6 +867,7 @@ model ProfileHost {
  @@map("profile_hosts")
 }
 model Profile {
+ contentBlocks ProfileContentBlocks?
  agencyClients AgencyClient[]
  ownershipTransfers AgencyProfileTransfer[]
  @@unique([id,tenantId],map:"profiles_id_tenant_key")
@@ -1852,4 +1870,14 @@ model AgencyProfileTransfer {
  @@unique([sourceOwnerId,requestKey])
  @@index([tenantId,recipientHash,status],map:"agency_transfer_recipient")
  @@map("agency_profile_transfers")
+}
+
+model ProfileContentBlocks {
+ profileId String @id
+ tenantId String
+ ownerId String
+ content Json
+ profile Profile @relation(fields:[profileId,tenantId,ownerId],references:[id,tenantId,ownerId],onDelete:Cascade)
+ @@unique([profileId,tenantId,ownerId])
+ @@map("profile_content_blocks")
 }

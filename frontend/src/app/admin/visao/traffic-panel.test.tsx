@@ -48,5 +48,7 @@ describe('tráfego na gestão', () => {
     fireEvent.click(within(screen.getByRole('region',{name:'Entradas por campanha'})).getByRole('tab',{name:'Tabela'}))
     expect(screen.getByText('outubro')).toBeTruthy()
     expect(screen.getByRole('cell',{name:'3'})).toBeTruthy();expect(screen.getByRole('cell',{name:'1'})).toBeTruthy()
+    expect(screen.getByRole('columnheader', { name: 'Cadastros atribuídos' })).toBeTruthy()
+    expect(screen.getByText(/Zero não significa ausência de aceite/)).toBeTruthy()
   })
 })

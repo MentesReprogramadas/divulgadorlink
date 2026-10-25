@@ -3,6 +3,7 @@ import {useEffect,useId,useRef,useState} from 'react'
 import {Input} from '@/components/ui/input'
 import {Button} from '@/components/ui/button'
 import {ActionIcon} from '@/components/ui/action-icon'
+import {LiquidLens} from '@/components/ui/liquid-lens'
 import {api} from '@/lib/api'
 import type {DiscoveryCity,DiscoveryOptions} from './discovery-contract'
 import styles from './discovery.module.css'
@@ -33,7 +34,7 @@ export function CityPicker({id,value,onChange,autoSelectExact=false,disabled=fal
    if(event.key==='ArrowDown'||event.key==='ArrowUp'){event.preventDefault();setOpen(true);setActive(current=>event.key==='ArrowDown'?Math.min(current+1,options.length-1):Math.max(current-1,0))}
    if(event.key==='Enter'&&open){event.preventDefault();if(options[active])choose(options[active])}
   }}/>
-  {open&&options.length>0?<ul className={styles.cityList} id={list} role="listbox" aria-label="Cidades encontradas">{options.map((city,index)=><li key={city.id} id={list+'-'+index} role="option" aria-selected={index===active} onMouseDown={event=>event.preventDefault()} onClick={()=>choose(city)}>{city.name} / {city.state}</li>)}</ul>:null}
+  {open&&options.length>0?<div className={styles.cityPopup}><LiquidLens radius={16}/><ul className={styles.cityList} id={list} role="listbox" aria-label="Cidades encontradas">{options.map((city,index)=><li key={city.id} id={list+'-'+index} role="option" aria-selected={index===active} onMouseDown={event=>event.preventDefault()} onClick={()=>choose(city)}>{city.name} / {city.state}</li>)}</ul></div>:null}
   {open&&loading?<span className={styles.feedback} role="status">Buscando cidades…</span>:null}
   {open&&!loading&&!error&&query.trim().length>=2&&options.length===0?<span className={styles.feedback} role="status">Nenhuma cidade encontrada. Tente o nome ou a UF.</span>:null}
   {error?<div className={styles.feedback} role="alert">{error}<Button type="button" onClick={()=>{if(value)known.current=undefined;setOpen(!value);setAttempt(value=>value+1)}}><ActionIcon name="refresh"/>Tentar de novo</Button></div>:null}

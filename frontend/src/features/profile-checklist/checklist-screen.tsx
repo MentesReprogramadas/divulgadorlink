@@ -10,6 +10,7 @@ import {SkeletonRegion} from '@/components/feedback/skeleton'
 import {profileRequest} from '@/features/profiles/profile-api'
 import type {ProfileChecklist,ChecklistStep,ChecklistState} from './checklist-contract'
 import styles from './checklist.module.css'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 const status:Record<ChecklistState,{label:string;tone:'ok'|'neutral'|'wait'|'warn'}>={COMPLETE:{label:'Concluído',tone:'ok'},PENDING:{label:'Pendente',tone:'neutral'},SUGGESTED:{label:'Opcional',tone:'neutral'},REQUESTED:{label:'Solicitada',tone:'neutral'},IN_REVIEW:{label:'Em análise',tone:'wait'},REJECTED:{label:'Rever decisão',tone:'warn'}}
 const icons:Record<ChecklistStep['id'],ActionIconName>={account:'account',identity:'edit',links:'link',publication:'publish',presentation:'appearance',preview:'preview',share:'copy'}
 const stepIcon=(step:ChecklistStep):ActionIconName=>step.id==='publication'&&step.actionKind==='NAVIGATE'?(step.state==='COMPLETE'?'profile':step.state==='IN_REVIEW'?'reviews':'edit'):icons[step.id]
@@ -23,7 +24,7 @@ function ChecklistContent({value,pending,disabled,working,onAction}:{value:Profi
    <div className={styles.copy}><div className={styles.title}><h3 id={'checklist-'+step.id}><Text value={step.title} pending={pending}/></h3><Badge tone={pending?'neutral':status[step.state].tone}><Text value={status[step.state].label} pending={pending}/></Badge></div><p><Text value={step.description} pending={pending}/></p></div>
    <div className={styles.action}>{step.actionKind==='NAVIGATE'&&step.actionPath?<ButtonLink variant="secondary" href={step.actionPath} aria-disabled={disabled||undefined} onClick={event=>{if(disabled)event.preventDefault()}}><ActionIcon name={stepIcon(step)}/><Text value={step.actionLabel} pending={pending}/></ButtonLink>:<Button variant={step.actionKind==='PUBLISH'?'primary':'secondary'} disabled={disabled||(step.actionKind==='PUBLISH'?!value.canPublish:!step.actionPath)} loading={working===step.id} onClick={()=>onAction(step)}><ActionIcon name={stepIcon(step)}/><Text value={step.actionLabel} pending={pending}/></Button>}</div>
   </li>)}</ul>
- </section>)}</div>
+ <LiquidLens radius={16} /></section>)}</div>
 }
 export function ProfileChecklistScreen({pendingOnly=false}:{pendingOnly?:boolean}={}){
  const router=useRouter(),[value,setValue]=useState<ProfileChecklist|null>(null),[loading,setLoading]=useState(true),[working,setWorking]=useState<string|null>(null),[error,setError]=useState(''),[notice,setNotice]=useState('')

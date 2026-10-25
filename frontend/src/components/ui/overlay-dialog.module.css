@@ -18,3 +18,15 @@
 .dialog[data-variant='sidebar'] .header { padding: var(--space-4); }
 @starting-style { .dialog[open] { opacity: 0; transform: translateY(1rem); } .dialog[data-variant='sidebar'][open] { opacity: 1; transform: translateX(100%); } .dialog[open]::backdrop { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .dialog, .dialog::backdrop { transition: none; } }
+@media (width < 40rem) {
+  .dialog[data-variant='modal'],.dialog[data-size='wide'][data-variant='modal'] { width:calc(100% - 16px);max-height:calc(100dvh - 16px); }
+  .dialog[data-variant='modal'] .header { padding:12px 16px;gap:12px; }
+  .dialog[data-variant='modal'] .body { padding:16px; }
+}
+
+
+.dialog { background: transparent; box-shadow: 0 24px 80px #000b1d66; border: 0; }
+.panel { --lens-frost: 8px; --glass-tint: var(--popup-glass-tint, #0a192fd9); position: relative; isolation: isolate; border-radius: inherit; }
+.header { --glass-tint: var(--popup-glass-tint, #0a192fd9); isolation: isolate; background: transparent; }
+.header button { --glass-tint: #d6fff20d; position: relative; isolation: isolate; background: transparent; border-color: transparent; }
+.dialog::backdrop { background: #010d20a6; backdrop-filter: blur(5px); }

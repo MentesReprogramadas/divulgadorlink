@@ -7,6 +7,8 @@ import { useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Field, TextArea } from '@/components/ui/input'
 import { api } from '@/lib/api'
+import {LiquidLens} from '@/components/ui/liquid-lens'
+import styles from '@/components/forms/public-account.module.css'
 
 export default function Page() {
   const params = useParams<{ id: string }>()
@@ -39,7 +41,7 @@ export default function Page() {
       <h2 className="panel-section-title">Contestar</h2>
       <p className="panel-section-description">Explique o motivo da revisão. O envio de uma contestação não altera a publicação automaticamente.</p>
       {done ? <p role="status">Em revisão</p> : (
-        <form className="auth-form" onSubmit={onSubmit}>
+        <form className={`auth-form ${styles.form}`} onSubmit={onSubmit}><LiquidLens radius={16}/>
           <Field label="Explique o que aconteceu"><TextArea name="text" required /></Field>
           {error ? <p role="alert">{error}</p> : null}
           <Button type="submit" loading={pending}><ActionIcon name="check" />Enviar contestação</Button>

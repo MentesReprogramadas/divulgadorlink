@@ -41,7 +41,7 @@ export function PerformanceScreen({ linkId, filters }: { linkId: string; filters
   return <>
     <div className={styles.back}><ButtonLink variant="ghost" href="/painel/links"><ActionIcon name="back" />Voltar aos seus links</ButtonLink></div>
     {state.kind === 'loading' ? <PerformanceSkeleton filters={filters} /> : null}
-    {state.kind === 'denied' ? <p role="alert">Relatório indisponível para esta conta.</p> : null}
+    {state.kind === 'denied' ? <ErrorState message="Relatório indisponível para esta conta." /> : null}
     {state.kind === 'error' ? <><h2>Resultado do destaque</h2><PerformanceFiltersForm filters={filters} onFiltersChange={onFiltersChange} /><ErrorState onRetry={() => setAttempt(value => value + 1)} /></> : null}
     {state.kind === 'invalid' ? <><h2>Resultado do destaque</h2><p role="alert">{state.message}</p><PerformanceFiltersForm filters={filters} onFiltersChange={onFiltersChange} /></> : null}
     {state.kind === 'ready' ? <PerformanceReport report={state.report} filters={filters} refreshing={refreshing} onFiltersChange={onFiltersChange} onRefresh={() => setAttempt(value => value + 1)} /> : null}

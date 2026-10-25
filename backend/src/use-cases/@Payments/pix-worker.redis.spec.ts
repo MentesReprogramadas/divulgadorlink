@@ -10,6 +10,8 @@ describe('worker real de Pix', () => {
         cwd: path.resolve(__dirname, '../../..'),
         shell: true,
         env: {
+          // Proof subprocesses must not load a developer's .env or external integrations.
+          DOTENV_CONFIG_PATH: process.platform === 'win32' ? 'NUL' : '/dev/null',
           NODE_ENV: 'dev',
           REDIS_URL: process.env.PIX_PROOF_REDIS_URL ?? 'redis://127.0.0.1:6380',
           DATABASE_URL: process.env.PIX_PROOF_DATABASE_URL ?? 'postgresql://divulgador:divulgador@127.0.0.1:5433/divulgador?schema=public',

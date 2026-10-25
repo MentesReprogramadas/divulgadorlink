@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-21",
+  "branch": "codex/roadmap-f37-testes",
+  "frontend": {
+    "typecheck": 0,
+    "lint": 0,
+    "unitFiles": 53,
+    "unitPassed": 207,
+    "build": 0
+  },
+  "backend": {
+    "typecheck": 0,
+    "lint": 0,
+    "unitFiles": 1,
+    "unitPassed": 4,
+    "build": 0
+  },
+  "e2e": {
+    "regression": {
+      "passed": 25,
+      "failed": 0,
+      "includesSetup": 1
+    },
+    "cardsZoom": {
+      "passed": 3,
+      "failed": 0,
+      "includesSetup": 1
+    }
+  },
+  "coreFilesMatchTestedCopy": true,
+  "productionValidated": false,
+  "physicalDeviceTested": false,
+  "commitPushDeploy": false,
+  "newMigrations": false
+}

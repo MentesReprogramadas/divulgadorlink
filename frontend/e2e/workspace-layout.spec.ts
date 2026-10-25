@@ -16,12 +16,42 @@ async function login(page: Page, admin = false) {
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Painel', exact: true })).toBeVisible()
 }
+async function choosePanelArea(page:Page,area:'Minha página'|'Meus links'|'Outras páginas'){
+ const nav=page.getByRole('navigation',{name:'Áreas do painel',exact:true}).filter({visible:true})
+ await nav.getByLabel('Área do painel').click();await page.getByRole('option',{name:area,exact:true}).click()
+ await expect(page).toHaveURL(new RegExp(area==='Minha página'?'\\/painel\\/perfil$':area==='Outras páginas'?'\\/painel\\/clientes$':'\\/painel$'));await expect(page.locator('[data-skeleton]:visible')).toHaveCount(0);await expect(page).toHaveTitle(/\S/)
+}
 async function checkLayout(page: Page) {
   await page.evaluate(async () => { await Promise.all(document.getAnimations().filter(animation => animation.effect?.getTiming().iterations !== Infinity).map(animation => animation.finished.catch(() => undefined))) })
-  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize()!.width + 1)
+  const layout = await page.evaluate(() => ({
+    width: innerWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+    overflowing: [...document.querySelectorAll('main *')].filter(element => element.getBoundingClientRect().right > innerWidth + 1 && !element.closest('[inert]')).slice(-24).map(element => ({
+      tag: element.tagName, className: element.getAttribute('class'), right: element.getBoundingClientRect().right,
+      width: element.getBoundingClientRect().width, visibility: getComputedStyle(element).visibility,
+    })),
+  }))
+  expect(layout.scrollWidth, JSON.stringify(layout.overflowing)).toBeLessThanOrEqual(layout.width + 1)
   const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze()
   expect(result.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) }))).toEqual([])
 }
+
+test('W14 gestão mantém abas ao mudar ações e não mostra filtros vazios',async({page},info)=>{
+ await login(page,true);await page.setViewportSize({width:1920,height:1000});await page.goto(origin+'/admin/visao')
+ await expect(page.locator('[data-skeleton]:visible')).toHaveCount(0)
+ const tabs=page.getByRole('tablist',{name:'Área de gestão em abas'})
+ await expect(tabs).toBeVisible();await expect(page.getByRole('form',{name:'Filtrar gestão'})).toHaveCount(0)
+ await expect(page.locator('main > aside > p')).toHaveCount(0)
+ for(const section of ['Contas','Links','Métricas']){
+  await tabs.getByRole('tab',{name:section,exact:true}).click();await expect(tabs).toBeVisible()
+  await expect(page.getByRole('form',{name:'Filtrar gestão'})).toHaveCount(section==='Métricas'?0:1)
+ }
+ await checkLayout(page);await page.screenshot({path:info.outputPath('office-stable-tabs.png'),fullPage:true,animations:'disabled'})
+ await page.setViewportSize({width:390,height:844});await expect(page.getByRole('combobox',{name:'Área de gestão',exact:true})).toBeVisible()
+ await selectOption(page.getByRole('combobox',{name:'Área de gestão',exact:true}),{label:'Contas'});await expect(page.getByRole('form',{name:'Filtrar gestão'})).toBeVisible()
+ await selectOption(page.getByRole('combobox',{name:'Área de gestão',exact:true}),{label:'Métricas'});await expect(page.getByRole('form',{name:'Filtrar gestão'})).toHaveCount(0)
+ await checkLayout(page)
+})
 
 test('W09 painel e admin aproveitam a largura da tela como o catálogo', async ({ page }, info) => {
   await login(page, true)
@@ -52,38 +82,22 @@ test('W09 painel e admin aproveitam a largura da tela como o catálogo', async (
   await expect(menu).toBeFocused()
 })
 
-test('W10 Minha página mantém submenus espaçosos e acessíveis', async ({ page }, info) => {
-  await login(page)
-  for (const width of [1024, 1440, 1920, 390, 320]) {
-    await page.setViewportSize({ width, height: 900 })
-    await page.goto(origin + '/painel')
-    const mobile = width < 1024
-    if (mobile) await page.getByRole('button', { name: 'Menu', exact: true }).click()
-    const nav = page.getByRole('navigation', { name: 'Áreas do painel', exact: true }).filter({ visible: true })
-    const profile = nav.locator('details').filter({ has: page.locator('summary > span', { hasText: /^Minha página$/ }) })
-    await profile.locator(':scope > summary').focus()
-    await page.keyboard.press('Enter')
-    for (const label of ['Edição', 'Ferramentas', 'Resultados e divulgação']) {
-      await profile.getByText(label, { exact: true }).click()
-    }
-    const exportLink = profile.getByRole('link', { name: 'Importar e exportar', exact: true })
-    const mediaLink = profile.getByRole('link', { name: 'Apresentação para parceiros', exact: true })
-    for (const link of [exportLink, mediaLink]) {
-      await link.scrollIntoViewIfNeeded()
-      await expect(link).toBeVisible()
-      const box = await link.boundingBox()
-      expect(box!.width).toBeGreaterThanOrEqual(175)
-      expect(box!.height).toBeGreaterThanOrEqual(48)
-      expect(await link.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true)
-    }
-    await checkLayout(page)
-    await exportLink.scrollIntoViewIfNeeded()
-    await page.screenshot({ path: info.outputPath('sidebar-expanded-' + width + '.png'), animations: 'disabled', fullPage: true })
-    await mediaLink.focus()
-    await page.keyboard.press('Enter')
-    await expect(page).toHaveURL(origin + '/painel/perfil/midia-kit')
-    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+test('W10 sidebar separa contextos, mantém conta e não aninha menus',async({page},info)=>{
+ await login(page)
+ for(const width of [1024,1440,1920,390,320]){
+  await page.setViewportSize({width,height:900});await page.goto(origin+'/painel');if(width<1024)await page.getByRole('button',{name:'Menu',exact:true}).click()
+  const nav=page.getByRole('navigation',{name:'Áreas do painel',exact:true}).filter({visible:true})
+  await expect(nav.getByRole('link',{name:'Links permanentes',exact:true})).toBeVisible();await expect(nav.getByText('Editar página',{exact:true})).toHaveCount(0)
+  await choosePanelArea(page,'Minha página');await expect(page).toHaveURL(/\/painel\/perfil$/);if(width<1024)await page.getByRole('button',{name:'Menu',exact:true}).click()
+  await expect(nav.getByRole('link',{name:'Links permanentes',exact:true})).toHaveCount(0)
+  for(const [section,label] of [['Editar página','Apresentação'],['Recursos da página','Busca e filtros'],['Resultados','Visitas e cliques'],['Divulgar','Apresentação para parceiros'],['Ferramentas','Importar e exportar página']]){
+   const group=nav.locator('details').filter({has:page.locator('summary > span',{hasText:new RegExp('^'+section+'$')})});await group.locator(':scope > summary').focus();await page.keyboard.press('Enter');await expect(group).toHaveAttribute('open','');await expect(nav.locator('details[open]')).toHaveCount(1);await expect(nav.locator('details details')).toHaveCount(0)
+   const link=group.getByRole('link',{name:new RegExp('^'+label)});await link.scrollIntoViewIfNeeded();await expect(link).toBeVisible();expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(48)
   }
+  await checkLayout(page);await page.screenshot({path:info.outputPath('sidebar-page-'+width+'.png'),animations:'disabled',fullPage:true})
+  await choosePanelArea(page,'Outras páginas');await expect(page).toHaveURL(/\/painel\/clientes$/);if(width<1024)await page.getByRole('button',{name:'Menu',exact:true}).click()
+  await expect(nav.getByRole('link',{name:'Páginas que gerencio'})).toBeVisible();await expect(nav.getByText('Editar página',{exact:true})).toHaveCount(0);await expect(nav.getByRole('link',{name:'Equipe e permissões'})).toBeVisible();await nav.getByRole('button',{name:'Ajuda',exact:true}).click();const help=page.getByRole('dialog',{name:'Como usar o painel',exact:true});await expect(help).toBeVisible();await page.keyboard.press('Escape');await expect(help).toHaveCount(0);await expect(nav.getByRole('button',{name:'Ajuda',exact:true})).toBeFocused();await checkLayout(page);await page.screenshot({path:info.outputPath('sidebar-clients-'+width+'.png'),animations:'disabled',fullPage:true})
+ }
 })
 
 test('W05 ícones distinguem destinos e grupos no painel e admin', async ({ page }, info) => {
@@ -92,8 +106,11 @@ test('W05 ícones distinguem destinos e grupos no painel e admin', async ({ page
     await page.goto(origin + (area === 'panel' ? '/painel' : '/admin/visao'))
     if (info.project.name.includes('mobile')) await page.getByRole('button', { name: 'Menu', exact: true }).click()
     const nav = page.getByRole('navigation', { name: area === 'panel' ? 'Áreas do painel' : 'Admin', exact: true })
-    await nav.locator('summary').click()
-    const symbols = await nav.locator('a:has(svg), summary').evaluateAll(items => items.map(item => ({
+    for (const group of await nav.locator('details').all()) {
+      if (!await group.evaluate(element => (element as HTMLDetailsElement).open)) await group.locator(':scope > summary').click()
+    }
+    // Nested section arrows all mean expand/collapse; destination and category icons must remain unique.
+    const symbols = await nav.locator('a:has(svg), summary:not([data-navigation-section])').evaluateAll(items => items.map(item => ({
       label: item.textContent, drawing: item.querySelector('svg path')?.getAttribute('d'),
     })))
     expect(symbols.every(symbol => symbol.drawing)).toBe(true)
@@ -124,7 +141,14 @@ test('W04 saída fica no cabeçalho ou no final da sidebar e encerra a sessão',
     await expect(logout).toBeVisible()
     const last = await drawer.locator('a, button').last().textContent()
     expect(last).toBe('Sair')
-    expect(await logout.evaluate(el => getComputedStyle(el).color)).toBe('rgb(163, 46, 40)')
+    expect(await logout.evaluate(el => {
+      const sample = document.createElement('span')
+      sample.style.color = 'var(--color-error-text)'
+      el.append(sample)
+      const expected = getComputedStyle(sample).color
+      sample.remove()
+      return getComputedStyle(el).color === expected
+    })).toBe(true)
   } else {
     await expect(page.getByRole('navigation', { name: 'Navegação principal' }).getByRole('button', { name: 'Sair', exact: true })).toBeVisible()
   }
@@ -157,10 +181,12 @@ test('W01 painel: resumo sem abas, menu acessível e filtros combinados recuper�
     await page.keyboard.press('Tab')
     await expect(drawer.getByRole('button', { name: 'Fechar menu' })).toBeFocused()
     await expect(page.getByText('Menu do painel', { exact: true })).toHaveCount(0)
-    await expect(drawer.getByRole('link', { name: 'Links', exact: true })).toBeHidden()
-    await drawer.locator('summary').filter({ hasText: 'Publicação' }).focus()
+    await expect(drawer.getByRole('link', { name: 'Grupos e botões', exact: true })).toHaveCount(0)
+    await choosePanelArea(page,'Minha página');await expect(page).toHaveURL(/\/painel\/perfil$/);await menu.click()
+    const profile = drawer.locator('details').filter({ has: page.locator('summary > span', { hasText: /^Editar página$/ }) })
+    await profile.locator(':scope > summary').focus()
     await page.keyboard.press('Enter')
-    await expect(drawer.getByRole('link', { name: 'Links', exact: true })).toBeVisible()
+    await expect(drawer.getByRole('link', { name: 'Grupos e botões', exact: true })).toBeVisible()
     await checkLayout(page)
     await page.screenshot({ path: info.outputPath('panel-sidebar.png'), animations: 'disabled' })
     await page.keyboard.press('Escape')
@@ -168,8 +194,8 @@ test('W01 painel: resumo sem abas, menu acessível e filtros combinados recuper�
     await menu.click()
   }
   const nav = page.getByRole('navigation', { name: 'Áreas do painel', exact: true })
-  if (!await nav.getByRole('link', { name: 'Links', exact: true }).isVisible()) await nav.getByText('Publicação', { exact: true }).click()
-  await nav.getByRole('link', { name: 'Links', exact: true }).click()
+  if(info.project.name.includes('mobile')){await choosePanelArea(page,'Meus links');await expect(page).toHaveURL(/\/painel$/);await page.getByRole('button',{name:'Menu',exact:true}).click()}
+  await nav.getByRole('link', { name: 'Links no catálogo', exact: true }).click()
   await expect(page.getByLabel('Buscar nos meus links')).toBeVisible()
   if (info.project.name.includes('mobile')) {
     await expect(page.getByLabel('Rede', { exact: true })).toBeHidden()

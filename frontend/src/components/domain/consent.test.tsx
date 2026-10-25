@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Consent, CookieSettings } from './consent'
+import { renderToString } from 'react-dom/server'
 
 vi.mock('next/navigation', () => ({ usePathname: () => '/' }))
 vi.mock('@/lib/api', () => ({ api: vi.fn().mockResolvedValue({ status: 200, body: {} }) }))
@@ -25,6 +26,17 @@ afterEach(() => {
 })
 
 describe('aviso de cookies', () => {
+  it('mantém as escolhas disponíveis quando ResizeObserver não existe', () => {
+    vi.stubGlobal('ResizeObserver', undefined)
+    render(<Consent pending />)
+    fireEvent.click(screen.getByRole('button', { name: 'Recusar' }))
+    expect(document.cookie).toContain('tla_consent=denied')
+    expect(screen.queryByRole('region', { name: 'Este site usa cookies' })).toBeNull()
+  })
+  it('não oferece botões ativos antes da leitura inicial dos cookies', () => {
+    const html = renderToString(<Consent pending />)
+    expect((html.match(/disabled=""/g) ?? []).length).toBe(3)
+  })
   it('F31-T03 an old ads consent does not grant page measurement and optional purposes can be chosen independently',()=>{
     document.cookie='tla_consent=marketing; Path=/'
     render(<><CookieSettings/><Consent pending={false}/></>)

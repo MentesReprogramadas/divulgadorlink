@@ -149,3 +149,28 @@ F29: eventBlock representa o bloco de evento (calendário com marcador de evento
 ## F36 — Clientes, acessos e transferência
 
 `clientPortfolio` representa portfólio, `agencyAccess` aprovação de equipe por cliente e `ownershipTransfer` troca de titularidade; desenhos distintos, sem substituir por um ícone genérico. Edição/consulta/métricas reutilizam seus significados existentes. Navegação entre rotas da agência usa anchors com aria-current e Select da casa quando apertado. Não usar role=tab sem tabpanel: Axe detectou esse problema na primeira rodada e a composição foi corrigida. Capturas e regressão estão em execucao-f36.md.
+
+
+## Revisão das sete áreas — 21/10/2026
+
+Sidebar com grupos exclusivos de um nível, sem submenus em três níveis. Símbolos distintos: catalogPublishing (Links e convites), pageResults (Resultados e divulgação), clientRelations (Contatos e clientes), pageTools (Organização e integrações), accountTools (Conta e preferências), pageDiagnostics (Melhorar minha página). Desenhos existentes conservam seu significado; labels e foco acompanham o ícone. FacetBadge selecionável é um botão com aria-pressed, contraste/foco explícitos e mesmo vocabulário das facetas da home. Rotas/visibilidade continuam filtradas pelas permissões do servidor. [Validação](revisao-fluxos-2026-10-21.md).
+
+
+## Segunda revisão da sidebar — contextos, 21/10/2026
+
+`permanentLink` identifica Links permanentes em sidebar, cards, grupos da página e atalhos; envelope não representa este recurso. `pageEditing` identifica Editar página, `pagePromotion` identifica Divulgar e `navigationHelp` identifica ajuda do painel. Cada desenho é distinto dos destinos, edição genérica, megafone e equipe. Seletor de contexto reutiliza o símbolo do mesmo contexto; opções e valor selecionado não representam funções diferentes. Teste percorre Meus links, Minha página, Clientes e Admin e compara os desenhos reais. [Estrutura/validação](sidebar-por-contexto-2026-10-21.md).
+
+
+## Recursos da página — 21/10/2026
+
+pageResources identifica o grupo Recursos da página; pageSearch, busca dentro da página; pageDiscovery, participação na descoberta. Formulário reutiliza contactForm por representar o mesmo formulário, sem reutilizar contactInbox dos contatos recebidos. attention destaca requisitos da comparação, enquanto external, followProfile/unfollowProfile continuam significando abrir e seguir/deixar de seguir. A exclusividade dos destinos e grupos permanece coberta pelos testes de navegação.
+
+
+## Assinatura e blocos — 21/10/2026
+
+`subscriptionLock` expressa o mesmo bloqueio por assinatura em menus e ações; não substitui o símbolo de destino em itens liberados. `pageContent` identifica os blocos de texto, imagem e vídeo e tem desenho distinto dos grupos, aparência, formulário e ferramentas. Planos e assinatura permanece como destino comum do menu.
+
+
+## Prévia Ondas — 23/10/2026
+
+Ícones experimentais locais em wave-facet-icon.tsx: Todos (bússola), Viagens (montanhas), Gastronomia (talheres), Fotografia (câmera DSLR), Comunidade (conversa), Canal (antena) e Conteúdo (jornal). Tecnologia, Música, Jogos e Educação reutilizam o desenho canônico de marks para o mesmo assunto. Favoritos mantém estrela e patrocinado mantém megafone. O mapa não altera cadastros ou regras dos nichos reais; cobertura/exclusividade local testada junto aos contratos de ícones existentes. [Registro da revisão](ondas-brand-search.md).

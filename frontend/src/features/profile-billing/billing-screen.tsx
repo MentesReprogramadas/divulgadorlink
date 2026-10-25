@@ -10,8 +10,12 @@ import { ErrorState } from '@/components/feedback/error-state'
 import { Skeleton, SkeletonRegion } from '@/components/feedback/skeleton'
 import { billingRequest } from './billing-api'
 import { BillingPlanCard } from './billing-plan-card'
-import { billingDate, billingMoney, billingStatus, OPEN_SUBSCRIPTION_STATES, safeBillingCheckout, type BillingOperation, type BillingState, type ProfilePlan } from './billing-contract'
+import {SubscriptionCheckout} from './subscription-checkout'
+import {BillingOnboarding} from './billing-onboarding'
+import {paidFeature,paidFeatures} from './billing-access'
+import { billingDate, billingStatus, OPEN_SUBSCRIPTION_STATES, safeBillingCheckout, type BillingOperation, type BillingState, type ProfilePlan } from './billing-contract'
 import styles from './billing.module.css'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 
 function CurrentSubscription({state,loading=false}: {state?:BillingState;loading?:boolean}) {
   const row=state?.subscription
@@ -21,23 +25,24 @@ function CurrentSubscription({state,loading=false}: {state?:BillingState;loading
     <p className={styles.muted}>{state?value(row?.cancelAtPeriodEnd?'Renovação cancelada. O saldo pago permanece até o fim da cobertura.':row?.nextPlan?'Próximo ciclo: '+row.nextPlan.title+'. O plano atual continua até a troca.':'Sua página e o conteúdo gratuito são preservados em qualquer plano.'):<Skeleton width="85%" height={24}/>}</p>
     {row?.periodEnd || row?.paidThrough ? <dl className={styles.dates}>{row.periodEnd?<div><dt>Fim do ciclo</dt><dd>{value(billingDate(row.periodEnd))}</dd></div>:null}{row.paidThrough?<div><dt>Pagamento confirmado até</dt><dd>{value(billingDate(row.paidThrough))}</dd></div>:null}</dl>:null}
     {row?.reviewReason?<p className={styles.muted}>{value('Há uma conferência pendente. Nenhuma confirmação depende só do retorno do checkout.')}</p>:null}
-  </article>
+  <LiquidLens radius={16} /></article>
 }
 export function BillingSkeleton() {
   return <SkeletonRegion label="Carregando assinatura"><div className={styles.page}><WorkspaceActions><Skeleton width={44} height={44}/></WorkspaceActions><CurrentSubscription/><div className={styles.cards}>{[0,1,2].map(index=><BillingPlanCard key={index}/>)}</div></div></SkeletonRegion>
 }
 type Confirmation = {kind:'CHECKOUT'|'CHANGE';plan:ProfilePlan}|{kind:'CANCEL'}
-export function BillingScreen() {
+export function BillingScreen({requiredFeature}:{requiredFeature?:string}={}) {
   const [data,setData]=useState<{state:BillingState;plans:ProfilePlan[]}|null>(null),[loading,setLoading]=useState(true),[error,setError]=useState(''),[notice,setNotice]=useState('')
   const [confirmation,setConfirmation]=useState<Confirmation|null>(null),[operation,setOperation]=useState<{id:string;redirect:boolean}|null>(null),[pending,setPending]=useState(false)
+  const feature=paidFeature(requiredFeature??null)
   const alive=useRef(false),sequence=useRef(0),busy=useRef(false),intent=useRef<{payload:string;key:string}|null>(null)
   const load=useCallback(async()=>{
     const current=++sequence.current;setLoading(true);setError('')
-    try { const [state,catalog]=await Promise.all([billingRequest<BillingState>('/me/subscription'),billingRequest<{plans:ProfilePlan[]}>('/profile-plans')]);if(alive.current&&current===sequence.current) setData({state,plans:catalog.plans}) }
+    try { const [state,catalog]=await Promise.all([billingRequest<BillingState>('/me/subscription'),billingRequest<{plans:ProfilePlan[]}>('/profile-plans')]);if(alive.current&&current===sequence.current){setData({state,plans:catalog.plans});window.dispatchEvent(new Event('profile-billing-changed'))} }
     catch(reason){if(alive.current&&current===sequence.current)setError(reason instanceof Error?reason.message:'Não foi possível carregar.')}
     finally{if(alive.current&&current===sequence.current)setLoading(false)}
   },[])
-  useEffect(()=>{alive.current=true;void load();const returned=new URLSearchParams(window.location.search).get('checkout');if(returned)setNotice(returned==='returned'?'Você voltou do pagamento. Aguarde a confirmação; retornar não ativa o plano.':'Pagamento interrompido. Confira a situação antes de recomeçar.');return()=>{alive.current=false;sequence.current++}},[load])
+  useEffect(()=>{alive.current=true;void load();const query=new URLSearchParams(window.location.search);const returned=query.get('checkout');if(returned)setNotice(returned==='returned'?'Você voltou do pagamento. Aguarde a confirmação; retornar não ativa o plano.':'Pagamento interrompido. Confira a situação antes de recomeçar.');return()=>{alive.current=false;sequence.current++}},[load])
   useEffect(()=>{
     if(!operation)return
     let stopped=false,attempt=0,timer:ReturnType<typeof setTimeout>|undefined
@@ -78,19 +83,24 @@ export function BillingScreen() {
   }
   if(!data&&loading)return <BillingSkeleton/>
   const sub=data?.state.subscription,open=Boolean(sub&&OPEN_SUBSCRIPTION_STATES.includes(sub.status)),blocked=pending||Boolean(operation)||loading||Boolean(data?.state.operations.length)
+  if(data?.state.checkoutRequirement&&!open)return <BillingOnboarding requirement={data.state.checkoutRequirement}/>
+  const plans=data?.plans.filter(plan=>plan.tier==='FREE'||plan.available||plan.versionId===sub?.planVersionId)??[]
+  const featured=plans.filter(plan=>plan.tier!=='FREE'&&plan.available&&(!feature||plan.capabilities.some(item=>item.key===feature&&item.delivered))).sort((a,b)=>(a.amountCents??Infinity)-(b.amountCents??Infinity))[0]
+  if(data&&!open&&!plans.some(plan=>plan.tier!=='FREE'&&plan.available))return <section className={styles.onboarding} aria-label="Sua página gratuita"><h2>Sua página continua gratuita</h2><p>Continue editando e publicando sua página. Os planos pagos aparecerão aqui quando estiverem disponíveis para contratar.</p><ButtonLink href="/painel/perfil">Editar minha página</ButtonLink><LiquidLens radius={16}/></section>
   const body=data?<div className={styles.stack}>
-    <CurrentSubscription state={data.state} loading={loading}/>
-    {data.state.checkoutRequirement?<p className={styles.notice}>{data.state.checkoutRequirement==='VERIFY'?'Confirme seu e-mail antes de assinar.':'Crie sua página gratuita antes de escolher uma assinatura.'} <ButtonLink href={data.state.checkoutRequirement==='VERIFY'?'/painel/verificar':'/painel/perfil'}><ActionIcon name={data.state.checkoutRequirement==='VERIFY'?'check':'edit'}/>{data.state.checkoutRequirement==='VERIFY'?'Verificar conta':'Criar minha página'}</ButtonLink></p>:null}
-    <div className={styles.cards}>{data.plans.map(plan=><BillingPlanCard key={plan.tier} plan={plan} loading={loading} disabled={blocked||!data.state.canCheckout||open&&(!sub?.canChange||sub.planVersionId===plan.versionId)} action={open?'Trocar no próximo ciclo':'Assinar plano'} onChoose={()=>{intent.current=null;setError('');setConfirmation({kind:open?'CHANGE':'CHECKOUT',plan})}}/>)}</div>
+    <div className={styles.planIntro}>{feature?<><h2>{paidFeatures[feature].title}</h2><p>{paidFeatures[feature].description}</p></>:<p>Compare os recursos e escolha seu plano. Cobrança mensal, com cancelamento da renovação pelo painel.</p>}</div>
+    {feature&&!featured?<p className={styles.muted}>Este recurso não está disponível para contratação no momento.</p>:null}
+    <div className={styles.cards}>{plans.map(plan=><BillingPlanCard key={plan.tier} plan={plan} highlighted={featured?.tier===plan.tier} current={sub?.hasPaidAccess?sub.planVersionId===plan.versionId:plan.tier==='FREE'} loading={loading} disabled={blocked||!data.state.canCheckout||open&&(!sub?.canChange||sub.planVersionId===plan.versionId)} action={open?'Trocar no próximo ciclo':'Assinar plano'} onChoose={()=>{intent.current=null;setError('');setConfirmation({kind:open?'CHANGE':'CHECKOUT',plan})}}/>)}</div>
+    {sub?<CurrentSubscription state={data.state} loading={loading}/>:null}
     <p className={styles.muted}>A marca Tem Link Aqui permanece em todos os planos. Trocas e cancelamentos de planos pagos valem para o próximo ciclo; seu conteúdo é preservado.</p>
   </div>:null
   return <section className={styles.page} aria-label="Assinatura da minha página">
     <WorkspaceActions>{sub?.resumeCheckoutUrl?<Button disabled={blocked} onClick={()=>window.location.assign(safeBillingCheckout(sub.resumeCheckoutUrl!))}><ActionIcon name="payment"/>Continuar pagamento</Button>:null}{open&&!sub?.cancelAtPeriodEnd?<Button variant="secondary" disabled={blocked} onClick={()=>{intent.current=null;setError('');setConfirmation({kind:'CANCEL'})}}><ActionIcon name="disable"/>Cancelar renovação</Button>:null}{sub?<Button variant="secondary" disabled={blocked} onClick={()=>void reconcile()}><ActionIcon name="check"/>Conferir pagamento</Button>:null}<RefreshButton label="Atualizar situação" disabled={pending||Boolean(operation)} onClick={()=>void load()}/></WorkspaceActions>
     {notice?<p role="status" className={styles.notice}>{notice}</p>:null}{error&&!confirmation?<ErrorState message={error} onRetry={()=>void load()}/>:null}{data?.state.operations.length&&!operation?<p role="status" className={styles.notice}>Há uma solicitação em processamento. Atualize a situação antes de fazer outra.</p>:null}
     {loading&&data?<SkeletonRegion label="Atualizando assinatura">{body}</SkeletonRegion>:body}
-    <OverlayDialog open={Boolean(confirmation)} title={confirmation?.kind==='CANCEL'?'Cancelar renovação':confirmation?.kind==='CHANGE'?'Confirmar troca':'Confirmar assinatura'} onClose={()=>{if(!pending)setConfirmation(null)}}><div className={styles.dialog}>
-      {confirmation?.kind==='CANCEL'?<p>O plano pago deixa de renovar. O período já pago continua disponível e sua página gratuita é preservada.</p>:confirmation?<><p>{confirmation.plan.title} · {confirmation.plan.amountCents!==null?billingMoney(confirmation.plan.amountCents,confirmation.plan.currency)+' por mês':''}</p><p className={styles.muted}>{confirmation.kind==='CHANGE'?'A troca ocorre no próximo ciclo, sem cobrança proporcional agora.':'A cobrança é mensal e recorrente. Você pode cancelar a renovação pelo painel. O pagamento abre no checkout seguro.'}</p></>:null}
-      {error?<p role="alert">{error}</p>:null}<WorkspaceActions><Button variant="secondary" disabled={pending} onClick={()=>setConfirmation(null)}><ActionIcon name="back"/>Voltar</Button><Button loading={pending} onClick={()=>void submit()}><ActionIcon name={confirmation?.kind==='CANCEL'?'disable':'check'}/>{confirmation?.kind==='CHECKOUT'?'Ir para pagamento':'Confirmar'}</Button></WorkspaceActions>
+    <OverlayDialog open={Boolean(confirmation)} size={confirmation?.kind==='CANCEL'?'default':'wide'} closeDisabled={pending} title={confirmation?.kind==='CANCEL'?'Cancelar renovação':confirmation?.kind==='CHANGE'?'Confirmar troca':'Confirmar assinatura'} onClose={()=>{if(!pending)setConfirmation(null)}}><div className={styles.dialog}>
+      {confirmation?.kind==='CANCEL'?<p>O plano pago deixa de renovar. O período já pago continua disponível e sua página gratuita é preservada.</p>:confirmation?<SubscriptionCheckout plan={confirmation.plan} changing={confirmation.kind==='CHANGE'}/>:null}
+      {error?<p role="alert">{error}</p>:null}<div className={styles.confirmationActions}><WorkspaceActions><Button variant="secondary" disabled={pending} onClick={()=>setConfirmation(null)}><ActionIcon name="back"/>Voltar</Button><Button loading={pending} onClick={()=>void submit()}><ActionIcon name={confirmation?.kind==='CANCEL'?'disable':'check'}/>{confirmation?.kind==='CHECKOUT'?'Ir para pagamento':'Confirmar'}</Button></WorkspaceActions><LiquidLens radius={16}/></div>
     </div></OverlayDialog>
   </section>
 }

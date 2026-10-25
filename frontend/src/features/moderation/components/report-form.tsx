@@ -1,6 +1,7 @@
 'use client'
 
 import { ActionIcon } from '@/components/ui/action-icon'
+import { LiquidLens } from '@/components/ui/liquid-lens'
 
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -27,7 +28,7 @@ export function ReportForm({ name, onSubmit }: ReportFormProps) {
   }
   return <section className={styles.page} aria-label="Denunciar um link">
     <header><h2>Denunciar um link</h2><p>{name}</p></header>
-    {receipt ? <div role="status" className={styles.receipt}><h3 ref={receiptHeading} tabIndex={-1}>Denúncia registrada</h3><p>Protocolo: <strong>{receipt.id}</strong></p><p>{REPORT_STATUS[receipt.status]}</p></div> : <div className={styles.form}><form className={styles.fields} aria-label="Denunciar um link" onSubmit={event => void submit(event)}>
+    {receipt ? <div role="status" className={styles.receipt}><LiquidLens radius={24} /><h3 ref={receiptHeading} tabIndex={-1}>Denúncia registrada</h3><p>Protocolo: <strong>{receipt.id}</strong></p><p>{REPORT_STATUS[receipt.status]}</p></div> : <div className={styles.form}><LiquidLens radius={16} /><form className={styles.fields} aria-label="Denunciar um link" onSubmit={event => void submit(event)}>
       <Field label="Motivo"><Select name="reason" required defaultValue="" disabled={pending}>
         <option value="" disabled>Escolha um motivo</option>
         <optgroup label="Disponibilidade"><option value="EXPIRED_INVITE">Convite expirado</option><option value="UNAVAILABLE_DESTINATION">Destino indisponível</option></optgroup>
