@@ -32,6 +32,65 @@ test.afterEach(async ({ browser, context }) => {
   await Promise.all(browser.contexts().filter(candidate => candidate !== context).map(candidate => candidate.close()))
 })
 
+test('home mantém contornos e fundo durante rolagem, redimensionamento e recuperação da GPU', async ({ page }, info) => {
+  test.setTimeout(120_000)
+  await page.context().addCookies([{ name: 'tla_consent', value: 'denied', domain: 'tenant-a.localhost', path: '/' }])
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto(A)
+  const card = page.locator('.link-row:not(:has(> img))').first(), body = card.locator('[data-card-content]')
+  await expect(card).toBeVisible()
+  const radius = await card.evaluate(element => getComputedStyle(element).borderTopLeftRadius)
+  await expect(body).toHaveCSS('border-top-left-radius', radius)
+  await card.screenshot({ path: info.outputPath('organic-rounded.png'), animations: 'disabled' })
+  // Presentation-only variant: payment eligibility is exercised by the existing promotion tests.
+  await card.evaluate(element => element.setAttribute('data-featured', 'true'))
+  await expect(body).toHaveCSS('border-top-left-radius', radius)
+  await card.screenshot({ path: info.outputPath('sponsored-rounded.png'), animations: 'disabled' })
+  const canvas = page.locator('canvas').first()
+  const ground = canvas.locator('..')
+  const available = await canvas.evaluate(element => !!(element as HTMLCanvasElement).getContext('webgl'))
+  if (available) {
+    await expect(canvas).toHaveAttribute('data-renderer', 'webgl')
+    expect(await canvas.evaluate(element => (element as HTMLCanvasElement).getContext('webgl')!.getContextAttributes()!.alpha)).toBe(true)
+  } else await expect(canvas).toBeHidden()
+  for (const [width, height] of [[390, 650], [390, 844], [844, 390], [1440, 900]]) {
+    await page.setViewportSize({ width, height })
+    for (const offset of [500, 1100, 0]) {
+      await page.evaluate(y => scrollTo(0, y), offset)
+      await expect.poll(() => ground.evaluate(element => {
+        const box = element.getBoundingClientRect()
+        const viewport = window.visualViewport
+        // Engines expose the reserved scrollbar gutter in different viewport metrics.
+        const width = Math.min(document.body.clientWidth, viewport?.width ?? innerWidth)
+        const height = Math.min(innerHeight, viewport?.height ?? innerHeight)
+        return box.left <= 0 && box.top <= 0 && box.right >= width && box.bottom >= height
+      })).toBe(true)
+    }
+  }
+  if (available) {
+    const canLose = await canvas.evaluate(element => {
+      const target = element as HTMLCanvasElement & { lossFixture?: WEBGL_lose_context }
+      target.lossFixture = target.getContext('webgl')!.getExtension('WEBGL_lose_context') ?? undefined
+      target.lossFixture?.loseContext()
+      return !!target.lossFixture
+    })
+    if (canLose) {
+      await expect(canvas).not.toHaveAttribute('data-renderer', 'webgl')
+      await expect(canvas).toBeHidden()
+      expect(await ground.evaluate(element => getComputedStyle(element).backgroundImage)).toContain('radial-gradient')
+      await page.screenshot({ path: info.outputPath('gpu-loss-fallback.png'), animations: 'disabled' })
+      await canvas.evaluate(element => (element as HTMLCanvasElement & { lossFixture: WEBGL_lose_context }).lossFixture.restoreContext())
+      await expect(canvas).toHaveAttribute('data-renderer', 'webgl')
+      await expect(canvas).toBeVisible()
+    }
+  }
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await expect.poll(() => ground.evaluate(element => element.getAnimations({ subtree: true }).filter(animation => animation.playState === 'running').length)).toBe(0)
+  await page.screenshot({ path: info.outputPath('mobile-scroll-restored.png'), animations: 'disabled' })
+})
+
 test('home masonry preenche espaços entre capas e cards sem imagem', async ({ page }, info) => {
   test.setTimeout(120_000)
   const prefix = 'home-masonry-'
@@ -61,19 +120,26 @@ test('home masonry preenche espaços entre capas e cards sem imagem', async ({ p
     })
   }
   const maxGap = async () => Math.max(0, ...await gaps())
+  const incorrectCorners = () => cards.evaluateAll(elements => elements.flatMap(element => {
+    const body = element.querySelector<HTMLElement>('[data-card-content]')!
+    const expected = element.firstElementChild === body ? getComputedStyle(element).borderTopLeftRadius : '0px'
+    return getComputedStyle(body).borderTopLeftRadius === expected ? [] : [element.getAttribute('data-link-id')]
+  }))
   try {
     await page.goto(A + '/?languageTag=ja&modality=ONLINE&cursor=' + cursor)
     await expect(cards.first()).toBeVisible()
+    await expect(region.locator('[data-packed]')).toBeVisible()
     await page.evaluate(() => document.fonts.ready)
     for (const width of [1440, 800, 720, 390, 320]) {
       await page.setViewportSize({ width, height: 900 })
-      await cards.locator('img').first().scrollIntoViewIfNeeded()
+      await cards.locator('img').first().evaluate(image => image.scrollIntoView({ block: 'center' }))
       await expect.poll(() => cards.locator('img').first().evaluate(image => (image as HTMLImageElement).naturalWidth > 0)).toBe(true)
       await cards.first().evaluate(element => window.scrollTo(0, element.getBoundingClientRect().top + scrollY - 100))
       await expect.poll(maxGap).toBeLessThanOrEqual(width > 1100 ? 24 : width > 600 ? 17 : 22)
-      expect(Math.min(...await gaps())).toBeGreaterThanOrEqual(width > 1100 ? 22 : width > 600 ? 15 : 20)
+      await expect.poll(async () => Math.min(...await gaps())).toBeGreaterThanOrEqual(width > 1100 ? 22 : width > 600 ? 15 : 20)
       await page.screenshot({ path: info.outputPath(`masonry-${width}.png`), animations: 'disabled' })
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+      expect(await incorrectCorners()).toEqual([])
       const boxes = await geometry()
       expect(new Set(boxes.map(box => Math.round(box.x))).size).toBe(width > 850 ? 3 : width > 600 ? 2 : 1)
       for (let index = 1; index < boxes.length; index++) expect(boxes[index].top).toBeGreaterThanOrEqual(boxes[index - 1].top - 1)
@@ -88,6 +154,7 @@ test('home masonry preenche espaços entre capas e cards sem imagem', async ({ p
     const imagesBefore = await cards.locator('img').count()
     await image.evaluate(element => element.dispatchEvent(new Event('error')))
     await expect(cards.locator('img')).toHaveCount(imagesBefore - 1)
+    expect(await incorrectCorners()).toEqual([])
     await expect.poll(maxGap).toBeLessThanOrEqual(24)
     await cards.first().getByRole('link').focus()
     await page.keyboard.press('Tab')

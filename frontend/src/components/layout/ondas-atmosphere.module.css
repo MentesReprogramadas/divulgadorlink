@@ -1,5 +1,6 @@
-.atmosphere { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; background: radial-gradient(ellipse at 80% 30%, #193655, #0a192f 75%); }
+.atmosphere { position: fixed; inset: 0; min-height: 100vh; min-height: 100lvh; z-index: -1; pointer-events: none; overflow: hidden; background: radial-gradient(ellipse at 80% 30%, #193655, #0a192f 75%); }
 .canvas { display: block; inset: 0; width: 100%; height: 100%; opacity: .78; mask-image: none; }
+.canvas:not([data-renderer='webgl']) { visibility: hidden; }
 .lines { position: absolute; inset: 8% auto auto -10%; width: 120%; height: 90%; fill: none; stroke: #b4fff4; stroke-width: 1.1px; opacity: .28; animation: wave-drift 18s ease-in-out infinite alternate; }
 @keyframes wave-drift { from { transform: translate3d(-3%, -4%, 0) rotate(-5deg); } to { transform: translate3d(4%, 7%, 0) rotate(5deg); } }
 .atmosphere::after { content: ''; position: absolute; inset: -20%; background: radial-gradient(ellipse at 25% 65%, #45dcca29, transparent 38%), radial-gradient(ellipse at 82% 25%, #a5fff425, transparent 34%); animation: light-current 24s ease-in-out infinite alternate; }

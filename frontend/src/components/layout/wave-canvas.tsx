@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const vertexSource = 'attribute vec2 position; void main(){gl_Position=vec4(position,0.,1.);}'
 const fragmentSource = `precision mediump float;
@@ -17,12 +17,13 @@ void main(){
 export function WaveCanvas({ paused, className }: { paused: boolean; className?: string }) {
   const ref = useRef<HTMLCanvasElement>(null)
   const elapsed = useRef(0)
+  const [generation, setGeneration] = useState(0)
   useEffect(() => {
     const canvas = ref.current
     if (!canvas) return
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)')
     let context: WebGLRenderingContext | null = null
-    try { context = canvas.getContext('webgl', { alpha: false, antialias: false, powerPreference: 'low-power' }) } catch { return }
+    try { context = canvas.getContext('webgl', { alpha: true, antialias: false, powerPreference: 'low-power' }) } catch { return }
     if (!context || typeof ResizeObserver === 'undefined' || typeof IntersectionObserver === 'undefined') return
     const gl = context
     function compile(type: number, source: string) {
@@ -42,26 +43,38 @@ export function WaveCanvas({ paused, className }: { paused: boolean; className?:
     gl.enableVertexAttribArray(position); gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0)
     const resolution = gl.getUniformLocation(program, 'resolution'), time = gl.getUniformLocation(program, 'time')
     let frame = 0, previous = 0, rendered = 0, visible = true
+    function paint() {
+      if (gl.isContextLost()) return
+      gl.uniform2f(resolution, canvas!.width, canvas!.height); gl.uniform1f(time, reduced.matches ? 0 : elapsed.current); gl.drawArrays(gl.TRIANGLES, 0, 6)
+      if (canvas!.dataset.renderer !== 'webgl') canvas!.dataset.renderer = 'webgl'
+    }
     function draw(now: number) {
       frame = 0
       if (rendered && now - rendered < 1000 / 30 && !paused && !reduced.matches) { frame = requestAnimationFrame(draw); return }
       rendered = now
       if (previous && !paused && !reduced.matches) elapsed.current += Math.min(now - previous, 50) / 1000
       previous = now
-      gl.uniform2f(resolution, canvas!.width, canvas!.height); gl.uniform1f(time, reduced.matches ? 0 : elapsed.current); gl.drawArrays(gl.TRIANGLES, 0, 6)
+      paint()
       if (!paused && !reduced.matches && visible && !document.hidden && !gl.isContextLost()) frame = requestAnimationFrame(draw)
     }
     function sync() { cancelAnimationFrame(frame); previous = 0; if (visible && !document.hidden && !gl.isContextLost()) frame = requestAnimationFrame(draw) }
     function resize() {
+      if (gl.isContextLost()) return
       const box = canvas!.getBoundingClientRect()
       const scale = Math.min(window.devicePixelRatio || 1, 1.25)
-      canvas!.width = Math.max(1, Math.round(box.width * scale)); canvas!.height = Math.max(1, Math.round(box.height * scale)); gl.viewport(0, 0, canvas!.width, canvas!.height); sync()
+      const width = Math.max(1, Math.round(box.width * scale)), height = Math.max(1, Math.round(box.height * scale))
+      if (canvas!.width !== width) canvas!.width = width
+      if (canvas!.height !== height) canvas!.height = height
+      // Resizing clears the buffer; repaint before a delayed mobile animation frame.
+      gl.viewport(0, 0, width, height); paint(); sync()
     }
+    function lost(event: Event) { event.preventDefault(); cancelAnimationFrame(frame); delete canvas!.dataset.renderer }
+    function restored() { setGeneration(value => value + 1) }
     const observer = new ResizeObserver(resize), intersection = new IntersectionObserver(entries => { visible = entries[0].isIntersecting; sync() })
     observer.observe(canvas); intersection.observe(canvas); reduced.addEventListener('change', sync); document.addEventListener('visibilitychange', sync)
-    canvas.dataset.renderer = 'webgl'; resize()
-    return () => { cancelAnimationFrame(frame); observer.disconnect(); intersection.disconnect(); reduced.removeEventListener('change', sync); document.removeEventListener('visibilitychange', sync); gl.deleteBuffer(buffer); gl.deleteProgram(program); gl.deleteShader(vertex); gl.deleteShader(fragment); delete canvas.dataset.renderer }
-  }, [paused])
+    canvas.addEventListener('webglcontextlost', lost); canvas.addEventListener('webglcontextrestored', restored); resize()
+    return () => { cancelAnimationFrame(frame); observer.disconnect(); intersection.disconnect(); reduced.removeEventListener('change', sync); document.removeEventListener('visibilitychange', sync); canvas.removeEventListener('webglcontextlost', lost); canvas.removeEventListener('webglcontextrestored', restored); gl.deleteBuffer(buffer); gl.deleteProgram(program); gl.deleteShader(vertex); gl.deleteShader(fragment); delete canvas.dataset.renderer }
+  }, [paused, generation])
   return <canvas ref={ref} className={className} aria-hidden="true" />
 }
 
