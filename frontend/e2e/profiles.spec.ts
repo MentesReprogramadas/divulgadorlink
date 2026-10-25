@@ -99,7 +99,7 @@ test('F09-E08 cabeçalho, endereço copiável e aprovação reutilizada em alter
   const preview = page.getByRole('button', { name: 'Ver prévia', exact: true })
   await expect(preview).toHaveAttribute('data-variant', 'secondary')
   await expect(page.getByRole('group', { name: 'Link da sua página', exact: true })).toHaveCount(0)
-  await expect(page.getByRole('navigation',{name:'Áreas do painel'}).getByRole('link',{name:'Apresentação',exact:true})).toBeVisible()
+  await expect(page.getByRole('tablist',{name:'Seções da minha página'}).or(page.getByRole('combobox',{name:'Seções da minha página'}))).toBeVisible()
   await publish.click(); await expect(page.getByText('Perfil publicado.', { exact: true })).toBeVisible()
   const address = page.getByRole('group', { name: 'Link da sua página', exact: true })
   await editorSection(page, 'Visão geral'); await expect(address.getByRole('link')).toHaveAttribute('href', A + '/p/ana-estudos')
@@ -366,7 +366,7 @@ test('F09-E03 autosave offline mantém dados, retoma online, 320px e conflito n�
     await expect(second.getByRole('region', { name: 'Editor do perfil', exact: true }).getByRole('alert')).toContainText('outra aba'); await expect(second.getByLabel('Descrição', { exact: true })).toHaveValue('Rascunho preservado')
   } finally { await second.close() }
   await page.setViewportSize({ width: 320, height: 844 }); await page.evaluate(() => { document.documentElement.style.fontSize = '200%' })
-  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(321)
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(321)
   await page.screenshot({ path: info.outputPath('profile-320-text200.png'), fullPage: true, animations: 'disabled' })
 })
 

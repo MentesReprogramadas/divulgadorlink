@@ -17,10 +17,7 @@ async function mutate(page: Page, route: string, body: unknown, method = 'POST')
   return page.evaluate(async ({ route, body, method }) => { const csrf = document.cookie.split('; ').find(value => value.startsWith('csrf='))?.slice(5) ?? ''; const response = await fetch('/bff/v1/me/profile' + route, { method, headers: { 'content-type': 'application/json', 'x-csrf-token': decodeURIComponent(csrf) }, body: JSON.stringify(body) }); return { status: response.status, body: await response.json() } }, { route, body, method })
 }
 async function editorAction(page: Page, name: string) {
-  if(name==='Histórico'){await profileEditorTool(page,name);return}
-  const button = page.getByRole('button', { name, exact: true })
-  if (!await button.isVisible()) await page.getByLabel('Mais opções da página', { exact: true }).click()
-  await button.click()
+  await profileEditorTool(page, name)
 }
 async function prepare(page: Page) {
   sql(`DELETE FROM profiles WHERE "tenantId"='${fixture().tenantId}'`)

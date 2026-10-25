@@ -329,7 +329,7 @@ test('F42 páginas e convites: citação exata, recusa, contestação e aprovaç
     await cycle()
     const sent = await (await request.get(e2eRuntime.stubOrigin + '/evolution/messages')).json() as { text: string; number: string }[]
     const pageNotice = sent.findLast(m => m.text.includes(name) && m.text.startsWith('🪪'))
-    const inviteNotice = sent.findLast(m => m.text.includes('Convite WA ' + suffix) && m.text.startsWith('🎟️'))
+    const inviteNotice = sent.findLast(m => m.text.includes('Convite WA ' + suffix) && m.text.startsWith('🔁'))
     expect(pageNotice?.number).toBe('fixture@g.us'); expect(inviteNotice?.number).toBe('fixture@g.us')
     expect(pageNotice!.text).toContain('Materiais'); expect(pageNotice!.text).toContain('https://example.com/aulas')
     const pageReference = legacyReference(pageNotice!.text), inviteReference = legacyReference(inviteNotice!.text)
@@ -353,7 +353,7 @@ test('F42 páginas e convites: citação exata, recusa, contestação e aprovaç
     await page.goto(A + '/p/' + slug); await expect(page.getByRole('heading', { name, exact: true })).toBeVisible()
     const confirmations = await (await request.get(e2eRuntime.stubOrigin + '/evolution/messages')).json() as { text: string }[]
     expect(confirmations.some(m => m.text.startsWith('✅ *PÁGINA') && m.text.includes(name))).toBe(true)
-    expect(confirmations.some(m => m.text.startsWith('✅ *CONVITE') && m.text.includes('Convite WA ' + suffix))).toBe(true)
+    expect(confirmations.some(m => m.text.startsWith('✅ *LINK PERMANENTE') && m.text.includes('Convite WA ' + suffix))).toBe(true)
     await info.attach('avisos-whatsapp', { body: [pageNotice!.text, inviteNotice!.text, appeal!.text, ...confirmations.filter(m => m.text.includes(name) && !m.text.includes('Responda:')).map(m => m.text)].join('\n\n---\n\n'), contentType: 'text/plain' })
     expect(sql(`SELECT count(*) FROM audit_logs WHERE action='content.review.decide' AND "entityId" IN ('${profileReview}','${redirectReview}')`)).toBe('3')
   } finally {

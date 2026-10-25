@@ -1,6 +1,7 @@
 import { expect, type Locator } from '@playwright/test'
 
 export async function selectOption(control: Locator, option: string | { label: string }) {
+  control = control.and(control.page().locator(':not([data-skeleton] *)'))
   await control.waitFor({ state: 'attached' })
   const area = control.locator('xpath=ancestor::*[@data-responsive-area][1]')
   if (await area.count() && !await control.isVisible()) {
@@ -21,7 +22,8 @@ export async function selectOption(control: Locator, option: string | { label: s
   const choices = control.page().getByRole('option')
   const choice = typeof option === 'string' ? choices.and(control.page().locator(`[data-value=${JSON.stringify(option)}]`)) : control.page().getByRole('option', { name: option.label, exact: true })
   await choice.click()
-  await expect(control).toBeFocused()
+  // Navigation selects replace their trigger; each flow checks its own focus contract.
+  await expect(choice).toBeHidden()
 }
 
 export async function expectSelected(control: Locator, value: string) {

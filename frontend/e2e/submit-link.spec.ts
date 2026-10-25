@@ -31,7 +31,7 @@ test('redes e nichos mostram ícones nas opções e no valor selecionado', async
       if (asset) await expect(optionIcon).toHaveCSS('mask-image', new RegExp(asset.replaceAll('.', '\\.')))
       else await expect(optionIcon.locator('path')).toHaveAttribute('d', markFor('niche', 'jogos')!.icon)
       await option.scrollIntoViewIfNeeded()
-      await page.screenshot({ path: info.outputPath(`${width}-${asset ? 'networks' : 'niches'}.png`), fullPage: true, animations: 'disabled' })
+      await option.screenshot({ path: info.outputPath(`${width}-${asset ? 'networks' : 'niches'}.png`), animations: 'disabled' })
       await option.click()
       const selectedIcon = control.locator('.facet-icon')
       if (asset) {

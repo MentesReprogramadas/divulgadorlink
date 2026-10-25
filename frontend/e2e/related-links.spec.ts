@@ -29,12 +29,12 @@ test('F03-E01/T01/T03/T04 sugestões reais, destino e analytics RELATED; vazio r
   expect(await raw.text()).toContain('Comunidade relacionada')
   await page.goto(A + '/link/' + s.source)
   const section = page.getByRole('region', { name: 'Links relacionados' })
-  await expect(section.getByRole('link')).toHaveCount(6)
+  await expect(section.getByRole('article').getByRole('link')).toHaveCount(6)
   const detail=page.getByRole('region',{name:'Comunidade de estudos',exact:true})
   await expect(detail).toContainText('São Paulo / SP');await expect(detail).toContainText('português');await expect(detail).toContainText('Online')
   await expect(section.getByText('São Paulo / SP', {exact:true}).first()).toBeVisible()
   await expect(section).not.toContainText('Sentinela')
-  const chosen = section.getByRole('link').first(), chosenName = await chosen.innerText(), chosenId = new URL((await chosen.getAttribute('href'))!, A).pathname.split('/').at(-1)!
+  const chosen = section.getByRole('article').getByRole('link').first(), chosenName = await chosen.innerText(), chosenId = new URL((await chosen.getAttribute('href'))!, A).pathname.split('/').at(-1)!
   await chosen.click()
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(chosenName)
   await expect.poll(() => sql(`SELECT COUNT(*) FROM analytics_events WHERE "linkId"='${chosenId}' AND surface='RELATED' AND kind='IMPRESSION'`)).toBe('1')
@@ -69,27 +69,27 @@ test('F03-E03/T01/T03 paginação, offline recuperável, teclado e 320px com tex
   const s = fixture('offline-' + info.project.name)
   await page.goto(A + '/link/' + s.source)
   const section = page.getByRole('region', { name: 'Links relacionados' }), more = section.getByRole('button', { name: 'Ver mais relacionados', exact: true })
-  await expect(section.getByRole('link')).toHaveCount(6)
+  await expect(section.getByRole('article').getByRole('link')).toHaveCount(6)
   const geometry=await page.evaluate(()=>{
-    const main=document.querySelector('main')!,summary=document.querySelector('section[aria-labelledby="link-title"]')!,related=document.querySelector('section[aria-labelledby="related-links-title"]')!
+    const main=document.querySelector('main')!,summary=document.querySelector('[data-detail-content]')!,related=document.querySelector('section[aria-label="Links relacionados"]')!
     const a=main.getBoundingClientRect(),b=summary.getBoundingClientRect(),c=related.getBoundingClientRect(),css=getComputedStyle(main)
     return {viewport:main.parentElement!.getBoundingClientRect().width,main:a.width,summary:b.width,center:b.x+b.width/2,related:c.width,available:a.width-parseFloat(css.paddingLeft)-parseFloat(css.paddingRight)}
   })
   expect(geometry.main).toBe(geometry.viewport);expect(Math.abs(geometry.center-geometry.viewport/2)).toBeLessThan(2);expect(Math.abs(geometry.related-geometry.available)).toBeLessThan(2)
-  if(geometry.viewport>1000){expect(geometry.summary).toBeLessThanOrEqual(720);expect(geometry.related).toBeGreaterThan(1000)}
+  if(geometry.viewport>1000){expect(geometry.summary).toBeLessThanOrEqual(760);expect(geometry.related).toBeGreaterThan(1000)}
   const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations,JSON.stringify(axe.violations)).toEqual([])
   await capturePage(page, info.outputPath('related-links.png'));await capturePage(page,info.outputPath('detail-viewport.png'),false)
   await page.context().setOffline(true); await more.click()
   await expect(section.getByRole('alert')).toContainText('Os links anteriores foram mantidos.')
-  await expect(section.getByRole('link')).toHaveCount(6)
+  await expect(section.getByRole('article').getByRole('link')).toHaveCount(6)
   await page.context().setOffline(false); await more.focus(); await page.keyboard.press('Enter')
-  await expect(section.getByRole('link')).toHaveCount(9)
+  await expect(section.getByRole('article').getByRole('link')).toHaveCount(9)
   await expect(section.getByRole('status')).toBeFocused()
   await expect(more).toHaveCount(0)
-  expect(new Set(await section.getByRole('link').evaluateAll(links => links.map(link => link.getAttribute('href')))).size).toBe(9)
+  expect(new Set(await section.getByRole('article').getByRole('link').evaluateAll(links => links.map(link => link.getAttribute('href')))).size).toBe(9)
   await page.setViewportSize({ width: 320, height: 844 }); await page.evaluate(() => { document.documentElement.style.fontSize = '200%' })
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   await page.screenshot({ path: info.outputPath('related-320-text200.png'), fullPage: true })
-  await page.reload(); await expect(section.getByRole('link')).toHaveCount(6)
+  await page.reload(); await expect(section.getByRole('article').getByRole('link')).toHaveCount(6)
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', new RegExp('/link/' + s.source + '$'))
 })

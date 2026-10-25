@@ -27,6 +27,11 @@ const state = JSON.parse(readFileSync(path.join(__dirname, 'state.json'), 'utf8'
 
 type Call = { status: number; text: string }
 
+test.afterEach(async ({ browser, context }) => {
+  // Manual contexts otherwise keep animated catalog pages running between tests.
+  await Promise.all(browser.contexts().filter(candidate => candidate !== context).map(candidate => candidate.close()))
+})
+
 test('home masonry preenche espaços entre capas e cards sem imagem', async ({ page }, info) => {
   test.setTimeout(120_000)
   const prefix = 'home-masonry-'

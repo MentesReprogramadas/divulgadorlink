@@ -29,9 +29,13 @@ test('support: real user reads, server write denials, compact banner, accessible
     await page.getByRole('option', { name: 'Contas', exact: true }).click()
   }
   await page.getByRole('textbox', { name: 'Buscar contas e links' }).fill(fixture().owner)
+  const search = page.waitForResponse(response => response.url().includes('/bff/v1/admin/office?') && new URL(response.url()).searchParams.get('q') === fixture().owner)
   await page.getByRole('button', { name: 'Buscar', exact: true }).click()
+  expect((await search).ok()).toBe(true)
+  await expect(page.locator('article[id^="support-user-"]')).toHaveCount(1)
   const entry = page.getByRole('button', { name: /^Detalhes \/ suporte de/ })
   await expect(entry).toHaveCount(1)
+  await page.evaluate(() => document.fonts.ready)
   await entry.focus()
   const originalScroll = await page.evaluate(() => window.scrollY)
   await page.keyboard.press('Enter')

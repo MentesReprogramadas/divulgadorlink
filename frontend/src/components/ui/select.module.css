@@ -1,5 +1,5 @@
 .control { width: 100%; min-width: 0; margin: var(--space-2) 0 var(--space-4); }
-.trigger { --glass-tint: var(--field-glass-tint, #010b1626); position: relative; isolation: isolate; display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); width: 100%; min-height: 48px; padding: var(--space-3); border: 1px solid transparent; border-radius: var(--radius-md); background: transparent; color: var(--text-primary); font: inherit; text-align: left; cursor: pointer; }
+.trigger { --glass-tint: var(--field-glass-tint, #010b1626); position: relative; isolation: isolate; display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); width: 100%; min-height: 48px; padding: var(--space-3); border: 1px solid var(--field-select-border, transparent); border-radius: var(--radius-md); background: var(--field-select-background, transparent); color: var(--text-primary); font: inherit; text-align: left; cursor: pointer; }
 .value { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .valueContent { display: flex; align-items: center; gap: var(--space-3); min-width: 0; }
 .valueLabel { min-width: 0; overflow: hidden; text-overflow: ellipsis; }

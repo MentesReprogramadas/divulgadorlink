@@ -79,7 +79,7 @@ test('F01-E03 recuperação de rede, teclado, zoom e 320px', async ({ page }) =>
   await page.evaluate(() => { document.documentElement.style.fontSize = '' })
   await page.setViewportSize({ width: 320, height: 844 })
   expect((await page.getByLabel('De', { exact: true }).boundingBox())!.width).toBeGreaterThan(140)
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
   await page.screenshot({ path: test.info().outputPath('performance-320.png'), fullPage: true })
 })
 
@@ -129,7 +129,7 @@ test('F01-E04 tabela paginada e gráficos por teclado', async ({ page, isMobile 
   await page.getByRole('tabpanel').evaluate(async panel => {
     await Promise.all(panel.getAnimations().map(animation => animation.finished))
   })
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   expect((await new AxeBuilder({ page }).include('main').analyze()).violations).toEqual([])
   await page.evaluate(() => window.scrollTo(0, 0))
   await page.screenshot({ path: test.info().outputPath('performance-table.png'), fullPage: true, animations: 'disabled' })
