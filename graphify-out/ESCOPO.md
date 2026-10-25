@@ -1,5 +1,9 @@
 # Graphify — Tem Link Aqui
 
+## Manutenção — revisão de publicação e assinaturas, 25/10/2026
+
+Extração incremental local de código: 483 arquivos reavaliados, 1.062 reutilizados; 7.784 nós e 27.868 relações. Inclui o estado aprovado da branch e a rotina administrativa de configuração dos planos. Sem LLM/API ou clustering. O extrator informou 80 arquivos sem símbolos; CSS e capturas continuam fora da cobertura estrutural. As relações foram confirmadas no código e não substituem os testes ou a validação de produção.
+
 ## Manutenção — validação visual completa Ondas, 24/10/2026
 
 Consulta inicial dirigida ao grafo existente (7580 nós/27028 relações), confirmada nos consumidores atuais. Extrações locais incrementais `graphify extract . --code-only --max-workers 4 --no-cluster`; a última passagem reprocessou11 arquivos e reutilizou1524. Resultado final: **7741 nós/27732 relações**. Log final: `output/ondas-v24/graphify-verified.log`; passagens anteriores permanecem nos logs `graphify-final.log`, `graphify-closure.log`, `graphify-final-frozen.log` e `graphify-complete.log`. Inclui a árvore compartilhada e não atribui todas as diferenças a uma única autoria. Sem LLM/API, clustering ou envio externo; CSS, fotos, capturas, certificados e `tokens.css` mantêm os limites e exclusões anteriores. Arquivos sem símbolos continuam sujeitos aos checks reais. Evidência de aparência e comportamento em `docs/superpowers/2026-10-24-ondas-complete-visual-audit.md`, sem inferir aprovação visual a partir do grafo.

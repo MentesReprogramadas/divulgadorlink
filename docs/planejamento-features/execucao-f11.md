@@ -1,6 +1,18 @@
 # F11 — Planos para páginas
 
-Estado: **VALIDADA LOCALMENTE; S0–S6 concluídas, S7 remoto/comercial EM REVISÃO.** Sequência autorizada pelo usuário, que delegou escolhas fundamentadas e pediu registro das alternativas. Sem autorização nova para commit, push ou deploy.
+## Configuração operacional — 25/10/2026
+
+O responsável autorizou a conta Stripe real, a definição dos preços e confirmou a revisão fiscal. Produtos e preços recorrentes foram criados; a disponibilidade no painel ainda deve ser confirmada após publicar a versão validada.
+
+A imagem da API inclui uma rotina administrativa para configurar os dois planos usando as mesmas validações, versões e auditoria do painel. Ela exige produção, chave real, conta Stripe correspondente, administrador ativo do site e confirmação fiscal explícita. Não cria clientes, assinaturas ou cobranças. Repetir a mesma configuração preserva as versões existentes.
+
+```sh
+node build/scripts/configure-profile-plans.js --apply --fiscal-reviewed --host "$SITE_HOST" --admin-email "$ADMIN_EMAIL" --stripe-account "$STRIPE_ACCOUNT" --pro-price "$PRO_PRICE_ID" --pro-cents "$PRO_CENTS" --premium-price "$PREMIUM_PRICE_ID" --premium-cents "$PREMIUM_CENTS"
+```
+
+Executar dentro do container da API após as migrações, com as três variáveis de assinaturas já configuradas. A rotina mantém o subdomínio fora do Premium quando esse recurso não está entregue no ambiente. A confirmação fiscal não ativa cálculo automático de impostos nem altera o webhook de pagamentos avulsos.
+
+Registro de 17/10/2026: **VALIDADA LOCALMENTE; S0–S6 concluídas, S7 remoto/comercial EM REVISÃO.** A implementação local foi autorizada pelo usuário; a publicação e a configuração comercial receberam autorização em 25/10/2026, conforme atualização acima.
 
 ## Decisões e alternativas — 17/10/2026
 

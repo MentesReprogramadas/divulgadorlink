@@ -3,6 +3,7 @@ import { runtime as e2eRuntime } from './runtime.cjs'
 import { expect, test } from '@playwright/test'
 import path from 'node:path'
 import { readFileSync } from 'node:fs'
+import { markFor } from '../src/domain/marks'
 
 const A = (e2eRuntime.web('tenant-a.localhost'))
 
@@ -22,17 +23,23 @@ test('redes e nichos mostram ícones nas opções e no valor selecionado', async
     await page.getByLabel('Título do link').fill('Meu grupo de estudos')
     await page.getByLabel('Link de acesso').fill('https://example.com/estudos')
     await page.getByRole('button', { name: 'Continuar', exact: true }).click()
-    for (const [field, label, asset] of [['Rede do link', 'Telegram', '/networks/telegram.svg'], ['Assunto do link', 'Jogos', '/niches/jogos.svg']]) {
+    for (const [field, label, asset] of [['Rede do link', 'Telegram', '/networks/telegram.svg'], ['Assunto do link', 'Jogos', null]] as const) {
       const control = page.getByRole('combobox', { name: field, exact: true })
       await control.focus(); await page.keyboard.press('ArrowDown')
       const option = page.getByRole('option', { name: label, exact: true })
-      await expect(option.locator('img')).toHaveAttribute('src', asset)
+      const optionIcon = option.locator('.facet-icon')
+      if (asset) await expect(optionIcon).toHaveCSS('mask-image', new RegExp(asset.replaceAll('.', '\\.')))
+      else await expect(optionIcon.locator('path')).toHaveAttribute('d', markFor('niche', 'jogos')!.icon)
       await option.scrollIntoViewIfNeeded()
-      await page.screenshot({ path: info.outputPath(`${width}-${asset.includes('networks') ? 'networks' : 'niches'}.png`), fullPage: true, animations: 'disabled' })
+      await page.screenshot({ path: info.outputPath(`${width}-${asset ? 'networks' : 'niches'}.png`), fullPage: true, animations: 'disabled' })
       await option.click()
-      await expect(control.locator('img')).toHaveAttribute('src', asset)
+      const selectedIcon = control.locator('.facet-icon')
+      if (asset) {
+        await expect(selectedIcon).toHaveCSS('mask-image', new RegExp(asset.replaceAll('.', '\\.')))
+        expect((await page.request.get(new URL(asset, A).href)).ok()).toBe(true)
+      } else await expect(selectedIcon.locator('path')).toHaveAttribute('d', markFor('niche', 'jogos')!.icon)
+      await expect(selectedIcon).toBeVisible()
       await expect(control).toBeFocused()
-      expect(await control.locator('img').evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true)
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   }

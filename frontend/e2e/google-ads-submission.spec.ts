@@ -73,7 +73,6 @@ for (const scenario of ['accepted', 'published', 'denied', 'pending-consent', 'r
         transaction_id: 'google-ads-test-link',
       }]])
       await testInfo.attach('envio-concluido', { body: await page.screenshot({ animations: 'disabled' }), contentType: 'image/png' })
-      await page.getByRole('button', { name: 'Ver meus links' }).click()
       await expect(page).toHaveURL(/\/painel\/links$/)
       expect(await conversions()).toHaveLength(1)
     } else expect(await conversions()).toEqual([])

@@ -100,7 +100,7 @@ jobs:
       - run: docker build -t divulgador-api backend
       - run: docker build -t divulgador-web frontend
   e2e:
-    name: e2e (${{ matrix.project }})
+    name: e2e (${{ matrix.project }} ${{ matrix.shard || 1 }}/${{ matrix.shards || 1 }})
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     strategy:
@@ -109,8 +109,36 @@ jobs:
         include:
           - project: features
             config: playwright.config.ts
+            shard: 1
+            shards: 4
+          - project: features
+            config: playwright.config.ts
+            shard: 2
+            shards: 4
+          - project: features
+            config: playwright.config.ts
+            shard: 3
+            shards: 4
+          - project: features
+            config: playwright.config.ts
+            shard: 4
+            shards: 4
           - project: features-mobile
             config: playwright.config.ts
+            shard: 1
+            shards: 4
+          - project: features-mobile
+            config: playwright.config.ts
+            shard: 2
+            shards: 4
+          - project: features-mobile
+            config: playwright.config.ts
+            shard: 3
+            shards: 4
+          - project: features-mobile
+            config: playwright.config.ts
+            shard: 4
+            shards: 4
           - project: catalog
             config: playwright.config.ts
           - project: ui-desktop
@@ -147,12 +175,12 @@ jobs:
         working-directory: frontend
       - run: npx playwright install --with-deps chromium
         working-directory: frontend
-      - run: npm run test:e2e -- --config=${{ matrix.config }} --project=${{ matrix.project }}
+      - run: npm run test:e2e -- --config=${{ matrix.config }} --project=${{ matrix.project }} --shard=${{ matrix.shard || 1 }}/${{ matrix.shards || 1 }}
         working-directory: frontend
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-reports-${{ matrix.project }}
+          name: playwright-reports-${{ matrix.project }}-${{ matrix.shard || 1 }}
           include-hidden-files: true
           path: |
             frontend/playwright-report

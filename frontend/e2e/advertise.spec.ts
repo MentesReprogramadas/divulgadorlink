@@ -6,7 +6,7 @@ const A = (e2eRuntime.web('tenant-a.localhost'))
 test('a landing do anúncio usa o mesmo cabeçalho e não lista faceta restrita', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto(`${A}/divulgar`)
-  await expect(page.getByRole('heading', { level: 1, name: 'Publique o seu link.' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1, name: 'Divulgue seu link.' })).toBeVisible()
   await expect(page.getByRole('link', { name: 'Publicar um link' })).toHaveAttribute('href', '/cadastro')
   await expect(page.getByText('Publicar é grátis.')).toBeVisible()
   const html = await page.content()
@@ -38,7 +38,7 @@ test('a home em 390px mostra o nicho inteiro e não rola para o lado', async ({ 
 })
 
 for (const width of [390, 1440]) {
-  test(`a marca Confluência mantém navegação e ícones em ${width}px`, async ({ page, request }) => {
+  test(`a marca mantém navegação e ícones em ${width}px`, async ({ page, request }) => {
     await page.setViewportSize({ width, height: 1000 })
     const requestAsset = (target: string) => {
       const url = new URL(target, A)
@@ -55,7 +55,7 @@ for (const width of [390, 1440]) {
       await page.goto(`${A}${route}`)
       const home = page.getByRole('link', { name: 'Home', exact: true })
       await expect(home).toHaveAttribute('href', '/')
-      await expect(home.locator('img')).toHaveAttribute('src', '/logo.svg')
+      await expect(home.locator('img')).toHaveAttribute('src', '/brand/ondas-logo.svg')
       await home.locator('img').evaluate((image: HTMLImageElement) => image.decode())
       expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false)
       const icons = await page.locator('link[rel="icon"],link[rel="apple-touch-icon"]').evaluateAll(links => links.map(link => (link as HTMLLinkElement).href))
@@ -67,7 +67,7 @@ for (const width of [390, 1440]) {
       const toggle = page.getByRole('button', { name: 'Menu', exact: true })
       await toggle.click()
       const dialog = page.getByRole('dialog')
-      await expect(dialog.getByAltText('Tem Link Aqui')).toHaveAttribute('src', '/logo.svg')
+      await expect(dialog.getByAltText('Tem Link Aqui')).toHaveAttribute('src', '/brand/ondas-logo.svg')
       await page.keyboard.press('Escape')
       await expect(toggle).toBeFocused()
     }

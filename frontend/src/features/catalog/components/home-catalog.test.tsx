@@ -13,6 +13,20 @@ const initial = { sponsored: [sponsored], organic: [organic], nextCursor: 'curso
 afterEach(() => { cleanup(); api.mockReset(); vi.unstubAllGlobals(); window.history.replaceState(null, '', '/') })
 
 describe('carregamento incremental da home', () => {
+  it('mantém os controles ao filtrar e ignora um lote da seleção anterior', async () => {
+    let resolve: (value: unknown) => void = () => undefined
+    api.mockReturnValue(new Promise(done => { resolve = done }))
+    const view = render(<HomeCatalog initial={initial}><input aria-label="Filtro persistente" /></HomeCatalog>)
+    const control = screen.getByRole('textbox', { name: 'Filtro persistente' })
+    control.focus()
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar mais' }))
+    view.rerender(<HomeCatalog initial={{ sponsored: [], organic: [next] }} filters={{ cityId: null, languageTag: 'en', modality: null }}><input aria-label="Filtro persistente" /></HomeCatalog>)
+    expect(screen.getByRole('textbox', { name: 'Filtro persistente' })).toBe(control)
+    expect(document.activeElement).toBe(control)
+    await act(async () => { resolve({ status: 200, body: initial }) })
+    expect(screen.queryByRole('link', { name: 'Link original' })).toBeNull()
+    expect(screen.getByRole('link', { name: 'Link novo' })).toBeTruthy()
+  })
   it('não observa scroll antes de lotes adicionais e limpa timer e listeners ao desmontar', async () => {
     api.mockResolvedValue({ status: 200, body: { sponsored: [], organic: [next], nextCursor: null } })
     const view = render(<HomeCatalog initial={initial} />)

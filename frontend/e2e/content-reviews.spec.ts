@@ -58,7 +58,7 @@ for (const kind of ['profiles', 'redirects'] as const) test('Revisão e contesta
     await card.getByRole('button', { name: 'Aprovar', exact: true }).click(); await expect(card).toHaveCount(0)
     if (kind === 'profiles') {
       await page.goto(origin + '/p/meu-projeto'); await expect(page.getByRole('heading', { name: title, exact: true })).toBeVisible()
-      const brand = page.getByRole('link', { name: 'Criado por Tem Link Aqui' }); expect((await brand.boundingBox())!.height).toBeLessThanOrEqual(24); expect((await brand.locator('img').boundingBox())!.width).toBe(66)
+      const brand = page.getByRole('link', { name: 'Criado por Tem Link Aqui' }); expect((await brand.boundingBox())!.height).toBeLessThanOrEqual(24); expect((await brand.locator('img').boundingBox())!.width).toBe(90)
       await expect(brand).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
       await page.screenshot({ path: info.outputPath('small-watermark.png'), fullPage: true, animations: 'disabled' })
     } else {

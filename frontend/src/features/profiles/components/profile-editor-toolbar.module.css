@@ -17,7 +17,7 @@
 .popup button, .popup a { justify-content: flex-start; width: 100%; min-width:0; max-width:100%; white-space:normal; overflow-wrap:anywhere; }
 .publication { display: grid; gap: var(--space-1); border-top: 1px solid var(--border-default); padding-top: var(--space-2); margin-top: var(--space-1); }
 .empty { padding: var(--space-2); color: var(--text-secondary); font-size: var(--text-sm); }
-.measure { position: absolute; width: max-content; visibility: hidden; pointer-events: none; height: 0; overflow: hidden; display: flex; }
+.measure { position: absolute; inset-inline: 0; width: max-content; max-width: 100%; visibility: hidden; pointer-events: none; height: 0; overflow: hidden; display: flex; }
 .measure button { max-width: none; flex: none; white-space: nowrap; }
 
 @media (width < 40rem) { .tabs [role='tablist'] { flex-wrap: nowrap; overflow: clip; width: 100%; } .tabs [role='tab'] { flex: 1 1 auto; padding: 10px 8px; font-size: var(--text-sm); } .fixed { flex-wrap: wrap; justify-content: flex-end; } .actions { min-width: 0; max-width: 100%; flex-wrap: wrap; justify-content: flex-end; } }

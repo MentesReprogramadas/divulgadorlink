@@ -50,7 +50,7 @@ test('F09-E09 textos dos botões compartilham o centro da apresentação na pré
       const rect = (await element.boundingBox())!
       expect(Math.abs(rect.x + rect.width / 2 - box.x - box.width / 2)).toBeLessThan(1)
     }
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
     await profile.getByRole('link', { name: 'Meu site', exact: true }).focus()
     await expect(profile.getByRole('link', { name: 'Meu site', exact: true })).toBeFocused()
     await page.screenshot({ path: info.outputPath(shot + '.png'), fullPage: true, animations: 'disabled' })
@@ -99,7 +99,7 @@ test('F09-E08 cabeçalho, endereço copiável e aprovação reutilizada em alter
   const preview = page.getByRole('button', { name: 'Ver prévia', exact: true })
   await expect(preview).toHaveAttribute('data-variant', 'secondary')
   await expect(page.getByRole('group', { name: 'Link da sua página', exact: true })).toHaveCount(0)
-  await expect(page.getByRole('tablist',{name:'Seções da minha página'})).toBeVisible()
+  await expect(page.getByRole('navigation',{name:'Áreas do painel'}).getByRole('link',{name:'Apresentação',exact:true})).toBeVisible()
   await publish.click(); await expect(page.getByText('Perfil publicado.', { exact: true })).toBeVisible()
   const address = page.getByRole('group', { name: 'Link da sua página', exact: true })
   await editorSection(page, 'Visão geral'); await expect(address.getByRole('link')).toHaveAttribute('href', A + '/p/ana-estudos')
@@ -186,7 +186,7 @@ test('F09 seis temas legíveis, página inteira e movimento reduzido', async ({ 
     expect(accessibility.violations.map(item => item.id)).toEqual([])
     await page.getByRole('link', { name: 'Meu site', exact: true }).focus()
     await expect(page.getByRole('link', { name: 'Meu site', exact: true })).toHaveCSS('transition-duration', '0s')
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
     await page.screenshot({ path: info.outputPath('theme-' + theme + '.png'), fullPage: true, animations: 'disabled' })
     await page.getByRole('link', { name: 'Voltar à edição' }).click()
     await expect(page.getByLabel('Nome da página')).toHaveValue('Ana Estudos')
@@ -222,7 +222,7 @@ test('F09 aparência personalizada persiste e só chega ao público após public
   const originalViewport = page.viewportSize()!
   await page.setViewportSize({ width: 320, height: 844 })
   await page.evaluate(() => { document.documentElement.style.fontSize = '200%' })
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   expect(await page.locator('details code').first().evaluate(element => element.getBoundingClientRect().height)).toBeLessThan(24)
   await page.screenshot({ path: info.outputPath('appearance-320-text-200.png'), fullPage: true })
   await page.evaluate(() => { document.documentElement.style.fontSize = '' })
@@ -460,7 +460,7 @@ test('F09-E05 criação e gestão: cards, DnD, transferência, edição e remoç
   await expect(page.getByRole('button', { name: 'Projetos Abrir grupo', exact: true })).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Leituras Abrir grupo', exact: true })).toBeVisible()
   await page.setViewportSize({ width: 320, height: 844 }); await page.evaluate(() => { document.documentElement.style.fontSize = '200%' })
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
 })
 
 
@@ -472,9 +472,9 @@ test('F09-E06 autosave, banner e campos não publicados; descartar restaura a pu
   await expect(page.getByRole('tab', { name: 'Publicação', exact: true })).toHaveCount(0)
   await expect(page.getByText('Salvo automaticamente', { exact: true })).toHaveCount(0)
   const refresh = page.getByRole('button', { name: 'Atualizar dados', exact: true })
-  await expect(refresh.locator('svg')).toBeVisible()
+  await expect(refresh.locator('svg[aria-hidden="true"]')).toBeVisible()
   expect(await refresh.evaluate(button => button.closest('details') === null)).toBe(true)
-  await expect(page.getByRole('button', { name: 'Ver prévia', exact: true }).locator('svg')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Ver prévia', exact: true }).locator('svg[aria-hidden="true"]')).toBeVisible()
   await step(page, 0)
   await page.getByLabel('Nome da página', { exact: true }).fill('Ana atualizada'); await page.getByLabel('Descrição', { exact: true }).fill('Descrição ainda não publicada')
   await autosaved(page)
@@ -515,6 +515,6 @@ test('F09-E06 autosave, banner e campos não publicados; descartar restaura a pu
 test('F09-E11 Minha página tem subseções expansíveis e escolha inicial de criação',async({page},info)=>{
  fixture();await login(page);await page.goto(A+'/painel/perfil');await expect(page.getByRole('link',{name:/Criar do meu jeito/})).toBeVisible();await expect(page.getByRole('region',{name:'Escolha como criar sua página'})).toBeVisible();await page.screenshot({path:info.outputPath('profile-overview-actions.png'),fullPage:true,animations:'disabled'});
  const mobile=page.getByRole('button',{name:'Menu',exact:true});if(await mobile.isVisible())await mobile.click();const nav=page.getByRole('navigation',{name:'Áreas do painel'}).filter({visible:true});
- for(const name of ['Edição','Ferramentas','Resultados e divulgação']){const summary=nav.locator('summary').filter({hasText:new RegExp('^'+name+'$')});const group=summary.locator('..');await expect(group).not.toHaveAttribute('open');await summary.focus();await page.keyboard.press('Enter');await expect(group).toHaveAttribute('open');if(name==='Edição'){await nav.getByRole('link',{name:'Modelos',exact:true}).scrollIntoViewIfNeeded();await page.screenshot({path:info.outputPath('profile-menu-expanded.png'),animations:'disabled'})}await summary.focus();await page.keyboard.press('Enter');await expect(group).not.toHaveAttribute('open')}
+ for(const name of ['Editar página','Recursos da página','Resultados','Divulgar','Ferramentas']){const summary=nav.locator('summary').filter({hasText:new RegExp('^'+name+'$')});const group=summary.locator('..');await expect(group).not.toHaveAttribute('open');await summary.focus();await page.keyboard.press('Enter');await expect(group).toHaveAttribute('open');if(name==='Editar página'){await nav.getByRole('link',{name:'Modelos',exact:true}).scrollIntoViewIfNeeded();await page.screenshot({path:info.outputPath('profile-menu-expanded.png'),animations:'disabled'})}await summary.focus();await page.keyboard.press('Enter');await expect(group).not.toHaveAttribute('open')}
  if(await mobile.isVisible())await page.getByRole('button',{name:'Fechar menu',exact:true}).click();await page.getByRole('link',{name:/Criar do meu jeito/}).click();await expect(page).toHaveURL(/perfil\/dados$/);await expect(page.getByLabel('Nome da página')).toBeVisible();await page.screenshot({path:info.outputPath('dedicated-page-details.png'),fullPage:true,animations:'disabled'});await editorSection(page,'Aparência');await expect(page.getByRole('region',{name:'Resumo do rascunho'})).toHaveCount(0)
 })

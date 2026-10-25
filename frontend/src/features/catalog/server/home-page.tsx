@@ -1,13 +1,11 @@
 import { cache } from 'react'
 import type { Metadata } from 'next'
 import { HomeSearch } from '@/components/domain/home-search'
-import { ActionIcon } from '@/components/ui/action-icon'
-import { LiquidLens } from '@/components/ui/liquid-lens'
 import { metadataFromSeo } from '@/domain/crawler-policy'
 import { homeStructuredData } from '@/domain/home-structured-data'
 import { jsonLdScript } from '@/domain/json-ld'
 import { loadCatalog } from '@/lib/catalog-page'
-import { DiscoveryFilters } from '@/features/catalog/discovery/discovery-filters'
+import { HomeDiscoveryPanel } from '@/features/catalog/components/home-discovery-panel'
 import { discoveryQueryRecord, emptyDiscovery, type DiscoveryValues } from '@/features/catalog/discovery/discovery-contract'
 import { InvalidDiscovery } from '@/features/catalog/discovery/invalid-discovery'
 import styles from '@/features/catalog/components/ondas-catalog.module.css'
@@ -82,9 +80,9 @@ export async function HomeContent({ searchParams }: { searchParams: Promise<Reco
             <HomeNetworkLinks networks={home.networks} discoveryQuery={discoveryQueryRecord(query).toString()} />
           </section>
           <HomeTopics niches={home.niches} discoveryQuery={discoveryQueryRecord(query).toString()} />
-          <HomeCatalog filters={filters} key={filtersQuery.toString()} initial={{ sponsored: home.sponsored, organic: home.organic, nextCursor: home.nextCursor, showImpressions: home.showImpressions }}>
+          <HomeCatalog filters={filters} initial={{ sponsored: home.sponsored, organic: home.organic, nextCursor: home.nextCursor, showImpressions: home.showImpressions }}>
             <div className={styles.filterBar}><HomeNetworkSelect networks={home.networks} discoveryQuery={discoveryQueryRecord(query).toString()} /><span>Seu próximo interesse pode estar aqui.</span></div>
-            <details className={styles.discoveryPanel} open={Object.values(filters).some(Boolean) || undefined}><summary><LiquidLens radius={12} /><ActionIcon name="filter" width={18} height={18} />Localização e preferências</summary><DiscoveryFilters initial={filters}/></details>
+            <HomeDiscoveryPanel filters={filters} />
           </HomeCatalog>
           <HomeCollections links={[...home.sponsored, ...home.organic]} discoveryQuery={discoveryQueryRecord(query).toString()} />
       </main>

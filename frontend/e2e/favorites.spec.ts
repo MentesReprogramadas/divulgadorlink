@@ -22,7 +22,7 @@ async function create(page: Page, name: string) {
   await page.getByRole('button', { name: 'Nova coleção', exact: true }).click()
   const form = page.getByRole('form', { name: 'Nova coleção', exact: true })
   await form.getByLabel('Nome da coleção').fill(name); await form.getByRole('button', { name: 'Criar coleção', exact: true }).click()
-  await expect(page.getByRole('region', { name: 'Suas coleções' }).getByRole('button', { name, exact: true })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Suas coleções' }).getByRole('button', { name: name + ' Abrir coleção', exact: true })).toBeVisible()
 }
 async function privateCall(page: Page, path: string) { return page.evaluate(async path => { const r = await fetch('/bff/v1/me/' + path); return { status: r.status, text: await r.text() } }, path) }
 
@@ -44,7 +44,7 @@ test('F04-E04 cria uma coleção pelo card e mantém o favorito selecionado', as
   await picker.getByRole('button', { name: 'Minha leitura', exact: true }).click()
   await expect(picker).not.toBeVisible()
   await page.getByRole('tab', { name: 'Coleções', exact: true }).click()
-  await page.getByRole('region', { name: 'Suas coleções' }).getByRole('button', { name: 'Minha leitura', exact: true }).click()
+  await page.getByRole('region', { name: 'Suas coleções' }).getByRole('button', { name: 'Minha leitura Abrir coleção', exact: true }).click()
   await expect(page.getByRole('region', { name: 'Itens da coleção' })).toContainText('Clube de leitura')
 })
 
@@ -93,7 +93,7 @@ test('F04-E01/T01/T03/T05 catálogo, persistência, duas coleções, ordenação
   const collections = page.getByRole('region', { name: 'Suas coleções' })
   await page.getByRole('tab', { name: 'Coleções', exact: true }).click()
   await page.screenshot({ path: info.outputPath('collection-folders.png'), fullPage: true, animations: 'disabled' })
-  await collections.getByRole('button', { name: 'Estudos', exact: true }).click()
+  await collections.getByRole('button', { name: 'Estudos Abrir coleção', exact: true }).click()
   await expect(collections).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Nova coleção', exact: true })).toHaveCount(0)
   await expect(page.getByRole('group', { name: 'Ações da página', exact: true })).toHaveCount(0)
@@ -104,8 +104,8 @@ test('F04-E01/T01/T03/T05 catálogo, persistência, duas coleções, ordenação
     expect(Math.abs(back!.y - edit!.y)).toBeLessThan(2)
   }
   await page.getByRole('button', { name: 'Voltar', exact: true }).click()
-  await expect(collections.getByRole('button', { name: 'Estudos', exact: true })).toBeFocused()
-  await collections.getByRole('button', { name: 'Estudos', exact: true }).click()
+  await expect(collections.getByRole('button', { name: 'Estudos Abrir coleção', exact: true })).toBeFocused()
+  await collections.getByRole('button', { name: 'Estudos Abrir coleção', exact: true }).click()
   const items = page.getByRole('region', { name: 'Itens da coleção' }).getByRole('listitem')
   await expect(items).toHaveCount(2)
   await expect(items.nth(1).getByRole('button', { name: 'Subir', exact: true })).toBeHidden()
@@ -125,8 +125,8 @@ test('F04-E01/T01/T03/T05 catálogo, persistência, duas coleções, ordenação
   await expect(page.getByRole('status').filter({ hasText: 'Removido da coleção.' })).toBeVisible()
   expect(sql(`SELECT COUNT(*) FROM favorites WHERE "tenantId"='${s.tenantId}'`)).toBe('2')
   await page.getByRole('button', { name: 'Excluir', exact: true }).click(); await page.getByRole('button', { name: 'Confirmar exclusão', exact: true }).click()
-  await expect(collections.getByRole('button', { name: 'Estudos juntos', exact: true })).toHaveCount(0)
-  await collections.getByRole('button', { name: 'Leituras', exact: true }).click(); await expect(page.getByRole('region', { name: 'Itens da coleção' })).toContainText('Clube de leitura')
+  await expect(collections.getByRole('button', { name: 'Estudos juntos Abrir coleção', exact: true })).toHaveCount(0)
+  await collections.getByRole('button', { name: 'Leituras Abrir coleção', exact: true }).click(); await expect(page.getByRole('region', { name: 'Itens da coleção' })).toContainText('Clube de leitura')
   expect(sql(`SELECT COUNT(*) FROM favorites WHERE "tenantId"='${s.tenantId}'`)).toBe('2')
   expect(sql(`SELECT COUNT(*) FROM links WHERE id IN ('${s.one}','${s.two}') AND status='PUBLISHED'`)).toBe('2')
   const viewport = page.viewportSize()!
@@ -169,7 +169,7 @@ test('F04-E03 offline preserva nome, teclado confirma, reload e reflow 320px', a
   await expect(form.getByRole('alert')).toContainText('Sem conexão.'); await expect(input).toHaveValue('Materiais de estudo')
   await page.context().setOffline(false); await input.focus(); await page.keyboard.press('Enter')
   await expect(page.getByRole('status').filter({ hasText: 'Alteração salva.' })).toBeFocused()
-  await page.reload(); await page.getByRole('tab', { name: 'Coleções', exact: true }).click(); await expect(page.getByRole('button', { name: 'Materiais de estudo', exact: true })).toBeVisible()
+  await page.reload(); await page.getByRole('tab', { name: 'Coleções', exact: true }).click(); await expect(page.getByRole('button', { name: 'Materiais de estudo Abrir coleção', exact: true })).toBeVisible()
   await page.screenshot({ path: info.outputPath('favorites.png'), fullPage: true })
   await page.setViewportSize({ width: 320, height: 844 }); await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; window.scrollTo(0, 0) })
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)

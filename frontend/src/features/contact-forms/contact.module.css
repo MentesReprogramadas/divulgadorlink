@@ -17,4 +17,5 @@
 
 /* Same optical material as Ondas; layout and state selectors stay local. */
 .card { composes: surface from '../feature-glass.module.css'; background: transparent; }
+.publicForm { --field-framed-background: var(--page-bg, var(--surface-raised)); }
 .fieldRow { composes: surface from '../feature-glass.module.css'; background: transparent; }

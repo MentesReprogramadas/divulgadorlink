@@ -160,7 +160,7 @@ test('Ondas coleção publicada, distribuição e comprovação pública de dom�
   expect((await roadmapApi(page, '/me/collections/' + collectionId + '/items/' + favorite.body.favoriteId, 'PUT', { expectedVersion: 0 })).status).toBe(200)
   await visit(page, fixture, '/painel/favoritos')
   await page.getByRole('tab', { name: 'Coleções', exact: true }).click()
-  await page.getByRole('region', { name: 'Suas coleções' }).getByRole('button', { name: 'Estudos Ondas', exact: true }).click()
+  await page.getByRole('region', { name: 'Suas coleções' }).getByRole('button', { name: 'Estudos Ondas Abrir coleção', exact: true }).click()
   await page.getByRole('button', { name: 'Publicar coleção', exact: true }).click()
   await page.getByLabel('Nome do curador').fill('Ana Curadora')
   await page.getByLabel('Endereço da coleção').fill(fixture.collectionSlug)

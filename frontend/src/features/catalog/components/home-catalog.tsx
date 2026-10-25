@@ -57,6 +57,8 @@ export function HomeCatalog({ initial, filters = emptyDiscovery(), children }: {
   const alive = useRef(true)
   const loadedPages = useRef(0)
   const historyPath = useRef('')
+  const generation = useRef(0)
+  const filterKey = discoveryParams(filters).toString()
   const [restoreScroll, setRestoreScroll] = useState<number | null>(null)
 
   async function fetchPage(cursor: string, signal?: AbortSignal): Promise<HomePage> {
@@ -68,6 +70,14 @@ export function HomeCatalog({ initial, filters = emptyDiscovery(), children }: {
   }
 
   useEffect(() => {
+    generation.current++
+    loadedPages.current = 0
+    pending.current = false
+    setCatalog(initial)
+    setLoading(false)
+    setError(false)
+    setNotice('')
+    setRestoreScroll(null)
     alive.current = true
     const path = window.location.pathname + window.location.search
     historyPath.current = path
@@ -120,18 +130,19 @@ export function HomeCatalog({ initial, filters = emptyDiscovery(), children }: {
       document.removeEventListener('click', flushNavigation, true)
       document.removeEventListener('keydown', flushNavigation, true)
     }
-  }, [])
+  }, [filterKey])
 
   useEffect(() => { if (restoreScroll !== null) { window.scrollTo(0, restoreScroll); setRestoreScroll(null) } }, [restoreScroll])
 
   async function loadMore() {
     if (pending.current || !catalog.nextCursor) return
+    const requestGeneration = generation.current
     pending.current = true
     setLoading(true)
     setError(false)
     try {
       const result = await fetchPage(catalog.nextCursor)
-      if (!alive.current) return
+      if (!alive.current || requestGeneration !== generation.current) return
       const merged = appendPage(catalog, result)
       setCatalog(merged)
       loadedPages.current++
@@ -139,10 +150,12 @@ export function HomeCatalog({ initial, filters = emptyDiscovery(), children }: {
       const count = merged.sponsored.length + merged.organic.length - catalog.sponsored.length - catalog.organic.length
       setNotice(count === 1 ? '1 novo link carregado.' : `${count} novos links carregados.`)
     } catch {
-      if (alive.current) setError(true)
+      if (alive.current && requestGeneration === generation.current) setError(true)
     } finally {
-      pending.current = false
-      if (alive.current) setLoading(false)
+      if (requestGeneration === generation.current) {
+        pending.current = false
+        if (alive.current) setLoading(false)
+      }
     }
   }
 
