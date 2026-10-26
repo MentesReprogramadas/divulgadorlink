@@ -1,9 +1,11 @@
-import { cleanup, render, screen } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { FacetCatalog } from '@/components/domain/facet-catalog'
+const ageDecision=vi.hoisted(()=>({confirm:vi.fn(),refresh:vi.fn(),replace:vi.fn()}))
+vi.mock('@/components/domain/age-gate',async original=>({...await original<typeof import('@/components/domain/age-gate')>(),confirmAge:ageDecision.confirm}))
 
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ refresh: () => undefined }),
+  useRouter: () => ({ refresh: ageDecision.refresh,replace:ageDecision.replace }),
 }))
 
 beforeAll(() => {
@@ -22,6 +24,8 @@ beforeAll(() => {
 })
 
 beforeEach(() => {
+  vi.clearAllMocks();ageDecision.confirm.mockResolvedValue(true)
+  window.history.replaceState({},'','/')
   document.querySelectorAll('script[type="application/ld+json"]').forEach((node) => node.remove())
 })
 
@@ -40,6 +44,36 @@ const card = {
 }
 
 describe('catálogo de faceta', () => {
+  it.each([['yes','Tenho 18 anos ou mais'],['no','Não tenho']])('descarta cursor anterior após resposta %s, preservando os filtros',async(choice,label)=>{
+    window.history.replaceState({},'','/rede/telegram?languageTag=pt&cursor=old-page')
+    render(<FacetCatalog pageClass="network-page" descriptionClass="network-description" listPrefix="network" mark="network" route="network" slug="telegram" facetLabel="Nichos" facetKind="niche" active={null} facets={[]} body={{heading:'Telegram',seo:{title:'Telegram',robots:'index,follow'},ageRequired:true,sponsored:[],organic:[]}}/>)
+    fireEvent.click(screen.getByRole('button',{name:label}))
+    await waitFor(()=>expect(ageDecision.replace).toHaveBeenCalledWith('/rede/telegram?languageTag=pt'))
+    expect(ageDecision.confirm).toHaveBeenCalledWith(choice)
+    expect(ageDecision.refresh).not.toHaveBeenCalled()
+  })
+  it('mantém o diálogo ocupado até a confirmação terminar e informa falha de rede',async()=>{
+    let rejectDecision!:(reason:Error)=>void
+    ageDecision.confirm.mockReturnValue(new Promise((_resolve,reject)=>{rejectDecision=reject}))
+    render(<FacetCatalog pageClass="network-page" descriptionClass="network-description" listPrefix="network" mark="network" route="network" slug="telegram" facetLabel="Nichos" facetKind="niche" active={null} facets={[]} body={{heading:'Telegram',seo:{title:'Telegram',robots:'index,follow'},ageRequired:true,sponsored:[],organic:[]}}/>)
+    const yes=screen.getByRole('button',{name:'Tenho 18 anos ou mais'}) as HTMLButtonElement
+    fireEvent.click(yes)
+    await waitFor(()=>expect(yes.disabled).toBe(true))
+    await act(async()=>rejectDecision(new Error('offline')))
+    expect((await within(screen.getByRole('dialog')).findByRole('alert')).textContent).toBe('Não foi possível confirmar sua idade. Tente novamente.')
+    expect(yes.disabled).toBe(false)
+    expect(ageDecision.refresh).not.toHaveBeenCalled()
+    ageDecision.confirm.mockResolvedValue(true)
+    fireEvent(screen.getByRole('dialog'),new Event('cancel',{cancelable:true}))
+    await waitFor(()=>expect(ageDecision.confirm).toHaveBeenLastCalledWith('no'))
+    expect(ageDecision.refresh).toHaveBeenCalledTimes(1)
+  })
+  it('recusa persiste a escolha e atualiza a mesma listagem mista',async()=>{
+    render(<FacetCatalog pageClass="network-page" descriptionClass="network-description" listPrefix="network" mark="network" route="network" slug="telegram" facetLabel="Nichos" facetKind="niche" active={null} facets={[]} body={{heading:'Telegram',seo:{title:'Telegram',robots:'index,follow'},ageRequired:true,sponsored:[],organic:[card]}}/>)
+    fireEvent.click(screen.getByRole('button',{name:'Não tenho'}))
+    await waitFor(()=>expect(ageDecision.confirm).toHaveBeenCalledWith('no'))
+    expect(ageDecision.refresh).toHaveBeenCalledTimes(1)
+  })
   it('entrega o título e os links no primeiro HTML', () => {
     render(
       <FacetCatalog

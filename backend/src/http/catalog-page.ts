@@ -91,7 +91,7 @@ export function pageRanked<T extends Ranked>(
 
 export function homePageSql(surface: 'HOME' | 'NICHE'): { sponsored: string; organic: string } {
   const sponsored = `
-    SELECT l."id", l."name", l."description", l."cityId", l."languageTag", l."modality", n."requiresAge",
+    SELECT l."id", l."name", l."description", l."cityId", l."languageTag", l."modality", (n."requiresAge" OR net."requiresAge") AS "requiresAge",
       n."name" AS "nicheName", n."slug" AS "nicheSlug",
       net."name" AS "networkName", net."slug" AS "networkSlug",
       pmin.activated AS "homeActivatedAt"
@@ -105,7 +105,7 @@ export function homePageSql(surface: 'HOME' | 'NICHE'): { sponsored: string; org
     JOIN "niches" n ON n."id" = l."nicheId"
     JOIN "networks" net ON net."id" = l."networkId"
     WHERE l."tenantId" = $1 AND ${PUBLIC_LINK_FILTER}
-      AND ($2::text = 'yes' OR n."requiresAge" = false)
+      AND ($2::text = 'yes' OR NOT (n."requiresAge" OR net."requiresAge"))
       AND ($3::text IS NULL OR n."slug" = $3)
       AND ($4::text IS NULL OR net."slug" = $4)
       ${discoverySql(8)}
@@ -114,7 +114,7 @@ export function homePageSql(surface: 'HOME' | 'NICHE'): { sponsored: string; org
     LIMIT $7
   `
   const organic = `
-    SELECT l."id", l."name", l."description", l."cityId", l."languageTag", l."modality", n."requiresAge",
+    SELECT l."id", l."name", l."description", l."cityId", l."languageTag", l."modality", (n."requiresAge" OR net."requiresAge") AS "requiresAge",
       n."name" AS "nicheName", n."slug" AS "nicheSlug",
       net."name" AS "networkName", net."slug" AS "networkSlug",
       NULL::timestamp AS "homeActivatedAt"
@@ -122,7 +122,7 @@ export function homePageSql(surface: 'HOME' | 'NICHE'): { sponsored: string; org
     JOIN "niches" n ON n."id" = l."nicheId"
     JOIN "networks" net ON net."id" = l."networkId"
     WHERE l."tenantId" = $1 AND ${PUBLIC_LINK_FILTER}
-      AND ($2::text = 'yes' OR n."requiresAge" = false)
+      AND ($2::text = 'yes' OR NOT (n."requiresAge" OR net."requiresAge"))
       AND ($3::text IS NULL OR n."slug" = $3)
       AND ($4::text IS NULL OR net."slug" = $4)
       ${discoverySql(8)}

@@ -145,6 +145,33 @@ describe('contratos HTTP da vitrine', () => {
     expect(missing.json()).toMatchObject({ code: 'not_found' })
   })
 
+  it('rede mista oferece maioridade sem expor links restritos e inclui ambos após aceite', async () => {
+    setCatalogLinksForTest([
+      { id: 'livre-rede', name: 'Grupo livre', description: 'conversas', relevance: 1, requiresAge: false, nicheSlug: 'jogos', networkSlug: 'telegram', homeActivatedAt: null, nicheActivatedAt: null, languageTag: 'en' },
+      { id: 'restrito-rede', name: 'Material restrito', description: 'privado antes do aceite', relevance: 1, requiresAge: true, nicheSlug: 'apostas', networkSlug: 'telegram', homeActivatedAt: null, nicheActivatedAt: null, languageTag: 'pt' },
+    ])
+    const get = (cookie?: string, query = '') => app.inject({ method: 'GET', url: '/api/v1/networks/telegram' + query, headers: { host: HOST, ...(cookie ? { cookie } : {}) } })
+    const unknown = await get()
+    expect(unknown.json().ageRequired).toBe(true)
+    expect(unknown.json().organic.map((row: {id:string}) => row.id)).toEqual(['livre-rede'])
+    expect(unknown.body).not.toMatch(/restrito-rede|Material restrito|privado antes/)
+    const accepted = await get('age=yes')
+    expect(accepted.json().organic.map((row: {id:string}) => row.id).sort()).toEqual(['livre-rede', 'restrito-rede'])
+    expect(accepted.json().ageRequired).not.toBe(true)
+    const refused = await get('age=no')
+    expect(refused.json().ageRequired).not.toBe(true)
+    expect(refused.body).not.toContain('restrito-rede')
+    expect((await get(undefined, '?languageTag=en')).json().ageRequired).not.toBe(true)
+  })
+
+  it('link restrito pela rede permanece fora dos dados indexáveis do nicho livre após o aceite',async()=>{
+    repo().networks.push({...repo().networks[0],id:'network-age-seo',tenantId:TENANT,name:'Rede restrita',slug:'restrita',isPublicFacet:true,requiresAge:true})
+    setCatalogLinksForTest([{id:'restrito-redeseo',name:'Restrito',description:'restrito',relevance:1,requiresAge:true,nicheSlug:'jogos',networkSlug:'restrita',homeActivatedAt:null,nicheActivatedAt:null}])
+    const response=await app.inject({method:'GET',url:'/api/v1/niches/jogos',headers:{host:HOST,cookie:'age=yes'}})
+    expect(response.json().organic[0].indexable).toBe(false)
+    expect(JSON.stringify(response.json().seo.structuredData)).not.toContain('/link/restrito-redeseo')
+  })
+
   it('busca e autocomplete devolvem no máximo 8 e o token não troca de link', async () => {
     const embedding = new DeterministicTestEmbeddingService()
     composeSearchForTest({ embedding: () => embedding })

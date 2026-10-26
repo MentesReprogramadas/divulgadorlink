@@ -150,7 +150,9 @@ describe('busca HTTP de ponta a ponta: rota → embedding injetado → SQL real 
     expect(response.statusCode).toBe(200)
     expect(embedding.calls).toEqual([QUERY])
     const body = response.json() as { target: unknown; threshold: number; sponsored: Item[]; organic: Item[] }
-    expect(body.target).toEqual({ kind: 'results', slug: null, name: null })
+    expect(body.target).toEqual({ kind: 'niche', slug: 'culinaria', name: 'Culinária' })
+    expect(response.json().facets).toContainEqual({kind:'niche',slug:'culinaria',name:'Culinária',requiresAge:false})
+    expect(response.json().facets).not.toContainEqual(expect.objectContaining({slug:'adulto'}))
     expect(body.threshold).toBe(0.35)
     expect(body.sponsored.map((row) => row.id).sort()).toEqual(['pago-1', 'pago-2'])
     expect(body.organic.map((row) => row.id).sort()).toEqual(['org-alta', 'org-media', 'tie-a', 'tie-b'])
@@ -210,6 +212,40 @@ describe('busca HTTP de ponta a ponta: rota → embedding injetado → SQL real 
     expect(embedding.calls).toEqual([QUERY, QUERY])
     expect(confirmed.json().organic.map((row: Item) => row.id).sort()).toEqual(['adulto', 'org-alta', 'org-media', 'tie-a', 'tie-b'])
     expect(refused.json().organic.map((row: Item) => row.id).sort()).toEqual(['org-alta', 'org-media', 'tie-a', 'tie-b'])
+  })
+
+  it('sinônimo adulto encontra categoria e links sem vetor e só entrega material após o aceite', async () => {
+    await db.niche.update({where:{id:'s-adulto'},data:{isPublicFacet:true}})
+    try {
+      for(const term of ['putaria','corno','pornô']){
+        const get=(cookie?:string)=>app.inject({method:'GET',url:'/api/v1/search?q='+encodeURIComponent(term),headers:{host:HOST_A,...(cookie?{cookie}:{})}})
+        const closed=await get()
+        expect(closed.statusCode).toBe(200)
+        expect(closed.json().ageRequired).toBe(true)
+        expect(closed.json().organic).toEqual([])
+        expect(closed.body).not.toContain('oculto')
+        const accepted=await get('age=yes')
+        expect(accepted.json().organic.map((row:Item)=>row.id)).toEqual(['adulto'])
+        expect(accepted.json().facets).toContainEqual({kind:'niche',slug:'adulto',name:'Adulto',requiresAge:true})
+        expect((await get('age=no')).json().organic).toEqual([])
+      }
+      expect(embedding.calls).toEqual([])
+      await db.config.update({where:{tenantId_key:{tenantId:TENANT_A,key:'SEARCH_RELEVANCE_THRESHOLD'}},data:{value:'0.9'}})
+      const high=await app.inject({method:'GET',url:'/api/v1/search?q=corno',headers:{host:HOST_A,cookie:'age=yes'}})
+      expect(high.json().organic).toEqual([])
+    } finally {
+      await db.niche.update({where:{id:'s-adulto'},data:{isPublicFacet:false}})
+      await db.config.update({where:{tenantId_key:{tenantId:TENANT_A,key:'SEARCH_RELEVANCE_THRESHOLD'}},data:{value:'0.35'}})
+    }
+  })
+
+  it('uma rede pesquisada lista links e contexto, oferecendo maioridade quando há conteúdo restrito',async()=>{
+    const response=await app.inject({method:'GET',url:'/api/v1/search?q=Telegram',headers:{host:HOST_A}})
+    expect(response.statusCode).toBe(200)
+    expect(response.json().organic.length).toBeGreaterThan(0)
+    expect(response.json().ageRequired).toBe(true)
+    expect(response.body).not.toContain('"id":"adulto"')
+    expect(embedding.calls).toEqual([])
   })
 
   it('outro host só vê o próprio tenant', async () => {

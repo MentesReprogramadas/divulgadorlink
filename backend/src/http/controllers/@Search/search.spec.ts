@@ -37,6 +37,7 @@ describe('GET /api/v1/search', () => {
         embeddingState: 'READY',
         searchActivatedAt: new Date('2026-09-01'),
         requiresAge: false,
+        nicheSlug:'jogos',networkSlug:'telegram',
       },
       {
         id: 'sem-vetor',
@@ -48,6 +49,7 @@ describe('GET /api/v1/search', () => {
         embeddingState: 'ABSENT',
         searchActivatedAt: null,
         requiresAge: false,
+        nicheSlug:'jogos',networkSlug:'telegram',
       },
       {
         id: 'adulto',
@@ -59,6 +61,7 @@ describe('GET /api/v1/search', () => {
         embeddingState: 'READY',
         searchActivatedAt: null,
         requiresAge: true,
+        nicheSlug:'apostas',networkSlug:'telegram',
       },
     ])
   })
@@ -132,17 +135,18 @@ describe('GET /api/v1/search', () => {
     }
   })
 
-  it('consulta igual a nicho público devolve a faceta sem resultados', async () => {
+  it('consulta igual a nicho público devolve a faceta junto dos links', async () => {
     const response = await app.inject({ method: 'GET', url: '/api/v1/search?q=Jogos', headers: { host: 'temlinkaqui.com' } })
 
     expect(response.statusCode).toBe(200)
-    expect(response.json()).toEqual({
+    expect(response.json()).toMatchObject({
       target: { kind: 'niche', slug: 'jogos', name: 'Jogos' },
+      facets:[{kind:'niche',slug:'jogos',name:'Jogos',requiresAge:false}],
       threshold: 0.35,
       showImpressions: true,
-      sponsored: [],
-      organic: [],
     })
+    expect(response.json().sponsored.map((row:{id:string})=>row.id)).toEqual(['pago'])
+    expect(response.json().organic.map((row:{id:string})=>row.id)).toEqual(['sem-vetor'])
     expect(embedding.calls).toEqual([])
   })
 
@@ -176,13 +180,15 @@ describe('GET /api/v1/search', () => {
     const response = await app.inject({ method: 'GET', url: '/api/v1/search?q=Telegram', headers: { host: 'temlinkaqui.com' } })
 
     expect(response.statusCode).toBe(200)
-    expect(response.json()).toEqual({
+    expect(response.json()).toMatchObject({
       target: { kind: 'network', slug: 'telegram', name: 'Telegram' },
+      facets:[{kind:'network',slug:'telegram',name:'Telegram',requiresAge:false}],
       threshold: 0.35,
       showImpressions: true,
-      sponsored: [],
-      organic: [],
     })
+    expect(response.json().sponsored.map((row:{id:string})=>row.id)).toEqual(['pago'])
+    expect(response.json().organic.map((row:{id:string})=>row.id)).toEqual(['sem-vetor'])
+    expect(response.json().ageRequired).toBe(true)
     expect(embedding.calls).toEqual([])
   })
 
@@ -299,6 +305,7 @@ describe('GET /api/v1/search', () => {
     })
     expect(confirmed.json().ageRequired).toBeUndefined()
     expect(confirmed.json().ids).toContain('adulto')
+    expect(confirmed.headers['cache-control']).toBe('no-store')
 
     const refused = await app.inject({
       method: 'GET',
@@ -307,6 +314,29 @@ describe('GET /api/v1/search', () => {
     })
     expect(refused.json().ageRequired).toBeUndefined()
     expect(refused.json().ids).not.toContain('adulto')
+  })
+
+  it('sinônimo no autocomplete e tema com rede usam o mesmo contexto sem chamar IA',async()=>{
+    const repository=getLinksRepository() as InMemoryLinksRepository
+    const adult={...repository.niches[0],id:'context-adult',name:'Adulto',slug:'adulto',requiresAge:true,isPublicFacet:true}
+    repository.niches.push(adult)
+    setSearchCandidatesForTest([
+      {id:'adult-telegram',name:'Comunidade restrita',description:'somente adultos',relevance:0,textScore:0,semanticScore:null,embeddingState:'ABSENT',searchActivatedAt:null,requiresAge:true,nicheSlug:'adulto',networkSlug:'telegram'},
+      {id:'adult-discord',name:'Outra comunidade',description:'somente adultos',relevance:0,textScore:0,semanticScore:null,embeddingState:'ABSENT',searchActivatedAt:null,requiresAge:true,nicheSlug:'adulto',networkSlug:'discord'},
+    ])
+    try{
+      const get=(path:string,cookie?:string)=>app.inject({method:'GET',url:'/api/v1/'+path,headers:{host:'temlinkaqui.com',...(cookie?{cookie}:{})}})
+      const closed=await get('search/suggest?q=corno')
+      expect(closed.json().ageRequired).toBe(true)
+      expect(closed.json().items).toEqual([])
+      expect(closed.body).not.toContain('Comunidade restrita')
+      const open=await get('search/suggest?q=corno','age=yes')
+      expect(open.json().ids.sort()).toEqual(['adult-discord','adult-telegram'])
+      expect(open.json().facets).toContainEqual({kind:'niche',slug:'adulto',name:'Adulto',requiresAge:true})
+      const combined=await get('search?q=corno%20telegram','age=yes')
+      expect(combined.json().organic.map((row:{id:string})=>row.id)).toEqual(['adult-telegram'])
+      expect(embedding.calls).toEqual([])
+    }finally{repository.niches.splice(repository.niches.indexOf(adult),1)}
   })
 
   it('busca do nicho +18 pede a idade e, com o sim, devolve os links', async () => {
@@ -327,7 +357,7 @@ describe('GET /api/v1/search', () => {
     })
     expect(confirmed.json().ageRequired).toBeUndefined()
     expect(confirmed.json().organic.map((row: { id: string }) => row.id)).toContain('adulto')
-    expect(embedding.calls).toEqual(['Apostas'])
+    expect(embedding.calls).toEqual([])
   })
 
   it('autocomplete não devolve o id adulto e não chama embedding', async () => {

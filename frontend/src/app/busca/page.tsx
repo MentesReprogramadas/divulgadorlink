@@ -35,20 +35,17 @@ type Card = {
   network?: Facet
 }
 type SearchTarget = { kind: 'niche' | 'network' | 'results'; slug: string | null; name?: string }
-type SearchBody = { queryId?: string; target: SearchTarget; ageRequired?: boolean; showImpressions?: boolean; sponsored: Card[]; organic: Card[] }
+type SearchFacet = {kind:'niche'|'network';slug:string;name?:string;requiresAge?:boolean}
+type SearchBody = { queryId?: string; target: SearchTarget; facets?:SearchFacet[];ageRequired?: boolean; showImpressions?: boolean; sponsored: Card[]; organic: Card[] }
 
-function SearchContext({ target, filters }: { target: SearchTarget; filters: DiscoveryValues }) {
-  if (target.kind === 'results' || !target.slug) return null
-  const name = target.name?.trim() || null
-  const href = target.kind === 'niche'
-    ? `/nicho/${encodeURIComponent(target.slug)}`
-    : `/rede/${encodeURIComponent(target.slug)}`
+function SearchContext({ facets, filters }: { facets: SearchFacet[]; filters: DiscoveryValues }) {
+  if(!facets.length)return null
   return (
-    <div className={styles.context}>
+    <nav className={styles.context} aria-label="Nichos e redes relacionados">
       <LiquidLens radius={16} />
-      <p className="search-context-label">{target.kind === 'niche' ? 'Nicho encontrado' : 'Rede encontrada'}</p>
-      <a href={discoveryHref(href,filters)}>Explorar {name ?? target.slug} <span aria-hidden="true">→</span></a>
-    </div>
+      <p className="search-context-label">{facets.length===1?(facets[0].kind==='niche'?'Nicho encontrado':'Rede encontrada'):'Nichos e redes relacionados'}</p>
+      {facets.map(facet=><a key={facet.kind+':'+facet.slug} href={discoveryHref((facet.kind==='niche'?'/nicho/':'/rede/')+encodeURIComponent(facet.slug),filters)}>Explorar {facet.name?.trim()||facet.slug}{facet.requiresAge?' · +18':null} <span aria-hidden="true">→</span></a>)}
+    </nav>
   )
 }
 
@@ -69,7 +66,7 @@ function SearchResults() {
   const [sponsored, setSponsored] = useState<Card[]>([])
   const [organic, setOrganic] = useState<Card[]>([])
   const [queryId, setQueryId] = useState<string | undefined>()
-  const [target, setTarget] = useState<SearchTarget | null>(null)
+  const [facets, setFacets] = useState<SearchFacet[]>([])
   const [ageRequired, setAgeRequired] = useState(false)
   const [showImpressions, setShowImpressions] = useState(true)
   const [state, setState] = useState<'loading' | 'error' | 'ready'>('loading')
@@ -97,26 +94,21 @@ function SearchResults() {
     setQueryId(result.body.queryId)
     setSponsored(result.body.sponsored ?? [])
     setOrganic(result.body.organic ?? [])
-    setTarget(result.body.target ?? null)
+    const target=result.body.target
+    setFacets(result.body.facets??(target?.slug&&target.kind!=='results'?[{kind:target.kind,slug:target.slug,name:target.name}]:[]))
     setAgeRequired(result.body.ageRequired === true)
     setShowImpressions(result.body.showImpressions !== false)
     setState('ready')
   }
 
   async function answer(choice: 'yes' | 'no') {
-    if (choice === 'no') {
-      setAgeRequired(false)
-      if (await confirmAge('no')) await load()
-      return
-    }
-    if (await confirmAge('yes')) await load()
+    if (await confirmAge(choice)) await load()
   }
 
   useEffect(() => { void load(); return () => { loadSequence.current++; request.current?.abort() } }, [q,filterQuery,discovery.valid])
 
   const showEmpty = displayState === 'ready'
     && !ageRequired
-    && target?.kind === 'results'
     && sponsored.length === 0
     && organic.length === 0
 
@@ -134,8 +126,8 @@ function SearchResults() {
       {displayState === 'error' ? invalid ? <InvalidDiscovery href={`/busca?q=${encodeURIComponent(q)}`} headingLevel={2}/> : <ErrorState onRetry={() => void load()} /> : null}
       <p className={styles.summary} role="status" aria-label="Resultados da busca">{displayState === 'ready' && !ageRequired && sponsored.length + organic.length > 0 ? `${sponsored.length + organic.length} ${sponsored.length + organic.length === 1 ? 'link encontrado.' : 'links encontrados.'}` : ''}</p>
       {showEmpty ? <EmptyState action={filterQuery ? <a href={`/busca?q=${encodeURIComponent(q)}`}>Limpar filtros</a> : <a href="/">Explorar o catálogo</a>}>Nenhum link encontrado</EmptyState> : null}
-      {displayState === 'ready' && ageRequired ? <AgePrompt onYes={() => void answer('yes')} onNo={() => void answer('no')} /> : null}
-      {displayState === 'ready' && target ? <SearchContext target={target} filters={discovery.value} /> : null}
+      {displayState === 'ready' && ageRequired ? <AgePrompt onYes={() => answer('yes')} onNo={() => answer('no')} /> : null}
+      {displayState === 'ready' ? <SearchContext facets={facets} filters={discovery.value} /> : null}
       {displayState === 'ready' && sponsored.length > 0 ? (
         <section className={`search-list ${styles.section}`} aria-labelledby="search-patrocinados">
           <h2 id="search-patrocinados">Patrocinados</h2>

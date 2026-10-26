@@ -21,7 +21,7 @@ import { getAnalyticsRepository } from '@/repositories/analytics-repository'
 import { getConfigsRepository } from '@/repositories/configs-repository'
 import { getLinksRepository } from '@/repositories/links-repository'
 import { capLimit, decodeCursor, InvalidCursorError, pageRanked } from '@/http/catalog-page'
-import { queryCatalogPage } from '@/http/catalog-query'
+import { hasRestrictedCatalogContent, queryCatalogPage } from '@/http/catalog-query'
 import { indexableEntries } from '@/http/sitemap-index'
 import { rankHome, rankNiche, visibleForAge } from '@/use-cases/@Search/rank-links'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
@@ -73,6 +73,7 @@ type CardSource = Partial<DiscoveryMetadata> & {
   nicheSlug?: string | null
   networkName?: string | null
   networkSlug?: string | null
+  requiresAge?: boolean
 }
 
 function card(tenantId: string, row: CardSource, origin: AnalyticsOrigin) {
@@ -88,7 +89,7 @@ function card(tenantId: string, row: CardSource, origin: AnalyticsOrigin) {
 }
 
 function cardIndexable(row: CardSource, nicheOkBySlug: Map<string, boolean>): boolean {
-  return nicheOkBySlug.get(row.nicheSlug ?? '') === true
+  return row.requiresAge !== true && nicheOkBySlug.get(row.nicheSlug ?? '') === true
 }
 
 async function counted(
@@ -294,7 +295,7 @@ async function companionFacets(
     const wanted = new Set(rows.map((row) => row.networkSlug))
     return (await repo.listNetworks(tenantId))
       .filter((row) => row.isPublicFacet && wanted.has(row.slug))
-      .map((row) => ({ id: row.id, name: row.name, slug: row.slug }))
+      .map((row) => ({ id: row.id, name: row.name, slug: row.slug, requiresAge: row.requiresAge === true }))
   }
   const opposite = kind === 'network' ? 'niche' : 'network'
   const rows = await prisma.$queryRawUnsafe<Array<{ id: string; name: string; slug: string; requiresAge: boolean }>>(
@@ -321,7 +322,7 @@ async function companionFacets(
   return rows.map((row) => (
     opposite === 'niche'
       ? { id: row.id, name: row.name, slug: row.slug, requiresAge: row.requiresAge }
-      : { id: row.id, name: row.name, slug: row.slug }
+      : { id: row.id, name: row.name, slug: row.slug, requiresAge: row.requiresAge }
   ))
 }
 
@@ -391,6 +392,10 @@ async function getFacet(
     } catch {
       return reply.status(400).send(buildError({ code: 'validation', message: 'Validation error.', request_id: request.id }))
     }
+    const hasRestrictedContent = age === 'unknown' && (process.env.NODE_ENV === 'test'
+      ? linksFor().some(row => row.requiresAge && matchesDiscovery(row,filters)
+        && (kind === 'niche' ? row.nicheSlug === slug && (!filterNetwork || row.networkSlug === filterNetwork) : row.networkSlug === slug && (!filterNiche || row.nicheSlug === filterNiche)))
+      : await hasRestrictedCatalogContent(prisma,{tenantId:tenant.id,nicheSlug:kind==='niche'?slug:filterNiche,networkSlug:kind==='network'?slug:filterNetwork,filters}))
     const origin: AnalyticsOrigin = kind === 'niche' ? 'niche-home' : 'network-home'
     const sendPage = async (
       sponsoredRows: CardSource[],
@@ -403,6 +408,7 @@ async function getFacet(
       return reply.status(200).send({
         seo: facetSeo(indexableIds),
         heading,
+        ...(hasRestrictedContent ? {ageRequired:true} : {}),
         showImpressions: await publicImpressions(tenant.id),
         ...(niches ? { niches } : {}),
         ...(networks ? { networks } : {}),

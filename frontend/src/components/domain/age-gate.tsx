@@ -37,6 +37,7 @@ export function AgePrompt({
   const pendingRef = useRef(false)
   onNoRef.current = onNo
   const [pending, setPending] = useState(false)
+  const [error,setError]=useState('')
 
   useLayoutEffect(() => {
     const dialog = ref.current
@@ -45,7 +46,7 @@ export function AgePrompt({
     function onCancel(event: Event) {
       event.preventDefault()
       if (pendingRef.current) return
-      void onNoRef.current()
+      void choose('no')
     }
     dialog.addEventListener('cancel', onCancel)
     return () => {
@@ -58,10 +59,16 @@ export function AgePrompt({
     if (pendingRef.current) return
     pendingRef.current = true
     setPending(true)
-    if (choice === 'yes') await onYes()
-    else await onNo()
-    pendingRef.current = false
-    setPending(false)
+    setError('')
+    try {
+      if (choice === 'yes') await onYes()
+      else await onNoRef.current()
+    } catch {
+      setError('Não foi possível confirmar sua idade. Tente novamente.')
+    } finally {
+      pendingRef.current = false
+      setPending(false)
+    }
   }
 
   return (
@@ -69,6 +76,7 @@ export function AgePrompt({
       <LiquidLens radius={24} />
       <h2 id="age-title">Conteúdo para maiores de 18 anos</h2>
       <p>Confirme sua idade para ver este conteúdo.</p>
+      {error?<p role="alert">{error}</p>:null}
       <div className={styles.actions}>
         <Button type="button" disabled={pending} onClick={() => void choose('yes')}>Tenho 18 anos ou mais</Button>
         <Button type="button" variant="secondary" disabled={pending} onClick={() => void choose('no')}>Não tenho</Button>

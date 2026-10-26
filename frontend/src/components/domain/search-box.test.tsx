@@ -19,6 +19,16 @@ beforeAll(() => { HTMLElement.prototype.scrollIntoView = vi.fn() })
 afterEach(() => { cleanup(); vi.useRealTimers(); api.mockReset(); push.mockReset() })
 
 describe('sugestões da busca', () => {
+  it('mostra categorias e redes do contexto sem duplicar o destino legado',async()=>{
+    api.mockResolvedValue({status:200,body:{facet:{kind:'niche',slug:'adulto',name:'Adulto'},facets:[{kind:'niche',slug:'adulto',name:'Adulto',requiresAge:true},{kind:'network',slug:'telegram',name:'Telegram'}],items:[]}})
+    render(<SearchBox id="context-search" label="Busca" discoveryQuery="languageTag=pt"/>)
+    fireEvent.change(screen.getByRole('combobox'),{target:{value:'corno telegram'}})
+    const facets=await screen.findByRole('group',{name:'Nichos e redes'})
+    expect(within(facets).getAllByRole('option')).toHaveLength(2)
+    expect(within(facets).getByRole('option',{name:/Adulto/}).getAttribute('href')).toBe('/nicho/adulto?languageTag=pt')
+    expect(within(facets).getByRole('option',{name:/Telegram/}).getAttribute('href')).toBe('/rede/telegram?languageTag=pt')
+    expect(within(facets).getByText(/\+18/)).toBeTruthy()
+  })
   it('preserva a primeira digitação antes dos efeitos passivos da montagem', async () => {
     api.mockResolvedValue(suggestions)
     function EarlyTyping() {

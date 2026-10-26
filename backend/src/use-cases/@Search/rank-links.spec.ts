@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { rankHome, rankNiche, rankSearch, resolveSearchTarget, visibleForAge, hybridSearchSql, relevanceScore, searchRelevanceScore, autocompleteIds } from '@/use-cases/@Search/rank-links'
+import { rankHome, rankNiche, rankSearch, resolveSearchTarget, visibleForAge, hybridSearchSql, relevanceScore, searchRelevanceScore, autocompleteIds, searchFacetProbe, facetMatchesProbe } from '@/use-cases/@Search/rank-links'
 
 const rows = [
   { id: 'novo', relevance: 0.95, searchActivatedAt: new Date('2026-09-02'), homeActivatedAt: null, nicheActivatedAt: null, requiresAge: false },
@@ -10,6 +10,20 @@ const rows = [
   { id: 'baixo', relevance: 0.1, searchActivatedAt: null, homeActivatedAt: null, nicheActivatedAt: null, requiresAge: false },
   { id: 'adulto', relevance: 0.99, searchActivatedAt: null, homeActivatedAt: null, nicheActivatedAt: null, requiresAge: true },
 ]
+
+describe('contexto da consulta', () => {
+  it.each(['putaria', 'corno', 'pornô', 'PORNO', 'po\u0302rno', '+18', '18+', 'grupos de pornografia no Telegram'])('encontra a categoria adulta por palavra completa: %s', query => {
+    expect(facetMatchesProbe({ slug: 'adulto', name: 'Adulto' }, searchFacetProbe(query))).toBe(true)
+  })
+
+  it.each([['programação', 'tecnologia-internet'], ['cursos online', 'educacao-cursos'], ['games', 'jogos'], ['ofertas', 'compras-ofertas-cupons']])('encontra o contexto de %s', (query, slug) => {
+    expect(facetMatchesProbe({ slug, name: slug }, searchFacetProbe(query))).toBe(true)
+  })
+
+  it.each(['unicórnio', 'cornoide', 'transporte', 'correção'])('não infere conteúdo adulto por substring: %s', query => {
+    expect(facetMatchesProbe({ slug: 'adulto', name: 'Adulto' }, searchFacetProbe(query))).toBe(false)
+  })
+})
 
 describe('busca', () => {
   it('mantém a evidência textual das sugestões ao buscar trechos literais do nome', () => {

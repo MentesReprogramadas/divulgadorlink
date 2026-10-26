@@ -25,11 +25,13 @@ type SuggestBody = {
   items?: SuggestItem[]
   showImpressions?: boolean
   ageRequired?: boolean
-  facet?: { kind: 'niche' | 'network'; slug: string; name?: string | null } | null
+  facet?: SuggestFacet | null
+  facets?: SuggestFacet[]
 }
+type SuggestFacet = { kind:'niche'|'network';slug:string;name?:string|null;requiresAge?:boolean }
 
 type Choice =
-  | { key: string; kind: 'facet'; href: string; name: string; label: string }
+  | { key: string; kind: 'facet'; href: string; name: string; label: string; requiresAge?:boolean }
   | { key: string; kind: 'link'; href: string; item: SuggestItem }
 
 export function SearchBox({
@@ -120,16 +122,18 @@ export function SearchBox({
     const body = result.body
     const items = body.items ?? []
     const rows: Choice[] = []
-    if (body.facet?.slug) {
-      const name = body.facet.name?.trim() || body.facet.slug
+    for(const facet of body.facets??(body.facet?[body.facet]:[])) {
+      if(!facet.slug)continue
+      const name = facet.name?.trim() || facet.slug
       rows.push({
-        key: `facet-${body.facet.kind}-${body.facet.slug}`,
+        key: `facet-${facet.kind}-${facet.slug}`,
         kind: 'facet',
-        href: (body.facet.kind === 'niche'
-          ? `/nicho/${encodeURIComponent(body.facet.slug)}`
-          : `/rede/${encodeURIComponent(body.facet.slug)}`) + (discoveryQuery ? `?${discoveryQuery}` : ""),
+        href: (facet.kind === 'niche'
+          ? `/nicho/${encodeURIComponent(facet.slug)}`
+          : `/rede/${encodeURIComponent(facet.slug)}`) + (discoveryQuery ? `?${discoveryQuery}` : ""),
         name,
-        label: body.facet.kind === 'niche' ? 'Nicho' : 'Rede',
+        label: facet.kind === 'niche' ? 'Nicho' : 'Rede',
+        requiresAge:facet.requiresAge,
       })
     }
     for (const item of items) {
@@ -257,7 +261,7 @@ export function SearchBox({
           </a>
         </div>
       ) : null}
-      {!pending && askAge ? <AgePrompt onYes={() => void answerAge('yes')} onNo={() => void answerAge('no')} /> : null}
+      {!pending && askAge ? <AgePrompt onYes={() => answerAge('yes')} onNo={() => answerAge('no')} /> : null}
     </div>
   )
 }
@@ -267,7 +271,7 @@ function SuggestionContent({ choice, showImpressions }: { choice: Choice; showIm
     return (
       <span className={styles.content}>
         <span className={styles.title}>{choice.name}</span>
-        <span className={styles.metadata}>Explorar {choice.label === 'Rede' ? 'rede' : 'nicho'}</span>
+        <span className={styles.metadata}>Explorar {choice.label === 'Rede' ? 'rede' : 'nicho'}{choice.requiresAge?' · +18':null}</span>
       </span>
     )
   }

@@ -2,7 +2,7 @@ import * as randomOrdering from '@/domain/catalog/random-order'
 import { PrismaClient } from '@prisma/client'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { decodeCursor } from '@/http/catalog-page'
-import { queryCatalogPage } from '@/http/catalog-query'
+import { hasRestrictedCatalogContent, queryCatalogPage } from '@/http/catalog-query'
 import { settleProposedText } from '@/use-cases/@Links/settle-proposed-text'
 
 const url = process.env.CHECKOUT_DATABASE_URL
@@ -95,6 +95,24 @@ describe('vitrine paginada e moderação no PostgreSQL', () => {
     expect(ids.slice(5).sort()).toEqual(organic)
     expect(new Set(ids).size).toBe(12)
     expect(ids).not.toContain('b1')
+  })
+
+  it('também restringe rede +18 de nicho livre no SQL compartilhado, patrocinado e orgânico', async () => {
+    await db.network.create({ data: { id: 'net-restrita', tenantId: 'ta', name: 'Rede restrita', slug: 'restrita', requiresAge: true, knownHosts: [] } })
+    await seedLink('livre', 'ta', 'niche-ta', 'net-ta')
+    await seedLink('restrito-organico', 'ta', 'niche-ta', 'net-restrita')
+    await seedLink('restrito-pago', 'ta', 'niche-ta', 'net-restrita')
+    await promote('restrito-pago', 'ta', '2026-09-01', 'NICHE')
+    expect(await hasRestrictedCatalogContent(db,{tenantId:'ta',nicheSlug:'culinaria',networkSlug:null})).toBe(true)
+    expect(await hasRestrictedCatalogContent(db,{tenantId:'ta',nicheSlug:'culinaria',networkSlug:'telegram'})).toBe(false)
+    expect(await hasRestrictedCatalogContent(db,{tenantId:'tb',nicheSlug:'culinaria',networkSlug:null})).toBe(false)
+    expect(await hasRestrictedCatalogContent(db,{tenantId:'ta',nicheSlug:'culinaria',networkSlug:null,filters:{cityId:null,languageTag:'en',modality:null}})).toBe(false)
+    const load = (age: 'yes' | 'no' | 'unknown') => queryCatalogPage(db, { tenantId: 'ta', age, surface: 'NICHE', nicheSlug: 'culinaria', networkSlug: null, limit: 20, cursor: null })
+    expect((await load('unknown')).rows.map(row => row.id)).toEqual(['livre'])
+    expect((await load('no')).rows.map(row => row.id)).toEqual(['livre'])
+    const accepted = await load('yes')
+    expect(accepted.rows.map(row => row.id).sort()).toEqual(['livre', 'restrito-organico', 'restrito-pago'])
+    expect(accepted.rows.filter(row => row.id.startsWith('restrito')).every(row => row.requiresAge)).toBe(true)
   })
 
   it('SQL preserva o sorteio na paginação e muda em novas aberturas com filtros', async () => {

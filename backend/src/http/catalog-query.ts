@@ -2,6 +2,20 @@ import { newOrderSeed } from '@/domain/catalog/random-order'
 import type { PrismaClient } from '@prisma/client'
 import { encodeCursor, homePageSql, discoveryCursorContext, type CatalogCursor } from '@/http/catalog-page'
 import {parseDiscovery,type DiscoveryMetadata} from '@/domain/catalog/discovery-metadata'
+import {discoverySql} from '@/domain/catalog/discovery-metadata'
+import {PUBLIC_LINK_FILTER} from '@/domain/catalog/public-link'
+
+export async function hasRestrictedCatalogContent(db: PrismaClient, input: {tenantId:string;nicheSlug:string|null;networkSlug:string|null;filters?:DiscoveryMetadata}): Promise<boolean> {
+  const filters=parseDiscovery(input.filters??{})
+  const [result]=await db.$queryRawUnsafe<Array<{exists:boolean}>>(`SELECT EXISTS (
+    SELECT 1 FROM links l JOIN niches n ON n.id=l."nicheId" JOIN networks net ON net.id=l."networkId"
+    WHERE l."tenantId"=$1 AND ${PUBLIC_LINK_FILTER}
+      AND (n."requiresAge" OR net."requiresAge")
+      AND ($2::text IS NULL OR n.slug=$2) AND ($3::text IS NULL OR net.slug=$3)
+      ${discoverySql(4)}
+  ) AS exists`,input.tenantId,input.nicheSlug,input.networkSlug,filters.cityId,filters.languageTag,filters.modality)
+  return result?.exists===true
+}
 
 type Row = DiscoveryMetadata & {
   id: string

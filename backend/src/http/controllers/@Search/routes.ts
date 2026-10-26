@@ -28,6 +28,11 @@ import {
   searchFacetProbe,
   searchRelevanceScore,
   visibleForAge,
+  foldFacet,
+  searchTopicSlugs,
+  searchFacetSql,
+  matchesSearchFacetScope,
+  type SearchFacetScope,
 } from '@/use-cases/@Search/rank-links'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
 
@@ -45,13 +50,18 @@ export type SearchCandidate = Partial<DiscoveryMetadata> & {
   nicheSlug?: string | null
   networkName?: string | null
   networkSlug?: string | null
+  nichePublic?: boolean
+  networkPublic?: boolean
+  nicheRequiresAge?: boolean
+  networkRequiresAge?: boolean
 }
 
 export type CandidateQuery = {
   filters?:DiscoveryMetadata
   tenantId: string
   query: string
-  vector: number[]
+  vector: number[] | null
+  facetScope?: SearchFacetScope
   age: 'yes' | 'no' | 'unknown'
   textWeight: number
   semanticWeight: number
@@ -80,17 +90,19 @@ export function sqlCandidateSource(client: PrismaClient): CandidateSource {
       niche_slug: string | null
       network_name: string | null
       network_slug: string | null
+      niche_public: boolean; network_public:boolean; niche_age:boolean; network_age:boolean
       cityId:string|null;languageTag:string|null;modality:DiscoveryMetadata['modality']
     }>>(
-      hybridSearchSql(discoverySql(8)),
+      hybridSearchSql(discoverySql(8),searchFacetSql(11).match,searchFacetSql(11).clause),
       input.query,
-      `[${input.vector.join(',')}]`,
+      input.vector ? `[${input.vector.join(',')}]` : null,
       input.tenantId,
       input.age,
       input.textWeight,
       input.semanticWeight,
       input.threshold,
       input.filters?.cityId??null,input.filters?.languageTag??null,input.filters?.modality??null,
+      input.facetScope?.niches??[],input.facetScope?.networks??[],
     )
     return rows.map((row) => ({
       id: row.id,
@@ -105,6 +117,7 @@ export function sqlCandidateSource(client: PrismaClient): CandidateSource {
       nicheSlug: row.niche_slug,
       networkName: row.network_name,
       networkSlug: row.network_slug,
+      nichePublic:row.niche_public,networkPublic:row.network_public,nicheRequiresAge:row.niche_age,networkRequiresAge:row.network_age,
       cityId:row.cityId,languageTag:row.languageTag,modality:row.modality,
     }))
   }
@@ -128,7 +141,7 @@ export function setSearchCandidatesForTest(rows: SearchCandidate[]): void {
   testCandidates = rows.map((row) => ({ ...row }))
   composition = {
     ...composition,
-    candidates: async () => testCandidates.map(({ relevance: _relevance, ...row }) => ({ ...row })),
+    candidates: async input => testCandidates.filter(row=>matchesSearchFacetScope(row,input.facetScope)).map(({ relevance: _relevance, ...row }) => ({ ...row,textScore:input.facetScope?Math.max(1,row.textScore):row.textScore,semanticScore:input.vector===null?null:row.semanticScore })),
   }
 }
 
@@ -183,12 +196,41 @@ async function withImpressions<T extends { id: string }>(tenantId: string, rows:
   return rows.map((row) => ({ ...row, ...media.get(row.id), impressions: counts.get(row.id) ?? 0 }))
 }
 
+type SearchFacet = {kind:'niche'|'network';slug:string;name:string;requiresAge:boolean}
+type FacetCandidates = {niches:Array<{slug:string;name:string;requiresAge?:boolean}>;networks:Array<{slug:string;name:string;requiresAge?:boolean}>}
+
+function localFacetScope(query:string,facets:FacetCandidates,exclusive:boolean):SearchFacetScope|undefined {
+  const topics = searchTopicSlugs(query)
+  const adult = facets.niches.find(row => row.slug === 'adulto' || foldFacet(row.name) === 'adulto')
+  const adultContext = topics.includes('adulto') ? adult : undefined
+  const simpleTopic = topics.length > 0 && !foldFacet(query).includes(' ')
+  const topicAndNetwork = topics.length > 0 && facets.niches.length > 0 && facets.networks.length > 0
+  if (!exclusive && !adultContext && !simpleTopic && !topicAndNetwork) return undefined
+  const scope = {
+    niches: adultContext ? [adultContext.slug] : facets.niches.map(row => row.slug),
+    networks: facets.networks.map(row => row.slug),
+  }
+  return scope.niches.length + scope.networks.length > 0 ? scope : undefined
+}
+
+function searchFacets(facets:FacetCandidates,rows:SearchCandidate[]=[]):SearchFacet[] {
+  const found: SearchFacet[] = [
+    ...facets.niches.map(row => ({kind:'niche' as const,slug:row.slug,name:row.name,requiresAge:row.requiresAge===true})),
+    ...facets.networks.map(row => ({kind:'network' as const,slug:row.slug,name:row.name,requiresAge:row.requiresAge===true})),
+  ]
+  for (const row of rows) {
+    if (row.nichePublic && row.nicheSlug && row.nicheName) found.push({kind:'niche',slug:row.nicheSlug,name:row.nicheName,requiresAge:row.nicheRequiresAge===true})
+    if (row.networkPublic && row.networkSlug && row.networkName) found.push({kind:'network',slug:row.networkSlug,name:row.networkName,requiresAge:row.networkRequiresAge===true})
+  }
+  return [...new Map(found.map(row => [row.kind+':'+row.slug,row])).values()].slice(0,8)
+}
+
 async function loadCandidates(
   input: Omit<CandidateQuery, 'vector'>,
   embedding: EmbeddingService,
   candidates: CandidateSource,
 ): Promise<SearchCandidate[]> {
-  const vector = await embedding.embed(input.query)
+  const vector = input.facetScope ? null : await embedding.embed(input.query)
   const rows = await candidates({ ...input, vector })
   return rows.map((row) => ({
     ...row,
@@ -226,10 +268,13 @@ export async function getSearch(request: FastifyRequest, reply: FastifyReply) {
         ? Boolean(matchedNetwork?.requiresAge)
         : false
     const showImpressions = await publicImpressions(tenant.id)
-    if (resolved.exclusive && !(facetNeedsAge && age === 'yes')) {
+    const matchedFacets={niches,networks}
+    const facetScope=localFacetScope(query,matchedFacets,resolved.exclusive)
+    if (resolved.exclusive && facetNeedsAge && age !== 'yes') {
       if (facetNeedsAge) await observe({ tenantId: tenant.id, query, outcome: 'GATED' })
       return reply.status(200).send({
         target,
+        facets:searchFacets(matchedFacets),
         threshold,
         showImpressions,
         sponsored: [],
@@ -241,7 +286,7 @@ export async function getSearch(request: FastifyRequest, reply: FastifyReply) {
     let candidates: SearchCandidate[]
     try {
       candidates = await loadCandidates(
-        { tenantId: tenant.id, query, age, textWeight, semanticWeight, threshold,filters },
+        { tenantId: tenant.id, query, age, textWeight, semanticWeight, threshold,filters,facetScope },
         composition.embedding(),
         composition.candidates,
       )
@@ -259,9 +304,11 @@ export async function getSearch(request: FastifyRequest, reply: FastifyReply) {
     const sponsored = await withImpressions(tenant.id, ranked.sponsored.map(row => toDto(tenant.id, row, threshold)))
     const organic = await withImpressions(tenant.id, ranked.organic.map(row => toDto(tenant.id, row, threshold)))
     const queryId = await observe({ tenantId: tenant.id, query, outcome: searchOutcome({ failed: false, gated: hidden > 0 || (facetNeedsAge && age !== 'yes'), count: ranked.sponsored.length + ranked.organic.length }), resultIds: hidden > 0 || (facetNeedsAge && age !== 'yes') ? [] : [...ranked.sponsored, ...ranked.organic].map(row => row.id) })
+    const facets=searchFacets(matchedFacets,[...ranked.sponsored,...ranked.organic])
     return reply.status(200).send({
       ...(queryId ? { queryId } : {}),
       target,...(Object.values(filters).some(Boolean)?{activeFilters:filters}:{}),
+      ...(facets.length?{facets}:{}),
       threshold,
       showImpressions,
       ...(age === 'unknown' && (hidden > 0 || facetNeedsAge) ? { ageRequired: true } : {}),
@@ -278,6 +325,7 @@ export async function getSearch(request: FastifyRequest, reply: FastifyReply) {
 }
 
 export async function getSuggest(request: FastifyRequest, reply: FastifyReply) {
+  reply.header('cache-control','no-store')
   let filters: ReturnType<typeof parseDiscovery>
   try {filters=parseDiscovery(request.query)} catch {return reply.status(400).send({message:'Confira a cidade, o idioma e o formato.'})}
   const query = typeof (request.query as { q?: string }).q === 'string' ? (request.query as { q: string }).q : ''
@@ -287,13 +335,17 @@ export async function getSuggest(request: FastifyRequest, reply: FastifyReply) {
   const textWeight = readConfig(rows, 'SEARCH_TEXT_WEIGHT')
   const semanticWeight = readConfig(rows, 'SEARCH_SEMANTIC_WEIGHT')
   const age = ageFromCookie(request)
+  const facets = await getLinksRepository().findSearchFacetCandidates(tenant.id, searchFacetProbe(query))
+  const resolved = resolveSearchTarget(query,facets.niches,facets.networks)
+  const facetScope=localFacetScope(query,facets,resolved.exclusive)
+  const facetSql=searchFacetSql(7)
   const needle = query.trim().toLowerCase()
   const source = process.env.NODE_ENV === 'test'
     ? testCandidates
-      .filter((row) => row.name.toLowerCase().includes(needle) && matchesDiscovery(row,filters))
+      .filter((row) => matchesSearchFacetScope(row,facetScope) && (row.name.toLowerCase().includes(needle)||Boolean(facetScope)) && matchesDiscovery(row,filters))
       .map((row) => ({
         ...row,
-        relevance: relevanceScore(row.textScore, row.semanticScore ?? 0, textWeight, semanticWeight),
+        relevance: facetScope ? textWeight : relevanceScore(row.textScore, row.semanticScore ?? 0, textWeight, semanticWeight),
       }))
     : await prisma.$queryRawUnsafe<SearchCandidate[]>(
       `
@@ -307,43 +359,42 @@ export async function getSuggest(request: FastifyRequest, reply: FastifyReply) {
           ) AS "searchActivatedAt",
           (n."requiresAge" OR net."requiresAge") AS "requiresAge",
           n."name" AS "nicheName", n."slug" AS "nicheSlug",
-          net."name" AS "networkName", net."slug" AS "networkSlug"
+          net."name" AS "networkName", net."slug" AS "networkSlug",
+          n."isPublicFacet" AS "nichePublic", net."isPublicFacet" AS "networkPublic",
+          n."requiresAge" AS "nicheRequiresAge", net."requiresAge" AS "networkRequiresAge"
         FROM "links" l
         JOIN "niches" n ON n."id" = l."nicheId"
         JOIN "networks" net ON net."id" = l."networkId"
         WHERE l."tenantId" = $1 AND ${PUBLIC_LINK_FILTER}
-          AND ${nameMatchSql('$2')}
+          AND ((${nameMatchSql('$2')}) OR (${facetSql.match}))
           ${discoverySql(4)}
+          ${facetSql.clause}
+          AND ($9::text <> 'no' OR NOT (n."requiresAge" OR net."requiresAge"))
         LIMIT 8
       `,
       tenant.id,
       query.trim(),
       textWeight,
       filters.cityId,filters.languageTag,filters.modality,
+      facetScope?.niches??[],facetScope?.networks??[],age,
     )
   const recommended = autocompleteIds(source, threshold, 8)
   const visible = visibleForAge(source, age)
   const ids = autocompleteIds(visible, threshold, 8)
   const shown = new Set(ids)
   const ageRequired = age === 'unknown' && recommended.some((id) => !shown.has(id))
-  const facets = process.env.NODE_ENV === 'test'
-    ? { niches: [] as Array<{ slug: string; name: string }>, networks: [] as Array<{ slug: string; name: string }> }
-    : await getLinksRepository().findSearchFacetCandidates(tenant.id, searchFacetProbe(query))
-  const resolved = resolveSearchTarget(
-    query,
-    facets.niches.map((niche) => ({ slug: niche.slug, name: niche.name })),
-    facets.networks.map((network) => ({ slug: network.slug, name: network.name })),
-  )
   const facet = resolved.kind === 'results' || !resolved.slug
     ? null
     : { kind: resolved.kind, slug: resolved.slug, name: resolved.name }
   const counts = await getAnalyticsRepository().impressionTotals(tenant.id, ids)
   const media = await approvedMediaForCards(tenant.id, ids.map(id => ({ id })))
+  const relatedFacets=searchFacets(facets,visible.filter(row=>shown.has(row.id)))
   return reply.status(200).send({
     showImpressions: await publicImpressions(tenant.id),
     ...(ageRequired ? { ageRequired: true } : {}),
     ids,
     facet,
+    ...(relatedFacets.length?{facets:relatedFacets}:{}),
     items: ids.map((id) => {
       const row = visible.find((item) => item.id === id)
       return {

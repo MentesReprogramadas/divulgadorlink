@@ -142,11 +142,12 @@ export function FacetCatalog({
   const indexable = body.seo.robots.startsWith('index')
 
   async function answer(choice: 'yes' | 'no') {
-    if (choice === 'no') {
-      window.location.href = '/'
-      return
-    }
-    if (await confirmAge('yes')) router.refresh()
+    if (!(await confirmAge(choice))) return
+    const url = new URL(window.location.href)
+    if (url.searchParams.has('cursor')) {
+      url.searchParams.delete('cursor')
+      router.replace(url.pathname + url.search + url.hash)
+    } else router.refresh()
   }
 
   return (
@@ -165,7 +166,7 @@ export function FacetCatalog({
         hrefFor={(next) => discoveryHref(facetHref(route, slug, next), body.activeFilters ?? emptyDiscovery())}
       />
       <DiscoveryFilters initial={body.activeFilters ?? emptyDiscovery()} onPending={setFiltering}/>
-      {body.ageRequired ? <AgePrompt onYes={() => void answer('yes')} onNo={() => void answer('no')} /> : null}
+      {body.ageRequired ? <AgePrompt onYes={() => answer('yes')} onNo={() => answer('no')} /> : null}
       {body.blocked ? <p className="age-blocked">Este conteúdo é só para maiores de 18 anos.</p> : null}
       {filtering ? <CatalogCardsSkeleton count={Math.max(sponsored.length+organic.length,3)}/> : null}
       {!filtering && sponsored.length > 0 ? (
