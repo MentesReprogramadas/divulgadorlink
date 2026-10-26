@@ -195,13 +195,13 @@ Painel e administração compartilham material, espaçamento e hierarquia, prese
 
 ## Elevation & Depth
 
-O vidro combina superfície tonal, borda iluminada e sombra compartilhada. O blur (`14px`) fica atrás do conteúdo; textos e imagens permanecem nítidos. `--shadow` aponta para `--glass-shadow`. Não há shader por card nem promessa de refração óptica: o material atual usa CSS/backdrop-filter, enquanto o WebGL desenha somente as ondas de fundo.
+O vidro combina superfície tonal, borda iluminada e sombra compartilhada. A lente compartilhada usa blur de `0,65px` e saturação em CSS, sem filtros SVG, mapas de deslocamento ou acompanhamento do ponteiro; textos e imagens permanecem nítidos. `--shadow` aponta para `--glass-shadow`. A refração RGB permanece no componente próprio da galeria experimental, sem custo por controle na plataforma.
 
 A sombra de vidro implementada é `inset 0 1px 0 #e4fff382, inset 0 -1px 0 #abfff029, 0 16px 36px #000c1c40`. Diálogos acrescentam profundidade própria e backdrop. Menus e calendários usam a superfície mais opaca para não perder leitura quando sobrepostos a conteúdo.
 
-A atmosfera é decorativa e não participa da navegação. Em páginas públicas, há um canvas compartilhado com solicitação de GPU de baixo consumo, limite de DPR (`1.25`) e desenho limitado a aproximadamente 30 quadros por segundo. O loop para com pausa, movimento reduzido, página oculta ou elemento fora da área observada. O fallback mantém gradiente e linhas SVG quando o canvas não é viável. Em painel/admin, somente as linhas discretas são montadas; não há canvas WebGL.
+A atmosfera é decorativa e não participa da navegação. No shell da plataforma, o canvas compartilhado fica pausado: desenha a composição estática na montagem, no redimensionamento e na recuperação do contexto, sem animação contínua. Mantém solicitação de GPU de baixo consumo, DPR limitado a `1.25`, gradiente e linhas SVG estáticas como fallback. A mudança de 26/10/2026 reduz o custo observado ao rolar a home; evidências e limites estão em `docs/pesquisas/2026-10-26-scroll-home-correcao.md`.
 
-O botão **Pausar ondas / Retomar ondas** atua no shell com estado acessível. `prefers-reduced-motion` remove o movimento das linhas, fixa o tempo do shader e remove transições dos componentes que o tratam. Transparência reduzida oculta a decoração. Pausa e fallbacks não alteram dados ou ações da tela. O custo real precisa ser medido no dispositivo; limites de renderização não são um benchmark de desempenho.
+A galeria experimental conserva as ondas animadas, a refração e o botão de pausa com estado acessível. Na plataforma, `prefers-reduced-motion` mantém o fundo estático e remove transições dos componentes que o tratam. Transparência reduzida oculta a decoração. Pausa e fallbacks não alteram dados ou ações da tela. O custo real precisa ser medido no dispositivo; limites de renderização não são um benchmark de desempenho.
 
 ## Shapes
 

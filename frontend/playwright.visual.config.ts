@@ -3,7 +3,7 @@ import base from './playwright.config'
 
 export default defineConfig({
   ...base,
-  testMatch: /link-media\.spec\.ts|ondas-glass\.spec\.ts|ondas-platform-coverage\.spec\.ts|ui-quality\.spec\.ts|admin-promotions\.spec\.ts|workspace-layout\.spec\.ts|loading-layout\.spec\.ts/,
+  testMatch: /link-media\.spec\.ts|ondas-glass\.spec\.ts|home-scroll\.spec\.ts|ondas-platform-coverage\.spec\.ts|ui-quality\.spec\.ts|admin-promotions\.spec\.ts|workspace-layout\.spec\.ts|loading-layout\.spec\.ts/,
   snapshotPathTemplate: '{testDir}/visual-baselines/' + (process.platform === 'linux' ? 'linux/' : '') + '{projectName}/{arg}{ext}',
   projects: [
     { name: 'ui-desktop', use: { viewport: { width: 1440, height: 900 } } },

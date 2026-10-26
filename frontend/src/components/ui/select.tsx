@@ -9,7 +9,7 @@ type Option = { value: string; label: string; disabled: boolean; group?: string 
 export type SelectProps = {
   children: ReactNode; id?: string; name?: string; value?: string; defaultValue?: string
   required?: boolean; disabled?: boolean; autoFocus?: boolean; invalid?: boolean; className?: string; icon?: ReactNode
-  popupClassName?: string; popupBackdrop?: ReactNode
+  popupClassName?: string; popupBackdrop?: ReactNode; triggerBackdrop?: ReactNode
   optionIcons?: Readonly<Record<string, ReactNode>>
   'aria-label'?: string; 'aria-labelledby'?: string; 'aria-describedby'?: string
   onChange?: (event: { target: { value: string } }) => void
@@ -28,7 +28,7 @@ function optionsFrom(children: ReactNode): Option[] {
   })
 }
 
-export function Select({ children, value, defaultValue, onChange, name, required, disabled, invalid, className, popupClassName, popupBackdrop, icon, optionIcons, ...triggerProps }: SelectProps) {
+export function Select({ children, value, defaultValue, onChange, name, required, disabled, invalid, className, popupClassName, popupBackdrop, triggerBackdrop, icon, optionIcons, ...triggerProps }: SelectProps) {
   const options = optionsFrom(children)
   const ref = useRef<HTMLDivElement>(null)
   const [container, setContainer] = useState<HTMLElement | null>(null)
@@ -36,7 +36,7 @@ export function Select({ children, value, defaultValue, onChange, name, required
     <BaseSelect.Root<string> value={value} defaultValue={defaultValue ?? options[0]?.value ?? null} items={options} name={name} required={required} disabled={disabled} modal={false}
       onOpenChange={() => setContainer(ref.current?.closest('dialog') ?? null)} onValueChange={next => onChange?.({ target: { value: next ?? '' } })}>
       <BaseSelect.Trigger {...triggerProps} className={[styles.trigger, className].filter(Boolean).join(' ')} aria-invalid={invalid || undefined}>
-        <LiquidLens radius={12} />
+        {triggerBackdrop ?? <LiquidLens radius={12} />}
         <BaseSelect.Value className={styles.value}>{current => <span className={styles.valueContent} data-select-value={String(current ?? '')}>
           {(optionIcons?.[String(current ?? '')] ?? icon) ? <span className={styles.leadingIcon} aria-hidden="true">{optionIcons?.[String(current ?? '')] ?? icon}</span> : null}
           <span className={styles.valueLabel}>{options.find(option => option.value === current)?.label ?? 'Escolha uma opção'}</span>

@@ -1,0 +1,50 @@
+[
+  {
+    "path": "src/components/ui/liquid-lens.tsx",
+    "sha256": "3993fc0e957a95eb30b789bb1fc5807ef218dc78437490f8e89c923aff830940"
+  },
+  {
+    "path": "src/components/ui/liquid-lens.test.tsx",
+    "sha256": "fe88b343200f8f40305ee53c50a78b1512c8da6c12e6cc7871cee89044cc81f3"
+  },
+  {
+    "path": "src/components/ui/select.tsx",
+    "sha256": "ab6fab06e85d4671f6785bd09bcb9e904f8c8f605e3549034d377d94bce0fa76"
+  },
+  {
+    "path": "src/components/ui/input.test.tsx",
+    "sha256": "d225b343cf3da5cebeab3f9d02a4438aa182141a28cbcd32a8fe3cf5cd08f08a"
+  },
+  {
+    "path": "src/components/layout/ondas-atmosphere.tsx",
+    "sha256": "75209433ba1473db37f206ed3c1754106be7390547a8365ffb37b05db3c85cc0"
+  },
+  {
+    "path": "src/components/layout/ondas-atmosphere.module.css",
+    "sha256": "04e392572492af516a6f9a7dd47b46bc00aa8e91e66ca60e6e8d24bc6e98a033"
+  },
+  {
+    "path": "src/features/ondas-preview/liquid-lens.tsx",
+    "sha256": "79d04df3d329bf4aeddd81d42d15961ce3d8f44a56542f6ec6b49f564a5043be"
+  },
+  {
+    "path": "src/features/ondas-preview/wave-home.tsx",
+    "sha256": "8809bb2df999a12246793d489302b8d5b279febcb4bf1edb70385de7b8948078"
+  },
+  {
+    "path": "e2e/home-scroll.spec.ts",
+    "sha256": "eed86a81554daf6180034750b956c8e0e978fd5b3af2edcc1b6c3713fe983ca2"
+  },
+  {
+    "path": "e2e/ondas-preview.spec.ts",
+    "sha256": "eebb97d15a2b3cabb32439382a1a546752838e287defc11149bd02edb6167905"
+  },
+  {
+    "path": "playwright.frontend-experience.config.ts",
+    "sha256": "4b4f38f6578ba5c342cc55aadea875b45c070d5f65083f299087efb419fc9eea"
+  },
+  {
+    "path": "playwright.visual.config.ts",
+    "sha256": "0c8bcb2bd3306d2417d89d8380b06463db3d05a2c43db7c99a699f429129e99c"
+  }
+]

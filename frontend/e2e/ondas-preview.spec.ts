@@ -22,7 +22,7 @@ async function stable(page: Page) {
     expect(await image.evaluate((element: HTMLImageElement) => element.naturalWidth)).toBeGreaterThan(0)
   }
   await page.evaluate(async () => { await document.fonts.ready; window.scrollTo(0, 0) })
-  await expect(page.locator('[data-optics="frosted"]')).toHaveCount(0)
+  await expect(page.locator('main [data-optics="frosted"]')).toHaveCount(0)
 }
 
 async function accessible(page: Page) {

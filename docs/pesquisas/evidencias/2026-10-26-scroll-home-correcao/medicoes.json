@@ -1,0 +1,239 @@
+{
+  "date": "2026-10-26",
+  "cpuSlowdown": 4,
+  "metric": "rAF callback intervals; not presented FPS or field INP",
+  "phases": {
+    "baseline": {
+      "desktop": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "cpu": 4,
+        "metric": "rAF callback intervals; not presented FPS or INP",
+        "samples": [
+          {
+            "count": 59,
+            "p95": 200,
+            "max": 883,
+            "scrollY": 2880
+          },
+          {
+            "count": 60,
+            "p95": 167,
+            "max": 283,
+            "scrollY": 2880
+          },
+          {
+            "count": 60,
+            "p95": 100,
+            "max": 100,
+            "scrollY": 2880
+          }
+        ]
+      },
+      "mobile": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "cpu": 4,
+        "metric": "rAF callback intervals; not presented FPS or INP",
+        "samples": [
+          {
+            "count": 87,
+            "p95": 83,
+            "max": 100,
+            "scrollY": 2880
+          },
+          {
+            "count": 89,
+            "p95": 83,
+            "max": 167,
+            "scrollY": 2880
+          },
+          {
+            "count": 91,
+            "p95": 83,
+            "max": 150,
+            "scrollY": 2880
+          }
+        ]
+      }
+    },
+    "firstFixed": {
+      "desktop": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "cpu": 4,
+        "metric": "rAF callback intervals; not presented FPS or INP",
+        "samples": [
+          {
+            "count": 117,
+            "p95": 50,
+            "max": 83,
+            "scrollY": 2880
+          },
+          {
+            "count": 114,
+            "p95": 50,
+            "max": 50,
+            "scrollY": 2880
+          },
+          {
+            "count": 113,
+            "p95": 50,
+            "max": 83,
+            "scrollY": 2880
+          }
+        ]
+      },
+      "mobile": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "cpu": 4,
+        "metric": "rAF callback intervals; not presented FPS or INP",
+        "samples": [
+          {
+            "count": 117,
+            "p95": 17,
+            "max": 17,
+            "scrollY": 2880
+          },
+          {
+            "count": 108,
+            "p95": 17,
+            "max": 17,
+            "scrollY": 2880
+          },
+          {
+            "count": 116,
+            "p95": 17,
+            "max": 33,
+            "scrollY": 2880
+          }
+        ]
+      }
+    },
+    "platform": {
+      "desktop": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "cpu": 4,
+        "metric": "rAF callback intervals; not presented FPS or INP",
+        "samples": [
+          {
+            "count": 117,
+            "p95": 50,
+            "max": 67,
+            "scrollY": 2880
+          },
+          {
+            "count": 113,
+            "p95": 50,
+            "max": 67,
+            "scrollY": 2880
+          },
+          {
+            "count": 114,
+            "p95": 50,
+            "max": 67,
+            "scrollY": 2880
+          }
+        ]
+      },
+      "mobile": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "cpu": 4,
+        "metric": "rAF callback intervals; not presented FPS or INP",
+        "samples": [
+          {
+            "count": 124,
+            "p95": 17,
+            "max": 117,
+            "scrollY": 2880
+          },
+          {
+            "count": 120,
+            "p95": 17,
+            "max": 33,
+            "scrollY": 2880
+          },
+          {
+            "count": 115,
+            "p95": 17,
+            "max": 17,
+            "scrollY": 2880
+          }
+        ]
+      }
+    },
+    "final": {
+      "desktop": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "cpu": 4,
+        "metric": "rAF callback intervals; not presented FPS or INP",
+        "samples": [
+          {
+            "count": 107,
+            "p95": 50,
+            "max": 133,
+            "scrollY": 2880
+          },
+          {
+            "count": 115,
+            "p95": 83,
+            "max": 167,
+            "scrollY": 2880
+          },
+          {
+            "count": 107,
+            "p95": 50,
+            "max": 100,
+            "scrollY": 2880
+          }
+        ]
+      },
+      "mobile": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "cpu": 4,
+        "metric": "rAF callback intervals; not presented FPS or INP",
+        "samples": [
+          {
+            "count": 127,
+            "p95": 17,
+            "max": 33,
+            "scrollY": 2880
+          },
+          {
+            "count": 136,
+            "p95": 17,
+            "max": 33,
+            "scrollY": 2880
+          },
+          {
+            "count": 134,
+            "p95": 17,
+            "max": 50,
+            "scrollY": 2880
+          }
+        ]
+      }
+    }
+  }
+}

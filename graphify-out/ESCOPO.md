@@ -1,5 +1,9 @@
 # Graphify — Tem Link Aqui
 
+## Correção da rolagem — integração na main, 26/10/2026
+
+Consulta a OndasAtmosphere/LiquidLens confirmada no código. Índice regenerado incrementalmente sobre a main 6268cd32 com somente a correção de rolagem, sem as alterações pendentes da pasta original: 151 arquivos reavaliados, 1434 reutilizados; 7966 nós/28607 relações. Modo code-only, sem LLM/API externa ou clustering. O parser informou limites em testes e configurações; os checks reais passaram. CSS, capturas e fluidez não são validados pelo grafo. Evidências e integração em docs/pesquisas/2026-10-26-scroll-home-correcao.md.
+
 ## Manutenção — revisão de publicação e assinaturas, 25/10/2026
 
 Extração incremental local de código: 483 arquivos reavaliados, 1.062 reutilizados; 7.784 nós e 27.868 relações. Inclui o estado aprovado da branch e a rotina administrativa de configuração dos planos. Sem LLM/API ou clustering. O extrator informou 80 arquivos sem símbolos; CSS e capturas continuam fora da cobertura estrutural. As relações foram confirmadas no código e não substituem os testes ou a validação de produção.

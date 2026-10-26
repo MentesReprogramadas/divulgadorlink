@@ -6,6 +6,15 @@ import { Field, Input, Select, TextArea } from './input'
 afterEach(cleanup)
 
 describe('campos acessíveis', () => {
+  it('permite que a galeria forneça seu material sem mudar o nome ou valor do select', () => {
+    const { container } = render(<Field label="Rede"><Select name="network" defaultValue="telegram" triggerBackdrop={<span aria-hidden="true" data-preview-glass />}><option value="telegram">Telegram</option></Select></Field>)
+    const trigger = screen.getByRole('combobox', { name: 'Rede' })
+    expect(trigger.textContent).toContain('Telegram')
+    expect(trigger.querySelector('[data-preview-glass]')).toBeTruthy()
+    expect(trigger.querySelector('[data-optics]')).toBeNull()
+    expect(container.querySelector('input[name="network"]')?.getAttribute('value')).toBe('telegram')
+  })
+
   it('mantém checkbox e radio como escolhas nativas compactas, sem estilo de campo de texto', () => {
     const ref = { current: null as HTMLInputElement | null }
     render(<><label><Input ref={ref} type="checkbox" name="featured" />Destacar</label><label><Input type="radio" name="mode" value="equal" />Dividir por igual</label></>)
