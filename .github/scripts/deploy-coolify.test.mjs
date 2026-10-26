@@ -22,7 +22,7 @@ function harness(overrides = {}) {
     if (url.pathname.startsWith('/api/v1/applications/')) {
       const id = url.pathname.split('/').at(-1)
       if (body) { pins.set(id, body.git_commit_sha); return reply({ uuid: id }) }
-      return reply({ id, git_repository: env.GITHUB_REPOSITORY, git_branch: 'main',
+      return reply({ id:overrides.uuidOnly?undefined:id,uuid:id, git_repository: env.GITHUB_REPOSITORY, git_branch: 'main',
         git_commit_sha: pins.get(id), settings: { is_auto_deploy_enabled: overrides.auto ?? false },
         status: overrides.status ?? 'running:healthy' })
     }
@@ -45,6 +45,20 @@ test('rejects missing credentials, insecure origins and non-production events be
     const h = harness()
     await assert.rejects(h.run({ ...env, ...values }))
     assert.equal(h.calls.length, 0)
+  }
+})
+
+test('deploys using verified application UUIDs when Coolify omits internal IDs',async()=>{
+  const h=harness({uuidOnly:true})
+  await h.run()
+  assert.deepEqual(h.calls.filter(call=>call.url.pathname==='/api/v1/deploy').map(call=>call.body.uuid),applications.map(app=>app.uuid))
+})
+
+test('UUID-only responses still block concurrent deployments and unidentified queue entries before mutations',async()=>{
+  for(const pending of [[{application_uuid:applications[0].uuid}],[{application_id:123}],[{application_uuid:123}], [{}]]){
+    const h=harness({uuidOnly:true,pending})
+    await assert.rejects(h.run(),/already queued|identity unavailable/)
+    assert.equal(h.calls.some(call=>call.method!=='GET'),false)
   }
 })
 test('superseded commits skip all Coolify requests', async () => {

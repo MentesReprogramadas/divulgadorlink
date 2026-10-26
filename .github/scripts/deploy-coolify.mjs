@@ -47,13 +47,16 @@ export async function deploy(env = process.env, fetcher = fetch, sleep = delay) 
     if (state.git_repository !== env.GITHUB_REPOSITORY || state.git_branch !== 'main' || state.settings?.is_auto_deploy_enabled !== false) {
       throw new Error(`${app.name}: repository/main mismatch or auto-deploy still enabled; follow docs/ci-cd.md`)
     }
-    if (state.id === undefined || state.id === null) throw new Error(`${app.name}: application ID missing`)
-    applicationIds.add(String(state.id))
+    if (state.id !== undefined && state.id !== null) applicationIds.add(String(state.id))
+    else if(state.uuid!==app.uuid) throw new Error(`${app.name}: application UUID missing or mismatched`)
   }
   const pending = await api('/deployments')
   if (!Array.isArray(pending)) throw new Error('Unexpected Coolify deployment queue response')
   if (pending.some(row => applicationIds.has(String(row.application_id)) || applications.some(app => app.uuid === row.application_uuid))) {
     throw new Error('A production deployment is already queued/running; wait before retrying')
+  }
+  if(pending.some(row=>(typeof row.application_uuid!=='string'||!row.application_uuid)&&(applicationIds.size!==applications.length||row.application_id===undefined||row.application_id===null))){
+    throw new Error('Deployment queue identity unavailable; inspect Coolify before retrying')
   }
   for (const app of applications) {
     await api('/applications/' + app.uuid, 'PATCH', { git_commit_sha: env.GITHUB_SHA })

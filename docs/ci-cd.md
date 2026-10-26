@@ -79,6 +79,8 @@ Em 26/10/2026 o workflow passou a usar `https://coolify.temlinkaqui.com` como or
 
 ## Publicação e falhas
 
+Em 26/10/2026, os jobs de 14b4893e e 025614b0 confirmaram que COOLIFY_TOKEN já estava configurada. O bloqueio era `api: application ID missing`: a API retornou o UUID, mas omitiu o ID interno. O script aceita o UUID verificado e conserva a compatibilidade com IDs antigos. Entradas de fila sem identidade suficiente continuam bloqueando mutações; não há liberação de deploy concorrente por falta de ID.
+
 O job depende de todos os checks, usa environment `production` e serializa deploys sem cancelar uma publicação em andamento. A concorrência da main também não cancela um workflow durante o deploy. Um commit superado pela main é ignorado antes das mutações.
 
 O script verifica repositório/branch, auto-deploy desativado e ausência de deploys concorrentes. Fixa `git_commit_sha` no SHA testado, confirma a gravação e publica nesta ordem:

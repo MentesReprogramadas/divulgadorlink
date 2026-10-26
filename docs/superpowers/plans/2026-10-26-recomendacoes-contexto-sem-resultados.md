@@ -13,9 +13,11 @@ Limites: recomendações serão mais amplas que o assunto específico, mas perma
 
 ## Complemento pedido durante a validação
 
-O usuário identificou categorias demais antes dos links e lentidão no autocomplete (288 ms de rede para um prefixo). A UI ainda aguardava 350 ms antes dessa chamada. A main 14b4893e passou nos 22 grupos de qualidade, mas sua publicação foi retida para integrar o complemento; o job automático continua falhando somente pela secret COOLIFY_TOKEN ausente.
+O usuário identificou categorias demais antes dos links e lentidão no autocomplete (288 ms de rede para um prefixo). A UI ainda aguardava 350 ms antes dessa chamada. A main 14b4893e passou nos 22 grupos de qualidade, mas sua publicação foi retida para integrar o complemento. A inspeção posterior confirmou que a secret já estava configurada: o job automático falhou por exigir um ID interno não devolvido pelo Coolify.
 
 - Priorizar links no DOM e no teclado; categorias permanecem depois, também abaixo dos cards na página de resultados. Reusar a apresentação Ondas existente.
 - Sugestões rápidas após 150 ms, sem IA/embeddings, com as mesmas validações públicas. Quando faltarem links rápidos e a idade não bloquear a resposta, agendar interpretação após mais 350 ms de pausa. Novas teclas, Escape, blur e mudança de filtros cancelam chamadas/agendamentos antigos. A atualização de opções limpa a seleção ativa para impedir navegação a outro destino.
 - Paralelizar leituras independentes de configuração, facetas, contagens e mídia; preservar no-store e reavaliar idade em cada requisição. Não adicionar cache de respostas dependentes da idade.
 - Comparar tempos antes/depois pelo mesmo cliente, sem prometer latência de rede fixa; regressões de ordenação/progressão/cancelamento/maioridade e inspeção real em desktop/mobile antes do novo CI e deploy.
+
+Após os 22 grupos também passarem em 025614b0, a aplicação foi publicada pelo Coolify. A compatibilidade do CD usa UUIDs verificados quando não há ID interno e bloqueia qualquer entrada de fila sem identidade suficiente. Oito testes do deploy e três da lease passaram, preservando os bloqueios antes de mutações. O próximo push da correção do CD exige seu próprio CI e deve provar a publicação automática.
