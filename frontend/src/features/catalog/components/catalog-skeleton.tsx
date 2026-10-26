@@ -6,6 +6,7 @@ import home from './ondas-catalog.module.css'
 import { LiquidLens } from '@/components/ui/liquid-lens'
 import styles from './catalog-skeleton.module.css'
 import {DiscoveryFieldsSkeleton} from '@/features/catalog/discovery/discovery-skeleton'
+import { HomeHeroCopy } from './home-hero-copy'
 
 export function CatalogCardSkeleton({ actions, withFavorite = true,withImpressions=true }: { actions?: ReactNode; withFavorite?: boolean;withImpressions?:boolean }) {
   return <div className={card.card}><div className={card.body}><LiquidLens radius={20} />
@@ -25,9 +26,13 @@ export function SearchSkeleton() {
 }
 export function HomeSkeleton() {
   return <main className={home.publicPage}>
-    <section className={home.hero}><div className={home.heroCopy}><h1>Encontre seu <em>próximo link.</em></h1><p>Grupos, canais e conteúdos do seu interesse.</p></div><div className={home.homeSearch}><Skeleton height={70} /></div><div className={home.heroNetworks}>{[0, 1, 2].map(i => <Skeleton key={i} width={90} height={40} />)}</div></section>
+    <section className={home.hero} aria-labelledby="home-title"><HomeHeroCopy /><SkeletonRegion label="Carregando busca"><div className={home.homeSearch}><Skeleton height={66} /></div><div className={home.heroNetworks}><span>Explore no</span>{[90, 90, 90].map((width, i) => <Skeleton key={i} width={width} height={40} />)}</div></SkeletonRegion></section>
     <SkeletonRegion><div className={home.topics}>{[0, 1, 2, 3, 4, 5, 6].map(i => <Skeleton key={i} width={110} height={40} />)}</div></SkeletonRegion>
-    <div className={home.featuredSection}><Skeleton width={250} height={40} /><div className={styles.results}><CatalogCardsSkeleton count={3} /></div></div>
+    <section className={home.catalogSection} aria-labelledby="loading-catalog-title">
+      <header className={home.sectionHeading}><div><h2 id="loading-catalog-title">Catálogo de links</h2><Skeleton width={140} height={24} /></div><Skeleton width={110} height={44} /></header>
+      <SkeletonRegion label="Carregando filtros"><div className={home.catalogFilters}><div className={home.filterBar}><Skeleton width={220} height={44} /><span>Seu próximo interesse pode estar aqui.</span></div><Skeleton width={190} height={44} /></div></SkeletonRegion>
+      <CatalogCardsSkeleton />
+    </section>
   </main>
 }
 export function RelatedSkeleton() { return <section className={styles.results}><h2>Links relacionados</h2><CatalogCardsSkeleton count={3} withFavorite={false} /></section> }

@@ -10,10 +10,10 @@ import { discoveryQueryRecord, emptyDiscovery, type DiscoveryValues } from '@/fe
 import { InvalidDiscovery } from '@/features/catalog/discovery/invalid-discovery'
 import styles from '@/features/catalog/components/ondas-catalog.module.css'
 import { HomeCatalog } from '@/features/catalog/components/home-catalog'
+import { HomeHeroCopy } from '@/features/catalog/components/home-hero-copy'
 import { HomeTopics, HomeNetworkLinks, HomeNetworkSelect } from '@/features/catalog/components/home-navigation'
 import { HomeCollections } from '@/features/catalog/components/home-collections'
 import { catalogQueryRecord } from '@/domain/catalog-navigation'
-import { PublicCollectionsSection } from './public-collections'
 
 
 type Facet = { name?: string; slug?: string } | null
@@ -75,10 +75,7 @@ export async function HomeContent({ searchParams }: { searchParams: Promise<Reco
       /> : null}
       <main className={styles.publicPage}>
           <section className={styles.hero} aria-labelledby="home-title">
-            <div className={styles.heroCopy}>
-              <h1 id="home-title">{home.heading ?? 'Grupos, canais e links por assunto.'}</h1>
-              <p>{home.seo.description}</p>
-            </div>
+            <HomeHeroCopy />
             <HomeSearch discoveryQuery={discoveryQueryRecord(query).toString()}/>
             <HomeNetworkLinks networks={home.networks} discoveryQuery={discoveryQueryRecord(query).toString()} />
           </section>
@@ -87,7 +84,6 @@ export async function HomeContent({ searchParams }: { searchParams: Promise<Reco
             <div className={styles.filterBar}><HomeNetworkSelect networks={home.networks} discoveryQuery={discoveryQueryRecord(query).toString()} /><span>Seu próximo interesse pode estar aqui.</span></div>
             <HomeDiscoveryPanel filters={filters} />
           </HomeCatalog>
-          <PublicCollectionsSection />
           <HomeCollections links={[...home.sponsored, ...home.organic]} discoveryQuery={discoveryQueryRecord(query).toString()} />
       </main>
     </>

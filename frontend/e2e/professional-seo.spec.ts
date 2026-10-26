@@ -242,7 +242,7 @@ test('mudança no anúncio invalida a prévia e retira o detalhe do sitemap sem 
   }
 })
 
-test('paginação tem links HTML e canonical próprio, e cursor adulto não atravessa mudança de idade', async ({ page }) => {
+test('paginação tem links HTML e canonical próprio, e cursor adulto não atravessa mudança de idade', async ({ page }, info) => {
   await page.goto(origin + '/descobrir/' + offersCollection)
   const firstIds = await page.locator('main a[href^="/link/"]').evaluateAll(elements => elements.map(element => new URL((element as HTMLAnchorElement).href).pathname))
   const next = page.getByRole('navigation', { name: 'Paginação' }).getByRole('link', { name: 'Próxima página' })
@@ -257,7 +257,24 @@ test('paginação tem links HTML e canonical próprio, e cursor adulto não atra
   await page.goto(origin + '/rede/whatsapp')
   await expect(page.getByRole('navigation', { name: 'Paginação' }).getByRole('link', { name: 'Próxima página' })).toHaveAttribute('href', /cursor=/)
   await page.goto(origin)
-  await expect(page.getByRole('link', { name: 'Abrir próxima página' })).toHaveAttribute('href', /cursor=/)
+  await expect(page.getByRole('link', { name: 'Abrir próxima página' })).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: 'Explore por interesse' })).toHaveCount(0)
+  const heading = page.getByRole('heading', { level: 1 })
+  await expect(heading).toHaveText('Grupos e links por assunto')
+  for (const width of [320, 390, 1440]) {
+    await page.setViewportSize({ width, height: 900 })
+    await page.evaluate(() => document.fonts.ready)
+    const size = await heading.evaluate(element => ({ height: element.getBoundingClientRect().height, line: parseFloat(getComputedStyle(element).lineHeight) }))
+    expect(size.height).toBeLessThanOrEqual(size.line + 1)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+    await stableScreenshot(page, info.outputPath(`home-compact-${width}.png`))
+  }
+  await expect(page.getByRole('button', { name: 'Mostrar mais', exact: true })).toBeVisible()
+  const before = await page.locator('main a[href^="/link/"]').count()
+  await page.getByRole('button', { name: 'Mostrar mais', exact: true }).focus()
+  await expect(page.getByRole('button', { name: 'Mostrar mais', exact: true })).toBeFocused()
+  await page.getByRole('button', { name: 'Mostrar mais', exact: true }).press('Enter')
+  await expect.poll(() => page.locator('main a[href^="/link/"]').count()).toBeGreaterThan(before)
 
   const adultPage = await (await page.request.get(origin + '/bff/v1/catalog-collections/' + adultCollection)).json()
   expect(adultPage.nextCursor).toBeTruthy()

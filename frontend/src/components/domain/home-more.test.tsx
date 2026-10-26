@@ -1,13 +1,16 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { HomeMore } from './home-more'
+import { renderToStaticMarkup } from 'react-dom/server'
 
 afterEach(cleanup)
 
 describe('carregar mais links da home', () => {
-  it('oferece navegação HTML equivalente ao carregamento incremental', () => {
-    render(<HomeMore cursor="abc" href="/?languageTag=pt&cursor=abc" onLoad={() => undefined} />)
-    expect(screen.getByRole('link', { name: 'Abrir próxima página' }).getAttribute('href')).toBe('/?languageTag=pt&cursor=abc')
+  it('reserva a navegação HTML para navegadores sem JavaScript', () => {
+    const { container } = render(<HomeMore cursor="abc" href="/?languageTag=pt&cursor=abc" onLoad={() => undefined} />)
+    expect(container.querySelector('a')).toBeNull()
+    expect(renderToStaticMarkup(<HomeMore cursor="abc" href="/?languageTag=pt&cursor=abc" onLoad={() => undefined} />)).toContain('<noscript><a href="/?languageTag=pt&amp;cursor=abc" rel="next">Mostrar mais</a></noscript>')
+    expect(screen.queryByText('Abrir próxima página')).toBeNull()
   })
   it('esconde o controle sem cursor', () => {
     render(<HomeMore cursor={null} onLoad={() => undefined} />)

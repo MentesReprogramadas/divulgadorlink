@@ -56,7 +56,7 @@
 .reviewBar button { --glass-tint: #c9fff010; position: relative; isolation: isolate; border: 0; border-radius: 12px; background: transparent; color: #e0f6f6; padding: 10px 14px; min-height: 44px; }
 .hero { position: relative; isolation: isolate; z-index: 10; display: block; min-height: 360px; margin-top: 24px; padding: 38px 42px; text-align: center; }
 .heroCopy { position: relative; max-width: 720px; min-width: 0; margin-inline: auto; }
-.heroCopy h1 { font-size: clamp(20px, 5.8vw, 64px); line-height: 1.04; letter-spacing: -.04em; white-space: normal; }
+.heroCopy h1 { font-size: clamp(20px, 3vw, 40px); line-height: 1.15; letter-spacing: -.03em; white-space: normal; }
 .heroCopy h1 em { color: #4af9eb; font-style: normal; }
 .heroCopy > p { max-width: 47ch; color: #d1e6ed; font-size: 18px; line-height: 1.6; margin: 18px auto 0; }
 .heroNetworks { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: 22px; font-size: 13px; }
@@ -327,7 +327,7 @@
 }
 @media (max-width: 600px) {
   .hero { min-height: 0; padding: 30px 20px; margin-top: 20px; }
-  .heroCopy h1 { font-size: clamp(20px, 5.8vw, 32px); }
+  .heroCopy h1 { font-size: clamp(20px, 5vw, 24px); }
   .heroCopy > p { font-size: 16px; }
   .hero .search { margin-top: 23px; }
   .heroNetworks { gap: 9px; }
