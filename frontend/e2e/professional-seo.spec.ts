@@ -159,6 +159,23 @@ test('metadados, sitemap e detalhes públicos refletem a mesma política de SEO'
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', canonical + '/descobrir/' + offersCollection)
 })
 
+test('canonical e robots estão no head inicial para navegador, Googlebot e inspeção', async ({ page }) => {
+  for (const agent of ['Mozilla/5.0', 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)', 'Google-InspectionTool/1.0']) {
+    for (const pathname of ['/', '/rede/whatsapp', '/nicho/adulto', '/link/seo-free-01', '/descobrir/' + adultCollection, '/login']) {
+      const response = await page.request.get(origin + pathname, { headers: { 'User-Agent': agent } })
+      expect(response.status()).toBe(200)
+      const html = await response.text()
+      const head = /<head(?:\s[^>]*)?>([\s\S]*?)<\/head>/i.exec(html)?.[1] ?? ''
+      if (pathname === '/login') {
+        expect(head).toContain('name="robots" content="noindex, nofollow"')
+      } else {
+        expect(head).toContain(`rel="canonical" href="${canonical}${pathname}"`)
+        expect(head).toContain('name="robots" content="index, follow"')
+      }
+    }
+  }
+})
+
 test('prévia adulta é indexável sem expor texto, mídia, convite ou payload restrito', async ({ page }, info) => {
   const response = await page.goto(origin + '/descobrir/' + adultCollection)
   expect(response?.status()).toBe(200)

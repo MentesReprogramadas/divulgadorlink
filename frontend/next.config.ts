@@ -4,6 +4,8 @@ const nextConfig: NextConfig = {
   // The persistent demo must survive E2E teardown as well as a developer's build.
   distDir: process.env.TEMLINK_DEMO_BUILD === '1' ? '.next-ondas-demo' : process.env.TEMLINK_E2E_BUILD === '1' ? '.next-e2e' : '.next',
   output: 'standalone',
+  // Keep canonical and robots in the initial head for every crawler.
+  htmlLimitedBots: /.*/,
   reactStrictMode: true,
   poweredByHeader: false,
   allowedDevOrigins: ['tenant-a.localhost', 'tenant-b.localhost', 'localhost', '192.168.15.56', 'temlinkaqui.com', `divulguelinkaqui.com.br`],
