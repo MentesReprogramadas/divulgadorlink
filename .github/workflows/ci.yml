@@ -207,5 +207,5 @@ jobs:
         run: node .github/scripts/deploy-coolify.mjs
         env:
           GH_TOKEN: ${{ github.token }}
-          COOLIFY_URL: ${{ vars.COOLIFY_URL }}
+          COOLIFY_URL: ${{ vars.COOLIFY_URL || 'https://coolify.temlinkaqui.com' }}
           COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}

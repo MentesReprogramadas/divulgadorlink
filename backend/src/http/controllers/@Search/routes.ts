@@ -9,6 +9,8 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { PUBLIC_LINK_FILTER } from '@/domain/catalog/public-link'
 import { impressionsEnabled, readConfig, type ConfigKey } from '@/domain/config/read-config'
 import { OpenAiEmbeddingService } from '@/adapters/embeddings/openai-embedding-service'
+import { OpenAiSearchContext } from '@/adapters/search/openai-search-context'
+import type { SearchInterpreter } from '@/domain/search/search-context'
 import { env } from '@/env'
 import { signSurface } from '@/domain/analytics/surface-token'
 import { buildError, provider_error } from '@/http/errors'
@@ -62,6 +64,7 @@ export type CandidateQuery = {
   query: string
   vector: number[] | null
   facetScope?: SearchFacetScope
+  matchFacets?: boolean
   age: 'yes' | 'no' | 'unknown'
   textWeight: number
   semanticWeight: number
@@ -71,6 +74,7 @@ export type CandidateQuery = {
 export type CandidateSource = (input: CandidateQuery) => Promise<Array<Omit<SearchCandidate, 'relevance'>>>
 
 export type SearchComposition = {
+  interpret: SearchInterpreter
   embedding: () => EmbeddingService
   candidates: CandidateSource
 }
@@ -93,7 +97,7 @@ export function sqlCandidateSource(client: PrismaClient): CandidateSource {
       niche_public: boolean; network_public:boolean; niche_age:boolean; network_age:boolean
       cityId:string|null;languageTag:string|null;modality:DiscoveryMetadata['modality']
     }>>(
-      hybridSearchSql(discoverySql(8),searchFacetSql(11).match,searchFacetSql(11).clause),
+      hybridSearchSql(discoverySql(8),input.matchFacets===false?'false':searchFacetSql(11).match,searchFacetSql(11).clause),
       input.query,
       input.vector ? `[${input.vector.join(',')}]` : null,
       input.tenantId,
@@ -124,7 +128,9 @@ export function sqlCandidateSource(client: PrismaClient): CandidateSource {
 }
 
 export function productionSearchComposition(openAiApiKey = env.OPENAI_API_KEY ?? ''): SearchComposition {
+  const context = new OpenAiSearchContext(openAiApiKey)
   return {
+    interpret: input => context.interpret(input),
     embedding: () => new OpenAiEmbeddingService(openAiApiKey, fetch, undefined, undefined, 3_000),
     candidates: sqlCandidateSource(prisma),
   }
@@ -141,7 +147,7 @@ export function setSearchCandidatesForTest(rows: SearchCandidate[]): void {
   testCandidates = rows.map((row) => ({ ...row }))
   composition = {
     ...composition,
-    candidates: async input => testCandidates.filter(row=>matchesSearchFacetScope(row,input.facetScope)).map(({ relevance: _relevance, ...row }) => ({ ...row,textScore:input.facetScope?Math.max(1,row.textScore):row.textScore,semanticScore:input.vector===null?null:row.semanticScore })),
+    candidates: async input => testCandidates.filter(row=>matchesSearchFacetScope(row,input.facetScope)).map(({ relevance: _relevance, ...row }) => ({ ...row,textScore:input.facetScope&&input.matchFacets!==false?Math.max(1,row.textScore):row.textScore,semanticScore:input.vector===null?null:row.semanticScore })),
   }
 }
 
@@ -213,6 +219,23 @@ function localFacetScope(query:string,facets:FacetCandidates,exclusive:boolean):
   return scope.niches.length + scope.networks.length > 0 ? scope : undefined
 }
 
+async function interpretSearch(tenantId:string,query:string):Promise<{query:string;facets:FacetCandidates;scope?:SearchFacetScope;semantic:boolean}> {
+  const repo=getLinksRepository()
+  try {
+    const [allNiches,allNetworks]=await Promise.all([repo.listNiches(tenantId),repo.listNetworks(tenantId)])
+    const niches=allNiches.filter(row=>row.isPublicFacet),networks=allNetworks.filter(row=>row.isPublicFacet)
+    const context=await composition.interpret({tenantId,query,niches:niches.map(({slug,name})=>({slug,name})),networks:networks.map(({slug,name})=>({slug,name}))})
+    if(context){
+      const facets={niches:niches.filter(row=>context.niches.includes(row.slug)),networks:networks.filter(row=>context.networks.includes(row.slug))}
+      const scope={niches:facets.niches.map(row=>row.slug),networks:facets.networks.map(row=>row.slug)}
+      return {query:context.query,facets,scope:scope.niches.length+scope.networks.length?scope:undefined,semantic:context.mode==='semantic'}
+    }
+  } catch { /* Provider failure retains the existing lexical/semantic search. */ }
+  const facets=await repo.findSearchFacetCandidates(tenantId,searchFacetProbe(query))
+  const resolved=resolveSearchTarget(query,facets.niches,facets.networks)
+  return {query,facets,scope:localFacetScope(query,facets,resolved.exclusive),semantic:false}
+}
+
 function searchFacets(facets:FacetCandidates,rows:SearchCandidate[]=[]):SearchFacet[] {
   const found: SearchFacet[] = [
     ...facets.niches.map(row => ({kind:'niche' as const,slug:row.slug,name:row.name,requiresAge:row.requiresAge===true})),
@@ -230,7 +253,7 @@ async function loadCandidates(
   embedding: EmbeddingService,
   candidates: CandidateSource,
 ): Promise<SearchCandidate[]> {
-  const vector = input.facetScope ? null : await embedding.embed(input.query)
+  const vector = input.facetScope&&input.matchFacets!==false ? null : await embedding.embed(input.query)
   const rows = await candidates({ ...input, vector })
   return rows.map((row) => ({
     ...row,
@@ -242,6 +265,7 @@ async function loadCandidates(
 export async function getSearch(request: FastifyRequest, reply: FastifyReply) {
   reply.header('cache-control', 'no-store')
   const query = typeof (request.query as { q?: string }).q === 'string' ? (request.query as { q: string }).q : ''
+  if(query.length>300)return reply.status(400).send(buildError({code:'validation',message:'Use até 300 caracteres na busca.',request_id:request.id}))
   try {
     const tenant = await resolveTenant((request.headers.host ?? '').split(':')[0] || '')
     const filters=parseDiscovery(request.query)
@@ -250,9 +274,8 @@ export async function getSearch(request: FastifyRequest, reply: FastifyReply) {
     const threshold = readConfig(rows, 'SEARCH_RELEVANCE_THRESHOLD')
     const textWeight = readConfig(rows, 'SEARCH_TEXT_WEIGHT')
     const semanticWeight = readConfig(rows, 'SEARCH_SEMANTIC_WEIGHT')
-    const repo = getLinksRepository()
-    const probe = searchFacetProbe(query)
-    const { niches, networks } = await repo.findSearchFacetCandidates(tenant.id, probe)
+    const context=await interpretSearch(tenant.id,query)
+    const {niches,networks}=context.facets
     const resolved = resolveSearchTarget(
       query,
       niches.map((niche) => ({ slug: niche.slug, name: niche.name })),
@@ -260,16 +283,10 @@ export async function getSearch(request: FastifyRequest, reply: FastifyReply) {
     )
     const target = { kind: resolved.kind, slug: resolved.slug, name: resolved.name }
     const age = ageFromCookie(request)
-    const matchedNiche = niches.find((niche) => niche.slug === target.slug)
-    const matchedNetwork = networks.find((network) => network.slug === target.slug)
-    const facetNeedsAge = resolved.kind === 'niche'
-      ? Boolean(matchedNiche?.requiresAge)
-      : resolved.kind === 'network'
-        ? Boolean(matchedNetwork?.requiresAge)
-        : false
+    const facetNeedsAge = niches.some(row=>row.requiresAge)||networks.some(row=>row.requiresAge)
     const showImpressions = await publicImpressions(tenant.id)
     const matchedFacets={niches,networks}
-    const facetScope=localFacetScope(query,matchedFacets,resolved.exclusive)
+    const facetScope=context.scope
     if (resolved.exclusive && facetNeedsAge && age !== 'yes') {
       if (facetNeedsAge) await observe({ tenantId: tenant.id, query, outcome: 'GATED' })
       return reply.status(200).send({
@@ -286,7 +303,7 @@ export async function getSearch(request: FastifyRequest, reply: FastifyReply) {
     let candidates: SearchCandidate[]
     try {
       candidates = await loadCandidates(
-        { tenantId: tenant.id, query, age, textWeight, semanticWeight, threshold,filters,facetScope },
+        { tenantId: tenant.id, query:context.query, age, textWeight, semanticWeight, threshold,filters,facetScope,matchFacets:!context.semantic },
         composition.embedding(),
         composition.candidates,
       )
@@ -329,18 +346,23 @@ export async function getSuggest(request: FastifyRequest, reply: FastifyReply) {
   let filters: ReturnType<typeof parseDiscovery>
   try {filters=parseDiscovery(request.query)} catch {return reply.status(400).send({message:'Confira a cidade, o idioma e o formato.'})}
   const query = typeof (request.query as { q?: string }).q === 'string' ? (request.query as { q: string }).q : ''
+  if(query.length>300)return reply.status(400).send(buildError({code:'validation',message:'Use até 300 caracteres na busca.',request_id:request.id}))
   const tenant = await resolveTenant((request.headers.host ?? '').split(':')[0] || '')
   const rows = await configRows(tenant.id)
   const threshold = readConfig(rows, 'SEARCH_RELEVANCE_THRESHOLD')
   const textWeight = readConfig(rows, 'SEARCH_TEXT_WEIGHT')
   const semanticWeight = readConfig(rows, 'SEARCH_SEMANTIC_WEIGHT')
   const age = ageFromCookie(request)
-  const facets = await getLinksRepository().findSearchFacetCandidates(tenant.id, searchFacetProbe(query))
+  const context=await interpretSearch(tenant.id,query)
+  const facets = context.facets
   const resolved = resolveSearchTarget(query,facets.niches,facets.networks)
-  const facetScope=localFacetScope(query,facets,resolved.exclusive)
+  const facetScope=context.scope
   const facetSql=searchFacetSql(7)
-  const needle = query.trim().toLowerCase()
-  const source = process.env.NODE_ENV === 'test'
+  const needle = context.query.trim().toLowerCase()
+  let source:SearchCandidate[]
+  try {source = context.semantic
+    ? await loadCandidates({tenantId:tenant.id,query:context.query,age,textWeight,semanticWeight,threshold,filters,facetScope,matchFacets:false},composition.embedding(),composition.candidates)
+    : process.env.NODE_ENV === 'test'
     ? testCandidates
       .filter((row) => matchesSearchFacetScope(row,facetScope) && (row.name.toLowerCase().includes(needle)||Boolean(facetScope)) && matchesDiscovery(row,filters))
       .map((row) => ({
@@ -373,16 +395,16 @@ export async function getSuggest(request: FastifyRequest, reply: FastifyReply) {
         LIMIT 8
       `,
       tenant.id,
-      query.trim(),
+      context.query.trim(),
       textWeight,
       filters.cityId,filters.languageTag,filters.modality,
       facetScope?.niches??[],facetScope?.networks??[],age,
-    )
+    )}catch{return reply.status(503).send(buildError({code:provider_error,message:'Busca indisponível.',request_id:request.id}))}
   const recommended = autocompleteIds(source, threshold, 8)
   const visible = visibleForAge(source, age)
   const ids = autocompleteIds(visible, threshold, 8)
   const shown = new Set(ids)
-  const ageRequired = age === 'unknown' && recommended.some((id) => !shown.has(id))
+  const ageRequired = age === 'unknown' && (recommended.some((id) => !shown.has(id))||facets.niches.some(row=>row.requiresAge)||facets.networks.some(row=>row.requiresAge))
   const facet = resolved.kind === 'results' || !resolved.slug
     ? null
     : { kind: resolved.kind, slug: resolved.slug, name: resolved.name }

@@ -75,6 +75,8 @@ Na proteção da branch main, exigir `verify`, `web`, `images` e os onze checks 
 
 Não criar um segundo webhook de deploy. Não usar o token do MCP como se fosse uma secret já disponível no GitHub.
 
+Em 26/10/2026 o workflow passou a usar `https://coolify.temlinkaqui.com` como origem padrão quando `vars.COOLIFY_URL` não está definida. A origem respondeu HTTP 200 na conferência. Uma variável explícita ainda pode sobrescrever esse valor. O token `gh` disponível continua com `admin:false` e `push:false` e retorna 403 para variables/secrets; a secret `COOLIFY_TOKEN` permanece uma configuração administrativa independente. O fallback da URL não cria ou transfere tokens.
+
 ## Publicação e falhas
 
 O job depende de todos os checks, usa environment `production` e serializa deploys sem cancelar uma publicação em andamento. A concorrência da main também não cancela um workflow durante o deploy. Um commit superado pela main é ignorado antes das mutações.

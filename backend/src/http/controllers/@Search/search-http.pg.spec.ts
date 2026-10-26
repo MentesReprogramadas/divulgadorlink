@@ -176,6 +176,18 @@ describe('busca HTTP de ponta a ponta: rota → embedding injetado → SQL real 
     }
   })
 
+  it('contexto da IA filtra facetas, mas consulta específica ainda exige relevância no SQL real',async()=>{
+    composeSearchForTest({interpret:async()=>({query:QUERY,niches:['culinaria'],networks:[],mode:'semantic'})})
+      const response=await app.inject({method:'GET',url:'/api/v1/search?q='+encodeURIComponent('quero aprender a preparar doces refinados'),headers:{host:HOST_A}})
+      expect(response.statusCode).toBe(200)
+      const ids=[...response.json().organic,...response.json().sponsored].map((row:{id:string})=>row.id)
+      expect(ids).toContain('org-alta')
+      expect(ids).not.toContain('fraco')
+      expect(ids).not.toContain('rascunho')
+      expect(ids).not.toContain('outro')
+      expect(embedding.calls).toEqual([QUERY])
+  })
+
   it('busca trechos do nome sem depender de palavras inteiras ou vetor semelhante', async () => {
     const ids = ['partial-sem-vetor', 'partial-oposto', 'partial-adulto', 'partial-rascunho', 'partial-outro']
     try {

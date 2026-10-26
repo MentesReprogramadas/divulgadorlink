@@ -5,6 +5,8 @@ import { probeAvailability } from '../src/adapters/http/availability-probe'
 import { composeBillingE2e } from './e2e-billing-compose'
 import { composeSearchForTest } from '../src/http/controllers/@Search/routes'
 import { DeterministicTestEmbeddingService } from '../src/test-support/deterministic-test-embedding'
+import {composeSearchContextE2e} from './e2e-search-context'
+composeSearchContextE2e()
 composeBillingE2e()
 composePlatformWebhooksE2e()
 composeProfileHostsE2e()
@@ -13,6 +15,6 @@ const channelFixtures = new Set(['https://t.me/comunidade-f37', 'https://chat.wh
 composePublicContentProbeForTest(async url => channelFixtures.has(url) ? 200 : probeAvailability(url))
 composeSearchForTest({embedding:()=>{
   const deterministic=new DeterministicTestEmbeddingService()
-  return {async embed(text:string){if(text==='FalhaBuscaFixture')throw new Error('Provider unavailable fixture');return deterministic.embed(text)}}
+  return {async embed(text:string){if(text==='FalhaBuscaFixture')throw new Error('Provider unavailable fixture');if(text==='programação funcional')return Array.from({length:1536},(_,index)=>index===0?1:0);return deterministic.embed(text)}}
 }})
 void import('../src/server')

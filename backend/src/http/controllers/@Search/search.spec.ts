@@ -150,6 +150,78 @@ describe('GET /api/v1/search', () => {
     expect(embedding.calls).toEqual([])
   })
 
+  it('IA entende uma frase inédita e usa nicho/rede dinâmicos nas duas rotas',async()=>{
+    const repo=getLinksRepository() as InMemoryLinksRepository
+    const niche={...repo.niches[0],id:'dynamic-niche',name:'Garimpo para a casa',slug:'garimpo-casa',isPublicFacet:true,requiresAge:false}
+    const network={...repo.networks[0],id:'dynamic-network',name:'Mensagens',slug:'mensagens',isPublicFacet:true,requiresAge:false}
+    repo.niches.push(niche);repo.networks.push(network)
+    const interpret=vi.fn().mockResolvedValue({query:'produtos baratos para casa',niches:['garimpo-casa'],networks:['mensagens'],mode:'facet'})
+    composeSearchForTest({interpret})
+    setSearchCandidatesForTest([
+      {id:'context-match',name:'Comunidade de oportunidades',description:'Produtos',relevance:0,textScore:0,semanticScore:null,embeddingState:'ABSENT',searchActivatedAt:null,requiresAge:false,nicheSlug:'garimpo-casa',networkSlug:'mensagens'},
+      {id:'other-network',name:'Outro',description:'Produtos',relevance:0,textScore:0,semanticScore:null,embeddingState:'ABSENT',searchActivatedAt:null,requiresAge:false,nicheSlug:'garimpo-casa',networkSlug:'telegram'},
+    ])
+    try{
+      const query='quero equipar meu cantinho gastando pouco em grupos de conversa'
+      for(const path of ['search','search/suggest']){
+        const response=await app.inject({method:'GET',url:`/api/v1/${path}?q=${encodeURIComponent(query)}`,headers:{host:'temlinkaqui.com'}})
+        expect(response.statusCode).toBe(200)
+        const body=response.json()
+        expect((body.organic??body.items).map((row:{id:string})=>row.id)).toEqual(['context-match'])
+        expect(body.facets.map((row:{slug:string})=>row.slug)).toEqual(['garimpo-casa','mensagens'])
+      }
+      expect(interpret).toHaveBeenCalledWith(expect.objectContaining({query,niches:expect.arrayContaining([{slug:'garimpo-casa',name:'Garimpo para a casa'}])}))
+      expect(interpret.mock.calls[0][0].networks.some((row:{slug:string})=>row.slug==='outro')).toBe(false)
+      expect(embedding.calls).toEqual([])
+    }finally{repo.niches.splice(repo.niches.indexOf(niche),1);repo.networks.splice(repo.networks.indexOf(network),1)}
+  })
+
+  it('falha da interpretação mantém a busca existente',async()=>{
+    composeSearchForTest({interpret:async()=>{throw new Error('timeout')}})
+    const response=await app.inject({method:'GET',url:'/api/v1/search?q=receitas',headers:{host:'temlinkaqui.com'}})
+    expect(response.statusCode).toBe(200)
+    expect(response.json().organic.map((row:{id:string})=>row.id)).toContain('sem-vetor')
+    expect(embedding.calls).toEqual(['receitas'])
+  })
+
+  it('limita a consulta antes de chamar o provedor nas duas rotas',async()=>{
+    const interpret=vi.fn()
+    composeSearchForTest({interpret})
+    for(const path of ['search','search/suggest']){
+      const response=await app.inject({method:'GET',url:`/api/v1/${path}?q=${'x'.repeat(301)}`,headers:{host:'temlinkaqui.com'}})
+      expect(response.statusCode).toBe(400)
+    }
+    expect(interpret).not.toHaveBeenCalled()
+  })
+
+  it('assunto específico exige semântica mesmo dentro da rede e não aprova todos os links da faceta',async()=>{
+    composeSearchForTest({interpret:async()=>({query:'programação funcional avançada',niches:['jogos'],networks:['telegram'],mode:'semantic'})})
+    setSearchCandidatesForTest([
+      {id:'related',name:'Estudos',description:'Tópico específico',relevance:0,textScore:0,semanticScore:0.9,embeddingState:'READY',searchActivatedAt:null,requiresAge:false,nicheSlug:'jogos',networkSlug:'telegram'},
+      {id:'unrelated',name:'Outro assunto',description:'Sem relação',relevance:0,textScore:0,semanticScore:0,embeddingState:'READY',searchActivatedAt:null,requiresAge:false,nicheSlug:'jogos',networkSlug:'telegram'},
+    ])
+    for(const path of ['search','search/suggest']){
+      const response=await app.inject({method:'GET',url:`/api/v1/${path}?q=${encodeURIComponent('quero estudar funções puras no mensageiro')}`,headers:{host:'temlinkaqui.com'}})
+      expect(response.statusCode).toBe(200)
+      expect((response.json().organic??response.json().items).map((row:{id:string})=>row.id)).toEqual(['related'])
+    }
+    expect(embedding.calls).toEqual(['programação funcional avançada','programação funcional avançada'])
+  })
+
+  it('IA não libera conteúdo adulto sem aceite, mesmo interpretando frase não enumerada',async()=>{
+    composeSearchForTest({interpret:async()=>({query:'conteúdo para adultos',niches:['apostas'],networks:['telegram'],mode:'facet'})})
+    for(const path of ['search','search/suggest']){
+      const get=(cookie?:string)=>app.inject({method:'GET',url:`/api/v1/${path}?q=${encodeURIComponent('busco entretenimento reservado só para maiores')}`,headers:{host:'temlinkaqui.com',...(cookie?{cookie}:{})}})
+      const closed=await get()
+      expect(closed.json().ageRequired).toBe(true)
+      expect(closed.body).not.toContain('Adulto secreto')
+      const open=await get('age=yes')
+      expect((open.json().organic??open.json().items).map((row:{id:string})=>row.id)).toEqual(['adulto'])
+      const no=await get('age=no')
+      expect(no.body).not.toContain('Adulto secreto')
+    }
+  })
+
   it('palavra a mais mantém a rede e ainda busca', async () => {
     const response = await app.inject({ method: 'GET', url: '/api/v1/search?q=grupo%20telegram', headers: { host: 'temlinkaqui.com' } })
 
