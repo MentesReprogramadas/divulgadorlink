@@ -6,6 +6,7 @@ import {
   composeSearchForTest,
   resetSearchCandidatesForTest,
   sqlCandidateSource,
+  sqlSuggestionSource,
 } from '@/http/controllers/@Search/routes'
 import { setTenantsRepositoryForTest } from '@/http/tenant'
 import { PrismaConfigsRepository, setConfigsRepositoryForTest } from '@/repositories/configs-repository'
@@ -136,7 +137,7 @@ describe('busca HTTP de ponta a ponta: rota → embedding injetado → SQL real 
   beforeEach(() => {
     resetSearchCandidatesForTest()
     embedding = new DeterministicTestEmbeddingService()
-    composeSearchForTest({ embedding: () => embedding, candidates: sqlCandidateSource(db) })
+    composeSearchForTest({ embedding: () => embedding, candidates: sqlCandidateSource(db),suggestions:sqlSuggestionSource(db) })
   })
 
   afterAll(async () => {
@@ -252,6 +253,10 @@ describe('busca HTTP de ponta a ponta: rota → embedding injetado → SQL real 
         expect(found.map((row: Item) => row.id).sort()).toEqual(
           (age === 'yes' ? ['partial-adulto', 'partial-oposto', 'partial-sem-vetor'] : ['partial-oposto', 'partial-sem-vetor']).sort())
         expect(found.every((row: Item) => row.relevanceScore >= 0.35)).toBe(true)
+        const quick=await app.inject({method:'GET',url:'/api/v1/search/suggest?q=%20Sa%20&quick=1',headers:{host:HOST_A,cookie:`age=${age}`}})
+        expect(quick.statusCode).toBe(200)
+        expect(quick.json().ids.sort()).toEqual((age==='yes'?['partial-adulto','partial-oposto','partial-sem-vetor']:['partial-oposto','partial-sem-vetor']).sort())
+        expect(quick.headers['cache-control']).toBe('no-store')
       }
       const wildcard = await app.inject({ method: 'GET', url: '/api/v1/search?q=%25', headers: { host: HOST_A } })
       expect(wildcard.json().organic.map((row: Item) => row.id)).not.toContain('partial-sem-vetor')

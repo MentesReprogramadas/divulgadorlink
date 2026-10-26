@@ -9,6 +9,7 @@
   position: relative;
   isolation: isolate;
   max-width: 900px;
+  margin-top: var(--space-8);
   margin-bottom: var(--space-8);
   padding: var(--space-4);
   border: 0;

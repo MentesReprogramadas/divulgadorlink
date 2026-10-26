@@ -22,3 +22,21 @@ Logs e capturas em `output/search-related-*`. Validação isolada sobre a main `
 ## Reversão e limites
 
 Reverter somente o commit desta correção e validar/publicar o novo SHA. Não há migration. A disponibilidade das recomendações depende de facetas reconhecidas e links publicados elegíveis; não se promete correspondência exata para todo texto. O teste local do provedor é controlado; a conferência pública após deploy cobre as frases que motivaram o ajuste e os estados de maioridade, sem abrir destinos ou imagens dos links.
+
+## Complemento: prioridade dos links e tempo das sugestões
+
+O usuário acrescentou o problema de categorias ocupando o início das sugestões e relatou 288 ms de rede para o prefixo B. A medição anterior, pelo mesmo cliente fetch reutilizando conexão, registrou 305/289/289 ms após a primeira conexão de 885 ms. Não é uma medição universal nem isola somente o servidor. Havia mais 350 ms de espera na interface antes da chamada.
+
+Links agora vêm primeiro no DOM e na navegação por teclado; os destinos de nicho/rede ficam depois. Na página de resultados, os cards também precedem o contexto, com separação de espaço. A interface preserva a marca e os componentes existentes.
+
+O campo consulta o caminho rápido após 150 ms. Esse caminho usa a consulta literal e as facetas existentes, sem aguardar IA ou embeddings. Quando não existem links rápidos e a maioridade não exige confirmação, uma pausa adicional de 350 ms agenda a interpretação completa. O estado de busca contextual aparece sem bloquear a navegação já disponível. Nova digitação, Escape, blur, composição IME e mudança de filtros continuam cancelando requisições/agendamentos e ignorando respostas superadas. A seleção ativa é limpa quando a lista muda, evitando que uma categoria selecionada se transforme em outro destino.
+
+As leituras independentes de configuração, contexto público, contagens e mídia rodam em paralelo. Não há cache de resposta dependente de idade. O SQL literal foi mantido e passou a usar uma fonte injetada, como a busca semântica já usava: isso permite testar o caminho rápido com PostgreSQL real, em vez de a condição NODE_ENV=test desviá-lo silenciosamente para fixtures em memória.
+
+Verificação do complemento: 20 testes focais de interface e 40 de backend aprovados; rodada integral final com 797 testes frontend e 736 backend, lint/tipos/build aprovados. Nove testes de banco passaram, incluindo busca rápida com tenant/publicação/idade/no-store. A primeira tentativa desse novo caso encontrou o desvio para fixture em memória; uma repetição também usou a cópia antiga porque o comando de sincronização apontou para o diretório errado. O caso passou após a injeção explícita da fonte SQL e a sincronização correta. Não foi removida a assertiva de links ou idade.
+
+26 E2E desktop/mobile passaram novamente, incluindo resposta rápida seguida de contexto retido por uma barreira de rede controlada, prioridade dos links e confirmação/recusa +18. Capturas do popup e dos resultados foram inspecionadas. O refinamento final de espaçamento e a inspeção adicional ficam nos artefatos `output/search-suggestions-*`/`output/search-links-*`. O Playwright MCP foi tentado antes/depois da janela do servidor descartável e recebeu conexão recusada; isso não invalida as capturas e interações reais da suíte.
+
+O commit intermediário 14b4893e passou nos 22 grupos de qualidade, com deploy automático bloqueado somente por COOLIFY_TOKEN ausente. Ele não foi publicado enquanto o complemento era integrado. O novo SHA precisa de seu próprio CI e conferência de produção. Graphify incremental final do complemento: 9517 nós/35648 relações, incluindo mudanças concorrentes; sem LLM/API/clustering. Detector mecânico Impeccable dos dois componentes alterados retornou lista vazia.
+
+A redução de espera da interface é comprovada por relógio controlado; a latência de rede e a interpretação de frases novas ainda variam. A publicação não promete que toda chamada ficará abaixo de 288 ms. Reverter os dois commits desta entrega restaura a busca anterior; o banco permanece compatível.

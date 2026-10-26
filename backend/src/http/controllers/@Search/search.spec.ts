@@ -194,6 +194,24 @@ describe('GET /api/v1/search', () => {
     expect(interpret).not.toHaveBeenCalled()
   })
 
+  it('sugestão rápida encontra links sem aguardar o interpretador ou embeddings',async()=>{
+    const interpret=vi.fn().mockImplementation(()=>new Promise(()=>{}))
+    composeSearchForTest({interpret})
+    const response=await app.inject({method:'GET',url:'/api/v1/search/suggest?q=Receitas&quick=1',headers:{host:'temlinkaqui.com'}})
+    expect(response.statusCode).toBe(200)
+    expect(response.json().ids).toEqual(['pago','sem-vetor'])
+    expect(interpret).not.toHaveBeenCalled()
+    expect(embedding.calls).toEqual([])
+  })
+
+  it('valida o modo rápido antes de consultar provedores',async()=>{
+    const interpret=vi.fn()
+    composeSearchForTest({interpret})
+    const response=await app.inject({method:'GET',url:'/api/v1/search/suggest?q=Receitas&quick=0',headers:{host:'temlinkaqui.com'}})
+    expect(response.statusCode).toBe(400)
+    expect(interpret).not.toHaveBeenCalled()
+  })
+
   it('assunto específico exige semântica mesmo dentro da rede e não aprova todos os links da faceta',async()=>{
     composeSearchForTest({interpret:async()=>({query:'programação funcional avançada',niches:['jogos'],networks:['telegram'],mode:'semantic'})})
     setSearchCandidatesForTest([

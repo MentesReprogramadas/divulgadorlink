@@ -47,10 +47,21 @@ test.beforeEach(async({page})=>{
 })
 
 test('IA interpreta frase livre em uma categoria nova e combina com a rede no autocomplete e nos resultados',async({page},info)=>{
+  let releaseContext:()=>void=()=>undefined
+  const contextReady=new Promise<void>(resolve=>{releaseContext=resolve})
+  await page.route('**/bff/v1/search/suggest?**',async route=>{
+    const params=new URL(route.request().url()).searchParams
+    if(params.get('q')==='quero garimpar precinhos para minha casa nos grupos do zap'&&!params.has('quick'))await contextReady
+    await route.continue()
+  })
   await page.goto(origin+'/busca')
   await page.getByRole('combobox',{name:'Busca',exact:true}).fill('quero garimpar precinhos para minha casa nos grupos do zap')
+  await expect(page.getByText('Buscando links relacionados…',{exact:true})).toBeVisible()
+  releaseContext()
   await expect(page.getByRole('option',{name:/Comunidade de oportunidades/})).toBeVisible()
+  await expect(page.getByRole('listbox').getByRole('option').first()).toContainText('Comunidade de oportunidades')
   await expect(page.getByRole('group',{name:'Nichos e redes'}).getByRole('option',{name:/Oportunidades para casa/})).toBeVisible()
+  await page.screenshot({path:info.outputPath('search-links-first.png'),fullPage:true,animations:'disabled'})
   await page.getByRole('link',{name:'Ver todos os resultados'}).click()
   await expect(page.getByRole('link',{name:'Comunidade de oportunidades',exact:true})).toBeVisible()
   await expect(page.getByRole('navigation',{name:'Nichos e redes relacionados'}).getByRole('link',{name:'Explorar WhatsApp'})).toBeVisible()

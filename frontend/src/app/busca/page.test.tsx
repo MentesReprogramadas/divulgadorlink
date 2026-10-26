@@ -33,3 +33,11 @@ it('anuncia o total carregado e preserva surfaceToken e queryId', async () => {
   expect(await screen.findByRole('status', { name: 'Resultados da busca' })).toHaveProperty('textContent', '1 link encontrado.')
   expect(screen.getByRole('link', { name: 'Resultado atual' }).getAttribute('href')).toBe('/link/atual?surfaceToken=signed%2B1&queryId=query%2B1')
 })
+
+it('prioriza links e deixa os destinos de contexto depois dos resultados',async()=>{
+  api.mockResolvedValue({status:200,body:{target:{kind:'results',slug:null},facets:[{kind:'niche',slug:'jogos',name:'Jogos'}],sponsored:[],organic:[{id:'related',name:'Comunidade relacionada',description:'Descrição',surfaceToken:'signed'}]}})
+  render(<Page/>)
+  const link=await screen.findByRole('link',{name:'Comunidade relacionada'})
+  const context=screen.getByRole('navigation',{name:'Nichos e redes relacionados'})
+  expect(link.compareDocumentPosition(context)&Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+})

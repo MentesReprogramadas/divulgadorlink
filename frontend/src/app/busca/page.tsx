@@ -127,7 +127,6 @@ function SearchResults() {
       <p className={styles.summary} role="status" aria-label="Resultados da busca">{displayState === 'ready' && !ageRequired && sponsored.length + organic.length > 0 ? `${sponsored.length + organic.length} ${sponsored.length + organic.length === 1 ? 'link encontrado.' : 'links encontrados.'}` : ''}</p>
       {showEmpty ? <EmptyState action={filterQuery ? <a href={`/busca?q=${encodeURIComponent(q)}`}>Limpar filtros</a> : <a href="/">Explorar o catálogo</a>}>Nenhum link encontrado</EmptyState> : null}
       {displayState === 'ready' && ageRequired ? <AgePrompt onYes={() => answer('yes')} onNo={() => answer('no')} /> : null}
-      {displayState === 'ready' ? <SearchContext facets={facets} filters={discovery.value} /> : null}
       {displayState === 'ready' && sponsored.length > 0 ? (
         <section className={`search-list ${styles.section}`} aria-labelledby="search-patrocinados">
           <h2 id="search-patrocinados">Patrocinados</h2>
@@ -148,6 +147,7 @@ function SearchResults() {
           </CatalogGrid>
         </section>
       ) : null}
+      {displayState === 'ready' ? <SearchContext facets={facets} filters={discovery.value} /> : null}
     </main>
   )
 }

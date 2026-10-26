@@ -59,6 +59,7 @@ export function SearchBox({
   const [choices, setChoices] = useState<Choice[]>([])
   const [open, setOpen] = useState(false)
   const [pending, setPending] = useState(false)
+  const [contextPending, setContextPending] = useState(false)
   const [active, setActive] = useState(-1)
   const [none, setNone] = useState(false)
   const [failed, setFailed] = useState(false)
@@ -88,6 +89,7 @@ export function SearchBox({
   function dismiss() {
     cancelRequest()
     setPending(false)
+    setContextPending(false)
     setOpen(false)
     setActive(-1)
   }
@@ -100,6 +102,7 @@ export function SearchBox({
     setChoices([])
     setNone(false)
     setFailed(false)
+    setContextPending(false)
     setAskAge(false)
     if (next.trim().length === 0) {
       setPending(false)
@@ -110,18 +113,25 @@ export function SearchBox({
     }
     setPending(true)
     setOpen(true)
-    timer.current = setTimeout(() => void loadSuggestions(next, requestId), 350)
+    timer.current = setTimeout(() => void loadSuggestions(next, requestId), 150)
   }
 
-  async function loadSuggestions(next: string, requestId: number) {
+  async function loadSuggestions(next: string, requestId: number, quick=true) {
     controller.current = new AbortController()
-    const result = await api<SuggestBody>(`/v1/search/suggest?q=${encodeURIComponent(next)}${discoveryQuery ? `&${discoveryQuery}` : ""}`, { signal: controller.current.signal }).catch(() => ({ status: 503, body: {} as SuggestBody }))
+    const result = await api<SuggestBody>(`/v1/search/suggest?q=${encodeURIComponent(next)}${discoveryQuery ? `&${discoveryQuery}` : ""}${quick?'&quick=1':''}`, { signal: controller.current.signal }).catch(() => ({ status: 503, body: {} as SuggestBody }))
     if (requestId !== latestRequest.current) return
     setPending(false)
+    setContextPending(false)
     if (result.status !== 200) { setFailed(true); return }
     const body = result.body
     const items = body.items ?? []
     const rows: Choice[] = []
+    for (const item of items) {
+      const href = item.surfaceToken
+        ? `/link/${item.id}?surfaceToken=${encodeURIComponent(item.surfaceToken)}`
+        : `/link/${item.id}`
+      rows.push({ key: item.id, kind: 'link', href, item })
+    }
     for(const facet of body.facets??(body.facet?[body.facet]:[])) {
       if(!facet.slug)continue
       const name = facet.name?.trim() || facet.slug
@@ -136,17 +146,17 @@ export function SearchBox({
         requiresAge:facet.requiresAge,
       })
     }
-    for (const item of items) {
-      const href = item.surfaceToken
-        ? `/link/${item.id}?surfaceToken=${encodeURIComponent(item.surfaceToken)}`
-        : `/link/${item.id}`
-      rows.push({ key: item.id, kind: 'link', href, item })
-    }
+    const enrich=quick&&items.length===0&&!body.ageRequired&&next.trim().length>=3
     setChoices(rows)
-    setNone(rows.length === 0)
+    setActive(-1)
+    setNone(rows.length === 0&&!enrich)
     setShowImpressions(body.showImpressions !== false)
     setAskAge(body.ageRequired === true)
     setOpen(true)
+    if(enrich){
+      setContextPending(true)
+      timer.current=setTimeout(()=>void loadSuggestions(next,requestId,false),350)
+    }
   }
 
   async function answerAge(choice: 'yes' | 'no') {
@@ -180,8 +190,8 @@ export function SearchBox({
   const hasOptions = open && !pending && choices.length > 0
   const activeId = hasOptions && active >= 0 ? `${listId}-${active}` : undefined
   const groups = [
-    { label: 'Nichos e redes', rows: choices.filter((choice) => choice.kind === 'facet') },
     { label: 'Links sugeridos', rows: choices.filter((choice) => choice.kind === 'link') },
+    { label: 'Nichos e redes', rows: choices.filter((choice) => choice.kind === 'facet') },
   ].filter((group) => group.rows.length > 0)
 
   useEffect(() => {
@@ -255,6 +265,7 @@ export function SearchBox({
           ) : null}
           {!pending && failed ? <div><p role="alert">Não foi possível carregar as sugestões.</p><Button type="button" variant="secondary" readOnlyAllowed onClick={() => { box.current?.querySelector('input')?.focus(); suggest(value) }}>Tentar novamente</Button></div> : null}
           {!pending && none ? <p className="search-none" role="status">Nenhuma sugestão</p> : null}
+          {contextPending ? <p className={styles.metadata} role="status">Buscando links relacionados…</p> : null}
           <span className={styles.srOnly} role="status">{hasOptions ? `${choices.length} sugestões disponíveis. Use as setas para navegar.` : ''}</span>
           <a className={styles.allResults} href={`/busca?q=${encodeURIComponent(value)}${discoveryQuery ? `&${discoveryQuery}` : ""}`}>
             Ver todos os resultados <span aria-hidden="true">→</span>
