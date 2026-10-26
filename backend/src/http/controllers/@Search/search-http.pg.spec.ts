@@ -188,6 +188,49 @@ describe('busca HTTP de ponta a ponta: rota → embedding injetado → SQL real 
       expect(embedding.calls).toEqual([QUERY])
   })
 
+  it('sem resultado específico recomenda apenas contexto publicado do tenant, preservando idade, filtros e limiar',async()=>{
+    const owner='context-banned-owner',hidden='context-banned-link',otherNetwork='context-other-network',otherLink='context-other-link'
+    await db.niche.update({where:{id:'s-adulto'},data:{isPublicFacet:true}})
+    await db.user.create({data:{id:owner,tenantId:TENANT_A,name:'Suspenso',passwordHash:'fixture',status:'BANNED'}})
+    await db.network.create({data:{id:otherNetwork,tenantId:TENANT_A,name:'Outra rede',slug:otherNetwork,knownHosts:[]}})
+    for(const {id,networkId,ownerId} of [{id:hidden,networkId:'s-net-a',ownerId:owner},{id:otherLink,networkId:otherNetwork,ownerId:null}]){
+      await db.link.create({data:{id,tenantId:TENANT_A,networkId,ownerId,nicheId:'s-livre',name:'Comunidade excluída',description:'Não recomendar',canonicalUrl:`https://example.test/${id}`,status:'PUBLISHED'}})
+    }
+    await db.link.update({where:{id:'org-alta'},data:{languageTag:'pt'}})
+    composeSearchForTest({interpret:async()=>({query:'conceito inexistente',niches:['culinaria','adulto'],networks:['telegram'],mode:'semantic'}),embedding:()=>({embed:async()=>query.map(value=>-value)})})
+    try{
+      for(const path of ['search','search/suggest']){
+        const get=(age:string,filters='')=>app.inject({method:'GET',url:`/api/v1/${path}?q=quero%20algo%20relacionado${filters}`,headers:{host:HOST_A,cookie:`age=${age}`}})
+        const closed=await get('unknown')
+        expect(closed.statusCode).toBe(200)
+        expect(closed.json().ageRequired).toBe(true)
+        expect(closed.body).not.toContain('"id":"adulto"')
+        const open=await get('yes')
+        expect(open.statusCode).toBe(200)
+        const body=open.json(),ids=[...(body.organic??body.items),...(body.sponsored??[])].map((row:Item)=>row.id)
+        expect(ids).toContain('adulto')
+        expect(ids).toContain('fraco')
+        for(const id of ['rascunho','outro',hidden,otherLink])expect(ids).not.toContain(id)
+        const refused=await get('no')
+        expect(refused.body).not.toContain('"id":"adulto"')
+        const filtered=await get('yes','&languageTag=pt')
+        expect((filtered.json().organic??filtered.json().items).map((row:Item)=>row.id)).toEqual(['org-alta'])
+        expect(filtered.headers['cache-control']).toBe('no-store')
+      }
+      await db.config.update({where:{tenantId_key:{tenantId:TENANT_A,key:'SEARCH_RELEVANCE_THRESHOLD'}},data:{value:'0.9'}})
+      const high=await app.inject({method:'GET',url:'/api/v1/search?q=quero%20algo%20relacionado',headers:{host:HOST_A,cookie:'age=yes'}})
+      expect(high.json().organic).toEqual([])
+      expect(high.json().sponsored).toEqual([])
+    }finally{
+      await db.config.update({where:{tenantId_key:{tenantId:TENANT_A,key:'SEARCH_RELEVANCE_THRESHOLD'}},data:{value:'0.35'}})
+      await db.link.update({where:{id:'org-alta'},data:{languageTag:null}})
+      await db.link.deleteMany({where:{id:{in:[hidden,otherLink]}}})
+      await db.network.delete({where:{id:otherNetwork}})
+      await db.user.delete({where:{id:owner}})
+      await db.niche.update({where:{id:'s-adulto'},data:{isPublicFacet:false}})
+    }
+  })
+
   it('busca trechos do nome sem depender de palavras inteiras ou vetor semelhante', async () => {
     const ids = ['partial-sem-vetor', 'partial-oposto', 'partial-adulto', 'partial-rascunho', 'partial-outro']
     try {

@@ -208,6 +208,46 @@ describe('GET /api/v1/search', () => {
     expect(embedding.calls).toEqual(['programação funcional avançada','programação funcional avançada'])
   })
 
+  it('recomenda o nicho e a rede interpretados quando o assunto específico não tem resultado',async()=>{
+    composeSearchForTest({interpret:async()=>({query:'conceito sem correspondência',niches:['jogos'],networks:['telegram'],mode:'semantic'})})
+    setSearchCandidatesForTest([
+      {id:'context-related',name:'Comunidade relacionada',description:'Mesmo contexto',relevance:0,textScore:0,semanticScore:null,embeddingState:'ABSENT',searchActivatedAt:null,requiresAge:false,nicheSlug:'jogos',networkSlug:'telegram'},
+      {id:'other-network',name:'Outra rede',description:'Outro contexto',relevance:0,textScore:0,semanticScore:null,embeddingState:'ABSENT',searchActivatedAt:null,requiresAge:false,nicheSlug:'jogos',networkSlug:'discord'},
+      {id:'other-niche',name:'Outro nicho',description:'Outro contexto',relevance:0,textScore:0,semanticScore:null,embeddingState:'ABSENT',searchActivatedAt:null,requiresAge:false,nicheSlug:'apostas',networkSlug:'telegram'},
+    ])
+    for(const path of ['search','search/suggest']){
+      const response=await app.inject({method:'GET',url:`/api/v1/${path}?q=${encodeURIComponent('busco um conceito novo em comunidades')}`,headers:{host:'temlinkaqui.com'}})
+      expect(response.statusCode).toBe(200)
+      expect((response.json().organic??response.json().items).map((row:{id:string})=>row.id)).toEqual(['context-related'])
+    }
+  })
+
+  it('sem contexto identificado não recomenda links arbitrários',async()=>{
+    composeSearchForTest({interpret:async()=>({query:'conceito sem correspondência',niches:[],networks:[],mode:'semantic'})})
+    setSearchCandidatesForTest([{id:'unrelated',name:'Outra comunidade',description:'Sem contexto',relevance:0,textScore:0,semanticScore:0,embeddingState:'READY',searchActivatedAt:null,requiresAge:false,nicheSlug:'jogos',networkSlug:'telegram'}])
+    for(const path of ['search','search/suggest']){
+      const response=await app.inject({method:'GET',url:`/api/v1/${path}?q=conceito%20novo`,headers:{host:'temlinkaqui.com'}})
+      expect(response.statusCode).toBe(200)
+      expect(response.json().organic??response.json().items).toEqual([])
+    }
+  })
+
+  it('recomendação de contexto sem resultado específico continua protegida por maioridade',async()=>{
+    composeSearchForTest({interpret:async()=>({query:'assunto restrito sem correspondência',niches:['apostas'],networks:['telegram'],mode:'semantic'})})
+    setSearchCandidatesForTest([{id:'related-adult',name:'Comunidade restrita relacionada',description:'Somente adultos',relevance:0,textScore:0,semanticScore:null,embeddingState:'ABSENT',searchActivatedAt:null,requiresAge:true,nicheSlug:'apostas',networkSlug:'telegram'}])
+    for(const path of ['search','search/suggest']){
+      const get=(cookie?:string)=>app.inject({method:'GET',url:`/api/v1/${path}?q=${encodeURIComponent('quero entretenimento reservado em grupos')}`,headers:{host:'temlinkaqui.com',...(cookie?{cookie}:{})}})
+      const closed=await get()
+      expect(closed.json().ageRequired).toBe(true)
+      expect(closed.body).not.toContain('related-adult')
+      const open=await get('age=yes')
+      expect((open.json().organic??open.json().items).map((row:{id:string})=>row.id)).toEqual(['related-adult'])
+      const refused=await get('age=no')
+      expect(refused.body).not.toContain('related-adult')
+      expect(refused.headers['cache-control']).toBe('no-store')
+    }
+  })
+
   it('IA não libera conteúdo adulto sem aceite, mesmo interpretando frase não enumerada',async()=>{
     composeSearchForTest({interpret:async()=>({query:'conteúdo para adultos',niches:['apostas'],networks:['telegram'],mode:'facet'})})
     for(const path of ['search','search/suggest']){

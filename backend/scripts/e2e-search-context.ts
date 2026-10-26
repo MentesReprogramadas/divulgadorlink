@@ -5,8 +5,8 @@ import {composeSearchForTest} from '../src/http/controllers/@Search/routes'
 export function composeSearchContextE2e(){
  if(process.env.E2E_SEARCH_EMBEDDING!=='1')return
  const fixtures:Record<string,{query:string;niches:string[];networks:string[];mode:'facet'|'semantic'}>={
-  'quero garimpar precinhos para minha casa nos grupos do zap':{query:'ofertas para casa',niches:['oportunidades-casa'],networks:['whatsapp'],mode:'facet'},
-  'busco entretenimento reservado para maiores no mensageiro azul':{query:'conteúdo adulto',niches:['adulto'],networks:['telegram'],mode:'facet'},
+  'quero garimpar precinhos para minha casa nos grupos do zap':{query:'ofertas para casa',niches:['oportunidades-casa'],networks:['whatsapp'],mode:'semantic'},
+  'busco entretenimento reservado para maiores no mensageiro azul':{query:'conteúdo adulto',niches:['adulto'],networks:['telegram'],mode:'semantic'},
   'quero aprender funções puras no mensageiro azul':{query:'programação funcional',niches:['tecnologia-internet'],networks:['telegram'],mode:'semantic'},
  }
  const interpreter=new OpenAiSearchContext('e2e-search-context',async(_url,options)=>{

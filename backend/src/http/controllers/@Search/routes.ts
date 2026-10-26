@@ -258,11 +258,15 @@ async function loadCandidates(
 ): Promise<SearchCandidate[]> {
   const vector = input.facetScope&&input.matchFacets!==false ? null : await embedding.embed(input.query)
   const rows = await candidates({ ...input, vector })
-  return rows.map((row) => ({
+  const ranked = rows.map((row) => ({
     ...row,
     relevance: searchRelevanceScore(row.name, input.query,
       relevanceScore(row.textScore, row.semanticScore ?? 0, input.textWeight, input.semanticWeight), input.textWeight),
   }))
+  if(input.matchFacets===false&&input.facetScope&&!ranked.some(row=>row.relevance>=input.threshold)){
+    return loadCandidates({...input,matchFacets:true},embedding,candidates)
+  }
+  return ranked
 }
 
 export async function getSearch(request: FastifyRequest, reply: FastifyReply) {
