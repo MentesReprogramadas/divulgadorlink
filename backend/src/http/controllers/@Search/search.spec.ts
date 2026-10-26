@@ -249,6 +249,8 @@ describe('GET /api/v1/search', () => {
   })
 
   it('consulta igual a rede pública devolve o nome da rede e não chama embedding', async () => {
+    const interpret=vi.fn().mockResolvedValue({query:'Telegram',niches:[],networks:['telegram'],mode:'semantic'})
+    composeSearchForTest({interpret})
     const response = await app.inject({ method: 'GET', url: '/api/v1/search?q=Telegram', headers: { host: 'temlinkaqui.com' } })
 
     expect(response.statusCode).toBe(200)
@@ -262,6 +264,7 @@ describe('GET /api/v1/search', () => {
     expect(response.json().organic.map((row:{id:string})=>row.id)).toEqual(['sem-vetor'])
     expect(response.json().ageRequired).toBe(true)
     expect(embedding.calls).toEqual([])
+    expect(interpret).not.toHaveBeenCalled()
   })
 
   it('rede que não é faceta pública continua sendo busca, não destino', async () => {
@@ -433,6 +436,8 @@ describe('GET /api/v1/search', () => {
   })
 
   it('autocomplete não devolve o id adulto e não chama embedding', async () => {
+    const interpret=vi.fn()
+    composeSearchForTest({interpret})
     const response = await app.inject({
       method: 'GET',
       url: '/api/v1/search/suggest?q=re',
@@ -440,6 +445,7 @@ describe('GET /api/v1/search', () => {
     })
     expect(response.statusCode).toBe(200)
     expect(response.json().ids).toEqual(['pago', 'sem-vetor'])
+    expect(interpret).not.toHaveBeenCalled()
     const source = readFileSync(path.join(__dirname, 'routes.ts'), 'utf8')
     const suggest = source.slice(source.indexOf('export async function getSuggest'))
     expect(suggest).not.toContain('.embed(')

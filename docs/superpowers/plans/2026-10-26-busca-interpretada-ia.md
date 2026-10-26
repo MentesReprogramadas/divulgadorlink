@@ -21,6 +21,8 @@ Configurar no workflow a origem HTTPS verificada do Coolify como fallback de var
 - [ ] Publicar somente os arquivos desta mudança e aguardar CI antes do deploy.
 - [ ] Conferir os três serviços e uma busca contextual em produção; registrar evidências sem conteúdo adulto ou segredos.
 
-Referência técnica: documentação oficial OpenAI Structured Outputs (Chat Completions), consultada em 26/10/2026. O modelo gpt-4o-mini já é utilizado neste projeto; não há migração de modelo de moderação/perfil.
+Referência técnica: documentação oficial OpenAI Structured Outputs (Chat Completions) e GPT-5.4 mini, consultada em 26/10/2026. A interpretação final usa o snapshot gpt-5.4-mini-2026-03-17, verificado com a chave existente; não há migração de modelo de moderação/perfil.
 
 Decisão: manter a busca anterior apenas como contingência quando a interpretação falha. A IA é o caminho principal; o modo semântico exige relevância mesmo dentro de uma faceta. A cópia isolada da entrega anterior representa d4fcae38 e recebeu somente os arquivos desta tarefa; alterações concorrentes do laboratório de produtos/SEO ficaram fora da validação e da publicação.
+
+Decisão após teste externo: instruir extração estrita de redes e objetivo principal, usar modelo mais aderente e cinco segundos de timeout. Preservar destino literal exato e prefixos curtos antes de interpretar; dois testes vermelhos confirmaram essas regressões. O CI de 1084fd66 aprovou 20 grupos; a API inicial está saudável, mas o refinamento será publicado somente após o CI do próximo SHA. A secret segue pendente de administração do GitHub; controle de navegador indisponível por bloqueio de URL.

@@ -221,6 +221,11 @@ function localFacetScope(query:string,facets:FacetCandidates,exclusive:boolean):
 
 async function interpretSearch(tenantId:string,query:string):Promise<{query:string;facets:FacetCandidates;scope?:SearchFacetScope;semantic:boolean}> {
   const repo=getLinksRepository()
+  const literalFacets=await repo.findSearchFacetCandidates(tenantId,searchFacetProbe(query))
+  const literalTarget=resolveSearchTarget(query,literalFacets.niches,literalFacets.networks)
+  const literal={query,facets:literalFacets,scope:localFacetScope(query,literalFacets,literalTarget.exclusive),semantic:false}
+  // Exact destinations and short name prefixes do not need a guessed topic.
+  if(literalTarget.exclusive||query.trim().length<3)return literal
   try {
     const [allNiches,allNetworks]=await Promise.all([repo.listNiches(tenantId),repo.listNetworks(tenantId)])
     const niches=allNiches.filter(row=>row.isPublicFacet),networks=allNetworks.filter(row=>row.isPublicFacet)
@@ -231,9 +236,7 @@ async function interpretSearch(tenantId:string,query:string):Promise<{query:stri
       return {query:context.query,facets,scope:scope.niches.length+scope.networks.length?scope:undefined,semantic:context.mode==='semantic'}
     }
   } catch { /* Provider failure retains the existing lexical/semantic search. */ }
-  const facets=await repo.findSearchFacetCandidates(tenantId,searchFacetProbe(query))
-  const resolved=resolveSearchTarget(query,facets.niches,facets.networks)
-  return {query,facets,scope:localFacetScope(query,facets,resolved.exclusive),semantic:false}
+  return literal
 }
 
 function searchFacets(facets:FacetCandidates,rows:SearchCandidate[]=[]):SearchFacet[] {
