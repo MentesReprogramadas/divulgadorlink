@@ -55,7 +55,11 @@ export function useProfileDraft(resourceId?:string) {
   useEffect(()=>registerWorkspaceSwitchGuard(()=>flush()),[flush])
   useEffect(() => {
     if (!ready.current || paused.current || conflict.current || !profileCanSave(draft) || profileKey(draft) === saved.current || profileKey(draft) === failedKey.current) return
-    const timer = setTimeout(() => { void flush().catch(() => {}) }, 700)
+    const timer = setTimeout(() => {
+      // An explicit save may have failed after this timer was scheduled.
+      if (profileKey(latest.current) === failedKey.current) return
+      void flush().catch(() => {})
+    }, 700)
     return () => clearTimeout(timer)
   }, [draft, epoch, flush])
   useEffect(() => {

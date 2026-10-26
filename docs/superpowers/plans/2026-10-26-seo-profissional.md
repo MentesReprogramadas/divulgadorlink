@@ -40,3 +40,4 @@ Cada tarefa de comportamento começa por teste falhando e termina com checks rea
 - Ruling: usar configuração existente em vez de novos campos Prisma — menor mudança completa e sem tocar migration concorrente; custo: leitura/validação de um documento editorial por tenant.
 - Validação local concluída: release isolado com 731 testes backend, 790 frontend, 19 PG, 14 E2E SEO, 4 regressões e 4 testes visuais (Windows/Linux desktop/mobile); lint, tipos e builds verdes. Revisão independente e correções verificadas.
 - Publicação: autorizada; pendente acompanhar checks do commit da entrega e confirmar saúde em produção.
+- Primeira CI: 19 checks passaram, três cenários falharam. Duas causas corrigidas (H1 sem quebra e timer anterior à falha de flush). Os três testes originais passaram depois em Linux; revisão independente e frontend completo novamente verdes, agora com 793 testes.

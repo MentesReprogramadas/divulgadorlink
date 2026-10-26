@@ -11,14 +11,18 @@ O painel permite revisar textos de redes/nichos, criar coleções, selecionar an
 ## Evidências locais
 
 - Revisão independente de código concluída. Duas correções verificadas com testes que falharam antes e passaram depois: paginação anônima de previews adultos e propagação da classificação editorial sexual.
-- Cópia isolada da entrega sobre `origin/main`: 731 testes backend e 790 frontend passaram. A árvore de trabalho mais ampla também passou em 836 testes frontend.
+- Cópia isolada da entrega sobre `origin/main`: 731 testes backend e 793 frontend passaram (incluindo três regressões adicionais de salvamento). A árvore de trabalho mais ampla também passou em 836 testes frontend antes dessas correções complementares.
 - 19 testes PostgreSQL passaram, incluindo concorrência, rollback e catálogo. Nova jornada de curadoria com IDs selecionados exercitou PostgreSQL no navegador.
 - Playwright SEO: 14 testes passaram em desktop e mobile, cobrindo idade, metadados, sitemap, paginação, invalidação e autorização administrativa.
 - Regressões do catálogo e aceite paginado após mudança de títulos: 4 testes passaram na cópia isolada, desktop/mobile. Proteções de deploy e lock E2E: 9 testes passaram.
 - Lint, typecheck e builds locais frontend/backend passaram. Evidências detalhadas em `output/seo-*.log`; esse diretório não integra a entrega.
 - Capturas públicas e administrativas inspecionadas; overflow do editor em ampliação corrigido. Teste de ampliação usa CSS zoom 200%, além de viewport de 320px; não equivale a todos os dispositivos reais.
 - Quatro baselines administrativas revisadas e repetição sem atualização: Windows desktop/mobile 2/2 e Chromium Linux 1.63 desktop/mobile 2/2 passaram, incluindo Axe e overflow. Nenhuma tolerância alterada.
-- Graphify atualizado incrementalmente: 9 arquivos alterados, 9514 nós e 35635 relações. O grafo cobre também trabalho concorrente, portanto não foi incluído no release de SEO.
+- Graphify atualizado incrementalmente, inclusive após as correções complementares: 9514 nós e 35635 relações. O grafo cobre também trabalho concorrente, portanto não foi incluído no release de SEO.
+
+Na primeira CI da entrega, 19 checks passaram e três regressões impediram o deploy: dois cenários de overflow e uma corrida de salvamento. O título da home estava em uma linha forçada; o diagnóstico Linux mediu texto até 322px em viewport de 320px. A quebra natural corrigiu o teste masonry completo nas cinco larguras. No editor de perfil, um timer de autosave agendado antes da falha de salvamento explícito não reavaliava a proteção contra repetição. A proteção agora também é verificada no callback; testes provam que retry manual, evento online e novas edições continuam salvando. Nenhuma asserção foi enfraquecida.
+
+As três regressões originais passaram individualmente no Chromium Linux 1.63 depois das correções: catálogo masonry, descoberta em 320px com fonte 200% e recuperação manual de tradução. Capturas e traces foram inspecionados, incluindo confirmação do clique real no retry. Revisão independente dessas duas correções sem achados confirmados. Lint, tipos, build e os 793 testes frontend da cópia isolada passaram novamente.
 
 ## Publicação e limites
 
