@@ -40,11 +40,13 @@ export async function queryCatalogPage(
     limit: number
     cursor: CatalogCursor | null
     filters?:DiscoveryMetadata
+    linkIds?:string[]
   },
 ): Promise<{ rows: Row[]; nextCursor: string | null }> {
   const filters=parseDiscovery(input.filters??{}),key=discoveryCursorContext(filters,[input.tenantId,input.age,input.surface,input.nicheSlug,input.networkSlug],input.cursor)
   const seed = input.cursor?.seed ?? newOrderSeed()
-  const sql = homePageSql(input.surface)
+  const sql = homePageSql(input.surface,Boolean(input.linkIds))
+  const selected=input.linkIds?[input.linkIds]:[]
   const sponsored: Row[] = !input.cursor || input.cursor.kind === 'sponsored'
     ? await db.$queryRawUnsafe<Row[]>(
       sql.sponsored,
@@ -56,6 +58,7 @@ export async function queryCatalogPage(
       seed,
       input.limit + 1,
       filters.cityId,filters.languageTag,filters.modality,
+      ...selected,
     )
     : []
   const takeSponsored = Math.min(sponsored.length, input.limit)
@@ -71,6 +74,7 @@ export async function queryCatalogPage(
       remain + 1,
       seed,
       filters.cityId,filters.languageTag,filters.modality,
+      ...selected,
     )
     : []
   const pageSponsored = sponsored.slice(0, takeSponsored)
@@ -87,6 +91,7 @@ export async function queryCatalogPage(
       1,
       seed,
       filters.cityId,filters.languageTag,filters.modality,
+      ...selected,
     )).length > 0
     : false
   const more = sponsored.length > takeSponsored || organic.length > remain || organicPending

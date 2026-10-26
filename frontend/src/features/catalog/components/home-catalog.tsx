@@ -191,7 +191,7 @@ export function HomeCatalog({ initial, filters = emptyDiscovery(), children }: {
       <p className={styles.status} role="status" aria-live="polite">{notice}</p>
       {catalog.nextCursor ? (
         <div className={styles.pagination}>
-          <HomeMore cursor={catalog.nextCursor} loading={loading} onLoad={() => void loadMore()} />
+          <HomeMore cursor={catalog.nextCursor} loading={loading} onLoad={() => void loadMore()} href={`/?${new URLSearchParams({ ...Object.fromEntries(discoveryParams(filters)), cursor: catalog.nextCursor }).toString()}`} />
         </div>
       ) : null}
     </div>

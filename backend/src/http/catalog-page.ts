@@ -89,7 +89,7 @@ export function pageRanked<T extends Ranked>(
   return { sponsored, organic, nextCursor }
 }
 
-export function homePageSql(surface: 'HOME' | 'NICHE'): { sponsored: string; organic: string } {
+export function homePageSql(surface: 'HOME' | 'NICHE', selectedLinks=false): { sponsored: string; organic: string } {
   const sponsored = `
     SELECT l."id", l."name", l."description", l."cityId", l."languageTag", l."modality", (n."requiresAge" OR net."requiresAge") AS "requiresAge",
       n."name" AS "nicheName", n."slug" AS "nicheSlug",
@@ -109,6 +109,7 @@ export function homePageSql(surface: 'HOME' | 'NICHE'): { sponsored: string; org
       AND ($3::text IS NULL OR n."slug" = $3)
       AND ($4::text IS NULL OR net."slug" = $4)
       ${discoverySql(8)}
+      ${selectedLinks?'AND l."id" = ANY($11::text[])':''}
       AND ($5::text IS NULL OR (md5($6::text || l."id") COLLATE "C", l."id") > (md5($6::text || $5::text), $5::text))
     ORDER BY md5($6::text || l."id") COLLATE "C" ASC, l."id" ASC
     LIMIT $7
@@ -126,6 +127,7 @@ export function homePageSql(surface: 'HOME' | 'NICHE'): { sponsored: string; org
       AND ($3::text IS NULL OR n."slug" = $3)
       AND ($4::text IS NULL OR net."slug" = $4)
       ${discoverySql(8)}
+      ${selectedLinks?'AND l."id" = ANY($11::text[])':''}
       AND NOT EXISTS (
         SELECT 1 FROM "promotions" p
         WHERE p."linkId" = l."id" AND p."status" = 'ACTIVE' AND (NOT p.administrative OR p."expiresAt" IS NULL OR p."expiresAt" > NOW()) AND p."surface" = '${surface}'::"PromotionSurface"

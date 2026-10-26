@@ -15,6 +15,8 @@ import { jsonLdScript } from '@/domain/json-ld'
 import { TitleMark } from '@/components/ui/facet-badge'
 import { BackButton } from '@/components/ui/back-button'
 import { CatalogGrid } from './catalog-grid'
+import { CatalogBreadcrumbs, type CatalogBreadcrumb } from '@/features/catalog/components/catalog-breadcrumbs'
+import seoStyles from '@/features/catalog/components/catalog-seo.module.css'
 
 type Facet = { name?: string; slug?: string } | null
 type Card = {
@@ -43,12 +45,16 @@ export type FacetCatalogBody = {
   }
   ageRequired?: boolean
   blocked?: boolean
+  nextCursor?: string | null
+  breadcrumbs?: CatalogBreadcrumb[]
+  previews?: Array<{ id: string; name: string; description: string }>
   showImpressions?: boolean
   sponsored: Card[]
   organic: Card[]
 }
 
-function facetHref(route: 'niche' | 'network', slug: string, next: string | null): string {
+function facetHref(route: 'niche' | 'network' | 'collection', slug: string, next: string | null): string {
+  if (route === 'collection') return `/descobrir/${encodeURIComponent(slug)}`
   if (route === 'niche') {
     const base = `/nicho/${encodeURIComponent(slug)}`
     return next ? `${base}?rede=${encodeURIComponent(next)}` : base
@@ -125,7 +131,7 @@ export function FacetCatalog({
   descriptionClass: string
   listPrefix: string
   mark: 'niche' | 'network'
-  route: 'niche' | 'network'
+  route: 'niche' | 'network' | 'collection'
   slug: string
   facetLabel: string
   facetKind: 'niche' | 'network'
@@ -140,9 +146,10 @@ export function FacetCatalog({
   const organic = body.organic ?? []
   const description = usableDescription(body.heading, body.seo)
   const indexable = body.seo.robots.startsWith('index')
+  const nextPage = body.nextCursor ? discoveryHref(facetHref(route, slug, active), body.activeFilters ?? emptyDiscovery()) : null
 
   async function answer(choice: 'yes' | 'no') {
-    if (!(await confirmAge(choice))) return
+    if (!(await confirmAge(choice))) throw new Error('Confirmação indisponível')
     const url = new URL(window.location.href)
     if (url.searchParams.has('cursor')) {
       url.searchParams.delete('cursor')
@@ -156,18 +163,20 @@ export function FacetCatalog({
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(body.seo.structuredData) }} />
       ) : null}
       <BackButton />
+      {body.breadcrumbs ? <CatalogBreadcrumbs items={body.breadcrumbs} /> : null}
       <h1 className="entry-title page-mark"><TitleMark kind={mark} slug={slug} />{body.heading}</h1>
       {description ? <p className={descriptionClass}>{description}</p> : null}
-      <FacetFilters
+      {route !== 'collection' ? <FacetFilters
         label={facetLabel}
         kind={facetKind}
         items={facets}
         active={active}
         hrefFor={(next) => discoveryHref(facetHref(route, slug, next), body.activeFilters ?? emptyDiscovery())}
-      />
+      /> : null}
       <DiscoveryFilters initial={body.activeFilters ?? emptyDiscovery()} onPending={setFiltering}/>
       {body.ageRequired ? <AgePrompt onYes={() => answer('yes')} onNo={() => answer('no')} /> : null}
       {body.blocked ? <p className="age-blocked">Este conteúdo é só para maiores de 18 anos.</p> : null}
+      {body.previews?.length ? <section className={seoStyles.previews} aria-labelledby="public-previews"><h2 id="public-previews">Conheça as comunidades</h2><ul>{body.previews.map(preview => <li key={preview.id}><a href={`/link/${encodeURIComponent(preview.id)}`}>{preview.name}</a><p>{preview.description}</p></li>)}</ul></section> : null}
       {filtering ? <CatalogCardsSkeleton count={Math.max(sponsored.length+organic.length,3)}/> : null}
       {!filtering && sponsored.length > 0 ? (
         <ResultList id={`${listPrefix}-patrocinados`} title="Patrocinados" rows={sponsored} placement="sponsored" showImpressions={showImpressions} />
@@ -176,6 +185,7 @@ export function FacetCatalog({
         <ResultList id={`${listPrefix}-organicos`} title="Orgânicos" rows={organic} placement="organic" showImpressions={showImpressions} />
       ) : null}
       {!filtering && !body.ageRequired && !body.blocked && sponsored.length === 0 && organic.length === 0 ? <EmptyState>{Object.values(body.activeFilters??{}).some(Boolean)?'Nenhum link encontrado com estes filtros':'Nenhum link publicado'}</EmptyState> : null}
+      {nextPage && body.nextCursor ? <nav className={seoStyles.pagination} aria-label="Paginação"><a href={`${nextPage}${nextPage.includes('?') ? '&' : '?'}cursor=${encodeURIComponent(body.nextCursor)}`} rel="next">Próxima página</a></nav> : null}
     </main>
   )
 }

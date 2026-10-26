@@ -1,0 +1,6 @@
+.trail { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-block: var(--space-4); color: var(--text-secondary); font-size: .875rem; }
+.trail a, .pagination a, .collections a, .previews a { color: var(--text-primary); text-decoration: underline; text-underline-offset: .2em; }
+.pagination { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--space-4); margin-block: var(--space-6); }
+.collections, .previews { margin-block: var(--space-8); max-width: 75ch; }
+.collections ul, .previews ul { padding-inline-start: 1.25rem; display: grid; gap: var(--space-4); }
+.collections p, .previews p { margin-block: var(--space-2); color: var(--text-secondary); line-height: 1.6; }

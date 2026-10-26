@@ -153,6 +153,10 @@ jobs:
             config: playwright.support.config.ts
           - project: support-mobile
             config: playwright.support.config.ts
+          - project: seo-desktop
+            config: playwright.seo.config.ts
+          - project: seo-mobile
+            config: playwright.seo.config.ts
           - project: desktop
             config: playwright.date-picker.config.ts
           - project: mobile

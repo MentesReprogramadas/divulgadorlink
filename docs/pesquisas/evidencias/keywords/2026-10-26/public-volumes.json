@@ -1,0 +1,48 @@
+{
+  "collected_date": "2026-10-26",
+  "provider": "Semrush public Website Overview",
+  "country": "BR",
+  "reference_period": "2026-09",
+  "metric": "Estimated average monthly searches; not exact Google counts or searches exclusively during September.",
+  "limitations": "Selected public competitor keywords, not an exhaustive or unbiased ranking of all market queries. Do not sum close variants as unique people or traffic forecasts.",
+  "sources": [
+    {
+      "url": "https://www.semrush.com/website/telegrupos.com.br/overview/",
+      "keywords": [
+        {"term": "grupos telegram", "volume": 135000},
+        {"term": "grupo de telegram", "volume": 12100},
+        {"term": "links grupos telegram", "volume": 8100},
+        {"term": "telegram grupos", "volume": 49500},
+        {"term": "telegram grupos secretos", "volume": 22200}
+      ]
+    },
+    {
+      "url": "https://www.semrush.com/website/gruposwhats.app/overview/",
+      "keywords": [
+        {"term": "grupos de whatsapp", "volume": 90500},
+        {"term": "grupos whatsapp", "volume": 22200},
+        {"term": "grupo whatsapp", "volume": 22200},
+        {"term": "grupos de whatsapp pets", "volume": 6600},
+        {"term": "link grupo whatsapp", "volume": 3600}
+      ]
+    },
+    {
+      "url": "https://www.semrush.com/website/gruposdotelegram.com.br/overview/",
+      "keywords": [
+        {"term": "putaria telegram", "volume": 74000},
+        {"term": "grupo putaria telegram", "volume": 22200},
+        {"term": "grupos de putaria telegram", "volume": 22200},
+        {"term": "grupos putaria telegram", "volume": 22200},
+        {"term": "porno telegram", "volume": 60500}
+      ]
+    },
+    {
+      "url": "https://www.semrush.com/website/pelando.com.br/overview/",
+      "keywords": [
+        {"term": "cupom amazon", "volume": 110000},
+        {"term": "cupom mercado livre", "volume": 450000}
+      ],
+      "intent_note": "Direct coupon intent differs from finding communities; these volumes must not be assigned to WhatsApp group queries."
+    }
+  ]
+}

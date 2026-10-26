@@ -183,6 +183,8 @@ export interface LinksRepository {
     networks: Array<{ id: string; count: number }>
   }>
   listPublicSitemapLinks(tenantId: string): Promise<SitemapLinkRef[]>
+  /** Server-only inventory: restricted fields must pass the public SEO projection. */
+  listSeoLinks(tenantId: string): Promise<LinkRecord[]>
   updateFacetSummary(input: {
     kind: 'niche' | 'network'
     id: string
@@ -404,6 +406,16 @@ export class InMemoryLinksRepository implements LinksRepository {
       const niche = this.niches.find((row) => row.id === link.nicheId)
       return niche !== undefined && niche.requiresAge !== true
     })
+  }
+
+  async listSeoLinks(tenantId: string): Promise<LinkRecord[]> {
+    return this.links.filter((link) => {
+      if (link.tenantId !== tenantId || link.status !== 'PUBLISHED') return false
+      const niche = this.niches.find((row) => row.id === link.nicheId && row.tenantId === tenantId)
+      const network = this.networks.find((row) => row.id === link.networkId && row.tenantId === tenantId)
+      const owner = link.ownerId === null || this.users.some((row) => row.id === link.ownerId && row.tenantId === tenantId && row.status === 'ACTIVE')
+      return niche?.isPublicFacet === true && network?.isPublicFacet === true && owner
+    }).sort((a,b) => b.updatedAt.getTime() - a.updatedAt.getTime()).slice(0,SITEMAP_LINK_CAP).map((row) => ({...row}))
   }
 
   async updateFacetSummary(input: {
@@ -662,6 +674,20 @@ export class PrismaLinksRepository implements LinksRepository {
       nicheId: row.nicheId,
       updatedAt: row.updatedAt instanceof Date ? row.updatedAt : new Date(row.updatedAt),
     }))
+  }
+
+  async listSeoLinks(tenantId: string): Promise<LinkRecord[]> {
+    const rows = await this.client.link.findMany({
+      where: {
+        tenantId, status: 'PUBLISHED',
+        niche: { tenantId, isPublicFacet: true },
+        network: { tenantId, isPublicFacet: true },
+        OR: [{ ownerId: null }, { owner: { tenantId, status: 'ACTIVE' } }],
+      },
+      orderBy: [{ updatedAt: 'desc' }, { id: 'asc' }],
+      take: SITEMAP_LINK_CAP,
+    })
+    return rows.map(toLinkRecord)
   }
 
   async updateFacetSummary(input: {

@@ -135,7 +135,7 @@ test('aceite numa listagem paginada descarta o cursor da idade anterior e manté
   await page.getByRole('button',{name:'Tenho 18 anos ou mais'}).click()
   await expect(page.getByRole('dialog')).toHaveCount(0)
   await expect(page).toHaveURL(origin+'/rede/telegram?limit=1&languageTag=pt')
-  await expect(page.getByRole('heading',{name:'Telegram',level:1})).toBeVisible()
+  await expect(page.getByRole('heading',{name:'Grupos e canais do Telegram',level:1})).toBeVisible()
   const open=await page.request.get(origin+'/bff/v1/networks/telegram?languageTag=pt')
   expect(open.status()).toBe(200)
   expect((await open.json()).organic.some((row:{id:string})=>row.id==='age-context-adult')).toBe(true)

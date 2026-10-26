@@ -1,12 +1,19 @@
 import { AdvertiseLanding } from '@/features/acquisition/components/advertise-landing'
 import { loadAdvertiseCta } from '@/features/acquisition/server/load-advertise-cta'
 import { campaignRegistrationHref } from '@/domain/campaign-touch'
+import { headers } from 'next/headers'
+import { requestHost } from '@/domain/crawler-policy'
 
 export const dynamic = 'force-dynamic'
 
-export const metadata = {
-  title: 'Publique o seu link | Tem Link Aqui',
-  description: 'O Tem Link Aqui coloca o seu site, grupo ou perfil num catálogo por tema e rede. Publicar é grátis. Uma pessoa analisa o envio antes de ele ir ao ar.',
+export async function generateMetadata() {
+  const headerStore = await headers()
+  const canonical = `https://${requestHost(headerStore.get('x-forwarded-host'), headerStore.get('host'))}/divulgar`
+  return {
+    title: 'Divulgue seu grupo, canal ou site grátis | Tem Link Aqui',
+    description: 'Divulgue seu grupo, canal, site ou perfil em um catálogo por assunto e rede. Publicar é grátis. O envio passa pelas regras de análise antes de ir ao ar.',
+    alternates: { canonical },
+  }
 }
 
 export default async function AdvertisePage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {

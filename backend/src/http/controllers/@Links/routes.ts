@@ -4,7 +4,7 @@ import { approvedMediaForCards } from '@/http/link-media-projection'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
 import { signSurface } from '@/domain/analytics/surface-token'
-import { documentTitle, facetIndexable, linkRobots } from '@/domain/catalog/index-policy'
+import { documentTitle, linkRobots } from '@/domain/catalog/index-policy'
 import { hitsBlocklist } from '@/domain/links/blocklist'
 import { assertPublicHttps } from '@/adapters/http/safe-fetch'
 import { probeAvailability } from '@/adapters/http/availability-probe'
@@ -32,6 +32,8 @@ import { enqueueTextProposal } from '@/adapters/queues/enqueue-text-proposal'
 import { enqueueModeration } from '@/adapters/queues/enqueue-moderation'
 import { editLinkText } from '@/use-cases/@Links/edit-link-text'
 import { publicLinkView } from '@/http/public-link-view'
+import { readCatalogSeo } from '@/repositories/catalog-seo'
+import { linkProjection } from '@/http/catalog-seo-inventory'
 import { decideSubmission } from '@/use-cases/@Links/submit-link'
 import { getAuditLogsRepository } from '@/repositories/audit-logs-repository'
 import { preRefuse } from '@/use-cases/@Moderation/pre-refuse'
@@ -357,6 +359,7 @@ function linkSeo(input: {
   robots: ReturnType<typeof linkRobots>
   nicheName: string
   nicheSlug: string
+  explicit?: boolean
 }) {
   const title = documentTitle('named', input.name, input.tenantName)
   const canonical = `https://${input.host}/link/${input.id}`
@@ -366,6 +369,7 @@ function linkSeo(input: {
     description: input.description,
     canonical,
     robots: input.robots,
+    ...(input.explicit ? { rating: 'adult' as const } : {}),
     openGraph: { title, description: input.description, url: canonical },
     ...(indexable ? {
       structuredData: {
@@ -387,6 +391,7 @@ function linkSeo(input: {
 }
 
 async function getPublicLink(request: FastifyRequest, reply: FastifyReply) {
+  reply.header('cache-control','private, no-store').header('vary','Cookie')
   const linkId = (request.params as { id: string }).id
   const missing = () =>
     reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
@@ -412,18 +417,23 @@ async function getPublicLink(request: FastifyRequest, reply: FastifyReply) {
         }),
       })
     }
-    const [network, niche] = await Promise.all([
-      repo.findNetwork(tenant.id, link.networkId),
-      repo.findNiche(tenant.id, link.nicheId),
-    ])
-    const nicheIndexable = niche ? facetIndexable({
-      isPublicFacet: niche.isPublicFacet,
-      requiresAge: niche.requiresAge,
-    }) : false
+    const [state, networks, niches] = await Promise.all([readCatalogSeo(tenant.id),repo.listNetworks(tenant.id),repo.listNiches(tenant.id)])
+    const projection=linkProjection({state,networks,niches},link)
+    const {network,niche,requiresAge,preview}=projection
+    const publicName=requiresAge?(preview?.title??'Conteúdo para maiores de 18 anos'):link.name
+    const publicDescription=requiresAge?(preview?.description??'Confirme sua idade para acessar este conteúdo.'):link.description
+    const publicSeo=linkSeo({host,id:link.id,name:publicName,description:publicDescription,tenantName:tenant.name,
+      nicheName:niche?.name??'',nicheSlug:niche?.slug??'',robots:linkRobots({blocked:!projection.eligible}),explicit:projection.explicit})
+    if(requiresAge&&request.cookies.age!=='yes'){
+      return reply.status(200).send({id:link.id,available:true,requiresAge:true,
+        ...(request.cookies.age==='no'?{blocked:true}:{ageRequired:true}),
+        name:publicName,description:publicDescription,seo:publicSeo})
+    }
     const surfaceToken = signSurface(tenant.id, link.id, 'organic', env.JWT_SECRET)
     return reply.status(200).send({
       id: link.id,
       available: true,
+      requiresAge,
       ...(await approvedMediaForCards(tenant.id, [link])).get(link.id),
       name: link.name,
       description: link.description,
@@ -432,18 +442,7 @@ async function getPublicLink(request: FastifyRequest, reply: FastifyReply) {
       niche: { name: niche?.name ?? '', slug: niche?.slug ?? '', requiresAge: niche?.requiresAge ?? false },
       surfaceToken,
       goPath: `/go/${link.id}?surfaceToken=${encodeURIComponent(surfaceToken)}`,
-      seo: linkSeo({
-        host,
-        id: link.id,
-        name: link.name,
-        description: link.description,
-        tenantName: tenant.name,
-        nicheName: niche?.name ?? '',
-        nicheSlug: niche?.slug ?? '',
-        robots: linkRobots({
-          blocked: !nicheIndexable,
-        }),
-      }),
+      seo: publicSeo,
     })
   } catch (error) {
     if (error instanceof ResourceNotFoundError) return missing()

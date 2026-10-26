@@ -1,0 +1,12 @@
+{
+  "queries": 143,
+  "successful": 143,
+  "empty": 11,
+  "autocomplete_unique": 1018,
+  "volume_rows": 17,
+  "csv_rows": 1033,
+  "networks_inventoried": 20,
+  "networks_queried": 19,
+  "niches_queried": 25,
+  "expansion_families": 8
+}

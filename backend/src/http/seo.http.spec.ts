@@ -22,7 +22,7 @@ describe('indexação pública HTTP', () => {
     resetCatalogLinksForTest()
   })
 
-  it('home, facetas vazias e link com descrição curta são indexáveis', async () => {
+  it('home, facetas com inventário e link com descrição curta são indexáveis', async () => {
     repo().addLink({ id: 'curto', tenantId, status: 'PUBLISHED', name: 'Grupo', description: 'Jogos' })
     for (const path of ['/home', '/niches/jogos', '/networks/telegram', '/links/curto']) {
       const response = await app.inject({ method: 'GET', url: `/api/v1${path}`, headers: { host } })
@@ -36,6 +36,7 @@ describe('indexação pública HTTP', () => {
   })
 
   it('cards curtos entram no ItemList e filtros continuam com canonical da faceta', async () => {
+    repo().addLink({id:'curto',tenantId,status:'PUBLISHED',name:'Grupo',description:'Jogos'})
     setCatalogLinksForTest([{
       id: 'curto', name: 'Grupo', description: 'Jogos', relevance: 1, requiresAge: false,
       nicheSlug: 'jogos', networkSlug: 'telegram', homeActivatedAt: null, nicheActivatedAt: null,
@@ -49,6 +50,7 @@ describe('indexação pública HTTP', () => {
   })
 
   it('hosts alternativos resolvem o catálogo com canonical no domínio principal', async () => {
+    repo().addLink({id:'publico',tenantId,status:'PUBLISHED',name:'Grupo',description:'Jogos'})
     for (const alias of ['www.temlinkaqui.com:443', 'links.temlinkaqui.com']) {
       const response = await app.inject({ method: 'GET', url: '/api/v1/home', headers: { host: alias } })
       expect(response.statusCode).toBe(200)
@@ -70,7 +72,7 @@ describe('indexação pública HTTP', () => {
     repo().addLink({ id: 'outro', tenantId: 'other-tenant', status: 'PUBLISHED' })
     const response = await app.inject({ method: 'GET', url: '/api/v1/sitemap', headers: { host } })
     expect(response.json().entries.map((entry: { path: string }) => entry.path))
-      .toEqual(['/', '/privacidade', '/termos', '/nicho/jogos', '/rede/telegram'])
+      .toEqual(['/', '/divulgar', '/privacidade', '/termos'])
     const adult = await app.inject({ method: 'GET', url: '/api/v1/links/adulto', headers: { host } })
     expect(adult.json().seo.robots).toBe('noindex,nofollow')
   })

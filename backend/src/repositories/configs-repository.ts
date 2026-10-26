@@ -12,6 +12,7 @@ export interface ConfigsRepository {
   findByTenantAndKey(tenantId: string, key: string): Promise<ConfigRecord | null>
   updateValue(id: string, value: string): Promise<ConfigRecord>
   create(input: { tenantId: string; key: string; value: string }): Promise<ConfigRecord>
+  compareAndSet(tenantId: string, key: string, expectedValue: string | null, value: string): Promise<boolean>
 }
 
 export class InMemoryConfigsRepository implements ConfigsRepository {
@@ -67,6 +68,18 @@ export class InMemoryConfigsRepository implements ConfigsRepository {
     this.items.push(row)
     return { ...row }
   }
+
+  async compareAndSet(tenantId: string, key: string, expectedValue: string | null, value: string): Promise<boolean> {
+    const index = this.items.findIndex(row => row.tenantId === tenantId && row.key === key)
+    if (index === -1) {
+      if (expectedValue !== null) return false
+      this.items.push({ id: `cfg-${key}-${tenantId}`, tenantId, key, value })
+    } else {
+      if (this.items[index].value !== expectedValue) return false
+      this.items[index] = { ...this.items[index], value }
+    }
+    return true
+  }
 }
 
 export class PrismaConfigsRepository implements ConfigsRepository {
@@ -93,6 +106,14 @@ export class PrismaConfigsRepository implements ConfigsRepository {
   async create(input: { tenantId: string; key: string; value: string }): Promise<ConfigRecord> {
     const row = await this.client.config.create({ data: input })
     return { id: row.id, tenantId: row.tenantId, key: row.key, value: row.value }
+  }
+
+  async compareAndSet(tenantId: string, key: string, expectedValue: string | null, value: string): Promise<boolean> {
+    if (expectedValue === null) {
+      // createMany skips a competing first insert without aborting the surrounding transaction.
+      return (await this.client.config.createMany({ data: [{ tenantId, key, value }], skipDuplicates: true })).count === 1
+    }
+    return (await this.client.config.updateMany({ where: { tenantId, key, value: expectedValue }, data: { value } })).count === 1
   }
 }
 

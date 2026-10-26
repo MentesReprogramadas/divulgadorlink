@@ -5,6 +5,10 @@ import { HomeMore } from './home-more'
 afterEach(cleanup)
 
 describe('carregar mais links da home', () => {
+  it('oferece navegação HTML equivalente ao carregamento incremental', () => {
+    render(<HomeMore cursor="abc" href="/?languageTag=pt&cursor=abc" onLoad={() => undefined} />)
+    expect(screen.getByRole('link', { name: 'Abrir próxima página' }).getAttribute('href')).toBe('/?languageTag=pt&cursor=abc')
+  })
   it('esconde o controle sem cursor', () => {
     render(<HomeMore cursor={null} onLoad={() => undefined} />)
     expect(screen.queryByRole('button')).toBeNull()

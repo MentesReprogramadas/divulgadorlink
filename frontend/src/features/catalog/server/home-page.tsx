@@ -12,19 +12,23 @@ import styles from '@/features/catalog/components/ondas-catalog.module.css'
 import { HomeCatalog } from '@/features/catalog/components/home-catalog'
 import { HomeTopics, HomeNetworkLinks, HomeNetworkSelect } from '@/features/catalog/components/home-navigation'
 import { HomeCollections } from '@/features/catalog/components/home-collections'
+import { catalogQueryRecord } from '@/domain/catalog-navigation'
+import { PublicCollectionsSection } from './public-collections'
 
 
 type Facet = { name?: string; slug?: string } | null
 type Card = { id: string; name: string; description: string; surfaceToken: string; iconUrl?: string | null; imageUrl?: string | null; imageAlt?: string | null; impressions?: number; niche?: Facet; network?: Facet; indexable?: boolean }
 type Home = {
+  heading?: string
   activeFilters?: DiscoveryValues
   seo: {
     title: string
     description: string
     canonical: string
     robots: string
+    rating?: 'adult'
     openGraph: { title: string; description: string; url: string }
-    structuredData: Record<string, string>
+    structuredData?: Record<string, string>
   }
   networks: Array<{ id: string; name: string; slug: string; requiresAge?: boolean }>
   niches: Array<{ id: string; name: string; slug: string; requiresAge: boolean }>
@@ -42,25 +46,24 @@ const loadHome = cache(async (query = ''): Promise<Home | null> => {
 })
 
 export async function generateHomeMetadata({searchParams}:{searchParams:Promise<Record<string,string|string[]|undefined>>}): Promise<Metadata> {
-  const home = await loadHome()
-  if (!home) throw new Error("Home SEO missing")
+  const query = await searchParams
+  const home = await loadHome(catalogQueryRecord(query).toString())
+  if (!home) return { robots: { index: false, follow: true } }
   const metadata=metadataFromSeo(home.seo)
-  if(discoveryQueryRecord(await searchParams).size)metadata.robots={index:false,follow:true}
+  if(discoveryQueryRecord(query).size)metadata.robots={index:false,follow:true}
   return metadata
 }
 
 
 export async function HomeContent({ searchParams }: { searchParams: Promise<Record<string,string|string[]|undefined>> }) {
   const query = await searchParams
-  const filtersQuery = discoveryQueryRecord(query)
-  if (Array.isArray(query.cursor)) query.cursor.forEach(value=>filtersQuery.append('cursor',value))
-  else if (typeof query.cursor === 'string') filtersQuery.set('cursor',query.cursor)
+  const filtersQuery = catalogQueryRecord(query)
   const home = await loadHome(filtersQuery.toString())
   if (!home) return <main className={styles.publicPage}><InvalidDiscovery href="/"/></main>
   const filters = home.activeFilters ?? emptyDiscovery()
   return (
     <>
-      <script
+      {home.seo.robots.startsWith('index') && home.seo.structuredData ? <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: jsonLdScript(homeStructuredData(
@@ -69,12 +72,12 @@ export async function HomeContent({ searchParams }: { searchParams: Promise<Reco
             [...home.sponsored, ...home.organic].filter((row) => row.indexable).map((row) => row.id),
           )),
         }}
-      />
+      /> : null}
       <main className={styles.publicPage}>
           <section className={styles.hero} aria-labelledby="home-title">
             <div className={styles.heroCopy}>
-              <h1 id="home-title">Encontre seu <em>próximo link.</em></h1>
-              <p>Grupos, canais e conteúdos do seu interesse.</p>
+              <h1 id="home-title">{home.heading ?? 'Grupos, canais e links por assunto.'}</h1>
+              <p>{home.seo.description}</p>
             </div>
             <HomeSearch discoveryQuery={discoveryQueryRecord(query).toString()}/>
             <HomeNetworkLinks networks={home.networks} discoveryQuery={discoveryQueryRecord(query).toString()} />
@@ -84,6 +87,7 @@ export async function HomeContent({ searchParams }: { searchParams: Promise<Reco
             <div className={styles.filterBar}><HomeNetworkSelect networks={home.networks} discoveryQuery={discoveryQueryRecord(query).toString()} /><span>Seu próximo interesse pode estar aqui.</span></div>
             <HomeDiscoveryPanel filters={filters} />
           </HomeCatalog>
+          <PublicCollectionsSection />
           <HomeCollections links={[...home.sponsored, ...home.organic]} discoveryQuery={discoveryQueryRecord(query).toString()} />
       </main>
     </>

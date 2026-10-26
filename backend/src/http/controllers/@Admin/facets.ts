@@ -1,6 +1,7 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
-import { facetIndexable, parseSummary } from '@/domain/catalog/index-policy'
+import { parseSummary } from '@/domain/catalog/index-policy'
+import { facetEligible, readSeoInventory } from '@/http/catalog-seo-inventory'
 import { buildError, forbidden, not_found, validation } from '@/http/errors'
 import { verifyJWT } from '@/http/middlewares/verify-jwt'
 import { resolveTenant } from '@/http/tenant'
@@ -32,7 +33,7 @@ function substantiveCount(rows: Array<{ id: string; count: number }>, id: string
   return rows.find((row) => row.id === id)?.count ?? 0
 }
 
-function toFacetRow(row: FacetRecord, count: number) {
+function toFacetRow(row: FacetRecord, count: number, indexable: boolean) {
   const requiresAge = row.requiresAge ?? false
   return {
     id: row.id,
@@ -42,10 +43,7 @@ function toFacetRow(row: FacetRecord, count: number) {
     isPublicFacet: row.isPublicFacet,
     summary: row.summary,
     substantiveCount: count,
-    indexable: facetIndexable({
-      isPublicFacet: row.isPublicFacet,
-      requiresAge,
-    }),
+    indexable,
   }
 }
 
@@ -59,7 +57,8 @@ async function requireFacetAdmin(request: FastifyRequest, reply: FastifyReply) {
     }))
     return null
   }
-  if (request.user.role !== 'ADMIN') {
+  const actor = await getLinksRepository().findSubmitter(tenant.id, request.user.sub)
+  if (request.user.role !== 'ADMIN' || actor?.role !== 'ADMIN' || actor.status !== 'ACTIVE') {
     reply.status(403).send(buildError({
       code: forbidden,
       message: 'Acesso negado.',
@@ -81,16 +80,15 @@ function notFound(request: FastifyRequest, reply: FastifyReply) {
 async function listFacets(request: FastifyRequest, reply: FastifyReply) {
   try {
     const tenant = await requireFacetAdmin(request, reply)
-    if (!tenant) return
+    if (!tenant) return reply
     const repo = getLinksRepository()
-    const [niches, networks, counts] = await Promise.all([
-      repo.listNiches(tenant.id),
-      repo.listNetworks(tenant.id),
+    const [inventory, counts] = await Promise.all([
+      readSeoInventory(tenant.id),
       repo.substantiveCounts(tenant.id),
     ])
     return reply.status(200).send({
-      niches: niches.map((row) => toFacetRow(row, substantiveCount(counts.niches, row.id))),
-      networks: networks.map((row) => toFacetRow(row, substantiveCount(counts.networks, row.id))),
+      niches: inventory.niches.map((row) => toFacetRow(row, substantiveCount(counts.niches, row.id), facetEligible(inventory, 'niche', row))),
+      networks: inventory.networks.map((row) => toFacetRow(row, substantiveCount(counts.networks, row.id), facetEligible(inventory, 'network', row))),
     })
   } catch (error) {
     if (error instanceof ResourceNotFoundError) {
@@ -103,7 +101,7 @@ async function listFacets(request: FastifyRequest, reply: FastifyReply) {
 async function patchFacet(request: FastifyRequest, reply: FastifyReply) {
   try {
     const tenant = await requireFacetAdmin(request, reply)
-    if (!tenant) return
+    if (!tenant) return reply
     const params = request.params as { kind: string; id: string }
     const kind = facetKind(params.kind)
     if (!kind) return notFound(request, reply)
@@ -138,9 +136,9 @@ async function patchFacet(request: FastifyRequest, reply: FastifyReply) {
       after: { summary: parsed.summary },
       requestId: request.id,
     })
-    const counts = await repo.substantiveCounts(tenant.id)
+    const [inventory, counts] = await Promise.all([readSeoInventory(tenant.id), repo.substantiveCounts(tenant.id)])
     const bucket = kind === 'niche' ? counts.niches : counts.networks
-    return reply.status(200).send(toFacetRow(updated, substantiveCount(bucket, params.id)))
+    return reply.status(200).send(toFacetRow(updated, substantiveCount(bucket, params.id), facetEligible(inventory, kind, updated)))
   } catch (error) {
     if (error instanceof ResourceNotFoundError) {
       return reply.status(404).send({ message: error.message })

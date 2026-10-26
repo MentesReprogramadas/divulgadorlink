@@ -1,0 +1,2548 @@
+{
+  "collected_at_utc": "2026-10-26T03:58:14.567884+00:00",
+  "locale_requested": {
+    "language": "pt-BR",
+    "country": "BR"
+  },
+  "method": "Public Google autocomplete, no account or personal cookies; server location uncontrolled; not a search-volume source.",
+  "trends": {
+    "status": "unavailable",
+    "reason": "Initial public explore request returned HTTP 429; no retries or bypass."
+  },
+  "monthly_search_volume": null,
+  "taxonomy": {
+    "networks": [
+      {
+        "name": "Fansly",
+        "slug": "fansly",
+        "requiresAge": true
+      },
+      {
+        "name": "Fatal Model",
+        "slug": "fatal-model",
+        "requiresAge": true
+      },
+      {
+        "name": "OnlyFans",
+        "slug": "onlyfans",
+        "requiresAge": true
+      },
+      {
+        "name": "Privacy",
+        "slug": "privacy",
+        "requiresAge": true
+      },
+      {
+        "name": "Whatsapp",
+        "slug": "whatsapp",
+        "requiresAge": false
+      },
+      {
+        "name": "Discord",
+        "slug": "discord",
+        "requiresAge": false
+      },
+      {
+        "name": "Facebook",
+        "slug": "facebook",
+        "requiresAge": false
+      },
+      {
+        "name": "Instagram",
+        "slug": "instagram",
+        "requiresAge": false
+      },
+      {
+        "name": "Kwai",
+        "slug": "kwai",
+        "requiresAge": false
+      },
+      {
+        "name": "LinkedIn",
+        "slug": "linkedin",
+        "requiresAge": false
+      },
+      {
+        "name": "Pinterest",
+        "slug": "pinterest",
+        "requiresAge": false
+      },
+      {
+        "name": "Reddit",
+        "slug": "reddit",
+        "requiresAge": false
+      },
+      {
+        "name": "Site",
+        "slug": "site",
+        "requiresAge": false
+      },
+      {
+        "name": "Telegram",
+        "slug": "telegram",
+        "requiresAge": false
+      },
+      {
+        "name": "Threads",
+        "slug": "threads",
+        "requiresAge": false
+      },
+      {
+        "name": "TikTok",
+        "slug": "tiktok",
+        "requiresAge": false
+      },
+      {
+        "name": "Twitch",
+        "slug": "twitch",
+        "requiresAge": false
+      },
+      {
+        "name": "Vimeo",
+        "slug": "vimeo",
+        "requiresAge": false
+      },
+      {
+        "name": "X",
+        "slug": "x",
+        "requiresAge": false
+      },
+      {
+        "name": "YouTube",
+        "slug": "youtube",
+        "requiresAge": false
+      }
+    ],
+    "niches": [
+      {
+        "name": "Adulto",
+        "slug": "adulto",
+        "requiresAge": true
+      },
+      {
+        "name": "Esportes",
+        "slug": "esportes",
+        "requiresAge": false
+      },
+      {
+        "name": "Ganhar Dinheiro",
+        "slug": "ganhar-dinheiro",
+        "requiresAge": false
+      },
+      {
+        "name": "Apostas",
+        "slug": "apostas",
+        "requiresAge": false
+      },
+      {
+        "name": "Compras, Ofertas & Cupons",
+        "slug": "compras-ofertas-cupons",
+        "requiresAge": false
+      },
+      {
+        "name": "Divulgação & Marketing",
+        "slug": "divulgacao-marketing",
+        "requiresAge": false
+      },
+      {
+        "name": "Filmes & Séries",
+        "slug": "filmes-series",
+        "requiresAge": false
+      },
+      {
+        "name": "Streaming",
+        "slug": "streaming",
+        "requiresAge": false
+      },
+      {
+        "name": "Jogos",
+        "slug": "jogos",
+        "requiresAge": false
+      },
+      {
+        "name": "Serviços & Ferramentas",
+        "slug": "servicos-ferramentas",
+        "requiresAge": false
+      },
+      {
+        "name": "Tecnologia & Internet",
+        "slug": "tecnologia-internet",
+        "requiresAge": false
+      },
+      {
+        "name": "Educação & Cursos",
+        "slug": "educacao-cursos",
+        "requiresAge": false
+      },
+      {
+        "name": "Saúde & Bem-estar",
+        "slug": "saude-bem-estar",
+        "requiresAge": false
+      },
+      {
+        "name": "Moda & Beleza",
+        "slug": "moda-beleza",
+        "requiresAge": false
+      },
+      {
+        "name": "Afiliados & Monetização",
+        "slug": "afiliados-monetizacao",
+        "requiresAge": false
+      },
+      {
+        "name": "Marketplace & Vendas Diretas",
+        "slug": "marketplace-vendas-diretas",
+        "requiresAge": false
+      },
+      {
+        "name": "Futebol",
+        "slug": "futebol",
+        "requiresAge": false
+      },
+      {
+        "name": "Músicas",
+        "slug": "musicas",
+        "requiresAge": false
+      },
+      {
+        "name": "Entretenimento Geral",
+        "slug": "entretenimento-geral",
+        "requiresAge": false
+      },
+      {
+        "name": "Finanças & Investimentos",
+        "slug": "financas-investimentos",
+        "requiresAge": false
+      },
+      {
+        "name": "Política & Sociedade",
+        "slug": "politica-sociedade",
+        "requiresAge": false
+      },
+      {
+        "name": "Apps, Redes Sociais & Plataformas",
+        "slug": "apps-redes-plataformas",
+        "requiresAge": false
+      },
+      {
+        "name": "Animes, Nerd & Geek",
+        "slug": "animes-nerd-geek",
+        "requiresAge": false
+      },
+      {
+        "name": "Amizade & Relacionamentos",
+        "slug": "amizade-relacionamentos",
+        "requiresAge": false
+      },
+      {
+        "name": "Serviços Profissionais",
+        "slug": "servicos-profissionais",
+        "requiresAge": false
+      }
+    ]
+  },
+  "coverage_exclusions": {
+    "fatal-model": "Brand inventoried; no collection of terms promoting paid sexual services."
+  },
+  "results": [
+    {
+      "kind": "network",
+      "slug": "whatsapp",
+      "seed": "grupos whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupos+whatsapp",
+      "suggestions": [
+        "grupos whatsapp",
+        "grupos whatsapp amizade",
+        "grupos whatsapp pet",
+        "grupos whatsapp vendas",
+        "grupos whatsapp figurinhas",
+        "grupos whatsapp freelancer sp",
+        "grupos whatsapp freelancer df",
+        "grupos whatsapp freelancer",
+        "grupos whatsapp goiania",
+        "grupos whatsapp rio de janeiro"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "whatsapp",
+      "seed": "canais whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=canais+whatsapp",
+      "suggestions": [
+        "canais whatsapp",
+        "canais whatsapp link",
+        "canais whatsapp proibidos",
+        "canais whatsapp lista",
+        "canais whatsapp figurinhas",
+        "canais whatsapp não aparece",
+        "canais whatsapp business",
+        "canais whatsapp me core",
+        "canais whatsapp freelancer",
+        "canais whatsapp promoções"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "whatsapp",
+      "seed": "grupo de ofertas whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+de+ofertas+whatsapp",
+      "suggestions": [
+        "grupo de ofertas whatsapp",
+        "grupo de ofertas whatsapp gamer",
+        "grupo de ofertas whatsapp mercado livre",
+        "grupo de ofertas whatsapp celular",
+        "grupo de ofertas whatsapp shopee",
+        "grupo de ofertas whatsapp canaltech",
+        "grupo de ofertas whatsapp pc",
+        "grupo de ofertas whatsapp roupas",
+        "grupo de ofertas whatsapp como criar",
+        "grupo de ofertas whatsapp notebook"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "whatsapp",
+      "seed": "grupo de achadinhos",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+de+achadinhos",
+      "suggestions": [
+        "grupo de achadinhos whatsapp",
+        "grupo de achadinhos da shopee",
+        "grupo de achadinhos da shopee whatsapp",
+        "grupo de achadinhos",
+        "grupo de achadinhos da shopee telegram",
+        "grupo de achadinhos mercado livre",
+        "grupo de achadinhos telegram",
+        "grupo de achadinhos whatsapp mercado livre",
+        "grupo de achadinhos da shein",
+        "grupo de achadinhos para casa"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "whatsapp",
+      "seed": "grupo whatsapp amizade",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+whatsapp+amizade",
+      "suggestions": [
+        "grupo whatsapp amizade",
+        "grupo whatsapp amizade madura",
+        "grupo whatsapp amizade rj",
+        "grupo whatsapp amizade 2026",
+        "grupo whatsapp amizade colorida",
+        "grupo whatsapp amizade homens",
+        "grupo whatsapp amizade e namoro",
+        "grupo whatsapp amizade bh",
+        "grupo whatsapp amizade sp",
+        "grupo whatsapp amizade rj 2026"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "whatsapp",
+      "seed": "grupo whatsapp figurinhas",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+whatsapp+figurinhas",
+      "suggestions": [
+        "grupo whatsapp figurinhas",
+        "grupo whatsapp figurinhas 24 horas",
+        "grupo whatsapp figurinhas 24 horas 2026",
+        "grupo whatsapp figurinhas 2026",
+        "grupo whatsapp figurinhas copa 2026",
+        "grupo whatsapp figurinhas engraçadas",
+        "grupo whatsapp figurinhas da copa",
+        "grupo whatsapp figurinhas anime",
+        "grupo whatsapp figurinhas de cria",
+        "grupo whatsapp figurinhas memes"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "telegram",
+      "seed": "grupos telegram",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupos+telegram",
+      "suggestions": [
+        "grupos telegram",
+        "grupos telegram namoro",
+        "grupos telegram amizade",
+        "grupos telegram chat",
+        "grupos telegram livros",
+        "grupos telegram sp",
+        "grupos telegram 2026",
+        "grupos telegram brasileiras",
+        "grupos telegram iptv gratis",
+        "grupos telegram rj"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "telegram",
+      "seed": "links telegram",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=links+telegram",
+      "suggestions": [
+        "links telegram",
+        "links telegram 2026",
+        "links telegram lives",
+        "links telegram group",
+        "links telegram brasileiras",
+        "links telegram chat",
+        "links telegram facebook",
+        "links telegram salvador grupos secretos",
+        "links telegram livros",
+        "links telegram lgbt"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "telegram",
+      "seed": "canais telegram",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=canais+telegram",
+      "suggestions": [
+        "canais telegram",
+        "canais telegram filmes",
+        "canais telegram livros",
+        "canais telegram filmes e series",
+        "canais telegram link",
+        "canais telegram livros kindle",
+        "canais telegram iptv",
+        "canais telegram guerra ucrania",
+        "canais telegram para baixar livros",
+        "canais telegram series"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "telegram",
+      "seed": "grupo telegram amizade",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+telegram+amizade",
+      "suggestions": [
+        "grupo telegram amizade e namoro",
+        "grupo telegram amizade",
+        "grupo telegram amizade sp",
+        "grupo telegram amizade rj",
+        "grupo telegram amizade bh",
+        "grupo telegram amizade 2026",
+        "grupo telegram amizade fortaleza",
+        "grupo telegram amizade ccb",
+        "grupo telegram amizade cristã"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "telegram",
+      "seed": "grupos telegram livros",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupos+telegram+livros",
+      "suggestions": [
+        "grupos telegram livros",
+        "grupos telegram livros kindle",
+        "grupos telegram livros pdf",
+        "grupos telegram livros de direito",
+        "grupos telegram livros medicina",
+        "grupos telegram livros dark romance",
+        "grupos telegram livros em ingles",
+        "grupos telegram livros nacionais",
+        "grupos telegram livros gratis"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "telegram",
+      "seed": "telegram ofertas",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=telegram+ofertas",
+      "suggestions": [
+        "telegram ofertas",
+        "telegram ofertas celulares",
+        "telegram ofertas pc",
+        "telegram ofertas aliexpress",
+        "telegram ofertas tecnologia",
+        "telegram ofertas tenis",
+        "telegram ofertas shopee",
+        "telegram ofertas ps5",
+        "telegram ofertas nintendo",
+        "telegram ofertas gamer"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "discord",
+      "seed": "servidores discord",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=servidores+discord",
+      "suggestions": [
+        "servidores discord",
+        "servidores discord webnamoro",
+        "servidores discord amizade",
+        "servidores discord brasil",
+        "servidores discord blox fruit",
+        "servidores discord minecraft br",
+        "servidores discord prontos",
+        "servidores discord jogos",
+        "servidores discord panelinha",
+        "servidores discord roblox"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "discord",
+      "seed": "discord brasileiro",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=discord+brasileiro",
+      "suggestions": [
+        "discord brasileiro",
+        "discord brasileiro de blox fruits",
+        "discord brasileiro de roube um ovo",
+        "discord brasileiro de roube um brainrot",
+        "discord brasileiro de sailor piece",
+        "discord brasileiros na europa",
+        "discord brasileiro de grow a garden",
+        "discord brasileiro de rocket league",
+        "discord brasileiros no japao",
+        "discord brasileiro de minecraft"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "discord",
+      "seed": "discord amizade",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=discord+amizade",
+      "suggestions": [
+        "discord amizade",
+        "discord amizade colorida",
+        "discord amizades br",
+        "discord amizade e namoro",
+        "discord amizade server",
+        "discord amizade lgbt",
+        "discord amizade roblox",
+        "discord amizade servidor",
+        "discord amizade grupo",
+        "discord amizade gay"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "discord",
+      "seed": "discord jogos",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=discord+jogos",
+      "suggestions": [
+        "discord jogos",
+        "discord jogos pc",
+        "discord jogos ao vivo",
+        "discord jogos gratis",
+        "discord jogos steam",
+        "discord jogos br",
+        "discord jogos do corinthians",
+        "discord jogos online",
+        "discord jogos roblox",
+        "discord jogos mobile"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "discord",
+      "seed": "discord anime",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=discord+anime",
+      "suggestions": [
+        "discord anime expedition",
+        "discord anime origins",
+        "discord anime astral",
+        "discord anime duelist",
+        "discord anime piece",
+        "discord anime fighters",
+        "discord anime breaker",
+        "discord anime squadron",
+        "discord anime",
+        "discord anime fighting simulator"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "facebook",
+      "seed": "grupos facebook",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupos+facebook",
+      "suggestions": [
+        "grupos facebook",
+        "grupos facebook vendas",
+        "grupos facebook emagrecimento",
+        "grupos facebook compra e venda andradas",
+        "grupos facebook whatsapp",
+        "grupos facebook telegram",
+        "grupos facebook signal",
+        "grupos facebook messenger",
+        "facebook grupos de vendas em formosa go",
+        "facebook grupos de emprego"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "facebook",
+      "seed": "grupos facebook vendas",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupos+facebook+vendas",
+      "suggestions": [
+        "grupos facebook vendas",
+        "grupos facebook para vendas",
+        "facebook grupos de vendas em formosa go",
+        "grupos de vendas facebook curitiba",
+        "grupos de vendas facebook penedo alagoas"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "instagram",
+      "seed": "perfis instagram",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=perfis+instagram",
+      "suggestions": [
+        "perfis instagram",
+        "perfis instagram mais seguidos brasil",
+        "perfis instagram vorcaro",
+        "perfis instagram criativos",
+        "perfis instagram moda masculina",
+        "perfis instagram coloridos",
+        "perfis instagram comprar",
+        "perfis instagram com mais seguidores",
+        "perfis instagram ia",
+        "perfis instagram interessantes"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "instagram",
+      "seed": "instagram achadinhos",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=instagram+achadinhos",
+      "suggestions": [
+        "instagram achadinhos",
+        "instagram achadinhos shopee",
+        "instagram achadinhos imperdiveis",
+        "instagram achadinhos na hora do almoço",
+        "perfil instagram achadinhos",
+        "instagram de achadinhos da dinheiro",
+        "perfil instagram achadinhos da shopee",
+        "bio instagram achadinhos",
+        "bio para instagram achadinhos da shopee",
+        "nome para instagram achadinhos da shopee"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "kwai",
+      "seed": "kwai criadores",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=kwai+criadores",
+      "suggestions": [
+        "kwai criadores",
+        "kwai para criadores",
+        "kwai paga criadores"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "kwai",
+      "seed": "kwai conteudo",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=kwai+conteudo",
+      "suggestions": [
+        "kwai conteudo original",
+        "kwai conteúdo impróprio",
+        "conteudo kwai",
+        "kwai tem conteudo improprio",
+        "criar conteudo kwai",
+        "kwai criador de conteudo",
+        "kwai qual o conteudo mais viral"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "linkedin",
+      "seed": "linkedin profissionais",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=linkedin+profissionais",
+      "suggestions": [
+        "linkedin profissionais",
+        "linkedin encontrar profissionais",
+        "linkedin para profissionais",
+        "fotos profissionais linkedin",
+        "imagens profissionais linkedin",
+        "fotos profissionais linkedin homem",
+        "perfis profissionais linkedin",
+        "capas profissionais linkedin",
+        "fotos profissionais linkedin ia",
+        "linkedin para oportunidades profissionais kultivi"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "linkedin",
+      "seed": "linkedin vagas",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=linkedin+vagas",
+      "suggestions": [
+        "linkedin vagas rj",
+        "linkedin vagas de emprego",
+        "linkedin vagas hoje",
+        "linkedin vagas",
+        "linkedin vagas home office",
+        "linkedin vagas entrar",
+        "linkedin vagas curitiba",
+        "linkedin vagas manaus",
+        "linkedin vagas df",
+        "linkedin vagas fortaleza"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "pinterest",
+      "seed": "pinterest ideias",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=pinterest+ideias",
+      "suggestions": [
+        "pinterest ideias",
+        "pinterest ideias de unhas",
+        "pinterest ideias de desenho",
+        "pinterest ideias de quarto",
+        "pinterest ideias de fotos",
+        "pinterest ideias de penteado",
+        "pinterest ideias de tatuagem",
+        "pinterest ideias de decoração de quarto",
+        "pinterest ideias para desenhar",
+        "pinterest ideias de looks"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "pinterest",
+      "seed": "pinterest moda",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=pinterest+moda",
+      "suggestions": [
+        "pinterest moda",
+        "pinterest moda feminina",
+        "pinterest moda feminina 2026",
+        "pinterest moda masculina",
+        "pinterest moda 2026",
+        "pinterest moda evangélica",
+        "pinterest moda masculina casual",
+        "pinterest moda infantil",
+        "pinterest moda masculina 2026"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "reddit",
+      "seed": "comunidades reddit",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=comunidades+reddit",
+      "suggestions": [
+        "comunidades reddit",
+        "comunidades reddit brasil",
+        "comunidades reddit español",
+        "comunidades reddit argentina",
+        "reddit comunidades brasileiras",
+        "comunidades privadas reddit",
+        "reddit comunidades silenciadas",
+        "melhores comunidades reddit",
+        "maiores comunidades reddit",
+        "maiores comunidades reddit brasil"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "reddit",
+      "seed": "reddit brasil",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=reddit+brasil",
+      "suggestions": [
+        "reddit brasil",
+        "reddit brasil livre",
+        "reddit brasilivre",
+        "reddit brasildob",
+        "reddit brasil discord",
+        "reddit brasil histórias",
+        "reddit brasileirao",
+        "reddit brasil lost media",
+        "reddit brasil memes",
+        "reddit brasil new"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "site",
+      "seed": "sites de ofertas",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=sites+de+ofertas",
+      "suggestions": [
+        "sites de ofertas",
+        "sites de ofertas e promoções",
+        "sites de ofertas em gramado",
+        "sites de ofertas rs",
+        "sites de ofertas para gramado",
+        "sites de ofertas restaurantes",
+        "sites de ofertas porto alegre",
+        "sites de ofertas londrina",
+        "melhores sites de ofertas",
+        "sites de ofertas de passagens aereas"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "site",
+      "seed": "sites uteis",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=sites+uteis",
+      "suggestions": [
+        "sites uteis",
+        "sites uteis minecraft",
+        "sites uteis na internet",
+        "sites uteis unimed",
+        "sites uteis para rpg",
+        "sites uteis stardew valley",
+        "sites uteis para estudantes",
+        "sites uteis para designers",
+        "sites uteis tibia",
+        "sites uteis do google"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "threads",
+      "seed": "threads perfis",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=threads+perfis",
+      "suggestions": [
+        "threads perfis falsos",
+        "threads perfis"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "threads",
+      "seed": "threads comunidades",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=threads+comunidades",
+      "suggestions": [
+        "threads comunidades"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "tiktok",
+      "seed": "tiktok criadores",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=tiktok+criadores",
+      "suggestions": [
+        "tiktok criadores",
+        "tiktok criadores de conteudo",
+        "criadores tiktok shop",
+        "tiktok para criadores",
+        "tiktok para criadores de conteudo",
+        "tiktok para criadores 2026",
+        "tiktok para criadores 2025",
+        "tiktok para criadores evento",
+        "tiktok shop para criadores",
+        "tiktok shop para criadores como funciona"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "tiktok",
+      "seed": "tiktok achadinhos",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=tiktok+achadinhos",
+      "suggestions": [
+        "tiktok achadinhos",
+        "tiktok achadinhos shopee",
+        "achadinhos tiktok shop",
+        "achadinhos tiktok é confiável",
+        "achadinhos tiktok shop reclame aqui",
+        "achadinhos tiktok shop é confiável",
+        "achadinhos tiktok reclame aqui",
+        "achadinhos tiktok shop telegram",
+        "achadinhos tiktok golpe",
+        "loja achadinhos tiktok"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "twitch",
+      "seed": "twitch streamers brasileiros",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=twitch+streamers+brasileiros",
+      "suggestions": [
+        "twitch streamers brasileiros"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "twitch",
+      "seed": "twitch canais",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=twitch+canais",
+      "suggestions": [
+        "twitch canais",
+        "twitch seguindo canais sozinho",
+        "twitch melhores canais",
+        "maiores canais twitch",
+        "maiores canais twitch brasil",
+        "canais twitch portugal"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "vimeo",
+      "seed": "vimeo filmes",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=vimeo+filmes",
+      "suggestions": [
+        "vimeo filmes",
+        "vimeo filmes e séries",
+        "vimeo filmes completos",
+        "vimeo filmes grátis",
+        "vimeo filmes dublados",
+        "vimeo filmes de marte",
+        "vimeo filmes de terror",
+        "vimeo filmes online",
+        "vimeo assistir filmes",
+        "vimeo sweet filmes"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "vimeo",
+      "seed": "vimeo criadores",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=vimeo+criadores",
+      "suggestions": [],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "x",
+      "seed": "twitter perfis",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=twitter+perfis",
+      "suggestions": [
+        "twitter perfis",
+        "perfis twitter interessantes",
+        "twitter deixar invisivel perfis que eu sigo",
+        "melhores perfis twitter"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "x",
+      "seed": "twitter comunidades",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=twitter+comunidades",
+      "suggestions": [
+        "twitter comunidades",
+        "twitter voz das comunidades",
+        "buscar comunidades twitter",
+        "bloquear comunidades twitter",
+        "twitter eliminara las comunidades"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "youtube",
+      "seed": "canais youtube",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=canais+youtube",
+      "suggestions": [
+        "canais youtube",
+        "canais youtube para crianças",
+        "canais youtube com mais inscritos",
+        "canais youtube de esquerda",
+        "canais youtube mais inscritos brasil",
+        "canais youtube a venda",
+        "canais youtube educativos para crianças",
+        "canais youtube de direita",
+        "canais youtube kids",
+        "canais youtube com mais inscritos no mundo"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "youtube",
+      "seed": "youtube canais brasileiros",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=youtube+canais+brasileiros",
+      "suggestions": [
+        "canais youtube brasileiros",
+        "maiores canais youtube brasileiros"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "fansly",
+      "seed": "fansly criadores",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=fansly+criadores",
+      "suggestions": [],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "onlyfans",
+      "seed": "onlyfans criadores",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=onlyfans+criadores",
+      "suggestions": [],
+      "status": "ok"
+    },
+    {
+      "kind": "network",
+      "slug": "privacy",
+      "seed": "privacy criadores",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=privacy+criadores",
+      "suggestions": [
+        "privacy criadores",
+        "privacy criadores de conteudo",
+        "privacy para criadores",
+        "privacy top creators",
+        "top criadores privacy brasil",
+        "melhores criadores privacy",
+        "maiores criadores privacy"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "adulto",
+      "seed": "telegram adulto",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=telegram+adulto",
+      "suggestions": [],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "adulto",
+      "seed": "telegram +18",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=telegram+%2B18",
+      "suggestions": [],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "adulto",
+      "seed": "telegram porno",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=telegram+porno",
+      "suggestions": [],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "adulto",
+      "seed": "grupos adultos telegram",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupos+adultos+telegram",
+      "suggestions": [],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "adulto",
+      "seed": "canais adultos telegram",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=canais+adultos+telegram",
+      "suggestions": [],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "adulto",
+      "seed": "grupos whatsapp adulto",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupos+whatsapp+adulto",
+      "suggestions": [],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "adulto",
+      "seed": "conteudo adulto",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=conteudo+adulto",
+      "suggestions": [
+        "conteudo adulto o que é",
+        "conteudo adulto bloqueado no x como desativar"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "adulto",
+      "seed": "criadores conteudo adulto",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=criadores+conteudo+adulto",
+      "suggestions": [
+        "criadores de conteúdo adulto sofrem com bloqueio do x no brasil"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "apostas",
+      "seed": "grupos apostas telegram",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupos+apostas+telegram",
+      "suggestions": [
+        "grupos apostas telegram",
+        "grupos telegram apostas esportivas",
+        "grupos telegram apostas betano",
+        "grupos telegram apostas gratis",
+        "grupos de casas de apostas telegram",
+        "grupos de dicas de apostas telegram",
+        "grupos telegram apostas desportivas portugal",
+        "grupos de apostas telegram portugal",
+        "grupos apostas nba telegram",
+        "melhores grupos de apostas telegram portugal"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "apostas",
+      "seed": "grupo palpites futebol",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+palpites+futebol",
+      "suggestions": [
+        "grupo palpites futebol telegram",
+        "grupo palpites futebol betano",
+        "grupo de palpites de futebol whatsapp betano",
+        "grupo de palpites de futebol bet365",
+        "grupo de whatsapp palpites de futebol gratuito",
+        "grupo de palpites de futebol zap",
+        "grupo de palpites de futebol whatsapp 2025",
+        "grupo de palpites de futebol whatsapp 2024",
+        "grupo de palpites de futebol whatsapp angola"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "apostas",
+      "seed": "grupo tips futebol",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+tips+futebol",
+      "suggestions": [
+        "grupo tips futebol"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "apostas",
+      "seed": "grupo sinais apostas",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+sinais+apostas",
+      "suggestions": [
+        "grupo de sinais apostas esportivas telegram",
+        "grupo de sinais apostas esportivas",
+        "grupo de sinais apostas"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "apostas",
+      "seed": "grupos apostas whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupos+apostas+whatsapp",
+      "suggestions": [
+        "grupos apostas whatsapp",
+        "grupos whatsapp apostas esportivas",
+        "grupos de apostas whatsapp betano"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "esportes",
+      "seed": "grupos esportes",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupos+esportes",
+      "suggestions": [
+        "grupos de esportes whatsapp",
+        "grupos telegram esportes",
+        "grupos de whatsapp esportes e saúde"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "esportes",
+      "seed": "grupo corrida",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+corrida",
+      "suggestions": [
+        "grupo corrida",
+        "grupo corrida whatsapp",
+        "grupo corrida de rua",
+        "grupo corrida bh",
+        "grupo corrida sp",
+        "grupo corrida porto alegre",
+        "grupo corrida sorocaba",
+        "grupo corrida curitiba",
+        "grupo corrida maringa",
+        "grupo corrida recife"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "esportes",
+      "seed": "grupo academia whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+academia+whatsapp",
+      "suggestions": [
+        "grupo academia whatsapp",
+        "grupo academia whatsapp link",
+        "grupo promoção academia whatsapp",
+        "nome grupo academia whatsapp",
+        "grupo de whatsapp academia feminino",
+        "grupo de treino academia whatsapp",
+        "grupo ratos de academia whatsapp",
+        "grupo de roupas de academia whatsapp",
+        "grupo de figurinhas whatsapp academia",
+        "my hero academia grupo whatsapp"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "ganhar-dinheiro",
+      "seed": "grupo renda extra",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+renda+extra",
+      "suggestions": [
+        "grupo renda extra",
+        "grupo renda extra telegram",
+        "grupo renda extra discord",
+        "grupo de renda extra facebook",
+        "grupo primo renda extra",
+        "grupo de renda extra com tarefas"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "ganhar-dinheiro",
+      "seed": "grupo ganhar dinheiro",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+ganhar+dinheiro",
+      "suggestions": [
+        "grupo ganhar dinheiro",
+        "grupo ganhar dinheiro na internet",
+        "grupo telegram ganhar dinheiro avaliando",
+        "grupo para ganhar dinheiro no tiktok",
+        "grupo discord ganhar dinheiro",
+        "grupo para ganhar dinheiro no kwai",
+        "grupo telegram ganhar dinheiro fazendo tarefas",
+        "grupo de ganhar dinheiro no pix telegram"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "ganhar-dinheiro",
+      "seed": "renda extra whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=renda+extra+whatsapp",
+      "suggestions": [
+        "renda extra whatsapp",
+        "renda extra respondendo whatsapp",
+        "pix renda extra whatsapp",
+        "renda extra chat whatsapp"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "compras-ofertas-cupons",
+      "seed": "grupos de ofertas",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupos+de+ofertas",
+      "suggestions": [
+        "grupos de ofertas whatsapp",
+        "grupos de ofertas",
+        "grupos de ofertas telegram",
+        "grupos de ofertas shopee whatsapp",
+        "grupos de ofertas mercado livre",
+        "grupos de ofertas shopee",
+        "grupos de ofertas de celulares",
+        "grupos de ofertas whatsapp é confiável",
+        "grupos de ofertas pc telegram",
+        "grupos de ofertas de perfumes"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "compras-ofertas-cupons",
+      "seed": "grupo promocoes",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+promocoes",
+      "suggestions": [
+        "grupo promoções",
+        "grupo promocoes mercado livre",
+        "grupo promoções telegram",
+        "grupo promoções whatsapp",
+        "grupo promoções pc",
+        "grupo promoção tenis",
+        "grupo promoção ps5",
+        "grupo promoção tv",
+        "grupo promocoes casa",
+        "grupo promoção iphone"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "compras-ofertas-cupons",
+      "seed": "grupo cupons",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+cupons",
+      "suggestions": [
+        "grupo cupons mercado livre",
+        "grupo cupons shopee",
+        "grupo cupons amazon",
+        "grupo cupons",
+        "grupo cupons mercado livre telegram",
+        "grupo cupons telegram",
+        "grupo cupons 99 food",
+        "grupo cupons ml",
+        "grupo cupons 99",
+        "grupo cupons whatsapp"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "compras-ofertas-cupons",
+      "seed": "grupo achadinhos shopee",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+achadinhos+shopee",
+      "suggestions": [
+        "grupo achadinhos shopee",
+        "grupo achadinhos shopee telegram",
+        "grupo achadinhos shopee whatsapp",
+        "grupo videos achadinhos shopee"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "compras-ofertas-cupons",
+      "seed": "grupo ofertas amazon",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+ofertas+amazon",
+      "suggestions": [
+        "grupo ofertas amazon",
+        "grupo ofertas amazon telegram",
+        "grupo de ofertas amazon whatsapp"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "compras-ofertas-cupons",
+      "seed": "grupo ofertas mercado livre",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+ofertas+mercado+livre",
+      "suggestions": [
+        "grupo ofertas mercado livre",
+        "grupo ofertas mercado livre telegram",
+        "grupo de ofertas mercado livre whatsapp"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "divulgacao-marketing",
+      "seed": "grupo divulgacao whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+divulgacao+whatsapp",
+      "suggestions": [
+        "grupo divulgação whatsapp",
+        "grupo divulgação whatsapp visualização de status",
+        "grupo divulgação whatsapp tiktok",
+        "grupo divulgação whatsapp instagram",
+        "grupo divulgação whatsapp status",
+        "grupo divulgação whatsapp goiania",
+        "grupo divulgação whatsapp 2025",
+        "grupo divulgação whatsapp rpg",
+        "grupo divulgação whatsapp salvador",
+        "grupo whatsapp divulgação de plataforma"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "divulgacao-marketing",
+      "seed": "grupo marketing digital",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+marketing+digital",
+      "suggestions": [
+        "grupo marketing digital",
+        "grupo marketing digital telegram",
+        "grupo marketing digital discord",
+        "grupo whatsapp marketing digital iniciantes",
+        "grupo networking marketing digital",
+        "grupo whatsapp marketing digital afiliados",
+        "grupo silva marketing digital",
+        "grupo whatsapp marketing digital 2025",
+        "grupo networking marketing digital whatsapp",
+        "grupo fenix marketing digital"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "divulgacao-marketing",
+      "seed": "grupo divulgacao telegram",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+divulgacao+telegram",
+      "suggestions": [
+        "grupo divulgação telegram",
+        "grupo telegram divulgação de links",
+        "grupo telegram divulgação youtube",
+        "grupo telegram divulgação tiktok",
+        "grupo telegram divulgação twitch",
+        "grupo de divulgação telegram aberto",
+        "grupo divulgação iptv telegram",
+        "grupo de telegram divulgação de canal"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "filmes-series",
+      "seed": "grupos filmes telegram",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupos+filmes+telegram",
+      "suggestions": [
+        "grupos filmes telegram",
+        "grupos telegram filmes e series",
+        "grupos telegram filmes lançamentos",
+        "grupos telegram filmes terror",
+        "links grupos telegram filmes e series",
+        "melhores grupos telegram filmes",
+        "links de grupos telegram filmes"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "filmes-series",
+      "seed": "grupos series telegram",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupos+series+telegram",
+      "suggestions": [
+        "grupos series telegram",
+        "grupos telegram series e filmes",
+        "grupos telegram series netflix",
+        "grupos de telegram series bl",
+        "grupos de telegram series coreanas",
+        "grupos telegram para ver series",
+        "grupos telegram series castellano",
+        "grupos telegram series español",
+        "grupos telegram series amazon",
+        "grupos telegram series bl"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "filmes-series",
+      "seed": "comunidade cinema",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=comunidade+cinema",
+      "suggestions": [
+        "comunidade cinema"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "streaming",
+      "seed": "comunidade streaming",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=comunidade+streaming",
+      "suggestions": [
+        "comunidade streaming"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "streaming",
+      "seed": "grupo streaming",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+streaming",
+      "suggestions": [
+        "grupo streaming telegram",
+        "grupo streaming",
+        "grupo streaming whatsapp",
+        "grupo dividir streaming",
+        "grupo play streaming",
+        "grupo discord streaming",
+        "grupo de streaming gratis",
+        "grupo globo streaming",
+        "grupo whatsapp dividir streaming",
+        "grupo telegram dividir streaming"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "jogos",
+      "seed": "discord minecraft",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=discord+minecraft",
+      "suggestions": [
+        "discord minecraft",
+        "discord minecraft brasil",
+        "discord minecraft bedrock brasil",
+        "discord minecraft bedrock",
+        "discord minecraft brasil mobile",
+        "discord minecraft survival brasil",
+        "discord minecraft java",
+        "discord minecraft br",
+        "discord minecraft mod",
+        "discord minecraft java brasil"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "jogos",
+      "seed": "discord roblox",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=discord+roblox",
+      "suggestions": [
+        "discord roblox",
+        "discord roblox brasil",
+        "discord roblox oficial",
+        "discord roblox blox fruit brasil",
+        "discord roblox studio",
+        "discord roblox server",
+        "discord roblox studio brasil",
+        "discord roblox robux",
+        "discord roblox script",
+        "discord roblox roube um ovo"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "jogos",
+      "seed": "discord valorant",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=discord+valorant",
+      "suggestions": [
+        "discord valorant",
+        "discord valorant brasil",
+        "discord valorant console",
+        "discord valorant console brasil",
+        "discord valorant para jogar",
+        "discord valorant mobile",
+        "discord valorant duo",
+        "discord valorant feminino",
+        "discord valorant girls",
+        "discord valorant ps5"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "jogos",
+      "seed": "grupo jogos whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+jogos+whatsapp",
+      "suggestions": [
+        "grupo jogos whatsapp",
+        "grupo whatsapp jogos ps5",
+        "grupo whatsapp jogos de pc",
+        "grupo whatsapp jogos de tabuleiro",
+        "grupo whatsapp jogos mobile",
+        "grupo whatsapp jogos xbox 360",
+        "grupo whatsapp jogos online",
+        "grupo whatsapp jogos ps4",
+        "grupo whatsapp jogos steam",
+        "grupo whatsapp jogos retro"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "servicos-ferramentas",
+      "seed": "ferramentas inteligencia artificial",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=ferramentas+inteligencia+artificial",
+      "suggestions": [
+        "ferramentas inteligencia artificial",
+        "ferramentas inteligencia artificial gratis",
+        "ferramentas inteligencia artificial google",
+        "ferramentas de inteligência artificial para vendas",
+        "ferramentas de inteligência artificial generativa",
+        "ferramentas de inteligência artificial para suporte ao processo de pesquisa",
+        "ferramentas de inteligência artificial para suporte ao processo de pesquisa usp",
+        "curso ferramentas inteligencia artificial",
+        "ferramentas de inteligência artificial para pesquisa acadêmica",
+        "ferramentas de inteligência artificial para criar videos"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "servicos-ferramentas",
+      "seed": "sites ferramentas gratis",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=sites+ferramentas+gratis",
+      "suggestions": [],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "tecnologia-internet",
+      "seed": "grupo tecnologia telegram",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+tecnologia+telegram",
+      "suggestions": [
+        "grupo tecnologia telegram",
+        "grupo promoção tecnologia telegram"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "tecnologia-internet",
+      "seed": "grupo programacao",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+programacao",
+      "suggestions": [
+        "programacao grupo estacao",
+        "grupo programação whatsapp",
+        "programacao grupo cine",
+        "grupo programação",
+        "grupo programação telegram",
+        "grupo programação discord",
+        "programacao grupo cine rio do sul",
+        "programacao grupo cine vitoria",
+        "programacao grupo cine valinhos",
+        "programacao grupo cine delmiro gouveia"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "tecnologia-internet",
+      "seed": "comunidade inteligencia artificial",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=comunidade+inteligencia+artificial",
+      "suggestions": [
+        "comunidade inteligencia artificial",
+        "inteligência artificial comunidade impressionadora"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "educacao-cursos",
+      "seed": "grupo estudos whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+estudos+whatsapp",
+      "suggestions": [
+        "grupo estudos whatsapp",
+        "grupo whatsapp estudos enem",
+        "grupo whatsapp estudos biblicos",
+        "grupo de estudos whatsapp concurso",
+        "grupo de estudos whatsapp link",
+        "grupo de estudos whatsapp pm",
+        "grupo de estudos whatsapp direito",
+        "grupo de estudos whatsapp prf",
+        "grupo de estudos whatsapp enem 2025",
+        "grupo de estudos esa whatsapp"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "educacao-cursos",
+      "seed": "grupos concursos telegram",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupos+concursos+telegram",
+      "suggestions": [
+        "grupos concursos telegram",
+        "grupos telegram concursos militares",
+        "grupos de estudos para concursos telegram"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "educacao-cursos",
+      "seed": "grupo enem",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+enem",
+      "suggestions": [
+        "grupo enem whatsapp",
+        "grupo enem",
+        "grupo enem telegram",
+        "grupo enem 2026",
+        "grupo enem 2025 whatsapp",
+        "grupo enem 2025",
+        "grupo enem discord",
+        "grupo enem 2026 whatsapp",
+        "enem grupo transforma pele humana em neurônios",
+        "enem grupo escolar"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "educacao-cursos",
+      "seed": "grupo ingles whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+ingles+whatsapp",
+      "suggestions": [
+        "grupo inglês whatsapp",
+        "grupo whatsapp ingles iniciantes",
+        "grupo whatsapp inglês duolingo",
+        "grupo de inglês whatsapp gratuito",
+        "grupo de inglês whatsapp 2026",
+        "grupo conversação ingles whatsapp",
+        "grupo aprender ingles whatsapp",
+        "grupo de inglês whatsapp 2024",
+        "grupo de estudos ingles whatsapp",
+        "grupo para falar ingles whatsapp"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "saude-bem-estar",
+      "seed": "grupo fitness whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+fitness+whatsapp",
+      "suggestions": [
+        "grupo fitness whatsapp",
+        "grupo fitness whatsapp nomes",
+        "grupo de whatsapp fitness feminino",
+        "grupo de whatsapp fitness masculino",
+        "grupo de whatsapp fitness 2025",
+        "grupo de whatsapp fitness feminino 2025",
+        "grupo de whatsapp fitness 2026",
+        "grupo de promoções fitness whatsapp",
+        "grupo de receitas fitness whatsapp",
+        "desconto fitness grupo whatsapp"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "saude-bem-estar",
+      "seed": "grupo emagrecimento",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+emagrecimento",
+      "suggestions": [
+        "grupo emagrecimento whatsapp",
+        "grupo emagrecimento",
+        "grupo emagrecimento facebook",
+        "grupo emagrecimento telegram",
+        "grupo emagrecimento discord",
+        "grupo de emagrecimento no whatsapp gratuito",
+        "grupo de emagrecimento whatsapp 2025",
+        "grupo de emagrecimento whatsapp 2026",
+        "grupo de emagrecimento online",
+        "grupo de emagrecimento nutricionista"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "saude-bem-estar",
+      "seed": "grupo saude mental",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+saude+mental",
+      "suggestions": [
+        "grupo saude mental",
+        "grupo saude mental whatsapp",
+        "grupo saude mental ubs",
+        "grupo viv saude mental",
+        "grupo tria saúde mental fotos",
+        "grupo de saúde mental na atenção básica",
+        "grupo tria saúde mental salvador",
+        "grupo viv saúde mental e emocional",
+        "grupo terapeutico saude mental",
+        "grupo de saude mental na aps"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "moda-beleza",
+      "seed": "grupo moda feminina",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+moda+feminina",
+      "suggestions": [
+        "grupo moda feminina",
+        "grupo moda feminina whatsapp",
+        "grupo telegram moda feminina",
+        "grupo de whatsapp moda feminina com estilo",
+        "grupo mm estilo moda feminina atacado e private label"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "moda-beleza",
+      "seed": "grupo maquiagem",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+maquiagem",
+      "suggestions": [
+        "grupo maquiagem whatsapp",
+        "grupo maquiagem",
+        "grupo maquiagem telegram",
+        "maquiagem grupo dos rosas",
+        "maquiagem grupo boticario",
+        "maquiagem grupo l'oréal",
+        "maquiagem grupo galpao",
+        "grupo kiss maquiagem",
+        "grupo promocao maquiagem",
+        "grupo desapego maquiagem"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "moda-beleza",
+      "seed": "grupo beleza whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+beleza+whatsapp",
+      "suggestions": [
+        "grupo beleza whatsapp",
+        "grupo whatsapp beleza feminina",
+        "grupo de whatsapp beleza masculina",
+        "grupo de whatsapp beleza e estética",
+        "grupo de whatsapp beleza e moda",
+        "grupo de promoções whatsapp beleza"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "afiliados-monetizacao",
+      "seed": "grupo afiliados shopee",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+afiliados+shopee",
+      "suggestions": [
+        "grupo afiliados shopee",
+        "grupo afiliados shopee telegram",
+        "grupo afiliados shopee whatsapp",
+        "grupo de afiliados shopee whatsapp 2025",
+        "grupo telegram afiliados shopee videos",
+        "grupo videos afiliados shopee",
+        "grupo de afiliados shopee whatsapp 2026",
+        "grupo de afiliados shopee telegram link",
+        "grupo de vendas afiliados shopee",
+        "link grupo whatsapp afiliados shopee"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "afiliados-monetizacao",
+      "seed": "grupo afiliados amazon",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+afiliados+amazon",
+      "suggestions": [
+        "grupo afiliados amazon"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "afiliados-monetizacao",
+      "seed": "grupo afiliados mercado livre",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+afiliados+mercado+livre",
+      "suggestions": [
+        "grupo afiliados mercado livre",
+        "grupo afiliados mercado livre whatsapp",
+        "grupo afiliados mercado livre telegram"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "marketplace-vendas-diretas",
+      "seed": "grupo compra e venda whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+compra+e+venda+whatsapp",
+      "suggestions": [
+        "grupo compra e venda whatsapp",
+        "grupo compra e venda whatsapp curitiba",
+        "grupo compra e venda whatsapp salvador",
+        "grupo compra e venda whatsapp parauapebas",
+        "grupo cacoal compra e venda whatsapp",
+        "grupo compra e venda itumbiara whatsapp",
+        "grupo compra e venda araguari whatsapp",
+        "grupo de compra e venda whatsapp porto velho",
+        "grupo de compra e venda whatsapp uberlândia",
+        "grupo de compra e venda whatsapp ji paraná ro"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "marketplace-vendas-diretas",
+      "seed": "grupo vendas",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+vendas",
+      "suggestions": [
+        "grupo vendas whatsapp",
+        "grupo vendas",
+        "grupo vendas e trocas whatsapp",
+        "grupo vendas telegram",
+        "grupo vendas efootball",
+        "grupo vendas fortaleza",
+        "grupo vendas guanambi",
+        "grupo vendas de carro whatsapp",
+        "grupo vendas goiania",
+        "grupo vendas brasilia"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "marketplace-vendas-diretas",
+      "seed": "grupo desapego",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+desapego",
+      "suggestions": [
+        "grupo desapego whatsapp",
+        "grupo desapego perfumes",
+        "grupo desapego",
+        "grupo desapego odontologia whatsapp",
+        "grupo desapego whatsapp rj",
+        "grupo desapego wepink",
+        "grupo desapego whatsapp sp zona leste",
+        "grupo desapego infantil whatsapp",
+        "grupo desapego infantil whatsapp bh",
+        "grupo desapego zona norte whatsapp"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "futebol",
+      "seed": "grupo futebol whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+futebol+whatsapp",
+      "suggestions": [],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "futebol",
+      "seed": "grupo flamengo whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+flamengo+whatsapp",
+      "suggestions": [
+        "grupo flamengo whatsapp",
+        "grupo whatsapp flamengo depressão",
+        "grupo whatsapp flamengo 2025",
+        "grupo whatsapp flamengo rj",
+        "grupo whatsapp flamengo 2024",
+        "grupo whatsapp flamengo 2026",
+        "grupo do flamengo whatsapp facebook",
+        "grupo de whatsapp flamengo até morrer",
+        "grupo do whatsapp flamengo oficial",
+        "link grupo whatsapp flamengo"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "futebol",
+      "seed": "grupo corinthians whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+corinthians+whatsapp",
+      "suggestions": [
+        "grupo corinthians whatsapp",
+        "grupo whatsapp corinthians 2025",
+        "grupo whatsapp corinthians 2026",
+        "grupo do corinthians whatsapp link",
+        "ingressos corinthians grupo whatsapp",
+        "grupo de figurinhas whatsapp corinthians"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "musicas",
+      "seed": "grupo musica whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+musica+whatsapp",
+      "suggestions": [
+        "grupo musica whatsapp",
+        "grupo whatsapp música anos 80",
+        "grupo whatsapp música sertaneja universitário",
+        "grupo whatsapp musica eletronica",
+        "grupo whatsapp música sertaneja",
+        "grupo whatsapp musica funk",
+        "grupo whatsapp musica gospel",
+        "grupo de música whatsapp funk 2025",
+        "grupo de música whatsapp 2025",
+        "grupo de whatsapp música internacional"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "musicas",
+      "seed": "grupo kpop whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+kpop+whatsapp",
+      "suggestions": [
+        "grupo kpop whatsapp",
+        "grupo de whatsapp kpop bts",
+        "grupo de whatsapp kpop dark",
+        "grupo de divulgação kpop whatsapp",
+        "link grupo whatsapp kpop",
+        "grupo de views kpop whatsapp",
+        "grupo venda e troca kpop whatsapp",
+        "grupo de kpop feminino whatsapp",
+        "grupo de figurinhas whatsapp kpop"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "musicas",
+      "seed": "grupo rock whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+rock+whatsapp",
+      "suggestions": [
+        "grupo rock whatsapp",
+        "grupo whatsapp rock in rio",
+        "grupo whatsapp rock nacional",
+        "grupo whatsapp rock in rio 2026",
+        "grupo whatsapp rock metal",
+        "grupo whatsapp rock the mountain",
+        "grupo de whatsapp rock n roll"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "entretenimento-geral",
+      "seed": "grupo memes whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+memes+whatsapp",
+      "suggestions": [
+        "grupo memes whatsapp",
+        "grupo whatsapp memes e figurinhas",
+        "grupo de memes whatsapp link",
+        "grupo de figurinhas memes whatsapp link",
+        "grupo de whatsapp memes br",
+        "memes grupo calado whatsapp",
+        "grupo de whatsapp memes videos",
+        "grupo whatsapp memes stickers",
+        "grupo de audios memes whatsapp",
+        "memes grupo whatsapp callado"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "entretenimento-geral",
+      "seed": "grupo humor",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+humor",
+      "suggestions": [
+        "grupo humor negro",
+        "grupo humoristico os melhores do mundo",
+        "grupo humorista brasileiro",
+        "grupo humorístico",
+        "grupo humorístico argentino",
+        "grupo humoristico cubano punto y coma",
+        "grupo humoristico punto y coma",
+        "grupo humorista cruz y raya",
+        "grupo humoristico musical",
+        "grupo humoristas catalanes"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "entretenimento-geral",
+      "seed": "grupo figurinhas",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+figurinhas",
+      "suggestions": [
+        "grupo figurinhas whatsapp",
+        "grupo figurinhas",
+        "grupo figurinhas whatsapp 2026",
+        "grupo figurinhas pesadas",
+        "grupo figurinhas engraçadas para whatsapp grátis",
+        "grupo figurinhas telegram",
+        "grupo figurinhas instagram",
+        "grupo figurinhas zap",
+        "grupo figurinhas whatsapp meme",
+        "grupo figurinhas da copa whatsapp"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "financas-investimentos",
+      "seed": "grupo investimentos telegram",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+investimentos+telegram",
+      "suggestions": [
+        "grupo investimentos telegram"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "financas-investimentos",
+      "seed": "grupo criptomoedas",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+criptomoedas",
+      "suggestions": [
+        "grupo criptomoedas whatsapp",
+        "grupo criptomoedas telegram",
+        "grupo criptomoedas",
+        "grupo telegram criptomoedas brasil",
+        "grupo telegram criptomoedas binance",
+        "grupo whatsapp criptomoedas binance",
+        "grupo vip criptomoedas",
+        "grupo sinais criptomoedas",
+        "grupo discord criptomoedas",
+        "grupo whatsapp criptomoedas brasil"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "financas-investimentos",
+      "seed": "grupo financas",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+financas",
+      "suggestions": [
+        "grupo financeiro",
+        "grupo finanças whatsapp",
+        "grupo finanças reclame aqui",
+        "grupo malu financas"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "politica-sociedade",
+      "seed": "grupo politica whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+politica+whatsapp",
+      "suggestions": [
+        "grupo política whatsapp",
+        "grupo whatsapp política esquerda",
+        "grupo whatsapp política direita",
+        "link grupo whatsapp política",
+        "nome de grupo politica whatsapp"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "politica-sociedade",
+      "seed": "grupo noticias telegram",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+noticias+telegram",
+      "suggestions": [
+        "grupo noticias telegram",
+        "grupo telegram notícias rj",
+        "grupo telegram notícias pesadas",
+        "grupo telegram notícias rn",
+        "grupo telegram noticias ceara",
+        "grupo telegram notícias brasil",
+        "grupo telegram noticias salvador",
+        "grupo telegram notícias bahia",
+        "grupo telegram notícias recife",
+        "grupo telegram notícias fortaleza"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "apps-redes-plataformas",
+      "seed": "grupo redes sociais",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+redes+sociais",
+      "suggestions": [
+        "grupo redes sociais",
+        "grupo whatsapp redes sociais",
+        "grupo meta redes sociais",
+        "grupo de vendas de redes sociais",
+        "grupo de vendas de redes sociais whatsapp",
+        "grupo de divulgação de redes sociais"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "apps-redes-plataformas",
+      "seed": "grupo criadores de conteudo",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+criadores+de+conteudo",
+      "suggestions": [
+        "grupo criadores de conteudo",
+        "grupo whatsapp criadores de conteudo",
+        "grupo telegram criadores de conteúdo"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "animes-nerd-geek",
+      "seed": "grupo anime whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+anime+whatsapp",
+      "suggestions": [
+        "grupo anime whatsapp",
+        "grupo whatsapp anime friends",
+        "grupo whatsapp anime vanguards",
+        "grupo de anime whatsapp 2026",
+        "grupo de anime whatsapp 2025",
+        "grupo figurinha anime whatsapp",
+        "grupo de anime whatsapp link",
+        "grupo de whatsapp anime otaku",
+        "grupo de whatsapp anime zueira",
+        "grupo de whatsapp anime namoro"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "animes-nerd-geek",
+      "seed": "discord anime brasil",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=discord+anime+brasil",
+      "suggestions": [
+        "discord anime brasil",
+        "servidores discord anime brasil",
+        "discord anime astral brasileiro",
+        "discord anime expedition brasil",
+        "discord anime fighters brasil"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "animes-nerd-geek",
+      "seed": "grupo manga",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+manga",
+      "suggestions": [
+        "grupo manga",
+        "grupo manga jambu",
+        "grupo manga bio site",
+        "grupo mangai",
+        "grupo mangaço",
+        "grupo mangaba",
+        "grupo manga verde",
+        "grupo mangalo",
+        "grupo manga bio",
+        "grupo manga oficial"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "amizade-relacionamentos",
+      "seed": "grupo amizade whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+amizade+whatsapp",
+      "suggestions": [
+        "grupo amizade whatsapp",
+        "grupo amizade whatsapp 2026",
+        "grupo amizade whatsapp namoro",
+        "grupo amizade whatsapp rj",
+        "grupo amizade whatsapp lgbt",
+        "grupo amizade whatsapp link",
+        "grupo amizade whatsapp meninas",
+        "grupo amizade whatsapp sp",
+        "grupo amizade whatsapp goiânia",
+        "grupo amizade whatsapp bh"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "amizade-relacionamentos",
+      "seed": "grupo namoro telegram",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+namoro+telegram",
+      "suggestions": [
+        "grupo namoro telegram",
+        "grupo namoro telegram 2026",
+        "grupo namoro telegram 2025",
+        "grupo namoro telegram rj",
+        "grupo telegram namoro sp",
+        "grupo telegram namoro inesperado",
+        "grupo telegram namoro e amizade",
+        "grupo telegram namoro bh",
+        "grupo telegram namoro bahia",
+        "grupo telegram namoro e amizade rj"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "amizade-relacionamentos",
+      "seed": "grupo conversa whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+conversa+whatsapp",
+      "suggestions": [
+        "grupo conversa whatsapp",
+        "grupo whatsapp conversa 24 horas",
+        "grupo whatsapp conversa por voz",
+        "conversa grupo whatsapp fake",
+        "grupo para conversa whatsapp",
+        "trancar conversa grupo whatsapp",
+        "limpar conversa grupo whatsapp",
+        "fechar conversa grupo whatsapp",
+        "bloquear conversa grupo whatsapp",
+        "exportar conversa grupo whatsapp"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "servicos-profissionais",
+      "seed": "grupo vagas emprego whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+vagas+emprego+whatsapp",
+      "suggestions": [
+        "grupo vagas emprego whatsapp",
+        "grupo vagas de emprego whatsapp es",
+        "grupo vagas de emprego sp whatsapp",
+        "grupo vagas de emprego curitiba whatsapp",
+        "grupo vagas de emprego goiania whatsapp",
+        "grupo vagas de emprego rj whatsapp",
+        "grupo vagas de emprego bh whatsapp",
+        "grupo de vagas de emprego whatsapp lages sc",
+        "grupo de vagas de emprego whatsapp guarulhos",
+        "grupo de vagas de emprego whatsapp joinville"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "servicos-profissionais",
+      "seed": "grupo freelancers",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+freelancers",
+      "suggestions": [
+        "freelancers grupo",
+        "freelancers grupo whatsapp",
+        "grupo de freelancers bh",
+        "grupo de freelancers sp",
+        "grupo para freelancers",
+        "grupo whatsapp freelancer brasil",
+        "grupo de freelancers em são paulo",
+        "grupo de freelancer telegram"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "niche",
+      "slug": "servicos-profissionais",
+      "seed": "grupo networking",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+networking",
+      "suggestions": [
+        "grupo networking",
+        "grupo networking whatsapp",
+        "grupo networking marketing digital",
+        "grupo networking telegram",
+        "grupo networking discord",
+        "grupo networking bni",
+        "grupo networking marketing digital whatsapp",
+        "grupo networking curitiba",
+        "grupo networking digital",
+        "grupo networking dropshipping"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "expansion",
+      "slug": "pets",
+      "seed": "grupo pets whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+pets+whatsapp",
+      "suggestions": [
+        "grupo pets whatsapp",
+        "grupo whatsapp pets e plantas",
+        "grupo whatsapp pets 2026",
+        "grupo whatsapp pets 2025",
+        "grupo de pets whatsapp link",
+        "grupo de whatsapp pets saudáveis",
+        "grupo de whatsapp pets vendas",
+        "grupo de whatsapp pets aberto",
+        "grupo de whatsapp pets receitas",
+        "grupo de whatsapp pets que pode mandar mensagem"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "expansion",
+      "slug": "pets",
+      "seed": "grupo animais whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+animais+whatsapp",
+      "suggestions": [
+        "grupo animais whatsapp",
+        "grupo whatsapp animais exóticos",
+        "grupo whatsapp animais de estimação",
+        "grupo whatsapp animais silvestres",
+        "grupo whatsapp animais e plantas",
+        "grupo whatsapp animais perdidos",
+        "link grupo whatsapp animais",
+        "link grupo whatsapp animais exóticos",
+        "grupo de imitar animais whatsapp",
+        "grupo de whatsapp animais e pets"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "expansion",
+      "slug": "religiao",
+      "seed": "grupo evangelico whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+evangelico+whatsapp",
+      "suggestions": [
+        "grupo evangélico whatsapp",
+        "grupo evangélico whatsapp 2024",
+        "grupo evangélico whatsapp 2025",
+        "grupo evangélico whatsapp amizade",
+        "grupo evangélico whatsapp fortaleza",
+        "grupo evangélico whatsapp link",
+        "grupo whatsapp evangélico de oração",
+        "grupo whatsapp evangélico da bahia",
+        "grupo whatsapp evangélico namoro",
+        "grupo whatsapp evangélico rj"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "expansion",
+      "slug": "religiao",
+      "seed": "grupo oracao whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+oracao+whatsapp",
+      "suggestions": [
+        "grupo oração whatsapp",
+        "grupo de oração whatsapp assembleia de deus",
+        "grupo de oração whatsapp católico",
+        "grupo de oração whatsapp 2025",
+        "grupo de oração whatsapp jovens",
+        "grupo de oração whatsapp 2024",
+        "grupo de oração whatsapp link",
+        "grupo de oração whatsapp deus é amor",
+        "grupo de oração whatsapp iasd",
+        "grupo de whatsapp oração da manhã"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "expansion",
+      "slug": "culinaria",
+      "seed": "grupo receitas whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+receitas+whatsapp",
+      "suggestions": [
+        "grupo receitas whatsapp",
+        "grupo whatsapp receitas de bolo",
+        "grupo whatsapp receitas fitness",
+        "grupo whatsapp receitas e dicas para pet",
+        "grupo whatsapp receitas para emagrecer",
+        "grupo whatsapp receitas saudáveis",
+        "grupo whatsapp receitas caseiras",
+        "grupo de whatsapp receitas médicas",
+        "grupo de whatsapp receitas para pets",
+        "grupo de whatsapp receitas saudáveis para pets"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "expansion",
+      "slug": "culinaria",
+      "seed": "grupo culinaria",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+culinaria",
+      "suggestions": [
+        "grupo culinaria whatsapp",
+        "@ grupo culinaria chic",
+        "grupo culinaria del peru iv sac",
+        "grupo culinaria iii sac",
+        "grupo culinaria chic ubicación",
+        "grupo culinaria chic restaurante",
+        "grupo culinaria sac",
+        "grupo culinaria chic bolsa de trabajo",
+        "grupo culinaria chic oficinas",
+        "grupo culinaria chic álvaro obregón"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "expansion",
+      "slug": "carros-motos",
+      "seed": "grupo carros whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+carros+whatsapp",
+      "suggestions": [
+        "grupo carros whatsapp",
+        "grupo whatsapp carros repasse",
+        "grupo whatsapp carros antigos",
+        "grupo whatsapp carros usados",
+        "grupo whatsapp carros de leilão rj",
+        "grupo whatsapp carros np",
+        "grupo whatsapp carros finan",
+        "grupo whatsapp carros eletricos",
+        "grupo whatsapp carros rebaixados",
+        "grupo whatsapp carros turbo"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "expansion",
+      "slug": "carros-motos",
+      "seed": "grupo motos whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+motos+whatsapp",
+      "suggestions": [
+        "grupo motos whatsapp",
+        "grupo whatsapp motos de leilão",
+        "grupo whatsapp motos antigas",
+        "grupo venda de motos whatsapp",
+        "grupo de repasse motos whatsapp",
+        "link grupo de motos whatsapp",
+        "grupo de venda de motos whatsapp rj",
+        "grupo de carros e motos whatsapp",
+        "grupo de motos usadas whatsapp",
+        "grupo de venda de motos whatsapp bh"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "expansion",
+      "slug": "viagens",
+      "seed": "grupo viagens whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+viagens+whatsapp",
+      "suggestions": [
+        "grupo viagens whatsapp",
+        "grupo whatsapp viagens baratas"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "expansion",
+      "slug": "viagens",
+      "seed": "grupo turismo",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+turismo",
+      "suggestions": [
+        "grupo turismo brasileiro empreendimentos e participacoes s.a",
+        "grupo turismo brasileiro",
+        "grupo turismo brasileiro cnpj",
+        "grupo turismo brasileiro empreendimentos",
+        "grupo turismo patos de minas",
+        "grupo de turismo",
+        "grupo confiança turismo",
+        "grupo amorim turismo",
+        "grupo arbo turismo",
+        "grupo coobrastur turismo"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "expansion",
+      "slug": "livros",
+      "seed": "grupo leitura whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+leitura+whatsapp",
+      "suggestions": [
+        "grupo leitura whatsapp",
+        "grupo de leitura whatsapp link",
+        "grupo de whatsapp leitura da bíblia",
+        "confirmação de leitura grupo whatsapp",
+        "clube de leitura grupo whatsapp"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "expansion",
+      "slug": "livros",
+      "seed": "grupo livros telegram",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+livros+telegram",
+      "suggestions": [
+        "grupo livros telegram",
+        "grupo livros telegram kindle",
+        "grupo livros telegram reddit",
+        "grupo livros telegram 2025",
+        "grupo telegram livros pdf",
+        "grupo telegram livros dark romance",
+        "grupo telegram livros nacionais",
+        "grupo telegram livros medicina",
+        "grupo telegram livros kindle grátis",
+        "grupo telegram livros auto ajuda"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "expansion",
+      "slug": "noticias",
+      "seed": "canais noticias telegram",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=canais+noticias+telegram",
+      "suggestions": [
+        "canais noticias telegram",
+        "melhores canais de notícias telegram"
+      ],
+      "status": "ok"
+    },
+    {
+      "kind": "expansion",
+      "slug": "lgbtqia-comunidade",
+      "seed": "grupo amizade lgbt whatsapp",
+      "source_url": "https://suggestqueries.google.com/complete/search?client=firefox&hl=pt-BR&gl=BR&q=grupo+amizade+lgbt+whatsapp",
+      "suggestions": [
+        "grupo amizade lgbt whatsapp"
+      ],
+      "status": "ok"
+    }
+  ]
+}

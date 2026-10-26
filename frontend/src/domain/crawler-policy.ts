@@ -24,6 +24,7 @@ type PublicSeo = {
   description: string
   canonical: string
   robots: string
+  rating?: 'adult'
   openGraph?: { title: string; description: string; url: string }
 }
 
@@ -36,6 +37,7 @@ export function metadataFromSeo(seo: PublicSeo): Metadata {
     robots: { index, follow },
     alternates: { canonical: seo.canonical },
     ...(seo.openGraph ? { openGraph: seo.openGraph } : {}),
+    ...(seo.rating === 'adult' ? { other: { rating: 'adult' } } : {}),
   }
 }
 

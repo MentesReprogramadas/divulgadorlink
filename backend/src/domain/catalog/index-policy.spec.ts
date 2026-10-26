@@ -19,19 +19,26 @@ describe('régua de índice', () => {
     expect(substantiveText(fat, `  ${fat}  `)).toBe(false)
   })
 
-  it('faceta pública independe de quantidade de links e tamanho do resumo', () => {
+  it('faceta exige inventário elegível e aprovação editorial, com prévia para restrição de idade', () => {
     const base = { isPublicFacet: true, requiresAge: false }
-    expect(facetIndexable(base)).toBe(true)
-    expect(facetIndexable({ ...base, requiresAge: true })).toBe(false)
-    expect(facetIndexable({ ...base, isPublicFacet: false })).toBe(false)
+    expect(facetIndexable(base)).toBe(false)
+    const eligible = { ...base, eligibleCount: 1, editorialApproved: true }
+    expect(facetIndexable(eligible)).toBe(true)
+    expect(facetIndexable({ ...eligible, eligibleCount: 0 })).toBe(false)
+    expect(facetIndexable({ ...eligible, editorialApproved: false })).toBe(false)
+    expect(facetIndexable({ ...eligible, requiresAge: true })).toBe(false)
+    expect(facetIndexable({ ...eligible, requiresAge: true, hasPublicPreview: true })).toBe(true)
+    expect(facetIndexable({ ...eligible, isPublicFacet: false })).toBe(false)
   })
 
   it('separa público, filtrado e bloqueado', () => {
-    const open = { isPublicFacet: true, requiresAge: false, filtered: false }
+    const open = { isPublicFacet: true, requiresAge: false, filtered: false, eligibleCount: 1, editorialApproved: true }
     expect(facetRobots(open)).toBe('index,follow')
     expect(facetRobots({ ...open, filtered: true })).toBe('noindex,follow')
     expect(facetRobots({ ...open, requiresAge: true })).toBe('noindex,nofollow')
     expect(facetRobots({ ...open, isPublicFacet: false })).toBe('noindex,nofollow')
+    expect(facetRobots({ ...open, eligibleCount: 0 })).toBe('noindex,follow')
+    expect(facetRobots({ ...open, requiresAge: true, hasPublicPreview: true })).toBe('index,follow')
   })
 
   it('link público entra sem exigência de tamanho do texto', () => {

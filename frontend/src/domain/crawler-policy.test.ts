@@ -4,6 +4,11 @@ import { jsonLdScript } from '@/domain/json-ld'
 import { homeStructuredData } from '@/domain/home-structured-data'
 
 describe('política de rastreio', () => {
+  it('classifica apenas a representação explícita indicada pelo servidor', () => {
+    const base = { title: 'Comunidades', description: 'Descrição pública', canonical: 'https://temlinkaqui.com/nicho/adulto', robots: 'index,follow' }
+    expect(metadataFromSeo({ ...base, rating: 'adult' }).other).toEqual({ rating: 'adult' })
+    expect(metadataFromSeo(base).other).toBeUndefined()
+  })
   it('bloqueia áreas privadas, mas deixa o redirect rastreável com noindex próprio', () => {
     expect(PRIVATE_PATHS).toEqual(expect.arrayContaining([
       '/painel', '/admin', '/login', '/cadastro', '/esqueci-senha', '/recuperar-senha', '/nao-encontrado', '/bff',

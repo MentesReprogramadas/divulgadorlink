@@ -31,16 +31,15 @@ type FacetLists = {
 }
 
 function searchLabel(row: FacetRow): string {
-  if (row.requiresAge) return '18+, fora da busca'
-  return row.indexable ? 'Na busca' : 'Fora da busca'
+  if (row.requiresAge) return row.indexable ? '18+, elegível para busca' : '18+, precisa de prévia aprovada'
+  return row.indexable ? 'Elegível para busca' : 'Fora da busca'
 }
 
 function lengthHint(row: FacetRow, count: number): string {
   const size = `${count} caracteres`
-  if (row.requiresAge) return `${size}. Conteúdo 18+ continua fora da busca.`
+  if (row.requiresAge) return `${size}. Use o SEO editorial para revisar a prévia pública e a classificação de conteúdo.`
   if (!row.isPublicFacet) return `${size}. Este catálogo fica fora da busca.`
-  if (count < 80) return `${size}. Abaixo de 80, a página só entra na busca com links suficientes.`
-  return `${size}.`
+  return `${size}. A indexação depende também de conteúdo público útil e anúncios disponíveis.`
 }
 
 function FacetEditor({

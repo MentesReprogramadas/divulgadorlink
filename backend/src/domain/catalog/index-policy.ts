@@ -21,19 +21,22 @@ export function parseSummary(value: string | null): { ok: true; summary: string 
   return { ok: true, summary: text }
 }
 
-export function facetIndexable(input: {
+export type FacetIndexInput = {
   isPublicFacet: boolean
   requiresAge: boolean
-}): boolean {
-  return input.isPublicFacet && !input.requiresAge
+  eligibleCount?: number
+  editorialApproved?: boolean
+  hasPublicPreview?: boolean
 }
 
-export function facetRobots(input: {
-  isPublicFacet: boolean
-  requiresAge: boolean
-  filtered: boolean
-}): Robots {
-  if (!input.isPublicFacet || input.requiresAge) return 'noindex,nofollow'
+export function facetIndexable(input: FacetIndexInput): boolean {
+  return input.isPublicFacet && input.editorialApproved === true
+    && Number.isInteger(input.eligibleCount) && (input.eligibleCount ?? 0) > 0
+    && (!input.requiresAge || input.hasPublicPreview === true)
+}
+
+export function facetRobots(input: FacetIndexInput & { filtered: boolean }): Robots {
+  if (!input.isPublicFacet || input.requiresAge && !input.hasPublicPreview) return 'noindex,nofollow'
   if (input.filtered || !facetIndexable(input)) return 'noindex,follow'
   return 'index,follow'
 }

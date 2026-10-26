@@ -12,7 +12,7 @@ import { BackButton } from '@/components/ui/back-button'
 import { LinkDetail } from '@/features/catalog/components/link-detail'
 import styles from '@/features/catalog/components/ondas-catalog.module.css'
 import { LiquidLens } from '@/components/ui/liquid-lens'
-import { AgeWall } from '@/components/domain/age-gate'
+import { LinkAgeConfirmation } from '@/features/catalog/components/link-age-confirmation'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
@@ -20,14 +20,12 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (loaded.status === 404 || !loaded.link) notFound()
   const seo = loaded.link.seo
   if (!seo) return {}
-  if (loaded.link.niche?.requiresAge) {
-    return { title: 'Conteúdo para maiores de 18', robots: { index: false, follow: false } }
-  }
   return metadataFromSeo({
     title: seo.title,
     description: seo.description,
     canonical: seo.canonical,
     robots: seo.robots,
+    rating: seo.rating,
     openGraph: seo.openGraph,
   })
 }
@@ -54,16 +52,26 @@ export default async function Page({
   }
   const token = query.surfaceToken || link.surfaceToken || ''
   const href = trackedGoPath(id, query.surfaceToken, link.surfaceToken, query.queryId)
+  const structuredData = link.seo?.robots.startsWith('index') && link.seo.structuredData
+    ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(link.seo.structuredData) }} /> : null
+  if (link.ageRequired || link.blocked) {
+    return <main className={styles.publicPage}>
+      {structuredData}
+      <nav className={styles.breadcrumb} aria-label="Caminho do link"><a href="/">Catálogo</a></nav>
+      <section className={styles.detailSummary}>
+        <h1>{link.name || 'Conteúdo para maiores de 18 anos'}</h1>
+        {link.description ? <p>{link.description}</p> : null}
+        <p>O conteúdo completo exige confirmação de idade.</p>
+      </section>
+      {link.ageRequired ? <LinkAgeConfirmation /> : <p>Você informou que não tem 18 anos. <a href="/">Voltar ao catálogo</a>.</p>}
+    </main>
+  }
   return (
     <main className={styles.publicPage}>
-      <AgeWall required={link.niche?.requiresAge === true}>
-        {link.seo?.robots.startsWith('index') && link.seo.structuredData ? (
-          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(link.seo.structuredData) }} />
-        ) : null}
+        {structuredData}
         <LinkDetail id={id} link={link} href={href} sharePath={link.seo?.canonical ?? '/link/' + encodeURIComponent(id)} />
         <Impression linkId={id} surfaceToken={token} />
-        <Suspense fallback={<RelatedSkeleton />}><RelatedLinksSection linkId={id} requiresAge={link.niche?.requiresAge === true} /></Suspense>
-      </AgeWall>
+        <Suspense fallback={<RelatedSkeleton />}><RelatedLinksSection linkId={id} requiresAge={link.requiresAge === true || link.niche?.requiresAge === true || link.network?.requiresAge === true} /></Suspense>
     </main>
   )
 }

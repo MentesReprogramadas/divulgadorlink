@@ -44,6 +44,15 @@ const card = {
 }
 
 describe('catálogo de faceta', () => {
+  it('publica trilha e página seguinte com os filtros atuais', () => {
+    render(<FacetCatalog pageClass="niche-page" descriptionClass="niche-description" listPrefix="niche" mark="niche" route="niche" slug="jogos" facetLabel="Redes" facetKind="network" active="telegram" facets={[]} body={{heading:'Comunidades de jogos',breadcrumbs:[{name:'Início',path:'/'},{name:'Jogos',path:'/nicho/jogos'}],seo:{title:'Jogos',robots:'index,follow'},activeFilters:{cityId:null,languageTag:'pt',modality:null},sponsored:[],organic:[card],nextCursor:'next+page'}} />)
+    expect(within(screen.getByRole('navigation',{name:'Trilha'})).getByRole('link',{name:'Início'}).getAttribute('href')).toBe('/')
+    const url = new URL(screen.getByRole('link',{name:'Próxima página'}).getAttribute('href')!,'https://temlinkaqui.com')
+    expect(url.pathname).toBe('/nicho/jogos')
+    expect(url.searchParams.get('rede')).toBe('telegram')
+    expect(url.searchParams.get('languageTag')).toBe('pt')
+    expect(url.searchParams.get('cursor')).toBe('next+page')
+  })
   it.each([['yes','Tenho 18 anos ou mais'],['no','Não tenho']])('descarta cursor anterior após resposta %s, preservando os filtros',async(choice,label)=>{
     window.history.replaceState({},'','/rede/telegram?languageTag=pt&cursor=old-page')
     render(<FacetCatalog pageClass="network-page" descriptionClass="network-description" listPrefix="network" mark="network" route="network" slug="telegram" facetLabel="Nichos" facetKind="niche" active={null} facets={[]} body={{heading:'Telegram',seo:{title:'Telegram',robots:'index,follow'},ageRequired:true,sponsored:[],organic:[]}}/>)

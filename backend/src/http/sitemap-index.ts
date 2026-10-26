@@ -1,54 +1,23 @@
-import { facetIndexable } from '@/domain/catalog/index-policy'
-import {
-  getLinksRepository,
-  type NicheRecord,
-  type NetworkRecord,
-  type SitemapLinkRef,
-} from '@/repositories/links-repository'
+import { readSeoInventory, facetEligible, linkProjection, publicCollections } from '@/http/catalog-seo-inventory'
+import type { SeoInventory } from '@/http/catalog-seo-inventory'
 
 export type SitemapEntry = { path: string; updatedAt: string }
 
-export async function indexableEntries(tenantId: string): Promise<SitemapEntry[]> {
-  const repo = getLinksRepository()
-  const [niches, networks, links] = await Promise.all([
-    repo.listNiches(tenantId),
-    repo.listNetworks(tenantId),
-    repo.listPublicSitemapLinks(tenantId),
-  ])
-  return entriesFrom(niches, networks, links)
+export async function indexableEntries(tenantId:string):Promise<SitemapEntry[]> {
+  return entriesFrom(await readSeoInventory(tenantId))
 }
 
-export function entriesFrom(
-  niches: NicheRecord[],
-  networks: NetworkRecord[],
-  links: SitemapLinkRef[],
-): SitemapEntry[] {
-  const nicheOk = new Map(niches.map((row) => [row.id, facetIndexable({
-    isPublicFacet: row.isPublicFacet,
-    requiresAge: row.requiresAge,
-  })]))
-  const indexableLinks = links.filter((link) => nicheOk.get(link.nicheId) === true)
-  const latest = indexableLinks.reduce<Date | null>(
-    (max, link) => (max === null || link.updatedAt > max ? link.updatedAt : max),
-    null,
-  )
-  const entries: SitemapEntry[] = [
-    { path: '/', updatedAt: latest ? latest.toISOString() : '' },
-    { path: '/privacidade', updatedAt: '2026-10-10T00:00:00.000Z' },
-    { path: '/termos', updatedAt: '2026-10-10T00:00:00.000Z' },
+export function entriesFrom(inventory:SeoInventory):SitemapEntry[] {
+  const links=inventory.links.filter(link=>linkProjection(inventory,link).eligible)
+  const latest=links.reduce<Date|null>((max,link)=>!max||link.updatedAt>max?link.updatedAt:max,null)
+  return [
+    {path:'/',updatedAt:latest?.toISOString()??''},
+    {path:'/divulgar',updatedAt:''},
+    {path:'/privacidade',updatedAt:'2026-10-10T00:00:00.000Z'},
+    {path:'/termos',updatedAt:'2026-10-10T00:00:00.000Z'},
+    ...inventory.niches.filter(facet=>facetEligible(inventory,'niche',facet)).map(facet=>({path:'/nicho/'+encodeURIComponent(facet.slug),updatedAt:facet.updatedAt.toISOString()})),
+    ...inventory.networks.filter(facet=>facetEligible(inventory,'network',facet)).map(facet=>({path:'/rede/'+encodeURIComponent(facet.slug),updatedAt:facet.updatedAt.toISOString()})),
+    ...publicCollections(inventory).map(row=>({path:'/descobrir/'+encodeURIComponent(row.slug),updatedAt:''})),
+    ...links.map(link=>({path:'/link/'+encodeURIComponent(link.id),updatedAt:link.updatedAt.toISOString()})),
   ]
-  for (const niche of niches) {
-    if (nicheOk.get(niche.id) !== true) continue
-    entries.push({ path: `/nicho/${encodeURIComponent(niche.slug)}`, updatedAt: niche.updatedAt.toISOString() })
-  }
-  for (const network of networks) {
-    const ok = facetIndexable({
-      isPublicFacet: network.isPublicFacet,
-      requiresAge: network.requiresAge === true,
-    })
-    if (!ok) continue
-    entries.push({ path: `/rede/${encodeURIComponent(network.slug)}`, updatedAt: network.updatedAt.toISOString() })
-  }
-  const linkEntries = indexableLinks.map((link) => ({ path: `/link/${link.id}`, updatedAt: link.updatedAt.toISOString() }))
-  return [...entries, ...linkEntries]
 }

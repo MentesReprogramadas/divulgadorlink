@@ -16,7 +16,7 @@ describe('resumos do catálogo', () => {
   it('mostra se entra na busca e conserva o texto quando salvar falha', async () => {
     api.mockResolvedValueOnce({ status: 200, body: { niches: [row], networks: [] } })
     render(<FacetSummaries />)
-    expect(await screen.findByText('Na busca')).toBeTruthy()
+    expect(await screen.findByText('Elegível para busca')).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: /^Editar Jogos\b/ }))
     const field = screen.getByRole('textbox', { name: 'Resumo de Jogos' })
     fireEvent.change(field, { target: { value: 'texto' } })
@@ -74,12 +74,12 @@ describe('resumos do catálogo', () => {
     expect((screen.getByRole('textbox', { name: 'Resumo de Jogos' }) as HTMLTextAreaElement).value).toBe('rascunho')
   })
 
-  it('diz que 18+ continua fora da busca', async () => {
+  it('explica que a página 18+ precisa de prévia aprovada', async () => {
     api.mockResolvedValueOnce({
       status: 200,
       body: { niches: [{ ...row, id: 'niche-apostas', name: 'Apostas', requiresAge: true, indexable: false }], networks: [] },
     })
     render(<FacetSummaries />)
-    expect(await screen.findByText('18+, fora da busca')).toBeTruthy()
+    expect(await screen.findByText('18+, precisa de prévia aprovada')).toBeTruthy()
   })
 })

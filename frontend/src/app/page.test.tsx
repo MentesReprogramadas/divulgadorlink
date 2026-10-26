@@ -8,6 +8,8 @@ vi.mock('@/lib/upstream', () => ({ forward, tenantHost: (host: string) => host }
 vi.mock('@/components/domain/home-search', () => ({ HomeSearch: () => <form aria-label="Busca" /> }))
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }))
 vi.mock('@/features/catalog/discovery/discovery-filters',()=>({DiscoveryFilters:()=> <div aria-label="Filtros de local e idioma"/>}))
+// This unit renders the resolved HomeContent; nested RSC fetching has its own server test.
+vi.mock('@/features/catalog/server/public-collections',()=>({PublicCollectionsSection:()=>null}))
 
 const row = { id: 'link', name: 'Comunidade', description: 'Descrição curta', surfaceToken: 'token+assinado' }
 const seo = {
@@ -33,7 +35,7 @@ describe('home', () => {
     const sponsored = screen.getByRole('region', { name: 'Links em destaque' })
     expect(explore.compareDocumentPosition(sponsored) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(screen.getByRole('complementary').textContent).toContain('Publicar é grátis')
-    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Encontre seu próximo link.')
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Grupos, canais e links por assunto.')
     expect(within(sponsored).getByRole('link', { name: 'Comunidade' }).getAttribute('href')).toBe('/link/link?surfaceToken=token%2Bassinado')
     expect(within(sponsored).getByText('Patrocinado')).toBeTruthy()
     expect(within(sponsored).getByText('Patrocinado').querySelector('svg')?.getAttribute('viewBox')).toBe('0 0 16 16')

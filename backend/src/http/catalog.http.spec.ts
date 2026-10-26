@@ -87,8 +87,8 @@ describe('contratos HTTP da vitrine', () => {
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.seo).toMatchObject({
-      title: 'Tem Link Aqui',
-      description: 'Links, comunidades e serviços organizados por tema e rede.',
+      title: 'Grupos, canais e links por categoria | Tem Link Aqui',
+      description: 'Encontre grupos de WhatsApp, canais do Telegram, servidores Discord, perfis e sites por tema. Explore ofertas, comunidades e conteúdos publicados no catálogo.',
       robots: 'index,follow',
     })
     expect(body.seo.canonical).toBe('https://temlinkaqui.com/')
@@ -105,6 +105,7 @@ describe('contratos HTTP da vitrine', () => {
   })
 
   it('nicho e rede emitem o token da origem e slug de outro tenant não existe', async () => {
+    repo().addLink({id:'no-nicho',tenantId:TENANT,status:'PUBLISHED',name:'Grupo',description:'jogos'})
     setCatalogLinksForTest([
       {
         id: 'no-nicho', name: 'Grupo', description: 'jogos', relevance: 1, requiresAge: false,
@@ -117,17 +118,17 @@ describe('contratos HTTP da vitrine', () => {
     expect(niche.statusCode).toBe(200)
     expect(network.statusCode).toBe(200)
     expect(niche.json().seo).toMatchObject({
-      title: 'Jogos | Tem Link Aqui',
-      description: 'Links de Jogos organizados por rede.',
+      title: 'Grupos e servidores de jogos | Tem Link Aqui',
+      description: 'Descubra comunidades e servidores por jogo e rede. Encontre apresentações de grupos para conversar, trocar experiências e organizar partidas.',
       canonical: 'https://temlinkaqui.com/nicho/jogos',
       robots: 'index,follow',
     })
-    expect(niche.json().heading).toBe('Jogos')
+    expect(niche.json().heading).toBe('Grupos e servidores de jogos')
     expect(niche.json().seo.structuredData['@graph']).toEqual(expect.arrayContaining([
       expect.objectContaining({ '@type': 'CollectionPage' }),
     ]))
     expect(network.json().seo).toMatchObject({
-      title: 'Telegram | Tem Link Aqui',
+      title: 'Grupos e canais do Telegram | Tem Link Aqui',
       robots: 'index,follow',
     })
     const filtered = await app.inject({ method: 'GET', url: '/api/v1/niches/jogos?network=telegram', headers: { host: HOST } })
@@ -169,7 +170,7 @@ describe('contratos HTTP da vitrine', () => {
     setCatalogLinksForTest([{id:'restrito-redeseo',name:'Restrito',description:'restrito',relevance:1,requiresAge:true,nicheSlug:'jogos',networkSlug:'restrita',homeActivatedAt:null,nicheActivatedAt:null}])
     const response=await app.inject({method:'GET',url:'/api/v1/niches/jogos',headers:{host:HOST,cookie:'age=yes'}})
     expect(response.json().organic[0].indexable).toBe(false)
-    expect(JSON.stringify(response.json().seo.structuredData)).not.toContain('/link/restrito-redeseo')
+    expect(JSON.stringify(response.json().seo.structuredData??{})).not.toContain('/link/restrito-redeseo')
   })
 
   it('busca e autocomplete devolvem no máximo 8 e o token não troca de link', async () => {
@@ -248,17 +249,17 @@ describe('contratos HTTP da vitrine', () => {
     })
   })
 
-  it('resumo 18+ só aparece depois da idade confirmada', async () => {
+  it('metadata restrita permanece baseada na apresentação pública, com ou sem idade confirmada', async () => {
     const fat = 'c'.repeat(80)
     const adultNiche = repo().niches.find((row) => row.id === 'niche-apostas')!
     adultNiche.summary = fat
     const closed = await app.inject({ method: 'GET', url: '/api/v1/niches/apostas', headers: { host: HOST } })
     expect(closed.statusCode).toBe(200)
-    expect(closed.json().seo.description).toBe('Links de Apostas organizados por rede.')
+    expect(closed.json().seo.description).toContain('apostas esportivas')
     expect(closed.json().seo.description).not.toContain(fat)
     expect(closed.json().seo.robots).toBe('noindex,nofollow')
     const open = await app.inject({ method: 'GET', url: '/api/v1/niches/apostas', headers: { host: HOST, cookie: 'age=yes' } })
-    expect(open.json().seo.description).toBe(fat)
+    expect(open.json().seo.description).toBe(closed.json().seo.description)
     expect(open.json().seo.robots).toBe('noindex,nofollow')
   })
 
@@ -294,7 +295,7 @@ describe('contratos HTTP da vitrine', () => {
     })
     const page = await app.inject({ method: 'GET', url: '/api/v1/niches/jogos', headers: { host: HOST } })
     expect(page.json().seo).toMatchObject({
-      title: 'Jogos | Tem Link Aqui',
+      title: 'Grupos e servidores de jogos | Tem Link Aqui',
       description: fat,
       robots: 'index,follow',
     })
@@ -325,6 +326,7 @@ describe('contratos HTTP da vitrine', () => {
   })
 
   it('faceta indexável inclui o card curto no ItemList sem surfaceToken', async () => {
+    repo().addLink({id:'card-gordo',tenantId:TENANT,status:'PUBLISHED',name:'Receitas',description:'Bolos'})
     setCatalogLinksForTest([
       {
         id: 'card-gordo', name: 'Receitas', description: 'Bolos', relevance: 1, requiresAge: false,

@@ -4,6 +4,7 @@ import { ModerationSettings } from '@/features/administration/components/moderat
 import { SettingsEditor } from './editor'
 import { FacetSummaries } from './facet-summaries'
 import { WorkspaceSection } from '@/components/layout/workspace-section'
+import { CatalogSeoEditor } from '@/features/administration/components/catalog-seo-editor'
 
 export default async function Page() {
   const role = (await cookies()).get('catalogo_role')?.value
@@ -13,6 +14,7 @@ export default async function Page() {
       <WorkspaceSection title="Exibição do catálogo"><SettingsEditor /></WorkspaceSection>
       <WorkspaceSection title="Aprovação pela IA"><ModerationSettings /></WorkspaceSection>
       <FacetSummaries />
+      <WorkspaceSection title="SEO de páginas e coleções"><CatalogSeoEditor /></WorkspaceSection>
     </>
   )
 }
