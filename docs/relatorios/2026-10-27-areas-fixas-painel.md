@@ -18,3 +18,9 @@ Validação local:
 Sem alteração de dependências, backend, banco ou regras comerciais. Mobile foi emulado; não houve teste em aparelho físico nem auditoria manual exaustiva de contraste. CI e deploy devem ser conferidos pelo SHA, independentemente destes checks locais.
 
 Reversão: reverter o commit desta entrega e publicar novamente pelo pipeline; não há migration ou mudança de dados para desfazer.
+
+## Primeira execução no CI
+
+Na execução [40553532300](https://github.com/MentesReprogramadas/divulgadorlink/actions/runs/40553532300), a suíte visual mobile aprovou 38 casos e falhou em `home-scroll.spec.ts`: depois de Mostrar mais, esperava 48 cards e encontrou 24. O trace contém resposta HTTP 200 com mais 24 itens orgânicos, mas a interface manteve a contagem inicial. Não houve falha de screenshot nos menus novos. A home e sua paginação não foram alteradas nesta entrega; a causa ainda não foi confirmada como intermitente.
+
+O GitHub recusou a reexecução do job pela API com HTTP 403; as contas conectadas informam `push:false` e `admin:false`. O envio desta evidência pelo acesso Git SSH autorizado inicia uma nova execução completa pelo fluxo normal, sem retirar testes, aumentar tolerâncias ou acionar deploy fora do pipeline. O primeiro run não deve ser apresentado como aprovado; o resultado da nova execução é independente.
