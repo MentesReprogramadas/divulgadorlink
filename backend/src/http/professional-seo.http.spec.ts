@@ -67,6 +67,8 @@ it('indexes an approved adult preview and collection without revealing restricte
   expect(collection.statusCode).toBe(200)
   expect(collection.json().previews).toEqual([{id:link.id,name:copy.title,description:copy.description}])
   expect(collection.body).not.toContain('restricted-body-sentinel')
+  expect((await get('/catalog-collections')).json().collections).toEqual([expect.objectContaining({slug:'telegram-adulto',networkSlug:'telegram',nicheSlug:'adulto',explicit:true})])
+  expect((await get('/catalog-collections')).body).not.toContain('restricted-body-sentinel')
   expect(collection.json().seo).toMatchObject({robots:'index,follow',canonical:'https://temlinkaqui.com/descobrir/telegram-adulto',rating:'adult'})
   expect(collection.json().organic).toEqual([])
   const paths=(await get('/sitemap')).json().entries.map((row:{path:string})=>row.path)

@@ -480,7 +480,7 @@ async function getCollections(request:FastifyRequest,reply:FastifyReply) {
   reply.header('cache-control','private, no-store').header('vary','Cookie')
   const tenant=await resolveTenant(hostFromRequest(request))
   const inventory=await readSeoInventory(tenant.id)
-  return {collections:publicCollections(inventory).map(({slug,title,description,explicit})=>({slug,title,description,explicit}))}
+  return {collections:publicCollections(inventory).map(({slug,title,description,explicit,networkSlug,nicheSlug})=>({slug,title,description,explicit,networkSlug,nicheSlug}))}
 }
 
 async function getCollection(request:FastifyRequest,reply:FastifyReply) {

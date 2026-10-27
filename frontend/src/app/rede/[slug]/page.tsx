@@ -6,6 +6,8 @@ import { FacetCatalog, type FacetCatalogBody } from '@/components/domain/facet-c
 import { RetryState } from '@/components/feedback/retry-state'
 import { metadataFromSeo } from '@/domain/crawler-policy'
 import { loadCatalog, oneSlug } from '@/lib/catalog-page'
+import { PublicCollectionsSection } from '@/features/catalog/server/public-collections'
+import { TelegramGuide } from '@/features/catalog/components/telegram-guide'
 
 export const dynamic = 'force-dynamic'
 
@@ -64,6 +66,10 @@ export default async function Page({
       </main>
     )
   }
+  const showTopics = !niche && !Object.keys(query).length
+  const topics = showTopics ? await PublicCollectionsSection({networkSlug:slug}) : null
+  const betting = showTopics && slug === 'telegram'
+    ? await PublicCollectionsSection({networkSlug:'site',nicheSlug:'apostas',heading:'Sites de apostas no catálogo'}) : null
   return (
     <FacetCatalog
       pageClass="rede-page"
@@ -77,6 +83,10 @@ export default async function Page({
       active={niche}
       facets={body.niches ?? []}
       body={body}
-    />
+    >
+      {topics}
+      {betting}
+      {showTopics && slug === 'telegram' ? <TelegramGuide /> : null}
+    </FacetCatalog>
   )
 }

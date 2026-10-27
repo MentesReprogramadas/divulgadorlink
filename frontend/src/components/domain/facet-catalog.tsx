@@ -4,7 +4,7 @@ import { FavoriteButton } from '@/features/favorites/components/favorite-button'
 import { DiscoveryFilters } from '@/features/catalog/discovery/discovery-filters'
 import { discoveryHref, emptyDiscovery, type DiscoveryValues } from '@/features/catalog/discovery/discovery-contract'
 import { useRouter } from 'next/navigation'
-import {useState} from 'react'
+import {useState, type ReactNode} from 'react'
 import {CatalogCardsSkeleton} from '@/features/catalog/components/catalog-skeleton'
 import { AgePrompt, confirmAge } from '@/components/domain/age-gate'
 import { FacetFilters } from '@/components/domain/facet-filters'
@@ -126,6 +126,7 @@ export function FacetCatalog({
   active,
   facets,
   body,
+  children,
 }: {
   pageClass: string
   descriptionClass: string
@@ -138,6 +139,7 @@ export function FacetCatalog({
   active: string | null
   facets: FacetItem[]
   body: FacetCatalogBody
+  children?: ReactNode
 }) {
   const router = useRouter()
   const [filtering,setFiltering]=useState(false)
@@ -186,6 +188,7 @@ export function FacetCatalog({
       ) : null}
       {!filtering && !body.ageRequired && !body.blocked && sponsored.length === 0 && organic.length === 0 ? <EmptyState>{Object.values(body.activeFilters??{}).some(Boolean)?'Nenhum link encontrado com estes filtros':'Nenhum link publicado'}</EmptyState> : null}
       {nextPage && body.nextCursor ? <nav className={seoStyles.pagination} aria-label="Paginação"><a href={`${nextPage}${nextPage.includes('?') ? '&' : '?'}cursor=${encodeURIComponent(body.nextCursor)}`} rel="next">Próxima página</a></nav> : null}
+      {children}
     </main>
   )
 }

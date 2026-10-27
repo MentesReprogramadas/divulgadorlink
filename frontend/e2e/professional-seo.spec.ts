@@ -14,6 +14,7 @@ const updatedAt = '2026-10-20T00:00:00.000Z'
 const adultCollection = 'telegram-adulto-revisado'
 const bettingCollection = 'telegram-apostas-revisado'
 const offersCollection = 'ofertas-whatsapp-revisadas'
+const telegramOffersCollection = 'ofertas-telegram-revisadas'
 const secretName = 'SEO_RESTRICTED_NAME_SENTINEL'
 const secretDescription = 'SEO_RESTRICTED_DESCRIPTION_SENTINEL'
 const mediaPath = '/bff/v1/links/seo-adult-01/media/seo-adult-image'
@@ -98,11 +99,13 @@ test.beforeAll(() => {
       ('seo-admin-email','seo-admin',${quote(tenant)},'EMAIL','admin@seo-professional.test',${quote(updatedAt)}) ON CONFLICT(id) DO NOTHING;`)
 
   editorial = { version: 1, facets: {}, links: {}, collections: [
+    { slug: telegramOffersCollection, title: 'Grupos de ofertas no Telegram', description: 'Seleção de canais de ofertas e cupons no Telegram.', networkSlug: 'telegram', nicheSlug: 'compras-ofertas-cupons', explicit: false, approved: true },
     { slug: adultCollection, title: 'Grupos adultos revisados no Telegram', description: 'Conheça as apresentações públicas das comunidades para maiores de 18 anos, revisadas para este catálogo de teste.', networkSlug: 'telegram', nicheSlug: 'adulto', explicit: true, approved: true },
     { slug: bettingCollection, title: 'Comunidades de apostas esportivas no Telegram', description: 'Comunidades para discussão de esportes e apostas, com apresentações públicas para maiores de 18 anos.', networkSlug: 'telegram', nicheSlug: 'apostas', explicit: false, approved: true },
     { slug: offersCollection, title: 'Ofertas e achadinhos no WhatsApp', description: 'Encontre comunidades de ofertas, achadinhos e cupons no WhatsApp. Leia a proposta de cada grupo antes de participar.', networkSlug: 'whatsapp', nicheSlug: 'compras-ofertas-cupons', explicit: false, approved: true },
   ] }
   const tuples: string[] = []
+  tuples.push(`(${['seo-telegram-offer', tenant, 'https://t.me/seo-public-offers', 'Ofertas no Telegram', 'Canal de promoções e cupons.', 'seo-telegram', 'seo-offers'].map(quote).join(',')},'PUBLISHED','pt',${quote(updatedAt)})`)
   for (let index = 1; index <= 25; index++) {
     const number = String(index).padStart(2, '0')
     const adult = { id: `seo-adult-${number}`, name: `${secretName}_${number}`, description: `${secretDescription}_${number}`, canonicalUrl: `https://t.me/seo-private-invite-${number}`, networkId: 'seo-telegram', nicheId: 'seo-adult' }
@@ -123,6 +126,33 @@ test.beforeAll(() => {
 test.beforeEach(async ({ context }) => {
   restoreEditorial()
   await context.addCookies([{ name: 'tla_consent', value: 'denied', domain: host, path: '/' }])
+})
+
+test('Telegram conecta seleções úteis por interesse sem expor conteúdo restrito', async ({ page }, info) => {
+  const response = await page.goto(origin + '/rede/telegram')
+  expect(response?.status()).toBe(200)
+  const html = await response!.text()
+  expect(html).toContain('Como encontrar e entrar em grupos do Telegram')
+  expect(html).not.toContain(secretDescription)
+  expect(html).not.toContain('SEO_BETTING_RESTRICTED_BODY')
+  await page.waitForLoadState('networkidle')
+  const ageDialog = page.getByRole('dialog', {name:'Conteúdo para maiores de 18 anos'})
+  await ageDialog.getByRole('button', {name:'Não tenho', exact:true}).click()
+  await expect(ageDialog).toHaveCount(0)
+  const section = page.getByRole('region', {name:'Grupos do Telegram por interesse'})
+  await expect(section.getByRole('link')).toHaveText([editorial.collections[1].title + ' · +18', editorial.collections[2].title, editorial.collections[0].title])
+  await expect(section.getByRole('link', {name:/WhatsApp/})).toHaveCount(0)
+  await stableScreenshot(page, info.outputPath('telegram-discovery.png'))
+  const offers = section.getByRole('link', {name:'Grupos de ofertas no Telegram'})
+  await offers.focus()
+  await expect(offers).toBeFocused()
+  await page.keyboard.press('Enter')
+  await expect(page).toHaveURL(origin + '/descobrir/' + telegramOffersCollection)
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content','index, follow')
+  await expect(page.getByRole('link', {name:'Telegram', exact:true})).toHaveAttribute('href','/rede/telegram')
+  await page.goto(origin + '/rede/telegram?nicho=compras-ofertas-cupons')
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content','noindex, follow')
+  await expect(page.getByRole('heading', {name:'Como encontrar e entrar em grupos do Telegram'})).toHaveCount(0)
 })
 
 test('metadados, sitemap e detalhes públicos refletem a mesma política de SEO', async ({ page }, info) => {
