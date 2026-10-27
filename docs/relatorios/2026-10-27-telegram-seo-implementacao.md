@@ -23,6 +23,13 @@ Pedido: melhorar Telegram com o inventário existente, priorizando adulto +18, a
 
 Não foram medidos ganhos de tráfego, volume de busca ou posição. Não houve solicitação repetida de indexação.
 
+## Conferência editorial e CI
+
+- Coleção de ofertas: título final `Ofertas e cupons no Telegram`, rede Telegram, nicho Compras/Ofertas/Cupons, seleção explícita do anúncio existente. Publicação conferida no navegador em desktop e 390 px, sem rolagem horizontal, e no sitemap.
+- Adulto: coleção aprovada com somente o anúncio autorizado `cmuvnc3hk000knv01b0r65eed`, mantendo classificação explícita e prévia segura. Apostas: três sites selecionados, rede Site/nicho Apostas; nenhuma publicação recategorizada como Telegram.
+- CI `40563304119`, código `6e547cfb`: 21 checks aprovados, incluindo backend (736 testes + 470 PostgreSQL), frontend (809 testes), imagens, SEO desktop/mobile e validação visual desktop/mobile. O único job sem execução de testes, `features-mobile 2/4`, falhou em `npm ci` durante o download de `@prisma/engines`, com `ECONNRESET`.
+- O deploy automático permaneceu bloqueado. A reexecução de workflows não está disponível nas contas GitHub conectadas; este registro dispara outra execução pelo push normal já autorizado, sem remover checks ou modificar permissões, dependências e proteções do deploy.
+
 ## Reversão
 
-Reverter o commit desta entrega para retirar as seções, sem remover dados. No editor, desmarcar aprovação da nova coleção retira sua elegibilidade e sua presença no sitemap. Preservar os demais editoriais.
+Reverter o commit de código desta entrega para retirar as seções, sem remover dados. No editor, desmarcar aprovação da nova coleção retira sua elegibilidade e sua presença no sitemap. Desmarcar aprovação do editorial da rede Telegram restaura o título/descrição de fallback anteriores. Preservar os demais editoriais.
