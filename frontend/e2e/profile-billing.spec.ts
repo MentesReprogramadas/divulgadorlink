@@ -1,3 +1,4 @@
+import { accountLanding } from './account-landing'
 import { randomUUID } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
@@ -9,7 +10,7 @@ import { capturePage } from './capture-page'
 import {selectOption} from './select-control'
 const fixture=()=>JSON.parse(readFileSync(path.join(__dirname,'state.json'),'utf8')).profiles as {tenantId:string;ownerId:string;owner:string;other:string;password:string}
 const origin=runtime.web('profiles.localhost')
-async function login(page:Page,admin=false,email?:string){await page.goto(origin+'/login');await page.getByLabel('E-mail').fill(email??(admin?fixture().other:fixture().owner));await page.getByLabel('Senha').fill(fixture().password);await page.getByRole('button',{name:'Entrar',exact:true}).click();await expect(page.getByRole('heading',{name:'Painel',exact:true})).toBeVisible();const refuse=page.getByRole('region',{name:'Este site usa cookies'}).getByRole('button',{name:'Recusar',exact:true});if(await refuse.count())await refuse.click()}
+async function login(page:Page,admin=false,email?:string){await page.goto(origin+'/login');await page.getByLabel('E-mail').fill(email??(admin?fixture().other:fixture().owner));await page.getByLabel('Senha').fill(fixture().password);await page.getByRole('button',{name:'Entrar',exact:true}).click();await accountLanding(page);const refuse=page.getByRole('region',{name:'Este site usa cookies'}).getByRole('button',{name:'Recusar',exact:true});if(await refuse.count())await refuse.click()}
 async function mutate(page:Page,route:string,body:unknown,method='POST'){
   return page.evaluate(async({route,body,method})=>{const csrf=decodeURIComponent(document.cookie.split('; ').find(row=>row.startsWith('csrf='))?.slice(5)??'');const result=await fetch('/bff/v1'+route,{method,headers:{'content-type':'application/json','x-csrf-token':csrf,'idempotency-key':crypto.randomUUID()},body:JSON.stringify(body)});return{status:result.status,body:await result.json()}},{route,body,method})
 }

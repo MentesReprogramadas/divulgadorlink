@@ -1,3 +1,4 @@
+import { accountLanding } from './account-landing'
 import { expectSelected, selectOption } from './select-control'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
@@ -17,7 +18,7 @@ async function login(page: Page, email = state.evolution.bia) {
   await page.getByLabel('E-mail').fill(email)
   await page.getByLabel('Senha').fill(state.evolution.password)
   await page.getByRole('button', { name: 'Entrar' }).click()
-  await expect(page.getByRole('heading', { name: 'Painel' })).toBeVisible()
+  await accountLanding(page)
   await page.getByRole('region', { name: 'Este site usa cookies' }).getByRole('button', { name: 'Recusar', exact: true }).click()
 }
 test('F01-E01/T03/T05 campanha sem cliques, CPC real e filtros persistentes', async ({ page }) => {

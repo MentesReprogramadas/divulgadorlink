@@ -1,3 +1,4 @@
+import { accountLanding } from './account-landing'
 import {readFileSync} from 'node:fs'
 import path from 'node:path'
 import {randomUUID} from 'node:crypto'
@@ -9,7 +10,7 @@ import {sql} from './db'
 import {capturePage} from './capture-page'
 const origin=runtime.web('follows.localhost')
 const fixture=()=>JSON.parse(readFileSync(path.join(__dirname,'state.json'),'utf8')).nicheFollows as {tenantId:string;ownerId:string;nicheId:string;networkId:string;owner:string;other:string;password:string}
-async function login(page:Page,other=false){const f=fixture();await page.goto(origin+'/login');await page.getByLabel('E-mail').fill(other?f.other:f.owner);await page.getByLabel('Senha').fill(f.password);await page.getByRole('button',{name:'Entrar',exact:true}).click();await expect(page.getByRole('heading',{name:'Painel',exact:true})).toBeVisible();const refuse=page.getByRole('region',{name:'Este site usa cookies'}).getByRole('button',{name:'Recusar',exact:true});if(await refuse.count())await refuse.click()}
+async function login(page:Page,other=false){const f=fixture();await page.goto(origin+'/login');await page.getByLabel('E-mail').fill(other?f.other:f.owner);await page.getByLabel('Senha').fill(f.password);await page.getByRole('button',{name:'Entrar',exact:true}).click();await accountLanding(page);const refuse=page.getByRole('region',{name:'Este site usa cookies'}).getByRole('button',{name:'Recusar',exact:true});if(await refuse.count())await refuse.click()}
 async function open(page:Page){await page.goto(origin+'/painel/interesses');await expect(page.getByRole('button',{name:'Seguir Jogos',exact:true})).toBeVisible()}
 async function cycle(){const connection={host:'127.0.0.1',port:runtime.redisPort},queue=new Queue('divulgador-niche-digests',{connection}),events=new QueueEvents('divulgador-niche-digests',{connection});try{await events.waitUntilReady();const job=await queue.add('niche-digest-cycle',{},{jobId:randomUUID(),removeOnComplete:true});await job.waitUntilFinished(events,30000)}finally{await events.close();await queue.close()}}
 function link(){const f=fixture(),id='f05-'+randomUUID();sql(`INSERT INTO links(id,"tenantId","ownerId","canonicalUrl",name,description,"networkId","nicheId",status,"occupiesSlot","everPublished","updatedAt") VALUES('${id}','${f.tenantId}','${f.ownerId}','https://example.com/${id}','Projeto ${id}','Descoberta de estudos','${f.networkId}','${f.nicheId}','PUBLISHED',false,true,NOW())`);return id}

@@ -1,3 +1,4 @@
+import { accountLanding } from './account-landing'
 import { profileEditorTool } from './profile-editor'
 import { selectOption } from './select-control'
 import AxeBuilder from '@axe-core/playwright'
@@ -11,7 +12,7 @@ function state() { return JSON.parse(readFileSync(path.join(__dirname, 'state.js
 function fixture() { const s = state(); sql(`DELETE FROM profiles WHERE "tenantId"='${s.tenantId}'; DELETE FROM profile_assets WHERE "tenantId"='${s.tenantId}'; UPDATE networks SET "requiresAge"=false WHERE "tenantId"='${s.tenantId}'`); return s }
 async function login(page: Page, email = state().owner) {
   await page.context().addCookies([{name:'tla_consent',value:'denied',domain:'profiles.localhost',path:'/'}])
-  await page.goto(A + '/login'); await page.getByLabel('E-mail').fill(email); await page.getByLabel('Senha').fill(state().password); await page.getByRole('button', { name: 'Entrar', exact: true }).click(); await expect(page.getByRole('heading', { name: 'Painel', exact: true })).toBeVisible()
+  await page.goto(A + '/login'); await page.getByLabel('E-mail').fill(email); await page.getByLabel('Senha').fill(state().password); await page.getByRole('button', { name: 'Entrar', exact: true }).click(); await accountLanding(page)
   const refuse = page.getByRole('region', { name: 'Este site usa cookies' }).getByRole('button', { name: 'Recusar', exact: true }); if (await refuse.count()) await refuse.click()
 }
 async function editorSection(page:Page,label:string){

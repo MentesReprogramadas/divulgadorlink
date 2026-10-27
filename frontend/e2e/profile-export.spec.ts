@@ -1,3 +1,4 @@
+import { accountLanding } from './account-landing'
 import {readFileSync} from 'node:fs'
 import {text} from 'node:stream/consumers'
 import path from 'node:path'
@@ -9,7 +10,7 @@ import {capturePage} from './capture-page'
 import {profileEditorTool} from './profile-editor'
 const origin=runtime.web('checklist.localhost')
 const fixture=()=>JSON.parse(readFileSync(path.join(__dirname,'state.json'),'utf8')).checklist as {tenantId:string;ownerId:string;owner:string;other:string;password:string}
-async function login(page:Page,other=false){const f=fixture();await page.goto(origin+'/login');await page.getByLabel('E-mail').fill(other?f.other:f.owner);await page.getByLabel('Senha').fill(f.password);await page.getByRole('button',{name:'Entrar',exact:true}).click();await expect(page.getByRole('heading',{name:'Painel',exact:true})).toBeVisible();const refuse=page.getByRole('region',{name:'Este site usa cookies'}).getByRole('button',{name:'Recusar',exact:true});if(await refuse.count())await refuse.click()}
+async function login(page:Page,other=false){const f=fixture();await page.goto(origin+'/login');await page.getByLabel('E-mail').fill(other?f.other:f.owner);await page.getByLabel('Senha').fill(f.password);await page.getByRole('button',{name:'Entrar',exact:true}).click();await accountLanding(page);const refuse=page.getByRole('region',{name:'Este site usa cookies'}).getByRole('button',{name:'Recusar',exact:true});if(await refuse.count())await refuse.click()}
 async function seed(page:Page){
  const status=await page.evaluate(async()=>{
   const category=crypto.randomUUID();const csrf=decodeURIComponent(document.cookie.split('; ').find(row=>row.startsWith('csrf='))?.slice(5)??'')

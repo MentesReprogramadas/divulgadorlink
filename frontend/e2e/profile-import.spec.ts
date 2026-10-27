@@ -1,3 +1,4 @@
+import { accountLanding } from './account-landing'
 import { profileEditorTool } from './profile-editor'
 import {readFileSync} from 'node:fs'
 import {randomUUID} from 'node:crypto'
@@ -10,7 +11,7 @@ import {selectOption} from './select-control'
 import {capturePage} from './capture-page'
 const origin=runtime.web('profiles.localhost')
 const fixture=()=>JSON.parse(readFileSync(path.join(__dirname,'state.json'),'utf8')).profiles as {tenantId:string;ownerId:string;owner:string;other:string;password:string}
-async function login(page:Page,other=false){const f=fixture();await page.goto(origin+'/login');await page.getByLabel('E-mail').fill(other?f.other:f.owner);await page.getByLabel('Senha').fill(f.password);await page.getByRole('button',{name:'Entrar',exact:true}).click();await expect(page.getByRole('heading',{name:'Painel',exact:true})).toBeVisible();const refuse=page.getByRole('region',{name:'Este site usa cookies'}).getByRole('button',{name:'Recusar',exact:true});if(await refuse.count())await refuse.click()}
+async function login(page:Page,other=false){const f=fixture();await page.goto(origin+'/login');await page.getByLabel('E-mail').fill(other?f.other:f.owner);await page.getByLabel('Senha').fill(f.password);await page.getByRole('button',{name:'Entrar',exact:true}).click();await accountLanding(page);const refuse=page.getByRole('region',{name:'Este site usa cookies'}).getByRole('button',{name:'Recusar',exact:true});if(await refuse.count())await refuse.click()}
 async function mutate(page:Page,route:string,body:unknown,method='POST'){return page.evaluate(async({route,body,method})=>{const csrf=decodeURIComponent(document.cookie.split('; ').find(row=>row.startsWith('csrf='))?.slice(5)??'');const response=await fetch('/bff/v1'+route,{method,headers:{'content-type':'application/json','x-csrf-token':csrf,'idempotency-key':crypto.randomUUID()},body:JSON.stringify(body)});return{status:response.status,body:await response.json()}},{route,body,method})}
 const row=()=>sql(`SELECT row_to_json(p)::text FROM profiles p WHERE "tenantId"='${fixture().tenantId}' AND "ownerId"='${fixture().ownerId}'`)
 async function state(page:Page){return page.evaluate(async()=>{const response=await fetch('/bff/v1/me/profile',{cache:'no-store'});return response.json()})}

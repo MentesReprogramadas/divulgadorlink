@@ -1,3 +1,4 @@
+import { accountLanding } from './account-landing'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { execFileSync } from 'node:child_process'
@@ -14,7 +15,7 @@ async function login(page: Page) {
   await page.getByLabel('E-mail').fill(data.other)
   await page.getByLabel('Senha').fill(data.password)
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Painel', exact: true })).toBeVisible()
+  await accountLanding(page)
   const refuse = page.getByRole('button', { name: 'Recusar', exact: true })
   if (await refuse.count()) await refuse.click()
 }

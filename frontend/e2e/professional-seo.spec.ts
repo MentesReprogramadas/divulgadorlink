@@ -307,7 +307,7 @@ test('admin publica coleção de dois links e revisa prévia individual pelo pai
   await page.getByLabel('E-mail').fill('admin@seo-professional.test')
   await page.getByLabel('Senha').fill('Senha-e2e-1')
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Painel', exact: true })).toBeVisible()
+  await expect(page).toHaveURL(origin+'/admin/visao')
   await page.goto(origin + '/admin/configuracoes')
   const section = page.getByRole('region', { name: 'SEO de páginas e coleções' })
   await section.getByRole('button', { name: 'Nova coleção' }).click()

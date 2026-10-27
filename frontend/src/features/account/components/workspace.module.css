@@ -54,10 +54,9 @@
 
 .readOnlyContent{border:0;padding:0;margin:0;min-width:0}
 
-.contextPicker { padding: var(--space-3); margin-bottom: var(--space-2); border: 1px solid var(--border-default); border-radius: var(--radius-lg); background: var(--surface-subtle); }
-.contextNavigation { display: grid; gap: var(--space-1); }
+.contextNavigation { display: grid; gap: var(--space-1); border-top: 1px solid var(--border-default); margin-top: var(--space-3); padding-top: var(--space-4); }
 .contextShortcuts { display: grid; gap: var(--space-1); }
-.contextShortcuts:empty { display: none; }
+.contextShortcuts button[aria-pressed=true] { --button-glass-tint: var(--select-selected-background); --button-glass-hover: var(--select-selected-background); color: var(--color-link); font-weight: 700; }
 .accountNavigation { display: grid; gap: var(--space-1); border-top: 1px solid var(--border-default); margin-top: var(--space-4); padding-top: var(--space-4); }
 .areaLinks a { gap: var(--space-1); }
 .helpButton { justify-content: flex-start; min-height: 48px; padding-inline: var(--space-3); border: 0; background: transparent; color: var(--text-secondary); font-weight: 600; box-shadow: none; }

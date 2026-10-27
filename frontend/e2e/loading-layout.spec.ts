@@ -13,7 +13,7 @@ async function login(page: Page, admin: boolean) {
   await page.getByLabel('E-mail', { exact: true }).fill(admin ? data.admin : data.bia)
   await page.getByLabel('Senha', { exact: true }).fill(data.password)
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
-  await expect(page.getByRole('heading', { level: 1, name: 'Painel', exact: true })).toBeVisible()
+  await expect(page).toHaveURL(origin+(admin?'/admin/visao':'/painel'))
 }
 
 for (const admin of [false, true]) {

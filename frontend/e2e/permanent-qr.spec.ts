@@ -1,3 +1,4 @@
+import { accountLanding } from './account-landing'
 import { randomUUID } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
@@ -10,7 +11,7 @@ import { selectOption } from './select-control'
 import { capturePage } from './capture-page'
 type Fixture={tenantId:string;ownerId:string;owner:string;other:string;password:string}
 const fixture=(area:'profiles'|'redirects')=>JSON.parse(readFileSync(path.join(__dirname,'state.json'),'utf8'))[area] as Fixture
-async function login(page:Page,area:'profiles'|'redirects',other=false){const data=fixture(area);await page.goto(runtime.web(area+'.localhost')+'/login');await page.getByLabel('E-mail').fill(other?data.other:data.owner);await page.getByLabel('Senha').fill(data.password);await page.getByRole('button',{name:'Entrar',exact:true}).click();await expect(page.getByRole('heading',{name:'Painel',exact:true})).toBeVisible();const refuse=page.getByRole('region',{name:'Este site usa cookies'}).getByRole('button',{name:'Recusar',exact:true});if(await refuse.count())await refuse.click()}
+async function login(page:Page,area:'profiles'|'redirects',other=false){const data=fixture(area);await page.goto(runtime.web(area+'.localhost')+'/login');await page.getByLabel('E-mail').fill(other?data.other:data.owner);await page.getByLabel('Senha').fill(data.password);await page.getByRole('button',{name:'Entrar',exact:true}).click();await accountLanding(page);const refuse=page.getByRole('region',{name:'Este site usa cookies'}).getByRole('button',{name:'Recusar',exact:true});if(await refuse.count())await refuse.click()}
 async function mutate(page:Page,route:string,body:unknown,method='POST'){
   return page.evaluate(async({route,body,method})=>{const csrf=decodeURIComponent(document.cookie.split('; ').find(row=>row.startsWith('csrf='))?.slice(5)??'');const response=await fetch('/bff/v1'+route,{method,headers:{'content-type':'application/json','x-csrf-token':csrf,'idempotency-key':crypto.randomUUID()},body:JSON.stringify(body)});return{status:response.status,body:await response.json()}},{route,body,method})
 }

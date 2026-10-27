@@ -1,3 +1,4 @@
+import { accountLanding } from './account-landing'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { randomUUID } from 'node:crypto'
@@ -17,7 +18,7 @@ function fixture(suffix: string) {
 }
 async function login(page: Page, email: string) {
   await page.goto(A + '/login'); await page.getByLabel('E-mail').fill(email); await page.getByLabel('Senha').fill(state().password)
-  await page.getByRole('button', { name: 'Entrar', exact: true }).click(); await expect(page.getByRole('heading', { name: 'Painel', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click(); await accountLanding(page)
   const refuse = page.getByRole('region', { name: 'Este site usa cookies' }).getByRole('button', { name: 'Recusar', exact: true }); if (await refuse.count()) await refuse.click()
 }
 async function cycle() {

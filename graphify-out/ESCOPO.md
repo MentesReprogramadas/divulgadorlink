@@ -1,5 +1,9 @@
 # Graphify — Tem Link Aqui
 
+## Áreas fixas e login de admin — 27/10/2026
+
+Consulta dirigida a WorkspaceNavigation, LoginForm e afterAuth, confirmada nos consumidores. Passagem incremental final: 10 arquivos reavaliados, 1576 reutilizados e uma configuração temporária removida; 7968 nós e 28696 relações. Sem LLM/API ou clustering. CSS e capturas não são comprovados pelo grafo. Validação, referências visuais e limites em docs/relatorios/2026-10-27-areas-fixas-painel.md.
+
 ## Atalhos do painel e formulário — 27/10/2026
 
 Consulta dirigida a WorkspaceNavigation, SidebarLink, ProfileFields e ChangedField, confirmada nos consumidores atuais. Extração incremental local final: 12 arquivos reavaliados, 1573 reutilizados; 7966 nós e 28601 relações. Sem LLM/API, clustering ou envio externo. CSS e capturas seguem fora da comprovação estrutural. Validação e limites em docs/relatorios/2026-10-27-atalhos-painel-formulario.md.

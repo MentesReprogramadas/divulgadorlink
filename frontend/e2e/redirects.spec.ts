@@ -1,3 +1,4 @@
+import { accountLanding } from './account-landing'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { chromium, expect, test, type Page, type TestInfo } from '@playwright/test'
@@ -8,7 +9,7 @@ const A = runtime.web('redirects.localhost')
 function state() { return JSON.parse(readFileSync(path.join(__dirname, 'state.json'), 'utf8')).redirects as { tenantId: string; ownerId: string; owner: string; other: string; password: string } }
 function fixture() { const s = state(); sql(`DELETE FROM redirect_handles WHERE "tenantId"='${s.tenantId}'`); return s }
 async function login(page: Page, email = state().owner) {
-  await page.goto(A + '/login'); await page.getByLabel('E-mail').fill(email); await page.getByLabel('Senha').fill(state().password); await page.getByRole('button', { name: 'Entrar', exact: true }).click(); await expect(page.getByRole('heading', { name: 'Painel', exact: true })).toBeVisible()
+  await page.goto(A + '/login'); await page.getByLabel('E-mail').fill(email); await page.getByLabel('Senha').fill(state().password); await page.getByRole('button', { name: 'Entrar', exact: true }).click(); await accountLanding(page)
   const refuse = page.getByRole('region', { name: 'Este site usa cookies' }).getByRole('button', { name: 'Recusar', exact: true }); if (await refuse.count()) await refuse.click()
   await page.goto(A + '/painel/convites')
 }

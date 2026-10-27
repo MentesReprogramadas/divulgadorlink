@@ -14,11 +14,11 @@ async function login(page: Page, admin = false) {
   await page.getByLabel('E-mail', { exact: true }).fill(admin ? s.admin : s.bia)
   await page.getByLabel('Senha', { exact: true }).fill(s.password)
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Painel', exact: true })).toBeVisible()
+  await expect(page).toHaveURL(origin+(admin?'/admin/visao':'/painel')); if(admin)await page.goto(origin+'/painel')
 }
 async function choosePanelArea(page:Page,area:'Minha página'|'Meus links'|'Outras páginas'){
  const nav=page.getByRole('navigation',{name:'Áreas do painel',exact:true}).filter({visible:true})
- await nav.getByLabel('Área do painel').click();await page.getByRole('option',{name:area,exact:true}).click()
+ await nav.getByRole('group',{name:'Atalhos do painel'}).getByRole('button',{name:area,exact:true}).click()
  await expect(page).toHaveURL(new RegExp(area==='Minha página'?'\\/painel\\/perfil$':area==='Outras páginas'?'\\/painel\\/clientes$':'\\/painel$'));await expect(page.locator('[data-skeleton]:visible')).toHaveCount(0);await expect(page).toHaveTitle(/\S/)
 }
 async function checkLayout(page: Page) {
@@ -36,7 +36,7 @@ async function checkLayout(page: Page) {
   expect(result.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) }))).toEqual([])
 }
 
-test('atalhos sincronizam seletor e apresentação mantém apenas o card externo',async({page},info)=>{
+test('três áreas sem seletor e apresentação mantém apenas o card externo',async({page},info)=>{
  await login(page)
  const mobile=info.project.name.includes('mobile')
  const nav=page.getByRole('navigation',{name:'Áreas do painel',exact:true}).filter({visible:true})
@@ -47,7 +47,7 @@ test('atalhos sincronizam seletor e apresentação mantém apenas o card externo
   await button.focus();await page.keyboard.press('Enter')
   await expect(page).toHaveURL(origin+route);await expect(page.locator('[data-skeleton]:visible')).toHaveCount(0)
   if(mobile)await page.getByRole('button',{name:'Menu',exact:true}).click()
-  await expect(nav.getByLabel('Área do painel')).toContainText(label)
+  await expect(nav.getByRole('combobox',{name:'Área do painel'})).toHaveCount(0);await expect(shortcuts.getByRole('button')).toHaveText(['Meus links','Minha página','Outras páginas']);await expect(shortcuts.getByRole('button',{name:label,exact:true})).toHaveAttribute('aria-pressed','true')
   await checkLayout(page)
   await page.screenshot({path:info.outputPath('shortcut-'+route.split('/').at(-1)+'.png'),fullPage:true,animations:'disabled'})
   if(mobile)await page.keyboard.press('Escape')
@@ -60,6 +60,20 @@ test('atalhos sincronizam seletor e apresentação mantém apenas o card externo
  await expect(fields.locator(':scope > [data-unpublished] > [data-optics]')).toHaveCount(0)
  await expect(fields).toHaveCSS('background-color','rgba(0, 0, 0, 0)')
  await checkLayout(page);await page.screenshot({path:info.outputPath('identity-flat.png'),fullPage:true,animations:'disabled'})
+})
+
+test('login de admin abre administração e mantém as três áreas do painel disponíveis',async({page},info)=>{
+ const s=state();await page.context().addCookies([{name:'tla_consent',value:'denied',domain:'tenant-a.localhost',path:'/'}])
+ await page.goto(origin+'/login');await page.getByLabel('E-mail',{exact:true}).fill(s.admin);await page.getByLabel('Senha',{exact:true}).fill(s.password);await page.getByRole('button',{name:'Entrar',exact:true}).click()
+ await expect(page).toHaveURL(origin+'/admin/visao');await page.goto(origin+'/login');await expect(page).toHaveURL(origin+'/admin/visao')
+ if(info.project.name.includes('mobile'))await page.getByRole('button',{name:'Menu',exact:true}).click()
+ const nav=page.getByRole('navigation',{name:'Admin',exact:true}).filter({visible:true})
+ await expect(nav.getByRole('link',{name:'Administração',exact:true})).toHaveAttribute('data-active','true')
+ await expect(nav.getByRole('group',{name:'Atalhos do painel'}).getByRole('button')).toHaveText(['Meus links','Minha página','Outras páginas'])
+ await nav.getByRole('button',{name:'Meus links',exact:true}).click();await expect(page).toHaveURL(origin+'/painel')
+ if(info.project.name.includes('mobile'))await page.getByRole('button',{name:'Menu',exact:true}).click()
+ await expect(page.getByRole('navigation',{name:'Áreas do painel',exact:true}).filter({visible:true}).getByRole('button',{name:'Meus links',exact:true})).toHaveAttribute('aria-pressed','true')
+ await checkLayout(page)
 })
 
 test('W14 gestão mantém abas ao mudar ações e não mostra filtros vazios',async({page},info)=>{

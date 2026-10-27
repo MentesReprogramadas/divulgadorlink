@@ -16,7 +16,7 @@ test('admin ajusta a barra e recebe os motivos no WhatsApp pelo outbox real', as
   await page.getByLabel('E-mail').fill(state.admin)
   await page.getByLabel('Senha').fill(state.password)
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Painel', exact: true })).toBeVisible()
+  await expect(page).toHaveURL(origin+'/admin/visao')
   await page.goto(origin + '/admin/configuracoes')
   const refuseCookies = page.getByRole('button', { name: 'Recusar', exact: true })
   if (await refuseCookies.isVisible()) await refuseCookies.click()

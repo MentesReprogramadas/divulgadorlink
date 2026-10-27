@@ -1,3 +1,4 @@
+import { accountLanding } from './account-landing'
 import {readFileSync} from 'node:fs'
 import {randomUUID} from 'node:crypto'
 import path from 'node:path'
@@ -10,7 +11,7 @@ import {capturePage} from './capture-page'
 const origin=runtime.web('discovery.localhost')
 const fixture=()=>JSON.parse(readFileSync(path.join(__dirname,'state.json'),'utf8')).discovery as {tenantId:string;ownerId:string;catalogId:string;owner:string;other:string;password:string}
 async function refuse(page:Page){const button=page.getByRole('region',{name:'Este site usa cookies'}).getByRole('button',{name:'Recusar',exact:true});if(await button.count())await button.click()}
-async function login(page:Page,other=false){const f=fixture();await page.goto(origin+'/login');await page.getByLabel('E-mail').fill(other?f.other:f.owner);await page.getByLabel('Senha').fill(f.password);await page.getByRole('button',{name:'Entrar',exact:true}).click();await expect(page.getByRole('heading',{name:'Painel',exact:true})).toBeVisible();await refuse(page)}
+async function login(page:Page,other=false){const f=fixture();await page.goto(origin+'/login');await page.getByLabel('E-mail').fill(other?f.other:f.owner);await page.getByLabel('Senha').fill(f.password);await page.getByRole('button',{name:'Entrar',exact:true}).click();await accountLanding(page);await refuse(page)}
 async function chooseCity(page:Page,name='sao paulo'){const input=page.getByRole('combobox',{name:/^Cidade/});await input.fill(name);if(await page.getByRole('form',{name:'Filtrar catálogo'}).count()){await expect(input).toHaveValue('São Paulo / SP');return}await expect(page.getByRole('option',{name:'São Paulo / SP',exact:true})).toBeVisible();await input.press('ArrowDown');await input.press('Enter');await expect(input).toHaveValue('São Paulo / SP')}
 async function apply(page:Page){await expect.poll(()=>new URL(page.url()).searchParams.get('cityId')).toBe('3550308');await expect(page.getByRole('combobox',{name:'Cidade'})).toHaveValue('São Paulo / SP');await expect(page.getByRole('button',{name:'Aplicar filtros'})).toHaveCount(0);await expect(page.getByRole('form',{name:'Filtrar catálogo'})).toHaveAttribute('aria-busy','false');await expect(page).toHaveTitle(/Descoberta fixture/);await expect(page.getByRole('combobox',{name:'Participação',exact:true})).toBeFocused()}
 async function accessible(page:Page){await expect(page).toHaveTitle(/\S/);const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(result.violations.map(v=>v.id),JSON.stringify(result.violations)).toEqual([])}

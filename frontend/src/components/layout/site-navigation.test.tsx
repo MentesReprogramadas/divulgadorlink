@@ -16,22 +16,22 @@ it.each([
  ['/painel','Minha página','/painel/perfil','Meus links'],
  ['/painel/perfil/dados','Meus links','/painel','Minha página'],
  ['/painel/clientes','Minha página','/painel/perfil','Outras páginas'],
-])('atalhos no topo de %s usam a mesma troca protegida do seletor',async(path,label,destination,current)=>{
+])('três áreas em %s mantêm seleção pela rota e troca protegida',async(path,label,destination,current)=>{
  pathname.mockReturnValue(path);const user=userEvent.setup();const view=render(<WorkspaceNavigation area="panel"/>);
- const shortcuts=screen.getByRole('group',{name:'Atalhos do painel'}),select=screen.getByLabelText('Área do painel');
- expect(shortcuts.compareDocumentPosition(select)&Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
- expect(within(shortcuts).queryByRole('button',{name:current})).toBeNull();
+ const shortcuts=screen.getByRole('group',{name:'Atalhos do painel'});
+ expect(screen.queryByRole('combobox',{name:'Área do painel'})).toBeNull();expect(within(shortcuts).getAllByRole('button').map(button=>button.textContent)).toEqual(['Meus links','Minha página','Outras páginas']);
+ expect(within(shortcuts).getByRole('button',{name:current}).getAttribute('aria-pressed')).toBe('true');
  await user.click(within(shortcuts).getByRole('button',{name:label}));
  expect(guard).toHaveBeenCalledOnce();expect(push).toHaveBeenCalledWith(destination);
  pathname.mockReturnValue(destination);view.rerender(<WorkspaceNavigation area="panel"/>);
- expect(screen.getByLabelText('Área do painel').textContent).toContain(label);
+ expect(screen.getByRole('button',{name:label}).getAttribute('aria-pressed')).toBe('true');
 })
 
 it('atalho preserva o contexto quando a proteção do rascunho falha',async()=>{
  pathname.mockReturnValue('/painel/perfil');guard.mockRejectedValueOnce(new Error('Falha ao salvar.'));
  render(<WorkspaceNavigation area="panel"/>);await userEvent.setup().click(screen.getByRole('button',{name:'Meus links'}));
  expect(await screen.findByRole('alert')).toHaveProperty('textContent','Falha ao salvar.');expect(push).not.toHaveBeenCalled();
- expect(screen.getByLabelText('Área do painel').textContent).toContain('Minha página');
+ expect(screen.getByRole('button',{name:'Minha página'}).getAttribute('aria-pressed')).toBe('true');
 })
 
 it('não expõe destinos de edição ou divulgação sem permissão dentro das subseções',()=>{
@@ -40,11 +40,11 @@ it('não expõe destinos de edição ou divulgação sem permissão dentro das s
 })
 
 it('seleciona a área pela rota e abre somente seu grupo ativo',()=>{
- pathname.mockReturnValue('/painel/perfil/modelos');const view=render(<WorkspaceNavigation area="panel"/>);expect(screen.getByRole('link',{name:'Modelos'}).getAttribute('aria-current')).toBe('page');expect(screen.getByLabelText('Área do painel').textContent).toContain('Minha página');expect(screen.getByText('Editar página').closest('details')?.open).toBe(true);expect(screen.queryByRole('link',{name:'Links permanentes',hidden:true})).toBeNull();expect(view.container.querySelector('details details')).toBeNull();expect(view.container.querySelectorAll('details[open]')).toHaveLength(1)
+ pathname.mockReturnValue('/painel/perfil/modelos');const view=render(<WorkspaceNavigation area="panel"/>);expect(screen.getByRole('link',{name:'Modelos'}).getAttribute('aria-current')).toBe('page');expect(screen.getByRole('button',{name:'Minha página'}).getAttribute('aria-pressed')).toBe('true');expect(screen.getByText('Editar página').closest('details')?.open).toBe(true);expect(screen.queryByRole('link',{name:'Links permanentes',hidden:true})).toBeNull();expect(view.container.querySelector('details details')).toBeNull();expect(view.container.querySelectorAll('details[open]')).toHaveLength(1)
  pathname.mockReturnValue('/painel/perfil/historico');view.rerender(<WorkspaceNavigation area="panel"/>);expect(screen.getByRole('link',{name:'Histórico de versões'}).getAttribute('aria-current')).toBe('page');expect(screen.getByText('Ferramentas').closest('details')?.open).toBe(true);expect(view.container.querySelectorAll('[aria-current]')).toHaveLength(1)
 })
 it('troca de contexto passa pela proteção de rascunho e mantém a área quando salvar falha',async()=>{
- const user=userEvent.setup();pathname.mockReturnValue('/painel/perfil');render(<WorkspaceNavigation area="panel"/>);guard.mockRejectedValueOnce(new Error('Salve o rascunho antes de sair.'));await user.click(screen.getByLabelText('Área do painel'));await user.click(await screen.findByRole('option',{name:'Meus links'}));expect(await screen.findByRole('alert')).toHaveProperty('textContent','Salve o rascunho antes de sair.');expect(push).not.toHaveBeenCalled();expect(screen.getByLabelText('Área do painel').textContent).toContain('Minha página');await waitFor(()=>expect(screen.getByLabelText('Área do painel').hasAttribute('disabled')).toBe(false));await user.click(screen.getByLabelText('Área do painel'));await user.click(await screen.findByRole('option',{name:'Meus links'}));expect(guard).toHaveBeenCalledTimes(2);expect(push).toHaveBeenCalledWith('/painel')
+ const user=userEvent.setup();pathname.mockReturnValue('/painel/perfil');render(<WorkspaceNavigation area="panel"/>);guard.mockRejectedValueOnce(new Error('Salve o rascunho antes de sair.'));await user.click(screen.getByRole('button',{name:'Meus links'}));expect(await screen.findByRole('alert')).toHaveProperty('textContent','Salve o rascunho antes de sair.');expect(push).not.toHaveBeenCalled();expect(screen.getByRole('button',{name:'Minha página'}).getAttribute('aria-pressed')).toBe('true');await waitFor(()=>expect(screen.getByRole('button',{name:'Meus links'}).hasAttribute('disabled')).toBe(false));await user.click(screen.getByRole('button',{name:'Meus links'}));expect(guard).toHaveBeenCalledTimes(2);expect(push).toHaveBeenCalledWith('/painel')
 })
 it('mantém conta/equipe nos três contextos e não mistura suas ferramentas',()=>{
  pathname.mockReturnValue('/painel/convites');const view=render(<WorkspaceNavigation area="panel"/>);expect(screen.getByRole('link',{name:'Links permanentes'}).getAttribute('aria-current')).toBe('page');expect(screen.queryByText('Editar página')).toBeNull();expect(screen.queryByRole('link',{name:'Criar link',hidden:true})).toBeNull();expect(screen.getByRole('link',{name:'Equipe e permissões'})).toBeTruthy();expect(screen.getByText('Minha conta')).toBeTruthy();pathname.mockReturnValue('/painel/clientes/acessos');view.rerender(<WorkspaceNavigation area="panel"/>);expect(screen.getByRole('link',{name:'Acessos por página'}).getAttribute('aria-current')).toBe('page');expect(screen.queryByRole('link',{name:'Links permanentes',hidden:true})).toBeNull();expect(screen.getByRole('link',{name:'Equipe e permissões'})).toBeTruthy()
@@ -53,12 +53,15 @@ it('não oferece contexto nem destino sem permissão e não mostra links antes d
  workspaceAccess.mockReturnValue({ready:true,context:{ownerId:'owner',grants:{invitations:{read:true,write:false}}},error:''});pathname.mockReturnValue('/painel/convites');const view=render(<WorkspaceNavigation area="panel"/>);expect(screen.getByRole('link',{name:'Links permanentes'})).toBeTruthy();expect(screen.queryByRole('link',{name:'Links no catálogo'})).toBeNull();expect(screen.queryByText('Editar página')).toBeNull();workspaceAccess.mockReturnValue({ready:false,context:null,error:''});view.rerender(<WorkspaceNavigation area="panel"/>);expect(screen.queryByRole('navigation',{name:'Áreas do painel'})).toBeNull();expect(screen.getByLabelText('Carregando navegação')).toBeTruthy()
 })
 
-it('uma permissão de relatórios não cria acesso visual à área de links',async()=>{
- workspaceAccess.mockReturnValue({ready:true,context:{ownerId:'owner',grants:{reports:{read:true,write:false}}},error:''});pathname.mockReturnValue('/painel/perfil/metricas');render(<WorkspaceNavigation area="panel"/>);expect(screen.getByRole('link',{name:'Visitas e cliques'})).toBeTruthy();const user=userEvent.setup();await user.click(screen.getByLabelText('Área do painel'));expect(await screen.findByRole('option',{name:'Minha página'})).toBeTruthy();expect(screen.queryByRole('option',{name:'Meus links'})).toBeNull();expect(screen.queryByRole('option',{name:'Outras páginas'})).toBeNull()
+it('mantém três áreas visíveis sem conceder acesso quando só relatórios estão permitidos',()=>{
+ workspaceAccess.mockReturnValue({ready:true,context:{ownerId:'owner',grants:{reports:{read:true,write:false}}},error:''});pathname.mockReturnValue('/painel/perfil/metricas');render(<WorkspaceNavigation area="panel"/>);
+ expect(screen.getByRole('link',{name:'Visitas e cliques'})).toBeTruthy();expect(screen.getByRole('button',{name:'Meus links'}).hasAttribute('disabled')).toBe(true);expect(screen.getByRole('button',{name:'Outras páginas'}).hasAttribute('disabled')).toBe(true);expect(screen.getByRole('button',{name:'Minha página'}).hasAttribute('disabled')).toBe(false)
 })
-
-it('usa Meus links como padrão de conta e como primeira opção, sem trocar a área de uma rota direta',async()=>{
- pathname.mockReturnValue('/painel/conta');render(<WorkspaceNavigation area="panel"/>);expect(screen.getByLabelText('Área do painel').textContent).toContain('Meus links');const user=userEvent.setup();await user.click(screen.getByLabelText('Área do painel'));expect((await screen.findAllByRole('option')).map(option=>option.textContent?.replace('✓',''))).toEqual(['Meus links','Minha página','Outras páginas'])
+it('usa Meus links como padrão de conta, mantendo os três botões na ordem',()=>{
+ pathname.mockReturnValue('/painel/conta');render(<WorkspaceNavigation area="panel"/>);expect(screen.getByRole('button',{name:'Meus links'}).getAttribute('aria-pressed')).toBe('true');expect(within(screen.getByRole('group',{name:'Atalhos do painel'})).getAllByRole('button').map(button=>button.textContent)).toEqual(['Meus links','Minha página','Outras páginas'])
+})
+it('mostra três áreas também na administração e permite abrir Meus links',async()=>{
+ pathname.mockReturnValue('/admin/visao');render(<WorkspaceNavigation area="admin" role="ADMIN"/>);await userEvent.setup().click(screen.getByRole('button',{name:'Meus links'}));expect(push).toHaveBeenCalledWith('/painel');expect(guard).toHaveBeenCalledOnce()
 })
 
 describe('navegação principal', () => {

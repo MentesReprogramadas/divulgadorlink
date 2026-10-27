@@ -1,3 +1,4 @@
+import { accountLanding } from './account-landing'
 import { logoutIfSignedIn } from './session-controls'
 import { selectOption } from './select-control'
 import { randomUUID } from 'node:crypto'
@@ -24,7 +25,7 @@ async function login(page: Page, email: string) {
   await page.getByLabel('E-mail').fill(email)
   await page.getByLabel('Senha').fill(state().password)
   await page.getByRole('button', { name: 'Entrar' }).click()
-  await expect(page.getByRole('heading', { name: 'Painel' })).toBeVisible()
+  await accountLanding(page)
   await refuseCookies(page)
 }
 function received(page: Page) { return page.waitForResponse(r => r.url().includes('/reports') && r.request().method() === 'POST') }

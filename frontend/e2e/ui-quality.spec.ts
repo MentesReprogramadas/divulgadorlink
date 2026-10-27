@@ -24,7 +24,7 @@ for (const role of ['public', 'user', 'admin'] as const) {
       await page.getByLabel('E-mail', { exact: true }).fill(role === 'admin' ? fixture.admin : fixture.bia)
       await page.getByLabel('Senha', { exact: true }).fill(fixture.password)
       await page.getByRole('button', { name: 'Entrar', exact: true }).click()
-      await expect(page).toHaveURL(/\/painel/)
+      await expect(page).toHaveURL(origin+(role==='admin'?'/admin/visao':'/painel'))
       await expect(page.getByRole('button', { name: 'Menu', exact: true, includeHidden: true })).toBeEnabled()
     }
     const routes = role === 'public' ? [...publicRoutes, `/link/${fixture.receitas}`] : role === 'user'

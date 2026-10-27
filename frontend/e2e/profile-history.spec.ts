@@ -1,3 +1,4 @@
+import { accountLanding } from './account-landing'
 import {profileEditorTool} from './profile-editor'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
@@ -10,7 +11,7 @@ const fixture = () => JSON.parse(readFileSync(path.join(__dirname, 'state.json')
 const origin = runtime.web('profiles.localhost')
 async function login(page: Page, other = false) {
   const data = fixture(); await page.goto(origin + '/login'); await page.getByLabel('E-mail').fill(other ? data.other : data.owner); await page.getByLabel('Senha').fill(data.password); await page.getByRole('button', { name: 'Entrar', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Painel', exact: true })).toBeVisible()
+  await accountLanding(page)
   const refuse = page.getByRole('region', { name: 'Este site usa cookies' }).getByRole('button', { name: 'Recusar', exact: true }); if (await refuse.count()) await refuse.click()
 }
 async function mutate(page: Page, route: string, body: unknown, method = 'POST') {

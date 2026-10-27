@@ -1,3 +1,4 @@
+import { accountLanding } from './account-landing'
 import { runtime as e2eRuntime } from './runtime.cjs'
 import { expect, test, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
@@ -18,7 +19,7 @@ async function login(page: Page, email: string, password = state.password): Prom
   await page.getByLabel('E-mail').fill(email)
   await page.getByLabel('Senha').fill(password)
   await page.getByRole('button', { name: 'Entrar' }).click()
-  await expect(page.getByRole('heading', { name: 'Painel' })).toBeVisible()
+  await accountLanding(page)
 }
 
 async function call(page: Page, url: string, init: { method?: string; body?: unknown } = {}) {

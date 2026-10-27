@@ -36,7 +36,7 @@ export function LoginForm({ returnTo }: { returnTo?: string } = {}) {
         canSubmit: Boolean(result.body.canSubmit),
         ...(reason ? { banReason: reason } : {}),
       })
-      window.location.assign(afterAuth(Boolean(result.body.canSubmit), status, returnTo))
+      window.location.assign(afterAuth(Boolean(result.body.canSubmit), status, returnTo, result.body.role))
     } catch {
       setError('Não foi possível conectar. Verifique sua conexão e tente novamente.')
     } finally {

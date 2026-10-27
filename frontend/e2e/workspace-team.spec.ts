@@ -1,3 +1,4 @@
+import { accountLanding } from './account-landing'
 import {readFileSync} from 'node:fs'
 import path from 'node:path'
 import {expect,test,type Page} from '@playwright/test'
@@ -7,7 +8,7 @@ import {sql} from './db'
 import {capturePage} from './capture-page'
 const origin=runtime.web('teams.localhost')
 const fixture=()=>JSON.parse(readFileSync(path.join(__dirname,'state.json'),'utf8')).team as {tenantId:string;ownerId:string;owner:string;other:string;password:string}
-async function login(page:Page,other=false){await page.goto(origin+'/login');await page.getByLabel('E-mail').fill(other?fixture().other:fixture().owner);await page.getByLabel('Senha').fill(fixture().password);await page.getByRole('button',{name:'Entrar',exact:true}).click();await expect(page.getByRole('heading',{name:'Painel',exact:true})).toBeVisible();const refuse=page.getByRole('region',{name:'Este site usa cookies'}).getByRole('button',{name:'Recusar',exact:true});if(await refuse.count())await refuse.click()}
+async function login(page:Page,other=false){await page.goto(origin+'/login');await page.getByLabel('E-mail').fill(other?fixture().other:fixture().owner);await page.getByLabel('Senha').fill(fixture().password);await page.getByRole('button',{name:'Entrar',exact:true}).click();await accountLanding(page);const refuse=page.getByRole('region',{name:'Este site usa cookies'}).getByRole('button',{name:'Recusar',exact:true});if(await refuse.count())await refuse.click()}
 async function api(page:Page,url:string,body?:unknown,method='GET'){return page.evaluate(async({url,body,method})=>{const csrf=decodeURIComponent(document.cookie.split('; ').find(row=>row.startsWith('csrf='))?.slice(5)??'');const response=await fetch('/bff/v1'+url,{method,headers:{'content-type':'application/json','x-csrf-token':csrf},...(body?{body:JSON.stringify(body)}:{})});const text=await response.text();return {status:response.status,body:text?JSON.parse(text):null}},{url,body,method})}
 test.beforeEach(()=>{const t=fixture().tenantId;sql(`DELETE FROM workspace_invitations WHERE "tenantId"='${t}';DELETE FROM workspace_memberships WHERE "tenantId"='${t}';DELETE FROM profiles WHERE "tenantId"='${t}'`)})
 

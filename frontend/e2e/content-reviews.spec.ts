@@ -1,3 +1,4 @@
+import { accountLanding } from './account-landing'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
@@ -10,7 +11,7 @@ const fixtures = () => JSON.parse(readFileSync(path.join(__dirname, 'state.json'
 async function login(page: Page, kind: Kind, admin = false) {
   const fixture = fixtures()[kind], origin = runtime.web(kind + '.localhost')
   await page.goto(origin + '/login'); await page.getByLabel('E-mail').fill(admin ? fixture.other : fixture.owner); await page.getByLabel('Senha').fill(fixture.password); await page.getByRole('button', { name: 'Entrar', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Painel', exact: true })).toBeVisible()
+  await accountLanding(page)
   const refuse = page.getByRole('region', { name: 'Este site usa cookies' }).getByRole('button', { name: 'Recusar', exact: true }); if (await refuse.count()) await refuse.click()
 }
 for (const kind of ['profiles', 'redirects'] as const) test('Revisão e contestação: ' + kind, async ({ page, browser }, info) => {

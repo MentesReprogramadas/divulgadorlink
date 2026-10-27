@@ -1,3 +1,4 @@
+import { accountLanding } from './account-landing'
 import { selectOption } from './select-control'
 import { runtime as e2eRuntime } from './runtime.cjs'
 import { createHmac, randomUUID } from 'node:crypto'
@@ -20,7 +21,7 @@ async function login(page: Page, email = state.admin) {
   await page.getByLabel('E-mail').fill(email)
   await page.getByLabel('Senha').fill(state.password)
   await page.getByRole('button', { name: 'Entrar' }).click()
-  await expect(page.getByRole('heading', { name: 'Painel' })).toBeVisible()
+  await accountLanding(page)
 }
 async function cycle() {
   const connection = { host: '127.0.0.1', port: e2eRuntime.redisPort }

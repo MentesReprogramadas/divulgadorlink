@@ -5,6 +5,14 @@ const open = { status: 'ACTIVE', canSubmit: true }
 const pending = { status: 'ACTIVE', canSubmit: false }
 const banned = { status: 'BANNED', canSubmit: false }
 
+it('abre administração para admin e Meus links para usuário, preservando verificação e retornos',()=>{
+ expect(afterAuth(true,'ACTIVE',undefined,'ADMIN')).toBe('/admin/visao')
+ expect(afterAuth(true,'ACTIVE',undefined,'USER')).toBe('/painel')
+ expect(afterAuth(false,'ACTIVE',undefined,'ADMIN')).toBe('/painel/verificar')
+ expect(afterAuth(true,'BANNED',undefined,'ADMIN')).toBe('/painel')
+ expect(afterAuth(true,'ACTIVE','/painel/denunciar/link-1','ADMIN')).toBe('/painel/denunciar/link-1')
+})
+
 it('retoma convite de equipe depois do login sem aceitar destinos extras',()=>{
  const target='/equipe/convite?scope=workspace&token='+'a'.repeat(43)
  expect(afterAuth(true,'ACTIVE',target)).toBe(target)

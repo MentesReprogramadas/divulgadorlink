@@ -1,3 +1,4 @@
+import { accountLanding } from './account-landing'
 import { selectOption } from './select-control'
 import { runtime as e2eRuntime } from './runtime.cjs'
 import { createHash, createSign, generateKeyPairSync } from 'node:crypto'
@@ -178,7 +179,7 @@ async function login(page: Page, origin: string, email: string): Promise<void> {
   await page.getByLabel('E-mail').fill(email)
   await page.getByLabel('Senha').fill(state.password)
   await page.getByRole('button', { name: 'Entrar' }).click()
-  await expect(page.getByRole('heading', { name: 'Painel' })).toBeVisible()
+  await accountLanding(page)
 }
 
 async function call(

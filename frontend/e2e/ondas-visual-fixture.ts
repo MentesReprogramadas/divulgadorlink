@@ -1,3 +1,4 @@
+import { accountLanding } from './account-landing'
 import { randomUUID } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
@@ -48,7 +49,7 @@ export async function login(page: Page, fixture: Fixture, other = false) {
   await page.getByLabel('E-mail').fill(other ? fixture.other : fixture.owner)
   await page.getByLabel('Senha').fill(fixture.password)
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Painel', exact: true })).toBeVisible()
+  await accountLanding(page)
   await expect(page.getByRole('button', { name: 'Menu', exact: true, includeHidden: true })).toBeEnabled()
   await expect(page.locator('[data-skeleton]:visible, [data-pending="true"]:visible, [aria-busy="true"]:visible')).toHaveCount(0)
 }
