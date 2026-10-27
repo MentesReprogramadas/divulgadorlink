@@ -36,6 +36,32 @@ async function checkLayout(page: Page) {
   expect(result.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) }))).toEqual([])
 }
 
+test('atalhos sincronizam seletor e apresentação mantém apenas o card externo',async({page},info)=>{
+ await login(page)
+ const mobile=info.project.name.includes('mobile')
+ const nav=page.getByRole('navigation',{name:'Áreas do painel',exact:true}).filter({visible:true})
+ for(const [label,route] of [['Minha página','/painel/perfil'],['Outras páginas','/painel/clientes'],['Meus links','/painel']]){
+  if(mobile)await page.getByRole('button',{name:'Menu',exact:true}).click()
+  const shortcuts=nav.getByRole('group',{name:'Atalhos do painel'})
+  const button=shortcuts.getByRole('button',{name:label,exact:true})
+  await button.focus();await page.keyboard.press('Enter')
+  await expect(page).toHaveURL(origin+route);await expect(page.locator('[data-skeleton]:visible')).toHaveCount(0)
+  if(mobile)await page.getByRole('button',{name:'Menu',exact:true}).click()
+  await expect(nav.getByLabel('Área do painel')).toContainText(label)
+  await checkLayout(page)
+  await page.screenshot({path:info.outputPath('shortcut-'+route.split('/').at(-1)+'.png'),fullPage:true,animations:'disabled'})
+  if(mobile)await page.keyboard.press('Escape')
+ }
+ await page.goto(origin+'/painel/perfil/dados')
+ const name=page.getByLabel('Nome da página',{exact:true})
+ await expect(name).toBeEnabled();await name.fill('Página de teste')
+ const fields=page.locator('fieldset').filter({has:page.locator(':scope > legend',{hasText:'Apresentação'})})
+ await expect(fields.locator(':scope > [data-optics]')).toHaveCount(0)
+ await expect(fields.locator(':scope > [data-unpublished] > [data-optics]')).toHaveCount(0)
+ await expect(fields).toHaveCSS('background-color','rgba(0, 0, 0, 0)')
+ await checkLayout(page);await page.screenshot({path:info.outputPath('identity-flat.png'),fullPage:true,animations:'disabled'})
+})
+
 test('W14 gestão mantém abas ao mudar ações e não mostra filtros vazios',async({page},info)=>{
  await login(page,true);await page.setViewportSize({width:1920,height:1000});await page.goto(origin+'/admin/visao')
  await expect(page.locator('[data-skeleton]:visible')).toHaveCount(0)

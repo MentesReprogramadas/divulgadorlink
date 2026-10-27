@@ -1,5 +1,10 @@
 # Graphify — Tem Link Aqui
 
+## Atalhos do painel e formulário — 27/10/2026
+
+Consulta dirigida a WorkspaceNavigation, SidebarLink, ProfileFields e ChangedField, confirmada nos consumidores atuais. Extração incremental local final: 12 arquivos reavaliados, 1573 reutilizados; 7966 nós e 28601 relações. Sem LLM/API, clustering ou envio externo. CSS e capturas seguem fora da comprovação estrutural. Validação e limites em docs/relatorios/2026-10-27-atalhos-painel-formulario.md.
+
+
 ## Correção da rolagem — integração na main, 26/10/2026
 
 Consulta a OndasAtmosphere/LiquidLens confirmada no código. Índice regenerado incrementalmente sobre a main 6268cd32 com somente a correção de rolagem, sem as alterações pendentes da pasta original: 151 arquivos reavaliados, 1434 reutilizados; 7966 nós/28607 relações. Modo code-only, sem LLM/API externa ou clustering. O parser informou limites em testes e configurações; os checks reais passaram. CSS, capturas e fluidez não são validados pelo grafo. Evidências e integração em docs/pesquisas/2026-10-26-scroll-home-correcao.md.

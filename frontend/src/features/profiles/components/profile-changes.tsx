@@ -4,7 +4,6 @@ import { emptyProfile, type ProfileContent } from '../profile-contract'
 import { normalizedProfile } from '../profile-diff'
 import { profileAppearance, type ProfileAppearance } from '../profile-appearance'
 import styles from './profile-changes.module.css'
-import {LiquidLens} from '@/components/ui/liquid-lens'
 
 const Context = createContext<ProfileContent | undefined>(undefined)
 export function ProfileChanges({ published, children }: { published: ProfileContent | null; children: ReactNode }) {
@@ -30,5 +29,5 @@ export function useProfileChanges() {
   }
 }
 export function ChangedField({ changed, children }: { changed: boolean; children: ReactNode }) {
-  return <div className={styles.field} data-unpublished={changed || undefined} title={changed ? 'Alteração não publicada' : undefined}>{changed?<LiquidLens radius={12}/>:null}{children}</div>
+  return <div className={styles.field} data-unpublished={changed || undefined} title={changed ? 'Alteração não publicada' : undefined}>{children}</div>
 }

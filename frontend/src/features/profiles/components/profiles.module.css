@@ -650,4 +650,4 @@
 /* Same optical material as Ondas; layout and state selectors stay local. */
 .formFrame { composes: surface from '../../feature-glass.module.css'; background: transparent; }
 .group { composes: surface from '../../feature-glass.module.css'; background: transparent; }
-.identityFields { composes: surface from '../../feature-glass.module.css'; background:transparent; }
+.identityFields { background:transparent; }

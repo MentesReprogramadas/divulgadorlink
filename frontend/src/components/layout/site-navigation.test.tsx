@@ -12,6 +12,28 @@ vi.mock('@/lib/workspace-switch-guards',()=>({prepareWorkspaceSwitch:guard}))
 vi.stubGlobal('ResizeObserver',class{observe(){} unobserve(){} disconnect(){}})
 afterEach(() => { cleanup(); pathname.mockReturnValue('/'); workspaceAccess.mockReset();push.mockReset();guard.mockReset();guard.mockResolvedValue(undefined) })
 
+it.each([
+ ['/painel','Minha página','/painel/perfil','Meus links'],
+ ['/painel/perfil/dados','Meus links','/painel','Minha página'],
+ ['/painel/clientes','Minha página','/painel/perfil','Outras páginas'],
+])('atalhos no topo de %s usam a mesma troca protegida do seletor',async(path,label,destination,current)=>{
+ pathname.mockReturnValue(path);const user=userEvent.setup();const view=render(<WorkspaceNavigation area="panel"/>);
+ const shortcuts=screen.getByRole('group',{name:'Atalhos do painel'}),select=screen.getByLabelText('Área do painel');
+ expect(shortcuts.compareDocumentPosition(select)&Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+ expect(within(shortcuts).queryByRole('button',{name:current})).toBeNull();
+ await user.click(within(shortcuts).getByRole('button',{name:label}));
+ expect(guard).toHaveBeenCalledOnce();expect(push).toHaveBeenCalledWith(destination);
+ pathname.mockReturnValue(destination);view.rerender(<WorkspaceNavigation area="panel"/>);
+ expect(screen.getByLabelText('Área do painel').textContent).toContain(label);
+})
+
+it('atalho preserva o contexto quando a proteção do rascunho falha',async()=>{
+ pathname.mockReturnValue('/painel/perfil');guard.mockRejectedValueOnce(new Error('Falha ao salvar.'));
+ render(<WorkspaceNavigation area="panel"/>);await userEvent.setup().click(screen.getByRole('button',{name:'Meus links'}));
+ expect(await screen.findByRole('alert')).toHaveProperty('textContent','Falha ao salvar.');expect(push).not.toHaveBeenCalled();
+ expect(screen.getByLabelText('Área do painel').textContent).toContain('Minha página');
+})
+
 it('não expõe destinos de edição ou divulgação sem permissão dentro das subseções',()=>{
  workspaceAccess.mockReturnValue({ready:true,context:{ownerId:'shared-owner',grants:{page:{read:true,write:false}}},error:''});pathname.mockReturnValue('/painel/perfil');render(<WorkspaceNavigation area="panel"/>);
  expect(screen.queryByRole('link',{name:'Apresentação',hidden:true})).toBeNull();expect(screen.queryByRole('link',{name:'Aparência',hidden:true})).toBeNull();expect(screen.queryByRole('link',{name:'Importar links',hidden:true})).toBeNull();expect(screen.queryByRole('link',{name:'Campanhas',hidden:true})).toBeNull();expect(screen.queryByRole('link',{name:'Contatos recebidos',hidden:true})).toBeNull();expect(screen.queryByRole('link',{name:'Apresentação para parceiros',hidden:true})).toBeNull();expect(screen.getByRole('link',{name:'Criar imagem',hidden:true})).toBeTruthy()

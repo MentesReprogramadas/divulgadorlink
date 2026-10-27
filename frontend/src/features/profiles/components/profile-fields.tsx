@@ -13,7 +13,6 @@ import {
 } from "./profile-group-manager";
 import type { ProfileGroupActionHosts } from "./profile-group-actions";
 import { ChangedField, useProfileChanges } from "./profile-changes";
-import {LiquidLens} from '@/components/ui/liquid-lens'
 
 type Props = {
   pending?: boolean;
@@ -118,7 +117,7 @@ export function ProfileFields({
             Conteúdo para maiores de 18 anos
           </label>
         </ChangedField>
-      <LiquidLens radius={16}/></fieldset>
+      </fieldset>
       {step === 3 ? (
         <fieldset className={styles.controls}>
           <legend className={styles.visuallyHidden}>Busca e filtros</legend>
