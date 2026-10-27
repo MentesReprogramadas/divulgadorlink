@@ -5,6 +5,7 @@ import { InvalidDiscovery } from '@/features/catalog/discovery/invalid-discovery
 import { catalogQueryRecord } from '@/domain/catalog-navigation'
 import { metadataFromSeo } from '@/domain/crawler-policy'
 import { loadCatalog } from '@/lib/catalog-page'
+import { TelegramOffersGuide } from '@/features/catalog/components/telegram-offers-guide'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,7 +18,7 @@ async function collection({ params, searchParams }: Props) {
   const query = catalogQueryRecord(await searchParams)
   const result = await loadCatalog(`/api/v1/catalog-collections/${encodeURIComponent(slug)}${query.size ? `?${query}` : ''}`)
   if (result.status === 404) notFound()
-  return { slug, result }
+  return { slug, result, firstPage: query.size === 0 }
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
@@ -27,7 +28,10 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 }
 
 export default async function Page(props: Props) {
-  const { slug, result } = await collection(props)
+  const { slug, result, firstPage } = await collection(props)
   if (result.status === 400) return <main><InvalidDiscovery href={`/descobrir/${encodeURIComponent(slug)}`} /></main>
-  return <FacetCatalog pageClass="niche-page" descriptionClass="niche-description" listPrefix="collection" mark="niche" route="collection" slug={slug} facetLabel="Categorias" facetKind="niche" active={null} facets={[]} body={result.body as CollectionBody} />
+  const body = result.body as CollectionBody
+  return <FacetCatalog pageClass="niche-page" descriptionClass="niche-description" listPrefix="collection" mark="niche" route="collection" slug={slug} facetLabel="Categorias" facetKind="niche" active={null} facets={[]} body={body}>
+    {slug === 'ofertas-telegram' && firstPage && body.seo.robots.startsWith('index') ? <TelegramOffersGuide /> : null}
+  </FacetCatalog>
 }

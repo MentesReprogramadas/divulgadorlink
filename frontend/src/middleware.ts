@@ -7,6 +7,7 @@ function withPath(request: NextRequest): { headers: Headers; csp: string } {
   const requestHeaders = new Headers(request.headers)
   for(const name of ['x-profile-tenant-host','x-profile-hostname','x-profile-slug'])requestHeaders.delete(name)
   requestHeaders.set('x-pathname', request.nextUrl.pathname)
+  requestHeaders.set('x-search', request.nextUrl.search)
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
   const devEval = process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''
   const googleScripts = 'https://www.googletagmanager.com https://www.googleadservices.com https://www.google.com'

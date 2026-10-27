@@ -10,6 +10,9 @@ import { RoutePending } from '@/components/layout/route-pending'
 import { loadPublicProfile } from '@/features/profiles/server/load-profile'
 import { profileAppearance, readableInk } from '@/features/profiles/profile-appearance'
 import { loadPreviewAppearance } from '@/features/profiles/server/load-preview-appearance'
+import { notFound } from 'next/navigation'
+import { loadCatalog } from '@/lib/catalog-page'
+import { catalogQueryRecord } from '@/domain/catalog-navigation'
 import { Consent } from '@/components/domain/consent'
 import { SiteVisits } from '@/components/domain/site-visits'
 import './globals.css'
@@ -34,6 +37,18 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const requestHeaders=await headers(),hostHeader=requestHeaders.get('host')??'',personal=personalHostTarget(hostHeader),personalHost=Boolean(personal)
   const linkId = /^\/link\/([^/]+)\/?$/.exec(requestHeaders.get('x-pathname') ?? '')?.[1]
+  const collectionSlug = /^\/descobrir\/([^/]+)\/?$/.exec(requestHeaders.get('x-pathname') ?? '')?.[1]
+  if (collectionSlug) {
+    if (!/^[a-z0-9-]{1,80}$/.test(collectionSlug)) notFound()
+    const search = new URLSearchParams(requestHeaders.get('x-search') ?? '')
+    const values = Object.fromEntries(Array.from(new Set(search.keys()), key => {
+      const all = search.getAll(key)
+      return [key, all.length === 1 ? all[0] : all]
+    }))
+    const query = catalogQueryRecord(values)
+    const result = await loadCatalog(`/api/v1/catalog-collections/${collectionSlug}${query.size ? `?${query}` : ''}`)
+    if (result.status === 404) notFound()
+  }
   // Resolve the link before the shell streams so metadata can set its HTTP status.
   if (linkId) await loadPublicLink(linkId)
   const personalOrigin=personal?personalHostOrigin(personal.tenantHost,hostHeader.split(':')[1]??''):undefined

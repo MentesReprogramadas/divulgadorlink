@@ -14,7 +14,7 @@ const updatedAt = '2026-10-20T00:00:00.000Z'
 const adultCollection = 'telegram-adulto-revisado'
 const bettingCollection = 'telegram-apostas-revisado'
 const offersCollection = 'ofertas-whatsapp-revisadas'
-const telegramOffersCollection = 'ofertas-telegram-revisadas'
+const telegramOffersCollection = 'ofertas-telegram'
 const secretName = 'SEO_RESTRICTED_NAME_SENTINEL'
 const secretDescription = 'SEO_RESTRICTED_DESCRIPTION_SENTINEL'
 const mediaPath = '/bff/v1/links/seo-adult-01/media/seo-adult-image'
@@ -153,6 +153,35 @@ test('Telegram conecta seleções úteis por interesse sem expor conteúdo restr
   await page.goto(origin + '/rede/telegram?nicho=compras-ofertas-cupons')
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content','noindex, follow')
   await expect(page.getByRole('heading', {name:'Como encontrar e entrar em grupos do Telegram'})).toHaveCount(0)
+})
+
+test('ofertas do Telegram entrega canal real e orientação útil no HTML público', async ({ page }, info) => {
+  const hydrationErrors: string[] = []
+  page.on('pageerror', error => hydrationErrors.push(error.message))
+  page.on('console', message => { if (message.type() === 'error' && /hydration|Minified React error/i.test(message.text())) hydrationErrors.push(message.text()) })
+  const pathname = '/descobrir/' + telegramOffersCollection
+  const response = await page.goto(origin + pathname)
+  expect(response?.status()).toBe(200)
+  const html = await response!.text()
+  expect(html).toContain('Como acompanhar ofertas e cupons no Telegram')
+  expect(html).toContain('seo-telegram-offer')
+  expect(html).not.toContain(secretDescription)
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', canonical + pathname)
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'index, follow')
+  await expect(page.getByRole('region', {name:'Orgânicos'}).getByRole('link', {name:'Ofertas no Telegram', exact:true})).toBeVisible()
+  await expect(page.getByRole('region', {name:'Como acompanhar ofertas e cupons no Telegram'})).toBeVisible()
+  await page.waitForLoadState('networkidle')
+  expect(hydrationErrors).toEqual([])
+  await stableScreenshot(page, info.outputPath('telegram-offers-guide.png'))
+  const bot = await headForHtmlLimitedBot(page, pathname)
+  expect(bot.html).toContain('Como acompanhar ofertas e cupons no Telegram')
+  await page.goto(origin + pathname + '?languageTag=en')
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, follow')
+  await expect(page.getByRole('heading', {name:'Como acompanhar ofertas e cupons no Telegram'})).toHaveCount(0)
+  await page.goto(origin + '/descobrir/' + offersCollection)
+  await expect(page.getByRole('heading', {name:'Como acompanhar ofertas e cupons no Telegram'})).toHaveCount(0)
+  const missing = await page.request.get(origin + '/descobrir/colecao-inexistente')
+  expect(missing.status()).toBe(404)
 })
 
 test('metadados, sitemap e detalhes públicos refletem a mesma política de SEO', async ({ page }, info) => {

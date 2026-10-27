@@ -7,14 +7,16 @@ import RootLayout from '@/app/layout'
 vi.mock('react', () => vi.importActual<typeof import('react')>('next/dist/compiled/react'))
 vi.mock('react/jsx-runtime', () => vi.importActual<typeof import('react/jsx-runtime')>('next/dist/compiled/react/jsx-runtime'))
 vi.mock('react/jsx-dev-runtime', () => vi.importActual<typeof import('react/jsx-dev-runtime')>('next/dist/compiled/react/jsx-dev-runtime'))
-const hydration = vi.hoisted(() => ({ release: undefined as (() => void) | undefined, path: '', profile: null as {restricted:boolean;appearance:{background:string}} | null }))
+const hydration = vi.hoisted(() => ({ release: undefined as (() => void) | undefined, path: '', search: '', profile: null as {restricted:boolean;appearance:{background:string}} | null }))
+const catalog = vi.hoisted(() => vi.fn(async () => ({status:200,body:null})))
+vi.mock('@/lib/catalog-page', () => ({loadCatalog:catalog}))
 vi.mock('@/features/profiles/server/load-profile', () => ({loadPublicProfile:async()=>hydration.profile}))
 vi.mock('next/headers', () => ({
-  headers: async () => new Headers({ host: 'checklist.localhost:3018', 'x-pathname':hydration.path }),
+  headers: async () => new Headers({ host: 'checklist.localhost:3018', 'x-pathname':hydration.path, 'x-search':hydration.search }),
   cookies: async () => ({ get: (name: string) => name === 'tla_consent' ? { value: 'denied' } : undefined, has: () => false }),
 }))
 vi.mock('next/font/google', () => ({ Source_Sans_3: () => ({ variable: 'font-source-sans' }), Outfit: () => ({ variable: 'font-outfit' }) }))
-vi.mock('next/navigation', () => ({ usePathname: () => '/admin/configuracoes' }))
+vi.mock('next/navigation', () => ({ usePathname: () => '/admin/configuracoes', notFound: () => {throw new Error('NOT_FOUND')} }))
 vi.mock('@/components/domain/consent', () => ({ Consent: () => null, CookieSettings: () => <button>Gerenciar cookies</button> }))
 vi.mock('@/components/domain/site-visits', () => ({ SiteVisits: () => null }))
 vi.mock('./site-navigation', () => ({ SiteNavigation: () => {
@@ -26,7 +28,15 @@ const { hydrateRoot } = await vi.importActual<typeof import('react-dom/client')>
 const { renderToString } = await vi.importActual<typeof import('react-dom/server')>('next/dist/compiled/react-dom/server')
 
 let root: Root | undefined
-afterEach(() => { root?.unmount(); root = undefined; hydration.release = undefined; hydration.path='';hydration.profile=null;document.body.innerHTML = '' })
+afterEach(() => { root?.unmount(); root = undefined; hydration.release = undefined; hydration.path='';hydration.search='';hydration.profile=null;catalog.mockReset();catalog.mockResolvedValue({status:200,body:null});document.body.innerHTML = '' })
+
+it('resolve a mesma consulta da coleção antes do shell e preserva filtros repetidos',async()=>{
+ hydration.path='/descobrir/ofertas-telegram';hydration.search='?cursor=abc&languageTag=pt&languageTag=en&utm_source=teste'
+ await RootLayout({children:<main>Ofertas</main>})
+ expect(catalog).toHaveBeenCalledExactlyOnceWith('/api/v1/catalog-collections/ofertas-telegram?languageTag=pt&languageTag=en&cursor=abc')
+ catalog.mockResolvedValue({status:404,body:null})
+ await expect(RootLayout({children:<main/>})).rejects.toThrow('NOT_FOUND')
+})
 
 it('envia a cor publicada no primeiro HTML sem revelar tema de página restrita', async()=>{
  hydration.path='/p/ana';hydration.profile={restricted:false,appearance:{background:'#ece5ff'}}
@@ -56,7 +66,8 @@ it('renderiza carregamento em vidro no SSR enquanto o conteúdo da rota está pe
   expect(fallback?.querySelector('[data-optics]')).not.toBeNull()
 })
 
-it('hidrata o RootLayout sem erro ou troca de DOM quando o conteúdo RSC resolve na primeira microtask', async () => {
+it.each(['', '/descobrir/ofertas-telegram'])('hidrata o RootLayout sem erro ou troca de DOM quando o conteúdo RSC resolve na primeira microtask: %s', async (pathname) => {
+  hydration.path = pathname
   const errors: unknown[] = []
   let committed = false
   function Probe() { useEffect(() => { committed = true }, []); return null }

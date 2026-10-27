@@ -10,6 +10,11 @@ function run(path: string, cookie?: string) {
 
 afterEach(() => {vi.unstubAllEnvs();vi.unstubAllGlobals()})
 
+it('o contexto de consulta vem da URL e substitui cabeçalho forjado',async()=>{
+ const response=await middleware(new NextRequest('http://localhost/descobrir/ofertas-telegram?languageTag=pt&cursor=abc',{headers:{'x-search':'?languageTag=en'}}))
+ expect(response.headers.get('x-middleware-request-x-search')).toBe('?languageTag=pt&cursor=abc')
+})
+
 it('a paleta pessoal usa apenas o slug resolvido pelo host, nunca um cabeçalho forjado',async()=>{
  const forged=await middleware(new NextRequest('http://localhost/login',{headers:{'x-profile-slug':'evil'}}))
  expect(forged.headers.get('x-middleware-request-x-profile-slug')).toBeNull()
