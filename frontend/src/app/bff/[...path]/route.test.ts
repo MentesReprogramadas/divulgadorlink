@@ -7,6 +7,17 @@ vi.mock('@/lib/upstream', () => ({ tenantHost: (host: string) => host, forward: 
 const mockedForward = vi.mocked(forward)
 beforeEach(() => { vi.resetAllMocks(); mockedForward.mockResolvedValue({ status: 200, headers: {}, body: Buffer.from('{}') }) })
 describe('BFF de destaque administrativo', () => {
+  it('preserva o retorno OAuth para uma rota relativa do próprio aplicativo', async () => {
+    mockedForward.mockResolvedValue({ status: 302, headers: { location: '/admin/afiliados?catalog=connected' }, body: Buffer.alloc(0) })
+    const response = await GET(new Request('http://tenant.localhost/bff/v1/admin/affiliates/catalog/callback?state=test&code=test'), { params: Promise.resolve({ path: ['v1', 'admin', 'affiliates', 'catalog', 'callback'] }) })
+    expect(response.status).toBe(302)
+    expect(response.headers.get('location')).toBe('/admin/afiliados?catalog=connected')
+  })
+  it.each(['https://outside.example/path', '//outside.example/path', '/\\outside.example/path', '/unsafe\\path'])('não encaminha destino de redirecionamento externo ou ambíguo %s', async location => {
+    mockedForward.mockResolvedValue({ status: 302, headers: { location }, body: Buffer.alloc(0) })
+    const response = await GET(new Request('http://tenant.localhost/bff/v1/admin/affiliates/catalog/callback'), { params: Promise.resolve({ path: ['v1', 'admin', 'affiliates', 'catalog', 'callback'] }) })
+    expect(response.headers.get('location')).toBeNull()
+  })
   it('impede cache compartilhado de resposta privada sem política do upstream', async () => {
     mockedForward.mockResolvedValue({ status: 200, headers: { 'set-cookie': 'accessToken=renewed; Path=/; HttpOnly' }, body: Buffer.from('{"name":"Conta privada"}') })
     const response = await GET(new Request('http://tenant-a.localhost/bff/v1/auth/session', { headers: { host: 'tenant-a.localhost:3000', cookie: 'accessToken=fixture', 'x-workspace-owner': 'owner-a' } }), { params: Promise.resolve({ path: ['v1', 'auth', 'session'] }) })

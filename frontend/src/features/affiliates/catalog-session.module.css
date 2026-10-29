@@ -1,0 +1,8 @@
+.accounts { display: grid; gap: var(--space-5); margin-top: var(--space-4); }
+.accounts > div + div { border-top: 1px solid var(--border-default); padding-top: var(--space-5); }
+.accounts h3, .direct h3 { margin: 0; font-size: 1rem; }
+.accounts p, .direct p { color: var(--text-secondary); line-height: 1.6; }
+.direct { display: grid; gap: var(--space-3); padding-block: var(--space-4); }
+.direct > p { margin: 0; max-width: 75ch; }
+.search [data-control-frame] { margin-bottom: 0; }
+.result { display: grid; gap: var(--space-3); min-width: 0; padding-block: var(--space-4); border-block: 1px solid var(--border-default); }

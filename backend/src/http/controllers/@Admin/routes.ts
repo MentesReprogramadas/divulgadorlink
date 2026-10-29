@@ -1,4 +1,9 @@
+import { registerAffiliateDiscoveryRoutes } from './affiliate-discovery'
+import { registerAffiliateProductRoutes } from './affiliate-products'
 import { registerSearchOpportunityRoutes } from './search-opportunities'
+import { registerAffiliateRoutes } from './affiliates'
+import { registerAffiliateCatalogRoutes } from './affiliate-catalog'
+import { registerAffiliateImageRoutes } from './affiliate-images'
 import { registerCatalogSeoRoutes } from './catalog-seo'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
@@ -122,6 +127,11 @@ async function patchConfig(request: FastifyRequest, reply: FastifyReply) {
 }
 
 export async function adminRoutes(app: FastifyInstance) {
+  await registerAffiliateRoutes(app)
+  await registerAffiliateCatalogRoutes(app)
+  await registerAffiliateDiscoveryRoutes(app)
+  await registerAffiliateProductRoutes(app)
+  await registerAffiliateImageRoutes(app)
   app.patch('/admin/config/:key', { onRequest: [verifyJWT] }, patchConfig)
   await registerModerationRoutes(app)
   await registerBanRoutes(app)

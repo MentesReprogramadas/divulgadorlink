@@ -54,6 +54,7 @@ export const navigationIcons = {
   '/admin/assinaturas': 'billingAdmin',
   '/admin/estornos': 'refund',
   '/admin/integracoes': 'integration',
+  '/admin/afiliados': 'affiliateNetwork',
   '/admin/configuracoes': 'settings',
 } as const satisfies Record<string, ActionIconName>
 

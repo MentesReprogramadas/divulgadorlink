@@ -32,11 +32,11 @@ function harness(overrides = {}) {
   }
   return { calls, run: (values = env) => deploy(values, fetcher, async () => {}) }
 }
-test('deploys API, worker and web sequentially at the tested SHA; health calls have no credentials', async () => {
+test('deploys bridge, API, worker and web sequentially at the tested SHA; health calls have no credentials', async () => {
   const h = harness()
   await h.run()
   assert.deepEqual(h.calls.filter(call => call.url.pathname === '/api/v1/deploy').map(call => call.body.uuid), applications.map(app => app.uuid))
-  assert.equal(h.calls.filter(call => call.method === 'PATCH').length, 3)
+  assert.equal(h.calls.filter(call => call.method === 'PATCH').length, applications.length)
   for (const call of h.calls.filter(call => call.method === 'PATCH')) assert.deepEqual(call.body, { git_commit_sha: sha })
   for (const call of h.calls.filter(call => applications.some(app => app.health === call.url.href))) assert.equal(call.options.headers, undefined)
 })
@@ -74,7 +74,8 @@ test('auto-deploy or an existing deployment blocks every mutation', async () => 
 test('failed deployment, wrong SHA, unhealthy service or timeout prevents deploying the next service', async () => {
   for (const options of [{ deployment: 'failed' }, { commit: 'b'.repeat(40) }, { status: 'exited' }, { health: 503 }, { deployment: 'in_progress' }]) {
     const h = harness(options); await assert.rejects(h.run())
-    assert.equal(h.calls.filter(call => call.url.pathname === '/api/v1/deploy').length, 1)
+    const firstHealthIndex = applications.findIndex(app => app.health)
+    assert.equal(h.calls.filter(call => call.url.pathname === '/api/v1/deploy').length, options.health ? firstHealthIndex + 1 : 1)
   }
 })
 test('API errors do not expose response bodies or tokens', async () => {

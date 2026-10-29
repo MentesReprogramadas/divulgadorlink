@@ -300,6 +300,12 @@ export class PrismaCheckoutStore implements CheckoutStore {
         JSON.stringify(order.refundErrors ?? []),
         JSON.stringify(order.refundIds ?? []),
       )
+      if (order.status === 'EXPIRED' || order.status === 'PAID_LATE' || order.status === 'REFUNDED' || order.status === 'REFUND_FAILED') {
+        await tx.$executeRawUnsafe(
+          `UPDATE order_surfaces SET hold = 'RELEASED'::"SurfaceHold" WHERE "orderId" = $1`,
+          order.id,
+        )
+      }
       if (order.status === 'REFUND_FAILED') {
         const persisted = await tx.order.findUnique({ where: { id: order.id }, include: { user: { select: { name: true } }, link: { include: { owner: { select: { name: true } }, network: true, niche: true } } } })
         if (persisted) await tx.operationalMessage.upsert({ where: { occurrenceKey: `refund-failed:${order.id}` }, create: { tenantId: persisted.tenantId, resourceId: order.id, kind: 'REFUND_FAILED', occurrenceKey: `refund-failed:${order.id}`, payload: { ...linkNotificationSnapshot(persisted.link), ownerName: persisted.user?.name ?? persisted.link.owner?.name ?? 'Não informado', amountCents: persisted.amountCents, method: persisted.method, attempts: order.refundAttempts } }, update: {} })
@@ -330,9 +336,6 @@ export class PrismaCheckoutStore implements CheckoutStore {
         order.id,
         eventId,
       )
-    }
-    if (order.status === 'EXPIRED' || order.status === 'PAID_LATE' || order.status === 'REFUNDED' || order.status === 'REFUND_FAILED') {
-      await this.releasePending(order.id)
     }
   }
 }

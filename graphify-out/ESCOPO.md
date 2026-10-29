@@ -1,5 +1,39 @@
 # Graphify — Tem Link Aqui
 
+## Catálogo e clareza de Ofertas — 28/10/2026
+
+Consulta dirigida ao grafo e confirmação no código de descoberta, adapter e tela. Extração incremental code-only final: **8522 nós / 30713 relações**; passagem inicial27 arquivos/1659 reutilizados, passagem final10 arquivos/1676 reutilizados. Sem LLM/API, clustering ou envio de código. Campos opcionais de preço anterior, classificação técnica e consulta em lote de reputação confirmados por testes; CSS/Prisma/capturas não ganham validade pelo índice. Runtime, métricas locais e limites: `docs/relatorios/2026-10-28-afiliados-catalogo-clareza.md`.
+
+## Lista de ofertas unificada — 28/10/2026
+
+Consulta dirigida a affiliateDiscoveryState e consumidores confirmada no código. Atualização incremental code-only, sem LLM/API/clustering: 15 arquivos reprocessados, 1671 reutilizados; **8519 nós / 30702 relações**. Remove seletor e consulta paginada por termo do painel; reúne, intercala e deduplica resultados no backend mantendo tenant e avaliação. Verificação de runtime em `docs/relatorios/2026-10-28-afiliados-lista-unificada.md`; grafo não comprova CSS, dados ou execução.
+
+## Ofertas avaliadas, prévia única e envio — 28/10/2026
+
+Consulta inicial dirigida ao índice existente confirmada nos consumidores de catálogo, descoberta e worker. Extração incremental final `graphify extract . --code-only --max-workers 4 --no-cluster`: 56 arquivos reprocessados, 1630 reutilizados; **8521 nós / 30706 relações**. Sem LLM/API, clustering ou envio de código. Cinco testes não produziram símbolos; CSS, Prisma e imagens continuam fora da comprovação estrutural. Arquivos privados permanecem ignorados. Evidências reais e limites: `docs/relatorios/2026-10-28-afiliados-ofertas-reais-preview-envios.md`.
+
+## Jornada guiada, sessões do ML e descoberta — 28/10/2026
+
+Consultas dirigidas a catálogo, segmentações, worker e conexões confirmadas no código. Extração incremental local `graphify extract . --code-only --max-workers 4 --no-cluster`: 60 arquivos reprocessados, 1609 reutilizados; **8428 nós /30356 relações**. Sem LLM/API/clustering ou envio de código. Quatro arquivos de testes não produziram símbolos; CSS, Prisma e capturas continuam sujeitos aos checks reais. Arquivos privados/saída e segredos permanecem fora do índice. Evidências e limites em `docs/relatorios/2026-10-28-afiliados-jornada-guiada.md`, `2026-10-28-mercado-livre-contas-sessoes.md` e `2026-10-28-afiliados-descoberta-automatica.md`.
+
+Passagem final após corrigir a atomicidade do Pix revelada pelos checks: onze arquivos reprocessados (incluindo nove reencaminhados sem símbolos), 1658 reutilizados; **8429 nós /30356 relações**. Somente extração local de código, sem custo externo ou mudança dos limites acima. Evidência financeira em `docs/relatorios/2026-10-28-pix-expiracao-atomica.md`.
+
+## Formulários de afiliados e QR automático — 28/10/2026
+
+Consulta a OverlayDialog/LiquidLens confirmada no código; campos públicos e internos separados, QR com consultas limitadas e cancelamento, modais com rolagem somente no corpo. Extração incremental local code-only, sem LLM/API/clustering, **8306 nós /29918 relações** na passagem após a revisão. Artefatos privados e capturas permanecem ignorados. A validação real de moldura/stepper, QR200 e testes é registrada em `docs/relatorios/2026-10-28-afiliados-formularios-qr.md`; o grafo não certifica CSS nem acessibilidade.
+
+## Jornada de afiliados e múltiplas conexões — 28/10/2026
+
+Consulta dirigida a upload/storage/profile confirmada no código. Atualização incremental code-only, sem LLM/API/clustering: **8298 nós /29880 relações**. Inclui wizard, rotas, imagens, associações de contas, rotação/failover e provas de geração. Arquivos privados e output permanecem ignorados; Prisma/CSS/capturas não ganham validade de runtime pelo grafo. Evidências e limites em `docs/relatorios/2026-10-28-afiliados-jornada.md`.
+
+## Integrações reais locais e CSRF — 28/10/2026
+
+Consulta de readCsrf/csrf/currentSession confirmada no código e em reprodução HTTP. Atualização incremental final code-only, sem LLM/API/clustering: **8247 nós /29670 relações**, onze arquivos reavaliados e1621 reutilizados. Configuração privada `.env` e artefatos em output permanecem ignorados; nenhum segredo foi indexado. CSS/capturas e arquivos sem símbolos continuam fora da prova estrutural. Custo externo/tokens de LLM da indexação: zero. Evidência de login, busca real, zero grupos/instâncias importados e bloqueio externo403 em `docs/relatorios/2026-10-28-afiliados-local-real.md`.
+
+## Central administrativa de afiliados e WhatsApp — 28/10/2026
+
+Consulta dirigida de Evolution/grupos/convites confirmada no código atual da main. Worktree isolada `C:/VSCODE/temlink-afiliados`, branch `codex/afiliados-whatsapp`. Atualização incremental code-only com `--max-workers 4 --no-cluster`, sem LLM/API/envio externo. A passagem final após conectores, serviços, painel e testes resultou em **8215 nós / 29545 relações**, 10 arquivos reavaliados e1614 reutilizados. Alguns testes/configurações não produzem símbolos. CSS/Prisma/prints continuam sujeitos aos checks reais; os arquivos sensíveis e tokens.css mantiveram as exclusões. Tokens/custo externo de LLM: zero. Não atribuir validade de runtime ao grafo. Resultados e limites em `docs/relatorios/2026-10-28-afiliados-whatsapp.md`.
+
 ## Áreas fixas e login de admin — 27/10/2026
 
 Consulta dirigida a WorkspaceNavigation, LoginForm e afterAuth, confirmada nos consumidores. Passagem incremental final: 10 arquivos reavaliados, 1576 reutilizados e uma configuração temporária removida; 7968 nós e 28696 relações. Sem LLM/API ou clustering. CSS e capturas não são comprovados pelo grafo. Validação, referências visuais e limites em docs/relatorios/2026-10-27-areas-fixas-painel.md.
@@ -178,3 +212,7 @@ Hero centralizado de Ondas: atualização incremental local em 23/10/2026, dez a
 ## Fechamento da experiência frontend — 23/10/2026
 
 Consulta inicial ao grafo confirmada nos consumidores de catálogo, busca, mídia, BFF e formulário. Extração incremental local final `graphify extract . --code-only --max-workers 4 --no-cluster`: dez arquivos reprocessados, 1493 reutilizados; 7580 nós e 27028 relações. Sem LLM/API, clustering ou envio externo. Inclui a árvore compartilhada, sem atribuir todas as diferenças a esta tarefa. CSS e capturas não são modelados; configurações/testes sem símbolos continuam sujeitos aos checks reais. Evidência: 671 testes frontend, testes de mídia com PostgreSQL, lint/tipos/build e 30 E2E desktop/mobile aprovados. Limites e medições de laboratório em docs/frontend-profissional/fechamento-experiencia-2026-10-23.md.
+
+## Ponte permanente de afiliados — 29/10/2026
+
+Extração incremental local code-only: 13 arquivos reprocessados, 1676 reutilizados; 8546 nós/30788 relações. Sem LLM, API ou envio externo. Docker/CSS e documentação não são modelados; runtime e montagem somente leitura precisam de verificação própria.

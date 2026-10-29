@@ -6,7 +6,7 @@ import { TabNavigation } from './tabs'
 import type { ActionIcon } from './action-icon'
 import styles from './responsive-tabs.module.css'
 
-export function ResponsiveTabs<T extends string>({ value, onChange, label, items, idPrefix, actions }: { actions?:ReactNode; value: T; onChange: (value: T) => void; label: string; items: Array<{ id: T; label: string; icon: ComponentProps<typeof ActionIcon>['name'] }>; idPrefix: string }) {
+export function ResponsiveTabs<T extends string>({ value, onChange, label, items, idPrefix, actions }: { actions?:ReactNode; value: T; onChange: (value: T) => void; label: string; items: Array<{ id: T; label: string; icon?: ComponentProps<typeof ActionIcon>['name'] }>; idPrefix: string }) {
   const ref = useRef<HTMLDivElement>(null)
   const toolbar = useRef<HTMLDivElement>(null)
   const [fits, setFits] = useState(false)

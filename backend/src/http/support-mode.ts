@@ -75,6 +75,7 @@ async function audit(q: FastifyRequest, session: SupportSession, action: string)
 // The support credential is opaque, revocable and bound to the admin's refresh session.
 export async function supportGuard(q: FastifyRequest, r: FastifyReply) {
   const route = q.routeOptions.url ?? ''
+  if (q.method === 'GET' && route === '/api/v1/auth/csrf') return
   if (q.method === 'POST' && route === '/api/v1/support/exit') return
   let active: Awaited<ReturnType<typeof binding>>
   try { active = await binding(q) } catch { return denied(r, 503) }

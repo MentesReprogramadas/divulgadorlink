@@ -25,6 +25,16 @@ it('a paleta pessoal usa apenas o slug resolvido pelo host, nunca um cabeçalho 
 })
 
 describe('middleware', () => {
+  it('permite fotos do ML desde o documento inicial para navegação cliente sem ampliar scripts ou conexões', async () => {
+    for (const path of ['/login', '/', '/painel', '/admin/visao', '/admin/afiliados', '/admin/afiliados/segmentacoes/natal']) {
+      const policy = (await run(path, 'catalogo_role=ADMIN')).headers.get('content-security-policy') ?? ''
+      const directives = new Map(policy.split('; ').map(value => { const [name, ...sources] = value.split(' '); return [name, sources] }))
+      expect(directives.get('img-src')).toContain('https://*.mlstatic.com')
+      expect(directives.get('script-src')).not.toContain('https://*.mlstatic.com')
+      expect(directives.get('connect-src')).not.toContain('https://*.mlstatic.com')
+    }
+  })
+
   it('inicializa a sessão operacional antes dos pedidos paralelos de analytics', async () => {
     const response = (await run('/link/publico'))
     const cookie = response.cookies.get('analyticsSession')

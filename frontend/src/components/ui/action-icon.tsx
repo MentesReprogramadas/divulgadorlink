@@ -1,6 +1,7 @@
 import type { SVGProps } from 'react'
 
 export const iconPaths = {
+  affiliateNetwork:'M2 3h8v6H2ZM14 3h8v6h-8ZM8 16h8v6H8ZM6 9v4h12V9M12 13v3M5 6h2M17 6h2M11 19h2',
   pageContent:'M3 3h18v18H3ZM7 7h10M7 11h6M7 15h4v3H7ZM14 15l4 3h-4Z',
   subscriptionLock:'M5 10h14v12H5ZM8 10V6a4 4 0 0 1 8 0v4M12 15v3',
   attention:'M12 3 23 21H1ZM12 9v5M12 18h.01',
@@ -117,6 +118,7 @@ export const iconPaths = {
   resetFilters: 'M3 4h18l-7 8v8l-4-2v-6ZM17 16l5 5M22 16l-5 5',
   reject: 'M5 3h10l4 4v14H5ZM14 3v5h5M9 12l6 6M15 12l-6 6',
   disable: 'M12 2v10M6 5a9 9 0 1 0 12 0',
+  enable: 'M8 5h8a7 7 0 0 1 0 14H8A7 7 0 0 1 8 5ZM20 12a4 4 0 1 0-8 0 4 4 0 0 0 8 0',
   moveUp: 'M5 3h14M12 21V7m-5 5 5-5 5 5',
   moveDown: 'M5 21h14M12 3v14m-5-5 5 5 5-5',
   loadMore: 'M4 3h16M4 7h16M4 11h6M16 11v10m-4-4 4 4 4-4',

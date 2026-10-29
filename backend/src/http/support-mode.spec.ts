@@ -55,6 +55,24 @@ beforeEach(() => {
   refresh = app.jwt.sign({ sub: 'admin', role: 'ADMIN', tenantId: 'tenant', typ: 'refresh', jti: 'admin-session' })
 })
 describe('support capability', () => {
+  it('recupera CSRF ausente para sair do suporte sem liberar escrita ou renovar a sessão', async () => {
+    const support = await enter()
+    const stored = [...fixture.sessions.entries()]
+    const response = await app.inject({ method: 'GET', url: '/api/v1/auth/csrf', headers: { host: 'local.test' }, cookies: { accessToken: access, refreshToken: refresh, supportSession: support } })
+    expect(response.statusCode).toBe(200)
+    const csrfToken = response.json().csrfToken as string
+    expect(csrfToken).toMatch(/^[a-f0-9]{64}$/)
+    expect([...fixture.sessions.entries()]).toEqual(stored)
+    expect(response.cookies.map(cookie => cookie.name)).toEqual(['csrf'])
+    const cookies = { accessToken: access, refreshToken: refresh, supportSession: support, csrf: csrfToken }
+    const headers = { host: 'local.test', 'x-csrf-token': csrfToken }
+    const write = await app.inject({ method: 'PATCH', url: '/api/v1/future-support-write', headers, cookies })
+    expect(write.statusCode).toBe(403)
+    expect(write.json().code).toBe('support_read_only')
+    const exit = await app.inject({ method: 'POST', url: '/api/v1/support/exit', headers, cookies })
+    expect(exit.statusCode).toBe(200)
+    expect(fixture.sessions.size).toBe(0)
+  })
   it('impersonates only the target, scopes the database, isolates concurrent ordinary requests and audits entry', async () => {
     const token = await enter()
     const supportRead = call('GET', '/api/v1/future-support-read', token)

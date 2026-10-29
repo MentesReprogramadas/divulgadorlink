@@ -1,5 +1,11 @@
 # Ícones e navegação
 
+Ativar uma conta usa `enable`, um interruptor na posição ligada. Pausar a operação da conta reutiliza `disable`; conectar por QR continua `qr`. Manutenção fica recolhida em Mais opções, sem ícone de conexão em uma conta já conectada.
+
+## Afiliados e WhatsApp — 28/10/2026
+
+O novo destino administrativo `/admin/afiliados` usa `affiliateNetwork`: duas caixas ligadas a um destino inferior, representando a operação de distribuição entre grupos. Desenho exclusivo no mapa de navegação, distinto de Integrações, Convites permanentes, Equipe e Grupos da página. As áreas internas usam rótulos textuais, sem ícones redundantes. Ações de atualizar, adicionar e copiar preservam os contratos compartilhados. Testes de unicidade e navegação executados; desktop/mobile inspecionados com dados determinísticos, sem conexão com contas reais.
+
 ## Grupos e busca — 18/10/2026
 
 Adicionar grupo usa plus e rótulo visual Grupo na barra, com nome acessível Adicionar grupo. Canais de acesso e Botão principal mantêm channels/primaryLink no dropdown. Prévia mantém preview e Atualizar dados mantém refresh. A busca usa search no campo e filter para abrir o modal; resetFilters limpa o conjunto de filtros. `clearSearch`, um X circulado, limpa somente o texto e difere de close, reservado a fechar superfícies. Compactar o rótulo visual da aba para Links não muda seu nome acessível Grupos e links. [Implementação e evidências](evidencias/grupos-busca-2026-10-18/README.md).
@@ -174,3 +180,7 @@ pageResources identifica o grupo Recursos da página; pageSearch, busca dentro d
 ## Prévia Ondas — 23/10/2026
 
 Ícones experimentais locais em wave-facet-icon.tsx: Todos (bússola), Viagens (montanhas), Gastronomia (talheres), Fotografia (câmera DSLR), Comunidade (conversa), Canal (antena) e Conteúdo (jornal). Tecnologia, Música, Jogos e Educação reutilizam o desenho canônico de marks para o mesmo assunto. Favoritos mantém estrela e patrocinado mantém megafone. O mapa não altera cadastros ou regras dos nichos reais; cobertura/exclusividade local testada junto aos contratos de ícones existentes. [Registro da revisão](ondas-brand-search.md).
+
+## Ações do assistente de afiliados — 28/10/2026
+
+O assistente reutiliza save (persistir), back (voltar), next (avançar), qr (parear a conta pelo QR), refresh (consultar estado), edit (editar conta) e plus (criar conta/segmentação). Não foram introduzidos desenhos novos nem substituídos os símbolos de destinos. Os SVGs permanecem decorativos, com rótulos de ação visíveis.

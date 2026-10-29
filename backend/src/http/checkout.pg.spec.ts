@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, type Prisma } from '@prisma/client'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { app } from '@/app'
 import { signWooviTestBody } from '@/adapters/payments/woovi-test-signing'
@@ -121,6 +121,9 @@ describe('checkout no PostgreSQL', () => {
       await link(id, ids.tenantA, id === 'link-alheio' ? ids.other : id === 'link-banido' ? ids.banned : ids.owner, 'net-a', 'niche-a')
     }
     await link('link-b', ids.tenantB, ids.ownerB, 'net-b', 'niche-b')
+    for (const status of ['EXPIRED', 'PAID_LATE', 'REFUNDED', 'REFUND_FAILED']) {
+      await link(`link-atomic-${status}`, ids.tenantA, ids.owner, 'net-a', 'niche-a')
+    }
     const active = (linkId: string, surface: 'SEARCH' | 'NICHE', status: 'ACTIVE' | 'EXPIRED') =>
       db.promotion.create({
         data: {
@@ -394,6 +397,41 @@ describe('checkout no PostgreSQL', () => {
     expect(refunded?.status).toBe('REFUND_PENDING')
     expect(refunded?.refundCorrelationId).toBe(`refund-${orderId}`)
     expect(await db.promotion.count({ where: { linkId: 'link-tarde' } })).toBe(0)
+  })
+
+  it.each(['EXPIRED', 'PAID_LATE', 'REFUNDED', 'REFUND_FAILED'] as const)('salva %s e libera o hold na mesma transação', async (status) => {
+    const created = await checkout({ linkId: `link-atomic-${status}` })
+    expect(created.statusCode).toBe(201)
+    const orderId = created.json().orderId as string
+    const commercial = await store.findCommercial(orderId)
+    expect(commercial).not.toBeNull()
+    const order = { ...commercial!.order, status }
+    const failingClient = new Proxy(db, {
+      get(target, property, receiver) {
+        if (property === '$transaction') {
+          return (callback: (tx: Prisma.TransactionClient) => Promise<void>) => target.$transaction(tx => callback(new Proxy(tx, {
+            get(transaction, key, transactionReceiver) {
+              if (key === '$executeRawUnsafe') {
+                return (query: string, ...values: unknown[]) => {
+                  if (query.startsWith('UPDATE order_surfaces')) throw new Error('hold release failed')
+                  return transaction.$executeRawUnsafe(query, ...values)
+                }
+              }
+              return Reflect.get(transaction, key, transactionReceiver)
+            },
+          })))
+        }
+        return Reflect.get(target, property, receiver)
+      },
+    })
+
+    await expect(new PrismaCheckoutStore(failingClient).saveOrder(order)).rejects.toThrow('hold release failed')
+    expect((await db.order.findUniqueOrThrow({ where: { id: orderId } })).status).toBe('PENDING_PAYMENT')
+    expect((await db.orderSurface.findMany({ where: { orderId } })).map(row => row.hold)).toEqual(['PENDING_PAYMENT'])
+
+    await store.saveOrder(order)
+    expect((await db.order.findUniqueOrThrow({ where: { id: orderId } })).status).toBe(status)
+    expect((await db.orderSurface.findMany({ where: { orderId } })).map(row => row.hold)).toEqual(['RELEASED'])
   })
 
   it('rejeita método, duração, superfície, pacote, corpo grande e excesso de tentativas', async () => {

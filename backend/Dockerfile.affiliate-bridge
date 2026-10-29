@@ -1,0 +1,15 @@
+FROM node:24-bookworm-slim AS build
+WORKDIR /app/backend
+COPY package.json package-lock.json ./
+RUN npm ci --ignore-scripts
+COPY src/scripts/affiliate-bridge.ts src/scripts/affiliate-bridge.ts
+COPY src/domain/affiliates/mercado-livre.ts src/domain/affiliates/mercado-livre.ts
+RUN node -e "require('tsup').build({entry:['src/scripts/affiliate-bridge.ts'],config:false,format:['cjs'],target:'node24',outDir:'bridge-build',noExternal:['zod'],removeNodeProtocol:false})"
+
+FROM node:24-bookworm-slim
+ENV NODE_ENV=production HOST=0.0.0.0 PORT=8080 DATABASE_PATH=/data/fitness.db
+WORKDIR /app
+COPY --from=build /app/backend/bridge-build/affiliate-bridge.js ./affiliate-bridge.cjs
+USER node
+EXPOSE 8080
+CMD ["node", "affiliate-bridge.cjs"]

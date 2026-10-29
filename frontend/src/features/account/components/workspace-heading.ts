@@ -1,4 +1,5 @@
 export function workspaceHeading(path: string): { title: string; hint: string } {
+  if(path.startsWith('/admin/afiliados/'))return {title:'Afiliados e WhatsApp',hint:''}
   if(path==='/painel/integracoes')return {title:'Integrações e avisos',hint:''}
   if(/^\/painel\/convites\/[^/]+\/distribuicao$/.test(path))return {title:'Distribuir acessos',hint:''}
   if(/^\/painel\/equipe\/[^/]+\/metricas$/.test(path))return {title:'Métricas do cliente',hint:''}
@@ -50,6 +51,7 @@ export function workspaceHeading(path: string): { title: string; hint: string } 
     "/admin/assinaturas": ["Assinaturas de páginas", "Planos mensais e pendências de cobrança."],
     "/admin/estornos": ["Estornos", "Acompanhe as devoluções e tentativas pendentes."],
     "/admin/integracoes": ["Integrações", "Conexões e avisos da operação."],
+    "/admin/afiliados": ["Afiliados e WhatsApp", "Segmentações, grupos e ofertas da operação."],
     "/admin/configuracoes": ["Configurações", "Ajuste as opções e o conteúdo do catálogo."],
   };
   if(/^\/painel\/perfil\/campanhas\/[^/]+\/metricas$/.test(path))return{title:"Métricas da campanha",hint:""}

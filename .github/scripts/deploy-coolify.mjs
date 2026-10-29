@@ -3,6 +3,7 @@ import { pathToFileURL } from 'node:url'
 
 // UUIDs verified against the Tem Link Aqui project through Coolify MCP.
 export const applications = [
+  { name: 'affiliate-bridge', uuid: 'jqxvail1shmqtyjoyzeyktxq' },
   { name: 'api', uuid: '3rzvngm8sz51yjj4i3jmtr1i', health: 'https://api.temlinkaqui.com/api/v1/actuator/ready' },
   { name: 'worker', uuid: 'w7uioamyuv4tsjmelv6fqqkh' },
   { name: 'web', uuid: 'mfehvi9lulpppun6laezsu0w', health: 'https://temlinkaqui.com/health' },

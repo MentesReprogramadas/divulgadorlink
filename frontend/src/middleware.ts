@@ -12,11 +12,13 @@ function withPath(request: NextRequest): { headers: Headers; csp: string } {
   const devEval = process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''
   const googleScripts = 'https://www.googletagmanager.com https://www.googleadservices.com https://www.google.com'
   const googleAds = `${googleScripts} https://www.google.com.br https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com`
+  // CSP belongs to the initial document and survives client navigation from login to affiliates.
+  const affiliateImages = ' https://mlstatic.com https://*.mlstatic.com'
   const csp = [
     "default-src 'self'",
     `script-src 'self'${devEval} 'nonce-${nonce}' https://js.stripe.com https://connect.facebook.net ${googleScripts}`,
     "style-src 'self' 'unsafe-inline'",
-    `img-src 'self' data: blob: https://www.facebook.com ${googleAds}`,
+    `img-src 'self' data: blob: https://www.facebook.com ${googleAds}${affiliateImages}`,
     "font-src 'self'",
     `connect-src 'self' https://api.stripe.com https://www.facebook.com https://connect.facebook.net ${googleAds} https://ad.doubleclick.net`,
     "frame-src https://js.stripe.com https://hooks.stripe.com https://www.googletagmanager.com https://www.youtube-nocookie.com https://player.vimeo.com",

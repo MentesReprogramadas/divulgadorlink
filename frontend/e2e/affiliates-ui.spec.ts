@@ -1,0 +1,394 @@
+import { test, expect, type Page } from '@playwright/test'
+import AxeBuilder from '@axe-core/playwright'
+import QRCode from 'qrcode'
+import { mkdir } from 'node:fs/promises'
+import path from 'node:path'
+import { selectOption } from './select-control'
+
+// Deterministic UI contracts. Provider/API behavior is covered by backend tests, never real accounts.
+const instance = { id: 'instance-1', name: 'Natal 01', ownerPhone: '5511999999999', configured: true, enabled: true }
+const segment = { id: 'segment-1', name: 'Natal', groupName: 'Ofertas de Natal', instanceIds: [instance.id], slug: 'natal', description: 'Presentes e ofertas para celebrar o Natal.', imageUrl: null, capacity: 1024, instanceId: instance.id, autoExpand: true, enabled: true, provisionState: 'IDLE' }
+const groups = [1, 2, 3].map(sequence => ({ id: `group-${sequence}`, jid: `12036300000000${sequence}@g.us`, name: sequence === 1 ? 'Natal' : `Natal #${sequence}`, segmentId: segment.id, instanceId: instance.id, participantCount: sequence === 1 ? 1024 : sequence === 2 ? 840 : 120, capacity: 1024, enabled: true, syncedAt: '2026-10-28T12:00:00Z', segment, instance }))
+const offer = { id: 'offer-1', segmentId: segment.id, segment, title: 'Árvore de Natal 1,80 m', productUrl: 'https://www.mercadolivre.com.br/p/MLB123', affiliateUrl: 'https://meli.la/fixture', priceCents: 12990, oldPriceCents: 15990, imageUrl: null, note: 'Confira as medidas e as opções do anúncio.', status: 'DRAFT', checkedAt: '2026-10-28T12:00:00Z', expiresAt: null }
+const broadcast = { id: 'broadcast-1', offerId: offer.id, offer, message: 'Árvore de Natal 1,80 m\nR$ 129,90\nhttps://meli.la/fixture', scheduledAt: '2026-10-28T12:00:00Z', createdAt: '2026-10-28T12:00:00Z', _count: { deliveries: 3 } }
+const deliveries = [{ id: 'delivery-1', state: 'SENT', providerMessageId: 'fixture-confirmed', errorCode: null, group: groups[0], broadcast, updatedAt: '2026-10-28T12:01:00Z' }, { id: 'delivery-2', state: 'UNCERTAIN', providerMessageId: null, errorCode: 'provider_timeout', group: groups[1], broadcast, updatedAt: '2026-10-28T12:01:00Z' }]
+const snapshot = { instances: [instance], segments: [segment], groups, offers: [offer], broadcasts: [broadcast], deliveries, summary: { instances: 1, segments: 1, groups: 3, offers: 1, pending: 1, sent: 1, uncertain: 2, failed: 0 } }
+
+async function fixtures(page: Page, emptyConnections = false) {
+  const data = structuredClone(snapshot)
+  if (emptyConnections) { data.instances = []; data.segments = []; data.groups = []; data.offers = []; data.broadcasts = []; data.deliveries = []; data.summary = { instances: 0, segments: 0, groups: 0, offers: 0, pending: 0, sent: 0, uncertain: 0, failed: 0 } }
+  const mutations: Array<{ path: string; body: Record<string, unknown> }> = []
+  await page.context().addCookies([{ name: 'catalogo_role', value: 'ADMIN', domain: 'localhost', path: '/' }, { name: 'csrf', value: 'a'.repeat(32), domain: 'localhost', path: '/' }, { name: 'tla_consent', value: 'denied', domain: 'localhost', path: '/' }])
+  await page.route('**/bff/**', async route => {
+    const request = route.request(), url = new URL(request.url()), pathname = url.pathname.replace('/bff', '')
+    if (request.method() !== 'GET') {
+      const body = request.postDataJSON() ?? {}; mutations.push({ path: pathname, body })
+      if (pathname.endsWith('/instances')) { data.instances.push({ ...instance, name: body.name, ownerPhone: body.ownerPhone }); return route.fulfill({ json: { ...instance, name: body.name, ownerPhone: body.ownerPhone } }) }
+      if (pathname === '/v1/admin/affiliates/segments') { const created={...segment,...body,id:'segment-new'}; data.segments.push(created); data.summary.segments++; return route.fulfill({json:created}) }
+      if (pathname.endsWith('/prepare-group')) { const selected=data.segments.find(item=>item.id===pathname.split('/').at(-2))!; data.groups.push({...groups[0],id:'new-group',name:selected.groupName+' #1',segmentId:selected.id,segment:selected,participantCount:2});data.summary.groups++;return route.fulfill({json:{url:'https://chat.whatsapp.com/fixture'}}) }
+      if (pathname.endsWith('/products/preview')) { const selected=data.segments.find(item=>item.id===pathname.split('/').at(-3)) ?? segment; return route.fulfill({json:{previewToken:'fixture-token',expiresAt:'2099-10-28T12:00:00Z',product:offer,title:'Árvore de Natal para decorar sua casa',message:'Árvore de Natal para decorar sua casa\nR$ 129,90\nhttps://meli.la/fixture',affiliateUrl:offer.affiliateUrl,destinations:{segmentId:selected.id,name:selected.name,groups:data.groups.map(group=>({id:group.id,name:group.name})),count:data.groups.length},titleSource:'OPENAI',priceChanged:false}}) }
+      if (pathname.endsWith('/products/preview/title')) return route.fulfill({json:{previewToken:'fixture-regenerated-token',expiresAt:'2099-10-28T12:00:00Z',title:'Decore o Natal com esta árvore de 1,80 m',titleSource:'OPENAI',message:'Decore o Natal com esta árvore de 1,80 m\nR$ 129,90\nhttps://meli.la/fixture'}})
+      if (pathname.endsWith('/products/send')) return route.fulfill({json:{broadcastId:'broadcast-1',offerId:'offer-1',groups:data.groups.length}})
+      if (pathname.endsWith('/catalog/affiliate')) return route.fulfill({json:{url:'https://meli.la/generated-fixture'}})
+      if (pathname === '/v1/admin/affiliates/offers') { const created={...offer,...body,id:'offer-new',segment:data.segments.find(item=>item.id===body.segmentId)!};data.offers.push(created);data.summary.offers++;return route.fulfill({json:created}) }
+      if (pathname.endsWith('/send') && emptyConnections) { const selected=data.offers.find(item=>item.id===pathname.split('/').at(-2))!;const approved={...broadcast,id:'broadcast-new',offerId:selected.id,offer:selected};data.broadcasts.push(approved);data.deliveries.push({...deliveries[0],id:'queued-new',state:'PENDING',group:data.groups[0],broadcast:approved});data.summary.pending++;return route.fulfill({json:{queued:true}}) }
+      if (pathname.endsWith('/images')) return route.fulfill({ json: { url: 'affiliate-image:fixture-image' } })
+      if (pathname.endsWith('/connect')) return route.fulfill({ json: { state: 'connecting', base64: await QRCode.toDataURL('temlink-fixture-only') } })
+      return route.fulfill({ json: { saved: true, queued: true, cancelled: 1, url: 'https://outside.example/invalid' } })
+    }
+    const selectedId=pathname.startsWith('/v1/admin/affiliates/segments/')?pathname.split('/').at(-1):undefined
+    const selected=data.segments.find(item=>item.id===selectedId),selectedGroups=data.groups.filter(item=>item.segmentId===selectedId),selectedOffers=data.offers.filter(item=>item.segmentId===selectedId),selectedBroadcasts=data.broadcasts.filter(item=>selectedOffers.some(offer=>offer.id===item.offerId)),selectedDeliveries=data.deliveries.filter(item=>item.group.segmentId===selectedId)
+    const body = selected ? {...data,segments:[selected],groups:selectedGroups,offers:selectedOffers,broadcasts:selectedBroadcasts,deliveries:selectedDeliveries,summary:{...data.summary,segments:1,groups:selectedGroups.length,offers:selectedOffers.length},readiness:{activeGroups:selectedGroups.filter(item=>item.enabled).length,currentOffers:selectedOffers.length,approvedDeliveries:selectedDeliveries.length,nextOffer:selectedOffers.find(item=>!selectedBroadcasts.some(batch=>batch.offerId===item.id))??null}}
+      : pathname.endsWith('/auth/session') ? { role: 'ADMIN', status: 'ACTIVE', canSubmit: true }
+      : pathname.endsWith('/team/context') ? { ownerId: null, grants: null }
+      : pathname === '/v1/admin/affiliates' ? data
+      : pathname.endsWith('/status') && pathname.includes('/instances/') ? { state: 'open' }
+      : pathname === '/v1/admin/affiliates/broadcasts' ? {broadcasts:data.broadcasts.map(item=>({...item,segmentId:segment.id,segment,counts:{pending:1,sending:0,sent:1,failed:0,uncertain:1,cancelled:0}})),nextCursor:null,totalCount:data.broadcasts.length}
+      : pathname.includes('/broadcasts/') && pathname.endsWith('/status') ? {id:'broadcast-1',counts:{pending:0,sending:0,sent:2,failed:0,uncertain:1}}
+      : pathname === '/v1/admin/affiliates/deliveries' ? url.searchParams.has('cursor') ? { deliveries: [{ ...deliveries[1], id: 'delivery-old', group: { ...groups[2], name: 'Natal legado' }, updatedAt: '2026-10-20T12:00:00Z' }], nextCursor: null } : { deliveries: url.searchParams.get('state') ? deliveries.filter(item => item.state === url.searchParams.get('state')) : deliveries, nextCursor: 'delivery-2' }
+      : pathname.endsWith('/discovery') ? { enabled:true, usesSegmentName:true, terms:['Natal'], products:[offer], counts:null, checkedAt:'2026-10-28T12:00:00Z',nextRunAt:'2026-10-28T12:15:00Z',status:'READY',error:null }
+      : pathname.endsWith('/catalog/search') ? { products: [offer], warnings: [] }
+      : pathname.endsWith('/catalog/status') && emptyConnections ? { configured:true,connected:true,status:'CONNECTED',clientId:'123',redirectUri:'',affiliateConfigured:true }
+      : pathname.endsWith('/catalog/status') ? { configured: false, connected: false, status: 'NOT_CONFIGURED', clientId: null, redirectUri: 'http://localhost:3016/bff/v1/admin/affiliates/catalog/callback', affiliateConfigured: false }
+      : pathname.startsWith('/v1/public/affiliates/') ? { name: segment.name, description: segment.description, available: true }
+      : {}
+    return route.fulfill({ json: body })
+  })
+  return mutations
+}
+async function capture(page: Page, name: string, project: string) {
+  const folder = path.resolve('../docs/frontend-profissional/evidencias/afiliados-whatsapp-2026-10-28')
+  await mkdir(folder, { recursive: true })
+  await page.screenshot({ path: path.join(folder, `${project}-${name}.png`), fullPage: true, animations: 'disabled' })
+}
+
+async function area(page: Page, name: string) {
+  const labels:Record<string,string>={'Conexões WhatsApp':'WhatsApp','Histórico de envios':'Envios','Visão geral':'Início'}
+  name=labels[name]??name
+  if(page.url().includes('/segmentacoes/')&&['Grupos','Ofertas','Envios'].includes(name)) { await page.getByRole('tab',{name,exact:true}).click();return }
+  if(page.url().includes('/segmentacoes/'))await page.getByRole('button',{name:'Segmentações',exact:true}).click()
+  if(['Grupos','Ofertas','Catálogo Mercado Livre'].includes(name)){await page.getByText('Ferramentas',{exact:true}).click();await page.getByRole('button',{name,exact:true}).click();return}
+  await page.getByRole('tab',{name,exact:true}).click()
+}
+
+test('fotos e link do ML funcionam ao navegar de outra área sem recarregar o documento', async ({page})=>{
+  await fixtures(page)
+  await page.route('**/bff/v1/admin/office**',route=>route.fulfill({json:{windowDays:30,listCap:100,linkStatusCounts:{},metrics:{users:0,bannedUsers:0,links:0,publishedLinks:0,pendingLinks:0,impressions:0,clicks:0,ctr:0,paidCents:0,paidOrders:0},topLinks:[],topPayers:[],users:[],links:[]}}))
+  await page.route('https://http2.mlstatic.com/fixture-product.jpg',route=>route.fulfill({contentType:'image/png',body:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGPQu3z6PwAFywLMU94+BAAAAABJRU5ErkJggg==','base64')}))
+  await page.route('**/segments/segment-1/discovery**',route=>route.fulfill({json:{enabled:true,usesSegmentName:true,terms:['Natal'],products:[{...offer,imageUrl:'https://http2.mlstatic.com/fixture-product.jpg'}],counts:null,checkedAt:'2026-10-28T12:00:00Z',nextRunAt:null,status:'READY',error:null}}))
+  const viewport=page.viewportSize()!
+  // The admin sidebar is a desktop entry; validate the retained document policy at both card sizes.
+  await page.setViewportSize({width:1440,height:900})
+  const response=await page.goto('/admin/visao')
+  expect(response?.headers()['content-security-policy']).toContain('https://*.mlstatic.com')
+  await page.getByRole('link',{name:'Afiliados e WhatsApp',exact:true}).first().click()
+  await page.setViewportSize(viewport)
+  await page.getByRole('button',{name:'Abrir Natal',exact:true}).click()
+  await area(page,'Ofertas')
+  const suggestions=page.getByRole('region',{name:'Sugestões para Natal'})
+  await expect.poll(()=>suggestions.getByRole('img').first().evaluate(image=>(image as HTMLImageElement).naturalWidth)).toBe(1)
+  await expect(suggestions.getByRole('link',{name:/Ver no Mercado Livre/})).toBeVisible()
+  await expect(suggestions.getByRole('link',{name:/Ver no Mercado Livre/})).toHaveAttribute('href',offer.productUrl)
+})
+
+test('catálogo separa conta e sessão, limpa segredos e gera oferta por URL exata', async ({ page }, testInfo) => {
+  const mutations = await fixtures(page)
+  let sessionConfigured = false
+  await page.route('**/catalog/status', route => route.fulfill({ json: { mode: 'CENTRAL', connected: true, configured: true, clientId: null, redirectUri: '', affiliateConfigured: true, session: { mode: sessionConfigured ? 'OWN' : 'CENTRAL', configured: true, verified: false, status: 'CONFIGURED', accountLabel: sessionConfigured ? 'Minha conta' : 'Central', tag: 'minha-tag', profile: 'meu-perfil' } } }))
+  await page.route('**/catalog/session', async route => { sessionConfigured = true; mutations.push({ path: '/catalog/session', body: route.request().postDataJSON() }); await route.fulfill({ json: { saved: true } }) })
+  await page.goto('/admin/afiliados/segmentacoes/segment-1')
+  await area(page, 'Ofertas')
+  await page.getByRole('tab',{name:'Configurações',exact:true}).click()
+  await page.getByText('Buscar outro produto', { exact: true }).click()
+  await page.getByText('Contas do Mercado Livre', { exact: false }).click()
+  await expect(page.getByRole('button', { name: 'Usar meu aplicativo' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Conectar Mercado Livre', exact: true })).toHaveCount(0)
+  await page.getByRole('button', { name: 'Configurar minha sessão' }).click()
+  const dialog = page.getByRole('dialog', { name: 'Configurar sessão de afiliados' })
+  await dialog.getByLabel('Nome da conta de afiliados').fill('Minha conta')
+  await dialog.getByLabel('Etiqueta de afiliado (tag)').fill('minha-tag')
+  await dialog.getByLabel('Perfil de afiliado', { exact: true }).fill('meu-perfil')
+  await dialog.getByRole('button', { name: 'Continuar para sessão' }).click()
+  await dialog.getByLabel('Cookie da sessão').fill('fixture-cookie-only')
+  await dialog.getByLabel('Token CSRF (x-csrf-token)').fill('fixture-csrf-only')
+  await capture(page, 'ml-session', testInfo.project.name)
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('button', { name: 'Configurar minha sessão' })).toBeFocused()
+  await page.getByRole('button', { name: 'Configurar minha sessão' }).click()
+  await dialog.getByLabel('Nome da conta de afiliados').fill('Minha conta')
+  await dialog.getByLabel('Etiqueta de afiliado (tag)').fill('minha-tag')
+  await dialog.getByLabel('Perfil de afiliado', { exact: true }).fill('meu-perfil')
+  await dialog.getByRole('button', { name: 'Continuar para sessão' }).click()
+  await expect(dialog.getByLabel('Cookie da sessão')).toHaveValue('')
+  await expect(dialog.getByLabel('Token CSRF (x-csrf-token)')).toHaveValue('')
+  await dialog.getByLabel('Cookie da sessão').fill('fixture-cookie-only')
+  await dialog.getByLabel('Token CSRF (x-csrf-token)').fill('fixture-csrf-only')
+  await dialog.getByRole('button', { name: 'Salvar sessão de afiliados' }).click()
+  await expect(dialog).not.toBeVisible()
+  expect(mutations.filter(item => item.path === '/catalog/session')).toHaveLength(1)
+  await expect(page.getByText(/Minha conta · configurada; validação pendente/)).toBeVisible()
+  const search = page.getByRole('searchbox', { name: 'Buscar produtos' }), searchButton = page.getByRole('button', { name: 'Buscar no Mercado Livre' })
+  if (!testInfo.project.name.includes('mobile')) {
+    const inputBox = await search.boundingBox(), buttonBox = await searchButton.boundingBox()
+    expect(Math.abs(inputBox!.y + inputBox!.height - buttonBox!.y - buttonBox!.height)).toBeLessThan(2)
+  }
+  await page.getByLabel('Endereço do anúncio').fill('https://produto.mercadolivre.com.br/MLB-123456-anuncio')
+  await page.getByRole('button', { name: 'Gerar link de afiliado', exact: true }).click()
+  await expect(page.getByRole('link', { name: /https:\/\/meli.la\/generated-fixture/ })).toBeVisible()
+  await page.getByRole('button', { name: 'Preparar oferta', exact: true }).click()
+  const offerDialog = page.getByRole('dialog', { name: 'Nova oferta' })
+  await expect(offerDialog.getByLabel('Nome do produto')).toHaveValue('')
+  await expect(offerDialog.getByLabel('Preço atual (R$)')).toHaveValue('')
+  await expect(offerDialog.getByLabel('Link do produto')).toHaveValue('https://produto.mercadolivre.com.br/MLB-123456-anuncio')
+  await expect(offerDialog.getByLabel('Link de afiliado', { exact: true })).toHaveValue('https://meli.la/generated-fixture')
+  await expect(offerDialog.getByText('Natal', { exact: true })).toBeVisible()
+})
+
+test('admin gerencia segmentos, revisa oferta e confere entrega sem reenvio implícito', async ({ page }, testInfo) => {
+  const mutations = await fixtures(page)
+  await page.goto('/admin/afiliados')
+  await expect(page.getByRole('heading', { name: 'Continue de onde parou' })).toBeVisible({ timeout: 30_000 })
+  await expect(page.getByRole('tab',{name:'Início',exact:true})).toBeVisible()
+  await capture(page, 'overview', testInfo.project.name)
+  expect((await new AxeBuilder({ page }).include('[aria-label="Central de afiliados"]').analyze()).violations).toEqual([])
+  await page.getByRole('button',{name:'Continuar configuração',exact:true}).click()
+  await page.getByText('Configurações da segmentação',{exact:true}).click()
+  const edit = page.getByRole('button', { name: 'Editar dados e contas' })
+  await edit.click()
+  const segmentDialog = page.getByRole('dialog', { name: 'Editar segmentação' })
+  await expect(segmentDialog.getByLabel('Nome da segmentação')).toHaveValue('Natal')
+  await segmentDialog.getByRole('button', { name: 'Fechar janela' }).focus()
+  await page.keyboard.press('Shift+Tab')
+  await expect(segmentDialog.getByRole('button', { name: 'Continuar para WhatsApp', exact: true })).toBeFocused()
+  await page.keyboard.press('Tab')
+  await expect(segmentDialog.getByRole('button', { name: 'Fechar janela' })).toBeFocused()
+  await page.keyboard.press('Escape')
+  await expect(segmentDialog).not.toBeVisible()
+  await expect(edit).toBeFocused()
+  await area(page, 'Grupos')
+  await expect(page.getByRole('table')).toContainText('Natal #3')
+  await capture(page, 'groups', testInfo.project.name)
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true)
+  if (testInfo.project.name === 'affiliates-desktop') {
+    await page.evaluate(() => { document.documentElement.style.zoom = '2' })
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true)
+    await page.evaluate(() => { document.documentElement.style.zoom = '' })
+    await expect(page.getByRole('tab', { name: 'Ofertas', exact: true })).toBeVisible()
+  }
+  await area(page, 'Ofertas')
+  await page.getByText('Ofertas cadastradas e ferramentas manuais',{exact:true}).click()
+  await page.getByRole('button', { name: 'Editar oferta' }).click()
+  const dialog = page.getByRole('dialog', { name: 'Revisar oferta' })
+  await dialog.getByLabel('Preço atual (R$)').fill('119,90')
+  await dialog.getByRole('checkbox', { name: 'Conferi agora o preço, o anúncio e o link de afiliado.' }).check()
+  await dialog.getByRole('button', { name: 'Salvar revisão' }).click()
+  await expect(dialog).not.toBeVisible()
+  const patch = mutations.find(mutation => mutation.path.endsWith('/offers/offer-1'))
+  expect(patch?.body.priceCents).toBe(11990)
+  expect(patch?.body).not.toHaveProperty('segmentId')
+  expect(patch?.body.checkedAt).toBeTruthy()
+  await page.locator('details').filter({has:page.getByText('Ofertas cadastradas e ferramentas manuais',{exact:true})}).getByRole('button', { name: 'Revisar e enviar', exact:true }).click()
+  const send = page.getByRole('dialog', { name: 'Revisar envio da oferta' })
+  await expect(send).toContainText('3 grupos ativos')
+  expect(mutations.filter(mutation => mutation.path.endsWith('/send'))).toHaveLength(0)
+  await send.getByRole('checkbox').check()
+  await send.getByRole('button', { name: 'Confirmar envio' }).click()
+  await expect(send).not.toBeVisible()
+  expect(mutations.filter(mutation => mutation.path.endsWith('/send'))).toHaveLength(1)
+  expect(mutations.find(mutation => mutation.path.endsWith('/send'))?.body.idempotencyKey).toMatch(/^[a-f0-9-]{36}$/)
+  await area(page, 'Histórico de envios')
+  await page.getByText('Entregas por grupo e conferência individual', {exact:true}).click()
+  await selectOption(page.getByRole('combobox', { name: 'Filtrar entregas por estado' }), { label: 'Conferência necessária' })
+  await page.getByRole('button', { name: 'Carregar mais entregas' }).click()
+  await expect(page.getByText('Natal legado', { exact: false })).toBeVisible()
+  await page.getByRole('button', { name: 'Conferir entrega', exact: true }).first().click()
+  const resolve = page.getByRole('dialog', { name: 'Conferir entrega' })
+  await expect(resolve.getByRole('button', { name: 'Não chegou; tentar novamente' })).toBeDisabled()
+  await capture(page, 'uncertain', testInfo.project.name)
+  await resolve.getByRole('checkbox').check()
+  await resolve.getByRole('button', { name: 'Já foi enviada' }).click()
+  await expect(resolve).not.toBeVisible()
+  expect(mutations.find(mutation => mutation.path.includes('/deliveries/'))?.body).toEqual({ resolution: 'SENT', confirmUncertain: true })
+  await page.getByText('Envios aprovados e agendamentos (1)', { exact: true }).click()
+  await page.getByRole('button', { name: 'Cancelar entregas pendentes' }).click()
+  const cancel = page.getByRole('dialog', { name: 'Cancelar entregas pendentes?' })
+  await expect(cancel).toBeVisible()
+  expect(mutations.filter(mutation => mutation.path.endsWith('/cancel'))).toHaveLength(0)
+  await cancel.getByRole('button', { name: 'Confirmar cancelamento' }).click()
+  await expect(cancel).not.toBeVisible()
+  expect(mutations.filter(mutation => mutation.path.endsWith('/cancel'))).toHaveLength(1)
+  await area(page, 'Catálogo Mercado Livre')
+  await expect(page.getByText('Contas do Mercado Livre', { exact: false })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Buscar no Mercado Livre' })).toBeDisabled()
+  await capture(page, 'catalog-pending', testInfo.project.name)
+})
+
+test('convite público consulta sem criar grupo e exige ação explícita para entrar', async ({ page }, testInfo) => {
+  const mutations = await fixtures(page)
+  await page.goto('/ofertas/entrar/natal')
+  await expect(page.getByRole('heading', { name: 'Natal' })).toBeVisible()
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow')
+  expect(mutations.filter(mutation => mutation.path.includes('/join'))).toHaveLength(0)
+  expect((await new AxeBuilder({ page }).include('main').analyze()).violations).toEqual([])
+  await capture(page, 'public-invite', testInfo.project.name)
+  await page.getByRole('button', { name: 'Entrar no grupo de WhatsApp' }).click()
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('convite retornado não é válido')
+  expect(mutations.filter(mutation => mutation.path.includes('/join'))).toHaveLength(1)
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true)
+})
+
+test('assistente cadastra conexão do zero e preserva identidade antes de criar a segmentação', async ({ page }, testInfo) => {
+  const mutations = await fixtures(page, true)
+  await page.goto('/admin/afiliados/segmentacoes')
+  await expect(page.getByRole('heading', { name: 'Afiliados e WhatsApp', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Nova segmentação', exact: true }).click()
+  const wizard = page.getByRole('dialog', { name: 'Nova segmentação' })
+  await wizard.getByLabel('Nome da segmentação').fill('Presentes de Natal')
+  await wizard.getByLabel('Nome dos grupos no WhatsApp').fill('Ofertas natalinas')
+  await expect(wizard.getByLabel('Endereço do convite permanente')).toHaveValue('presentes-de-natal')
+  await wizard.getByLabel('Descrição dos grupos').fill('Seleção de presentes para o Natal.')
+  await capture(page, 'segment-identity', testInfo.project.name)
+  const frameBefore = await wizard.boundingBox(), headerBefore = await wizard.locator('header').first().boundingBox()
+  await expect(wizard.locator('header').first()).toBeInViewport({ ratio: 1 })
+  expect(headerBefore!.y).toBeGreaterThanOrEqual(frameBefore!.y)
+  const body = wizard.locator('header + div').first()
+  await body.evaluate(element => { element.scrollTop = element.scrollHeight })
+  expect(await wizard.evaluate(element => element.scrollTop)).toBe(0)
+  expect((await wizard.boundingBox())?.y).toBe(frameBefore?.y)
+  expect((await wizard.locator('header').first().boundingBox())?.y).toBe(headerBefore?.y)
+  expect(await wizard.locator(':scope > div').evaluate(element => element.scrollTop)).toBe(0)
+  await capture(page, 'segment-modal-scrolled', testInfo.project.name)
+  await wizard.getByRole('button', { name: 'Continuar para WhatsApp' }).click()
+  const steps = wizard.getByRole('navigation', { name: 'Etapas da segmentação' })
+  await expect(steps).toBeInViewport()
+  expect(await body.evaluate(element => element.scrollTop)).toBe(0)
+  expect(await wizard.locator(':scope > div').evaluate(element => element.scrollTop)).toBe(0)
+  await expect(wizard.locator('header').first()).toBeInViewport({ ratio: 1 })
+  await expect(wizard.getByText(/Você ainda não tem uma conexão/)).toBeVisible()
+  await wizard.getByLabel('Nome para identificar esta conta').fill('natal-principal')
+  await wizard.getByLabel('Participante inicial dos grupos').fill('5511999999999')
+  await wizard.getByRole('button', { name: 'Salvar e conectar WhatsApp', exact: true }).click()
+  await expect(wizard.getByRole('checkbox', { name: /natal-principal/ })).toBeChecked()
+  await expect(wizard.getByRole('img', { name: 'QR code de natal-principal' })).toBeVisible()
+  await expect(wizard.locator('header').first()).toBeInViewport({ ratio: 1 })
+  expect(mutations.filter(item => item.path.endsWith('/connect'))).toHaveLength(1)
+  expect(mutations.find(item => item.path.endsWith('/instances'))?.body).toEqual({ name: 'natal-principal', ownerPhone: '5511999999999' })
+  await wizard.getByRole('button', { name: 'Já conectei; conferir' }).click()
+  await capture(page, 'segment-connections', testInfo.project.name)
+  expect((await new AxeBuilder({ page }).include('dialog[open]').analyze()).violations).toEqual([])
+  expect(mutations.filter(item => item.path.endsWith('/segments'))).toHaveLength(0)
+  await wizard.getByRole('button', { name: 'Conferir conexões e continuar' }).click()
+  await expect(wizard.getByRole('heading', { name: 'Confira sua segmentação' })).toBeFocused()
+  await wizard.getByRole('button', { name: 'Criar segmentação', exact: true }).click()
+  await expect(wizard).not.toBeVisible()
+  expect(mutations.find(item => item.path.endsWith('/segments'))?.body).toEqual(expect.objectContaining({ name: 'Presentes de Natal', groupName: 'Ofertas natalinas', instanceIds: ['instance-1'] }))
+  await expect(page).toHaveURL(/\/segmentacoes\/segment-new$/)
+  await expect(page.getByRole('heading',{name:'Prepare o primeiro grupo'})).toBeVisible()
+  expect(mutations.filter(item=>item.path.endsWith('/prepare-group'))).toHaveLength(0)
+  await page.getByRole('button',{name:'Criar primeiro grupo',exact:true}).click()
+  const prepare=page.getByRole('dialog',{name:'Criar primeiro grupo'})
+  await expect(prepare.getByRole('button',{name:'Criar grupo no WhatsApp'})).toBeDisabled()
+  await prepare.getByRole('checkbox').check();await prepare.getByRole('button',{name:'Criar grupo no WhatsApp'}).click()
+  await expect(page.getByRole('heading',{name:'Encontre e envie uma oferta'})).toBeVisible()
+  await capture(page,'guided-group-ready',testInfo.project.name)
+  await page.getByRole('button',{name:'Ver ofertas',exact:true}).click()
+  await page.getByRole('button',{name:'Revisar e enviar',exact:true}).click()
+  const review=page.getByRole('dialog',{name:'Revisar e enviar oferta'})
+  await expect(review.getByText('Presentes de Natal',{exact:false})).toBeVisible()
+  expect(mutations.filter(item=>item.path.endsWith('/products/send'))).toHaveLength(0)
+  expect(mutations.filter(item=>item.path==='/v1/admin/affiliates/offers')).toHaveLength(0)
+  await review.getByRole('button',{name:'Enviar',exact:true}).click()
+  await expect(page.getByRole('dialog',{name:'Acompanhar envio'})).toBeVisible()
+  expect(mutations.filter(item=>item.path.endsWith('/products/send'))).toHaveLength(1)
+  await capture(page,'guided-send-approved',testInfo.project.name)
+
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true)
+})
+
+
+
+test('sugestões aparecem sem busca manual e foto ausente mantém revisão explícita', async ({ page }, testInfo) => {
+  const mutations = await fixtures(page)
+  await page.route('**/catalog/status', route => route.fulfill({ json: { mode: 'CENTRAL', connected: true, configured: true, affiliateConfigured: true } }))
+  await page.goto('/admin/afiliados/segmentacoes/segment-1')
+  await area(page, 'Ofertas')
+  const suggestions = page.getByRole('region', { name: 'Sugestões para Natal' })
+  await expect(suggestions.getByRole('heading', { name: offer.title })).toBeVisible()
+  await expect(suggestions.getByText('Imagem indisponível')).toBeVisible()
+  await expect(page.getByLabel('Buscar produtos')).not.toBeVisible()
+  expect(mutations.filter(item => item.path.endsWith('/catalog/affiliate'))).toHaveLength(0)
+  await capture(page, 'automatic-suggestions', testInfo.project.name)
+  expect((await new AxeBuilder({ page }).include('[aria-label="Central de afiliados"]').analyze()).violations).toEqual([])
+  await suggestions.getByRole('button', { name: 'Revisar e enviar', exact:true }).click()
+  const dialog = page.getByRole('dialog', { name: 'Revisar e enviar oferta' })
+  await expect(dialog.getByRole('heading', {name:'Árvore de Natal para decorar sua casa'})).toBeVisible()
+  await expect(dialog.getByText('Título criado com IA')).toBeVisible()
+  await expect(dialog.getByLabel('Mensagem exata para o WhatsApp')).toHaveText('Imagem indisponívelÁrvore de Natal para decorar sua casa\nR$ 129,90\nhttps://meli.la/fixture')
+  expect(mutations.filter(item => item.path.endsWith('/products/send'))).toHaveLength(0)
+  await capture(page,'single-product-preview',testInfo.project.name)
+  await page.keyboard.press('Escape')
+  await expect(suggestions.getByRole('button',{name:'Revisar e enviar'})).toBeFocused()
+  expect(mutations.filter(item => item.path.endsWith('/broadcasts'))).toHaveLength(0)
+})
+
+test('avaliação explica evidências, pagina a fonte e confirma mensagem única com teclado', async ({ page }, testInfo) => {
+  const mutations = await fixtures(page)
+  await page.clock.setFixedTime(new Date('2026-10-28T12:00:00Z'))
+  await page.route('**/catalog/status', route => route.fulfill({ json: { mode:'CENTRAL',configured:true,connected:true,affiliateConfigured:true } }))
+  let sourcePage = 1, discarded = false
+  await page.route('**/segments/segment-1/discovery**', async route => {
+    const url = new URL(route.request().url())
+    if(route.request().method() === 'POST') { const body=route.request().postDataJSON();mutations.push({path:url.pathname,body});if(url.pathname.endsWith('/page'))sourcePage=body.page }
+    if(route.request().method()==='GET')sourcePage=Number(url.searchParams.get('page')||1)
+    const status=discarded?'DISCARDED':'SELECTED'
+    await route.fulfill({json:{enabled:true,usesSegmentName:true,terms:['Natal'],expandedTerms:['Natal','presentes de Natal'],products:[{...offer,id:'MLB123',sourceTerm:'Natal',sourcePage,evaluation:{status,rulesVersion:'v1',reasons:['Desconto informado pelo Mercado Livre; queda histórica ainda não comprovada.'],reportedDiscountPercent:18,history:{days:1,medianPriceCents:null,dropPercent:null,verified:false,windowDays:30},reputation:{level:'5_green',status:'GREEN'}},...(discarded?{decision:'DISCARDED'}:{})}],statusCounts:{SELECTED:discarded?0:1,REVIEW:0,DISCARDED:discarded?1:0},pagination:{term:'Natal',page:sourcePage,pageSize:20,total:120,hasPrevious:sourcePage>1,hasNext:sourcePage<6},cycleIntervalMs:900000,counts:null,checkedAt:'2026-10-28T12:00:00Z',nextRunAt:'2026-10-28T12:15:00Z',status:'READY',error:null}})
+  })
+  await page.route('**/products/discard',async route=>{discarded=true;mutations.push({path: new URL(route.request().url()).pathname,body:route.request().postDataJSON()});await route.fulfill({json:{saved:true}})})
+  await page.goto('/admin/afiliados/segmentacoes/segment-1');await area(page,'Ofertas')
+  const suggestions=page.getByRole('region',{name:'Sugestões para Natal'})
+  await expect(suggestions.getByText('15:00',{exact:true})).toBeVisible()
+  await page.clock.setFixedTime(new Date('2026-10-28T12:00:01Z'));await expect(suggestions.getByText('14:59',{exact:true})).toBeVisible()
+  await suggestions.getByText('Por que este produto?',{exact:true}).click()
+  await expect(suggestions.getByText(/Histórico insuficiente para comprovar queda/)).toBeVisible()
+  await suggestions.getByRole('button',{name:'Próxima',exact:true}).click()
+  await expect(suggestions.getByText('Página 2 · 120 produtos')).toBeVisible()
+  await expect(suggestions.getByRole('combobox')).toHaveCount(0); expect(mutations.some(item=>item.path.endsWith('/discovery/page'))).toBe(false)
+  await suggestions.getByRole('tab',{name:'Configurações',exact:true}).click()
+  await suggestions.getByRole('button',{name:'Forçar atualização'}).click()
+  await suggestions.getByRole('tab',{name:'Produtos',exact:true}).click()
+  expect(mutations.some(item=>item.path.endsWith('/refresh')&&item.body.force===true)).toBe(true)
+  await suggestions.getByRole('button',{name:'Revisar e enviar',exact:true}).click()
+  const dialog=page.getByRole('dialog',{name:'Revisar e enviar oferta'})
+  await expect(dialog.getByLabel('Mensagem exata para o WhatsApp')).toContainText('Árvore de Natal para decorar sua casa\nR$ 129,90\nhttps://meli.la/fixture')
+  expect(mutations.filter(item=>item.path.endsWith('/products/send'))).toHaveLength(0)
+  await capture(page,'evaluated-product-preview',testInfo.project.name)
+  await page.keyboard.press('Escape');await expect(suggestions.getByRole('button',{name:'Revisar e enviar',exact:true})).toBeFocused()
+  if (!await suggestions.locator('details').first().evaluate(element=>element.hasAttribute('open'))) await suggestions.getByText('Por que este produto?',{exact:true}).click()
+  await suggestions.getByRole('button',{name:'Descartar',exact:true}).click()
+  await suggestions.getByRole('tab',{name:/Descartados/}).click()
+  await expect(suggestions.getByText('Descartado por você',{exact:true})).toBeVisible()
+  await suggestions.getByText('Por que este produto?',{exact:true}).click()
+  await expect(suggestions.getByRole('button',{name:'Restaurar'})).toBeVisible()
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true)
+})
+
+test('regenera título com teclado e confirma a mensagem da nova prévia', async ({ page }, testInfo) => {
+  const mutations = await fixtures(page)
+  await page.route('**/catalog/status', route => route.fulfill({json:{mode:'CENTRAL',configured:true,connected:true,affiliateConfigured:true}}))
+  await page.goto('/admin/afiliados/segmentacoes/segment-1')
+  await area(page, 'Ofertas')
+  await page.getByRole('button', {name:'Revisar e enviar',exact:true}).click()
+  const dialog = page.getByRole('dialog', {name:'Revisar e enviar oferta'})
+  await expect(dialog.getByRole('heading',{name:'Árvore de Natal para decorar sua casa'})).toBeVisible()
+  const refresh = dialog.getByRole('button',{name:'Gerar outro título'})
+  await refresh.focus(); await page.keyboard.press('Enter')
+  await expect(dialog.getByRole('heading',{name:'Decore o Natal com esta árvore de 1,80 m'})).toBeVisible()
+  await expect(dialog.getByLabel('Mensagem exata para o WhatsApp')).toContainText('Decore o Natal com esta árvore de 1,80 m\nR$ 129,90\nhttps://meli.la/fixture')
+  expect(mutations.filter(item=>item.path.endsWith('/preview/title'))).toEqual([{path:'/v1/admin/affiliates/segments/segment-1/products/preview/title',body:{previewToken:'fixture-token'}}])
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true)
+  expect((await new AxeBuilder({page}).include('dialog').analyze()).violations).toEqual([])
+  await capture(page,'regenerated-product-preview',testInfo.project.name)
+  await dialog.getByRole('button',{name:'Enviar',exact:true}).focus(); await page.keyboard.press('Enter')
+  await expect(page.getByRole('dialog',{name:'Acompanhar envio'})).toBeVisible()
+  expect(mutations.filter(item=>item.path.endsWith('/products/send'))).toEqual([{path:'/v1/admin/affiliates/segments/segment-1/products/send',body:{previewToken:'fixture-regenerated-token',confirm:true}}])
+})

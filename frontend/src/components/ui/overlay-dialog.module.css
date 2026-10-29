@@ -30,3 +30,9 @@
 .header { --glass-tint: var(--popup-glass-tint, #0a192fd9); isolation: isolate; background: transparent; }
 .header button { --glass-tint: #d6fff20d; position: relative; isolation: isolate; background: transparent; border-color: transparent; }
 .dialog::backdrop { background: #010d20a6; backdrop-filter: blur(5px); }
+
+/* Keep the frame stationary; only the content scrolls beneath the modal header. */
+.dialog[data-variant='modal'] { overflow: hidden; }
+.dialog[data-variant='modal'] .panel { display: flex; flex-direction: column; min-height: 0; max-height: inherit; overflow: hidden; }
+.dialog[data-variant='modal'] .header { position: relative; flex-shrink: 0; }
+.dialog[data-variant='modal'] .body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }

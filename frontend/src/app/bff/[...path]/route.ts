@@ -32,6 +32,8 @@ async function handle(request: Request, context: { params: Promise<{ path: strin
     body,
   })
   const headers = new Headers()
+  const location = result.headers.location
+  if (result.status >= 300 && result.status < 400 && typeof location === 'string' && location.startsWith('/') && !/^\/[\\/]/.test(location) && !/[\\\r\n]/.test(location)) headers.set('location', location)
   const cacheControl = result.headers['cache-control']
   headers.set('cache-control', typeof cacheControl === 'string' ? cacheControl : 'private, no-store')
   const nosniff = result.headers['x-content-type-options']

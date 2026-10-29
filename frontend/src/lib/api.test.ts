@@ -91,4 +91,49 @@ describe('sessão por cookie no cliente', () => {
     expect(result.status).toBe(401)
     expect(urls).toEqual(['/bff/v1/auth/login'])
   })
+
+  it('recupera CSRF ausente antes do login e preserva o retorno sem repetir a mutação', async () => {
+    document.cookie = 'csrf=; Path=/; Max-Age=0'
+    const token = 'c'.repeat(64)
+    const fetchMock = vi.fn<(url: string, init: RequestInit) => Promise<Response>>(async (url: string) => url === '/bff/v1/auth/csrf' ? reply(200, { csrfToken: token }) : reply(200, { role: 'ADMIN' }))
+    vi.stubGlobal('fetch', fetchMock)
+    expect((await api('/v1/auth/login', { method: 'POST', body: '{}' })).status).toBe(200)
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual(['/bff/v1/auth/csrf', '/bff/v1/auth/login'])
+    expect(new Headers(fetchMock.mock.calls[1]?.[1]?.headers).get('x-csrf-token')).toBe(token)
+    expect(fetchMock.mock.calls[0]?.[1]).toMatchObject({ credentials: 'include', cache: 'no-store' })
+  })
+
+  it.each([reply(503), reply(200, {}), reply(200, { csrfToken: 'short' })])('falha fechado se o bootstrap não entregar um token válido', async response => {
+    document.cookie = 'csrf=short; Path=/'
+    const fetchMock = vi.fn<(url: string, init: RequestInit) => Promise<Response>>(async () => response)
+    vi.stubGlobal('fetch', fetchMock)
+    await expect(api('/v1/auth/login', { method: 'POST', body: '{}' })).rejects.toThrow()
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock.mock.calls[0]?.[0]).toBe('/bff/v1/auth/csrf')
+  })
+
+  it('compartilha o bootstrap entre mutações concorrentes para evitar cookies divergentes', async () => {
+    document.cookie = 'csrf=; Path=/; Max-Age=0'
+    let release!: (response: Response) => void
+    const fetchMock = vi.fn<(url: string, init: RequestInit) => Promise<Response>>(async (url: string) => url === '/bff/v1/auth/csrf' ? new Promise<Response>(resolve => { release = resolve }) : reply(200))
+    vi.stubGlobal('fetch', fetchMock)
+    const first = api('/v1/me/first', { method: 'POST', body: '{}' })
+    const second = api('/v1/me/second', { method: 'PATCH', body: '{}' })
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    release(reply(200, { csrfToken: 'd'.repeat(64) }))
+    await Promise.all([first, second])
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual(['/bff/v1/auth/csrf', '/bff/v1/me/first', '/bff/v1/me/second'])
+    expect(new Headers(fetchMock.mock.calls[1]?.[1]?.headers).get('x-csrf-token')).toBe('d'.repeat(64))
+    expect(new Headers(fetchMock.mock.calls[2]?.[1]?.headers).get('x-csrf-token')).toBe('d'.repeat(64))
+  })
+
+  it('não troca header CSRF explícito nem repete mutação negada', async () => {
+    document.cookie = 'csrf=; Path=/; Max-Age=0'
+    const fetchMock = vi.fn<(url: string, init: RequestInit) => Promise<Response>>(async () => reply(403, { message: 'CSRF inválido.' }))
+    vi.stubGlobal('fetch', fetchMock)
+    const response = await api('/v1/auth/login', { method: 'POST', headers: { 'x-csrf-token': 'explicit-token' }, body: '{}' })
+    expect(response.status).toBe(403)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(new Headers(fetchMock.mock.calls[0]?.[1]?.headers).get('x-csrf-token')).toBe('explicit-token')
+  })
 })

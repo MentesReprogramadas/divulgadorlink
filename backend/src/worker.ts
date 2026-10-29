@@ -1,3 +1,4 @@
+import { runAffiliateDiscovery } from '@/use-cases/affiliates/discovery'
 import {purgeAgencyAccess} from '@/repositories/agency-clients'
 import {purgeButtonTests} from '@/repositories/button-tests'
 import {purgeSuggestions} from '@/repositories/profile-suggestions'
@@ -15,6 +16,7 @@ import { runRenewalReminderCycle, type RenewalCycleInput } from '@/use-cases/@No
 import { enqueueRenewalReminderCycle, RENEWAL_QUEUE_NAME } from '@/adapters/queues/enqueue-renewal-reminders'
 import type { PrismaClient } from '@prisma/client'
 import { Worker } from 'bullmq'
+import { requestAffiliateDeliveryDrain } from '@/use-cases/affiliates/deliveries'
 import type Redis from 'ioredis'
 import { createRedis } from '@/lib/redis'
 import { OpenAiEmbeddingService } from '@/adapters/embeddings/openai-embedding-service'
@@ -364,7 +366,13 @@ export async function startWorker(): Promise<void> {
   createWorker(connection,{textJudge:null},NICHE_DIGEST_QUEUE)
   await enqueueNicheDigestCycle()
   await enqueueRenewalReminderCycle()
+  void runAffiliateDiscovery(prisma).catch(() => logDomainEvent('affiliate.discovery.failed', { result: 'processing_failed' }))
+  const affiliateDrain = setInterval(() => {
+    void requestAffiliateDeliveryDrain(prisma).catch(() => logDomainEvent('affiliate.drain.failed',{result:'processing_failed'}))
+  }, 1000)
+  affiliateDrain.unref()
   const drain = setInterval(() => {
+    void runAffiliateDiscovery(prisma).catch(() => logDomainEvent('affiliate.discovery.failed', { result: 'processing_failed' }))
     void enqueueWebhookCycle().catch(()=>logDomainEvent('webhook.drain.failed',{result:'queue_unavailable'}))
     void enqueueEvolutionCycle().catch(() => logDomainEvent('evolution.drain.failed', { result: 'queue_unavailable' }))
     void enqueueNicheDigestCycle().catch(()=>logDomainEvent('niche.digest.drain.failed',{result:'queue_unavailable'}))

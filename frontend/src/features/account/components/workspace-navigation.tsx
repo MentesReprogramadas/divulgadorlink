@@ -54,7 +54,7 @@ function DisclosureArrow(){return <svg width="16" height="16" viewBox="0 0 24 24
 const adminGroups: NavigationGroup[] = [
   { label: 'Operação', items: [{ href: '/admin/visao', label: 'Gestão' }], submenu: { label: 'Revisões', icon: 'reviews', items: [{ href: '/admin/moderacao', label: 'Moderação' }, { href: '/admin/denuncias', label: 'Denúncias' }, { href: '/admin/disponibilidade', label: 'Correções' }] } },
   { label: 'Comercial', items: [{href:'/admin/destaques',label:'Destaques de links'},{ href: '/admin/planos', label: 'Destaques' }, { href: '/admin/assinaturas', label: 'Planos de assinatura' }, { href: '/admin/estornos', label: 'Estornos' }] },
-  { label: 'Sistema', items: [{ href: '/admin/integracoes', label: 'Integrações' }, { href: '/admin/configuracoes', label: 'Configurações' }] },
+  { label: 'Sistema', items: [{ href: '/admin/afiliados', label: 'Afiliados e WhatsApp' }, { href: '/admin/integracoes', label: 'Integrações' }, { href: '/admin/configuracoes', label: 'Configurações' }] },
 ]
 export function WorkspaceNavigationSkeleton({path,admin=false}:{path:string;admin?:boolean}){
  const groups=admin?adminGroups:contextGroups[pathContext(path)??'links']

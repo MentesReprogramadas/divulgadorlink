@@ -520,6 +520,12 @@ async function confirmationInbox(request: FastifyRequest, reply: FastifyReply) {
 }
 
 export async function authRoutes(app: FastifyInstance) {
+  app.get('/csrf', async (request, reply) => {
+    const existing = request.cookies.csrf
+    const csrfToken = typeof existing === 'string' && existing.length >= 32 ? existing : randomBytes(32).toString('hex')
+    reply.header('cache-control', 'private, no-store').setCookie('csrf', csrfToken, cookieFlags(false))
+    return { csrfToken }
+  })
   app.post('/register', register)
   app.post('/login', login)
   app.post('/refresh', refresh)

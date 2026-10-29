@@ -14,6 +14,7 @@ declare module 'fastify'{interface FastifyRequest{workspaceUser?:FastifyRequest[
 const deny=(r:FastifyReply,message='Você não tem acesso a esta seção.')=>r.code(403).send({code:'forbidden',message})
 const management=/^\/team\/(?:context|select|workspaces|accept)$/
 export async function workspaceGuard(q:FastifyRequest,r:FastifyReply){
+ if(/^\/api\/v1\/public\/affiliates\/[a-z0-9-]+(?:\/join)?(?:\?|$)/.test(q.url)&&['GET','POST','HEAD'].includes(q.method))return
  const explicit=q.headers['x-workspace-owner']
  if(explicit!==undefined&&(typeof explicit!=='string'||explicit.length>128||!explicit.length))return deny(r)
  const target=explicit==='self'?null:explicit??q.cookies.workspaceOwner

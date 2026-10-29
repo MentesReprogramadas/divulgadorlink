@@ -22,7 +22,7 @@ A rodada funcional Linux encontrou um defeito real da arte de divulgação: `doc
 
 - `verify`: instalação pelo lockfile, Prisma generate/migrations, lint, tipos, testes unitários, integração PostgreSQL/pgvector e Redis, build e audit (bloqueio high/critical). `test:pg` descobre todos os arquivos `.pg.spec.ts`; a lista manual anterior omitia os testes de leitura de suporte, destaques administrativos e simulação de métricas.
 - `web`: lint, tipos de aplicação/E2E, testes unitários, builds Next/Storybook e audit.
-- `images`: build das duas imagens Docker de produção; a imagem backend também executa o worker.
+- `images`: build das imagens Docker de API, frontend e ponte de afiliados; a imagem backend também executa o worker.
 - `e2e`: onze runners isolados, mantendo um worker por runner para preservar fixtures mutáveis: `features`, `features-mobile`, `catalog`; `ui-desktop`/`ui-mobile` com comparações de screenshots e acessibilidade; `search-desktop`/`search-mobile` com o stub de embeddings; `support-desktop`/`support-mobile` com a fronteira PostgreSQL de somente leitura; `desktop`/`mobile` do calendário no Storybook. As três últimas suítes estavam fora da matriz anterior. Os runners da aplicação criam seu PostgreSQL/Redis, usam portas com offset 10000 e um ID compatível com as proteções dos scripts locais; o calendário sobe seu próprio Storybook. Nenhum teste foi removido ou marcado como skip para liberar o deploy. Baselines não são atualizadas automaticamente; diferenças exigem inspeção, inclusive entre Windows local e Ubuntu do CI.
 - Testes dos bloqueios de deploy e do lock E2E: `node --test .github/scripts/*.test.mjs frontend/e2e/run-lease.test.cjs`.
 
@@ -85,9 +85,10 @@ O job depende de todos os checks, usa environment `production` e serializa deplo
 
 O script verifica repositório/branch, auto-deploy desativado e ausência de deploys concorrentes. Fixa `git_commit_sha` no SHA testado, confirma a gravação e publica nesta ordem:
 
-1. API (`3rzvngm8sz51yjj4i3jmtr1i`): migrations/bootstrap existentes no Dockerfile, deploy finalizado no SHA esperado, estado healthy e HTTP 200 em `/api/v1/actuator/ready`.
-2. Worker (`w7uioamyuv4tsjmelv6fqqkh`): deploy finalizado no SHA esperado e processo running. Isso não comprova consumo de filas; a aplicação ainda não oferece readiness do worker.
-3. Web (`mfehvi9lulpppun6laezsu0w`): deploy finalizado no SHA esperado, estado healthy e HTTP 200 em `/health`.
+1. Ponte de afiliados (`jqxvail1shmqtyjoyzeyktxq`): processo em execução, volume VHG montado somente para leitura. Catálogo e geração exigem smoke autenticado após publicação.
+2. API (`3rzvngm8sz51yjj4i3jmtr1i`): migrations/bootstrap existentes no Dockerfile, deploy finalizado no SHA esperado, estado healthy e HTTP 200 em `/api/v1/actuator/ready`.
+3. Worker (`w7uioamyuv4tsjmelv6fqqkh`): deploy finalizado no SHA esperado e processo running. Isso não comprova consumo de filas; a aplicação ainda não oferece readiness do worker.
+4. Web (`mfehvi9lulpppun6laezsu0w`): deploy finalizado no SHA esperado, estado healthy e HTTP 200 em `/health`.
 
 O script espera até dez minutos por deploy e um minuto adicional de saúde por aplicação, além dos timeouts HTTP. Falha na primeira etapa problemática, sem iniciar as seguintes. Não imprime corpos da API, envs ou logs de produção, que podem conter segredos.
 

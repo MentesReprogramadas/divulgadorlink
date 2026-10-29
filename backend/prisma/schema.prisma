@@ -65,6 +65,16 @@ datasource db {
 }
 
 model Tenant {
+  affiliateImages AffiliateImage[]
+  affiliateSegmentInstances AffiliateSegmentInstance[]
+  affiliateInstances AffiliateInstance[]
+  affiliateSegments AffiliateSegment[]
+  affiliateGroups AffiliateGroup[]
+  affiliateOffers AffiliateOffer[]
+  affiliateBroadcasts AffiliateBroadcast[]
+  affiliateDeliveries AffiliateDelivery[]
+  affiliateConnections AffiliateConnection[]
+  affiliatePriceObservations AffiliatePriceObservation[]
   id              String           @id @default(cuid())
   host            String           @unique
   name            String
@@ -99,6 +109,255 @@ model Tenant {
   profileBillingAccounts ProfileBillingAccount[]
   profileBillingSettings ProfileBillingSettings?
 
+}
+
+model AffiliateInstance {
+  id String @id @default(cuid())
+  tenantId String
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name String
+  secret String?
+  ownerPhone String?
+  nextSendAt DateTime @default(now())
+  enabled Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  groups AffiliateGroup[]
+  segments AffiliateSegment[]
+  segmentLinks AffiliateSegmentInstance[]
+  deliveries AffiliateDelivery[]
+  @@unique([id, tenantId])
+  @@unique([tenantId, name])
+  @@map("affiliate_instances")
+}
+
+model AffiliateSegment {
+  id String @id @default(cuid())
+  tenantId String
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name String
+  groupName String?
+  slug String
+  description String @default("")
+  imageUrl String?
+  capacity Int @default(1024)
+  autoExpand Boolean @default(false)
+  instanceId String?
+  instance AffiliateInstance? @relation(fields: [instanceId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  enabled Boolean @default(true)
+  nextSequence Int @default(1)
+  provisionState String @default("IDLE")
+  provisionStartedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  groups AffiliateGroup[]
+  offers AffiliateOffer[]
+  discovery AffiliateDiscovery?
+  discoveryPages AffiliateDiscoveryPage[]
+  productDecisions AffiliateProductDecision[]
+  instanceLinks AffiliateSegmentInstance[]
+  @@unique([id, tenantId])
+  @@unique([tenantId, slug])
+  @@map("affiliate_segments")
+}
+
+model AffiliateDiscovery {
+  segmentId String @id
+  tenantId String
+  segment AffiliateSegment @relation(fields: [segmentId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  enabled Boolean @default(true)
+  terms String[] @default([])
+  cursor Int @default(0)
+  expandedTerms String[] @default([])
+  pageCursors Json @default("{}")
+  requestedTerm String?
+  requestedPage Int?
+  runStartedAt DateTime?
+  durationMs Int?
+  productsJson Json @default("[]")
+  countsJson Json?
+  status String @default("QUEUED")
+  error String?
+  checkedAt DateTime?
+  nextRunAt DateTime @default(now())
+  leaseToken String?
+  leaseExpiresAt DateTime?
+  configVersion Int @default(0)
+  @@unique([segmentId, tenantId])
+  @@index([enabled, nextRunAt])
+  @@map("affiliate_discoveries")
+}
+
+model AffiliateDiscoveryPage {
+  tenantId String
+  segmentId String
+  term String
+  page Int
+  productsJson Json
+  countsJson Json
+  total Int
+  checkedAt DateTime @default(now())
+  segment AffiliateSegment @relation(fields: [segmentId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  @@id([tenantId, segmentId, term, page])
+  @@map("affiliate_discovery_pages")
+}
+
+model AffiliatePriceObservation {
+  tenantId String
+  itemId String
+  day DateTime @db.Date
+  priceCents Int
+  observedAt DateTime @default(now())
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  @@id([tenantId, itemId, day])
+  @@index([tenantId, itemId, observedAt])
+  @@map("affiliate_price_observations")
+}
+
+model AffiliateProductDecision {
+  tenantId String
+  segmentId String
+  itemId String
+  decision String
+  reason String
+  actorId String?
+  broadcastId String?
+  priceCents Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  segment AffiliateSegment @relation(fields: [segmentId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  @@id([tenantId, segmentId, itemId])
+  @@map("affiliate_product_decisions")
+}
+
+model AffiliateImage {
+  id String @id @default(cuid())
+  tenantId String
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  bytes Bytes
+  createdAt DateTime @default(now())
+  @@index([tenantId])
+}
+
+model AffiliateSegmentInstance {
+  tenantId String
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  segmentId String
+  segment AffiliateSegment @relation(fields: [segmentId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  instanceId String
+  instance AffiliateInstance @relation(fields: [instanceId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  lastUsedAt DateTime @default(dbgenerated("'1970-01-01 00:00:00'::timestamp without time zone"))
+  @@id([segmentId, instanceId])
+  @@index([instanceId, tenantId])
+  @@map("affiliate_segment_instances")
+}
+
+model AffiliateGroup {
+  id String @id @default(cuid())
+  tenantId String
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  segmentId String
+  segment AffiliateSegment @relation(fields: [segmentId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  instanceId String
+  instance AffiliateInstance @relation(fields: [instanceId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  jid String
+  name String
+  sequence Int
+  participantCount Int @default(0)
+  capacity Int @default(1024)
+  inviteUrl String?
+  enabled Boolean @default(true)
+  syncedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deliveries AffiliateDelivery[]
+  @@unique([id, tenantId])
+  @@unique([tenantId, jid])
+  @@unique([segmentId, sequence])
+  @@map("affiliate_groups")
+}
+
+model AffiliateOffer {
+  id String @id @default(cuid())
+  tenantId String
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  segmentId String
+  segment AffiliateSegment @relation(fields: [segmentId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  title String
+  productUrl String
+  affiliateUrl String
+  priceCents Int
+  oldPriceCents Int?
+  imageUrl String?
+  note String @default("")
+  status String @default("DRAFT")
+  checkedAt DateTime @default(now())
+  expiresAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  broadcasts AffiliateBroadcast[]
+  @@unique([id, tenantId])
+  @@index([tenantId, createdAt])
+  @@map("affiliate_offers")
+}
+
+model AffiliateBroadcast {
+  id String @id @default(cuid())
+  tenantId String
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  segmentId String
+  offerId String
+  offer AffiliateOffer @relation(fields: [offerId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  idempotencyKey String
+  message String
+  offerUpdatedAt DateTime
+  imageUrl String?
+  productSnapshot Json?
+  scheduledAt DateTime @default(now())
+  createdAt DateTime @default(now())
+  deliveries AffiliateDelivery[]
+  @@unique([id, tenantId])
+  @@unique([tenantId, idempotencyKey])
+  @@index([tenantId, createdAt])
+  @@map("affiliate_broadcasts")
+}
+
+model AffiliateDelivery {
+  id String @id @default(cuid())
+  tenantId String
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  broadcastId String
+  broadcast AffiliateBroadcast @relation(fields: [broadcastId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  groupId String
+  group AffiliateGroup @relation(fields: [groupId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  state String @default("PENDING")
+  providerMessageId String?
+  sentViaInstanceId String?
+  sentViaInstance AffiliateInstance? @relation(fields: [sentViaInstanceId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  errorCode String?
+  lockedAt DateTime?
+  nextAttemptAt DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([broadcastId, groupId])
+  @@index([state, nextAttemptAt])
+  @@index([tenantId, createdAt])
+  @@map("affiliate_deliveries")
+}
+
+model AffiliateConnection {
+  id String @id @default(cuid())
+  tenantId String
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  provider String
+  credentials String
+  status String @default("CONFIGURED")
+  oauthState String?
+  oauthVerifier String?
+  oauthExpiresAt DateTime?
+  updatedAt DateTime @updatedAt
+  @@unique([tenantId, provider])
+  @@map("affiliate_connections")
 }
 
 model User {
