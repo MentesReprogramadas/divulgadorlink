@@ -3522,10 +3522,10 @@
     "semantic_hash": "b1f76480d79d30af6a6ffa1e1ba8c74d"
   },
   "frontend/next-env.d.ts": {
-    "mtime": 1793297222.9735012,
-    "seen": 1793297333.3283386,
-    "ast_hash": "90426577ad8f38459f3e566411c85589",
-    "semantic_hash": "90426577ad8f38459f3e566411c85589"
+    "mtime": 1793298911.653572,
+    "seen": 1793298928.2468214,
+    "ast_hash": "7186a97a893460078d6a59ad66024291",
+    "semantic_hash": "7186a97a893460078d6a59ad66024291"
   },
   "frontend/next.config.ts": {
     "mtime": 1793205007.643188,
@@ -8562,10 +8562,10 @@
     "semantic_hash": "8fe873c8683b88dbd478b6b55cb4248c"
   },
   "frontend/e2e/profile-diagnostics.spec.ts": {
-    "mtime": 1793205007.539462,
-    "seen": 1793206252.3823462,
-    "ast_hash": "5658b2a8af62f879aaced8f948cb148c",
-    "semantic_hash": "5658b2a8af62f879aaced8f948cb148c"
+    "mtime": 1793298870.161137,
+    "seen": 1793298928.2350957,
+    "ast_hash": "48ec071809a925601694f195a4dec479",
+    "semantic_hash": "48ec071809a925601694f195a4dec479"
   },
   "frontend/src/app/painel/perfil/diagnostico/loading.tsx": {
     "mtime": 1793205007.8759482,

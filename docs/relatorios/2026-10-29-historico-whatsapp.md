@@ -1,0 +1,11 @@
+# Histórico de mensagens para novos membros
+
+Pesquisa em 29/10/2026. O fluxo atual do painel resolve o grupo disponível e chama `AffiliateEvolution.invite`, que consulta `GET /group/inviteCode/:instance` e retorna um convite normal do WhatsApp. Não há envio de histórico, adição do visitante por número ou webhook de ingresso que compartilhe mensagens. Não foi alterado o grupo real nem enviada mensagem para pesquisar esse comportamento.
+
+O [blog oficial do WhatsApp](https://blog.whatsapp.com/introducing-group-message-history-a-more-private-way-to-catch-up-in-group-chats?lang=pt), publicado em 19/02/2026, permite compartilhar de 25 a 100 mensagens recentes ao adicionar alguém. Declara que o envio não é automático. A atualização de outubro/2026 menciona testes para reduzir cliques, sem anunciar acesso irrestrito ao histórico.
+
+A [Central de Ajuda oficial](https://faq.whatsapp.com/841426356990637/?cms_platform=iphone&locale=pt_BR) informa até 100 mensagens dos últimos 14 dias, com opção Histórico de mensagens durante a adição de membros. Essa capacidade não equivale a abrir todo o arquivo de mensagens para qualquer pessoa que entra pelo link. A disponibilidade concreta na conta/grupo não foi confirmada no aplicativo de um telefone.
+
+Consultados Context7 e código público dos [DTOs de grupo da Evolution](https://github.com/evolution-foundation/evolution-api/blob/main/src/api/dto/group.dto.ts). Não encontrei parâmetro de histórico no convite ou na adição de participantes na interface documentada. `syncFullHistory` é sincronização do histórico para a própria instância conectada, não liberação retroativa das mensagens para novos integrantes. Ausência nessa documentação não comprova ausência de toda implementação experimental de terceiros; não há base para prometer a função pela integração atual.
+
+Conclusão: hoje o convite do Tem Link Aqui não entrega histórico anterior; a documentação oficial consultada também não oferece histórico completo de grupo para novos membros. Um arquivo público das ofertas enviadas poderia atender o objetivo de consultar ofertas antigas fora do histórico nativo do WhatsApp, mas é outra funcionalidade e não foi implementado como substituição silenciosa.
