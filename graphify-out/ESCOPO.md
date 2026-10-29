@@ -216,3 +216,5 @@ Consulta inicial ao grafo confirmada nos consumidores de catálogo, busca, mídi
 ## Ponte permanente de afiliados — 29/10/2026
 
 Extração incremental local code-only: 13 arquivos reprocessados, 1676 reutilizados; 8546 nós/30788 relações. Sem LLM, API ou envio externo. Docker/CSS e documentação não são modelados; runtime e montagem somente leitura precisam de verificação própria.
+
+Fechamento dos bloqueios do CI de produção:8547 nós/30789 relações, extração incremental code-only de15 arquivos,1674 reutilizados; mesmos limites de cobertura. Inclui confirmação de idade e disputa de leitura/mutação nos favoritos.

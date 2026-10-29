@@ -1,7 +1,7 @@
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { FacetCatalog } from '@/components/domain/facet-catalog'
-const ageDecision=vi.hoisted(()=>({confirm:vi.fn(),refresh:vi.fn(),replace:vi.fn()}))
+const ageDecision=vi.hoisted(()=>({confirm:vi.fn(),refresh:vi.fn(),replace:vi.fn(),navigate:vi.fn()}))
 vi.mock('@/components/domain/age-gate',async original=>({...await original<typeof import('@/components/domain/age-gate')>(),confirmAge:ageDecision.confirm}))
 
 vi.mock('next/navigation', () => ({
@@ -26,11 +26,13 @@ beforeAll(() => {
 beforeEach(() => {
   vi.clearAllMocks();ageDecision.confirm.mockResolvedValue(true)
   window.history.replaceState({},'','/')
+  vi.stubGlobal('window',new Proxy(window,{get:(target,key)=>key==='location'?{get href(){return target.location.href},replace:ageDecision.navigate}:Reflect.get(target,key,target)}))
   document.querySelectorAll('script[type="application/ld+json"]').forEach((node) => node.remove())
 })
 
 afterEach(() => {
   cleanup()
+  vi.unstubAllGlobals()
 })
 
 const card = {
@@ -57,7 +59,7 @@ describe('catálogo de faceta', () => {
     window.history.replaceState({},'','/rede/telegram?languageTag=pt&cursor=old-page')
     render(<FacetCatalog pageClass="network-page" descriptionClass="network-description" listPrefix="network" mark="network" route="network" slug="telegram" facetLabel="Nichos" facetKind="niche" active={null} facets={[]} body={{heading:'Telegram',seo:{title:'Telegram',robots:'index,follow'},ageRequired:true,sponsored:[],organic:[]}}/>)
     fireEvent.click(screen.getByRole('button',{name:label}))
-    await waitFor(()=>expect(ageDecision.replace).toHaveBeenCalledWith('/rede/telegram?languageTag=pt'))
+    await waitFor(()=>expect(ageDecision.navigate).toHaveBeenCalledWith(new URL('/rede/telegram?languageTag=pt',window.location.href).href))
     expect(ageDecision.confirm).toHaveBeenCalledWith(choice)
     expect(ageDecision.refresh).not.toHaveBeenCalled()
   })
@@ -75,13 +77,13 @@ describe('catálogo de faceta', () => {
     ageDecision.confirm.mockResolvedValue(true)
     fireEvent(screen.getByRole('dialog'),new Event('cancel',{cancelable:true}))
     await waitFor(()=>expect(ageDecision.confirm).toHaveBeenLastCalledWith('no'))
-    expect(ageDecision.refresh).toHaveBeenCalledTimes(1)
+    expect(ageDecision.navigate).toHaveBeenCalledTimes(1)
   })
   it('recusa persiste a escolha e atualiza a mesma listagem mista',async()=>{
     render(<FacetCatalog pageClass="network-page" descriptionClass="network-description" listPrefix="network" mark="network" route="network" slug="telegram" facetLabel="Nichos" facetKind="niche" active={null} facets={[]} body={{heading:'Telegram',seo:{title:'Telegram',robots:'index,follow'},ageRequired:true,sponsored:[],organic:[card]}}/>)
     fireEvent.click(screen.getByRole('button',{name:'Não tenho'}))
     await waitFor(()=>expect(ageDecision.confirm).toHaveBeenCalledWith('no'))
-    expect(ageDecision.refresh).toHaveBeenCalledTimes(1)
+    expect(ageDecision.navigate).toHaveBeenCalledTimes(1)
   })
   it('entrega o título e os links no primeiro HTML', () => {
     render(

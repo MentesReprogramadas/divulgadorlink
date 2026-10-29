@@ -3,7 +3,6 @@ import { FavoriteButton } from '@/features/favorites/components/favorite-button'
 
 import { DiscoveryFilters } from '@/features/catalog/discovery/discovery-filters'
 import { discoveryHref, emptyDiscovery, type DiscoveryValues } from '@/features/catalog/discovery/discovery-contract'
-import { useRouter } from 'next/navigation'
 import {useState, type ReactNode} from 'react'
 import {CatalogCardsSkeleton} from '@/features/catalog/components/catalog-skeleton'
 import { AgePrompt, confirmAge } from '@/components/domain/age-gate'
@@ -141,7 +140,6 @@ export function FacetCatalog({
   body: FacetCatalogBody
   children?: ReactNode
 }) {
-  const router = useRouter()
   const [filtering,setFiltering]=useState(false)
   const showImpressions = body.showImpressions !== false
   const sponsored = body.sponsored ?? []
@@ -153,10 +151,9 @@ export function FacetCatalog({
   async function answer(choice: 'yes' | 'no') {
     if (!(await confirmAge(choice))) throw new Error('Confirmação indisponível')
     const url = new URL(window.location.href)
-    if (url.searchParams.has('cursor')) {
-      url.searchParams.delete('cursor')
-      router.replace(url.pathname + url.search + url.hash)
-    } else router.refresh()
+    url.searchParams.delete('cursor')
+    // A document request avoids stalled RSC refreshes after the age cookie changes.
+    window.location.replace(url.href)
   }
 
   return (

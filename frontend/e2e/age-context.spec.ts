@@ -100,7 +100,9 @@ test('rede mista confirma maioridade na própria tela, recupera falha e só depo
   await expect(dialog.getByRole('alert')).toHaveText('Não foi possível confirmar sua idade. Tente novamente.')
   await expect(yes).toBeEnabled()
   await page.unroute('**/bff/v1/age')
+  const refreshed=page.waitForResponse(response=>response.request().isNavigationRequest()&&new URL(response.url()).pathname==='/rede/telegram')
   await yes.focus();await page.keyboard.press('Enter')
+  expect((await refreshed).status()).toBe(200)
   await expect(dialog).toHaveCount(0)
   await expect(page).toHaveURL(origin+'/rede/telegram')
   await expect(page.getByRole('link',{name:adultName,exact:true})).toBeVisible()
@@ -112,7 +114,9 @@ test('rede mista confirma maioridade na própria tela, recupera falha e só depo
 
 test('recusa mantém os links livres e não volta a perguntar na mesma sessão',async({page})=>{
   await page.goto(origin+'/rede/telegram')
+  const refreshed=page.waitForResponse(response=>response.request().isNavigationRequest()&&new URL(response.url()).pathname==='/rede/telegram')
   await page.getByRole('button',{name:'Não tenho',exact:true}).click()
+  expect((await refreshed).status()).toBe(200)
   await expect(page.getByRole('dialog')).toHaveCount(0)
   await expect(page).toHaveURL(origin+'/rede/telegram')
   await expect(page.getByRole('link',{name:freeName,exact:true})).toBeVisible()

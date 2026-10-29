@@ -10,16 +10,16 @@ import styles from './favorites.module.css'
 export function FavoriteButton({ linkId, className = '' }: { linkId: string; className?: string }) {
  const readOnly=useReadOnly()
   const [saved, setSaved] = useState(false), [pending, setPending] = useState(false), [error, setError] = useState('')
-  const busy = useRef(false)
+  const busy = useRef(false), mutation = useRef(0)
   useEffect(() => {
     let live = true
-    const read = () => { if (!readSession()) return; void api<{ saved: boolean }>('/v1/me/favorites/' + encodeURIComponent(linkId)).then(r => { if (live && r.status === 200) setSaved(r.body.saved) }).catch(() => {}) }
+    const read = () => { if (!readSession() || busy.current) return; const version=mutation.current; void api<{ saved: boolean }>('/v1/me/favorites/' + encodeURIComponent(linkId)).then(r => { if (live && version===mutation.current && r.status === 200) setSaved(r.body.saved) }).catch(() => {}) }
     read(); window.addEventListener(SESSION_EVENT, read)
     return () => { live = false; window.removeEventListener(SESSION_EVENT, read) }
   }, [linkId])
   async function toggle() {
     if (busy.current) return
-    busy.current = true; setPending(true); setError('')
+    busy.current = true; mutation.current++; setPending(true); setError('')
     try {
       const r = await api<{ saved: boolean; message?: string }>('/v1/me/favorites/' + encodeURIComponent(linkId), { method: saved ? 'DELETE' : 'PUT' })
       if (r.status === 401) { window.location.href = '/painel/favoritos'; return }
