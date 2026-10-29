@@ -1,8 +1,12 @@
 .card.card { position: relative; isolation: isolate; border: 0; border-radius: 24px; background: transparent; }
 .dialog.dialog { isolation: isolate; border: 0; border-radius: 24px; background: transparent; }
 .choice.choice { position: relative; isolation: isolate; border: 0; background: transparent; }
-.toggle.toggle { position: relative; isolation: isolate; border: 0; background: transparent; }
-.toggle[aria-checked="true"] { --glass-tint: #ffffff20; }
+.toggle { position: relative; isolation: isolate; flex: none; width: 44px; height: 26px; padding: 3px; border: 0; border-radius: 999px; background: transparent; }
+.toggle[aria-checked="true"] { --glass-tint: #ffffff20; background: var(--color-brand-navy); }
+.toggleKnob { display: block; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: margin-left 160ms ease; }
+.toggle[aria-checked="true"] .toggleKnob { margin-left: 18px; }
+.toggle:disabled { opacity: 0.6; }
+@media (prefers-reduced-motion: reduce) { .toggleKnob { transition: none; } }
 .explanation { position: relative; isolation: isolate; padding: var(--space-4) var(--space-6); border-radius: 20px; line-height: 1.65; overflow-wrap: anywhere; }
 .explanation summary { cursor: pointer; font-weight: 600; }
 .explanation p { margin-block: var(--space-3) 0; }

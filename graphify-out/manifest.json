@@ -3522,10 +3522,10 @@
     "semantic_hash": "b1f76480d79d30af6a6ffa1e1ba8c74d"
   },
   "frontend/next-env.d.ts": {
-    "mtime": 1793294987.192285,
-    "seen": 1793295564.277939,
-    "ast_hash": "7186a97a893460078d6a59ad66024291",
-    "semantic_hash": "7186a97a893460078d6a59ad66024291"
+    "mtime": 1793297222.9735012,
+    "seen": 1793297333.3283386,
+    "ast_hash": "90426577ad8f38459f3e566411c85589",
+    "semantic_hash": "90426577ad8f38459f3e566411c85589"
   },
   "frontend/next.config.ts": {
     "mtime": 1793205007.643188,
@@ -3678,10 +3678,10 @@
     "semantic_hash": "14af1134d90ece73f07162fc9b4d3ea2"
   },
   "frontend/src/app/admin/configuracoes/editor.tsx": {
-    "mtime": 1793205007.7528906,
-    "seen": 1793206252.3824224,
-    "ast_hash": "478a98d09ebfe531c82b51cd99f35f1c",
-    "semantic_hash": "478a98d09ebfe531c82b51cd99f35f1c"
+    "mtime": 1793297112.8487074,
+    "seen": 1793297333.3356144,
+    "ast_hash": "5ba667e1f3269bde2ef7842e37e4b2a7",
+    "semantic_hash": "5ba667e1f3269bde2ef7842e37e4b2a7"
   },
   "frontend/src/app/admin/configuracoes/facet-summaries.test.tsx": {
     "mtime": 1793205007.7528906,

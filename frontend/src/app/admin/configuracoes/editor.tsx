@@ -53,7 +53,7 @@ export function SettingsEditor() {
         {!ready ? <span role="status" aria-label="Carregando configuração"><Skeleton width={44} height={24} round /></span> : <button
           type="button"
           role="switch"
-          className={`${on ? 'switch is-on' : 'switch'} ${surfaces.toggle}`}
+          className={surfaces.toggle}
           aria-checked={on}
           aria-label="Impressões no catálogo"
           aria-busy={saving || undefined}
@@ -61,7 +61,7 @@ export function SettingsEditor() {
           onClick={() => void toggle()}
         >
           <LiquidLens radius={20} />
-          <span className="switch-knob" />
+          <span className={surfaces.toggleKnob} />
         </button>}
       </div>
       {error ? <p role="alert">{error}</p> : null}
