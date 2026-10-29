@@ -30,3 +30,7 @@ O post orgânico do Instagram não contém o CTA do anúncio. Prévia compartilh
 Convite revogado externamente pode permanecer em cache por até 30 segundos. A consulta de ocupação continua dependendo do WhatsApp, por isso não existe garantia de latência instantânea. O navegador embutido e a decisão de abrir o aplicativo pertencem ao dispositivo. A descoberta amplia a amostra, não garante estoque, comissão ou desconto para qualquer produto.
 
 Reverter código pelo CI para 3e26eb8e e restaurar sementes anteriores por operação auditada, preservando métricas, ofertas e histórico. Não há migração de schema. Chaves de cache expiram sozinhas.
+
+## Correção da fixture no CI
+
+O CI inicial a16dde7e bloqueou a publicação porque uma comparação literal do E2E ainda esperava a prévia sem headline. A fixture havia sido ampliada depois da primeira execução completa. A expectativa foi atualizada para conferir as duas linhas integralmente, sem remover a assertiva. Reexecução local completa final: 24/24 E2E desktop/mobile aprovados em 2,6 minutos. Nenhum código de produto mudou nessa correção.

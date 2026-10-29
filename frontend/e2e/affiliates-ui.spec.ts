@@ -387,7 +387,7 @@ test('sugestões aparecem sem busca manual e foto ausente mantém revisão expl�
   const dialog = page.getByRole('dialog', { name: 'Revisar e enviar oferta' })
   await expect(dialog.getByRole('heading', {name:'Árvore de Natal para decorar sua casa'})).toBeVisible()
   await expect(dialog.getByText('Título criado com IA')).toBeVisible()
-  await expect(dialog.getByLabel('Mensagem exata para o WhatsApp')).toHaveText('Imagem indisponívelÁrvore de Natal para decorar sua casa\nR$ 129,90\nhttps://meli.la/fixture')
+  await expect(dialog.getByLabel('Mensagem exata para o WhatsApp')).toHaveText('Imagem indisponívelUma árvore de Natal para sua sala 🎄\nÁrvore de Natal para decorar sua casa\nR$ 129,90\nhttps://meli.la/fixture')
   expect(mutations.filter(item => item.path.endsWith('/products/send'))).toHaveLength(0)
   await capture(page,'single-product-preview',testInfo.project.name)
   await page.keyboard.press('Escape')
