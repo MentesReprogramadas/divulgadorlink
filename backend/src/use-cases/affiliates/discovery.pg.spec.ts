@@ -115,7 +115,7 @@ describe('PostgreSQL discovery isolation and leases',()=>{
     const search=vi.fn(async()=>result)
     expect(await run(search)).toBe(1)
     expect(search).toHaveBeenCalledWith(db,tenantId,'Natal',{offset:0})
-    expect(await affiliateDiscoveryState(db,tenantId,segmentId)).toMatchObject({status:'READY',products:[{id:'MLB100'}],counts:{...result.counts,catalogsChecked:20,withoutOffers:19}})
+    expect(await affiliateDiscoveryState(db,tenantId,segmentId)).toMatchObject({status:'QUEUED',products:[{id:'MLB100'}],counts:{...result.counts,catalogsChecked:20,withoutOffers:19}})
     expect((await db.affiliateSegment.findUniqueOrThrow({where:{id:segmentId}})).updatedAt).toEqual(before.updatedAt)
   })
   it('persists real observations once per day and page evidence',async()=>{
@@ -138,7 +138,7 @@ describe('PostgreSQL discovery isolation and leases',()=>{
     expect(current.leaseToken).toBe(old.leaseToken);expect(current.configVersion).toBe(old.configVersion)
     const otherSearch=vi.fn(async()=>result);expect(await run(otherSearch,second)).toBe(0);expect(otherSearch).not.toHaveBeenCalled()
     finish(result);await pending
-    expect((await db.affiliateDiscovery.findUniqueOrThrow({where:{segmentId}})).status).toBe('READY')
+    expect((await db.affiliateDiscovery.findUniqueOrThrow({where:{segmentId}})).status).toBe('QUEUED')
   })
   it('config changes discard in-flight data and preserve paused state',async()=>{
     let finish!:(value:typeof result)=>void
@@ -164,7 +164,7 @@ describe('PostgreSQL discovery isolation and leases',()=>{
     await run(vi.fn(async()=>result))
     expect((await db.affiliateDiscovery.findUniqueOrThrow({where:{segmentId:other.id}})).status).toBe('QUEUED')
     const previous=await db.affiliateDiscovery.findUniqueOrThrow({where:{segmentId}})
-    expect(await queueAffiliateDiscovery(db,tenantId,actorId,segmentId)).toMatchObject({status:'READY'})
+    expect(await queueAffiliateDiscovery(db,tenantId,actorId,segmentId)).toMatchObject({status:'QUEUED'})
     expect((await db.affiliateDiscovery.findUniqueOrThrow({where:{segmentId}})).nextRunAt).toEqual(previous.nextRunAt)
     const search=vi.fn(async()=>result);expect(await run(search)).toBe(0);expect(search).not.toHaveBeenCalled()
   })
@@ -175,7 +175,7 @@ describe('PostgreSQL discovery isolation and leases',()=>{
     expect((await db.affiliateDiscovery.findUniqueOrThrow({where:{segmentId}})).status).toBe('QUEUED')
     await db.affiliateDiscovery.update({where:{segmentId},data:{nextRunAt:new Date(0)}})
     await run(search)
-    expect(search).toHaveBeenLastCalledWith(db,tenantId,'Natal',{offset:0})
-    expect((await db.affiliateDiscovery.findUniqueOrThrow({where:{segmentId}})).status).toBe('READY')
+    expect(search).toHaveBeenLastCalledWith(db,tenantId,'Camiseta masculina',{offset:0})
+    expect((await db.affiliateDiscovery.findUniqueOrThrow({where:{segmentId}})).status).toBe('QUEUED')
   })
 })

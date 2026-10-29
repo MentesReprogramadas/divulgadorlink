@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { AffiliateError, groupJid, imageUrl, validInvite } from '@/domain/affiliates/contracts'
+import type { AffiliateInviteReadCache } from './invite-read-cache'
 
 export class AffiliateProviderError extends AffiliateError {
   constructor(public readonly uncertain: boolean, public readonly providerStatus?: number) {
@@ -12,7 +13,7 @@ const remoteGroup = z.object({
 }).refine(row => row.size !== undefined || row.participants !== undefined)
 export type WhatsAppGroup = { jid:string; name:string; participantCount:number; description:string; imageUrl:string|null }
 export interface AffiliateWhatsApp {
-  status?():Promise<{state:string}>
+  status?(options?:{fresh:true}):Promise<{state:string}>
   group(jid:string):Promise<WhatsAppGroup>
   groups():Promise<WhatsAppGroup[]>
   invite(jid:string):Promise<string>
@@ -28,7 +29,7 @@ function parseGroup(value: unknown):WhatsAppGroup {
   return {jid:row.data.id,name:row.data.subject,participantCount:row.data.size ?? row.data.participants!.length,description:row.data.desc ?? '',imageUrl:row.data.pictureUrl ?? null}
 }
 export class AffiliateEvolution implements AffiliateWhatsApp {
-  constructor(private readonly config:{baseUrl:string;apiKey:string;instance:string;ownerPhone?:string|null}, private readonly transport:typeof fetch = fetch) {}
+  constructor(private readonly config:{baseUrl:string;apiKey:string;instance:string;ownerPhone?:string|null}, private readonly transport:typeof fetch = fetch, private readonly inviteCache?:AffiliateInviteReadCache) {}
   private async request(path:string,body?:unknown,uncertain=false):Promise<unknown> {
     if (!this.config.apiKey || !this.config.baseUrl) throw new AffiliateError(503,'Configure o servidor Evolution para afiliados.')
     const base = new URL(this.config.baseUrl)
@@ -73,9 +74,13 @@ export class AffiliateEvolution implements AffiliateWhatsApp {
     return data.map(parseGroup)
   }
   async invite(jid:string) {
+    const cached=await this.inviteCache?.get('invite:'+jid)
+    if(cached){try{return validInvite(cached)}catch{/* Invalid cached data must not become a redirect. */}}
     const data = z.object({inviteUrl:z.string().optional(),inviteCode:z.string().optional()}).safeParse(await this.request(this.path('group/inviteCode',jid)))
     if (!data.success) throw new AffiliateProviderError(false)
-    return validInvite(data.data.inviteUrl ?? data.data.inviteCode)
+    const url=validInvite(data.data.inviteUrl ?? data.data.inviteCode)
+    await this.inviteCache?.set('invite:'+jid,url,30)
+    return url
   }
   async create(name:string,description:string) {
     if (!this.config.ownerPhone || !/^\d{10,15}$/.test(this.config.ownerPhone)) throw new AffiliateError(409,'Informe o WhatsApp do participante inicial antes de criar grupos automaticamente.')
@@ -108,8 +113,10 @@ export class AffiliateEvolution implements AffiliateWhatsApp {
     if (!parsed.success) throw new AffiliateProviderError(true)
     return parsed.data.key.id
   }
-  async status() {
+  async status(options?:{fresh:true}) {
+    if(!options?.fresh&&await this.inviteCache?.get('open')==='1')return {state:'open'}
     const value = z.object({instance:z.object({state:z.enum(['open','close','connecting'])})}).safeParse(await this.request(this.path('instance/connectionState')))
+    if(value.success&&value.data.instance.state==='open')await this.inviteCache?.set('open','1',5)
     return {state:value.success?value.data.instance.state:'unknown'}
   }
   async connect() {

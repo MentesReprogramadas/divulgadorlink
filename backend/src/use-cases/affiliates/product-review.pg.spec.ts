@@ -13,7 +13,7 @@ const db=new PrismaClient({datasourceUrl:url}),tenantId=randomUUID(),otherTenant
 let segmentId:string,instanceId:string,groupId:string
 const baseProduct=()=>({id:'MLB123456',catalogId:'MLB123',title:'Árvore de Natal verde',productUrl:'https://www.mercadolivre.com.br/p/MLB123?wid=MLB123456',priceCents:2590,oldPriceCents:3990,imageUrl:'https://http2.mlstatic.com/fixture.jpg',checkedAt:new Date().toISOString(),oldPriceSource:'MERCADO_LIVRE' as const,reputation:{status:'GREEN' as const,level:'5_green'}})
 const candidate=()=>{const product=baseProduct();return {...product,evaluation:evaluateAffiliateProduct(product,[]),sourceTerm:'Natal',sourcePage:1}}
-const ports=()=>({candidate:vi.fn(async()=>({...candidate(),priceCents:2990})),refresh:vi.fn(async()=>candidate()),link:vi.fn(async()=>({url:'https://meli.la/fixture',fullUrl:'https://www.mercadolivre.com.br/social/test?matt_word=test&matt_tool=test&ref=test',tag:'test',profile:'test'})),title:vi.fn(async()=>({title:'Árvore de Natal verde',source:'OPENAI' as const}))})
+const ports=()=>({candidate:vi.fn(async()=>({...candidate(),priceCents:2990})),refresh:vi.fn(async()=>candidate()),link:vi.fn(async()=>({url:'https://meli.la/fixture',fullUrl:'https://www.mercadolivre.com.br/social/test?matt_word=test&matt_tool=test&ref=test',tag:'test',profile:'test'})),title:vi.fn(async()=>({title:'Árvore de Natal verde',headline:'Uma árvore de Natal para sua sala 🎄',source:'OPENAI' as const}))})
 const preview=()=>previewAffiliateProduct(db,tenantId,actorId,segmentId,'MLB123456',ports())
 beforeAll(async()=>{
   await db.tenant.createMany({data:[{id:tenantId,host:tenantId+'.test',name:'Review fixture'},{id:otherTenant,host:otherTenant+'.test',name:'Other fixture'}]})
@@ -33,8 +33,9 @@ afterAll(async()=>{
 describe('prévia e envio único no PostgreSQL',()=>{
   it('envia exatamente o título e a mensagem regenerados; prévia anterior não reaprova produto enviado',async()=>{
     const initial=await preview(),dependencies=ports()
-    dependencies.title.mockResolvedValue({title:'Árvore verde de Natal',source:'OPENAI'})
+    dependencies.title.mockResolvedValue({title:'Árvore verde de Natal',headline:'Sua sala com uma árvore de Natal 🎄',source:'OPENAI'})
     const regenerated=await regenerateAffiliateProductTitle(db,tenantId,actorId,segmentId,initial.previewToken,dependencies)
+    expect(regenerated.message.startsWith('Sua sala com uma árvore de Natal 🎄\n*Árvore verde de Natal*')).toBe(true)
     const sent=await sendAffiliateProduct(db,tenantId,actorId,segmentId,regenerated.previewToken)
     expect(dependencies.refresh).not.toHaveBeenCalled();expect(dependencies.link).not.toHaveBeenCalled()
     expect((await db.affiliateBroadcast.findUniqueOrThrow({where:{id:sent.broadcastId}})).message).toBe(regenerated.message)

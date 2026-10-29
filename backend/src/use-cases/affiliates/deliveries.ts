@@ -11,7 +11,7 @@ export async function scheduleAffiliateBroadcast(db:PrismaClient,tenantId:string
 export const affiliateEligibleGroupWhere=(tenantId:string,segmentId:string):Prisma.AffiliateGroupWhereInput=>({tenantId,segmentId,enabled:true,OR:[{segment:{instanceLinks:{some:{instance:{enabled:true}}}}},{segment:{instanceLinks:{none:{}}},instance:{enabled:true}}]})
 export const affiliateGroupFingerprint=(groups:Array<{id:string}>)=>createHash('sha256').update(groups.map(group=>group.id).sort().join(',')).digest('hex')
 
-export async function approveAffiliateBroadcast(tx:Prisma.TransactionClient,tenantId:string,actorId:string,offerId:string,input:{idempotencyKey:string;scheduledAt?:string;expectedGroupHash?:string}) {
+export async function approveAffiliateBroadcast(tx:Prisma.TransactionClient,tenantId:string,actorId:string,offerId:string,input:{idempotencyKey:string;scheduledAt?:string;expectedGroupHash?:string;approvedMessage?:string}) {
     await tx.$queryRaw`SELECT id FROM affiliate_offers WHERE id = ${offerId} AND "tenantId" = ${tenantId} FOR UPDATE`
     const old = await tx.affiliateBroadcast.findUnique({where:{tenantId_idempotencyKey:{tenantId,idempotencyKey:input.idempotencyKey}}})
     if (old) {if(old.offerId !== offerId) throw new AffiliateError(409,'Esta chave já pertence a outra oferta.');return old}
@@ -25,7 +25,8 @@ export async function approveAffiliateBroadcast(tx:Prisma.TransactionClient,tena
     const groups = await tx.affiliateGroup.findMany({where:affiliateEligibleGroupWhere(tenantId,offer.segmentId)})
     if(input.expectedGroupHash && affiliateGroupFingerprint(groups)!==input.expectedGroupHash) throw new AffiliateError(409,'Os grupos de destino mudaram. Atualize a prévia para revisar os destinatários.')
     if (!groups.length) throw new AffiliateError(409,'Conecte ao menos um grupo ativo à segmentação.')
-    const broadcast = await tx.affiliateBroadcast.create({data:{tenantId,segmentId:offer.segmentId,offerId,idempotencyKey:input.idempotencyKey,message:offerMessage(offer),offerUpdatedAt:offer.updatedAt,imageUrl:offer.imageUrl,productSnapshot:{title:offer.title,priceCents:offer.priceCents,oldPriceCents:offer.oldPriceCents,imageUrl:offer.imageUrl,affiliateUrl:offer.affiliateUrl},scheduledAt}})
+    // product-review validates approvedMessage against its signed preview before entering this function.
+    const broadcast = await tx.affiliateBroadcast.create({data:{tenantId,segmentId:offer.segmentId,offerId,idempotencyKey:input.idempotencyKey,message:input.approvedMessage??offerMessage(offer),offerUpdatedAt:offer.updatedAt,imageUrl:offer.imageUrl,productSnapshot:{title:offer.title,priceCents:offer.priceCents,oldPriceCents:offer.oldPriceCents,imageUrl:offer.imageUrl,affiliateUrl:offer.affiliateUrl},scheduledAt}})
     await tx.affiliateDelivery.createMany({data:groups.map(group=>({tenantId,broadcastId:broadcast.id,groupId:group.id,nextAttemptAt:scheduledAt}))})
     await tx.auditLog.create({data:{tenantId,actorId,action:'affiliate.broadcast.approved',entityType:'AffiliateBroadcast',entityId:broadcast.id,after:{groups:groups.length,scheduledAt:scheduledAt.toISOString()}}})
     return broadcast

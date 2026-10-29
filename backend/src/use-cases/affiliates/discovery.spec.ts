@@ -1,6 +1,8 @@
 import type { PrismaClient } from '@prisma/client'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { affiliateDiscoveryState, discoveryConfigSchema, mergeDiscoveryProducts, runAffiliateDiscovery } from './discovery'
+import { planAffiliateDiscoveryTerms } from '@/domain/affiliates/discovery-terms'
+import { expandAffiliateTerms } from '@/adapters/affiliates/openai-intelligence'
 vi.mock('@/adapters/affiliates/openai-intelligence',()=>({expandAffiliateTerms:vi.fn(async(topic:string)=>[topic]),generateAffiliateTitle:vi.fn()}))
 import { AffiliateCatalogError, type CatalogProduct } from '@/domain/affiliates/mercado-livre'
 
@@ -58,8 +60,28 @@ describe('descoberta automática',()=>{
   it('persists expanded terms before provider failure without losing explicitly configured seeds',async()=>{
     const {mocks,db}=fixture();mocks.find.mockResolvedValue({...row,expandedTerms:[],cursor:0} as never)
     await runAffiliateDiscovery(db,vi.fn(async()=>{throw new AffiliateCatalogError(403,'Denied')}))
-    expect(mocks.update.mock.calls[1][0]).toMatchObject({data:{expandedTerms:['Natal','Presentes']}})
+    expect(mocks.update.mock.calls[1][0]).toMatchObject({data:{expandedTerms:planAffiliateDiscoveryTerms(['Natal','Presentes'])}})
     expect(mocks.update.mock.calls[2][0]).toMatchObject({data:{status:'ERROR',error:'Denied'}})
+  })
+  it('inicializa Natal com presentes diversos mesmo se a IA falhar e consulta só uma página por execução',async()=>{
+    const {mocks,db}=fixture()
+    mocks.find.mockResolvedValue({...row,terms:[],expandedTerms:[],cursor:0,pageCursors:{}} as never)
+    vi.mocked(expandAffiliateTerms).mockRejectedValueOnce(new Error('AI unavailable'))
+    const search=vi.fn(async()=>result)
+    await runAffiliateDiscovery(db,search)
+    expect(search).toHaveBeenCalledExactlyOnceWith(db,'tenant','Natal',{offset:0})
+    expect(mocks.update.mock.calls[1][0]).toMatchObject({data:{expandedTerms:planAffiliateDiscoveryTerms(['Natal'])}})
+    expect(mocks.update.mock.calls[2][0]).toMatchObject({data:{status:'QUEUED',cursor:1,pageCursors:{Natal:2}}})
+  })
+  it('rotaciona todos os termos ampliados antes de avançar suas páginas sem nova chamada à IA',async()=>{
+    const {mocks,db}=fixture(),terms=planAffiliateDiscoveryTerms(['Presentes de Natal','Decoração de Natal'])
+    mocks.find.mockResolvedValue({...row,terms:['Presentes de Natal','Decoração de Natal'],expandedTerms:terms,cursor:terms.length-1,pageCursors:{[terms.at(-1)!]:3}} as never)
+    vi.mocked(db.affiliateDiscoveryPage.findMany).mockResolvedValue(terms.map(term=>({term})) as never)
+    const search=vi.fn(async()=>result)
+    await runAffiliateDiscovery(db,search)
+    expect(search).toHaveBeenCalledExactlyOnceWith(db,'tenant',terms.at(-1),{offset:40})
+    expect(expandAffiliateTerms).not.toHaveBeenCalled()
+    expect(mocks.update.mock.calls[1][0]).toMatchObject({data:{status:'READY',cursor:0,pageCursors:{[terms.at(-1)!]:4}}})
   })
   it('valida termos limitados e rejeita campos inesperados',()=>{
     expect(discoveryConfigSchema.parse({enabled:true,terms:[]})).toEqual({enabled:true,terms:[]})

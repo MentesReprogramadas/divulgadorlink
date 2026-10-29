@@ -22,29 +22,29 @@ it('rejects invented title words and preserves original on unavailable AI',async
 it('asks for literal deduplication and accepts a shorter objective title without synonym facts',async()=>{
   vi.stubEnv('OPENAI_API_KEY','test-never-real')
   const product={id:'MLB1',catalogId:'MLB2',title:'Chaveiro, chaveiro, Natal, Natal, santo Natal, sortimento',productUrl:'https://www.mercadolivre.com.br',priceCents:1000,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}
-  const fetcher=vi.fn<typeof fetch>(async()=>response({title:'Chaveiro de Natal sortimento'}))
-  expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher)).toEqual({title:'Chaveiro de Natal sortimento',source:'OPENAI'})
+  const fetcher=vi.fn<typeof fetch>(async()=>response({title:'Chaveiro de Natal sortimento',headline:'Um chaveiro de Natal para presentear ✨'}))
+  expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher)).toEqual({title:'Chaveiro de Natal sortimento',headline:'Um chaveiro de Natal para presentear ✨',source:'OPENAI'})
   const body=JSON.parse(String(fetcher.mock.calls[0]?.[1]?.body))
   expect(body.messages[0].content).toContain('Não use sinônimos, flexões ou derivações')
   expect(body.messages[0].content).toContain('sortimento não pode virar sortido')
   expect(body.messages[0].content).toContain('remover repetições')
-  expect(body.messages[1]).toEqual({role:'user',content:product.title})
+  expect(body.messages[1]).toEqual({role:'user',content:[{type:'text',text:JSON.stringify({originalTitle:product.title})}]})
 })
 it('regenerates without the title cache, excludes the previous title and rejects repeated or invented output',async()=>{
   vi.stubEnv('OPENAI_API_KEY','test-never-real')
   const product={id:'MLB1',catalogId:'MLB2',title:'Luminária USB branca regeneração',productUrl:'https://www.mercadolivre.com.br',priceCents:1000,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}
   const fetcher=vi.fn<typeof fetch>()
-    .mockResolvedValueOnce(response({title:'Luminária branca USB'}))
-    .mockResolvedValueOnce(response({title:'USB Luminária branca'}))
-    .mockResolvedValueOnce(response({title:'Luminária USB branca'}))
-    .mockResolvedValueOnce(response({title:'Luminária USB barata'}))
-  const generate=()=>generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher,'Luminária USB branca')
+    .mockResolvedValueOnce(response({title:'Luminária branca USB',headline:'Uma luminária para sua casa ✨'}))
+    .mockResolvedValueOnce(response({title:'USB Luminária branca',headline:'Confira uma luminária para sua sala ✨'}))
+    .mockResolvedValueOnce(response({title:'Luminária USB branca',headline:'Uma luminária para sua rotina ✨'}))
+    .mockResolvedValueOnce(response({title:'Luminária USB barata',headline:'Confira uma luminária ✨'}))
+  const generate=()=>generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher,{title:'Luminária USB branca',headline:'Uma luminária para sua rotina ✨'})
   expect(await generate()).toMatchObject({source:'OPENAI',title:'Luminária branca USB'})
   expect(await generate()).toMatchObject({source:'OPENAI',title:'USB Luminária branca'})
   expect(await generate()).toMatchObject({source:'ORIGINAL'})
   expect(await generate()).toMatchObject({source:'ORIGINAL'})
   expect(fetcher).toHaveBeenCalledTimes(4)
-  expect(JSON.parse(String(fetcher.mock.calls[0]?.[1]?.body)).messages[1].content).toContain('previousTitle')
+  expect(JSON.parse(String(fetcher.mock.calls[0]?.[1]?.body)).messages[1].content[0].text).toContain('previousCopy')
 })
 it('preserves qualified product facts instead of changing sem WiFi into com WiFi',async()=>{
   vi.stubEnv('OPENAI_API_KEY','test-never-real')
@@ -60,4 +60,49 @@ it('rejects output containing no product words',async()=>{
   vi.stubEnv('OPENAI_API_KEY','test-never-real')
   const product={id:'MLB1',catalogId:'MLB2',title:'Câmera digital fixture emoji',productUrl:'https://www.mercadolivre.com.br',priceCents:1000,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}
   expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,vi.fn(async()=>response({title:'🔥🔥🔥'})))).toEqual({title:product.title,source:'ORIGINAL'})
+})
+
+it('creates a natural headline from original title and a trusted product image',async()=>{
+  vi.stubEnv('OPENAI_API_KEY','test-never-real')
+  const product={id:'MLB1',catalogId:'MLB2',title:'Árvore de Natal 180 cm',productUrl:'https://www.mercadolivre.com.br',priceCents:1000,oldPriceCents:null,imageUrl:'https://http2.mlstatic.com/tree-copy-fixture.jpg',checkedAt:new Date().toISOString()}
+  const fetcher=vi.fn<typeof fetch>(async()=>response({title:'Árvore de Natal 180 cm',headline:'Uma árvore de Natal para sua sala 🎄'}))
+  expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher)).toEqual({title:product.title,headline:'Uma árvore de Natal para sua sala 🎄',source:'OPENAI'})
+  const body=JSON.parse(String(fetcher.mock.calls[0]?.[1]?.body))
+  expect(body.messages[1].content).toEqual([{type:'text',text:expect.stringContaining(product.title)},{type:'image_url',image_url:{url:product.imageUrl,detail:'low'}}])
+  expect(body.messages[0].content).toContain('A imagem não comprova medidas')
+})
+
+it('rejects unverified headline facts, hype and hostile images before model input',async()=>{
+  vi.stubEnv('OPENAI_API_KEY','test-never-real')
+  const product={id:'MLB1',catalogId:'MLB2',title:'Árvore de Natal 180 cm copy guard',productUrl:'https://www.mercadolivre.com.br',priceCents:1000,oldPriceCents:null,imageUrl:'https://http2.mlstatic.com.evil.test/tree.jpg',checkedAt:new Date().toISOString()}
+  for(const headline of ['Uma árvore de Natal de madeira 🎄','Árvore de Natal 210 cm 🎄','Últimas unidades de árvore de Natal 🎄','Uma árvore incrível de Natal 🎄']) {
+    const fetcher=vi.fn<typeof fetch>(async()=>response({title:product.title,headline}))
+    expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher,headline)).toMatchObject({source:'ORIGINAL',title:product.title})
+    expect(JSON.parse(String(fetcher.mock.calls[0]?.[1]?.body)).messages[1].content).not.toContainEqual(expect.objectContaining({type:'image_url'}))
+  }
+})
+
+it('regenerates the headline while keeping the objective identity unchanged',async()=>{
+  vi.stubEnv('OPENAI_API_KEY','test-never-real')
+  const product={id:'MLB1',catalogId:'MLB2',title:'Árvore de Natal 180 cm repeat copy',productUrl:'https://www.mercadolivre.com.br',priceCents:1000,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}
+  const previous={title:'Árvore de Natal 180 cm',headline:'Uma árvore de Natal para sua sala 🎄'}
+  const fetcher=vi.fn<typeof fetch>(async()=>response({...previous,headline:'Sua sala com uma árvore de Natal 🎄'}))
+  expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher,previous)).toEqual({title:previous.title,headline:'Sua sala com uma árvore de Natal 🎄',source:'OPENAI'})
+})
+
+it('keeps units and measurements in the objective identity and refuses incomplete model output',async()=>{
+  vi.stubEnv('OPENAI_API_KEY','test-never-real')
+  const product={id:'MLB1',catalogId:'MLB2',title:'Árvore de Natal 180 cm unidade',productUrl:'https://www.mercadolivre.com.br',priceCents:1000,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}
+  for(const output of [{title:'Árvore de Natal 180',headline:'Uma árvore para sua sala 🎄'},{title:'Árvore de Natal 180 cm'}]) {
+    expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,vi.fn(async()=>response(output)),'retry')).toMatchObject({source:'ORIGINAL',title:product.title})
+  }
+})
+
+it('accepts natural gift contexts without inventing product properties',async()=>{
+  vi.stubEnv('OPENAI_API_KEY','test-never-real')
+  for(const [title,headline] of [['Tênis feminino','Um tênis para acompanhar sua rotina 👟'],['Brinquedo','Um brinquedo para momentos de diversão 🎁'],['Presente','Um presente para quem você ama 🎁']]) {
+    const product={id:'MLB1',catalogId:'MLB2',title,productUrl:'https://www.mercadolivre.com.br',priceCents:1000,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}
+    expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,vi.fn(async()=>response({title,headline})),'retry')).toEqual({title,headline,source:'OPENAI'})
+    expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,vi.fn(async()=>response({title,headline:headline+' resistente'})),'retry')).toMatchObject({source:'ORIGINAL'})
+  }
 })

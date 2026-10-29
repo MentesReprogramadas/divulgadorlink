@@ -11,7 +11,7 @@ import { affiliateEligibleGroupWhere, affiliateGroupFingerprint, approveAffiliat
 const itemIdSchema = z.string().regex(/^MLB\d+$/).max(40)
 const previewSchema = z.object({
   version:z.literal(1),id:z.uuid(),tenantId:z.string(),actorId:z.string(),segmentId:z.string(),segmentRevision:z.string(),affiliateRevision:z.string(),
-  expiresAt:z.number().int(),title:z.string().min(3).max(250),productUrl:marketUrl,affiliateUrl:marketUrl,
+  expiresAt:z.number().int(),title:z.string().min(3).max(250),headline:z.string().min(8).max(140).optional(),productUrl:marketUrl,affiliateUrl:marketUrl,
   itemId:itemIdSchema,priceCents:z.number().int().positive().max(100_000_000),oldPriceCents:z.number().int().positive().max(100_000_000).nullable(),imageUrl,
   checkedAt:z.iso.datetime(),message:z.string().min(1).max(4000),
   groupHash:z.string().regex(/^[a-f0-9]{64}$/),
@@ -50,10 +50,11 @@ export async function previewAffiliateProduct(db:PrismaClient,tenantId:string,ac
   if(!current || current.updatedAt.getTime()!==segment.updatedAt.getTime() || revisionAfter!==revision) throw new AffiliateError(409,'A segmentação ou a conta de afiliados mudou. Atualize a prévia.')
   const checkedAt=new Date(product.checkedAt),now=Date.now()
   if(!Number.isFinite(checkedAt.getTime()) || checkedAt.getTime()>now || now-checkedAt.getTime()>5*60_000) throw new AffiliateError(409,'Não foi possível confirmar um preço recente. Atualize a prévia.')
-  const message=offerMessage({...product,title:generated.title,affiliateUrl:link.url,note:''})
-  const payload=previewSchema.parse({version:1,id:randomUUID(),tenantId,actorId,segmentId,segmentRevision:current.updatedAt.toISOString(),affiliateRevision:revision,expiresAt:now+5*60_000,title:generated.title,productUrl:product.productUrl,affiliateUrl:link.url,itemId,priceCents:product.priceCents,oldPriceCents:product.oldPriceCents,imageUrl:product.imageUrl,checkedAt:product.checkedAt,message,groupHash:affiliateGroupFingerprint(groups)})
+  const headline=generated.headline??'Confira esta opção para você ✨'
+  const message=offerMessage({...product,title:generated.title,headline,affiliateUrl:link.url,note:''})
+  const payload=previewSchema.parse({version:1,id:randomUUID(),tenantId,actorId,segmentId,segmentRevision:current.updatedAt.toISOString(),affiliateRevision:revision,expiresAt:now+5*60_000,title:generated.title,headline,productUrl:product.productUrl,affiliateUrl:link.url,itemId,priceCents:product.priceCents,oldPriceCents:product.oldPriceCents,imageUrl:product.imageUrl,checkedAt:product.checkedAt,message,groupHash:affiliateGroupFingerprint(groups)})
   const body=Buffer.from(JSON.stringify(payload)).toString('base64url'),previewToken=body+'.'+signature(body)
-  return {previewToken,expiresAt:new Date(payload.expiresAt).toISOString(),product,title:generated.title,titleSource:generated.source,message,affiliateUrl:link.url,fullUrl:link.fullUrl,destinations:{segmentId,name:current.name,groups,count:groups.length},analysis:product.evaluation,priceChanged:candidate.priceCents!==product.priceCents}
+  return {previewToken,expiresAt:new Date(payload.expiresAt).toISOString(),product,title:generated.title,headline,titleSource:generated.source,message,affiliateUrl:link.url,fullUrl:link.fullUrl,destinations:{segmentId,name:current.name,groups,count:groups.length},analysis:product.evaluation,priceChanged:candidate.priceCents!==product.priceCents}
 }
 
 export async function regenerateAffiliateProductTitle(db:PrismaClient,tenantId:string,actorId:string,segmentId:string,token:string,ports=defaults) {
@@ -73,13 +74,14 @@ export async function regenerateAffiliateProductTitle(db:PrismaClient,tenantId:s
   await validate()
   const candidate=await ports.candidate(db,tenantId,segmentId,preview.itemId)
   if(candidate.id!==preview.itemId || affiliateSellerUrl(candidate.productUrl).href!==affiliateSellerUrl(preview.productUrl).href) throw new AffiliateError(409,'O anúncio mudou. Abra o produto novamente.')
-  const generated=await ports.title(db,tenantId,candidate,undefined,preview.title)
-  if(generated.source!=='OPENAI' || generated.title===preview.title) throw new AffiliateError(503,'A IA não conseguiu gerar outro título. A prévia anterior foi mantida. Tente novamente.')
+  const generated=await ports.title(db,tenantId,candidate,undefined,{title:preview.title,headline:preview.headline})
+  if(generated.source!=='OPENAI' || (generated.title===preview.title && (!generated.headline || generated.headline===preview.headline))) throw new AffiliateError(503,'A IA não conseguiu gerar outra chamada. A prévia anterior foi mantida. Tente novamente.')
   await validate()
-  const message=offerMessage({...preview,title:generated.title,note:''})
-  const payload=previewSchema.parse({...preview,id:randomUUID(),title:generated.title,message})
+  const headline=generated.headline??preview.headline
+  const message=offerMessage({...preview,title:generated.title,headline,note:''})
+  const payload=previewSchema.parse({...preview,id:randomUUID(),title:generated.title,headline,message})
   const body=Buffer.from(JSON.stringify(payload)).toString('base64url')
-  return {previewToken:body+'.'+signature(body),title:payload.title,titleSource:generated.source,message,expiresAt:new Date(payload.expiresAt).toISOString()}
+  return {previewToken:body+'.'+signature(body),title:payload.title,headline,titleSource:generated.source,message,expiresAt:new Date(payload.expiresAt).toISOString()}
 }
 
 export async function sendAffiliateProduct(db:PrismaClient,tenantId:string,actorId:string,segmentId:string,token:string) {
@@ -94,8 +96,8 @@ export async function sendAffiliateProduct(db:PrismaClient,tenantId:string,actor
     if(await affiliateRevision(tx,tenantId)!==preview.affiliateRevision) throw new AffiliateError(409,'A conta de afiliados mudou. Atualize a prévia antes de enviar.')
     if(await tx.affiliateProductDecision.findUnique({where:{tenantId_segmentId_itemId:{tenantId,segmentId,itemId:preview.itemId}}})) throw new AffiliateError(409,'Este produto já foi enviado ou descartado nesta segmentação.')
     const offer=await tx.affiliateOffer.create({data:{tenantId,segmentId,title:preview.title,productUrl:preview.productUrl,affiliateUrl:preview.affiliateUrl,priceCents:preview.priceCents,oldPriceCents:preview.oldPriceCents,imageUrl:preview.imageUrl,note:'',checkedAt:new Date(preview.checkedAt)}})
-    if(offerMessage(offer)!==preview.message) throw new AffiliateError(409,'A mensagem mudou. Atualize a prévia antes de enviar.')
-    const broadcast=await approveAffiliateBroadcast(tx,tenantId,actorId,offer.id,{idempotencyKey:preview.id,expectedGroupHash:preview.groupHash})
+    if(offerMessage({...offer,headline:preview.headline})!==preview.message) throw new AffiliateError(409,'A mensagem mudou. Atualize a prévia antes de enviar.')
+    const broadcast=await approveAffiliateBroadcast(tx,tenantId,actorId,offer.id,{idempotencyKey:preview.id,expectedGroupHash:preview.groupHash,approvedMessage:preview.message})
     await tx.affiliateProductDecision.create({data:{tenantId,segmentId,itemId:preview.itemId,decision:'SENT',reason:'Envio aprovado pelo administrador.',actorId,broadcastId:broadcast.id,priceCents:preview.priceCents}})
     const groups=await tx.affiliateDelivery.count({where:{tenantId,broadcastId:broadcast.id}})
     return {broadcastId:broadcast.id,offerId:offer.id,groups}

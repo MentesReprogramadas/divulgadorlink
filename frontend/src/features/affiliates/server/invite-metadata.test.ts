@@ -2,6 +2,7 @@ import { afterEach, expect, it, vi } from 'vitest'
 import { loadCatalog } from '@/lib/catalog-page'
 import { forward } from '@/lib/upstream'
 import { inviteMetadata } from './invite-metadata'
+import Page from '@/app/ofertas/entrar/[slug]/page'
 import { GET } from '@/app/ofertas/entrar/[slug]/imagem/route'
 
 vi.mock('next/headers', () => ({ headers: async () => new Headers({ host: 'temlinkaqui.com' }) }))
@@ -34,4 +35,12 @@ it('serve bytes da foto sem cookies ou autenticação e preserva indisponibilida
   expect(forward).toHaveBeenCalledWith({ method: 'GET', path: '/api/v1/public/affiliates/natal/preview-image', host: 'temlinkaqui.com', timeoutMs: 10000 })
   vi.mocked(forward).mockResolvedValue({ status: 404, headers: {}, body: Buffer.from('{}') })
   expect((await GET(new Request('https://temlinkaqui.com'), { params: Promise.resolve({ slug: 'natal' }) })).status).toBe(404)
+})
+
+it('hidrata o convite com dados públicos do servidor e mantém retry se a API falhar',async()=>{
+  vi.mocked(loadCatalog).mockResolvedValue({status:200,body:{name:'Natal',description:'Presentes',available:true,joinMode:'REDIRECT',imageUrl:'/avatar.jpg',secret:'private'}})
+  const page=await Page({params:Promise.resolve({slug:'natal'})})
+  expect(page.props).toEqual({slug:'natal',initialSegment:{name:'Natal',description:'Presentes',available:true,joinMode:'REDIRECT',imageUrl:'/avatar.jpg'}})
+  vi.mocked(loadCatalog).mockRejectedValue(new Error('offline'))
+  expect((await Page({params:Promise.resolve({slug:'natal'})})).props.initialSegment).toBeUndefined()
 })

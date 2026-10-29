@@ -74,6 +74,39 @@ describe('PostgreSQL afiliados',()=>{
     await db.affiliateSegmentInstance.createMany({data:[{tenantId,segmentId,instanceId},{tenantId,segmentId,instanceId:second.id}]})
     return second
   }
+  it('convite quente ainda verifica capacidade real e não devolve grupo cheio',async()=>{
+    await db.affiliateSegment.update({where:{id:segmentId},data:{autoExpand:false}})
+    const port={...remote(),status:vi.fn(async()=>({state:'open'}))}
+    await joinAffiliateSegment(db,tenantId,'natal',()=>port)
+    port.invite.mockClear();port.group.mockImplementation(async jid=>({jid,name:'Natal #1',participantCount:10,description:'',imageUrl:null}))
+    await expect(joinAffiliateSegment(db,tenantId,'natal',()=>port)).rejects.toMatchObject({status:409})
+    expect(port.invite).not.toHaveBeenCalled();expect(port.create).not.toHaveBeenCalled()
+  })
+  it('pausa durante retorno de convite em cache continua bloqueando o destino',async()=>{
+    const port={...remote(),status:vi.fn(async()=>({state:'open'}))}
+    port.invite.mockImplementation(async()=>{await db.affiliateGroup.updateMany({where:{tenantId,segmentId},data:{enabled:false}});return 'https://chat.whatsapp.com/AbCdEf0123456789AbCdEf'})
+    await expect(joinAffiliateSegment(db,tenantId,'natal',()=>port)).rejects.toMatchObject({status:409})
+    expect(port.create).not.toHaveBeenCalled()
+  })
+  it('convite quente troca conexão após falha de acesso ao grupo',async()=>{
+    await connectSecond()
+    const primary={...remote(),status:vi.fn(async()=>({state:'open'}))},backup={...remote(),status:vi.fn(async()=>({state:'open'}))}
+    primary.group.mockRejectedValue(new AffiliateProviderError(false,403))
+    expect(await joinAffiliateSegment(db,tenantId,'natal',instance=>instance.id===instanceId?primary:backup)).toHaveProperty('url')
+    expect(primary.invite).not.toHaveBeenCalled();expect(backup.invite).toHaveBeenCalledOnce()
+    expect(primary.create).not.toHaveBeenCalled();expect(backup.create).not.toHaveBeenCalled()
+  })
+  it('expansão ignora sessão aberta em cache e escolhe reserva realmente conectada',async()=>{
+    const second=await connectSecond()
+    await db.affiliateSegmentInstance.updateMany({where:{tenantId,segmentId,instanceId},data:{lastUsedAt:new Date(0)}})
+    await db.affiliateSegmentInstance.updateMany({where:{tenantId,segmentId,instanceId:second.id},data:{lastUsedAt:new Date(1)}})
+    const primary={...remote(),status:vi.fn(async(options?:{fresh:true})=>({state:options?.fresh?'close':'open'}))},backup={...remote(),status:vi.fn(async()=>({state:'open'}))}
+    primary.group.mockImplementation(async jid=>({jid,name:'Natal #1',participantCount:10,description:'Natal para todos',imageUrl:null}))
+    await joinAffiliateSegment(db,tenantId,'natal',instance=>instance.id===instanceId?primary:backup)
+    expect(primary.status).toHaveBeenCalledWith({fresh:true});expect(primary.create).not.toHaveBeenCalled()
+    expect(backup.create).toHaveBeenCalledOnce()
+    expect(await db.affiliateGroup.findFirst({where:{tenantId,jid:'456@g.us'}})).toMatchObject({instanceId:second.id})
+  })
   it('alterna contas selecionadas entre destinos e registra a conexão de envio',async()=>{
     const second=await connectSecond()
     await db.affiliateGroup.create({data:{tenantId,segmentId,instanceId,jid:'999@g.us',name:'Natal #2',sequence:2}})

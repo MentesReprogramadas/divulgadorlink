@@ -8,7 +8,7 @@ import { AffiliateError, entityId, groupJid, offerInput, segmentInput } from '@/
 import { sealWebhookSecret } from '@/lib/webhook-secret'
 import { normalizeTenantHost, resolveTenant } from '@/http/tenant'
 import { AffiliateProviderError } from '@/adapters/affiliates/evolution'
-import { affiliateEvolution, publicInstance } from '@/use-cases/affiliates/instances'
+import { affiliateEvolution, affiliateInviteEvolution, publicInstance } from '@/use-cases/affiliates/instances'
 import { assertAffiliateImage } from '@/use-cases/affiliates/images'
 import { scheduleAffiliateBroadcast, resolveAffiliateDelivery, requestAffiliateDeliveryDrain } from '@/use-cases/affiliates/deliveries'
 import { joinAffiliateSegment, prepareFirstAffiliateGroup, reconcileAffiliateSegment } from '@/use-cases/affiliates/invitations'
@@ -268,7 +268,7 @@ export async function registerAffiliateRoutes(app:FastifyInstance) {
     const {slug}=z.object({slug:segmentInput.shape.slug}).parse(q.params)
     const body=z.object({eventId:z.uuid().optional(),source:z.enum(['AUTOMATIC','BUTTON']).optional()}).strict().refine(value=>Boolean(value.eventId)===Boolean(value.source)).parse(q.body??{})
     if(body.source==='BUTTON') await captureInviteEvent(q,tenantId,slug,body.eventId,'BUTTON_CLICK')
-    const result=await joinAffiliateSegment(prisma,tenantId,slug)
+    const result=await joinAffiliateSegment(prisma,tenantId,slug,affiliateInviteEvolution)
     if(body.source) await captureInviteEvent(q,tenantId,slug,body.eventId,body.source==='AUTOMATIC'?'AUTOMATIC_REDIRECT':'BUTTON_REDIRECT')
     return result
   },true))

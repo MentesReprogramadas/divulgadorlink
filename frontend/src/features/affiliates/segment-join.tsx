@@ -6,8 +6,10 @@ import { Skeleton } from '@/components/feedback/skeleton'
 import { api } from '@/lib/api'
 import styles from './affiliates.module.css'
 
-export function SegmentJoin({ slug }: { slug: string }) {
-  const [segment, setSegment] = useState<{ name: string; description: string; available: boolean; imageUrl?: string | null; joinMode?: 'REDIRECT' | 'SCREEN' } | null>(null), [loading, setLoading] = useState(true)
+export type PublicAffiliateInvite = { name: string; description: string; available: boolean; imageUrl?: string | null; joinMode?: 'REDIRECT' | 'SCREEN' }
+
+export function SegmentJoin({ slug, initialSegment }: { slug: string; initialSegment?:PublicAffiliateInvite }) {
+  const [segment, setSegment] = useState<PublicAffiliateInvite|null>(initialSegment ?? null), [loading, setLoading] = useState(!initialSegment)
   const [pending, setPending] = useState(false), [error, setError] = useState('')
   const [imageFailed, setImageFailed] = useState(false)
   const lock = useRef(false), autoStarted = useRef(false), visitSent = useRef(false)
@@ -17,7 +19,7 @@ export function SegmentJoin({ slug }: { slug: string }) {
     catch (reason) { setError(reason instanceof Error ? reason.message : 'Não foi possível carregar o convite. Tente novamente.') }
     finally { setLoading(false) }
   }, [slug])
-  useEffect(() => { void load() }, [load])
+  useEffect(() => { if(!initialSegment)void load() }, [initialSegment,load])
   useEffect(() => {
     if (!segment || visitSent.current) return
     visitSent.current = true

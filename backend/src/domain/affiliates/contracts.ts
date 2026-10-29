@@ -36,12 +36,12 @@ export const offerInput = z.object({
   imageUrl, note: z.string().trim().max(600).optional(),
   expiresAt: z.iso.datetime().nullable().optional(), checkedAt: z.iso.datetime().optional(),
 }).strict()
-export type OfferMessage = Pick<z.infer<typeof offerInput>, 'title'|'affiliateUrl'|'priceCents'|'oldPriceCents'|'note'>
+export type OfferMessage = Pick<z.infer<typeof offerInput>, 'title'|'affiliateUrl'|'priceCents'|'oldPriceCents'|'note'> & {headline?:string}
 const safeText = (text: string) => text.replace(/[\r\n*_~`]/g, ' ').replace(/\s+/g, ' ').trim()
 const money = (cents: number) => (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 export function offerMessage(offer: OfferMessage) {
   const saving = offer.oldPriceCents && offer.oldPriceCents > offer.priceCents ? offer.oldPriceCents - offer.priceCents : 0
-  const lines = [saving ? '🔥 Olha esse desconto!' : '✨ Um achado para você!', '', `*${safeText(offer.title)}*`, '']
+  const lines = offer.headline ? [safeText(offer.headline), `*${safeText(offer.title)}*`, ''] : [saving ? '🔥 Olha esse desconto!' : '✨ Um achado para você!', '', `*${safeText(offer.title)}*`, '']
   if (saving) lines.push(`De: ~${money(offer.oldPriceCents!)}~`)
   lines.push(`💰 *${money(offer.priceCents)}*`)
   if (saving) {

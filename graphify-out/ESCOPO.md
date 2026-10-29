@@ -224,3 +224,7 @@ Fechamento dos bloqueios do CI de produção:8547 nós/30789 relações, extraç
 Extração incremental final code-only: 11 arquivos reprocessados; 8547 nós/30789 relações. Remove a configuração temporária local de teste do índice. Sem LLM/API ou envio externo. CSS não é modelado; responsividade comprovada por 18 E2E e inspeção de capturas, conforme docs/relatorios/2026-10-29-afiliados-mobile.md.
 
 Fechamento dos bloqueios gerais: filtros usam navegação de documento com restauração de foco/rolagem; sidebar rolável ganha região nomeada e foco. Grafo reextraído incrementalmente sem LLM/API; resultados e limites em docs/relatorios/2026-10-29-afiliados-mobile.md.
+
+## Convite rápido, presentes e copy — 29/10/2026
+
+Consulta dirigida ao grafo confirmada no código; atualização incremental local code-only final: 11 arquivos reprocessados, 8598 nós e 30964 relações. Sem LLM/API, clustering ou envio de código. Removida configuração temporária de teste antes da extração final. Redis, PostgreSQL, CSS, imagens e execução de OpenAI exigem provas próprias; evidências em docs/relatorios/2026-10-29-convite-rapido-presentes-copy.md.

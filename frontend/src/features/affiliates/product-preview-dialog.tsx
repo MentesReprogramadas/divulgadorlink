@@ -44,7 +44,7 @@ export function ProductPreviewDialog({ segmentId, product, onClose, onChanged, r
     const controller = new AbortController(); previewRequest.current = controller
     lock.current = true; setRegenerating(true); setError('')
     try {
-      const result = await affiliateRequest<Pick<ProductPreview, 'previewToken' | 'title' | 'titleSource' | 'message' | 'expiresAt'>>(base + '/preview/title', 'POST', {previewToken: preview.previewToken}, controller.signal)
+      const result = await affiliateRequest<Pick<ProductPreview, 'previewToken' | 'title' | 'headline' | 'titleSource' | 'message' | 'expiresAt'>>(base + '/preview/title', 'POST', {previewToken: preview.previewToken}, controller.signal)
       if (controller.signal.aborted) return
       setPreview({...preview, ...result})
     } catch (reason) {

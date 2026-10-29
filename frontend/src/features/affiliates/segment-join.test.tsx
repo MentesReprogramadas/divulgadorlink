@@ -8,6 +8,24 @@ vi.mock('@/lib/api', () => ({ api: vi.fn() }))
 vi.mock('@/components/ui/liquid-lens', () => ({ LiquidLens: () => null }))
 afterEach(() => { cleanup(); vi.clearAllMocks() })
 
+it('usa os dados já renderizados no servidor sem repetir GET e mantém medição e clique', async()=>{
+  vi.mocked(api).mockImplementation(async path=>path.endsWith('/join')?{status:503,body:{message:'Conferindo vagas'}}:{status:200,body:{ok:true}})
+  render(<StrictMode><SegmentJoin slug="natal" initialSegment={{name:'Natal',description:'',available:true,joinMode:'SCREEN'}} /></StrictMode>)
+  expect(screen.getByRole('heading',{name:'Natal'})).toBeTruthy()
+  await waitFor(()=>expect(vi.mocked(api).mock.calls.filter(([path])=>path.endsWith('/visit'))).toHaveLength(1))
+  expect(vi.mocked(api).mock.calls.filter(([path])=>path.endsWith('/natal'))).toHaveLength(0)
+  fireEvent.click(screen.getByRole('button',{name:'Entrar no grupo de WhatsApp'}))
+  expect((await screen.findByRole('alert')).textContent).toContain('Conferindo vagas')
+})
+
+it('redirecionamento com dados iniciais inicia uma vez e não espera outro GET de metadados',async()=>{
+  vi.mocked(api).mockImplementation(async path=>path.endsWith('/join')?{status:503,body:{message:'Confira a conexão'}}:{status:200,body:{ok:true}})
+  render(<StrictMode><SegmentJoin slug="natal" initialSegment={{name:'Natal',description:'',available:true,joinMode:'REDIRECT'}} /></StrictMode>)
+  expect((await screen.findByRole('alert')).textContent).toContain('Confira a conexão')
+  expect(vi.mocked(api).mock.calls.filter(([path])=>path.endsWith('/natal'))).toHaveLength(0)
+  expect(vi.mocked(api).mock.calls.filter(([path])=>path.endsWith('/join'))).toHaveLength(1)
+})
+
 it('redirecionamento padrão consulta uma vez mesmo em StrictMode e permite repetir falha manualmente', async () => {
   vi.mocked(api).mockImplementation(async path => path.endsWith('/join') ? { status: 503, body: { message: 'WhatsApp indisponível' } } : { status: 200, body: { name: 'Natal', description: '', available: true } })
   render(<StrictMode><SegmentJoin slug="natal" /></StrictMode>)

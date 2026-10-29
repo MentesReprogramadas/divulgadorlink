@@ -33,6 +33,13 @@ describe('contratos de afiliados', () => {
     expect(message).toContain('Preço e estoque podem mudar. Confira as condições na loja.')
     expect(message).not.toContain('Link de afiliado')
   })
+  it('coloca a chamada natural e a identificação objetiva nas primeiras duas linhas',()=>{
+    const message=offerMessage({headline:'Uma árvore de Natal para sua sala 🎄',title:'Árvore de Natal 180 cm',priceCents:2590,oldPriceCents:3990,affiliateUrl:'https://meli.la/abc'})
+    expect(message.split('\n').slice(0,2)).toEqual(['Uma árvore de Natal para sua sala 🎄','*Árvore de Natal 180 cm*'])
+    expect(message).toContain('De: ~R$')
+    expect(message).toContain('https://meli.la/abc')
+    expect(message).toContain('_Preço e estoque podem mudar. Confira as condições na loja._')
+  })
   it('usa copy própria para preço único, sem comparação ou economia inventada',()=>{
     for(const oldPriceCents of [null,999,1099]) {
       const message=offerMessage({title:'Kit de Natal',priceCents:1099,oldPriceCents,affiliateUrl:'https://meli.la/abc'}).replace(/\u00a0/g,' ')

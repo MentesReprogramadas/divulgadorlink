@@ -7,7 +7,7 @@ vi.mock('@/lib/api', () => ({api:vi.fn()}))
 vi.mock('@/components/ui/liquid-lens', () => ({LiquidLens:() => null}))
 afterEach(() => {cleanup();vi.clearAllMocks()})
 const product = {id:'MLB123',title:'Título original',productUrl:'https://produto.mercadolivre.com.br/MLB-123',priceCents:3990,oldPriceCents:null,imageUrl:'https://http2.mlstatic.com/image.jpg',checkedAt:'2026-10-28T12:00:00Z'}
-const preview: ProductPreview = {previewToken:'server-signed',expiresAt:'2099-10-28T12:00:00Z',product,title:'Produto objetivo',message:'Produto objetivo\nR$ 39,90\nhttps://meli.la/oferta',affiliateUrl:'https://meli.la/oferta',destinations:{segmentId:'natal',name:'Natal',groups:[{id:'g1',name:'Natal #1'}],count:1},titleSource:'OPENAI',priceChanged:false}
+const preview: ProductPreview = {previewToken:'server-signed',expiresAt:'2099-10-28T12:00:00Z',product,title:'Produto objetivo',headline:'Um produto para sua rotina ✨',message:'Um produto para sua rotina ✨\nProduto objetivo\nR$ 39,90\nhttps://meli.la/oferta',affiliateUrl:'https://meli.la/oferta',destinations:{segmentId:'natal',name:'Natal',groups:[{id:'g1',name:'Natal #1'}],count:1},titleSource:'OPENAI',priceChanged:false}
 const props = {segmentId:'natal',product,onClose:vi.fn(),onChanged:vi.fn(),returnFocusTo:null}
 it('mostra prévia exata sem aprovar e cancelar não envia',async()=>{
  let resolve!:(value:Awaited<ReturnType<typeof api>>)=>void
@@ -21,7 +21,7 @@ it('mostra prévia exata sem aprovar e cancelar não envia',async()=>{
  expect(api).toHaveBeenCalledTimes(1);fireEvent.click(screen.getByRole('button',{name:'Cancelar'}));expect(props.onClose).toHaveBeenCalledOnce();expect(api).toHaveBeenCalledTimes(1)
 })
 it('regenera título e mensagem juntos e envia apenas a nova assinatura',async()=>{
- const regenerated={previewToken:'new-signature',title:'Novo título criado com IA',titleSource:'OPENAI',message:'Novo título criado com IA\nR$ 39,90\nhttps://meli.la/oferta',expiresAt:preview.expiresAt}
+ const regenerated={previewToken:'new-signature',title:'Novo título criado com IA',headline:'Um presente para quem você ama 🎁',titleSource:'OPENAI',message:'Um presente para quem você ama 🎁\nNovo título criado com IA\nR$ 39,90\nhttps://meli.la/oferta',expiresAt:preview.expiresAt}
  let finish!:(value:Awaited<ReturnType<typeof api>>)=>void
  vi.mocked(api).mockImplementation(async path=>path.endsWith('/preview')?{status:200,body:preview}:path.endsWith('/preview/title')?new Promise(resolve=>{finish=resolve}):path.endsWith('/send')?{status:200,body:{broadcastId:'batch'}}:{status:200,body:{counts:{pending:0,sending:0,sent:1,failed:0,uncertain:0}}})
  render(<ProductPreviewDialog {...props}/>);await screen.findByText('Natal #1')

@@ -3,6 +3,7 @@ import { Prisma, type AffiliateDiscovery, type PrismaClient } from '@prisma/clie
 import { z } from 'zod'
 import { AffiliateCatalogError, type CatalogProduct } from '@/domain/affiliates/mercado-livre'
 import { expandAffiliateTerms } from '@/adapters/affiliates/openai-intelligence'
+import { planAffiliateDiscoveryTerms } from '@/domain/affiliates/discovery-terms'
 import { evaluateAffiliateProduct, AFFILIATE_RULES, type DiscoveryProduct } from '@/domain/affiliates/evaluation'
 import { refreshAffiliateCatalogProduct } from '@/use-cases/@Affiliates/catalog'
 export { generateAffiliateTitle } from '@/adapters/affiliates/openai-intelligence'
@@ -110,7 +111,7 @@ export async function runAffiliateDiscovery(db: PrismaClient, search: Search = s
     const owner = {...guard,enabled:true,leaseToken,leaseExpiresAt:{gt:new Date()}}
     try {
       const seeds=termsFor(row.terms,row.segment.name)
-      const terms = row.expandedTerms.length?row.expandedTerms:[...new Set([...seeds,...(await Promise.all(seeds.map(term=>expandAffiliateTerms(term)))).flat()])].slice(0,10)
+      const terms = row.expandedTerms.length?row.expandedTerms:planAffiliateDiscoveryTerms(seeds,(await Promise.all(seeds.map(term=>expandAffiliateTerms(term).catch(()=>[])))).flat())
       if(!row.expandedTerms.length) {
         const saved=await db.affiliateDiscovery.updateMany({where:{...owner,leaseExpiresAt:{gt:new Date()}},data:{expandedTerms:terms}})
         if(!saved.count)return 1

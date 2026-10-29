@@ -45,7 +45,7 @@ export async function joinAffiliateSegment(db:PrismaClient,tenantId:string,slug:
   if (!segment.autoExpand && !intent?.initialGroup) throw new AffiliateError(409,'Não há vagas disponíveis neste momento.')
   let provisioner:AffiliateInstance|null = null
   for(const instance of accounts.filter(row=>row.ownerPhone)) {
-    try {const port=factory(instance);if(!port.status || (await port.status()).state==='open') {provisioner=instance;break}} catch { /* Try another selected account before any create request. */ }
+    try {const port=factory(instance);if(!port.status || (await port.status({fresh:true})).state==='open') {provisioner=instance;break}} catch { /* Try another selected account before any create request. */ }
   }
   if (!provisioner) throw new AffiliateError(503,'A expansão aguarda uma conexão ativa com o WhatsApp do participante inicial configurado.')
   if (segment.nextSequence>=2_147_483_647) throw new AffiliateError(409,'A sequência de grupos atingiu o limite. Crie outra segmentação.')
