@@ -3522,10 +3522,10 @@
     "semantic_hash": "b1f76480d79d30af6a6ffa1e1ba8c74d"
   },
   "frontend/next-env.d.ts": {
-    "mtime": 1793287468.559505,
-    "seen": 1793287469.7548885,
-    "ast_hash": "90426577ad8f38459f3e566411c85589",
-    "semantic_hash": "90426577ad8f38459f3e566411c85589"
+    "mtime": 1793287897.6869085,
+    "seen": 1793288004.7127132,
+    "ast_hash": "7186a97a893460078d6a59ad66024291",
+    "semantic_hash": "7186a97a893460078d6a59ad66024291"
   },
   "frontend/next.config.ts": {
     "mtime": 1793205007.643188,
@@ -9780,10 +9780,10 @@
     "semantic_hash": "ea51b27aff88437cb87ed4ab77a68c97"
   },
   "frontend/e2e/professional-seo.spec.ts": {
-    "mtime": 1793274340.9288156,
-    "seen": 1793274467.2034395,
-    "ast_hash": "0d52bf6fd9c09284c9a9ae47177d2ae4",
-    "semantic_hash": "0d52bf6fd9c09284c9a9ae47177d2ae4"
+    "mtime": 1793287863.3551974,
+    "seen": 1793288004.7040813,
+    "ast_hash": "ca22167b86cfd33c19015fe6721f0aec",
+    "semantic_hash": "ca22167b86cfd33c19015fe6721f0aec"
   },
   "frontend/playwright.seo.config.ts": {
     "mtime": 1793205007.655374,

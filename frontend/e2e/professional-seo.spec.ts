@@ -342,6 +342,8 @@ test('paginação tem links HTML e canonical próprio, e cursor adulto não atra
   await page.goto(origin)
   await expect(page.getByRole('link', { name: 'Abrir próxima página' })).toHaveCount(0)
   await expect(page.getByRole('heading', { name: 'Explore por interesse' })).toHaveCount(0)
+  // The Suspense placeholder has the same heading; wait for the real catalog before measuring it.
+  await expect(page.getByRole('button', { name: 'Mostrar mais', exact: true })).toBeVisible()
   const heading = page.getByRole('heading', { level: 1 })
   await expect(heading).toHaveText('Grupos e links por assunto')
   for (const width of [320, 390, 1440]) {
