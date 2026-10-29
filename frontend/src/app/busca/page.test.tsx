@@ -30,7 +30,7 @@ it('cancela consulta superada, anuncia conclusão e oferece saída do vazio', as
 it('anuncia o total carregado e preserva surfaceToken e queryId', async () => {
   api.mockResolvedValue({ status: 200, body: { queryId: 'query+1', target: { kind: 'results', slug: null }, sponsored: [], organic: [{ id: 'atual', name: 'Resultado atual', description: 'Descrição', surfaceToken: 'signed+1' }] } })
   render(<Page />)
-  expect(await screen.findByRole('status', { name: 'Resultados da busca' })).toHaveProperty('textContent', '1 link encontrado.')
+  await waitFor(() => expect(screen.getByRole('status', { name: 'Resultados da busca' })).toHaveProperty('textContent', '1 link encontrado.'))
   expect(screen.getByRole('link', { name: 'Resultado atual' }).getAttribute('href')).toBe('/link/atual?surfaceToken=signed%2B1&queryId=query%2B1')
 })
 

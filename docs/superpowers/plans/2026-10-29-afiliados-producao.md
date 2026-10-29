@@ -11,3 +11,7 @@ Autorização explícita do usuário em29/10: publicar todo o trabalho, reproduz
 - [ ] Verificar painel de produção com a conta do usuário, registrar versão, IDs de implantação e evidências sem segredos; manter local preservado e remover apenas fixtures descartáveis.
 
 Rulings: a autorização de publicação substitui as restrições anteriores de não publicar, sem autorizar alterações em outros produtos. A ponte local loopback não funciona em produção; serviço dedicado somente de leitura é necessário para reproduzir a integração. Credenciais cifradas não podem ser copiadas entre tenant/chaves; recriar com o contexto de produção. A mensagem aprovada distribui para todos os grupos ativos da segmentação; por isso o teste terá um único destino confirmado.
+
+## Primeira execução do CI
+
+Commit b9d50064 publicado na main. CI40852097409: afiliados desktop/mobile e três imagens Docker passaram. Frontend:911/912 testes passaram; teste da busca pública encontrava região status ainda vazia e verificava o texto antes da resposta. Corrigida a espera pelo conteúdo, mantendo o mesmo total e URLs assinadas; três testes da busca passaram localmente. Deploy permanece bloqueado pelos checks. Backup PostgreSQL anterior às migrations criado na VPS (27.275.244 bytes); restauração não executada.
