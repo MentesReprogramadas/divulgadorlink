@@ -340,6 +340,8 @@ test('paginação tem links HTML e canonical próprio, e cursor adulto não atra
   for (const width of [320, 390, 1440]) {
     await page.setViewportSize({ width, height: 900 })
     await page.evaluate(() => document.fonts.ready)
+    await expect(heading).toBeVisible()
+    await expect(heading).toHaveCSS('line-height', /^\d+(?:\.\d+)?px$/)
     const size = await heading.evaluate(element => ({ height: element.getBoundingClientRect().height, line: parseFloat(getComputedStyle(element).lineHeight) }))
     expect(size.height).toBeLessThanOrEqual(size.line + 1)
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)

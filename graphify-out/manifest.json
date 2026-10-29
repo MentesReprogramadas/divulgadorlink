@@ -3204,10 +3204,10 @@
     "semantic_hash": "a89dc5c28e82d2fba3b8204ed45f0517"
   },
   "frontend/e2e/google-ads-submission.spec.ts": {
-    "mtime": 1793205007.317829,
-    "seen": 1793206252.3822901,
-    "ast_hash": "8e50e0bf5cd7a8e3390d81728fcd4811",
-    "semantic_hash": "8e50e0bf5cd7a8e3390d81728fcd4811"
+    "mtime": 1793267684.9695666,
+    "seen": 1793268117.5547113,
+    "ast_hash": "7d5b849d36dc374109073da75f29fcbc",
+    "semantic_hash": "7d5b849d36dc374109073da75f29fcbc"
   },
   "frontend/e2e/legal.spec.ts": {
     "mtime": 1793205007.5045648,
@@ -3522,10 +3522,10 @@
     "semantic_hash": "b1f76480d79d30af6a6ffa1e1ba8c74d"
   },
   "frontend/next-env.d.ts": {
-    "mtime": 1793213422.0032494,
-    "seen": 1793213521.2995486,
-    "ast_hash": "90426577ad8f38459f3e566411c85589",
-    "semantic_hash": "90426577ad8f38459f3e566411c85589"
+    "mtime": 1793267962.995538,
+    "seen": 1793268117.5666842,
+    "ast_hash": "7186a97a893460078d6a59ad66024291",
+    "semantic_hash": "7186a97a893460078d6a59ad66024291"
   },
   "frontend/next.config.ts": {
     "mtime": 1793205007.643188,
@@ -6204,16 +6204,16 @@
     "semantic_hash": "6232e3d905625c8ed127ed0a37ea311f"
   },
   "frontend/src/features/profile-hosts/host-routing.test.ts": {
-    "mtime": 1793205008.2119882,
-    "seen": 1793206252.382858,
-    "ast_hash": "984883eab5356019487a12c2ba57bb97",
-    "semantic_hash": "984883eab5356019487a12c2ba57bb97"
+    "mtime": 1793267871.7796755,
+    "seen": 1793268117.6707573,
+    "ast_hash": "3ddf1ce272949e5d17b1df5728c9939a",
+    "semantic_hash": "3ddf1ce272949e5d17b1df5728c9939a"
   },
   "frontend/src/features/profile-hosts/host-routing.ts": {
-    "mtime": 1793205008.213501,
-    "seen": 1793206252.3828585,
-    "ast_hash": "6daf87582f13294188cafe04c40f57aa",
-    "semantic_hash": "6daf87582f13294188cafe04c40f57aa"
+    "mtime": 1793267887.1718023,
+    "seen": 1793268117.670759,
+    "ast_hash": "5a096d530b45f4ad6058d3ac87cde495",
+    "semantic_hash": "5a096d530b45f4ad6058d3ac87cde495"
   },
   "frontend/src/features/profile-hosts/profile-host-contract.ts": {
     "mtime": 1793205008.213501,
@@ -9294,10 +9294,10 @@
     "semantic_hash": "29405da8e301ce411cb0f224e8ef45d9"
   },
   "frontend/src/app/busca/page.test.tsx": {
-    "mtime": 1793205007.7951117,
-    "seen": 1793206252.3824465,
-    "ast_hash": "5b84f4edec7a0aae782fa79d1cfa1cd3",
-    "semantic_hash": "5b84f4edec7a0aae782fa79d1cfa1cd3"
+    "mtime": 1793267301.6121836,
+    "seen": 1793268117.5793366,
+    "ast_hash": "b361fc4000dbb50775d75497f19d21d5",
+    "semantic_hash": "b361fc4000dbb50775d75497f19d21d5"
   },
   "frontend/src/app/error.test.tsx": {
     "mtime": 1793205007.8083882,
@@ -10272,10 +10272,10 @@
     "semantic_hash": "b477a7670af340945b544f9564124970"
   },
   "backend/src/http/affiliate-discovery.http.spec.ts": {
-    "mtime": 1793231281.384982,
-    "seen": 1793233101.5164132,
-    "ast_hash": "9368e4451d6413b41b7ba798522b32b0",
-    "semantic_hash": "9368e4451d6413b41b7ba798522b32b0"
+    "mtime": 1793267091.333607,
+    "seen": 1793268117.4970453,
+    "ast_hash": "fddc542310ec1e529a86091b4d0e8420",
+    "semantic_hash": "fddc542310ec1e529a86091b4d0e8420"
   },
   "backend/src/http/controllers/@Admin/affiliate-discovery.ts": {
     "mtime": 1793231530.9563484,

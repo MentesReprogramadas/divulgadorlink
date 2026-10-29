@@ -8,6 +8,7 @@ export function personalHostTarget(raw:string,basesRaw=process.env.PROFILE_HOST_
 }
 export function personalHostApiAllowed(method:string,path:string,slug:string){
  const prefix='/v1/profiles/'+encodeURIComponent(slug),get=method==='GET';
+ if(path==='/v1/auth/csrf')return get
  if(path===prefix)return get
  if(path.startsWith(prefix+'/')){const rest=path.slice(prefix.length);return get&&(/^\/(?:items|contact-form)$/.test(rest)||/^\/(?:avatar|media)\/[a-f0-9]{64}$/.test(rest)||/^\/events\/[a-f0-9-]{36}\/calendar\.ics$/.test(rest)||/^\/channels\/[a-f0-9-]{36}\/resolve$/.test(rest))||method==='POST'&&rest==='/contact-form/submissions'}
  return method==='POST'&&['/v1/age','/v1/analytics/consent','/v1/analytics/profiles/events'].includes(path)

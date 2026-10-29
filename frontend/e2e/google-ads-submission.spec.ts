@@ -9,6 +9,8 @@ for (const scenario of ['accepted', 'published', 'denied', 'pending-consent', 'r
   test(`Google Ads: envio de link ${scenario}`, async ({ page }, testInfo) => {
     const consent = scenario === 'pending-consent' ? null : scenario === 'denied' ? 'denied' : 'marketing'
     const errors: string[] = []
+    const csrfToken = 'google-ads-fixture-csrf-token-32-chars'
+    let submissions = 0
     page.on('pageerror', error => errors.push(error.message))
     await page.route(/google|doubleclick|facebook/, async route => {
       if (route.request().url().startsWith('https://www.googletagmanager.com/gtag/js')) {
@@ -20,7 +22,9 @@ for (const scenario of ['accepted', 'published', 'denied', 'pending-consent', 'r
     await page.route('**/anuncio/pixel', route => route.fulfill({ json: { enabled: false } }))
     await page.route('**/bff/**', async route => {
       const url = new URL(route.request().url())
-      if (url.pathname === '/bff/v1/auth/session') {
+      if (url.pathname === '/bff/v1/auth/csrf') {
+        await route.fulfill({ headers: { 'set-cookie': `csrf=${csrfToken}; Path=/; SameSite=Lax` }, json: { csrfToken } })
+      } else if (url.pathname === '/bff/v1/auth/session') {
         await route.fulfill({ json: { role: 'USER', status: 'ACTIVE', canSubmit: true } })
       } else if (url.pathname === '/bff/v1/team/context') {
         await route.fulfill({ json: { ownerId: null, grants: null } })
@@ -32,6 +36,8 @@ for (const scenario of ['accepted', 'published', 'denied', 'pending-consent', 'r
           niches: [{ id: 'niche', name: 'Jogos', slug: 'jogos' }],
         } })
       } else if (url.pathname === '/bff/v1/links' && route.request().method() === 'POST') {
+        submissions++
+        expect(route.request().headers()['x-csrf-token']).toBe(csrfToken)
         if (scenario === 'offline') await route.abort()
         else if (scenario === 'duplicate') await route.fulfill({ status: 409, json: { message: 'Esse link já está no catálogo.' } })
         else await route.fulfill({ status: 201, json: {
@@ -65,6 +71,7 @@ for (const scenario of ['accepted', 'published', 'denied', 'pending-consent', 'r
     } else {
       await expect(page.getByRole('heading', { name: scenario === 'rejected' ? 'Envio não aceito' : 'Enviado para análise.' })).toBeVisible()
     }
+    expect(submissions).toBe(1)
     if (scenario === 'accepted' || scenario === 'published') {
       expect(await conversions()).toEqual([['event', 'conversion', {
         send_to: 'AW-18513720323/uMyECICKtp4dEIPog_xE',
