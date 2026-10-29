@@ -98,7 +98,7 @@ it('requer revisão e reutiliza a chave quando a confirmação do envio falha', 
 })
 
 it('a abertura do convite apenas consulta; entrar exige clique e rejeita destino externo', async () => {
-  vi.mocked(api).mockImplementation(async (_path, init) => init?.method === 'POST' ? { status: 200, body: { url: 'https://outside.example/' } } : { status: 200, body: { name: 'Natal', description: 'Ofertas de Natal', available: true } })
+  vi.mocked(api).mockImplementation(async (_path, init) => init?.method === 'POST' ? { status: 200, body: { url: 'https://outside.example/' } } : { status: 200, body: { name: 'Natal', description: 'Ofertas de Natal', available: true, joinMode: 'SCREEN' } })
   render(<SegmentJoin slug="natal" />)
   await screen.findByRole('heading', { name: 'Natal' })
   expect(vi.mocked(api).mock.calls.every(([, init]) => init?.method !== 'POST')).toBe(true)
@@ -108,9 +108,9 @@ it('a abertura do convite apenas consulta; entrar exige clique e rejeita destino
 })
 
 it('permite conferir o convite ao vivo mesmo quando a última leitura não tinha vaga', async () => {
-  vi.mocked(api).mockResolvedValue({ status: 200, body: { name: 'Natal', description: 'Ofertas', available: false } })
+  vi.mocked(api).mockResolvedValue({ status: 200, body: { name: 'Natal', description: 'Ofertas', available: false, joinMode: 'SCREEN' } })
   render(<SegmentJoin slug="natal" />)
   await screen.findByRole('heading', { name: 'Natal' })
   expect(screen.getByRole('button', { name: 'Entrar no grupo de WhatsApp' }).hasAttribute('disabled')).toBe(false)
-  expect(screen.getByText('Não há disponibilidade confirmada na última consulta. Use o botão para conferir novamente.')).toBeTruthy()
+  expect(screen.queryByText('Ofertas', { exact: true })).toBeNull()
 })

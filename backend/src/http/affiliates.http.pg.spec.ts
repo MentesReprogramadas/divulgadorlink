@@ -66,11 +66,35 @@ describe('HTTP e persistência afiliados',()=>{
     expect(snapshot.statusCode).toBe(200);expect(snapshot.json().summary.pending).toBe(1);expect(snapshot.body).not.toContain('secret')
   })
   it('GET público é inerte e POST consulta grupo real sem autenticação',async()=>{
-    expect((await app.inject({url:'/api/v1/public/affiliates/natal',headers:{host}})).json()).toMatchObject({name:'Ofertas de Natal',available:true})
+    expect((await app.inject({url:'/api/v1/public/affiliates/natal',headers:{host}})).json()).toMatchObject({name:'Ofertas de Natal',available:true,joinMode:'REDIRECT'})
     expect(await db.affiliateGroup.count({where:{tenantId}})).toBe(1)
     const join=await app.inject({method:'POST',url:'/api/v1/public/affiliates/natal/join',headers:{host},payload:{}})
     expect(join.statusCode).toBe(200);expect(join.json().url).toContain('https://chat.whatsapp.com/')
     expect(await db.affiliateGroup.count({where:{tenantId}})).toBe(1)
+  })
+  it('permite escolher tela de convite e rejeita modo inválido',async()=>{
+    const update=(joinMode:string)=>app.inject({method:'PATCH',url:`/api/v1/admin/affiliates/segments/${segmentId}`,headers:headers(),payload:{joinMode}})
+    expect((await update('SCREEN')).statusCode).toBe(200)
+    expect((await app.inject({url:'/api/v1/public/affiliates/natal',headers:{host}})).json().joinMode).toBe('SCREEN')
+    expect((await update('INVALID')).statusCode).toBe(400)
+    expect((await update('REDIRECT')).statusCode).toBe(200)
+  })
+  it('serve apenas a foto vinculada à segmentação pública ativa deste tenant',async()=>{
+    const id=randomUUID(),bytes=Buffer.from('fixture-avatar')
+    await db.affiliateImage.create({data:{id,tenantId,bytes}})
+    try {
+      await db.affiliateSegment.update({where:{id:segmentId},data:{imageUrl:`affiliate-image:${id}`}})
+      const meta=(await app.inject({url:'/api/v1/public/affiliates/natal',headers:{host}})).json()
+      expect(meta.imageUrl).toBe('/bff/v1/public/affiliates/natal/image')
+      const image=await app.inject({url:'/api/v1/public/affiliates/natal/image',headers:{host}})
+      expect(image.statusCode).toBe(200);expect(image.headers['content-type']).toBe('image/webp');expect(image.rawPayload).toEqual(bytes)
+      expect((await app.inject({url:'/api/v1/public/affiliates/ausente/image',headers:{host}})).statusCode).toBe(404)
+      await db.affiliateSegment.update({where:{id:segmentId},data:{enabled:false}})
+      expect((await app.inject({url:'/api/v1/public/affiliates/natal/image',headers:{host}})).statusCode).toBe(404)
+    } finally {
+      await db.affiliateSegment.update({where:{id:segmentId},data:{imageUrl:null,enabled:true}})
+      await db.affiliateImage.delete({where:{id}})
+    }
   })
   it('abre a segmentação exata com dados, totais e histórico isolados',async()=>{
     const extra=await db.affiliateInstance.create({data:{tenantId,name:'Outra conta'}})

@@ -13,6 +13,7 @@ import { assertAffiliateImage } from '@/use-cases/affiliates/images'
 import { scheduleAffiliateBroadcast, resolveAffiliateDelivery, requestAffiliateDeliveryDrain } from '@/use-cases/affiliates/deliveries'
 import { joinAffiliateSegment, prepareFirstAffiliateGroup, reconcileAffiliateSegment } from '@/use-cases/affiliates/invitations'
 import { requireAffiliateAdmin } from './affiliate-access'
+import { affiliateImageId } from '@/domain/affiliates/image'
 import { ProfileError } from '@/domain/profiles/profile'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
 
@@ -220,9 +221,18 @@ export async function registerAffiliateRoutes(app:FastifyInstance) {
   app.post(prefix+'/deliveries/:id/resolve',(q,r)=>run(q,r,(tenantId,actorId)=>resolveAffiliateDelivery(prisma,tenantId,actorId,idParam.parse(q.params).id,z.object({resolution:z.enum(['SENT','RETRY']),confirmUncertain:z.boolean().default(false),providerMessageId:z.string().min(1).max(200).optional()}).strict().parse(q.body))))
   app.get('/public/affiliates/:slug',(q,r)=>run(q,r,async tenantId=>{
     const {slug}=z.object({slug:segmentInput.shape.slug}).parse(q.params)
-    const segment=await prisma.affiliateSegment.findFirst({where:{tenantId,slug,enabled:true},select:{name:true,groupName:true,description:true,autoExpand:true,instance:{select:{enabled:true}},instanceLinks:{where:{instance:{enabled:true}},select:{instanceId:true}},groups:{where:{enabled:true},select:{participantCount:true,capacity:true,instance:{select:{enabled:true}}}}}})
+    const segment=await prisma.affiliateSegment.findFirst({where:{tenantId,slug,enabled:true},select:{name:true,groupName:true,description:true,imageUrl:true,joinMode:true,autoExpand:true,instance:{select:{enabled:true}},instanceLinks:{where:{instance:{enabled:true}},select:{instanceId:true}},groups:{where:{enabled:true},select:{participantCount:true,capacity:true,instance:{select:{enabled:true}}}}}})
     if(!segment) throw new AffiliateError(404,'Segmentação indisponível.')
-    return {name:segment.groupName ?? segment.name,description:segment.description,available:segment.groups.some(group=>group.participantCount<group.capacity&&(segment.instanceLinks.length||group.instance.enabled))||Boolean(segment.autoExpand&&(segment.instanceLinks.length||segment.instance?.enabled))}
+    return {name:segment.groupName ?? segment.name,description:segment.description,imageUrl:segment.imageUrl?(affiliateImageId(segment.imageUrl)?`/bff/v1/public/affiliates/${slug}/image`:segment.imageUrl):null,joinMode:segment.joinMode,available:segment.groups.some(group=>group.participantCount<group.capacity&&(segment.instanceLinks.length||group.instance.enabled))||Boolean(segment.autoExpand&&(segment.instanceLinks.length||segment.instance?.enabled))}
+  },true))
+  app.get('/public/affiliates/:slug/image',(q,r)=>run(q,r,async tenantId=>{
+    const {slug}=z.object({slug:segmentInput.shape.slug}).parse(q.params)
+    const segment=await prisma.affiliateSegment.findFirst({where:{tenantId,slug,enabled:true},select:{imageUrl:true}})
+    const imageId=segment?.imageUrl?affiliateImageId(segment.imageUrl):null
+    const image=imageId?await prisma.affiliateImage.findFirst({where:{id:imageId,tenantId},select:{bytes:true}}):null
+    if(!image) throw new AffiliateError(404,'Imagem não encontrada.')
+    r.header('x-content-type-options','nosniff').type('image/webp')
+    return Buffer.from(image.bytes)
   },true))
   app.post('/public/affiliates/:slug/join',(q,r)=>run(q,r,tenantId=>joinAffiliateSegment(prisma,tenantId,z.object({slug:segmentInput.shape.slug}).parse(q.params).slug),true))
 }

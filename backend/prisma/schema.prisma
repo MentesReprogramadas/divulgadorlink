@@ -142,6 +142,7 @@ model AffiliateSegment {
   imageUrl String?
   capacity Int @default(1024)
   autoExpand Boolean @default(false)
+  joinMode String @default("REDIRECT")
   instanceId String?
   instance AffiliateInstance? @relation(fields: [instanceId, tenantId], references: [id, tenantId], onDelete: Restrict)
   enabled Boolean @default(true)

@@ -50,7 +50,7 @@ async function fixtures(page: Page, emptyConnections = false) {
       : pathname.endsWith('/catalog/search') ? { products: [offer], warnings: [] }
       : pathname.endsWith('/catalog/status') && emptyConnections ? { configured:true,connected:true,status:'CONNECTED',clientId:'123',redirectUri:'',affiliateConfigured:true }
       : pathname.endsWith('/catalog/status') ? { configured: false, connected: false, status: 'NOT_CONFIGURED', clientId: null, redirectUri: 'http://localhost:3016/bff/v1/admin/affiliates/catalog/callback', affiliateConfigured: false }
-      : pathname.startsWith('/v1/public/affiliates/') ? { name: segment.name, description: segment.description, available: true }
+      : pathname.startsWith('/v1/public/affiliates/') ? { name: segment.name, description: segment.description, imageUrl: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="176" height="176"><rect width="176" height="176" fill="%23135e56"/></svg>', available: true, joinMode: 'SCREEN' }
       : {}
     return route.fulfill({ json: body })
   })
@@ -270,6 +270,17 @@ test('admin gerencia segmentos, revisa oferta e confere entrega sem reenvio impl
   await expect(page.getByText('Contas do Mercado Livre', { exact: false })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Buscar no Mercado Livre' })).toBeDisabled()
   await capture(page, 'catalog-pending', testInfo.project.name)
+})
+
+test('convite padrão abre WhatsApp sem segundo clique', async ({ page }) => {
+  await fixtures(page)
+  let joins = 0
+  await page.route('**/bff/v1/public/affiliates/natal', route => route.fulfill({ json: { name: 'Natal', description: '', available: true, joinMode: 'REDIRECT' } }))
+  await page.route('**/bff/v1/public/affiliates/natal/join', route => { joins++; return route.fulfill({ json: { url: 'https://chat.whatsapp.com/AbCdEf0123456789AbCdEf' } }) })
+  await page.route('https://chat.whatsapp.com/**', route => route.fulfill({ contentType: 'text/html', body: '<h1>WhatsApp de teste</h1>' }))
+  await page.goto('/ofertas/entrar/natal')
+  await expect(page).toHaveURL('https://chat.whatsapp.com/AbCdEf0123456789AbCdEf')
+  expect(joins).toBe(1)
 })
 
 test('convite público consulta sem criar grupo e exige ação explícita para entrar', async ({ page }, testInfo) => {

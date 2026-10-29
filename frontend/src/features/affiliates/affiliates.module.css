@@ -73,13 +73,15 @@
 .batchDetails summary { cursor: pointer; padding-block: var(--space-3); }
 .batchDetails summary:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
 .srOnly { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
-.join { width: min(100%, 36rem); margin: 0 auto; padding: clamp(24px, 6vw, 48px) 16px; display: grid; gap: var(--space-6); }
-.join h1 { margin: 0; font-size: clamp(1.75rem, 6vw, 2.5rem); }
+.join { width: min(100%, 40rem); min-width: 0; margin: 0 auto; padding: clamp(40px, 10vh, 96px) 20px; display: grid; justify-items: center; gap: var(--space-6); text-align: center; }
+.join h1 { min-width: 0; max-width: 100%; margin: 0; font-size: clamp(1.125rem, 3.8vw, 2rem); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .join p { margin: 0; color: var(--text-secondary); }
-.joinPanel { display: grid; gap: var(--space-4); padding: var(--space-6); background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: var(--radius-lg); }
+.join > button { max-width: 100%; min-height: 48px; }
+.joinAvatar { display: grid; place-items: center; width: 176px; height: 176px; overflow: hidden; border-radius: 50%; background: var(--surface-raised); color: var(--text-primary); font-size: 3rem; }
+.joinAvatar img { width: 100%; height: 100%; object-fit: cover; }
 @media (max-width: 900px) { .overview { grid-template-columns: 1fr; } .details { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 600px) { .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: var(--space-6); } .metrics > div { padding-inline: var(--space-3); } .metrics > div:nth-child(odd) { padding-inline-start: 0; border-inline-start: 0; } .metrics strong { font-size: 1.75rem; } .formGrid { grid-template-columns: 1fr; } .record, .connection { padding: var(--space-4); } .navigation { gap: 2px; } .navigation button { padding-inline: 10px; } .row { align-items: flex-start; flex-wrap: wrap; } .actions { gap: var(--space-2); } .actions > button { max-width: 100%; } }
-@media (prefers-reduced-transparency: reduce) { .record, .joinPanel { background: var(--glass-fallback); } }
+@media (prefers-reduced-transparency: reduce) { .record { background: var(--glass-fallback); } }
 
 @media (max-width: 600px) { .mobileNavigation { display: block; } .navigation { display: none; } }
 .areaPanel { min-width: 0; display: grid; gap: var(--space-6); }

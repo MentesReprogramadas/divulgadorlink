@@ -1,0 +1,1 @@
+ALTER TABLE "affiliate_segments" ADD COLUMN "joinMode" TEXT NOT NULL DEFAULT 'REDIRECT';

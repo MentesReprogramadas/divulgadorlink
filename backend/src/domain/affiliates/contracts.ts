@@ -27,6 +27,7 @@ export const segmentInput = z.object({
   capacity: z.number().int().min(2).max(1024).optional(), autoExpand: z.boolean().optional(),
   instanceId: entityId.nullable().optional(),
   instanceIds: z.array(entityId).min(1).max(20).refine(ids=>new Set(ids).size===ids.length,'Selecione conexões sem repetição.').optional(),
+  joinMode: z.enum(['REDIRECT', 'SCREEN']).optional(),
   enabled: z.boolean().optional(),
 }).strict()
 export const offerInput = z.object({

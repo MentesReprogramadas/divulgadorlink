@@ -37,7 +37,7 @@ it('preserva o rascunho entre etapas e exige duas conexões abertas antes de sal
   fireEvent.click(screen.getByRole('button', { name: 'Conferir conexões e continuar' }))
   await screen.findByRole('button', { name: 'Criar segmentação' })
   fireEvent.click(screen.getByRole('button', { name: 'Criar segmentação' }))
-  await waitFor(() => expect(save).toHaveBeenCalledWith(expect.objectContaining({ name: 'Natal', groupName: 'Ofertas de Natal', slug: 'natal', instanceIds: ['one', 'two'], autoExpand: true })))
+  await waitFor(() => expect(save).toHaveBeenCalledWith(expect.objectContaining({ name: 'Natal', groupName: 'Ofertas de Natal', slug: 'natal', instanceIds: ['one', 'two'], autoExpand: true, joinMode: 'REDIRECT' })))
 })
 
 it('orienta conexão pelo QR code e não avança se a conta estiver desconectada', async () => {
@@ -141,4 +141,18 @@ it('não inicia pareamento se o assistente for desmontado enquanto a conta é ca
   complete({ status: 200, body: instances[0] })
   await waitFor(() => expect(saving).toHaveBeenLastCalledWith(false))
   expect(api).toHaveBeenCalledTimes(1)
+})
+
+it('salva a tela de convite quando escolhida em vez do redirecionamento padrão', async () => {
+  const save = vi.fn().mockResolvedValue(undefined)
+  vi.mocked(api).mockResolvedValue({ status: 200, body: { state: 'open' } })
+  render(<SegmentWizard instances={instances} save={save} />)
+  expect((screen.getByLabelText('Redirecionar para WhatsApp (padrão)') as HTMLInputElement).checked).toBe(true)
+  fireEvent.click(screen.getByLabelText('Mostrar tela de convite'))
+  identity()
+  fireEvent.click(screen.getByRole('checkbox', { name: /Principal/ }))
+  fireEvent.click(screen.getByRole('button', { name: 'Conferir conexões e continuar' }))
+  await screen.findByRole('button', { name: 'Criar segmentação' })
+  fireEvent.click(screen.getByRole('button', { name: 'Criar segmentação' }))
+  await waitFor(() => expect(save).toHaveBeenCalledWith(expect.objectContaining({ joinMode: 'SCREEN' })))
 })

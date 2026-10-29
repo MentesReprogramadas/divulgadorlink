@@ -5,5 +5,5 @@ export const metadata: Metadata = { title: 'Entrar no grupo de ofertas | Tem Lin
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  return <SegmentJoin slug={slug} />
+  return <SegmentJoin key={slug} slug={slug} />
 }
