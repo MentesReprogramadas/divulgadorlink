@@ -3522,8 +3522,8 @@
     "semantic_hash": "b1f76480d79d30af6a6ffa1e1ba8c74d"
   },
   "frontend/next-env.d.ts": {
-    "mtime": 1793276676.4753866,
-    "seen": 1793276692.6304963,
+    "mtime": 1793284953.0713587,
+    "seen": 1793285587.4756687,
     "ast_hash": "90426577ad8f38459f3e566411c85589",
     "semantic_hash": "90426577ad8f38459f3e566411c85589"
   },
@@ -10290,10 +10290,10 @@
     "semantic_hash": "40873aab69c547ddb738bc7974c04b3c"
   },
   "backend/src/use-cases/affiliates/discovery.pg.spec.ts": {
-    "mtime": 1793232556.6958418,
-    "seen": 1793233101.5642679,
-    "ast_hash": "f8cdac10df362b72cdc8b0af1fd96b12",
-    "semantic_hash": "f8cdac10df362b72cdc8b0af1fd96b12"
+    "mtime": 1793284377.361902,
+    "seen": 1793285587.4428535,
+    "ast_hash": "b66d98106065609f208e660e23f0ec73",
+    "semantic_hash": "b66d98106065609f208e660e23f0ec73"
   },
   "backend/src/use-cases/affiliates/discovery.spec.ts": {
     "mtime": 1793235520.1699262,
@@ -10302,10 +10302,10 @@
     "semantic_hash": "7aee7e17c1d59b22de4b118e445f3bc0"
   },
   "backend/src/use-cases/affiliates/discovery.ts": {
-    "mtime": 1793235491.0639625,
-    "seen": 1793236138.818918,
-    "ast_hash": "6b19f56712fc1863273f74dc396199f9",
-    "semantic_hash": "6b19f56712fc1863273f74dc396199f9"
+    "mtime": 1793284217.7598462,
+    "seen": 1793285587.4429893,
+    "ast_hash": "476449375285509b3842dba62955940a",
+    "semantic_hash": "476449375285509b3842dba62955940a"
   },
   "frontend/src/app/admin/afiliados/segmentacoes/[segmentId]/page.tsx": {
     "mtime": 1793219548.3110042,
@@ -10344,16 +10344,16 @@
     "semantic_hash": "78a1d4e22a544ae2e4c28f9345789f2f"
   },
   "frontend/src/features/affiliates/discovery-panel.test.tsx": {
-    "mtime": 1793235510.4851594,
-    "seen": 1793236138.9485915,
-    "ast_hash": "2a60f830bb7322346e8f66fe2cf79dc8",
-    "semantic_hash": "2a60f830bb7322346e8f66fe2cf79dc8"
+    "mtime": 1793283879.7658267,
+    "seen": 1793285587.5789618,
+    "ast_hash": "a578262efbfaa4fed4af1cb6e54aa968",
+    "semantic_hash": "a578262efbfaa4fed4af1cb6e54aa968"
   },
   "frontend/src/features/affiliates/discovery-panel.tsx": {
-    "mtime": 1793273032.9991174,
-    "seen": 1793273188.94621,
-    "ast_hash": "109c012db4fff2c0eae07b1503c68be5",
-    "semantic_hash": "109c012db4fff2c0eae07b1503c68be5"
+    "mtime": 1793284217.7608752,
+    "seen": 1793285587.5789638,
+    "ast_hash": "cff245034ee017351ca92e325ebf5a6b",
+    "semantic_hash": "cff245034ee017351ca92e325ebf5a6b"
   },
   "frontend/src/features/affiliates/guided-segment.test.tsx": {
     "mtime": 1793235510.455393,

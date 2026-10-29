@@ -24,7 +24,7 @@ function DiscoveryContent({ segmentId, contextName, busy, canGenerate, settingsC
     const cached = pageCache.current.get(cacheKey)
     if (cached) setData(cached)
     setLoading(true)
-    let timer: ReturnType<typeof setTimeout> | undefined, polls = 0
+    let timer: ReturnType<typeof setTimeout> | undefined, polls = 0, lastCheckedAt: string | null = null
     async function load() {
       if (abort.signal.aborted || document.hidden || mutationLock.current) return
       const version = ++requestVersion.current
@@ -38,6 +38,7 @@ function DiscoveryContent({ segmentId, contextName, busy, canGenerate, settingsC
           result = {...result,status:queued.status,nextRunAt:queued.nextRunAt}
         }
         if (abort.signal.aborted || version !== requestVersion.current) return
+        if (result.checkedAt && result.checkedAt !== lastCheckedAt) { polls = 0; lastCheckedAt = result.checkedAt }
         pageCache.current.set(cacheKey, result); setData(result); setLoading(false); setError(''); setCheckingStopped(false)
         if (result.status === 'QUEUED' || result.status === 'RUNNING' || result.enabled && result.pageStatus === 'NOT_COLLECTED') { if (++polls <= 60) timer = setTimeout(() => void load(), 3000); else setCheckingStopped(true) }
         else if (result.enabled && result.status === 'READY') { polls = 0; timer = setTimeout(() => void load(), 60_000) }

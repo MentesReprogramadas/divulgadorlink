@@ -70,7 +70,7 @@ export async function configureAffiliateDiscovery(db: PrismaClient, tenantId: st
   await segmentFor(db,tenantId,segmentId)
   await db.$transaction(async tx => {
     await tx.affiliateDiscovery.upsert({ where: { segmentId }, create: { segmentId,tenantId,...value,status:value.enabled?'QUEUED':'PAUSED' }, update: { ...value,expandedTerms:[],pageCursors:{},requestedTerm:null,requestedPage:null,cursor:0,productsJson:[],countsJson:Prisma.DbNull,checkedAt:null,error:null,status:value.enabled?'QUEUED':'PAUSED',nextRunAt:new Date(),leaseToken:null,leaseExpiresAt:null,configVersion:{increment:1} } })
-    await tx.affiliateDiscoveryPage.deleteMany({where:{tenantId,segmentId}})
+    await tx.affiliateDiscoveryPage.deleteMany({where:{tenantId,segmentId,checkedAt:{lt:new Date(Date.now()-TTL)}}})
     await tx.auditLog.create({ data:{tenantId,actorId,action:'affiliate.discovery.configure',entityType:'AffiliateDiscovery',entityId:segmentId,after:{enabled:value.enabled,termCount:value.terms.length}} })
   })
   return affiliateDiscoveryState(db,tenantId,segmentId)
@@ -130,7 +130,7 @@ export async function runAffiliateDiscovery(db: PrismaClient, search: Search = s
         const initialPages=await tx.affiliateDiscoveryPage.findMany({where:{tenantId:row.tenantId,segmentId:row.segmentId,page:1,term:{in:terms}},select:{term:true}})
         const initialized=new Set([...initialPages.map(p=>p.term),...(page===1?[term]:[])])
         const warmup=terms.some(value=>!initialized.has(value))
-        const saved=await tx.affiliateDiscovery.updateMany({where:{...owner,leaseExpiresAt:{gt:finished}},data:{expandedTerms:terms,productsJson:products as unknown as Prisma.InputJsonValue,countsJson:result.counts,status:queued?'QUEUED':'READY',error:null,checkedAt:finished,cursor:nextCursor,pageCursors:nextPages,durationMs:finished.getTime()-now.getTime(),nextRunAt:new Date(finished.getTime()+(queued||warmup?30_000:INTERVAL)),leaseToken:null,leaseExpiresAt:null,...(queued?{}:{requestedTerm:null,requestedPage:null})}})
+        const saved=await tx.affiliateDiscovery.updateMany({where:{...owner,leaseExpiresAt:{gt:finished}},data:{expandedTerms:terms,productsJson:products as unknown as Prisma.InputJsonValue,countsJson:result.counts,status:queued||warmup?'QUEUED':'READY',error:null,checkedAt:finished,cursor:nextCursor,pageCursors:nextPages,durationMs:finished.getTime()-now.getTime(),nextRunAt:new Date(finished.getTime()+(queued||warmup?30_000:INTERVAL)),leaseToken:null,leaseExpiresAt:null,...(queued?{}:{requestedTerm:null,requestedPage:null})}})
         if(!saved.count)return
         await tx.affiliateDiscoveryPage.upsert({where:{tenantId_segmentId_term_page:{tenantId:row.tenantId,segmentId:row.segmentId,term,page}},create:{tenantId:row.tenantId,segmentId:row.segmentId,term,page,productsJson:products as unknown as Prisma.InputJsonValue,countsJson:{...result.counts,rejected:result.rejected??[]},total:result.counts.catalogsFound,checkedAt:finished},update:{productsJson:products as unknown as Prisma.InputJsonValue,countsJson:{...result.counts,rejected:result.rejected??[]},total:result.counts.catalogsFound,checkedAt:finished}})
         for(const product of products)await tx.affiliatePriceObservation.upsert({where:{tenantId_itemId_day:{tenantId:row.tenantId,itemId:product.id,day:new Date(finished.toISOString().slice(0,10))}},create:{tenantId:row.tenantId,itemId:product.id,day:new Date(finished.toISOString().slice(0,10)),priceCents:product.priceCents,observedAt:finished},update:{}})

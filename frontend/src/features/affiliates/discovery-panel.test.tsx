@@ -13,6 +13,26 @@ const product = { id: 'MLB123', title: 'Produto conferido', priceCents: 12990, o
 const ready: DiscoveryState = { ...initial, status: 'READY', checkedAt: '2026-10-28T12:00:00Z', products: [product] }
 const props = { segmentId: 'natal', contextName: 'Natal', busy: false, canGenerate: true, prepare: vi.fn() }
 
+it('continua acompanhando a coleta enquanto novos termos são concluídos',async()=>{
+ vi.useFakeTimers();vi.setSystemTime(new Date('2026-10-29T12:00:00Z'))
+ vi.mocked(api).mockImplementation(async()=>({status:200,body:{...ready,status:'QUEUED',pageStatus:'READY',checkedAt:new Date().toISOString()}}))
+ render(<DiscoveryPanel {...props}/>);await act(async()=>{})
+ await act(async()=>{await vi.advanceTimersByTimeAsync(189000)})
+ expect(screen.queryByText(/A conferência foi interrompida/)).toBeNull()
+ expect(vi.mocked(api).mock.calls.filter(([,options])=>options?.method==='GET').length).toBeGreaterThan(61)
+})
+
+it('limita a conferência quando a coleta não apresenta progresso',async()=>{
+ vi.useFakeTimers();vi.setSystemTime(new Date('2026-10-29T12:00:00Z'))
+ vi.mocked(api).mockResolvedValue({status:200,body:{...ready,status:'QUEUED',pageStatus:'READY'}})
+ render(<DiscoveryPanel {...props}/>);await act(async()=>{})
+ await act(async()=>{await vi.advanceTimersByTimeAsync(189000)})
+ expect(screen.getByText(/A conferência foi interrompida/)).toBeTruthy()
+ const calls=vi.mocked(api).mock.calls.length
+ await act(async()=>{await vi.advanceTimersByTimeAsync(6000)})
+ expect(vi.mocked(api).mock.calls).toHaveLength(calls)
+})
+
 it('abre produtos válidos em revisão por padrão e mantém a página visível enquanto busca a seguinte', async () => {
   let finish!: (value: Awaited<ReturnType<typeof api>>) => void
   vi.mocked(api).mockImplementation(async path => path.includes('page=2') ? new Promise(resolve=>{finish=resolve}) : {status:200,body:{...ready,pagination:{term:'Natal',page:1,pageSize:20,total:40,hasPrevious:false,hasNext:true},products:[{...product,evaluation:{status:'REVIEW',reasons:[],rulesVersion:'v1',reportedDiscountPercent:null,history:{days:0,windowDays:30,verified:false,medianPriceCents:null,dropPercent:null},reputation:{level:null,status:'UNKNOWN'}}}]}})

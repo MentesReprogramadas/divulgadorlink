@@ -29,7 +29,7 @@ describe('PostgreSQL discovery isolation and leases',()=>{
     await db.affiliateDiscovery.create({data:{tenantId,segmentId,expandedTerms:['Natal','Presentes']}})
     const search=vi.fn<NonNullable<Parameters<typeof runAffiliateDiscovery>[1]>>(async()=>({...result,counts:{...result.counts,catalogsFound:200}}))
     await run(search)
-    expect(await affiliateDiscoveryState(db,tenantId,segmentId)).toMatchObject({cycleIntervalMs:30000})
+    expect(await affiliateDiscoveryState(db,tenantId,segmentId)).toMatchObject({cycleIntervalMs:30000,status:'QUEUED'})
     expect(await db.affiliateDiscovery.findUniqueOrThrow({where:{segmentId}})).toMatchObject({cursor:1,pageCursors:{Natal:2}})
     for(let index=0;index<3;index++){
       await db.affiliateDiscovery.update({where:{segmentId},data:{nextRunAt:new Date(0)}})
@@ -43,6 +43,21 @@ describe('PostgreSQL discovery isolation and leases',()=>{
     await run(search)
     expect(search.mock.calls.at(-1)?.slice(2)).toEqual(['Natal',{offset:100}])
     expect(await db.affiliateDiscovery.findUniqueOrThrow({where:{segmentId}})).toMatchObject({cursor:0,pageCursors:{Natal:3,Presentes:3}})
+  })
+  it('keeps fresh matching pages when terms change and prunes expired cache',async()=>{
+    await run(vi.fn(async()=>result))
+    const now=new Date(),stale=new Date(now.getTime()-2*86400000)
+    await db.affiliateDiscoveryPage.createMany({data:[
+      {tenantId,segmentId,term:'Outra campanha',page:1,total:1,countsJson:{},productsJson:[{...result.products[0],id:'MLB999',sourceTerm:'Outra campanha'}],checkedAt:now},
+      {tenantId,segmentId,term:'Expirado',page:1,total:0,countsJson:{},productsJson:[],checkedAt:stale},
+    ]})
+    const terms=['Natal','Led Natal','Luz Nata','Kit Decoração Natal','Kit Enfeites Natal']
+    await configureAffiliateDiscovery(db,tenantId,actorId,segmentId,{enabled:true,terms})
+    expect(await db.affiliateDiscoveryPage.count({where:{tenantId,segmentId}})).toBe(2)
+    const state=await affiliateDiscoveryState(db,tenantId,segmentId,{mode:'MIXED',view:'ALL'})
+    expect(state.terms).toEqual(terms)
+    expect(state.products.map(p=>p.id)).toEqual(['MLB100'])
+    expect(state.status).toBe('QUEUED')
   })
   it('keeps provider total honest and closes navigation at the actual refused page',async()=>{
     await db.affiliateDiscovery.create({data:{tenantId,segmentId,expandedTerms:['Natal'],pageCursors:{Natal:6},cursor:0}})
@@ -157,6 +172,10 @@ describe('PostgreSQL discovery isolation and leases',()=>{
     await db.affiliateDiscovery.create({data:{segmentId,tenantId,status:'RUNNING',leaseToken:'old-worker',leaseExpiresAt:new Date(0),cursor:0,pageCursors:{Natal:2}}})
     const search=vi.fn(async()=>result);await run(search)
     expect(search).toHaveBeenCalledWith(db,tenantId,'Natal',{offset:20})
+    expect((await db.affiliateDiscovery.findUniqueOrThrow({where:{segmentId}})).status).toBe('QUEUED')
+    await db.affiliateDiscovery.update({where:{segmentId},data:{nextRunAt:new Date(0)}})
+    await run(search)
+    expect(search).toHaveBeenLastCalledWith(db,tenantId,'Natal',{offset:0})
     expect((await db.affiliateDiscovery.findUniqueOrThrow({where:{segmentId}})).status).toBe('READY')
   })
 })
