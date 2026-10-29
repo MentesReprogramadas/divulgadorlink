@@ -37,6 +37,13 @@ function restoreEditorial() {
     ON CONFLICT("tenantId",key) DO UPDATE SET value=EXCLUDED.value,"updatedAt"=EXCLUDED."updatedAt"`)
 }
 
+async function declineAge(page: Page) {
+  await Promise.all([
+    page.waitForEvent('domcontentloaded'),
+    page.getByRole('dialog', { name: 'Conteúdo para maiores de 18 anos' }).getByRole('button', { name: 'Não tenho', exact: true }).click(),
+  ])
+}
+
 async function stableScreenshot(page: Page, filename: string) {
   await page.evaluate(() => document.fonts.ready)
   await page.screenshot({ path: filename, fullPage: true, animations: 'disabled' })
@@ -137,7 +144,7 @@ test('Telegram conecta seleções úteis por interesse sem expor conteúdo restr
   expect(html).not.toContain('SEO_BETTING_RESTRICTED_BODY')
   await page.waitForLoadState('networkidle')
   const ageDialog = page.getByRole('dialog', {name:'Conteúdo para maiores de 18 anos'})
-  await ageDialog.getByRole('button', {name:'Não tenho', exact:true}).click()
+  await declineAge(page)
   await expect(ageDialog).toHaveCount(0)
   const section = page.getByRole('region', {name:'Grupos do Telegram por interesse'})
   await expect(section.getByRole('link')).toHaveText([editorial.collections[1].title + ' · +18', editorial.collections[2].title, editorial.collections[0].title])
@@ -261,7 +268,7 @@ test('prévia adulta é indexável sem expor texto, mídia, convite ou payload r
   const rsc = await page.request.get(origin + '/descobrir/' + adultCollection, { headers: { RSC: '1' } })
   expect(rsc.status()).toBe(200)
   for (const secret of [secretName, secretDescription, 'seo-private-invite-', 'seo-adult-image']) expect(await rsc.text()).not.toContain(secret)
-  await dialog.getByRole('button', { name: 'Não tenho', exact: true }).click()
+  await declineAge(page)
   await expect(dialog).toHaveCount(0)
   await expect(page.getByRole('heading', { level: 2, name: 'Conheça as comunidades' })).toBeVisible()
   await stableScreenshot(page, info.outputPath('adult-public-preview.png'))
@@ -298,7 +305,7 @@ test('apostas têm restrição própria e não recebem marcação sexual por exi
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'index, follow')
   await expect(page.getByRole('dialog')).toBeVisible()
   expect(await page.content()).not.toContain('SEO_BETTING_RESTRICTED_BODY')
-  await page.getByRole('button', { name: 'Não tenho', exact: true }).click()
+  await declineAge(page)
   await page.goto(origin + '/link/seo-bet')
   await expect(page.getByRole('heading', { name: 'Debate de apostas esportivas', exact: true })).toBeVisible()
   await expect(page.locator('meta[name="rating"]')).toHaveCount(0)
