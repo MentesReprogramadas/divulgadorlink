@@ -28,7 +28,7 @@ export function SegmentWorkspace({ snapshot, states, section, busy, onSection, o
       <Stepper steps={['WhatsApp conectado', 'Grupo preparado', 'Revisar e enviar oferta']} current={step} label="Preparação da segmentação" />
       <div className={styles.nextStepBody}><div><h3>{next.title}</h3><p>{next.description}</p></div><div className={styles.nextStepActions}><Button disabled={busy || checking && !hasConnection} onClick={next.action}><ActionIcon name={uncertainGroup ? 'refresh' : step === 0 ? 'qr' : 'next'} />{next.label}</Button>{hasConnection && !hasGroup && !snapshot.groups.length && !uncertainGroup ? <Button variant="ghost" disabled={busy} onClick={onLinkGroup}>Já tenho um grupo</Button> : null}</div></div>
     </section> : null}
-    <TabNavigation value={section} onChange={value => onSection(value as SegmentSection)} label="Conteúdo desta segmentação" items={sections} idPrefix="affiliate-segment" />
+    <TabNavigation className={styles.mobileTabs} value={section} onChange={value => onSection(value as SegmentSection)} label="Conteúdo desta segmentação" items={sections} idPrefix="affiliate-segment" />
     <div role="tabpanel" id={'affiliate-segment-panel-' + section} aria-labelledby={'affiliate-segment-' + section} className={styles.areaPanel} tabIndex={0}>{children}</div>
   </div>
 }

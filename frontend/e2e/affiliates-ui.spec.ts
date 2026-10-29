@@ -71,6 +71,57 @@ async function area(page: Page, name: string) {
   await page.getByRole('tab',{name,exact:true}).click()
 }
 
+test('abas de afiliados cabem por inteiro no celular', async ({ page }, testInfo) => {
+  await fixtures(page)
+  const checkLayout = async () => {
+    await expect(page.getByRole('region', { name: 'Central de afiliados', exact: true })).toBeVisible()
+    await page.evaluate(() => document.fonts.ready)
+    for (const list of await page.getByRole('tablist').all()) {
+      expect(await list.evaluate(element => element.scrollWidth - element.clientWidth)).toBeLessThanOrEqual(1)
+      const frame = await list.boundingBox()
+      for (const tab of await list.getByRole('tab').all()) {
+        const box = await tab.boundingBox()
+        expect(box!.x).toBeGreaterThanOrEqual(frame!.x - 1)
+        expect(box!.x + box!.width).toBeLessThanOrEqual(frame!.x + frame!.width + 1)
+        expect(box!.height).toBeGreaterThanOrEqual(44)
+      }
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1)
+  }
+  for (const width of [320, 390, 430]) {
+    await page.setViewportSize({ width, height: 844 })
+    for (const route of ['', '/segmentacoes', '/conexoes', '/historico', '/catalogo']) {
+      await page.goto(`/admin/afiliados${route}`)
+      await checkLayout()
+      if (route === '/conexoes') {
+        const summary = page.locator('summary').filter({ hasText: 'Mais opções' })
+        expect((await summary.boundingBox())!.height).toBeLessThanOrEqual(60)
+      }
+      if (width === 320 && !route) {
+        await page.getByRole('tab', { name: 'Início', exact: true }).focus()
+        await page.keyboard.press('ArrowRight')
+        await expect(page.getByRole('tab', { name: 'Segmentações', exact: true })).toBeFocused()
+        await page.screenshot({ path: testInfo.outputPath('navigation-320.png'), fullPage: true })
+      }
+    }
+    await page.goto('/admin/afiliados/segmentacoes/segment-1')
+    for (const name of ['Grupos', 'Ofertas', 'Envios']) {
+      await area(page, name)
+      if (name === 'Ofertas') {
+        await expect(page.getByRole('tab', { name: 'Configurações', exact: true })).toBeVisible()
+        for (const option of ['Produtos', 'Descartados', 'Configurações']) {
+          await page.getByRole('tab', { name: option, exact: true }).click()
+          await checkLayout()
+          if (width === 320 && option === 'Produtos') await page.screenshot({ path: testInfo.outputPath('products-320.png'), fullPage: true })
+        }
+      } else await checkLayout()
+    }
+  }
+  await page.goto('/admin/afiliados')
+  await page.evaluate(() => { document.documentElement.style.fontSize = '200%' })
+  await checkLayout()
+})
+
 test('fotos e link do ML funcionam ao navegar de outra área sem recarregar o documento', async ({page})=>{
   await fixtures(page)
   await page.route('**/bff/v1/admin/office**',route=>route.fulfill({json:{windowDays:30,listCap:100,linkStatusCounts:{},metrics:{users:0,bannedUsers:0,links:0,publishedLinks:0,pendingLinks:0,impressions:0,clicks:0,ctr:0,paidCents:0,paidOrders:0},topLinks:[],topPayers:[],users:[],links:[]}}))
