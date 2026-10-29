@@ -191,6 +191,9 @@ test('W04 saída fica no cabeçalho ou no final da sidebar e encerra a sessão',
     })).toBe(true)
   } else {
     await expect(page.getByRole('navigation', { name: 'Navegação principal' }).getByRole('button', { name: 'Sair', exact: true })).toBeVisible()
+    const sidebar = page.getByRole('region', { name: 'Menu lateral', exact: true })
+    await sidebar.focus()
+    await expect(sidebar).toBeFocused()
   }
   await checkLayout(page)
   await page.screenshot({ path: info.outputPath('logout-location.png'), animations: 'disabled' })

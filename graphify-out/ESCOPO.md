@@ -222,3 +222,5 @@ Fechamento dos bloqueios do CI de produção:8547 nós/30789 relações, extraç
 ## Afiliados no celular — 29/10/2026
 
 Extração incremental final code-only: 11 arquivos reprocessados; 8547 nós/30789 relações. Remove a configuração temporária local de teste do índice. Sem LLM/API ou envio externo. CSS não é modelado; responsividade comprovada por 18 E2E e inspeção de capturas, conforme docs/relatorios/2026-10-29-afiliados-mobile.md.
+
+Fechamento dos bloqueios gerais: filtros usam navegação de documento com restauração de foco/rolagem; sidebar rolável ganha região nomeada e foco. Grafo reextraído incrementalmente sem LLM/API; resultados e limites em docs/relatorios/2026-10-29-afiliados-mobile.md.

@@ -145,7 +145,7 @@ export function AreaFrame({
       <main className={styles.shell}>
         <aside className={styles.sidebar}>
           <LiquidLens radius={20}/>
-          <div className={styles.desktopMenu}><WorkspaceNavigation area={admin ? "admin" : "panel"} role={session.role} /></div>
+          <div className={styles.desktopMenu} role="region" aria-label="Menu lateral" tabIndex={0}><WorkspaceNavigation area={admin ? "admin" : "panel"} role={session.role} /></div>
         </aside>
         <div className={styles.content}>
           <PanelTop session={session} title={title} create={create&&!home} />

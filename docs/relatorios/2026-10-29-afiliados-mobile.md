@@ -31,3 +31,13 @@ Reversão: reverter o commit desta correção e publicar pelo mesmo CI. Não há
 CI 40866374880 aprovou as duas suítes de afiliados com os casos separados. SEO mobile detectou ERR_ABORTED quando o teste iniciava page.goto enquanto a recusa de idade ainda navegava para o mesmo documento. Os três pontos de recusa da suíte SEO agora esperam domcontentloaded junto ao clique; política de idade e runtime permanecem iguais. Verificação em banco/containers próprios, com offset de portas 24000 para preservar os serviços locais.
 
 Após a correção de espera, 20/20 E2E SEO desktop/mobile e typecheck passaram localmente. Os containers isolados foram removidos pelo teardown; a porta local 3016 foi preservada.
+
+## Bloqueios reais adicionais da publicação
+
+CI 40868151967 aprovou afiliados e SEO, mas falhou no filtro público e na acessibilidade da sidebar. Nos filtros, respostas RSC terminaram com referências assíncronas sem resolução e a URL/estado de navegação podiam ficar pendentes. O erro também apareceu localmente: uma das três repetições falhou ao limpar a cidade. Resolver o conteúdo da home antes de outra boundary não solucionou o problema (três falhas em seis repetições); essa hipótese foi revertida integralmente.
+
+A solução final mantém os mesmos filtros, validação, URLs, cursor e SSR, usando navegação de documento. Guarda somente caminho, índice do controle e posição de rolagem em sessionStorage; restaura uma vez apenas no caminho correspondente, com índice limitado e rolagem finita. Aguarda o idioma ficar habilitado antes de devolver foco, reabre o painel de filtros e limpa o estado de carregamento em pageshow. Storage bloqueado não impede a navegação. Sete testes do componente passaram, incluindo os cinco casos novos; seis repetições consecutivas do E2E antes instável passaram (mais o setup).
+
+A região rolável da sidebar agora tem nome, foco de teclado e contorno visível, tanto pronta quanto pendente. O E2E W04 preserva sua auditoria Axe e exige foco nessa região no desktop. Não se alterou logout, sessão ou autorização.
+
+Verificação final atual: lint/tipos e 919 testes unitários aprovados; detector mecânico sem achados. Nove jornadas de regressão desktop/mobile (incluindo setup, três casos de descoberta e W04 por projeto) e build aprovados. A causa interna do stream Next/React não foi comprovada; a correção evita esse transporte nos filtros, sem upgrade de dependências nem supressão de erros/testes.
