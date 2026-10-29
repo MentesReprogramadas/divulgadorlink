@@ -71,7 +71,7 @@ async function area(page: Page, name: string) {
   await page.getByRole('tab',{name,exact:true}).click()
 }
 
-test('abas de afiliados cabem por inteiro no celular', async ({ page }, testInfo) => {
+for (const width of [320, 390, 430]) test(`abas de afiliados cabem por inteiro no celular a ${width}px`, async ({ page }, testInfo) => {
   await fixtures(page)
   const checkLayout = async () => {
     await expect(page.getByRole('region', { name: 'Central de afiliados', exact: true })).toBeVisible()
@@ -88,34 +88,32 @@ test('abas de afiliados cabem por inteiro no celular', async ({ page }, testInfo
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1)
   }
-  for (const width of [320, 390, 430]) {
-    await page.setViewportSize({ width, height: 844 })
-    for (const route of ['', '/segmentacoes', '/conexoes', '/historico', '/catalogo']) {
-      await page.goto(`/admin/afiliados${route}`)
-      await checkLayout()
-      if (route === '/conexoes') {
-        const summary = page.locator('summary').filter({ hasText: 'Mais opções' })
-        expect((await summary.boundingBox())!.height).toBeLessThanOrEqual(60)
-      }
-      if (width === 320 && !route) {
-        await page.getByRole('tab', { name: 'Início', exact: true }).focus()
-        await page.keyboard.press('ArrowRight')
-        await expect(page.getByRole('tab', { name: 'Segmentações', exact: true })).toBeFocused()
-        await page.screenshot({ path: testInfo.outputPath('navigation-320.png'), fullPage: true })
-      }
+  await page.setViewportSize({ width, height: 844 })
+  for (const route of ['', '/segmentacoes', '/conexoes', '/historico', '/catalogo']) {
+    await page.goto(`/admin/afiliados${route}`)
+    await checkLayout()
+    if (route === '/conexoes') {
+      const summary = page.locator('summary').filter({ hasText: 'Mais opções' })
+      expect((await summary.boundingBox())!.height).toBeLessThanOrEqual(60)
     }
-    await page.goto('/admin/afiliados/segmentacoes/segment-1')
-    for (const name of ['Grupos', 'Ofertas', 'Envios']) {
-      await area(page, name)
-      if (name === 'Ofertas') {
-        await expect(page.getByRole('tab', { name: 'Configurações', exact: true })).toBeVisible()
-        for (const option of ['Produtos', 'Descartados', 'Configurações']) {
-          await page.getByRole('tab', { name: option, exact: true }).click()
-          await checkLayout()
-          if (width === 320 && option === 'Produtos') await page.screenshot({ path: testInfo.outputPath('products-320.png'), fullPage: true })
-        }
-      } else await checkLayout()
+    if (width === 320 && !route) {
+      await page.getByRole('tab', { name: 'Início', exact: true }).focus()
+      await page.keyboard.press('ArrowRight')
+      await expect(page.getByRole('tab', { name: 'Segmentações', exact: true })).toBeFocused()
+      await page.screenshot({ path: testInfo.outputPath('navigation-320.png'), fullPage: true })
     }
+  }
+  await page.goto('/admin/afiliados/segmentacoes/segment-1')
+  for (const name of ['Grupos', 'Ofertas', 'Envios']) {
+    await area(page, name)
+    if (name === 'Ofertas') {
+      await expect(page.getByRole('tab', { name: 'Configurações', exact: true })).toBeVisible()
+      for (const option of ['Produtos', 'Descartados', 'Configurações']) {
+        await page.getByRole('tab', { name: option, exact: true }).click()
+        await checkLayout()
+        if (width === 320 && option === 'Produtos') await page.screenshot({ path: testInfo.outputPath('products-320.png'), fullPage: true })
+      }
+    } else await checkLayout()
   }
   await page.goto('/admin/afiliados')
   await page.evaluate(() => { document.documentElement.style.fontSize = '200%' })
