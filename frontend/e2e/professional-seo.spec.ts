@@ -433,3 +433,30 @@ test('admin publica coleção de dois links e revisa prévia individual pelo pai
   expect(sql(`SELECT COUNT(*) FROM audit_logs WHERE "tenantId"=${quote(tenant)} AND action='catalog.seo.update'`)).not.toBe('0')
   await stableScreenshot(page, info.outputPath('admin-link-preview-saved.png'))
 })
+
+
+test('convite mantém avatar no head e JPEG público sem contar robôs nem criar grupos', async ({ page }) => {
+  const imageId='60000000-0000-4000-8000-000000000029',segmentId='seo-invite-natal',slug='preview-natal'
+  const png='89504e470d0a1a0a0000000d4948445200000020000000200802000000fc18eda30000000970485973000003e8000003e801b57b526b0000003b4944415448896310a94da5296218b5a076348852475391c868464b1d2d2a44464bd3dad10a4764b4caac1d6d55a48e36bc6a479b8ea983ba750d00a5a3d82ee696e8020000000049454e44ae426082'
+  sql(`INSERT INTO "AffiliateImage"(id,"tenantId",bytes) VALUES(${quote(imageId)},${quote(tenant)},decode(${quote(png)},'hex'));
+    INSERT INTO affiliate_segments(id,"tenantId",name,"groupName",slug,"imageUrl","updatedAt") VALUES(${quote(segmentId)},${quote(tenant)},'Natal','Achadinhos de Natal',${quote(slug)},${quote('affiliate-image:'+imageId)},NOW())`)
+  try {
+    for (const mode of ['REDIRECT','SCREEN']) {
+      sql(`UPDATE affiliate_segments SET "joinMode"=${quote(mode)} WHERE id=${quote(segmentId)}`)
+      const {head}=await headForHtmlLimitedBot(page,'/ofertas/entrar/'+slug)
+      expect(head).toContain('property="og:title" content="Achadinhos de Natal"')
+      expect(head).toContain('name="robots" content="noindex, nofollow"')
+      const image=/<meta property="og:image" content="([^"]+)"/.exec(head)?.[1]
+      expect(image).toContain('/ofertas/entrar/'+slug+'/imagem?v=')
+      const imageUrl=new URL(image!)
+      expect(imageUrl.protocol).toBe('https:')
+      const response=await page.request.get(origin+imageUrl.pathname+imageUrl.search,{headers:{'User-Agent':'facebookexternalhit/1.1'}})
+      expect(response.status()).toBe(200);expect(response.headers()['content-type']).toBe('image/jpeg')
+      expect((await response.body()).subarray(0,2).toString('hex')).toBe('ffd8')
+    }
+    expect(sql(`SELECT COUNT(*) FROM affiliate_invite_metrics WHERE "segmentId"=${quote(segmentId)}`)).toBe('0')
+    expect(sql(`SELECT COUNT(*) FROM affiliate_groups WHERE "segmentId"=${quote(segmentId)}`)).toBe('0')
+  } finally {
+    sql(`DELETE FROM affiliate_segments WHERE id=${quote(segmentId)}; DELETE FROM "AffiliateImage" WHERE id=${quote(imageId)}`)
+  }
+})

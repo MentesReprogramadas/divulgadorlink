@@ -1,3 +1,4 @@
+import { purgeInviteEvents } from '@/use-cases/affiliates/invite-metrics'
 import { runAffiliateDiscovery } from '@/use-cases/affiliates/discovery'
 import {purgeAgencyAccess} from '@/repositories/agency-clients'
 import {purgeButtonTests} from '@/repositories/button-tests'
@@ -298,9 +299,10 @@ export function createWorker(connection: Redis, deps: WorkerDeps, queueName = QU
       }
       if (job.name === 'purge-analytics') {
         const profileDeleted=await purgeProfileInteractions(deps.db??prisma)
+        const inviteDeleted=await purgeInviteEvents(deps.db??prisma)
         await purgeButtonTests(deps.db??prisma)
         await purgeAgencyAccess(deps.db??prisma)
-        const deleted = await runAnalyticsPurge(prismaRetentionView(), new Date())+profileDeleted.count
+        const deleted = await runAnalyticsPurge(prismaRetentionView(), new Date())+profileDeleted.count+inviteDeleted.count
         if (deleted > 0) logDomainEvent('analytics.purged', { entity: String(deleted) })
         return deleted
       }
@@ -396,6 +398,7 @@ export async function startWorker(): Promise<void> {
     await purgeProfileHistory(prisma)
     await purgeSearchObservations(prisma)
     await purgeProfileInteractions(prisma)
+    await purgeInviteEvents(prisma)
     const deleted = await runAnalyticsPurge(prismaRetentionView(), new Date())
     if (deleted > 0) logDomainEvent('analytics.purged', { entity: String(deleted) })
     const stale = await getOrderInsightsRepository().purgeMetaContexts(new Date(Date.now() - META_CONTEXT_TTL_DAYS * day))

@@ -13,8 +13,11 @@ it('redirecionamento padrão consulta uma vez mesmo em StrictMode e permite repe
   render(<StrictMode><SegmentJoin slug="natal" /></StrictMode>)
   expect((await screen.findByRole('alert')).textContent).toContain('WhatsApp indisponível')
   expect(vi.mocked(api).mock.calls.filter(([path]) => path.endsWith('/join'))).toHaveLength(1)
+  expect(vi.mocked(api).mock.calls.filter(([path]) => path.endsWith('/visit'))).toHaveLength(1)
+  expect(JSON.parse(vi.mocked(api).mock.calls.find(([path]) => path.endsWith('/join'))![1]!.body as string).source).toBe('AUTOMATIC')
   fireEvent.click(screen.getByRole('button', { name: 'Tentar novamente' }))
   await waitFor(() => expect(vi.mocked(api).mock.calls.filter(([path]) => path.endsWith('/join'))).toHaveLength(2))
+  expect(JSON.parse(vi.mocked(api).mock.calls.filter(([path]) => path.endsWith('/join'))[1][1]!.body as string).source).toBe('BUTTON')
 })
 
 it('tela opcional só consulta grupo após clique e bloqueia destino externo', async () => {
@@ -24,4 +27,14 @@ it('tela opcional só consulta grupo após clique e bloqueia destino externo', a
   expect(vi.mocked(api).mock.calls.filter(([path]) => path.endsWith('/join'))).toHaveLength(0)
   fireEvent.click(screen.getByRole('button', { name: 'Entrar no grupo de WhatsApp' }))
   expect((await screen.findByRole('alert')).textContent).toContain('convite retornado não é válido')
+})
+
+it('falha na medição não impede a abertura do convite', async () => {
+  vi.mocked(api).mockImplementation(async path => {
+    if (path.endsWith('/visit')) throw new Error('analytics offline')
+    return path.endsWith('/join') ? { status: 503, body: { message: 'Conferindo vagas' } } : { status: 200, body: { name: 'Natal', description: '', available: true } }
+  })
+  render(<SegmentJoin slug="natal" />)
+  expect((await screen.findByRole('alert')).textContent).toContain('Conferindo vagas')
+  expect(vi.mocked(api).mock.calls.filter(([path]) => path.endsWith('/join'))).toHaveLength(1)
 })

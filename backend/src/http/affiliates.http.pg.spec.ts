@@ -1,3 +1,5 @@
+import sharp from 'sharp'
+import { recordInviteEvent, purgeInviteEvents } from '@/use-cases/affiliates/invite-metrics'
 import { randomUUID } from 'node:crypto'
 
 // Snapshot tests keep jobs pending; the integrated flow exercises immediate delivery.
@@ -80,12 +82,17 @@ describe('HTTP e persistência afiliados',()=>{
     expect((await update('REDIRECT')).statusCode).toBe(200)
   })
   it('serve apenas a foto vinculada à segmentação pública ativa deste tenant',async()=>{
-    const id=randomUUID(),bytes=Buffer.from('fixture-avatar')
+    const id=randomUUID(),bytes=await sharp({create:{width:16,height:16,channels:3,background:'#147d65'}}).webp().toBuffer()
     await db.affiliateImage.create({data:{id,tenantId,bytes}})
     try {
       await db.affiliateSegment.update({where:{id:segmentId},data:{imageUrl:`affiliate-image:${id}`}})
       const meta=(await app.inject({url:'/api/v1/public/affiliates/natal',headers:{host}})).json()
       expect(meta.imageUrl).toBe('/bff/v1/public/affiliates/natal/image')
+      expect(meta.shareImageUrl).toMatch(/^\/ofertas\/entrar\/natal\/imagem\?v=[a-f0-9]{16}$/)
+      const preview=await app.inject({url:'/api/v1/public/affiliates/natal/preview-image',headers:{host,'user-agent':'facebookexternalhit'}})
+      expect(preview.statusCode).toBe(200);expect(preview.headers['content-type']).toBe('image/jpeg')
+      expect(await sharp(preview.rawPayload).metadata()).toMatchObject({format:'jpeg',width:600,height:600})
+      expect(await db.affiliateInviteMetrics.findUnique({where:{segmentId}})).toBeNull()
       const image=await app.inject({url:'/api/v1/public/affiliates/natal/image',headers:{host}})
       expect(image.statusCode).toBe(200);expect(image.headers['content-type']).toBe('image/webp');expect(image.rawPayload).toEqual(bytes)
       expect((await app.inject({url:'/api/v1/public/affiliates/ausente/image',headers:{host}})).statusCode).toBe(404)
@@ -95,6 +102,42 @@ describe('HTTP e persistência afiliados',()=>{
       await db.affiliateSegment.update({where:{id:segmentId},data:{imageUrl:null,enabled:true}})
       await db.affiliateImage.delete({where:{id}})
     }
+  })
+  it('conta visitas e cliques de forma idempotente, sem alterar a versão da segmentação',async()=>{
+    const before=await db.affiliateSegment.findUniqueOrThrow({where:{id:segmentId}})
+    const eventId=randomUUID(),visitor={host,'user-agent':'Mozilla/5.0 Safari/537.36'}
+    const visits=await Promise.all(Array.from({length:5},()=>app.inject({method:'POST',url:'/api/v1/public/affiliates/natal/visit',headers:visitor,payload:{eventId}})))
+    expect(visits.every(result=>result.statusCode===200)).toBe(true)
+    expect(visits.every(result=>result.headers['set-cookie']===undefined)).toBe(true)
+    const clickId=randomUUID(),join={method:'POST' as const,url:'/api/v1/public/affiliates/natal/join',headers:visitor,payload:{eventId:clickId,source:'BUTTON'}}
+    expect((await app.inject(join)).statusCode).toBe(200);expect((await app.inject(join)).statusCode).toBe(200)
+    expect((await app.inject({...join,payload:{eventId:randomUUID(),source:'AUTOMATIC'}})).statusCode).toBe(200)
+    const metrics=await db.affiliateInviteMetrics.findUniqueOrThrow({where:{segmentId}})
+    expect(metrics).toMatchObject({tenantId,views:1,buttonClicks:1,buttonRedirects:1,automaticRedirects:1})
+    expect((await db.affiliateSegment.findUniqueOrThrow({where:{id:segmentId}})).updatedAt).toEqual(before.updatedAt)
+    const data=(await app.inject({url:`/api/v1/admin/affiliates/segments/${segmentId}`,headers:headers()})).json()
+    expect(data.segments[0].inviteMetrics.views).toBe(1)
+    const excluded=[{'user-agent':'facebookexternalhit'},{'user-agent':'WhatsApp/2.24'},{dnt:'1'},{'sec-gpc':'1'},{'x-analytics-test':'1'},headers()]
+    for(const extra of excluded){expect((await app.inject({method:'POST',url:'/api/v1/public/affiliates/natal/visit',headers:{...visitor,...extra},payload:{eventId:randomUUID()}})).statusCode).toBe(200)}
+    expect((await db.affiliateInviteMetrics.findUniqueOrThrow({where:{segmentId}})).views).toBe(1)
+    expect((await app.inject({method:'POST',url:'/api/v1/public/affiliates/natal/visit',headers:visitor,payload:{eventId:'bad'}})).statusCode).toBe(400)
+  })
+  it('conta o clique com erro no WhatsApp, sem inventar encaminhamento',async()=>{
+    connectionState='close'
+    const before=await db.affiliateInviteMetrics.findUniqueOrThrow({where:{segmentId}})
+    try {
+      const result=await app.inject({method:'POST',url:'/api/v1/public/affiliates/natal/join',headers:{host,'user-agent':'Mozilla/5.0'},payload:{eventId:randomUUID(),source:'BUTTON'}})
+      expect(result.statusCode).toBe(503)
+      expect(await db.affiliateInviteMetrics.findUniqueOrThrow({where:{segmentId}})).toMatchObject({buttonClicks:before.buttonClicks+1,buttonRedirects:before.buttonRedirects})
+    } finally {connectionState='open'}
+  })
+  it('isola métricas por tenant e expurga apenas chaves temporárias',async()=>{
+    const metrics=await db.affiliateInviteMetrics.findUniqueOrThrow({where:{segmentId}})
+    await expect(recordInviteEvent(db,'other-tenant',segmentId,randomUUID(),'VIEW')).rejects.toThrow()
+    await db.affiliateInviteEvent.updateMany({where:{tenantId,segmentId},data:{createdAt:new Date(Date.now()-4*86400000)}})
+    await purgeInviteEvents(db)
+    expect(await db.affiliateInviteEvent.count({where:{tenantId,segmentId}})).toBe(0)
+    expect(await db.affiliateInviteMetrics.findUniqueOrThrow({where:{segmentId}})).toEqual(metrics)
   })
   it('abre a segmentação exata com dados, totais e histórico isolados',async()=>{
     const extra=await db.affiliateInstance.create({data:{tenantId,name:'Outra conta'}})

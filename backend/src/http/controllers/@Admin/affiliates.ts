@@ -16,9 +16,24 @@ import { requireAffiliateAdmin } from './affiliate-access'
 import { affiliateImageId } from '@/domain/affiliates/image'
 import { ProfileError } from '@/domain/profiles/profile'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
+import { readAccessUser } from '@/http/middlewares/verify-jwt'
+import { measurementTrafficAllowed } from '@/domain/analytics/measurement-policy'
+import { recordInviteEvent, type InviteEventKind } from '@/use-cases/affiliates/invite-metrics'
+import sharp from 'sharp'
+import { createHash } from 'node:crypto'
 
 const prefix = '/admin/affiliates'
 const idParam = z.object({id:entityId})
+const inviteEventInput = z.object({eventId:z.uuid()}).strict()
+async function captureInviteEvent(q:FastifyRequest,tenantId:string,slug:string,eventId:string|undefined,kind:InviteEventKind) {
+  if(!eventId || q.supportSession || q.workspaceActor || !measurementTrafficAllowed({userAgent:q.headers['user-agent'],dnt:q.headers.dnt as string|undefined,gpc:q.headers['sec-gpc'] as string|undefined,testTraffic:(q.headers['x-test-traffic']??q.headers['x-analytics-test']) as string|undefined})) return
+  try {
+    const user=await readAccessUser(q)
+    if(user?.tenantId===tenantId && await prisma.user.count({where:{id:user.sub,tenantId,role:'ADMIN'}})) return
+    const segment=await prisma.affiliateSegment.findFirst({where:{tenantId,slug,enabled:true},select:{id:true}})
+    if(segment) await recordInviteEvent(prisma,tenantId,segment.id,eventId,kind)
+  } catch {q.log.warn({event:'affiliate.invite.measurement.failed'},'Falha ao contar acesso ao convite')}
+}
 async function run(q:FastifyRequest,r:FastifyReply,work:(tenantId:string,actorId:string)=>Promise<unknown>,publicRoute=false) {
   r.header('cache-control','private, no-store').header('x-robots-tag','noindex, nofollow')
   try {
@@ -48,7 +63,7 @@ async function segmentInstances(tenantId:string,ids:string[],checkConnection:boo
   return rows
 }
 async function affiliateSnapshot(tenantId:string,segmentId?:string) {
-  const segments=await prisma.affiliateSegment.findMany({where:{tenantId,...(segmentId?{id:segmentId}:{})},orderBy:{createdAt:'desc'},take:segmentId?1:200,include:{_count:{select:{groups:true,offers:true}},instance:{select:{id:true,name:true}},instanceLinks:{include:{instance:{select:{id:true,name:true,enabled:true}}}}}})
+  const segments=await prisma.affiliateSegment.findMany({where:{tenantId,...(segmentId?{id:segmentId}:{})},orderBy:{createdAt:'desc'},take:segmentId?1:200,include:{inviteMetrics:true,_count:{select:{groups:true,offers:true}},instance:{select:{id:true,name:true}},instanceLinks:{include:{instance:{select:{id:true,name:true,enabled:true}}}}}})
   if(segmentId&&!segments.length) throw new AffiliateError(404,'Segmentação não encontrada.')
   const instanceIds=[...new Set(segments.flatMap(segment=>segment.instanceLinks.length?segment.instanceLinks.map(link=>link.instanceId):segment.instanceId?[segment.instanceId]:[]))]
   const scope={tenantId,...(segmentId?{segmentId}:{})},instanceScope={tenantId,...(segmentId?{id:{in:instanceIds}}:{})}
@@ -223,7 +238,7 @@ export async function registerAffiliateRoutes(app:FastifyInstance) {
     const {slug}=z.object({slug:segmentInput.shape.slug}).parse(q.params)
     const segment=await prisma.affiliateSegment.findFirst({where:{tenantId,slug,enabled:true},select:{name:true,groupName:true,description:true,imageUrl:true,joinMode:true,autoExpand:true,instance:{select:{enabled:true}},instanceLinks:{where:{instance:{enabled:true}},select:{instanceId:true}},groups:{where:{enabled:true},select:{participantCount:true,capacity:true,instance:{select:{enabled:true}}}}}})
     if(!segment) throw new AffiliateError(404,'Segmentação indisponível.')
-    return {name:segment.groupName ?? segment.name,description:segment.description,imageUrl:segment.imageUrl?(affiliateImageId(segment.imageUrl)?`/bff/v1/public/affiliates/${slug}/image`:segment.imageUrl):null,joinMode:segment.joinMode,available:segment.groups.some(group=>group.participantCount<group.capacity&&(segment.instanceLinks.length||group.instance.enabled))||Boolean(segment.autoExpand&&(segment.instanceLinks.length||segment.instance?.enabled))}
+    return {name:segment.groupName ?? segment.name,description:segment.description,shareImageUrl:segment.imageUrl?(affiliateImageId(segment.imageUrl)?`/ofertas/entrar/${slug}/imagem?v=${createHash('sha256').update(segment.imageUrl).digest('hex').slice(0,16)}`:segment.imageUrl):null,imageUrl:segment.imageUrl?(affiliateImageId(segment.imageUrl)?`/bff/v1/public/affiliates/${slug}/image`:segment.imageUrl):null,joinMode:segment.joinMode,available:segment.groups.some(group=>group.participantCount<group.capacity&&(segment.instanceLinks.length||group.instance.enabled))||Boolean(segment.autoExpand&&(segment.instanceLinks.length||segment.instance?.enabled))}
   },true))
   app.get('/public/affiliates/:slug/image',(q,r)=>run(q,r,async tenantId=>{
     const {slug}=z.object({slug:segmentInput.shape.slug}).parse(q.params)
@@ -234,5 +249,27 @@ export async function registerAffiliateRoutes(app:FastifyInstance) {
     r.header('x-content-type-options','nosniff').type('image/webp')
     return Buffer.from(image.bytes)
   },true))
-  app.post('/public/affiliates/:slug/join',(q,r)=>run(q,r,tenantId=>joinAffiliateSegment(prisma,tenantId,z.object({slug:segmentInput.shape.slug}).parse(q.params).slug),true))
+  app.get('/public/affiliates/:slug/preview-image',(q,r)=>run(q,r,async tenantId=>{
+    const {slug}=z.object({slug:segmentInput.shape.slug}).parse(q.params)
+    const segment=await prisma.affiliateSegment.findFirst({where:{tenantId,slug,enabled:true},select:{imageUrl:true}})
+    const imageId=segment?.imageUrl?affiliateImageId(segment.imageUrl):null
+    const image=imageId?await prisma.affiliateImage.findFirst({where:{id:imageId,tenantId},select:{bytes:true}}):null
+    if(!image) throw new AffiliateError(404,'Imagem não encontrada.')
+    const bytes=await sharp(Buffer.from(image.bytes),{limitInputPixels:512*512}).rotate().resize(600,600,{fit:'contain',background:'#0a192f'}).flatten({background:'#0a192f'}).jpeg({quality:85}).toBuffer()
+    r.header('x-content-type-options','nosniff').type('image/jpeg')
+    return bytes
+  },true))
+  app.post('/public/affiliates/:slug/visit',(q,r)=>run(q,r,async tenantId=>{
+    const {slug}=z.object({slug:segmentInput.shape.slug}).parse(q.params),{eventId}=inviteEventInput.parse(q.body)
+    await captureInviteEvent(q,tenantId,slug,eventId,'VIEW')
+    return {ok:true}
+  },true))
+  app.post('/public/affiliates/:slug/join',(q,r)=>run(q,r,async tenantId=>{
+    const {slug}=z.object({slug:segmentInput.shape.slug}).parse(q.params)
+    const body=z.object({eventId:z.uuid().optional(),source:z.enum(['AUTOMATIC','BUTTON']).optional()}).strict().refine(value=>Boolean(value.eventId)===Boolean(value.source)).parse(q.body??{})
+    if(body.source==='BUTTON') await captureInviteEvent(q,tenantId,slug,body.eventId,'BUTTON_CLICK')
+    const result=await joinAffiliateSegment(prisma,tenantId,slug)
+    if(body.source) await captureInviteEvent(q,tenantId,slug,body.eventId,body.source==='AUTOMATIC'?'AUTOMATIC_REDIRECT':'BUTTON_REDIRECT')
+    return result
+  },true))
 }

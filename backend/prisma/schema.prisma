@@ -157,9 +157,36 @@ model AffiliateSegment {
   discoveryPages AffiliateDiscoveryPage[]
   productDecisions AffiliateProductDecision[]
   instanceLinks AffiliateSegmentInstance[]
+  inviteMetrics AffiliateInviteMetrics?
+  inviteEvents AffiliateInviteEvent[]
   @@unique([id, tenantId])
   @@unique([tenantId, slug])
   @@map("affiliate_segments")
+}
+
+model AffiliateInviteMetrics {
+  segmentId String @id
+  tenantId String
+  segment AffiliateSegment @relation(fields: [segmentId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  views Int @default(0)
+  buttonClicks Int @default(0)
+  automaticRedirects Int @default(0)
+  buttonRedirects Int @default(0)
+  createdAt DateTime @default(now())
+  @@unique([segmentId, tenantId])
+  @@map("affiliate_invite_metrics")
+}
+
+model AffiliateInviteEvent {
+  tenantId String
+  segmentId String
+  eventId String @db.Uuid
+  kind String
+  createdAt DateTime @default(now())
+  segment AffiliateSegment @relation(fields: [segmentId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  @@id([tenantId, segmentId, eventId, kind])
+  @@index([createdAt])
+  @@map("affiliate_invite_events")
 }
 
 model AffiliateDiscovery {

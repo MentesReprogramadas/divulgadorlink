@@ -97,11 +97,12 @@ it('requer revisão e reutiliza a chave quando a confirmação do envio falha', 
   expect(save.mock.calls[0][0].idempotencyKey).toMatch(/^[a-f0-9-]{36}$/)
 })
 
-it('a abertura do convite apenas consulta; entrar exige clique e rejeita destino externo', async () => {
+it('a abertura conta a visita sem entrar; entrar exige clique e rejeita destino externo', async () => {
   vi.mocked(api).mockImplementation(async (_path, init) => init?.method === 'POST' ? { status: 200, body: { url: 'https://outside.example/' } } : { status: 200, body: { name: 'Natal', description: 'Ofertas de Natal', available: true, joinMode: 'SCREEN' } })
   render(<SegmentJoin slug="natal" />)
   await screen.findByRole('heading', { name: 'Natal' })
-  expect(vi.mocked(api).mock.calls.every(([, init]) => init?.method !== 'POST')).toBe(true)
+  expect(vi.mocked(api).mock.calls.filter(([path]) => path.endsWith('/join'))).toHaveLength(0)
+  expect(vi.mocked(api).mock.calls.filter(([path]) => path.endsWith('/visit'))).toHaveLength(1)
   fireEvent.click(screen.getByRole('button', { name: 'Entrar no grupo de WhatsApp' }))
   expect((await screen.findByRole('alert')).textContent).toContain('convite retornado não é válido')
   expect(api).toHaveBeenCalledWith('/v1/public/affiliates/natal/join', expect.objectContaining({ method: 'POST', headers: { 'x-workspace-owner': 'self' } }))

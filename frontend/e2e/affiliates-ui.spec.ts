@@ -7,7 +7,7 @@ import { selectOption } from './select-control'
 
 // Deterministic UI contracts. Provider/API behavior is covered by backend tests, never real accounts.
 const instance = { id: 'instance-1', name: 'Natal 01', ownerPhone: '5511999999999', configured: true, enabled: true }
-const segment = { id: 'segment-1', name: 'Natal', groupName: 'Ofertas de Natal', instanceIds: [instance.id], slug: 'natal', description: 'Presentes e ofertas para celebrar o Natal.', imageUrl: null, capacity: 1024, instanceId: instance.id, autoExpand: true, enabled: true, provisionState: 'IDLE' }
+const segment = { id: 'segment-1', name: 'Natal', groupName: 'Ofertas de Natal', instanceIds: [instance.id], slug: 'natal', description: 'Presentes e ofertas para celebrar o Natal.', imageUrl: null, capacity: 1024, instanceId: instance.id, autoExpand: true, enabled: true, provisionState: 'IDLE', inviteMetrics: {views:124,buttonClicks:18,automaticRedirects:70,buttonRedirects:15,createdAt:'2026-10-29T12:00:00Z'} }
 const groups = [1, 2, 3].map(sequence => ({ id: `group-${sequence}`, jid: `12036300000000${sequence}@g.us`, name: sequence === 1 ? 'Natal' : `Natal #${sequence}`, segmentId: segment.id, instanceId: instance.id, participantCount: sequence === 1 ? 1024 : sequence === 2 ? 840 : 120, capacity: 1024, enabled: true, syncedAt: '2026-10-28T12:00:00Z', segment, instance }))
 const offer = { id: 'offer-1', segmentId: segment.id, segment, title: 'Árvore de Natal 1,80 m', productUrl: 'https://www.mercadolivre.com.br/p/MLB123', affiliateUrl: 'https://meli.la/fixture', priceCents: 12990, oldPriceCents: 15990, imageUrl: null, note: 'Confira as medidas e as opções do anúncio.', status: 'DRAFT', checkedAt: '2026-10-28T12:00:00Z', expiresAt: null }
 const broadcast = { id: 'broadcast-1', offerId: offer.id, offer, message: 'Árvore de Natal 1,80 m\nR$ 129,90\nhttps://meli.la/fixture', scheduledAt: '2026-10-28T12:00:00Z', createdAt: '2026-10-28T12:00:00Z', _count: { deliveries: 3 } }
@@ -217,6 +217,9 @@ test('admin gerencia segmentos, revisa oferta e confere entrega sem reenvio impl
   await expect(edit).toBeFocused()
   await area(page, 'Grupos')
   await expect(page.getByRole('table')).toContainText('Natal #3')
+  await expect(page.getByRole('region',{name:'Desempenho do convite'})).toBeVisible()
+  await expect(page.getByText('70 automáticos · 15 pelo botão')).toBeVisible()
+  expect((await new AxeBuilder({page}).include('[aria-label="Desempenho do convite"]').analyze()).violations).toEqual([])
   await capture(page, 'groups', testInfo.project.name)
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true)
   if (testInfo.project.name === 'affiliates-desktop') {
