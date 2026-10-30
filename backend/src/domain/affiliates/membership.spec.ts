@@ -4,6 +4,22 @@ import { membershipIdentity, membershipWebhookSecret, parseMembershipEvent, memb
 const key=Buffer.alloc(32,42).toString('base64')
 const body={event:'group-participants.update',instance:'Natal',date_time:'2026-10-29T15:00:00.000Z',data:{id:'123@g.us',action:'add',participants:['456@lid']}}
 describe('membership trust boundary',()=>{
+  it('normalizes only an explicitly configured provider wall clock and preserves ordinary UTC timestamps',()=>{
+    expect(parseMembershipEvent(body)?.occurredAt.toISOString()).toBe('2026-10-29T15:00:00.000Z')
+    expect(parseMembershipEvent(body,0)?.occurredAt.toISOString()).toBe('2026-10-29T15:00:00.000Z')
+    expect(parseMembershipEvent(body,180)?.occurredAt.toISOString()).toBe('2026-10-29T18:00:00.000Z')
+    expect(parseMembershipEvent(body,-180)?.occurredAt.toISOString()).toBe('2026-10-29T12:00:00.000Z')
+    expect(parseMembershipEvent({...body,date_time:'2026-10-29T23:38:00Z'},180)?.occurredAt.toISOString()).toBe('2026-10-30T02:38:00.000Z')
+    const explicitOffset={...body,date_time:'2026-10-29T15:00:00-03:00'}
+    expect(parseMembershipEvent(explicitOffset)?.occurredAt.toISOString()).toBe('2026-10-29T18:00:00.000Z')
+    expect(parseMembershipEvent(explicitOffset,180)).toBeNull()
+    expect(parseMembershipEvent({...body,date_time:'2026-10-29T15:00:00+00:00'},180)).toBeNull()
+  })
+  it('rejects noninteger, out-of-range and non-quarter-hour provider offsets',()=>{
+    for(const offset of [Number.NaN,Infinity,180.5,10,855,-855]) expect(parseMembershipEvent(body,offset)).toBeNull()
+    expect(parseMembershipEvent(body,840)).not.toBeNull()
+    expect(parseMembershipEvent(body,-840)).not.toBeNull()
+  })
   it('accepts strings and current Baileys contacts without converting LID to phone',()=>{
     expect(parseMembershipEvent(body)?.participants).toEqual(['456@lid'])
     expect(parseMembershipEvent({...body,data:{...body.data,participants:[{id:'456@lid',phoneNumber:'5511999999999@s.whatsapp.net'}]}})?.participants).toEqual(['456@lid'])

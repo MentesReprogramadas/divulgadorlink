@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto'
 import { PrismaClient } from '@prisma/client'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { baselineAffiliateMembership, recordAffiliateMembership, purgeAffiliateMembership } from './membership'
-import { membershipIdentity, type parseMembershipEvent } from '@/domain/affiliates/membership'
+import { membershipIdentity, parseMembershipEvent } from '@/domain/affiliates/membership'
 
 const url=process.env.AFFILIATE_DATABASE_URL
 if(!url || !['localhost','127.0.0.1'].includes(new URL(url).hostname)) throw new Error('Disposable local AFFILIATE_DATABASE_URL required')
@@ -61,5 +61,22 @@ describe('durable membership accounting',()=>{
     const later=new Date(at.getTime()+1000)
     await recordAffiliateMembership(db,tenantId,instanceId,event('add','444@lid',later),key,later)
     expect(await db.affiliateMembershipDaily.findFirstOrThrow({where:{tenantId,day:new Date('2027-02-02T00:00:00Z')}})).toMatchObject({joins:0,leaves:0,rejoins:0})
+  })
+  it('counts corrected local-wall-clock events after baseline while preserving stale and duplicate guards',async()=>{
+    const existing=await db.affiliateGroup.findUniqueOrThrow({where:{id:groupId}})
+    const clockGroup=await db.affiliateGroup.create({data:{tenantId,segmentId:existing.segmentId,instanceId,jid:'456@g.us',name:'Clock fixture',sequence:2}})
+    const baselineAt=new Date('2026-10-30T02:36:00Z'),receivedAt=new Date('2026-10-30T02:38:00Z')
+    await baselineAffiliateMembership(db,tenantId,clockGroup.id,key,async()=>[],baselineAt)
+    const raw={event:'group-participants.update',instance:'one',date_time:'2026-10-29T23:38:00Z',data:{id:clockGroup.jid,action:'add',participants:['777@lid']}}
+    const corrected=parseMembershipEvent(raw,180)!
+    expect(new Date(raw.date_time)<baselineAt).toBe(true)
+    await recordAffiliateMembership(db,tenantId,instanceId,corrected,key,receivedAt)
+    await recordAffiliateMembership(db,tenantId,instanceId,corrected,key,new Date('2026-10-30T02:45:00Z'))
+    const old=parseMembershipEvent({...raw,date_time:'2026-10-29T23:35:00Z',data:{...raw.data,participants:['888@lid']}},180)!
+    await recordAffiliateMembership(db,tenantId,instanceId,old,key,new Date('2026-10-30T02:45:00Z'))
+    const lateRemove=parseMembershipEvent({...raw,date_time:'2026-10-29T23:37:00Z',data:{...raw.data,action:'remove'}},180)!
+    await recordAffiliateMembership(db,tenantId,instanceId,lateRemove,key,new Date('2026-10-30T02:45:00Z'))
+    expect(await db.affiliateMembershipDaily.findFirstOrThrow({where:{tenantId,groupId:clockGroup.id}})).toMatchObject({joins:1,leaves:0,rejoins:0,staleEvents:2})
+    expect(await db.affiliateMembershipTracking.findUniqueOrThrow({where:{groupId:clockGroup.id}})).toMatchObject({baselineAt})
   })
 })

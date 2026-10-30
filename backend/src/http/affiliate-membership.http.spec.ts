@@ -10,6 +10,21 @@ import { membershipWebhookSecret } from '@/domain/affiliates/membership'
 const body={event:'group-participants.update',instance:'one',date_time:'2026-10-29T15:00:00Z',data:{id:'123@g.us',participants:['456@lid'],action:'add'}}
 beforeEach(()=>{vi.clearAllMocks();mocks.find.mockResolvedValue({id:'one-id',tenantId:'tenant',name:'one',enabled:true});mocks.record.mockResolvedValue('accepted');mocks.admin.mockImplementation(async(_q,r)=>{r.code(401).send({});return null})})
 describe('membership receiver authentication',()=>{
+  it('normalizes the authenticated provider offset and rejects invalid headers only after secret verification',async()=>{
+    const app=Fastify();await app.register(affiliateMembershipRoutes)
+    const send=(offset:string,secret=membershipWebhookSecret(mocks.key,'tenant','one-id'),payload:object=body)=>app.inject({method:'POST',url:'/integrations/evolution/affiliate-membership/one-id/webhook',headers:{'x-evolution-secret':secret,'x-evolution-clock-offset-minutes':offset},payload})
+    expect((await send('180')).statusCode).toBe(200)
+    expect(mocks.record).toHaveBeenLastCalledWith(expect.anything(),'tenant','one-id',expect.objectContaining({occurredAt:new Date('2026-10-29T18:00:00Z')}),mocks.key)
+    mocks.record.mockClear()
+    for(const offset of ['180.5','10','855','-855','abc','180,180','']) {
+      const response=await send(offset)
+      expect(response.statusCode).toBe(400);expect(response.json()).toEqual({accepted:false})
+    }
+    expect((await send('180',undefined,{...body,date_time:'2026-10-29T15:00:00-03:00'})).statusCode).toBe(400)
+    expect((await send('bad',membershipWebhookSecret(mocks.key,'other-tenant','one-id'))).statusCode).toBe(401)
+    expect(mocks.record).not.toHaveBeenCalled()
+    await app.close()
+  })
   it('requires instance scoped secret, rejects spoofed name, never counts bad auth',async()=>{
     const app=Fastify();await app.register(affiliateMembershipRoutes)
     const send=(secret?:string,payload:object=body)=>app.inject({method:'POST',url:'/integrations/evolution/affiliate-membership/one-id/webhook',headers:secret?{'x-evolution-secret':secret}:{},payload})

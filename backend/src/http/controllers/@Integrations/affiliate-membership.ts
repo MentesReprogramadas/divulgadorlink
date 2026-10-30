@@ -21,7 +21,9 @@ export async function affiliateMembershipRoutes(app:FastifyInstance) {
       const {instanceId}=z.object({instanceId:entityId}).parse(q.params)
       const instance=await prisma.affiliateInstance.findUnique({where:{id:instanceId}})
       if(!instance?.enabled || !secretEquals(supplied,membershipWebhookSecret(env.WEBHOOK_ENCRYPTION_KEY,instance.tenantId,instance.id))) return r.code(401).send({accepted:false})
-      const event=parseMembershipEvent(q.body)
+      const offset=q.headers['x-evolution-clock-offset-minutes']
+      if(offset!==undefined && (typeof offset!=='string' || !/^-?\d{1,3}$/.test(offset))) return r.code(400).send({accepted:false})
+      const event=parseMembershipEvent(q.body,offset===undefined?0:Number(offset))
       if(!event || event.instance!==instance.name) return r.code(400).send({accepted:false})
       const result=await recordAffiliateMembership(prisma,instance.tenantId,instance.id,event,env.WEBHOOK_ENCRYPTION_KEY)
       return {accepted:result!=='unrelated',result}

@@ -5,9 +5,12 @@ import { groupJid } from './contracts'
 const participant=z.string().max(100).regex(/^\d+(?::\d+)?@(lid|s\.whatsapp\.net)$/)
 export const membershipParticipant=z.union([participant,z.object({id:participant})]).transform(row=>typeof row==='string'?row:row.id)
 const event=z.object({event:z.literal('group-participants.update'),instance:z.string().min(1).max(200),date_time:z.iso.datetime({offset:true}),data:z.object({id:groupJid,action:z.enum(['add','remove']),participants:z.array(membershipParticipant).min(1).max(2048)})})
-export function parseMembershipEvent(body:unknown) {
+export function parseMembershipEvent(body:unknown,clockOffsetMinutes=0) {
+  if(!Number.isInteger(clockOffsetMinutes) || Math.abs(clockOffsetMinutes)>840 || clockOffsetMinutes%15!==0) return null
   const parsed=event.safeParse(body)
-  return parsed.success?{instance:parsed.data.instance,jid:parsed.data.data.id,action:parsed.data.data.action,participants:[...new Set(parsed.data.data.participants)],occurredAt:new Date(parsed.data.date_time)}:null
+  if(!parsed.success || (clockOffsetMinutes!==0 && !parsed.data.date_time.endsWith('Z'))) return null
+  // Evolution 2.3.7 can label local wall time as Z; only configured authenticated providers receive this correction.
+  return {instance:parsed.data.instance,jid:parsed.data.data.id,action:parsed.data.data.action,participants:[...new Set(parsed.data.data.participants)],occurredAt:new Date(Date.parse(parsed.data.date_time)+clockOffsetMinutes*60_000)}
 }
 function digest(master:string|undefined,parts:string[]) {
   if(!master || !/^[A-Za-z0-9+/]{43}=$/.test(master)||Buffer.from(master,'base64').length!==32) throw new Error('Membership secure configuration unavailable')
