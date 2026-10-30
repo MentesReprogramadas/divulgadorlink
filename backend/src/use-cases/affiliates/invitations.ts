@@ -3,6 +3,7 @@ import { AffiliateError, groupName } from '@/domain/affiliates/contracts'
 import type { AffiliateWhatsApp } from '@/adapters/affiliates/evolution'
 import { affiliateEvolution } from './instances'
 import { resolveStoredAffiliateImage } from './images'
+import { resolveStoredAffiliateInvite } from './stored-invite'
 
 type Factory = (instance:AffiliateInstance)=>AffiliateWhatsApp
 export async function prepareFirstAffiliateGroup(db:PrismaClient,tenantId:string,actorId:string,id:string,factory:Factory=affiliateEvolution) {
@@ -20,6 +21,8 @@ export async function joinAffiliateSegment(db:PrismaClient,tenantId:string,slug:
   const accounts = segment.instanceLinks.length ? segment.instanceLinks.map(link=>link.instance).filter(instance=>instance.enabled):segment.instance?.enabled?[segment.instance]:[]
   // Unknown occupancy never justifies creating another group; try only selected accounts.
   for (const group of segment.groups) {
+    const saved=await resolveStoredAffiliateInvite(db,tenantId,segment,group)
+    if(saved)return saved
     let checked = false
     const candidates = segment.instanceLinks.length ? accounts:group.instance.enabled?[group.instance]:accounts
     for (const instance of candidates) {

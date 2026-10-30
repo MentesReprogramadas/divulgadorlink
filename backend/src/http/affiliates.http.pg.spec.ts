@@ -115,6 +115,7 @@ describe('HTTP e persistência afiliados',()=>{
     const visitor={host,'user-agent':'Mozilla/5.0 Chrome/130.0','sec-fetch-dest':'document','sec-fetch-mode':'navigate'}
     try {
       for(const change of ['group','instance','mode','instance-config','capacity'] as const){
+        await db.affiliateGroup.updateMany({where:{tenantId},data:{inviteUrl:null}})
         transport.mockImplementation(async(input,init)=>{
           if(new URL(String(input)).pathname.includes('findGroupInfos')){
             if(change==='group')await db.affiliateGroup.updateMany({where:{tenantId},data:{enabled:false}})
@@ -189,7 +190,18 @@ describe('HTTP e persistência afiliados',()=>{
     expect((await db.affiliateInviteMetrics.findUniqueOrThrow({where:{segmentId}})).views).toBe(1)
     expect((await app.inject({method:'POST',url:'/api/v1/public/affiliates/natal/visit',headers:visitor,payload:{eventId:'bad'}})).statusCode).toBe(400)
   })
-  it('conta o clique com erro no WhatsApp, sem inventar encaminhamento',async()=>{
+  it('encaminha convite salvo com WhatsApp desconectado, sem consultar o provedor',async()=>{
+    connectionState='close'
+    const transport=vi.mocked(fetch);transport.mockClear()
+    try {
+      const result=await app.inject({method:'POST',url:'/api/v1/public/affiliates/natal/join',headers:{host,dnt:'1'},payload:{}})
+      expect(result.statusCode).toBe(200)
+      expect(result.json()).toHaveProperty('url','https://chat.whatsapp.com/AbCdEf0123456789AbCdEf')
+      expect(transport).not.toHaveBeenCalled()
+    } finally {connectionState='open'}
+  })
+  it('sem convite salvo, conta o clique com erro no WhatsApp sem inventar encaminhamento',async()=>{
+    await db.affiliateGroup.updateMany({where:{tenantId},data:{inviteUrl:null}})
     connectionState='close'
     const before=await db.affiliateInviteMetrics.findUniqueOrThrow({where:{segmentId}})
     try {

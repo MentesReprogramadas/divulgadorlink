@@ -74,10 +74,11 @@ describe('PostgreSQL afiliados',()=>{
     await db.affiliateSegmentInstance.createMany({data:[{tenantId,segmentId,instanceId},{tenantId,segmentId,instanceId:second.id}]})
     return second
   }
-  it('convite quente ainda verifica capacidade real e não devolve grupo cheio',async()=>{
+  it('convite salvo respeita lotação sincronizada e não devolve grupo cheio',async()=>{
     await db.affiliateSegment.update({where:{id:segmentId},data:{autoExpand:false}})
     const port={...remote(),status:vi.fn(async()=>({state:'open'}))}
     await joinAffiliateSegment(db,tenantId,'natal',()=>port)
+    await db.affiliateGroup.updateMany({where:{tenantId,segmentId},data:{participantCount:10}})
     port.invite.mockClear();port.group.mockImplementation(async jid=>({jid,name:'Natal #1',participantCount:10,description:'',imageUrl:null}))
     await expect(joinAffiliateSegment(db,tenantId,'natal',()=>port)).rejects.toMatchObject({status:409})
     expect(port.invite).not.toHaveBeenCalled();expect(port.create).not.toHaveBeenCalled()
@@ -242,6 +243,17 @@ describe('PostgreSQL afiliados',()=>{
     const port=remote()
     expect(await joinAffiliateSegment(db,tenantId,'natal',()=>port)).toHaveProperty('url')
     expect(port.create).not.toHaveBeenCalled();expect(port.group).toHaveBeenCalledWith('123@g.us')
+  })
+  it('mantém convite salvo acessível sem instância e bloqueia grupo pausado e outro tenant',async()=>{
+    const url='https://chat.whatsapp.com/AbCdEf0123456789AbCdEf'
+    await db.affiliateGroup.updateMany({where:{tenantId,segmentId},data:{inviteUrl:url}})
+    await db.affiliateInstance.update({where:{id:instanceId},data:{enabled:false}})
+    const factory=vi.fn(()=>{throw new Error('offline')})
+    expect(await joinAffiliateSegment(db,tenantId,'natal',factory)).toEqual({url})
+    expect(factory).not.toHaveBeenCalled()
+    await expect(joinAffiliateSegment(db,otherTenant,'natal',factory)).rejects.toMatchObject({status:404})
+    await db.affiliateGroup.updateMany({where:{tenantId,segmentId},data:{enabled:false}})
+    await expect(joinAffiliateSegment(db,tenantId,'natal',factory)).rejects.toMatchObject({status:503})
   })
   it('serializa expansão concorrente e copia metadados e sufixo',async()=>{
     const port=remote();port.group.mockImplementation(async jid=>({jid,name:jid==='123@g.us'?'Natal #1':'Natal #2',participantCount:jid==='123@g.us'?10:1,description:'Natal para todos',imageUrl:null}))
