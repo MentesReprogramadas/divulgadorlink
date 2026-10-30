@@ -3,7 +3,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import {useReadOnly} from '@/components/ui/interaction-policy'
 
 import { ActionIcon } from '@/components/ui/action-icon'
-import { useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Button } from '@/components/ui/button'
 import styles from './renewal-reminders.module.css'
 
@@ -11,10 +11,11 @@ export function ReminderPreferenceForm({ enabled, onSave }: { enabled: boolean; 
  const readOnly=useReadOnly()
   const [value, setValue] = useState(enabled), [pending, setPending] = useState(false), [error, setError] = useState(''), [saved, setSaved] = useState(false)
   const busy = useRef(false), confirmation = useRef<HTMLParagraphElement>(null)
+  useEffect(() => { if (saved) confirmation.current?.focus() }, [saved])
   async function submit(event: FormEvent) {
     event.preventDefault(); if (busy.current) return
     busy.current = true; setPending(true); setError(''); setSaved(false)
-    try { await onSave(value); setSaved(true); requestAnimationFrame(() => confirmation.current?.focus()) }
+    try { await onSave(value); setSaved(true) }
     catch (error) { setError(error instanceof Error ? error.message : 'Não foi possível salvar. Tente novamente.') }
     finally { busy.current = false; setPending(false) }
   }

@@ -5,8 +5,15 @@ import { RenewalRemindersScreen } from '../renewal-reminders-screen'
 import { api } from '@/lib/api'
 
 vi.mock('@/lib/api', () => ({ api: vi.fn() }))
-afterEach(() => { cleanup(); vi.resetAllMocks() })
+afterEach(() => { cleanup(); vi.resetAllMocks(); vi.unstubAllGlobals() })
 describe('F02 preferências e avisos', () => {
+  it('foca a confirmação após persistir e montar a mensagem mesmo com frame antecipado', async () => {
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => { callback(0); return 1 })
+    render(<ReminderPreferenceForm enabled={false} onSave={vi.fn().mockResolvedValue(undefined)} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar preferência' }))
+    const confirmation = await screen.findByRole('status')
+    await waitFor(() => expect(document.activeElement).toBe(confirmation))
+  })
   it('F02-C01 só confirma após persistir e bloqueia duplicação', async () => {
     let finish = () => {}
     const save = vi.fn(() => new Promise<void>(resolve => { finish = resolve }))
