@@ -4,21 +4,30 @@ export function bindApiWorkspace(ownerId:string|null){workspaceScope=ownerId??'s
 
 let csrfBootstrap: Promise<string> | null = null
 function bootstrapCsrf(): Promise<string> {
-  csrfBootstrap ??= (async () => {
+  const browser = typeof window !== 'undefined' ? window : undefined
+  const shared = browser?.__temlinkCsrfBootstrap ?? csrfBootstrap
+  if (shared) return shared
+  const bootstrap = (async () => {
     const response = await fetch('/bff/v1/auth/csrf', { method: 'GET', credentials: 'include', cache: 'no-store' })
     if (!response.ok) throw new Error('Não foi possível preparar a sessão. Tente novamente.')
     const body = await response.json() as { csrfToken?: unknown }
     if (typeof body.csrfToken !== 'string' || body.csrfToken.length < 32) throw new Error('Não foi possível preparar a sessão. Tente novamente.')
     return body.csrfToken
-  })().finally(() => { csrfBootstrap = null })
-  return csrfBootstrap
+  })().finally(() => {
+    if (csrfBootstrap === bootstrap) csrfBootstrap = null
+    if (browser?.__temlinkCsrfBootstrap === bootstrap) delete browser.__temlinkCsrfBootstrap
+  })
+  csrfBootstrap = bootstrap
+  if (browser) browser.__temlinkCsrfBootstrap = bootstrap
+  return bootstrap
 }
 
 async function send(path: string, init: RequestInit): Promise<Response> {
   const headers = new Headers(init.headers)
   const method = (init.method ?? 'GET').toUpperCase()
   if (method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS' && !headers.has('x-csrf-token')) {
-    const csrf = readCsrf()
+    const shared = typeof window !== 'undefined' ? window.__temlinkCsrfBootstrap : undefined
+    const csrf = shared ? await shared : readCsrf()
     headers.set('x-csrf-token', csrf.length >= 32 ? csrf : await bootstrapCsrf())
   }
   if (init.body && !headers.has('content-type')) headers.set('content-type', 'application/json')

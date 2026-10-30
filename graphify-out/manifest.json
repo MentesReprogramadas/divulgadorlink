@@ -3522,8 +3522,8 @@
     "semantic_hash": "b1f76480d79d30af6a6ffa1e1ba8c74d"
   },
   "frontend/next-env.d.ts": {
-    "mtime": 1793315922.536773,
-    "seen": 1793315943.0436327,
+    "mtime": 1793318986.6662161,
+    "seen": 1793319001.850852,
     "ast_hash": "90426577ad8f38459f3e566411c85589",
     "semantic_hash": "90426577ad8f38459f3e566411c85589"
   },
@@ -3936,10 +3936,10 @@
     "semantic_hash": "9601c27bb0f7606a13bcfd0366ae2100"
   },
   "frontend/src/app/layout.tsx": {
-    "mtime": 1793275956.400134,
-    "seen": 1793276692.643783,
-    "ast_hash": "18419345a59a90214402d6179237a84d",
-    "semantic_hash": "18419345a59a90214402d6179237a84d"
+    "mtime": 1793318100.1139333,
+    "seen": 1793319001.8665535,
+    "ast_hash": "e95191a8eb173a55daf83c892efb928b",
+    "semantic_hash": "e95191a8eb173a55daf83c892efb928b"
   },
   "frontend/src/app/link/[id]/page.tsx": {
     "mtime": 1793205007.8195772,
@@ -7110,10 +7110,10 @@
     "semantic_hash": "01a975b647f56232ddda43f8214fa0c8"
   },
   "frontend/src/lib/api.ts": {
-    "mtime": 1793209078.3214667,
-    "seen": 1793210373.8311563,
-    "ast_hash": "51ac8e288968a50607c73195faa73930",
-    "semantic_hash": "51ac8e288968a50607c73195faa73930"
+    "mtime": 1793318027.9300442,
+    "seen": 1793319001.9831781,
+    "ast_hash": "08d1669672113ad2f78c8356e89b4962",
+    "semantic_hash": "08d1669672113ad2f78c8356e89b4962"
   },
   "frontend/src/lib/catalog-page.ts": {
     "mtime": 1793205008.3213837,
@@ -9780,8 +9780,8 @@
     "semantic_hash": "ea51b27aff88437cb87ed4ab77a68c97"
   },
   "frontend/e2e/professional-seo.spec.ts": {
-    "mtime": 1793294930.8457177,
-    "seen": 1793295564.2690113,
+    "mtime": 1793318661.122153,
+    "seen": 1793319001.844116,
     "ast_hash": "9128428460bbc045a84a9a7d8e98ec01",
     "semantic_hash": "9128428460bbc045a84a9a7d8e98ec01"
   },
@@ -10014,10 +10014,10 @@
     "semantic_hash": "f94b5979bb2f0549a7ada419923cf1dc"
   },
   "frontend/playwright.affiliates.config.ts": {
-    "mtime": 1793205798.6915596,
-    "seen": 1793206252.3823977,
-    "ast_hash": "1867c21b4c1e508d54e764ccabc323a3",
-    "semantic_hash": "1867c21b4c1e508d54e764ccabc323a3"
+    "mtime": 1793318883.4720006,
+    "seen": 1793319001.851425,
+    "ast_hash": "7e489e5ccdac08c2a01d2d7ef756fcb3",
+    "semantic_hash": "7e489e5ccdac08c2a01d2d7ef756fcb3"
   },
   "frontend/src/app/admin/afiliados/loading.tsx": {
     "mtime": 1793205492.1854556,
@@ -10074,10 +10074,10 @@
     "semantic_hash": "c7a1cefcb55b6624fe4958285fb3e547"
   },
   "frontend/src/features/affiliates/segment-join.tsx": {
-    "mtime": 1793314053.390365,
-    "seen": 1793315323.2184205,
-    "ast_hash": "f02db3b6af80fd1a85979fc5c652b84c",
-    "semantic_hash": "f02db3b6af80fd1a85979fc5c652b84c"
+    "mtime": 1793318179.4363375,
+    "seen": 1793319001.9169436,
+    "ast_hash": "05cb2c4cb3c2a4a420d80dc4d4b63f39",
+    "semantic_hash": "05cb2c4cb3c2a4a420d80dc4d4b63f39"
   },
   "frontend/src/features/catalog/components/telegram-guide.tsx": {
     "mtime": 1793205008.0679693,
@@ -10506,10 +10506,10 @@
     "semantic_hash": "43e4e38b096a05a7899164246a824145"
   },
   "frontend/src/features/affiliates/segment-join.test.tsx": {
-    "mtime": 1793314157.9630718,
-    "seen": 1793315323.2184181,
-    "ast_hash": "531624eb09a33820bb6b7d503dfd77de",
-    "semantic_hash": "531624eb09a33820bb6b7d503dfd77de"
+    "mtime": 1793318179.4363375,
+    "seen": 1793319001.9169421,
+    "ast_hash": "58919585cb69031a1698a6127c43a312",
+    "semantic_hash": "58919585cb69031a1698a6127c43a312"
   },
   "backend/prisma/migrations/20261029180000_affiliate_invite_metrics/migration.sql": {
     "mtime": 1793293737.6608446,
@@ -10588,5 +10588,41 @@
     "seen": 1793315322.9975085,
     "ast_hash": "fce73315e8757c4fec2bb5330b0abaa3",
     "semantic_hash": "fce73315e8757c4fec2bb5330b0abaa3"
+  },
+  "frontend/e2e/affiliate-early-handoff.spec.ts": {
+    "mtime": 1793318661.123667,
+    "seen": 1793319001.8347363,
+    "ast_hash": "77e1c77286355fac4d0b026050134ea3",
+    "semantic_hash": "77e1c77286355fac4d0b026050134ea3"
+  },
+  "frontend/e2e/affiliates-server.mjs": {
+    "mtime": 1793318688.3254416,
+    "seen": 1793319001.8348682,
+    "ast_hash": "296dc00189b638be3ef59d3cb7951789",
+    "semantic_hash": "296dc00189b638be3ef59d3cb7951789"
+  },
+  "frontend/src/features/affiliates/early-invite.test.ts": {
+    "mtime": 1793318634.7704177,
+    "seen": 1793319001.9159954,
+    "ast_hash": "8707c36264627efcd5a8a863ddc97116",
+    "semantic_hash": "8707c36264627efcd5a8a863ddc97116"
+  },
+  "frontend/src/features/affiliates/early-invite.ts": {
+    "mtime": 1793318634.7689054,
+    "seen": 1793319001.9159968,
+    "ast_hash": "b2f68a90573dd0d2a9f647a87e4c5fea",
+    "semantic_hash": "b2f68a90573dd0d2a9f647a87e4c5fea"
+  },
+  "frontend/src/features/affiliates/server/early-invite.test.ts": {
+    "mtime": 1793318100.116961,
+    "seen": 1793319001.9175477,
+    "ast_hash": "51a57d873c10151f779bea8e91ef080d",
+    "semantic_hash": "51a57d873c10151f779bea8e91ef080d"
+  },
+  "frontend/src/features/affiliates/server/early-invite.ts": {
+    "mtime": 1793318100.1139333,
+    "seen": 1793319001.9175496,
+    "ast_hash": "f1a8e01112910872d4aec1c7f73ebcc9",
+    "semantic_hash": "f1a8e01112910872d4aec1c7f73ebcc9"
   }
 }

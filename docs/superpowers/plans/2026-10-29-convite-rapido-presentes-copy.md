@@ -9,3 +9,5 @@ Autorizado pelo usuário: pesquisar bloqueios do Instagram/WhatsApp, acelerar o 
 5. Validar: lint/tipos/build nos dois pacotes; unitários, regressões afiliados em PostgreSQL próprio, Redis real próprio, E2E desktop/mobile e SEO com dados isolados, inspeção real. Comparar latência da mesma rota antes/depois, cache frio/quente. CI completo antes de produção; conferir SHA/saúde/HTML/contadores e grupo correto sem mensagens artificiais.
 
 Reversão: código anterior pelo CI e sementes anteriores auditadas, sem apagar contadores ou histórico. Chaves Redis expiram. Cache pode conservar convite revogado externamente por até30s; a integração não observa revogação externa imediatamente. Emulação não comprova abertura nativa dentro do Instagram no aparelho físico.
+
+6. Medição pós-publicação encontrou ganho insuficiente (3236→3164ms). Antecipar os mesmos POSTs com script nonced no head, compartilhar bootstrapCSRF global e fazer React adotar a operação. Provar em E2E com bundles React bloqueados, erro+retry manual e suporte/SCREEN preservados. Nova publicação somente após CI completo e novo benchmark.

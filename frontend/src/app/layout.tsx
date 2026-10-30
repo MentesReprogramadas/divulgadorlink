@@ -12,6 +12,7 @@ import { profileAppearance, readableInk } from '@/features/profiles/profile-appe
 import { loadPreviewAppearance } from '@/features/profiles/server/load-preview-appearance'
 import { notFound } from 'next/navigation'
 import { loadCatalog } from '@/lib/catalog-page'
+import { loadEarlyAffiliateInvite } from '@/features/affiliates/server/early-invite'
 import { catalogQueryRecord } from '@/domain/catalog-navigation'
 import { Consent } from '@/components/domain/consent'
 import { SiteVisits } from '@/components/domain/site-visits'
@@ -55,6 +56,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const jar = await cookies()
   const role = jar.get('catalogo_role')?.value
   const support = jar.has('supportSession')
+  const earlyInvite=await loadEarlyAffiliateInvite({pathname:requestHeaders.get('x-pathname')??'',nonce:requestHeaders.get('x-nonce'),personalHost,support})
   const stored = jar.get('tla_consent')?.value
   const pending = stored !== 'marketing' && stored !== 'denied'
   const publicSlug = requestHeaders.get('x-profile-slug') ?? /^\/p\/([a-z0-9-]{3,40})\/?$/.exec(requestHeaders.get('x-pathname') ?? '')?.[1]
@@ -73,6 +75,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   }
   return (
     <html lang="pt-BR" className={`${sourceSans.variable} ${outfit.variable}`}>
+      <head>{earlyInvite?<script nonce={earlyInvite.nonce} dangerouslySetInnerHTML={{__html:earlyInvite.script}} />:null}</head>
       <body style={publicBackground ? { backgroundColor: publicBackground, ...(profilePreview ? {'--profile-preview-background':publicBackground,'--profile-preview-ink':readableInk(publicBackground)} : {}) } as CSSProperties : undefined} data-personal-origin={personalOrigin} data-personal-host={personalHost?'true':undefined} data-support={!personalHost&&support?'true':undefined}>
         {/* Keep async children off the host replay path until Next bundles https://github.com/react/react/pull/35494. */}
         <SiteShell personalHost={personalHost} role={personalHost?undefined:role} support={!personalHost&&support}>{linkId ? children : <Suspense fallback={<RoutePending variant="page" />}>{children}</Suspense>}</SiteShell>

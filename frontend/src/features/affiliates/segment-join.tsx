@@ -23,6 +23,7 @@ export function SegmentJoin({ slug, initialSegment }: { slug: string; initialSeg
   useEffect(() => {
     if (!segment || visitSent.current) return
     visitSent.current = true
+    if (window.__temlinkEarlyAffiliateInvite?.slug === slug && window.__temlinkEarlyAffiliateInvite.visitStarted) return
     if (typeof crypto.randomUUID !== 'function') return
     void api('/v1/public/affiliates/' + encodeURIComponent(slug) + '/visit', { method: 'POST', body: JSON.stringify({ eventId: crypto.randomUUID() }), keepalive: true, headers: { 'x-workspace-owner': 'self' } }).catch(() => undefined)
   }, [segment, slug])
@@ -32,7 +33,7 @@ export function SegmentJoin({ slug, initialSegment }: { slug: string; initialSeg
     try {
       const result = await api<{ url: string; message?: string }>('/v1/public/affiliates/' + encodeURIComponent(slug) + '/join', { method: 'POST', body: JSON.stringify(typeof crypto.randomUUID === 'function' ? { eventId: crypto.randomUUID(), source } : {}), headers: { 'x-workspace-owner': 'self' } })
       if (result.status !== 200) throw new Error(result.body.message ?? 'Não foi possível encontrar um grupo agora. Tente novamente.')
-      if (!URL.canParse(result.body.url)) throw new Error('O convite retornado não é válido. Tente novamente.')
+      if (typeof result.body.url !== 'string' || !/^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{16,64}$/.test(result.body.url)) throw new Error('O convite retornado não é válido. Tente novamente.')
       const url = new URL(result.body.url)
       if (url.protocol !== 'https:' || url.hostname !== 'chat.whatsapp.com' || url.username || url.password || url.port) throw new Error('O convite retornado não é válido. Tente novamente.')
       if (segment?.joinMode !== 'SCREEN') window.location.replace(url.href)
@@ -40,10 +41,24 @@ export function SegmentJoin({ slug, initialSegment }: { slug: string; initialSeg
     } catch (reason) { setError(reason instanceof Error ? reason.message : 'Falha de conexão. Tente novamente.'); lock.current = false; setPending(false) }
   }, [slug, segment?.joinMode])
   useEffect(() => {
-    if (!segment || segment.joinMode === 'SCREEN' || autoStarted.current) return
+    if (!segment || segment.joinMode === 'SCREEN') return
+    const early = window.__temlinkEarlyAffiliateInvite
+    if (early?.slug === slug) {
+      autoStarted.current = true
+      lock.current = true; setPending(true)
+      let mounted = true
+      void early.promise.then(() => {
+        if (!mounted) return
+        if (window.__temlinkEarlyAffiliateInvite === early) delete window.__temlinkEarlyAffiliateInvite
+        if (early.state !== 'error') return
+        setError(early.error ?? 'Falha de conexão. Tente novamente.'); lock.current = false; setPending(false)
+      })
+      return () => { mounted = false }
+    }
+    if (autoStarted.current) return
     autoStarted.current = true
     void join('AUTOMATIC')
-  }, [segment, join])
+  }, [segment, join, slug])
   if (segment && segment.joinMode !== 'SCREEN') return <main className={styles.join}><h1>Abrindo WhatsApp…</h1>{error ? <><p role="alert" className={styles.error}>{error}</p><Button loading={pending} onClick={() => void join()}>Tentar novamente</Button></> : <p role="status">Conferindo um grupo com vaga.</p>}</main>
   return <main className={styles.join}>{loading ? <><Skeleton height={176} /><Skeleton height={40} /></> : <>
     {segment ? <div className={styles.joinAvatar}>{segment.imageUrl && !imageFailed ? <img src={segment.imageUrl} alt="" width={176} height={176} onError={() => setImageFailed(true)} /> : <span aria-hidden="true">{segment.name.slice(0, 2).toLocaleUpperCase('pt-BR')}</span>}</div> : null}

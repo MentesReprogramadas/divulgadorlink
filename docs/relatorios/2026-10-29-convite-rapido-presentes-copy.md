@@ -34,3 +34,21 @@ Reverter código pelo CI para 3e26eb8e e restaurar sementes anteriores por opera
 ## Correção da fixture no CI
 
 O CI inicial a16dde7e bloqueou a publicação porque uma comparação literal do E2E ainda esperava a prévia sem headline. A fixture havia sido ampliada depois da primeira execução completa. A expectativa foi atualizada para conferir as duas linhas integralmente, sem remover a assertiva. Reexecução local completa final: 24/24 E2E desktop/mobile aprovados em 2,6 minutos. Nenhum código de produto mudou nessa correção.
+
+## Primeira publicação e medição real
+
+Produção c0675b568b3e9df0d345ec71bd06b8d198f86779: CI40972314046 aprovado25/25; ponte/API/worker/web no mesmo SHA. Natal foi configurada por transação auditada na conta administrativa indicada, configVersion4, sementes Presentes de Natal + Decoração de Natal. Plano real24 termos. Nenhuma alteração em grupos, conexões ou sessão do Mercado Livre.
+
+Primeira medição depois de SSR/cache:3312/2981/3164ms, mediana3164ms, versus3236ms anteriores. Ganho de apenas2,2%; não atende à expectativa de quase instantâneo. Nenhum GET público duplicado no navegador nas3 execuções. Join no navegador774/565/558ms. Avatar/OG200, JPEG600×600/74995bytes preservado. Destino interceptado, sem ingresso nem mensagem.
+
+Trace: respostaHTML859ms; bundles começam1635ms; bootstrapCSRF só inicia2197ms, termina2475ms; join2476→3318ms. A espera para hidratar a aplicação domina o atraso. Melhoria adicional: script com nonce no head somente em REDIRECT+disponível, sem suporte/host pessoal. Inicia os mesmos POSTs antes da hidratação; compartilha a única promessa CSRF com o cliente; React adota resultado/falha e mantém retry. Não cria grupos em GET no servidor, não remove proteção CSRF nem cabeçalho compartilhado.
+
+Cobertura comercial observada: primeiro lote Camiseta masculina trouxe20 catálogos sem anúncios (NO_LISTINGS, failed0). Tênis feminino trouxe1 anúncio de Olympikus. O recurso products/search lista produtos aptos a publicação, não garante anúncios ativos: [documentação oficial](https://developers.mercadolivre.com.br/buscador-de-produtos). Não há filtro documentado de somente disponíveis identificado nesse recurso. O sistema deve distinguir catálogo encontrado de anúncio utilizável; ampliação de termos não representa busca exaustiva do Mercado Livre.
+
+## Handoff antecipado: validação adicional
+
+- 955 testes frontend aprovados, lint e tipos frontend/e2e aprovados.37 testes afetados cobrem bootstrap compartilhado nos dois sentidos, StrictMode, destino inválido, ausência de cookies, suporte, saída/retorno à rota e retry manual. Helper servidor cobre nonce, SCREEN, indisponibilidade, suporte e host pessoal.
+- 28 E2E aprovados em desktop/mobile contra build de produção. Quatro execuções cobrem convite com bundles React abortados e erro antecipado adotado pelo React, seguido de retry manual. Nenhuma duplicação de csrf/visit/join automático; não se retirou assertiva.
+- O executor afiliados agora usa build .next-e2e, lease comum, readiness /health e fixture HTTP loopback só para metadados. Rejeita todos os POSTs; navegador intercepta mutações. Não depende de credenciais, banco ou provedor reais. Portas padrão3016/4458 precisam estar livres; validação local usou3018/4458, sem encerrar o painel existente3016.
+- Duas tentativas do executor SEO local falharam antes de subir API/worker com Windows DLL_INIT_FAILED3221225794; não alcançaram os testes. Suíte SEO original foi preservada integralmente. O novo E2E de handoff foi isolado do backend nativo para comprovar o build real. SEO22 segue como gate no CI completo; não declarar esse novo lote SEO local aprovado.
+- Cobertura real adicional: Brinquedo educativo retornou10 anúncios, Kit perfume10 e Tênis feminino1. Camisetas primeiro lote0 anúncios, sem falha técnica nem descarte por preço. A coleta prossegue automaticamente.

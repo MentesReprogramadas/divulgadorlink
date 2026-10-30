@@ -228,3 +228,5 @@ Fechamento dos bloqueios gerais: filtros usam navegação de documento com resta
 ## Convite rápido, presentes e copy — 29/10/2026
 
 Consulta dirigida ao grafo confirmada no código; atualização incremental local code-only final: 11 arquivos reprocessados, 8598 nós e 30964 relações. Sem LLM/API, clustering ou envio de código. Removida configuração temporária de teste antes da extração final. Redis, PostgreSQL, CSS, imagens e execução de OpenAI exigem provas próprias; evidências em docs/relatorios/2026-10-29-convite-rapido-presentes-copy.md.
+
+Handoff antecipado do convite: extração incremental code-only de20 arquivos,8628 nós/31023 relações. Inclui script nonced, adoção React e executor E2E isolado com build de produção. Sem LLM/API/envio externo. O grafo não comprova performance, CSP ou execução;955 testes e28 E2E locais são evidências separadas no relatório do lote.
