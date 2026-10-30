@@ -1,4 +1,5 @@
 import type { CatalogProduct } from './mercado-livre'
+import { shopeePreviousPriceEstimate } from './shopee'
 
 export const AFFILIATE_RULES = { version: 'v2', reportedDiscountPercent: 10, historyDropPercent: 5, minimumHistoryDays: 3, historyWindowDays: 30 } as const
 type PriceHistory = {days:number;medianPriceCents:number|null;dropPercent:number|null;verified:boolean;windowDays:30}
@@ -32,6 +33,10 @@ function assessEvidence(product:CatalogProduct,history:PriceHistory):AffiliateEv
 }
 export type DiscoveryProduct = CatalogProduct & { evaluation: ReturnType<typeof evaluateAffiliateProduct>; sourceTerm: string; sourcePage: number; decision?: 'SENT'|'DISCARDED' }
 export function refreshCachedAffiliateEvaluation(product:DiscoveryProduct):DiscoveryProduct {
+  if(product.provider==='SHOPEE'){
+    const oldPriceCents=shopeePreviousPriceEstimate(product.priceCents,product.reportedDiscountPercent)
+    product={...product,oldPriceCents,oldPriceEstimated:oldPriceCents!==null,oldPriceSource:oldPriceCents?'SHOPEE_ESTIMATED':null}
+  }
   if(product.evaluation?.rulesVersion===AFFILIATE_RULES.version && (product.provider!=='SHOPEE'||product.evaluation.reportedDiscountPercent===(product.reportedDiscountPercent??null)))return product
   return {...product,evaluation:assessEvidence(product,product.evaluation?.history??{days:0,medianPriceCents:null,dropPercent:null,verified:false,windowDays:30})}
 }

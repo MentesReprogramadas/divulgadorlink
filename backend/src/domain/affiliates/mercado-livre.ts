@@ -29,11 +29,12 @@ export type CatalogProduct = {
   priceCents: number
   oldPriceCents: number | null
   reportedDiscountPercent?: number | null
+  oldPriceEstimated?: boolean
   imageUrl: string | null
   checkedAt: string
   sellerId?: string | null
   reputation?: { level: string | null; status: 'GREEN' | 'POOR' | 'UNKNOWN' }
-  oldPriceSource?: 'MERCADO_LIVRE' | null
+  oldPriceSource?: 'MERCADO_LIVRE' | 'SHOPEE_ESTIMATED' | null
 }
 
 const productSchema = z.object({ id: z.string().regex(/^MLB\d+$/), name: z.string().trim().min(3).max(250), pictures: z.array(z.object({ url: z.string() })).optional() })

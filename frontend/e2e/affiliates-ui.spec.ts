@@ -412,11 +412,11 @@ test('Shopee e Mercado Livre aparecem juntos sem escolha de fonte e preservam pe
 
 test('Shopee carrega foto e desconto na lista e prévia e permite tentar outro título sem duplicar erros',async({page},testInfo)=>{
  const mutations=await fixtures(page)
- const product={...offer,id:'SHP123_456',provider:'SHOPEE',title:'Bifinho para Cães Lion Pet 1 Kg – Petisco Canino Saboroso em Carne ou Frango, Ideal para Recompensa, Treinamento Pet.',displayTitle:'Bifinho para Cães Lion Pet 1 Kg',productUrl:'https://shopee.com.br/product/123/456',imageUrl:'https://down-br.img.susercontent.com/file/real-api-shopee',priceCents:2750,oldPriceCents:null,reportedDiscountPercent:3}
+ const product={...offer,id:'SHP123_456',provider:'SHOPEE',title:'Bifinho para Cães Lion Pet 1 Kg – Petisco Canino Saboroso em Carne ou Frango, Ideal para Recompensa, Treinamento Pet.',displayTitle:'Bifinho para Cães Lion Pet 1 Kg',productUrl:'https://shopee.com.br/product/123/456',imageUrl:'https://down-br.img.susercontent.com/file/real-api-shopee',priceCents:2750,oldPriceCents:2835,oldPriceEstimated:true,reportedDiscountPercent:3}
  await page.route(product.imageUrl,route=>route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144"><rect width="144" height="144" fill="#24534b"/></svg>'}))
  await page.route('**/catalog/shopee',route=>route.fulfill({json:{provider:'SHOPEE',configured:true,connected:true,status:'CONNECTED',accountLabel:'Fixture',subIds:[]}}))
  await page.route('**/discovery?*',route=>route.fulfill({json:{enabled:true,usesSegmentName:true,terms:['Natal'],products:[product],counts:null,checkedAt:'2026-10-30T12:00:00Z',nextRunAt:null,status:'READY',error:null}}))
- const message='Um petisco saboroso para seu cão 🐾\nBifinho para Cães Lion Pet 1 Kg\nR$ 27,50\nhttps://s.shopee.com.br/fixture'
+ const message='Um petisco saboroso para seu cão 🐾\nBifinho para Cães Lion Pet 1 Kg\nDe (estimado): ~R$ 28,35~\nR$ 27,50\nEconomia estimada R$ 0,85 · 3% OFF\nhttps://s.shopee.com.br/fixture'
  await page.route('**/products/preview',route=>route.fulfill({json:{previewToken:'first-signature',expiresAt:'2099-10-30T12:00:00Z',product,title:product.displayTitle,headline:'Um petisco saboroso para seu cão 🐾',message,affiliateUrl:'https://s.shopee.com.br/fixture',destinations:{segmentId:segment.id,name:segment.name,groups:[{id:'group-1',name:'Natal #1'}],count:1},titleSource:'OPENAI',priceChanged:false}}))
  let attempts=0
  const failure='A IA não conseguiu gerar outra chamada. A prévia anterior foi mantida. Tente novamente.'
@@ -424,14 +424,15 @@ test('Shopee carrega foto e desconto na lista e prévia e permite tentar outro t
  await page.goto('/admin/afiliados/segmentacoes/segment-1');await area(page,'Ofertas')
  const suggestions=page.getByRole('region',{name:'Sugestões para Natal'})
  await expect(suggestions.getByRole('heading',{name:product.displayTitle})).toBeVisible()
- await expect(suggestions.getByText('3% de desconto informado pela Shopee')).toBeVisible()
+ await expect(suggestions.getByText('3% OFF')).toBeVisible()
  await page.screenshot({path:testInfo.outputPath('shopee-discount-list.png'),fullPage:true})
  const photo=suggestions.getByRole('img',{name:product.title})
  await expect.poll(()=>photo.evaluate((element:HTMLImageElement)=>element.naturalWidth)).toBeGreaterThan(0)
  await suggestions.getByRole('button',{name:'Revisar e enviar'}).click()
  const dialog=page.getByRole('dialog',{name:'Revisar e enviar oferta'})
- await expect(dialog.getByText('3% de desconto informado pela Shopee')).toBeVisible()
- await expect(dialog.getByText('Preço anterior não informado')).toBeVisible()
+ await expect(dialog.getByText('3% OFF',{exact:true})).toBeVisible()
+ await expect(dialog.getByText(/Preço anterior estimado:/)).toBeVisible()
+ await expect(dialog.getByLabel('Mensagem exata para o WhatsApp')).toContainText('Economia estimada R$ 0,85 · 3% OFF')
  await page.screenshot({path:testInfo.outputPath('shopee-discount-preview.png'),fullPage:true})
  await expect.poll(()=>dialog.getByRole('img').first().evaluate((element:HTMLImageElement)=>element.naturalWidth)).toBeGreaterThan(0)
  await dialog.getByRole('button',{name:'Gerar outro título'}).click();await expect(dialog.getByRole('alert')).toHaveText(failure)

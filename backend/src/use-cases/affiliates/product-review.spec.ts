@@ -9,15 +9,20 @@ import { previewAffiliateProduct, readAffiliateProductPreview, regenerateAffilia
 
 afterEach(()=>vi.restoreAllMocks())
 it('signs a Shopee preview against its own tenant connection and accepts the namespaced identity', async () => {
-  const product = { id: 'SHP123_456', catalogId: 'SHP123_456', title: 'Brinquedo para gatos', productUrl: 'https://shopee.com.br/product/123/456', priceCents: 2990, oldPriceCents: null, imageUrl: 'https://down-br.img.susercontent.com/file/test', checkedAt: new Date().toISOString() }
+  const product = { id: 'SHP123_456', catalogId: 'SHP123_456', title: 'Brinquedo para gatos', productUrl: 'https://shopee.com.br/product/123/456', priceCents: 2130, oldPriceCents: 3492, oldPriceEstimated:true, reportedDiscountPercent:39, imageUrl: 'https://down-br.img.susercontent.com/file/test', checkedAt: new Date().toISOString() }
   const candidate = { ...product, evaluation: evaluateAffiliateProduct(product, []), sourceTerm: 'gatos', sourcePage: 1 }
   const read = vi.fn(async () => ({ id: 'shopee-account', credentials: 'encrypted-test', status: 'CONNECTED' }))
-  const db = { affiliateSegment: { findFirst: vi.fn(async () => ({ id: 'segment', name: 'Pets', updatedAt: new Date('2026-10-29') })) }, affiliateConnection: { findUnique: read }, affiliateGroup: { findMany: vi.fn(async () => []) } } as unknown as PrismaClient
+  const db = { affiliateSegment: { findFirst: vi.fn(async () => ({ id: 'segment', name: 'Pets', updatedAt: new Date('2026-10-29') })) }, affiliateConnection: { findUnique: read }, affiliateGroup: { findMany: vi.fn(async () => []) },affiliateProductDecision:{findUnique:vi.fn(async()=>null)} } as unknown as PrismaClient
   const ports = { candidate: vi.fn(async () => candidate), refresh: vi.fn(async () => candidate), link: vi.fn(async () => ({ url: 'https://s.shopee.com.br/test', fullUrl: 'https://s.shopee.com.br/test', provider: 'SHOPEE' as const, productUrl: product.productUrl, itemId: product.id })), title: vi.fn(async (): Promise<AffiliateCopy> => ({ title: product.title, source: 'ORIGINAL' })) }
   const preview = await previewAffiliateProduct(db, 'tenant', 'actor', 'segment', product.id, ports)
   expect(read).toHaveBeenCalledWith({ where: { tenantId_provider: { tenantId: 'tenant', provider: 'SHOPEE' } } })
-  expect(readAffiliateProductPreview(preview.previewToken, 'tenant', 'actor', 'segment')).toMatchObject({ itemId: product.id, affiliateUrl: 'https://s.shopee.com.br/test', priceCents: 2990 })
-  expect(preview.message).not.toContain('De:')
+  expect(readAffiliateProductPreview(preview.previewToken, 'tenant', 'actor', 'segment')).toMatchObject({ itemId: product.id, affiliateUrl: 'https://s.shopee.com.br/test', priceCents: 2130, oldPriceCents:3492, oldPriceEstimated:true, reportedDiscountPercent:39 })
+  expect(preview.message).toContain('De (estimado):')
+  expect(preview.message).toContain('39% OFF')
+  ports.title.mockResolvedValue({title:product.title,headline:'Um brinquedo para sua rotina ✨',source:'OPENAI'})
+  const next=await regenerateAffiliateProductTitle(db,'tenant','actor','segment',preview.previewToken,ports)
+  expect(readAffiliateProductPreview(next.previewToken,'tenant','actor','segment')).toMatchObject({priceCents:2130,oldPriceCents:3492,oldPriceEstimated:true,reportedDiscountPercent:39})
+  expect(next.message).toContain('39% OFF');expect(next.message).toContain('De (estimado):');expect(next.expiresAt).toBe(preview.expiresAt)
 })
 async function fixture() {
   const product={id:'MLB123456',catalogId:'MLB123',title:'Árvore de Natal verde',productUrl:'https://www.mercadolivre.com.br/p/MLB123?wid=MLB123456',priceCents:2590,oldPriceCents:3990,imageUrl:'https://http2.mlstatic.com/fixture.jpg',checkedAt:new Date().toISOString()}

@@ -319,6 +319,12 @@ describe('HTTP e persistência afiliados',()=>{
     const snapshot=await app.inject({url:'/api/v1/admin/affiliates',headers:headers()})
     expect(snapshot.json().segments.find((row:{id:string})=>row.id===result.json().id)).toMatchObject({name:'Tema renomeado',groupName:'Outra campanha',instanceIds:[instanceId],instances:[{id:instanceId,name:'Natal 01',enabled:true}]})
   })
+  it('edição manual do preço remove a estimativa e não aceita percentual arbitrário',async()=>{
+    await db.affiliateOffer.update({where:{id:offerId},data:{priceCents:2130,oldPriceCents:3492,reportedDiscountPercent:39,oldPriceEstimated:true}})
+    expect((await app.inject({method:'PATCH',url:`/api/v1/admin/affiliates/offers/${offerId}`,headers:headers(),payload:{reportedDiscountPercent:99}})).statusCode).toBe(400)
+    expect((await app.inject({method:'PATCH',url:`/api/v1/admin/affiliates/offers/${offerId}`,headers:headers(),payload:{priceCents:2000,oldPriceCents:3492}})).statusCode).toBe(200)
+    expect(await db.affiliateOffer.findUniqueOrThrow({where:{id:offerId}})).toMatchObject({priceCents:2000,oldPriceCents:null,reportedDiscountPercent:null,oldPriceEstimated:false})
+  })
   it('pausa preserva metadados e edição invalida envios pendentes',async()=>{
     const before=await db.affiliateSegment.findUniqueOrThrow({where:{id:segmentId}})
     expect((await app.inject({method:'PATCH',url:`/api/v1/admin/affiliates/segments/${segmentId}`,headers:headers(),payload:{enabled:false}})).statusCode).toBe(200)

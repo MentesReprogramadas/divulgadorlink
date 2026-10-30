@@ -1,0 +1,2 @@
+.discount { margin-inline-start: var(--space-3); vertical-align: middle; white-space: nowrap; }
+.estimated { margin-inline-start: var(--space-1); color: var(--text-secondary); font-family: var(--font-sans); font-size: .75rem; font-weight: 400; }

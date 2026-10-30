@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { formatCents } from '@/domain/money'
 import { localDate, productProvider, providerLabel, type DiscoveryProduct } from './contracts'
 import { ProductImage } from './product-image'
+import { OfferPrice } from './offer-price'
 import styles from './affiliates.module.css'
 import discoveryStyles from './discovery.module.css'
 
@@ -14,8 +15,7 @@ export function CatalogProductCard({ product, busy, canGenerate, prepare, discar
     <ProductImage src={product.imageUrl} title={product.title} />
     <div className={discoveryStyles.productBody}>
       <h3>{product.displayTitle ?? product.title}</h3>
-      <p className={styles.price}>{formatCents(product.priceCents)}{product.oldPriceCents && product.oldPriceCents > product.priceCents ? <s>{formatCents(product.oldPriceCents)}</s> : null}</p>
-      {source === 'Shopee' && (product.reportedDiscountPercent ?? 0) > 0 ? <p>{product.reportedDiscountPercent}% de desconto informado pela Shopee</p> : null}
+      <OfferPrice {...product}/>
       {analysis ? <p className={styles.state}>{product.decision === 'DISCARDED' ? 'Descartado por você' : product.decision === 'SENT' ? 'Enviado' : analysis.status === 'SELECTED' ? 'Boa oferta' : 'Conferir antes de enviar'}</p> : null}
       <div className={styles.actions}>{product.decision !== 'DISCARDED' && (canGenerate || review) ? <Button disabled={busy || !canGenerate || product.decision === 'SENT'} onClick={() => prepare(product)}>{review ? 'Revisar e enviar' : 'Gerar link e preparar'}</Button> : null}</div>
       <a href={product.productUrl} target="_blank" rel="noopener noreferrer">Ver {source === 'Shopee' ? 'na Shopee' : 'no Mercado Livre'}<span className={styles.srOnly}>: {product.title} (abre em nova aba)</span></a>

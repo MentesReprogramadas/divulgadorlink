@@ -13,6 +13,7 @@ describe('evidence policy v2',()=>{
     expect(evaluateAffiliateProduct({...shopee,reportedDiscountPercent:35},[],now).status).toBe('REVIEW')
     const cached={...shopee,sourceTerm:'Pets',sourcePage:1,evaluation:{...result,reportedDiscountPercent:null}}
     expect(refreshCachedAffiliateEvaluation(cached).evaluation.reportedDiscountPercent).toBe(3)
+    expect(refreshCachedAffiliateEvaluation(cached)).toMatchObject({oldPriceCents:928,oldPriceEstimated:true,oldPriceSource:'SHOPEE_ESTIMATED'})
     expect(shopee.oldPriceCents).toBeNull()
   })
   it('selects verified ML discount only with green reputation and keeps other sellers for review',()=>{

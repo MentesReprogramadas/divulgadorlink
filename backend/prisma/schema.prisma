@@ -411,6 +411,8 @@ model AffiliateOffer {
   affiliateUrl String
   priceCents Int
   oldPriceCents Int?
+  reportedDiscountPercent Int?
+  oldPriceEstimated Boolean @default(false)
   imageUrl String?
   note String @default("")
   status String @default("DRAFT")

@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { AffiliateError } from '@/domain/affiliates/contracts'
 
 export type BroadcastCounts={pending:number;sending:number;sent:number;failed:number;uncertain:number;cancelled:number}
-const snapshotSchema=z.object({title:z.string(),priceCents:z.number().int().positive(),oldPriceCents:z.number().int().positive().nullable(),imageUrl:z.string().nullable(),affiliateUrl:z.string()})
+const snapshotSchema=z.object({title:z.string(),priceCents:z.number().int().positive(),oldPriceCents:z.number().int().positive().nullable(),reportedDiscountPercent:z.number().int().min(1).max(100).nullable().optional(),oldPriceEstimated:z.boolean().optional(),imageUrl:z.string().nullable(),affiliateUrl:z.string()})
 export function broadcastCounts(rows:Array<{state:string;_count:number}>):BroadcastCounts {
   const count=(states:string[])=>rows.filter(row=>states.includes(row.state)).reduce((sum,row)=>sum+row._count,0)
   return {pending:count(['PENDING']),sending:count(['SENDING']),sent:count(['SENT']),failed:count(['FAILED','DEAD']),uncertain:count(['UNCERTAIN']),cancelled:count(['CANCELLED','SKIPPED'])}

@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto'
 import { afterEach, expect, it, vi } from 'vitest'
-import { affiliateProductId, affiliateProductUrl, shopeeProductIdentity } from '@/domain/affiliates/shopee'
+import { affiliateProductId, affiliateProductUrl, shopeeProductIdentity, shopeePreviousPriceEstimate } from '@/domain/affiliates/shopee'
 import { imageUrl } from '@/domain/affiliates/contracts'
 import { generateShopeeAffiliateLink, refreshShopeeCatalogProduct, searchShopeeCatalog, shopeeAuthorization, shopeeCatalogItem, shopeeRequest } from './shopee'
 
@@ -48,16 +48,16 @@ it('rejects GraphQL partial data and redacts upstream errors and rejects oversiz
 })
 it('parses exact money and identity without inventing discounts or seller reputation', () => {
   const item = shopeeCatalogItem({ ...row, priceDiscountRate: 35 })
-  expect(item).toMatchObject({ id: 'SHP123_456', catalogId: 'SHP123_456', productUrl: 'https://shopee.com.br/product/123/456', priceCents: 2990, oldPriceCents: null, oldPriceSource: null, reputation: { status: 'UNKNOWN' } })
+  expect(item).toMatchObject({ id: 'SHP123_456', catalogId: 'SHP123_456', productUrl: 'https://shopee.com.br/product/123/456', priceCents: 2990, oldPriceCents: 4600, oldPriceEstimated:true, oldPriceSource: 'SHOPEE_ESTIMATED', reputation: { status: 'UNKNOWN' } })
   expect(shopeeCatalogItem({ ...row, priceMax: '39.90' })).toBeNull()
   expect(shopeeCatalogItem({ ...row, itemId: 999 })).toBeNull()
   expect(shopeeCatalogItem({ ...row, priceMin: '29.901', priceMax: '29.901' })).toBeNull()
   expect(shopeeCatalogItem({ ...row, periodEndTime: 1 })).toBeNull()
   expect(shopeeCatalogItem({ ...row, imageUrl: 'http://127.0.0.1/image' })?.imageUrl).toBeNull()
 })
-it('retains the rounded discount without deriving an inaccurate previous price', async () => {
+it('derives an explicitly estimated reference from the rounded discount', async () => {
   const discounted={...row,priceMin:'28.8',priceMax:'28.8',priceDiscountRate:3}
-  expect(shopeeCatalogItem(discounted)).toMatchObject({priceCents:2880,reportedDiscountPercent:3,oldPriceCents:null,oldPriceSource:null})
+  expect(shopeeCatalogItem(discounted)).toMatchObject({priceCents:2880,reportedDiscountPercent:3,oldPriceCents:2969,oldPriceEstimated:true,oldPriceSource:'SHOPEE_ESTIMATED'})
   for(const priceDiscountRate of [undefined,null,0,-1,101,3.5,'3']) {
     expect(shopeeCatalogItem({...discounted,priceDiscountRate})).toMatchObject({priceCents:2880,reportedDiscountPercent:null,oldPriceCents:null})
   }
@@ -66,6 +66,12 @@ it('retains the rounded discount without deriving an inaccurate previous price',
   expect(request.mock.calls[0][0]).toContain('priceDiscountRate')
   await refreshShopeeCatalogProduct(shopeeCatalogItem(discounted)!,request)
   expect(request.mock.calls[1][0]).toContain('priceDiscountRate')
+})
+it('bounds the inverse percentage calculation and rounds only to whole cents',()=>{
+ expect(shopeePreviousPriceEstimate(2130,39)).toBe(3492)
+ for(const rate of [undefined,null,0,100,101,-1,3.5])expect(shopeePreviousPriceEstimate(2130,rate)).toBeNull()
+ expect(shopeePreviousPriceEstimate(100_000_000,99)).toBeNull()
+ expect(shopeePreviousPriceEstimate(1,1)).toBeNull()
 })
 it('uses bounded variables for keyword pagination, honors hasNextPage and exposes unusable prices', async () => {
   const request = vi.fn(async () => response([row, { ...row, itemId: 457, productLink: 'https://shopee.com.br/product/123/457', priceMax: '39.90' }], 2, true))

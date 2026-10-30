@@ -12,6 +12,12 @@ export const shopeeConfigSchema = z.object({
 }).strict()
 export type ShopeeCredentials = z.infer<typeof shopeeConfigSchema>
 
+export function shopeePreviousPriceEstimate(priceCents:number,discountPercent:number|null|undefined):number|null {
+  if(!Number.isInteger(priceCents)||priceCents<1||priceCents>100_000_000||typeof discountPercent!=='number'||!Number.isInteger(discountPercent)||discountPercent<=0||discountPercent>=100)return null
+  const estimate=Math.round(priceCents*100/(100-discountPercent))
+  return estimate>priceCents&&estimate<=100_000_000?estimate:null
+}
+
 export function shopeeUrl(value: string): URL {
   let url: URL
   try { url = new URL(value.trim()) } catch { throw new AffiliateCatalogError(400, 'Use um link HTTPS da Shopee Brasil.') }

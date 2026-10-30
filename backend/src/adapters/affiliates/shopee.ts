@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import { z } from 'zod'
 import { AffiliateCatalogError, type CatalogProduct } from '@/domain/affiliates/mercado-livre'
-import { shopeeConfigSchema, shopeeProductIdentity, shopeeUrl, type ShopeeCredentials } from '@/domain/affiliates/shopee'
+import { shopeeConfigSchema, shopeeProductIdentity, shopeeUrl, shopeePreviousPriceEstimate, type ShopeeCredentials } from '@/domain/affiliates/shopee'
 import { readCatalogJson } from './mercado-livre'
 import { compactAffiliateTitle } from '@/domain/affiliates/product-title'
 
@@ -62,10 +62,11 @@ export function shopeeCatalogItem(value: unknown, now = new Date()): CatalogProd
     if (image.hostname === 'cf.shopee.com.br' && /^\/file\/[A-Za-z0-9_-]+$/.test(image.pathname)) image.hostname = 'down-br.img.susercontent.com'
     if (image.protocol === 'https:' && !image.username && !image.password && !image.port && (image.hostname === 'susercontent.com' || image.hostname.endsWith('.susercontent.com'))) imageUrl = image.href
   } catch { /* Missing or unsafe images do not make a valid price unusable. */ }
-  // Shopee's rounded rate cannot reconstruct the exact previous price.
+  // The integer rate yields an estimated reference, never a verified previous price.
   const discount=z.object({priceDiscountRate:z.number().int().min(1).max(100)}).safeParse(value)
   const reportedDiscountPercent=discount.success?discount.data.priceDiscountRate:null
-  return { provider: 'SHOPEE', id: identity.id, catalogId: identity.id, title: row.productName, displayTitle: compactAffiliateTitle(row.productName), productUrl: identity.url, priceCents: min, oldPriceCents: null, oldPriceSource: null, reportedDiscountPercent, imageUrl, checkedAt: now.toISOString(), sellerId: row.shopId, reputation: { level: null, status: 'UNKNOWN' } }
+  const oldPriceCents=shopeePreviousPriceEstimate(min,reportedDiscountPercent)
+  return { provider: 'SHOPEE', id: identity.id, catalogId: identity.id, title: row.productName, displayTitle: compactAffiliateTitle(row.productName), productUrl: identity.url, priceCents: min, oldPriceCents, oldPriceSource: oldPriceCents?'SHOPEE_ESTIMATED':null, oldPriceEstimated:oldPriceCents!==null, reportedDiscountPercent, imageUrl, checkedAt: now.toISOString(), sellerId: row.shopId, reputation: { level: null, status: 'UNKNOWN' } }
 }
 export async function searchShopeeCatalog(term: string, request: ShopeeRequest, options?: { offset?: number }) {
   const keyword = z.string().trim().min(2).max(120).parse(term), offset = z.number().int().min(0).max(1_000_000).multipleOf(20).parse(options?.offset ?? 0), page = offset / 20 + 1, now = new Date()

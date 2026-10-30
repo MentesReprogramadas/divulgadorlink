@@ -59,6 +59,24 @@ describe('contratos de afiliados', () => {
     expect(message).toContain('Preço e estoque podem mudar. Confira as condições na loja.')
     expect(message).not.toContain('Link de afiliado')
   })
+  it('inclui o desconto informado na mensagem sem reconstruir preço anterior ou economia em reais',()=>{
+    const offer={title:'Tênis feminino',priceCents:2130,oldPriceCents:null,reportedDiscountPercent:39,affiliateUrl:'https://s.shopee.com.br/test'}
+    const message=offerMessage(offer).replace(/\u00a0/g,' ')
+    expect(message).toContain('🔥 Olha esse desconto!')
+    expect(message).toContain('💰 *R$ 21,30*')
+    expect(message).toContain('💸 *39% OFF*')
+    expect(message).not.toContain('De:')
+    expect(message).not.toContain('Economize')
+    for(const reportedDiscountPercent of [null,0,-1,101,3.5])expect(offerMessage({...offer,reportedDiscountPercent})).not.toContain('OFF')
+    expect(offerMessage({...offer,priceCents:4743,oldPriceCents:5990})).toContain('20% OFF')
+  })
+  it('usa De, preço atual e economia estimada para a referência calculada da Shopee',()=>{
+    const message=offerMessage({title:'Tênis feminino',priceCents:2130,oldPriceCents:3492,reportedDiscountPercent:39,oldPriceEstimated:true,affiliateUrl:'https://s.shopee.com.br/test'}).replace(/\u00a0/g,' ')
+    expect(message).toContain('De (estimado): ~R$ 34,92~')
+    expect(message).toContain('💰 *R$ 21,30*')
+    expect(message).toContain('💸 Economia estimada *R$ 13,62* · 39% OFF')
+    expect(message).not.toContain('38% OFF')
+  })
   it('rejeita dinheiro fracionado e revalida vencimento e idade do preço', () => {
     expect(offerInput.safeParse({ segmentId:'s',title:'Natal',productUrl:'https://meli.la/x',affiliateUrl:'https://meli.la/x',priceCents:1.1 }).success).toBe(false)
     const now = new Date('2026-10-28T12:00:00Z')

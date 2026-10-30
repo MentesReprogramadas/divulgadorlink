@@ -37,19 +37,21 @@ export const offerInput = z.object({
   imageUrl, note: z.string().trim().max(600).optional(),
   expiresAt: z.iso.datetime().nullable().optional(), checkedAt: z.iso.datetime().optional(),
 }).strict()
-export type OfferMessage = Pick<z.infer<typeof offerInput>, 'title'|'affiliateUrl'|'priceCents'|'oldPriceCents'|'note'> & {headline?:string}
+export type OfferMessage = Pick<z.infer<typeof offerInput>, 'title'|'affiliateUrl'|'priceCents'|'oldPriceCents'|'note'> & {headline?:string;reportedDiscountPercent?:number|null;oldPriceEstimated?:boolean}
 const safeText = (text: string) => text.replace(/[\r\n*_~`]/g, ' ').replace(/\s+/g, ' ').trim()
 const money = (cents: number) => (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 export function offerMessage(offer: OfferMessage) {
   const saving = offer.oldPriceCents && offer.oldPriceCents > offer.priceCents ? offer.oldPriceCents - offer.priceCents : 0
+  const rate=offer.reportedDiscountPercent
+  const reportedDiscount=typeof rate==='number'&&Number.isInteger(rate)&&rate>0&&rate<=100?rate:0
   const title=safeText(compactAffiliateTitle(offer.title))
-  const lines = offer.headline ? [safeText(offer.headline), `*${title}*`, ''] : [saving ? '🔥 Olha esse desconto!' : '✨ Um achado para você!', '', `*${title}*`, '']
-  if (saving) lines.push(`De: ~${money(offer.oldPriceCents!)}~`)
+  const lines = offer.headline ? [safeText(offer.headline), `*${title}*`, ''] : [saving||reportedDiscount ? '🔥 Olha esse desconto!' : '✨ Um achado para você!', '', `*${title}*`, '']
+  if (saving) lines.push(`De${offer.oldPriceEstimated?' (estimado)':''}: ~${money(offer.oldPriceCents!)}~`)
   lines.push(`💰 *${money(offer.priceCents)}*`)
   if (saving) {
-    const percent = Math.floor(saving / offer.oldPriceCents! * 100)
-    lines.push(`💸 Economize *${money(saving)}*${percent ? ` · ${percent}% OFF` : ''}`)
-  }
+    const percent = offer.oldPriceEstimated&&reportedDiscount?reportedDiscount:Math.floor(saving / offer.oldPriceCents! * 100)
+    lines.push(`💸 ${offer.oldPriceEstimated?'Economia estimada':'Economize'} *${money(saving)}*${percent ? ` · ${percent}% OFF` : ''}`)
+  } else if(reportedDiscount) lines.push(`💸 *${reportedDiscount}% OFF*`)
   if (offer.note) lines.push('', safeText(offer.note))
   lines.push('', 'Confira as opções e aproveite 👇', offer.affiliateUrl, '', '_Preço e estoque podem mudar. Confira as condições na loja._')
   return lines.join('\n')

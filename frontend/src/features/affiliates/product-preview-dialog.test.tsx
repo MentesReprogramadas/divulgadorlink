@@ -9,13 +9,14 @@ afterEach(() => {cleanup();vi.clearAllMocks()})
 const product = {id:'MLB123',title:'Título original',productUrl:'https://produto.mercadolivre.com.br/MLB-123',priceCents:3990,oldPriceCents:null,imageUrl:'https://http2.mlstatic.com/image.jpg',checkedAt:'2026-10-28T12:00:00Z'}
 const preview: ProductPreview = {previewToken:'server-signed',expiresAt:'2099-10-28T12:00:00Z',product,title:'Produto objetivo',headline:'Um produto para sua rotina ✨',message:'Um produto para sua rotina ✨\nProduto objetivo\nR$ 39,90\nhttps://meli.la/oferta',affiliateUrl:'https://meli.la/oferta',destinations:{segmentId:'natal',name:'Natal',groups:[{id:'g1',name:'Natal #1'}],count:1},titleSource:'OPENAI',priceChanged:false}
 const props = {segmentId:'natal',product,onClose:vi.fn(),onChanged:vi.fn(),returnFocusTo:null}
-it('informa desconto da Shopee na revisão sem alterar a mensagem assinada ou inventar preço anterior',async()=>{
- const shopee={...product,id:'SHP1021296752_58254144707',provider:'SHOPEE' as const,productUrl:'https://shopee.com.br/product/1021296752/58254144707',priceCents:2880,reportedDiscountPercent:3}
- vi.mocked(api).mockResolvedValue({status:200,body:{...preview,product:shopee}})
+it('mostra a referência estimada da Shopee e preserva a mensagem exata assinada',async()=>{
+ const shopee={...product,id:'SHP123_456',provider:'SHOPEE' as const,productUrl:'https://shopee.com.br/product/123/456',priceCents:2130,oldPriceCents:3492,oldPriceEstimated:true,reportedDiscountPercent:39}
+ const message='De (estimado): ~R$ 34,92~\n💰 *R$ 21,30*\n💸 Economia estimada *R$ 13,62* · 39% OFF'
+ vi.mocked(api).mockResolvedValue({status:200,body:{...preview,product:shopee,message}})
  render(<ProductPreviewDialog {...props} product={shopee}/>);
- expect(await screen.findByText('3% de desconto informado pela Shopee')).toBeTruthy()
- expect(screen.getByText('Preço anterior não informado')).toBeTruthy()
- expect(screen.getByLabelText('Mensagem exata para o WhatsApp').querySelector('pre')?.textContent).toBe(preview.message)
+ expect(await screen.findByText('39% OFF')).toBeTruthy()
+ expect(screen.getByText(/Preço anterior estimado:/)).toBeTruthy()
+ expect(screen.getByLabelText('Mensagem exata para o WhatsApp').querySelector('pre')?.textContent).toBe(message)
  expect(api).toHaveBeenCalledTimes(1)
 })
 it('mostra prévia exata sem aprovar e cancelar não envia',async()=>{
