@@ -3,6 +3,14 @@ import { afterEach, expect, it, vi } from 'vitest'
 import { CatalogProductCard } from './catalog-product-card'
 vi.mock('@/components/ui/liquid-lens',()=>({LiquidLens:()=>null}))
 afterEach(cleanup)
+it('mostra nome curto da Shopee e preserva o nome original nos detalhes e no produto revisado',()=>{
+ const prepare=vi.fn(),product={id:'SHP123_456',title:'Pá de Aço Inoxidável com Malha de 2,8mm, Grande 28,5x14x6cm, Pá Robusta para Areia Aglomerante e Limpeza de Resíduos',displayTitle:'Pá de Aço Inoxidável 2,8mm 28,5x14x6cm',productUrl:'https://shopee.com.br/product/123/456',priceCents:16280,oldPriceCents:null,imageUrl:'https://down-br.img.susercontent.com/file/test',checkedAt:'2026-10-30T12:00:00Z'}
+ render(<CatalogProductCard product={product} busy={false} canGenerate review prepare={prepare}/>)
+ expect(screen.getByRole('heading',{name:product.displayTitle})).toBeTruthy()
+ expect(screen.getByText(product.title)).toBeTruthy()
+ expect(screen.getByRole('img').getAttribute('src')).toBe(product.imageUrl)
+ fireEvent.click(screen.getByRole('button',{name:'Revisar e enviar'}));expect(prepare).toHaveBeenCalledWith(product)
+})
 it('mantém o anúncio com alerta de vendedor disponível, inclusive com avaliação antiga de descarte',()=>{
  const prepare=vi.fn(),product={id:'MLB6839186178',title:'Ração para Cachorro Billy Dog Ossinho',productUrl:'https://www.mercadolivre.com.br/p/MLB54325401?wid=MLB6839186178',priceCents:16300,oldPriceCents:null,imageUrl:null,checkedAt:'2026-10-30T12:00:00Z',evaluation:{status:'DISCARDED' as const,rulesVersion:'v1',reasons:[],reportedDiscountPercent:null,history:{days:0,medianPriceCents:null,dropPercent:null,verified:false,windowDays:30},reputation:{level:'2_orange',status:'POOR' as const}}}
  render(<CatalogProductCard product={product} busy={false} canGenerate review prepare={prepare}/>)

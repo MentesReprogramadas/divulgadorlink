@@ -48,7 +48,7 @@ export function ProductPreviewDialog({ segmentId, product, onClose, onChanged, r
       if (controller.signal.aborted) return
       setPreview({...preview, ...result})
     } catch (reason) {
-      if (!controller.signal.aborted) setError((reason instanceof Error ? reason.message + ' ' : '') + 'O título e a mensagem anteriores foram mantidos. Tente gerar outro título novamente.')
+      if (!controller.signal.aborted) { const message=reason instanceof Error?reason.message:''; setError(message.includes('A prévia anterior foi mantida.')?message:(message?message+' ':'')+'O título e a mensagem anteriores foram mantidos. Tente gerar outro título novamente.') }
     } finally {
       if (!controller.signal.aborted) { lock.current = false; setRegenerating(false) }
     }

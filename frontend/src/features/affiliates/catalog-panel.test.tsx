@@ -33,7 +33,7 @@ it('mantém a busca central e permite configurar uma conta própria sem conectar
   expect(screen.queryByRole('button', { name: 'Conectar Mercado Livre' })).toBeNull()
   expect(screen.queryByRole('button', { name: 'Trocar conta do catálogo' })).toBeNull()
   fireEvent.change(screen.getByLabelText('Buscar produtos'), { target: { value: 'natal' } })
-  fireEvent.click(screen.getByRole('button', { name: 'Buscar no Mercado Livre' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Buscar nas duas lojas' }))
   await waitFor(() => expect(api).toHaveBeenCalledWith('/v1/admin/affiliates/catalog/search?q=natal', expect.objectContaining({ method: 'GET' })))
 })
 
@@ -49,7 +49,7 @@ it('mantém a busca indisponível quando o catálogo central está desconectado'
   vi.mocked(api).mockResolvedValue({ status: 200, body: { mode: 'CENTRAL', configured: true, connected: false, status: 'RECONNECT', clientId: null, redirectUri: '', affiliateConfigured: false } })
   render(<CatalogPanel createOffer={vi.fn()} />)
   await screen.findByText('Conexão central pendente')
-  expect(screen.getByRole('button', { name: 'Buscar no Mercado Livre' }).hasAttribute('disabled')).toBe(true)
+  expect(screen.getByRole('button', { name: 'Buscar nas duas lojas' }).hasAttribute('disabled')).toBe(true)
   expect(screen.getByRole('button', { name: 'Usar meu aplicativo' })).toBeTruthy()
 })
 
@@ -61,7 +61,7 @@ it('mostra somente a conferência enquanto a integração ainda não respondeu',
   expect(screen.queryByText(/Gerador de afiliados pendente/)).toBeNull()
   expect(screen.queryByRole('button', { name: 'Configurar aplicativo' })).toBeNull()
   resolveStatus({ status: 200, body: { mode: 'CENTRAL', connected: true, configured: true, affiliateConfigured: true } })
-  expect(await screen.findByRole('button', { name: 'Buscar no Mercado Livre' })).toBeTruthy()
+  expect(await screen.findByRole('button', { name: 'Buscar nas duas lojas' })).toBeTruthy()
   expect(screen.getByText('Catálogo central conectado')).toBeTruthy()
 })
 
@@ -70,7 +70,7 @@ it('explica que os anúncios disponíveis pertencem a uma amostra consultada', a
   vi.mocked(api).mockImplementation(async path => ({ status: 200, body: path.endsWith('/catalog/status') ? { mode: 'CENTRAL', connected: true, configured: true, affiliateConfigured: true } : { products: [], warnings: ['Alguns produtos não têm ofertas disponíveis.'], counts: { catalogsFound: 10000, catalogsChecked: 20, withoutOffers: 20, failed: 0 } } }))
   render(<CatalogPanel contextName="Natal" createOffer={vi.fn()} />)
   fireEvent.change(await screen.findByRole('searchbox', { name: 'Buscar produtos' }), { target: { value: 'natal' } })
-  fireEvent.click(screen.getByRole('button', { name: 'Buscar no Mercado Livre' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Buscar nas duas lojas' }))
   expect(await screen.findByText(/0 anúncios disponíveis entre 20 produtos consultados/)).toBeTruthy()
   expect(screen.getByText(/esta consulta compara uma amostra/)).toBeTruthy()
 })
@@ -84,7 +84,7 @@ it('não abre oferta de uma geração que terminou depois de sair da segmentaç�
   })
   const createOffer = vi.fn(), view = render(<CatalogPanel contextName="Natal" createOffer={createOffer} />)
   fireEvent.change(await screen.findByRole('searchbox', { name: 'Buscar produtos' }), { target: { value: 'natal' } })
-  fireEvent.click(screen.getByRole('button', { name: 'Buscar no Mercado Livre' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Buscar nas duas lojas' }))
   fireEvent.click(await screen.findByRole('button', { name: 'Gerar link e preparar' }))
   await waitFor(() => expect(finish).toBeDefined())
   view.unmount(); finish({ status: 200, body: { url: 'https://meli.la/fixture' } })
@@ -171,7 +171,7 @@ it('mantém geração direta disponível quando somente o catálogo central falh
   render(<CatalogPanel createOffer={vi.fn()} />)
   expect(await screen.findByText(/Catálogo indisponível: A origem não respondeu/)).toBeTruthy()
   expect(screen.getByRole('button', { name: 'Gerar link de afiliado' }).hasAttribute('disabled')).toBe(false)
-  expect(screen.getByRole('button', { name: 'Buscar no Mercado Livre' }).hasAttribute('disabled')).toBe(true)
+  expect(screen.getByRole('button', { name: 'Buscar nas duas lojas' }).hasAttribute('disabled')).toBe(true)
   expect(screen.getByRole('button', { name: 'Trocar sessão de afiliados' })).toBeTruthy()
 })
 

@@ -1,9 +1,29 @@
-import {it,expect,vi,afterEach} from 'vitest'
+import {it,expect,vi,afterEach,beforeEach} from 'vitest'
 import {expandAffiliateTerms,generateAffiliateTitle} from './openai-intelligence'
 import type {PrismaClient} from '@prisma/client'
-vi.stubEnv('OPENAI_API_KEY','test-never-real')
+beforeEach(()=>vi.stubEnv('OPENAI_API_KEY','test-never-real'))
 afterEach(()=>vi.unstubAllEnvs())
 const response=(output:unknown)=>new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:JSON.stringify(output),refusal:null}}]}))
+it('accepts cão in a real headline for Cães without inventing a new product fact',async()=>{
+  vi.stubEnv('OPENAI_API_KEY','test-never-real')
+  const product={id:'SHP1_2',catalogId:'SHP1_2',title:'Bifinho para Cães Lion Pet 1 Kg – Petisco Canino Saboroso em Carne ou Frango, Ideal para Recompensa, Treinamento Pet.',productUrl:'https://shopee.com.br/product/1/2',priceCents:2750,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}
+  const fetcher=vi.fn<typeof fetch>(async()=>response({title:'Bifinho para Cães Lion Pet 1 Kg',headline:'Um petisco saboroso para seu cão 🐾'}))
+  expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher)).toMatchObject({source:'OPENAI',headline:'Um petisco saboroso para seu cão 🐾'})
+})
+it('keeps the previous objective title when the model drops a measurement but provides a safe new headline',async()=>{
+  vi.stubEnv('OPENAI_API_KEY','test-never-real')
+  const product={id:'MLB1',catalogId:'MLB2',title:'Árvore de Natal 180 cm safe fallback',productUrl:'https://www.mercadolivre.com.br',priceCents:1000,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}
+  const fetcher=vi.fn<typeof fetch>(async()=>response({title:'Árvore de Natal',headline:'Sua sala com uma árvore de Natal 🎄'}))
+  expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher,{title:'Árvore de Natal 180 cm',headline:'Uma árvore de Natal para sua casa 🎄'})).toMatchObject({title:'Árvore de Natal 180 cm',headline:'Sua sala com uma árvore de Natal 🎄',source:'OPENAI'})
+})
+it('regenerates neutral copy for qualified products while preserving the restriction and excluding denied features',async()=>{
+  vi.stubEnv('OPENAI_API_KEY','test-never-real')
+  const product={id:'MLB1',catalogId:'MLB2',title:'Câmera sem WiFi',productUrl:'https://www.mercadolivre.com.br',priceCents:1000,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}
+  const fetcher=vi.fn<typeof fetch>(async()=>response({title:'Câmera com WiFi',headline:'Uma câmera para sua casa 📷'}))
+  expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher,{title:product.title})).toMatchObject({title:'Câmera sem WiFi',headline:'Uma câmera para sua casa 📷',source:'OPENAI'})
+  const unsafe=vi.fn<typeof fetch>(async()=>response({title:product.title,headline:'Uma câmera com WiFi para sua casa 📷'}))
+  expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,unsafe,{title:product.title})).toEqual({title:product.title,source:'ORIGINAL'})
+})
 it('uses strict bounded JSON, store false and caches public topic expansion',async()=>{
   const fetcher=vi.fn<typeof fetch>(async()=>response({terms:['luzes natalinas','enfeites']}))
   expect(await expandAffiliateTerms('Natal fixture',fetcher)).toEqual(['Natal fixture','luzes natalinas','enfeites'])
@@ -54,7 +74,7 @@ it('preserves qualified product facts instead of changing sem WiFi into com WiFi
     expect(await generateAffiliateTitle({} as PrismaClient,'tenant',{...product,title},fetcher)).toEqual({title,source:'ORIGINAL'})
     expect(await generateAffiliateTitle({} as PrismaClient,'tenant',{...product,title},fetcher,title)).toEqual({title,source:'ORIGINAL'})
   }
-  expect(fetcher).not.toHaveBeenCalled()
+  expect(fetcher).toHaveBeenCalledTimes(8)
 })
 it('rejects output containing no product words',async()=>{
   vi.stubEnv('OPENAI_API_KEY','test-never-real')
@@ -94,7 +114,7 @@ it('keeps units and measurements in the objective identity and refuses incomplet
   vi.stubEnv('OPENAI_API_KEY','test-never-real')
   const product={id:'MLB1',catalogId:'MLB2',title:'Árvore de Natal 180 cm unidade',productUrl:'https://www.mercadolivre.com.br',priceCents:1000,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}
   for(const output of [{title:'Árvore de Natal 180',headline:'Uma árvore para sua sala 🎄'},{title:'Árvore de Natal 180 cm'}]) {
-    expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,vi.fn(async()=>response(output)),'retry')).toMatchObject({source:'ORIGINAL',title:product.title})
+    expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,vi.fn(async()=>response(output)),'retry')).toMatchObject({source:'headline' in output?'OPENAI':'ORIGINAL',title:product.title})
   }
 })
 

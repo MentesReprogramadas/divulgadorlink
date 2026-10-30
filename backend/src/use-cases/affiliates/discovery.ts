@@ -8,6 +8,8 @@ import { evaluateAffiliateProduct, refreshCachedAffiliateEvaluation, AFFILIATE_R
 import { refreshAffiliateCatalogProduct } from '@/use-cases/@Affiliates/catalog'
 export { generateAffiliateTitle } from '@/adapters/affiliates/openai-intelligence'
 import { searchAffiliateCatalog } from '@/use-cases/@Affiliates/catalog'
+import { discoveryProviders, searchCombinedAffiliateCatalog } from './combined-search'
+import { isShopeeProduct } from '@/domain/affiliates/shopee'
 import { affiliateCatalogProvider, type AffiliateCatalogProvider } from '@/domain/affiliates/shopee'
 
 const INTERVAL = 15 * 60_000
@@ -32,7 +34,7 @@ async function segmentFor(db: PrismaClient, tenantId: string, segmentId: string)
 }
 function state(row: AffiliateDiscovery | null, segment: { name: string; enabled: boolean }, now = new Date()) {
   const counts = countsSchema.safeParse(row?.countsJson)
-  return { provider: row?.provider ?? 'MERCADO_LIVRE', enabled: row?.enabled ?? true, usesSegmentName: !row?.terms.length, terms: termsFor(row?.terms ?? [],segment.name), products: mergeDiscoveryProducts(row?.productsJson ?? [],[],now), counts: counts.success ? counts.data : null, checkedAt: row?.checkedAt?.toISOString() ?? null, nextRunAt: segment.enabled && row?.enabled !== false ? row?.nextRunAt.toISOString() ?? null : null, status: !segment.enabled || row?.enabled === false ? 'PAUSED' : row?.status ?? 'QUEUED', error: row?.error ?? null }
+  return { providers: discoveryProviders, enabled: row?.enabled ?? true, usesSegmentName: !row?.terms.length, terms: termsFor(row?.terms ?? [],segment.name), products: mergeDiscoveryProducts(row?.productsJson ?? [],[],now), counts: counts.success ? counts.data : null, checkedAt: row?.checkedAt?.toISOString() ?? null, nextRunAt: segment.enabled && row?.enabled !== false ? row?.nextRunAt.toISOString() ?? null : null, status: !segment.enabled || row?.enabled === false ? 'PAUSED' : row?.status ?? 'QUEUED', error: row?.error ?? null }
 }
 export const discoveryQuerySchema=z.object({mode:z.enum(['MIXED','SOURCE']).optional(),term:z.string().trim().min(2).max(120).optional(),page:z.coerce.number().int().min(1).max(50001).optional(),view:z.enum(['ALL','SELECTED','REVIEW','DISCARDED']).default('ALL')}).strict()
 export async function affiliateDiscoveryState(db: PrismaClient, tenantId: string, segmentId: string, query: z.infer<typeof discoveryQuerySchema>={view:'ALL'}) {
@@ -46,7 +48,7 @@ export async function affiliateDiscoveryState(db: PrismaClient, tenantId: string
   const pages=mixed?await db.affiliateDiscoveryPage.findMany({where:{tenantId,segmentId,term:{in:terms},checkedAt:{gte:new Date(Date.now()-TTL)}},orderBy:[{checkedAt:'desc'},{term:'asc'},{page:'asc'}],take:500}):cached?[cached]:[]
   const newest=new Map<string,DiscoveryProduct>()
   for(const cachedPage of pages)for(const product of mergeDiscoveryProducts(cachedPage.productsJson,[],new Date()) as DiscoveryProduct[])if(!newest.has(product.id))newest.set(product.id,refreshCachedAffiliateEvaluation(product))
-  const buckets=terms.map(value=>[...newest.values()].filter(product=>product.sourceTerm===value))
+  const buckets=terms.flatMap(value=>discoveryProviders.map(provider=>[...newest.values()].filter(product=>product.sourceTerm===value && (isShopeeProduct(product.id)?'SHOPEE':'MERCADO_LIVRE')===provider)))
   const products:DiscoveryProduct[]=mixed?Array.from({length:Math.max(0,...buckets.map(bucket=>bucket.length))},(_,index)=>buckets.flatMap(bucket=>bucket[index]?[bucket[index]]:[])).flat():[...newest.values()]
   const decisions=await db.affiliateProductDecision.findMany({where:{tenantId,segmentId,itemId:{in:products.map(p=>p.id)}}})
   const visible=products.map(product=>{
@@ -55,7 +57,7 @@ export async function affiliateDiscoveryState(db: PrismaClient, tenantId: string
   }).filter(product=>!mixed||product.decision!=='SENT')
   const statusCounts={SELECTED:0,REVIEW:0,DISCARDED:0}
   visible.forEach(p=>statusCounts[p.evaluation.status]++)
-  const evidence=z.object({rejected:z.array(unavailableSchema).optional(),providerBoundaryReached:z.boolean().optional()}).safeParse(cached?.countsJson)
+  const evidence=z.object({rejected:z.array(unavailableSchema).optional(),providerBoundaryReached:z.boolean().optional(),hasNext:z.boolean().optional()}).safeParse(cached?.countsJson)
   const validCatalogs=new Set(products.map(product=>product.catalogId)),unavailableById=new Map<string,z.infer<typeof unavailableSchema>>()
   for(const cachedPage of pages){
     const parsed=z.object({rejected:z.array(unavailableSchema).optional()}).safeParse(cachedPage.countsJson)
@@ -64,20 +66,16 @@ export async function affiliateDiscoveryState(db: PrismaClient, tenantId: string
   const rejected=mixed?[...unavailableById.values()]:evidence.success?evidence.data.rejected??[]:[]
   const filtered=visible.filter(p=>query.view==='ALL'? !mixed||p.evaluation.status!=='DISCARDED':p.evaluation.status===query.view),rejections=!mixed&&query.view==='ALL'?rejected:[]
   const total=filtered.length+rejections.length,displayPage=mixed?Math.min(page,Math.max(1,Math.ceil(total/20))):page,offset=(displayPage-1)*20
-  return {...state(row,segment),products:mixed?filtered.slice(offset,offset+20):filtered,rejected:rejections,unavailable:mixed?rejected.slice(0,20):[],collectionSummary:{available:statusCounts.SELECTED+statusCounts.REVIEW,unavailable:rejected.length,failed:rejected.filter(item=>item.kind==='LOOKUP_FAILED').length},expandedTerms:terms,statusCounts,policy:AFFILIATE_RULES,pagination:{mode:mixed?'MIXED':'SOURCE',term,page:displayPage,pageSize:20,total:mixed?total:cached?.total??0,hasPrevious:displayPage>1,hasNext:mixed?displayPage*20<total:cached? page*20<cached.total && !(evidence.success&&evidence.data.providerBoundaryReached):false,providerBoundaryReached:!mixed&&evidence.success&&evidence.data.providerBoundaryReached===true},pageStatus:pages.length?'READY':'NOT_COLLECTED',cycleIntervalMs:row?.checkedAt?Math.max(1,row.nextRunAt.getTime()-row.checkedAt.getTime()):INTERVAL,runStartedAt:row?.runStartedAt?.toISOString()??null,durationMs:row?.durationMs??null}
+  return {...state(row,segment),products:mixed?filtered.slice(offset,offset+20):filtered,rejected:rejections,unavailable:mixed?rejected.slice(0,20):[],collectionSummary:{available:statusCounts.SELECTED+statusCounts.REVIEW,unavailable:rejected.length,failed:rejected.filter(item=>item.kind==='LOOKUP_FAILED').length},expandedTerms:terms,statusCounts,policy:AFFILIATE_RULES,pagination:{mode:mixed?'MIXED':'SOURCE',term,page:displayPage,pageSize:20,total:mixed?total:cached?.total??0,hasPrevious:displayPage>1,hasNext:mixed?displayPage*20<total:cached? (evidence.success&&evidence.data.hasNext!==undefined?evidence.data.hasNext:page*20<cached.total) && !(evidence.success&&evidence.data.providerBoundaryReached):false,providerBoundaryReached:!mixed&&evidence.success&&evidence.data.providerBoundaryReached===true},pageStatus:pages.length?'READY':'NOT_COLLECTED',cycleIntervalMs:row?.checkedAt?Math.max(1,row.nextRunAt.getTime()-row.checkedAt.getTime()):INTERVAL,runStartedAt:row?.runStartedAt?.toISOString()??null,durationMs:row?.durationMs??null}
 }
 export async function configureAffiliateDiscovery(db: PrismaClient, tenantId: string, actorId: string, segmentId: string, input: z.infer<typeof discoveryConfigSchema>) {
   const value = discoveryConfigSchema.parse(input)
   await segmentFor(db,tenantId,segmentId)
   await db.$transaction(async tx => {
     await tx.$queryRaw`SELECT id FROM tenants WHERE id = ${tenantId} FOR UPDATE`
-    const previous = await tx.affiliateDiscovery.findUnique({where:{segmentId}})
-    const provider = value.provider ?? previous?.provider ?? 'MERCADO_LIVRE'
-    if (previous && previous.provider !== provider) {
-      await tx.affiliateDiscoveryPage.deleteMany({where:{tenantId,segmentId}})
-      await tx.affiliateSegment.updateMany({where:{id:segmentId,tenantId},data:{updatedAt:new Date()}})
-    }
-    await tx.affiliateDiscovery.upsert({ where: { segmentId }, create: { segmentId,tenantId,...value,provider,status:value.enabled?'QUEUED':'PAUSED' }, update: { ...value,provider,expandedTerms:[],pageCursors:{},requestedTerm:null,requestedPage:null,cursor:0,productsJson:[],countsJson:Prisma.DbNull,checkedAt:null,error:null,status:value.enabled?'QUEUED':'PAUSED',nextRunAt:new Date(),leaseToken:null,leaseExpiresAt:null,configVersion:{increment:1} } })
+    // Accept legacy provider input without restricting discovery to that source.
+    const config = { enabled: value.enabled, terms: value.terms }
+    await tx.affiliateDiscovery.upsert({ where: { segmentId }, create: { segmentId,tenantId,...config,status:value.enabled?'QUEUED':'PAUSED' }, update: { ...config,expandedTerms:[],pageCursors:{},requestedTerm:null,requestedPage:null,cursor:0,productsJson:[],countsJson:Prisma.DbNull,checkedAt:null,error:null,status:value.enabled?'QUEUED':'PAUSED',nextRunAt:new Date(),leaseToken:null,leaseExpiresAt:null,configVersion:{increment:1} } })
     await tx.affiliateDiscoveryPage.deleteMany({where:{tenantId,segmentId,checkedAt:{lt:new Date(Date.now()-TTL)}}})
     await tx.auditLog.create({ data:{tenantId,actorId,action:'affiliate.discovery.configure',entityType:'AffiliateDiscovery',entityId:segmentId,after:{enabled:value.enabled,termCount:value.terms.length}} })
   })
@@ -100,9 +98,9 @@ export async function queueAffiliateDiscovery(db: PrismaClient, tenantId: string
 }
 
 type CatalogSearchResult=Awaited<ReturnType<typeof searchAffiliateCatalog>>
-type Search = (db:PrismaClient,tenantId:string,term:string,options?:{offset?:number;provider?:AffiliateCatalogProvider})=>Promise<Omit<CatalogSearchResult,'rejected'|'pagination'> & Partial<Pick<CatalogSearchResult,'rejected'|'pagination'>>>
+type Search = (db:PrismaClient,tenantId:string,term:string,options?:{offset?:number;provider?:AffiliateCatalogProvider})=>Promise<Omit<CatalogSearchResult,'rejected'|'pagination'|'comparison'> & {comparison:string} & Partial<Pick<CatalogSearchResult,'rejected'|'pagination'>> & {failedProviders?:AffiliateCatalogProvider[]}>
 const running = new WeakSet<PrismaClient>()
-export async function runAffiliateDiscovery(db: PrismaClient, search: Search = searchAffiliateCatalog, now = new Date(), scope?: {tenantId:string;segmentId:string}) {
+export async function runAffiliateDiscovery(db: PrismaClient, search: Search = searchCombinedAffiliateCatalog, now = new Date(), scope?: {tenantId:string;segmentId:string}) {
   if (running.has(db)) return 0
   running.add(db)
   try {
@@ -126,22 +124,27 @@ export async function runAffiliateDiscovery(db: PrismaClient, search: Search = s
       const cursor=row.cursor%terms.length, pageCursors=pageCursorsFor(row.pageCursors)
       const term=row.requestedTerm??terms[cursor], page=row.requestedPage??pageCursors[term]??1
       if(!terms.includes(term))throw new AffiliateCatalogError(400,'O termo solicitado não pertence à segmentação.')
-      const result=await search(db,row.tenantId,term,{offset:(page-1)*20,...(row.provider==='SHOPEE'?{provider:'SHOPEE' as const}:{})})
+      const result=await search(db,row.tenantId,term,{offset:(page-1)*20})
       const finished=new Date()
       const observations=await db.affiliatePriceObservation.findMany({where:{tenantId:row.tenantId,itemId:{in:result.products.map(p=>p.id)},day:{gte:new Date(finished.getTime()-30*86400000),lt:new Date(finished.toISOString().slice(0,10))}}})
-      const products:DiscoveryProduct[]=result.products.map(product=>({...product,evaluation:evaluateAffiliateProduct(product,observations.filter(o=>o.itemId===product.id),finished),sourceTerm:term,sourcePage:page}))
+      let products:DiscoveryProduct[]=result.products.map(product=>({...product,evaluation:evaluateAffiliateProduct(product,observations.filter(o=>o.itemId===product.id),finished),sourceTerm:term,sourcePage:page}))
       const nextCursor=row.requestedTerm?row.cursor:(cursor+1)%terms.length
-      const nextPages=row.requestedTerm?pageCursors:{...pageCursors,[term]:page*20<result.counts.catalogsFound && result.counts.catalogsChecked>0?page+1:1}
+      const nextPages=row.requestedTerm?pageCursors:{...pageCursors,[term]:result.failedProviders?.length?page:(result.pagination?.hasNext??(page*20<result.counts.catalogsFound && result.counts.catalogsChecked>0))?page+1:1}
       await db.$transaction(async tx=>{
         const current=await tx.affiliateDiscovery.findUniqueOrThrow({where:{segmentId:row.segmentId}})
+        if(result.failedProviders?.length){
+          const previous=await tx.affiliateDiscoveryPage.findUnique({where:{tenantId_segmentId_term_page:{tenantId:row.tenantId,segmentId:row.segmentId,term,page}}})
+          const retained=mergeDiscoveryProducts(previous?.productsJson??[],[],finished).filter(product=>result.failedProviders!.includes(isShopeeProduct(product.id)?'SHOPEE':'MERCADO_LIVRE')) as DiscoveryProduct[]
+          products=[...products,...retained]
+        }
         const queued=current.requestedTerm!==row.requestedTerm || current.requestedPage!==row.requestedPage
         const initialPages=await tx.affiliateDiscoveryPage.findMany({where:{tenantId:row.tenantId,segmentId:row.segmentId,page:1,term:{in:terms}},select:{term:true}})
         const initialized=new Set([...initialPages.map(p=>p.term),...(page===1?[term]:[])])
         const warmup=terms.some(value=>!initialized.has(value))
-        const saved=await tx.affiliateDiscovery.updateMany({where:{...owner,leaseExpiresAt:{gt:finished}},data:{expandedTerms:terms,productsJson:products as unknown as Prisma.InputJsonValue,countsJson:result.counts,status:queued||warmup?'QUEUED':'READY',error:null,checkedAt:finished,cursor:nextCursor,pageCursors:nextPages,durationMs:finished.getTime()-now.getTime(),nextRunAt:new Date(finished.getTime()+(queued||warmup?30_000:INTERVAL)),leaseToken:null,leaseExpiresAt:null,...(queued?{}:{requestedTerm:null,requestedPage:null})}})
+        const saved=await tx.affiliateDiscovery.updateMany({where:{...owner,leaseExpiresAt:{gt:finished}},data:{expandedTerms:terms,productsJson:products as unknown as Prisma.InputJsonValue,countsJson:result.counts,status:queued||warmup?'QUEUED':'READY',error:result.failedProviders?.length?result.warnings.slice(-result.failedProviders.length).join(' '):null,checkedAt:finished,cursor:nextCursor,pageCursors:nextPages,durationMs:finished.getTime()-now.getTime(),nextRunAt:new Date(finished.getTime()+(queued||warmup?30_000:INTERVAL)),leaseToken:null,leaseExpiresAt:null,...(queued?{}:{requestedTerm:null,requestedPage:null})}})
         if(!saved.count)return
-        await tx.affiliateDiscoveryPage.upsert({where:{tenantId_segmentId_term_page:{tenantId:row.tenantId,segmentId:row.segmentId,term,page}},create:{tenantId:row.tenantId,segmentId:row.segmentId,term,page,productsJson:products as unknown as Prisma.InputJsonValue,countsJson:{...result.counts,rejected:result.rejected??[]},total:result.counts.catalogsFound,checkedAt:finished},update:{productsJson:products as unknown as Prisma.InputJsonValue,countsJson:{...result.counts,rejected:result.rejected??[]},total:result.counts.catalogsFound,checkedAt:finished}})
-        for(const product of products)await tx.affiliatePriceObservation.upsert({where:{tenantId_itemId_day:{tenantId:row.tenantId,itemId:product.id,day:new Date(finished.toISOString().slice(0,10))}},create:{tenantId:row.tenantId,itemId:product.id,day:new Date(finished.toISOString().slice(0,10)),priceCents:product.priceCents,observedAt:finished},update:{}})
+        await tx.affiliateDiscoveryPage.upsert({where:{tenantId_segmentId_term_page:{tenantId:row.tenantId,segmentId:row.segmentId,term,page}},create:{tenantId:row.tenantId,segmentId:row.segmentId,term,page,productsJson:products as unknown as Prisma.InputJsonValue,countsJson:{...result.counts,rejected:result.rejected??[],...(result.pagination?{hasNext:result.pagination.hasNext}:{})},total:result.counts.catalogsFound,checkedAt:finished},update:{productsJson:products as unknown as Prisma.InputJsonValue,countsJson:{...result.counts,rejected:result.rejected??[],...(result.pagination?{hasNext:result.pagination.hasNext}:{})},total:result.counts.catalogsFound,checkedAt:finished}})
+        for(const product of result.products)await tx.affiliatePriceObservation.upsert({where:{tenantId_itemId_day:{tenantId:row.tenantId,itemId:product.id,day:new Date(finished.toISOString().slice(0,10))}},create:{tenantId:row.tenantId,itemId:product.id,day:new Date(finished.toISOString().slice(0,10)),priceCents:product.priceCents,observedAt:finished},update:{}})
       })
     } catch(error) {
       const message = error instanceof AffiliateCatalogError ? error.message : 'Não foi possível atualizar as sugestões. A coleta tentará novamente.'
