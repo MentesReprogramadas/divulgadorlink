@@ -6,6 +6,7 @@ import { resolveStoredAffiliateImage } from './images'
 import { resolveStoredAffiliateInvite } from './stored-invite'
 import { applyGroupPolicy, requireGroupPolicyProvider } from './group-policy'
 import { groupPolicyHash, segmentGroupPolicy } from '@/domain/affiliates/group-policy'
+import {baselineProvisionedConversionGroup} from './conversion-baseline'
 
 type Factory = (instance:AffiliateInstance)=>AffiliateWhatsApp
 export async function prepareFirstAffiliateGroup(db:PrismaClient,tenantId:string,actorId:string,id:string,factory:Factory=affiliateEvolution) {
@@ -74,13 +75,15 @@ export async function joinAffiliateSegment(db:PrismaClient,tenantId:string,slug:
     if (picture) await whatsapp.picture(createdJid,picture)
     const live = await whatsapp.group(createdJid),url = await whatsapp.invite(createdJid)
     const appliedPolicyHash=segment.groupPolicyEnabled?groupPolicyHash(segmentGroupPolicy(segment)):null
-    await db.$transaction(async tx => {
+    const provisioned=await db.$transaction(async tx => {
       const current = await tx.affiliateSegment.findFirstOrThrow({where:{id:segment.id,tenantId}})
-      await tx.affiliateGroup.create({data:{tenantId,segmentId:segment.id,instanceId:provisioner.id,jid:createdJid!,name,sequence:segment.nextSequence,participantCount:live.participantCount,capacity:segment.capacity,inviteUrl:url,syncedAt:new Date(),enabled:current.enabled,...(segment.groupPolicyEnabled?{groupPolicyAppliedHash:appliedPolicyHash,groupPolicyState:current.groupPolicyEnabled&&groupPolicyHash(segmentGroupPolicy(current))!==appliedPolicyHash?'PENDING':'ACTIVE'}:{})}})
+      const group=await tx.affiliateGroup.create({data:{tenantId,segmentId:segment.id,instanceId:provisioner.id,jid:createdJid!,name,sequence:segment.nextSequence,participantCount:live.participantCount,capacity:segment.capacity,inviteUrl:url,syncedAt:new Date(),enabled:current.enabled,...(segment.groupPolicyEnabled?{groupPolicyAppliedHash:appliedPolicyHash,groupPolicyState:current.groupPolicyEnabled&&groupPolicyHash(segmentGroupPolicy(current))!==appliedPolicyHash?'PENDING':'ACTIVE'}:{})}})
       await tx.affiliateSegment.update({where:{id:segment.id},data:{nextSequence:{increment:1},provisionState:'IDLE',provisionStartedAt:null}})
       await tx.auditLog.create({data:{tenantId,actorId:intent?.actorId,action:'affiliate.group.provisioned',entityType:'AffiliateSegment',entityId:segment.id,after:{sequence:segment.nextSequence,jid:createdJid}}})
+      return group
     })
     recorded=true
+    await baselineProvisionedConversionGroup(db,tenantId,segment.id,provisioned.id,provisioned.jid,whatsapp)
     const current = await db.affiliateSegment.findFirst({where:{id:segment.id,tenantId,enabled:true,instance:{enabled:true}}})
     if (!current) throw new AffiliateError(409,'A segmentação foi pausada. Tente novamente mais tarde.')
     if(current.groupPolicyEnabled&&groupPolicyHash(segmentGroupPolicy(current))!==appliedPolicyHash)throw new AffiliateError(409,'A política mudou durante a criação. Aguarde a aplicação antes de usar o convite.')

@@ -3,6 +3,7 @@ import { membershipParticipant } from '@/domain/affiliates/membership'
 import { AffiliateError, groupJid, imageUrl, validInvite } from '@/domain/affiliates/contracts'
 import type { AffiliateInviteReadCache } from './invite-read-cache'
 import { admissionJid } from '@/domain/affiliates/group-policy'
+import { parseParticipantPhoneAliases, type ParticipantPhoneAlias } from '@/domain/affiliates/participant-phone-aliases'
 
 export class AffiliateProviderError extends AffiliateError {
   constructor(public readonly uncertain: boolean, public readonly providerStatus?: number) {
@@ -15,6 +16,8 @@ const remoteGroup = z.object({
 }).refine(row => row.size !== undefined || row.participants !== undefined)
 export type WhatsAppGroup = { jid:string; name:string; participantCount:number; description:string; imageUrl:string|null }
 export interface AffiliateWhatsApp {
+  participants?(jid:string):Promise<string[]>
+  participantPhoneAliases?(jid:string):Promise<ParticipantPhoneAlias[]>
   setDisappearingMessages?(jid:string,seconds:number):Promise<void>
   groupAdmissionCapabilities?():Promise<{joinApproval:boolean}>
   setJoinApproval?(jid:string,enabled:boolean):Promise<void>
@@ -102,6 +105,12 @@ export class AffiliateEvolution implements AffiliateWhatsApp {
     const parsed=z.object({participants:z.array(membershipParticipant).max(10000)}).safeParse(await this.request(this.path('group/participants',jid)))
     if(!parsed.success) throw new AffiliateProviderError(false)
     return parsed.data.participants
+  }
+  async participantPhoneAliases(jid:string):Promise<ParticipantPhoneAlias[]> {
+    groupJid.parse(jid)
+    const aliases=parseParticipantPhoneAliases(await this.request(this.path('group/participants',jid)))
+    if(!aliases)throw new AffiliateProviderError(false)
+    return aliases
   }
   async group(jid:string) {
     const group = parseGroup(await this.request(this.path('group/findGroupInfos',jid)))

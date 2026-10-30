@@ -18,6 +18,7 @@ export function forward(input: {
   profileTarget?: string
   workspaceTarget?: string
   csrf?: string
+  origin?: string
   userAgent?: string
   dnt?: string
   gpc?: string
@@ -46,6 +47,7 @@ export function forward(input: {
       ...(input.timeoutMs ? { signal: AbortSignal.timeout(input.timeoutMs) } : {}),
       headers: {
         host: input.host,
+        ...(input.origin ? { origin: input.origin } : {}),
         ...(input.cookie ? { cookie: input.cookie } : {}),
         ...(input.authorization ? { authorization: input.authorization } : {}),
         ...(input.idempotencyKey ? { 'idempotency-key': input.idempotencyKey } : {}),

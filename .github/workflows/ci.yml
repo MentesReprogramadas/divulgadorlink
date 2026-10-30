@@ -170,6 +170,10 @@ jobs:
             config: playwright.affiliates.config.ts
           - project: affiliates-mobile
             config: playwright.affiliates.config.ts
+          - project: entry-desktop
+            config: playwright.affiliate-entry.config.ts
+          - project: entry-mobile
+            config: playwright.affiliate-entry.config.ts
           - project: desktop
             config: playwright.date-picker.config.ts
           - project: mobile
@@ -192,6 +196,12 @@ jobs:
         working-directory: frontend
       - run: npx playwright install --with-deps chromium
         working-directory: frontend
+      - name: Build isolated affiliate entry fixture
+        if: matrix.config == 'playwright.affiliate-entry.config.ts'
+        run: npm run build
+        working-directory: frontend
+        env:
+          TEMLINK_E2E_BUILD: '1'
       - run: npm run test:e2e -- --config=${{ matrix.config }} --project=${{ matrix.project }} --shard=${{ matrix.shard || 1 }}/${{ matrix.shards || 1 }}
         working-directory: frontend
       - uses: actions/upload-artifact@v4

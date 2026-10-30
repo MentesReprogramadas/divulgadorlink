@@ -8,6 +8,7 @@ import { baselineAffiliateMembership, recordAffiliateMembership } from '@/use-ca
 import { affiliateEvolution } from '@/use-cases/affiliates/instances'
 import { requireAffiliateAdmin } from '@/http/controllers/@Admin/affiliate-access'
 import { AffiliateError, entityId } from '@/domain/affiliates/contracts'
+import { prepareConversionAliases } from '@/use-cases/affiliates/conversions'
 
 export async function affiliateMembershipRoutes(app:FastifyInstance) {
   let inFlight=0
@@ -25,7 +26,8 @@ export async function affiliateMembershipRoutes(app:FastifyInstance) {
       if(offset!==undefined && (typeof offset!=='string' || !/^-?\d{1,3}$/.test(offset))) return r.code(400).send({accepted:false})
       const event=parseMembershipEvent(q.body,offset===undefined?0:Number(offset))
       if(!event || event.instance!==instance.name) return r.code(400).send({accepted:false})
-      const result=await recordAffiliateMembership(prisma,instance.tenantId,instance.id,event,env.WEBHOOK_ENCRYPTION_KEY)
+      const aliases=await prepareConversionAliases(prisma,instance.tenantId,instance.id,event,()=>affiliateEvolution(instance).participantPhoneAliases(event.jid))
+      const result=aliases?await recordAffiliateMembership(prisma,instance.tenantId,instance.id,event,env.WEBHOOK_ENCRYPTION_KEY,new Date(),aliases):await recordAffiliateMembership(prisma,instance.tenantId,instance.id,event,env.WEBHOOK_ENCRYPTION_KEY)
       return {accepted:result!=='unrelated',result}
     } catch {
       // Payloads and errors may contain identities; provider retry gets no body details.

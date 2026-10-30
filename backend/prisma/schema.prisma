@@ -132,6 +132,7 @@ model AffiliateInstance {
 }
 
 model AffiliateSegment {
+  conversionIntents AffiliateConversionIntent[]
   id String @id @default(cuid())
   tenantId String
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
@@ -166,6 +167,43 @@ model AffiliateSegment {
   @@unique([id, tenantId])
   @@unique([tenantId, slug])
   @@map("affiliate_segments")
+}
+
+model AffiliateConversionIntent {
+  id String @id @default(cuid())
+  tenantId String
+  segmentId String
+  segment AffiliateSegment @relation(fields: [segmentId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  phoneHash String
+  encryptedMeta String?
+  consentVersion String
+  consentAt DateTime
+  expiresAt DateTime
+  confirmedAt DateTime?
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+  outboxes AffiliateConversionOutbox[]
+  @@unique([tenantId, segmentId, phoneHash])
+  @@index([expiresAt])
+  @@map("affiliate_conversion_intents")
+}
+
+model AffiliateConversionOutbox {
+  groupId String?
+  kind String
+  id String @id
+  intentId String
+  intent AffiliateConversionIntent @relation(fields: [intentId], references: [id], onDelete: Cascade)
+  state String @default("PENDING")
+  attempts Int @default(0)
+  nextAttemptAt DateTime @default(now())
+  leaseToken String?
+  leaseExpiresAt DateTime?
+  occurredAt DateTime
+  createdAt DateTime @default(now())
+  @@unique([intentId, kind])
+  @@index([state, nextAttemptAt])
+  @@map("affiliate_conversion_outbox")
 }
 
 model AffiliateInviteMetrics {

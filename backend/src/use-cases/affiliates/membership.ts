@@ -2,6 +2,7 @@ import type { PrismaClient } from '@prisma/client'
 import { z } from 'zod'
 import { membershipIdentity, membershipParticipant, membershipTransition, type parseMembershipEvent } from '@/domain/affiliates/membership'
 import { AffiliateError } from '@/domain/affiliates/contracts'
+import { correlateConversionJoin, type ScopedParticipantAliases } from './conversions'
 
 const retentionMs=90*24*60*60*1000
 type MembershipEvent=NonNullable<ReturnType<typeof parseMembershipEvent>>
@@ -40,7 +41,7 @@ export async function baselineAffiliateMembership(db:PrismaClient,tenantId:strin
   }
 }
 
-export async function recordAffiliateMembership(db:PrismaClient,tenantId:string,instanceId:string,event:MembershipEvent,master:string|undefined,receivedAt=new Date()) {
+export async function recordAffiliateMembership(db:PrismaClient,tenantId:string,instanceId:string,event:MembershipEvent,master:string|undefined,receivedAt=new Date(),aliases?:ScopedParticipantAliases|null) {
   return db.$transaction(async tx=>{
     const group=await tx.affiliateGroup.findFirst({where:{tenantId,jid:event.jid,enabled:true,segment:{enabled:true},OR:[{instanceId},{segment:{instanceId}},{segment:{instanceLinks:{some:{instanceId,tenantId}}}}]}})
     const instance=await tx.affiliateInstance.findFirst({where:{id:instanceId,tenantId,name:event.instance,enabled:true},select:{id:true}})
@@ -64,6 +65,10 @@ export async function recordAffiliateMembership(db:PrismaClient,tenantId:string,
         continue
       }
       joins+=change.joins;leaves+=change.leaves;rejoins+=change.rejoins
+      const scopedAliases=aliases?.tenantId===tenantId&&aliases.groupId===group.id&&aliases.segmentId===group.segmentId&&aliases.baselineAt.getTime()===tracking.baselineAt?.getTime()&&Math.abs(aliases.resolvedAt.getTime()-receivedAt.getTime())<=5000?aliases.aliases:[]
+      const phoneAlias=scopedAliases.find(row=>row.id===identity)?.phoneNumber
+      const knownAlias=phoneAlias?await tx.affiliateMembershipState.findUnique({where:{tenantId_groupId_identityHash:{tenantId,groupId:group.id,identityHash:membershipIdentity(master,tenantId,event.jid,phoneAlias)}}}):null
+      if(change.joins&&!knownAlias) await correlateConversionJoin(tx,{tenantId,segmentId:group.segmentId,groupId:group.id,identity,occurredAt:event.occurredAt,receivedAt,master,phoneAlias})
       await tx.affiliateMembershipState.upsert({where,create:{tenantId,groupId:group.id,identityHash,present:change.present,lastEventAt:event.occurredAt},update:{present:change.present,lastEventAt:event.occurredAt}})
     }
     await tx.affiliateMembershipDaily.upsert({where:{tenantId_groupId_day:{tenantId,groupId:group.id,day}},create:{tenantId,groupId:group.id,day,joins,leaves,rejoins,staleEvents},update:{joins:{increment:joins},leaves:{increment:leaves},rejoins:{increment:rejoins},staleEvents:{increment:staleEvents}}})

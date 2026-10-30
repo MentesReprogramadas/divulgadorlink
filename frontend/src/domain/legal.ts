@@ -77,6 +77,14 @@ export function legalDocument(contact: string | null): { privacy: LegalDocument;
           ],
         },
         {
+          title: 'Mensuração dos grupos de ofertas',
+          paragraphs: [
+            'A mensuração é opcional e depende do aceite no formulário do grupo. Com ele, compartilhamos com a Meta o cadastro inicial e, somente após confirmar sua entrada no grupo, a confirmação de ingresso, para medir e otimizar anúncios. Você pode participar sem autorizar. DNT e Global Privacy Control impedem esse envio.',
+            'O telefone é enviado à Meta como hash SHA-256. Esse hash não torna o dado anônimo. Também podem seguir identificadores de clique, quando existem, e o user-agent do cadastro. Não criamos identificadores de anúncio antes do aceite.',
+            'O telefone e os identificadores externos ficam cifrados por até 7 dias para relacionar o cadastro à entrada confirmada. Depois desse prazo, são apagados. Um recibo mínimo de processamento, com identificadores HMAC pseudonimizados, fica por até 90 dias para evitar reenvios; ele não contém o telefone em texto nem o contexto externo cifrado.',
+          ],
+        },
+        {
           title: 'Google Ads',
           paragraphs: [
             'Só com o aceite, a tag do Google Ads carrega no navegador para medir visitas e campanhas de anúncios. O Google pode tratar dados de navegação e identificadores de publicidade. Ao recusar ou retirar o aceite em Gerenciar cookies, esse rastreamento não é autorizado.',

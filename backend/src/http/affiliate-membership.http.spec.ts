@@ -4,6 +4,7 @@ const mocks=vi.hoisted(()=>({find:vi.fn(),record:vi.fn(),admin:vi.fn(),key:Buffe
 vi.mock('@/env',()=>({env:{WEBHOOK_ENCRYPTION_KEY:mocks.key}}))
 vi.mock('@/lib/prisma',()=>({prisma:{affiliateInstance:{findUnique:mocks.find}}}))
 vi.mock('@/use-cases/affiliates/membership',()=>({recordAffiliateMembership:mocks.record,baselineAffiliateMembership:vi.fn()}))
+vi.mock('@/use-cases/affiliates/conversions',()=>({prepareConversionAliases:vi.fn().mockResolvedValue(null)}))
 vi.mock('@/http/controllers/@Admin/affiliate-access',()=>({requireAffiliateAdmin:mocks.admin}))
 import { affiliateMembershipRoutes } from './controllers/@Integrations/affiliate-membership'
 import { membershipWebhookSecret } from '@/domain/affiliates/membership'

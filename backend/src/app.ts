@@ -33,6 +33,7 @@ import { isActuatorProbe } from '@/observability/hyperdx-config'
 import { logDomainEvent } from '@/observability/logger'
 import { registerEvolutionRoutes } from '@/http/controllers/@Integrations/evolution'
 import { affiliateMembershipRoutes } from '@/http/controllers/@Integrations/affiliate-membership'
+import { affiliateConversionRoutes } from '@/http/controllers/@Integrations/affiliate-conversions'
 import { linkReportRoutes } from '@/http/controllers/@Moderation/reports'
 import { availabilityRoutes } from '@/http/controllers/@Links/availability'
 import { supportGuard, supportResponse, supportRoutes } from '@/http/support-mode'
@@ -169,6 +170,7 @@ app.register(
     await instance.register(adminRoutes)
     await instance.register(registerEvolutionRoutes)
     await instance.register(affiliateMembershipRoutes)
+    await instance.register(affiliateConversionRoutes)
     await instance.register(linkReportRoutes)
     await instance.register(availabilityRoutes)
     await instance.register(renewalReminderRoutes)

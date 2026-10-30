@@ -1,0 +1,10 @@
+.page { width: min(100%, 32rem); margin: 0 auto; padding: 48px 20px; display: grid; justify-items: center; gap: 24px; text-align: center; }
+.page h1 { margin: 0; font-size: clamp(1.5rem, 5vw, 2rem); overflow-wrap: anywhere; }
+.avatar { width: 144px; height: 144px; border-radius: 50%; object-fit: cover; }
+.form { width: 100%; display: grid; gap: 12px; text-align: left; }
+.form > label { font-weight: 600; }
+.form > input { min-width: 0; width: 100%; min-height: 48px; padding: 12px; border: 1px solid var(--field-border); border-radius: var(--radius-md); background: var(--field-background); color: var(--text-primary); font: inherit; font-size: 1rem; }
+.form p { margin: 0; color: var(--text-secondary); font-size: .9375rem; line-height: 1.5; }
+.form .consent { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; font-weight: 400; line-height: 1.5; }
+.consent input { width: 20px; height: 20px; margin-top: 2px; flex-shrink: 0; accent-color: var(--action-primary-bg); }
+.form .error { color: var(--status-error-text); }

@@ -91,3 +91,12 @@ describe('Evolution de afiliados', () => {
     expect(transport).toHaveBeenCalledTimes(1)
   })
 })
+
+describe('explicit LID alias adapter',()=>{
+ it('reads only the trusted participants endpoint and returns sanitized id/phoneNumber pairs',async()=>{
+  const transport=vi.fn().mockResolvedValue(Response.json({participants:[{id:'123@lid',phoneNumber:'5511999991234@s.whatsapp.net',name:'discard me',imgUrl:'discard me'},{id:'456@lid',phoneNumber:'456@s.whatsapp.net'}]}))
+  const client=new AffiliateEvolution({baseUrl:'https://evolution.example',apiKey:'private-key',instance:'one'},transport)
+  expect(await client.participantPhoneAliases('123@g.us')).toEqual([{id:'123@lid',phoneNumber:'5511999991234@s.whatsapp.net'}])
+  expect(transport).toHaveBeenCalledWith(new URL('https://evolution.example/group/participants/one?groupJid=123%40g.us'),expect.objectContaining({method:'GET',cache:'no-store'}))
+ })
+})

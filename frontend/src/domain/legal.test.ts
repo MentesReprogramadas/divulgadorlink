@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { legalPages } from './legal'
+import { legalDocument, legalPages } from './legal'
 
 describe('texto legal', () => {
   const pages = legalPages('contato@example.com')
@@ -49,4 +49,12 @@ describe('texto legal', () => {
       expect(page).not.toMatch(/didit|gerencianet|efí|google analytics|codeqr|statsig|popunder|bet\.br/i)
     }
   })
+})
+
+it('descreve a mensuração opcional de grupos sem prometer ingresso antes da confirmação', () => {
+  const { privacy } = legalDocument(null)
+  const section = privacy.sections.find(section => section.title === 'Mensuração dos grupos de ofertas')
+  expect(section).toBeDefined()
+  const text = section!.paragraphs.join(' ')
+  for (const value of ['cadastro inicial', 'somente após confirmar sua entrada', 'participar sem autorizar', 'DNT', 'Global Privacy Control', 'SHA-256', 'não torna o dado anônimo', 'cifrados por até 7 dias', 'HMAC', 'até 90 dias']) expect(text).toContain(value)
 })

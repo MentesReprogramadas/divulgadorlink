@@ -1,6 +1,7 @@
 import { purgeInviteEvents } from '@/use-cases/affiliates/invite-metrics'
 import { runAffiliateGroupPolicies } from '@/use-cases/affiliates/group-policy'
 import { purgeAffiliateMembership } from '@/use-cases/affiliates/membership'
+import { drainConversionOutbox } from '@/use-cases/affiliates/conversions'
 import { runAffiliateDiscovery } from '@/use-cases/affiliates/discovery'
 import {purgeAgencyAccess} from '@/repositories/agency-clients'
 import {purgeButtonTests} from '@/repositories/button-tests'
@@ -375,6 +376,13 @@ export async function startWorker(): Promise<void> {
     void requestAffiliateDeliveryDrain(prisma).catch(() => logDomainEvent('affiliate.drain.failed',{result:'processing_failed'}))
   }, 1000)
   affiliateDrain.unref()
+  let conversionRunning=false
+  const conversionDrain=setInterval(()=>{
+    if(conversionRunning)return
+    conversionRunning=true
+    void drainConversionOutbox(prisma).catch(()=>logDomainEvent('affiliate.conversions.failed',{result:'processing_failed'})).finally(()=>{conversionRunning=false})
+  },10_000)
+  conversionDrain.unref()
   let groupPolicyRunning=false
   const drainGroupPolicies=async()=>{
     if(groupPolicyRunning)return
