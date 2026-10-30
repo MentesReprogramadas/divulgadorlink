@@ -3,12 +3,12 @@ import type { PrismaClient } from '@prisma/client'
 import { z } from 'zod'
 import { env } from '@/env'
 import { AffiliateError, imageUrl, marketUrl, offerMessage } from '@/domain/affiliates/contracts'
-import { affiliateSellerUrl } from '@/domain/affiliates/mercado-livre'
+import { affiliateProductId, affiliateProductUrl, isShopeeProduct } from '@/domain/affiliates/shopee'
 import { generateCatalogAffiliate } from '@/use-cases/@Affiliates/catalog'
 import { findDiscoveryCandidate, generateAffiliateTitle, refreshAffiliateCandidate } from './discovery'
 import { affiliateEligibleGroupWhere, affiliateGroupFingerprint, approveAffiliateBroadcast } from './deliveries'
 
-const itemIdSchema = z.string().regex(/^MLB\d+$/).max(40)
+const itemIdSchema = affiliateProductId
 const previewSchema = z.object({
   version:z.literal(1),id:z.uuid(),tenantId:z.string(),actorId:z.string(),segmentId:z.string(),segmentRevision:z.string(),affiliateRevision:z.string(),
   expiresAt:z.number().int(),title:z.string().min(3).max(250),headline:z.string().min(8).max(140).optional(),productUrl:marketUrl,affiliateUrl:marketUrl,
@@ -28,8 +28,9 @@ export function readAffiliateProductPreview(token:string,tenantId:string,actorId
   if(value.tenantId!==tenantId || value.actorId!==actorId || value.segmentId!==segmentId) throw new AffiliateError(403,'A prévia pertence a outra operação.')
   return value
 }
-async function affiliateRevision(db:Pick<PrismaClient,'affiliateConnection'>,tenantId:string) {
-  const row=await db.affiliateConnection.findUnique({where:{tenantId_provider:{tenantId,provider:'MERCADO_LIVRE_SESSION'}}})
+async function affiliateRevision(db:Pick<PrismaClient,'affiliateConnection'>,tenantId:string,itemId:string) {
+  const provider=isShopeeProduct(itemId)?'SHOPEE':'MERCADO_LIVRE_SESSION'
+  const row=await db.affiliateConnection.findUnique({where:{tenantId_provider:{tenantId,provider}}})
   const value=row?`${row.id}:${row.credentials}:${['CONFIGURED','CONNECTED'].includes(row.status)?'usable':row.status}`:`central:${process.env.AFFILIATE_TAG??''}:${process.env.AFFILIATE_PROFILE??''}:${process.env.AFFILIATE_SERVICE_KEY??''}`
   return createHash('sha256').update(value).digest('hex')
 }
@@ -38,14 +39,14 @@ export async function previewAffiliateProduct(db:PrismaClient,tenantId:string,ac
   itemIdSchema.parse(itemId)
   const segment=await db.affiliateSegment.findFirst({where:{id:segmentId,tenantId,enabled:true}})
   if(!segment) throw new AffiliateError(404,'Segmentação ativa não encontrada.')
-  const revision=await affiliateRevision(db,tenantId),candidate=await ports.candidate(db,tenantId,segmentId,itemId)
-  const [product,link]=await Promise.all([ports.refresh(db,tenantId,candidate),ports.link(db,tenantId,actorId,affiliateSellerUrl(candidate.productUrl).href)])
-  if(product.id!==itemId || affiliateSellerUrl(product.productUrl).href!==affiliateSellerUrl(candidate.productUrl).href) throw new AffiliateError(409,'O anúncio mudou durante a consulta. Abra o produto novamente.')
+  const revision=await affiliateRevision(db,tenantId,itemId),candidate=await ports.candidate(db,tenantId,segmentId,itemId)
+  const [product,link]=await Promise.all([ports.refresh(db,tenantId,candidate),ports.link(db,tenantId,actorId,affiliateProductUrl(candidate.productUrl).href)])
+  if(product.id!==itemId || affiliateProductUrl(product.productUrl).href!==affiliateProductUrl(candidate.productUrl).href) throw new AffiliateError(409,'O anúncio mudou durante a consulta. Abra o produto novamente.')
   const generated=await ports.title(db,tenantId,product)
   const [current,groups,revisionAfter]=await Promise.all([
     db.affiliateSegment.findFirst({where:{id:segmentId,tenantId,enabled:true}}),
     db.affiliateGroup.findMany({where:affiliateEligibleGroupWhere(tenantId,segmentId),select:{id:true,name:true},orderBy:{sequence:'asc'}}),
-    affiliateRevision(db,tenantId),
+    affiliateRevision(db,tenantId,itemId),
   ])
   if(!current || current.updatedAt.getTime()!==segment.updatedAt.getTime() || revisionAfter!==revision) throw new AffiliateError(409,'A segmentação ou a conta de afiliados mudou. Atualize a prévia.')
   const checkedAt=new Date(product.checkedAt),now=Date.now()
@@ -62,7 +63,7 @@ export async function regenerateAffiliateProductTitle(db:PrismaClient,tenantId:s
   const validate=async()=>{
     const [segment,revision,groups,decision]=await Promise.all([
       db.affiliateSegment.findFirst({where:{id:segmentId,tenantId,enabled:true}}),
-      affiliateRevision(db,tenantId),
+      affiliateRevision(db,tenantId,preview.itemId),
       db.affiliateGroup.findMany({where:affiliateEligibleGroupWhere(tenantId,segmentId),select:{id:true,name:true},orderBy:{sequence:'asc'}}),
       db.affiliateProductDecision.findUnique({where:{tenantId_segmentId_itemId:{tenantId,segmentId,itemId:preview.itemId}}}),
     ])
@@ -73,7 +74,7 @@ export async function regenerateAffiliateProductTitle(db:PrismaClient,tenantId:s
   }
   await validate()
   const candidate=await ports.candidate(db,tenantId,segmentId,preview.itemId)
-  if(candidate.id!==preview.itemId || affiliateSellerUrl(candidate.productUrl).href!==affiliateSellerUrl(preview.productUrl).href) throw new AffiliateError(409,'O anúncio mudou. Abra o produto novamente.')
+  if(candidate.id!==preview.itemId || affiliateProductUrl(candidate.productUrl).href!==affiliateProductUrl(preview.productUrl).href) throw new AffiliateError(409,'O anúncio mudou. Abra o produto novamente.')
   const generated=await ports.title(db,tenantId,candidate,undefined,{title:preview.title,headline:preview.headline})
   if(generated.source!=='OPENAI' || (generated.title===preview.title && (!generated.headline || generated.headline===preview.headline))) throw new AffiliateError(503,'A IA não conseguiu gerar outra chamada. A prévia anterior foi mantida. Tente novamente.')
   await validate()
@@ -93,7 +94,7 @@ export async function sendAffiliateProduct(db:PrismaClient,tenantId:string,actor
     if(existing) return {broadcastId:existing.id,offerId:existing.offerId,groups:existing._count.deliveries}
     const segment=await tx.affiliateSegment.findFirst({where:{id:segmentId,tenantId,enabled:true}})
     if(!segment || segment.updatedAt.toISOString()!==preview.segmentRevision || preview.expiresAt<=Date.now()) throw new AffiliateError(409,'A prévia expirou ou a segmentação mudou. Atualize antes de enviar.')
-    if(await affiliateRevision(tx,tenantId)!==preview.affiliateRevision) throw new AffiliateError(409,'A conta de afiliados mudou. Atualize a prévia antes de enviar.')
+    if(await affiliateRevision(tx,tenantId,preview.itemId)!==preview.affiliateRevision) throw new AffiliateError(409,'A conta de afiliados mudou. Atualize a prévia antes de enviar.')
     if(await tx.affiliateProductDecision.findUnique({where:{tenantId_segmentId_itemId:{tenantId,segmentId,itemId:preview.itemId}}})) throw new AffiliateError(409,'Este produto já foi enviado ou descartado nesta segmentação.')
     const offer=await tx.affiliateOffer.create({data:{tenantId,segmentId,title:preview.title,productUrl:preview.productUrl,affiliateUrl:preview.affiliateUrl,priceCents:preview.priceCents,oldPriceCents:preview.oldPriceCents,imageUrl:preview.imageUrl,note:'',checkedAt:new Date(preview.checkedAt)}})
     if(offerMessage({...offer,headline:preview.headline})!==preview.message) throw new AffiliateError(409,'A mensagem mudou. Atualize a prévia antes de enviar.')

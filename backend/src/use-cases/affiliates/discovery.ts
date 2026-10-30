@@ -8,12 +8,13 @@ import { evaluateAffiliateProduct, refreshCachedAffiliateEvaluation, AFFILIATE_R
 import { refreshAffiliateCatalogProduct } from '@/use-cases/@Affiliates/catalog'
 export { generateAffiliateTitle } from '@/adapters/affiliates/openai-intelligence'
 import { searchAffiliateCatalog } from '@/use-cases/@Affiliates/catalog'
+import { affiliateCatalogProvider, type AffiliateCatalogProvider } from '@/domain/affiliates/shopee'
 
 const INTERVAL = 15 * 60_000
 const TTL = 24 * 60 * 60_000
 const pageCursorsSchema=z.record(z.string(),z.number().int().min(1).max(50001))
 const pageCursorsFor=(value:unknown)=>{const parsed=pageCursorsSchema.safeParse(value);return parsed.success?parsed.data:{}}
-export const discoveryConfigSchema = z.object({ enabled: z.boolean(), terms: z.array(z.string().trim().min(2).max(120)).max(5) }).strict()
+export const discoveryConfigSchema = z.object({ enabled: z.boolean(), terms: z.array(z.string().trim().min(2).max(120)).max(5), provider: affiliateCatalogProvider.optional() }).strict()
 const cachedProductSchema = z.object({ id: z.string(), catalogId: z.string(), title: z.string(), productUrl: z.string(), priceCents: z.number().int().positive(), oldPriceCents: z.number().int().positive().nullable(), imageUrl: z.string().nullable(), checkedAt: z.iso.datetime() }).passthrough()
 const countsSchema = z.object({ catalogsFound: z.number(), catalogsChecked: z.number(), withoutOffers: z.number(), failed: z.number() })
 const unavailableSchema=z.object({id:z.string(),title:z.string(),reason:z.string(),kind:z.enum(['NO_LISTINGS','INELIGIBLE','PRICE_UNAVAILABLE','LOOKUP_FAILED']).optional()})
@@ -31,7 +32,7 @@ async function segmentFor(db: PrismaClient, tenantId: string, segmentId: string)
 }
 function state(row: AffiliateDiscovery | null, segment: { name: string; enabled: boolean }, now = new Date()) {
   const counts = countsSchema.safeParse(row?.countsJson)
-  return { enabled: row?.enabled ?? true, usesSegmentName: !row?.terms.length, terms: termsFor(row?.terms ?? [],segment.name), products: mergeDiscoveryProducts(row?.productsJson ?? [],[],now), counts: counts.success ? counts.data : null, checkedAt: row?.checkedAt?.toISOString() ?? null, nextRunAt: segment.enabled && row?.enabled !== false ? row?.nextRunAt.toISOString() ?? null : null, status: !segment.enabled || row?.enabled === false ? 'PAUSED' : row?.status ?? 'QUEUED', error: row?.error ?? null }
+  return { provider: row?.provider ?? 'MERCADO_LIVRE', enabled: row?.enabled ?? true, usesSegmentName: !row?.terms.length, terms: termsFor(row?.terms ?? [],segment.name), products: mergeDiscoveryProducts(row?.productsJson ?? [],[],now), counts: counts.success ? counts.data : null, checkedAt: row?.checkedAt?.toISOString() ?? null, nextRunAt: segment.enabled && row?.enabled !== false ? row?.nextRunAt.toISOString() ?? null : null, status: !segment.enabled || row?.enabled === false ? 'PAUSED' : row?.status ?? 'QUEUED', error: row?.error ?? null }
 }
 export const discoveryQuerySchema=z.object({mode:z.enum(['MIXED','SOURCE']).optional(),term:z.string().trim().min(2).max(120).optional(),page:z.coerce.number().int().min(1).max(50001).optional(),view:z.enum(['ALL','SELECTED','REVIEW','DISCARDED']).default('ALL')}).strict()
 export async function affiliateDiscoveryState(db: PrismaClient, tenantId: string, segmentId: string, query: z.infer<typeof discoveryQuerySchema>={view:'ALL'}) {
@@ -69,7 +70,14 @@ export async function configureAffiliateDiscovery(db: PrismaClient, tenantId: st
   const value = discoveryConfigSchema.parse(input)
   await segmentFor(db,tenantId,segmentId)
   await db.$transaction(async tx => {
-    await tx.affiliateDiscovery.upsert({ where: { segmentId }, create: { segmentId,tenantId,...value,status:value.enabled?'QUEUED':'PAUSED' }, update: { ...value,expandedTerms:[],pageCursors:{},requestedTerm:null,requestedPage:null,cursor:0,productsJson:[],countsJson:Prisma.DbNull,checkedAt:null,error:null,status:value.enabled?'QUEUED':'PAUSED',nextRunAt:new Date(),leaseToken:null,leaseExpiresAt:null,configVersion:{increment:1} } })
+    await tx.$queryRaw`SELECT id FROM tenants WHERE id = ${tenantId} FOR UPDATE`
+    const previous = await tx.affiliateDiscovery.findUnique({where:{segmentId}})
+    const provider = value.provider ?? previous?.provider ?? 'MERCADO_LIVRE'
+    if (previous && previous.provider !== provider) {
+      await tx.affiliateDiscoveryPage.deleteMany({where:{tenantId,segmentId}})
+      await tx.affiliateSegment.updateMany({where:{id:segmentId,tenantId},data:{updatedAt:new Date()}})
+    }
+    await tx.affiliateDiscovery.upsert({ where: { segmentId }, create: { segmentId,tenantId,...value,provider,status:value.enabled?'QUEUED':'PAUSED' }, update: { ...value,provider,expandedTerms:[],pageCursors:{},requestedTerm:null,requestedPage:null,cursor:0,productsJson:[],countsJson:Prisma.DbNull,checkedAt:null,error:null,status:value.enabled?'QUEUED':'PAUSED',nextRunAt:new Date(),leaseToken:null,leaseExpiresAt:null,configVersion:{increment:1} } })
     await tx.affiliateDiscoveryPage.deleteMany({where:{tenantId,segmentId,checkedAt:{lt:new Date(Date.now()-TTL)}}})
     await tx.auditLog.create({ data:{tenantId,actorId,action:'affiliate.discovery.configure',entityType:'AffiliateDiscovery',entityId:segmentId,after:{enabled:value.enabled,termCount:value.terms.length}} })
   })
@@ -92,7 +100,7 @@ export async function queueAffiliateDiscovery(db: PrismaClient, tenantId: string
 }
 
 type CatalogSearchResult=Awaited<ReturnType<typeof searchAffiliateCatalog>>
-type Search = (db:PrismaClient,tenantId:string,term:string,options?:{offset?:number})=>Promise<Omit<CatalogSearchResult,'rejected'|'pagination'> & Partial<Pick<CatalogSearchResult,'rejected'|'pagination'>>>
+type Search = (db:PrismaClient,tenantId:string,term:string,options?:{offset?:number;provider?:AffiliateCatalogProvider})=>Promise<Omit<CatalogSearchResult,'rejected'|'pagination'> & Partial<Pick<CatalogSearchResult,'rejected'|'pagination'>>>
 const running = new WeakSet<PrismaClient>()
 export async function runAffiliateDiscovery(db: PrismaClient, search: Search = searchAffiliateCatalog, now = new Date(), scope?: {tenantId:string;segmentId:string}) {
   if (running.has(db)) return 0
@@ -118,7 +126,7 @@ export async function runAffiliateDiscovery(db: PrismaClient, search: Search = s
       const cursor=row.cursor%terms.length, pageCursors=pageCursorsFor(row.pageCursors)
       const term=row.requestedTerm??terms[cursor], page=row.requestedPage??pageCursors[term]??1
       if(!terms.includes(term))throw new AffiliateCatalogError(400,'O termo solicitado não pertence à segmentação.')
-      const result=await search(db,row.tenantId,term,{offset:(page-1)*20})
+      const result=await search(db,row.tenantId,term,{offset:(page-1)*20,...(row.provider==='SHOPEE'?{provider:'SHOPEE' as const}:{})})
       const finished=new Date()
       const observations=await db.affiliatePriceObservation.findMany({where:{tenantId:row.tenantId,itemId:{in:result.products.map(p=>p.id)},day:{gte:new Date(finished.getTime()-30*86400000),lt:new Date(finished.toISOString().slice(0,10))}}})
       const products:DiscoveryProduct[]=result.products.map(product=>({...product,evaluation:evaluateAffiliateProduct(product,observations.filter(o=>o.itemId===product.id),finished),sourceTerm:term,sourcePage:page}))

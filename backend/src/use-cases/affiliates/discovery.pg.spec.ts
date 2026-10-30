@@ -26,6 +26,26 @@ afterAll(async()=>{
 const scope=()=>({tenantId,segmentId})
 const run=(search:Parameters<typeof runAffiliateDiscovery>[1],client=db)=>runAffiliateDiscovery(client,search,undefined,scope())
 describe('PostgreSQL discovery isolation and leases',()=>{
+  it('switches provider without mixing cached products and preserves historical product decisions',async()=>{
+    await configureAffiliateDiscovery(db,tenantId,actorId,segmentId,{enabled:true,terms:['Pets']})
+    const mlSearch=vi.fn(async()=>({...result,products:result.products.map(p=>({...p,checkedAt:new Date().toISOString()}))}))
+    await run(mlSearch)
+    expect(await db.affiliateDiscoveryPage.count({where:{tenantId,segmentId}})).toBe(1)
+    await db.affiliateProductDecision.create({data:{tenantId,segmentId,itemId:'MLB100',decision:'DISCARDED',reason:'Manual',actorId}})
+    const before=await db.affiliateSegment.findUniqueOrThrow({where:{id:segmentId}})
+    const switched=await configureAffiliateDiscovery(db,tenantId,actorId,segmentId,{enabled:true,terms:['Pets'],provider:'SHOPEE'})
+    expect(switched.provider).toBe('SHOPEE')
+    expect(await db.affiliateDiscoveryPage.count({where:{tenantId,segmentId}})).toBe(0)
+    expect(await db.affiliateProductDecision.count({where:{tenantId,segmentId}})).toBe(1)
+    expect((await db.affiliateSegment.findUniqueOrThrow({where:{id:segmentId}})).updatedAt.getTime()).toBeGreaterThanOrEqual(before.updatedAt.getTime())
+    const shopeeSearch=vi.fn(async()=>({...result,products:[{...result.products[0],id:'SHP123_456',catalogId:'SHP123_456',productUrl:'https://shopee.com.br/product/123/456',checkedAt:new Date().toISOString()}]}))
+    await run(shopeeSearch)
+    expect(shopeeSearch).toHaveBeenCalledWith(db,tenantId,'Pets',{offset:0,provider:'SHOPEE'})
+    const current=await affiliateDiscoveryState(db,tenantId,segmentId,{view:'ALL',mode:'MIXED'})
+    expect(current.products.map(p=>p.id)).toEqual(['SHP123_456'])
+    await configureAffiliateDiscovery(db,tenantId,actorId,segmentId,{enabled:true,terms:['Pets']})
+    expect((await db.affiliateDiscovery.findUniqueOrThrow({where:{segmentId}})).provider).toBe('SHOPEE')
+  })
   it('restores v1 automatic discards from stored pages while preserving manual decisions',async()=>{
     const item={...result.products[0],reputation:{level:'2_orange',status:'POOR' as const}}
     await run(vi.fn(async()=>({...result,products:[item]})))

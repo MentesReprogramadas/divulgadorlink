@@ -1,0 +1,224 @@
+diff --git a/src/api/controllers/group.controller.ts b/src/api/controllers/group.controller.ts
+index ebe7c03..db0b423 100644
+--- a/src/api/controllers/group.controller.ts
++++ b/src/api/controllers/group.controller.ts
+@@ -5,7 +5,9 @@ import {
+   GroupDescriptionDto,
+   GroupInvite,
+   GroupJid,
++  GroupJoinApprovalDto,
+   GroupPictureDto,
++  GroupRequestUpdateDto,
+   GroupSendInvite,
+   GroupSubjectDto,
+   GroupToggleEphemeralDto,
+@@ -78,6 +80,26 @@ export class GroupController {
+     return await this.waMonitor.waInstances[instance.instanceName].toggleEphemeral(update);
+   }
+ 
++  public async admissionCapabilities(instance: InstanceDto) {
++    const channel = this.waMonitor.waInstances[instance.instanceName];
++    return {
++      version: 1,
++      joinApproval:
++        typeof channel?.joinApprovalMode === 'function' &&
++        typeof channel?.requestParticipants === 'function' &&
++        typeof channel?.updateRequestParticipants === 'function',
++    };
++  }
++  public async joinApprovalMode(instance: InstanceDto, update: GroupJoinApprovalDto) {
++    return this.waMonitor.waInstances[instance.instanceName].joinApprovalMode(update);
++  }
++  public async requestParticipants(instance: InstanceDto, group: GroupJid) {
++    return this.waMonitor.waInstances[instance.instanceName].requestParticipants(group);
++  }
++  public async updateRequestParticipants(instance: InstanceDto, update: GroupRequestUpdateDto) {
++    return this.waMonitor.waInstances[instance.instanceName].updateRequestParticipants(update);
++  }
++
+   public async leaveGroup(instance: InstanceDto, groupJid: GroupJid) {
+     return await this.waMonitor.waInstances[instance.instanceName].leaveGroup(groupJid);
+   }
+diff --git a/src/api/dto/group.dto.ts b/src/api/dto/group.dto.ts
+index 293329d..f17a2c4 100644
+--- a/src/api/dto/group.dto.ts
++++ b/src/api/dto/group.dto.ts
+@@ -54,3 +54,11 @@ export class GroupUpdateSettingDto extends GroupJid {
+ export class GroupToggleEphemeralDto extends GroupJid {
+   expiration: 0 | 86400 | 604800 | 7776000;
+ }
++
++export class GroupJoinApprovalDto extends GroupJid {
++  enabled: boolean;
++}
++export class GroupRequestUpdateDto extends GroupJid {
++  action: 'approve' | 'reject';
++  participants: string[];
++}
+diff --git a/src/api/integrations/channel/whatsapp/whatsapp.baileys.service.ts b/src/api/integrations/channel/whatsapp/whatsapp.baileys.service.ts
+index 60e857f..5c951c3 100644
+--- a/src/api/integrations/channel/whatsapp/whatsapp.baileys.service.ts
++++ b/src/api/integrations/channel/whatsapp/whatsapp.baileys.service.ts
+@@ -22,7 +22,9 @@ import {
+   GroupDescriptionDto,
+   GroupInvite,
+   GroupJid,
++  GroupJoinApprovalDto,
+   GroupPictureDto,
++  GroupRequestUpdateDto,
+   GroupSendInvite,
+   GroupSubjectDto,
+   GroupToggleEphemeralDto,
+@@ -4597,6 +4599,42 @@ export class BaileysStartupService extends ChannelStartupService {
+     }
+   }
+ 
++  private requireAdmissionConnection() {
++    if (this.connectionStatus.state !== 'open') throw new BadRequestException('Instance is not connected');
++  }
++  public async joinApprovalMode(update: GroupJoinApprovalDto) {
++    this.requireAdmissionConnection();
++    try {
++      await this.client.groupJoinApprovalMode(update.groupJid, update.enabled ? 'on' : 'off');
++      return { success: true };
++    } catch {
++      throw new BadRequestException('Unable to update group approval mode');
++    }
++  }
++  public async requestParticipants(group: GroupJid) {
++    this.requireAdmissionConnection();
++    try {
++      const pending = await this.client.groupRequestParticipantsList(group.groupJid);
++      return { participants: pending.map((participant) => participant.jid) };
++    } catch {
++      throw new BadRequestException('Unable to read group admission requests');
++    }
++  }
++  public async updateRequestParticipants(update: GroupRequestUpdateDto) {
++    this.requireAdmissionConnection();
++    try {
++      // Preserve LIDs; phone normalization would corrupt these identifiers.
++      const participants = await this.client.groupRequestParticipantsUpdate(
++        update.groupJid,
++        update.participants,
++        update.action,
++      );
++      return { participants };
++    } catch {
++      throw new BadRequestException('Unable to update group admission requests');
++    }
++  }
++
+   public async leaveGroup(id: GroupJid) {
+     try {
+       await this.client.groupLeave(id.groupJid);
+diff --git a/src/api/routes/group.router.ts b/src/api/routes/group.router.ts
+index 7086b11..814f478 100644
+--- a/src/api/routes/group.router.ts
++++ b/src/api/routes/group.router.ts
+@@ -6,7 +6,9 @@ import {
+   GroupDescriptionDto,
+   GroupInvite,
+   GroupJid,
++  GroupJoinApprovalDto,
+   GroupPictureDto,
++  GroupRequestUpdateDto,
+   GroupSendInvite,
+   GroupSubjectDto,
+   GroupToggleEphemeralDto,
+@@ -21,6 +23,9 @@ import {
+   groupInviteSchema,
+   groupJidSchema,
+   groupSendInviteSchema,
++  joinApprovalSchema,
++  requestParticipantsSchema,
++  requestUpdateSchema,
+   toggleEphemeralSchema,
+   updateGroupDescriptionSchema,
+   updateGroupPictureSchema,
+@@ -36,6 +41,45 @@ export class GroupRouter extends RouterBroker {
+   constructor(...guards: RequestHandler[]) {
+     super();
+     this.router
++      .get(this.routerPath('admissionCapabilities'), ...guards, async (req, res) => {
++        const response = await this.groupNoValidate<GroupJid>({
++          request: req,
++          schema: { type: 'object' },
++          ClassRef: GroupJid,
++          execute: (instance) => groupController.admissionCapabilities(instance),
++        });
++        res.status(HttpStatus.OK).json(response);
++      })
++      .post(this.routerPath('joinApprovalMode'), ...guards, async (req, res) => {
++        req.body ??= {};
++        const response = await this.groupValidate<GroupJoinApprovalDto>({
++          request: req,
++          schema: joinApprovalSchema,
++          ClassRef: GroupJoinApprovalDto,
++          execute: (instance, data) => groupController.joinApprovalMode(instance, data),
++        });
++        res.status(HttpStatus.OK).json(response);
++      })
++      .get(this.routerPath('requestParticipants'), ...guards, async (req, res) => {
++        req.body ??= {};
++        const response = await this.groupValidate<GroupJid>({
++          request: req,
++          schema: requestParticipantsSchema,
++          ClassRef: GroupJid,
++          execute: (instance, data) => groupController.requestParticipants(instance, data),
++        });
++        res.status(HttpStatus.OK).json(response);
++      })
++      .post(this.routerPath('updateRequestParticipants'), ...guards, async (req, res) => {
++        req.body ??= {};
++        const response = await this.groupValidate<GroupRequestUpdateDto>({
++          request: req,
++          schema: requestUpdateSchema,
++          ClassRef: GroupRequestUpdateDto,
++          execute: (instance, data) => groupController.updateRequestParticipants(instance, data),
++        });
++        res.status(HttpStatus.OK).json(response);
++      })
+       .post(this.routerPath('create'), ...guards, async (req, res) => {
+         const response = await this.dataValidate<CreateGroupDto>({
+           request: req,
+diff --git a/src/validate/group.schema.ts b/src/validate/group.schema.ts
+index 8da188d..7d7886a 100644
+--- a/src/validate/group.schema.ts
++++ b/src/validate/group.schema.ts
+@@ -191,3 +191,35 @@ export const updateGroupDescriptionSchema: JSONSchema7 = {
+   required: ['groupJid', 'description'],
+   ...isNotEmpty('groupJid', 'description'),
+ };
++
++export const joinApprovalSchema: JSONSchema7 = {
++  $id: v4(),
++  type: 'object',
++  additionalProperties: false,
++  properties: { groupJid: { type: 'string', pattern: '^\\d+(?:-\\d+)?@g\\.us$' }, enabled: { type: 'boolean' } },
++  required: ['groupJid', 'enabled'],
++};
++export const requestParticipantsSchema: JSONSchema7 = {
++  $id: v4(),
++  type: 'object',
++  additionalProperties: false,
++  properties: { groupJid: { type: 'string', pattern: '^\\d+(?:-\\d+)?@g\\.us$' } },
++  required: ['groupJid'],
++};
++export const requestUpdateSchema: JSONSchema7 = {
++  $id: v4(),
++  type: 'object',
++  additionalProperties: false,
++  properties: {
++    groupJid: { type: 'string', pattern: '^\\d+(?:-\\d+)?@g\\.us$' },
++    action: { type: 'string', enum: ['approve', 'reject'] },
++    participants: {
++      type: 'array',
++      minItems: 1,
++      maxItems: 20,
++      uniqueItems: true,
++      items: { type: 'string', maxLength: 100, pattern: '^\\d+(?::\\d+)?@(s\\.whatsapp\\.net|lid)$' },
++    },
++  },
++  required: ['groupJid', 'action', 'participants'],
++};

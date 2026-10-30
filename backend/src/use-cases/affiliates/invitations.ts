@@ -3,6 +3,9 @@ import { AffiliateError, groupName } from '@/domain/affiliates/contracts'
 import type { AffiliateWhatsApp } from '@/adapters/affiliates/evolution'
 import { affiliateEvolution } from './instances'
 import { resolveStoredAffiliateImage } from './images'
+import { resolveStoredAffiliateInvite } from './stored-invite'
+import { applyGroupPolicy, requireGroupPolicyProvider } from './group-policy'
+import { groupPolicyHash, segmentGroupPolicy } from '@/domain/affiliates/group-policy'
 
 type Factory = (instance:AffiliateInstance)=>AffiliateWhatsApp
 export async function prepareFirstAffiliateGroup(db:PrismaClient,tenantId:string,actorId:string,id:string,factory:Factory=affiliateEvolution) {
@@ -20,6 +23,9 @@ export async function joinAffiliateSegment(db:PrismaClient,tenantId:string,slug:
   const accounts = segment.instanceLinks.length ? segment.instanceLinks.map(link=>link.instance).filter(instance=>instance.enabled):segment.instance?.enabled?[segment.instance]:[]
   // Unknown occupancy never justifies creating another group; try only selected accounts.
   for (const group of segment.groups) {
+    if(segment.groupPolicyEnabled && group.groupPolicyAppliedHash!==groupPolicyHash(segmentGroupPolicy(segment)))throw new AffiliateError(503,'O grupo aguarda a aplicação da política de entrada. Tente novamente mais tarde.')
+    const saved=await resolveStoredAffiliateInvite(db,tenantId,segment,group)
+    if(saved)return saved
     let checked = false
     const candidates = segment.instanceLinks.length ? accounts:group.instance.enabled?[group.instance]:accounts
     for (const instance of candidates) {
@@ -48,6 +54,7 @@ export async function joinAffiliateSegment(db:PrismaClient,tenantId:string,slug:
     try {const port=factory(instance);if(!port.status || (await port.status({fresh:true})).state==='open') {provisioner=instance;break}} catch { /* Try another selected account before any create request. */ }
   }
   if (!provisioner) throw new AffiliateError(503,'A expansão aguarda uma conexão ativa com o WhatsApp do participante inicial configurado.')
+  if(segment.groupPolicyEnabled)await requireGroupPolicyProvider(factory(provisioner))
   if (segment.nextSequence>=2_147_483_647) throw new AffiliateError(409,'A sequência de grupos atingiu o limite. Crie outra segmentação.')
   if (!segment.imageUrl && !template?.imageUrl && source?.whatsapp.avatar) {
     template = {...template!,imageUrl:await source.whatsapp.avatar(source.jid)}
@@ -57,24 +64,30 @@ export async function joinAffiliateSegment(db:PrismaClient,tenantId:string,slug:
   if (!claimed.count) throw new AffiliateError(409,'Outro convite está preparando o grupo. Aguarde e tente novamente.')
   const whatsapp = factory(provisioner)
   await db.affiliateSegmentInstance.updateMany({where:{tenantId,segmentId:segment.id,instanceId:provisioner.id},data:{lastUsedAt:startedAt}})
-  let createdJid:string|null = null
+  let createdJid:string|null = null, recorded=false
   try {
     const name = groupName(segment.groupName ?? segment.name,segment.nextSequence), description = segment.description || template?.description || ''
     const picture = await resolveStoredAffiliateImage(db,tenantId,segment.imageUrl || template?.imageUrl || null)
     createdJid = await whatsapp.create(name,description)
+    if(segment.groupPolicyEnabled)await applyGroupPolicy(whatsapp,createdJid,segmentGroupPolicy(segment))
     if (description) await whatsapp.describe(createdJid,description)
     if (picture) await whatsapp.picture(createdJid,picture)
     const live = await whatsapp.group(createdJid),url = await whatsapp.invite(createdJid)
+    const appliedPolicyHash=segment.groupPolicyEnabled?groupPolicyHash(segmentGroupPolicy(segment)):null
     await db.$transaction(async tx => {
       const current = await tx.affiliateSegment.findFirstOrThrow({where:{id:segment.id,tenantId}})
-      await tx.affiliateGroup.create({data:{tenantId,segmentId:segment.id,instanceId:provisioner.id,jid:createdJid!,name,sequence:segment.nextSequence,participantCount:live.participantCount,capacity:segment.capacity,inviteUrl:url,syncedAt:new Date(),enabled:current.enabled}})
+      await tx.affiliateGroup.create({data:{tenantId,segmentId:segment.id,instanceId:provisioner.id,jid:createdJid!,name,sequence:segment.nextSequence,participantCount:live.participantCount,capacity:segment.capacity,inviteUrl:url,syncedAt:new Date(),enabled:current.enabled,...(segment.groupPolicyEnabled?{groupPolicyAppliedHash:appliedPolicyHash,groupPolicyState:current.groupPolicyEnabled&&groupPolicyHash(segmentGroupPolicy(current))!==appliedPolicyHash?'PENDING':'ACTIVE'}:{})}})
       await tx.affiliateSegment.update({where:{id:segment.id},data:{nextSequence:{increment:1},provisionState:'IDLE',provisionStartedAt:null}})
       await tx.auditLog.create({data:{tenantId,actorId:intent?.actorId,action:'affiliate.group.provisioned',entityType:'AffiliateSegment',entityId:segment.id,after:{sequence:segment.nextSequence,jid:createdJid}}})
     })
+    recorded=true
     const current = await db.affiliateSegment.findFirst({where:{id:segment.id,tenantId,enabled:true,instance:{enabled:true}}})
     if (!current) throw new AffiliateError(409,'A segmentação foi pausada. Tente novamente mais tarde.')
+    if(current.groupPolicyEnabled&&groupPolicyHash(segmentGroupPolicy(current))!==appliedPolicyHash)throw new AffiliateError(409,'A política mudou durante a criação. Aguarde a aplicação antes de usar o convite.')
     return {url}
   } catch (error) {
+    // A known, persisted group must not become an uncertain remote creation on a policy conflict.
+    if(recorded)throw error
     // No retry after the remote create may have succeeded; operator must reconcile.
     await db.affiliateSegment.updateMany({where:{id:segment.id,tenantId,provisionState:'CREATING'},data:{provisionState:'UNCERTAIN'}})
     await db.auditLog.create({data:{tenantId,actorId:intent?.actorId,action:'affiliate.group.provision_uncertain',entityType:'AffiliateSegment',entityId:segment.id,after:{jid:createdJid,sequence:segment.nextSequence}}})

@@ -1,4 +1,6 @@
 import { runAffiliateDiscovery } from '@/use-cases/affiliates/discovery'
+import { readAffiliateGroupPolicy, saveAffiliateGroupPolicy } from '@/use-cases/affiliates/group-policy'
+import { groupPolicyInput } from '@/domain/affiliates/group-policy'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { Prisma, type PrismaClient } from '@prisma/client'
 import { z } from 'zod'
@@ -96,6 +98,8 @@ export async function registerAffiliateRoutes(app:FastifyInstance) {
   }))
   app.get(prefix,(q,r)=>run(q,r,tenantId=>affiliateSnapshot(tenantId)))
   app.get(prefix+'/segments/:id',(q,r)=>run(q,r,tenantId=>affiliateSnapshot(tenantId,idParam.parse(q.params).id)))
+  app.get(prefix+'/segments/:id/group-policy',(q,r)=>run(q,r,tenantId=>readAffiliateGroupPolicy(prisma,tenantId,idParam.parse(q.params).id)))
+  app.put(prefix+'/segments/:id/group-policy',(q,r)=>run(q,r,(tenantId,actorId)=>saveAffiliateGroupPolicy(prisma,tenantId,actorId,idParam.parse(q.params).id,groupPolicyInput.parse(q.body))))
   app.post(prefix+'/segments/:id/prepare-group',(q,r)=>run(q,r,(tenantId,actorId)=>{
     z.object({}).strict().parse(q.body)
     return prepareFirstAffiliateGroup(prisma,tenantId,actorId,idParam.parse(q.params).id)

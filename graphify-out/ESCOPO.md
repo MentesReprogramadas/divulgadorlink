@@ -1,5 +1,17 @@
 # Graphify — Tem Link Aqui
 
+## Revisão pré-publicação — 30/10/2026
+
+Após correção concorrente da política e restauração da página Pets simples: 15 arquivos reprocessados e 1735 reutilizados; 8809 nós / 31709 relações. Extração incremental local code-only, sem LLM/API/clustering. Confirmação no código e testes de frontend/backend está nos relatórios de pré-publicação; o grafo não certifica runtime ou CSS.
+
+## Pets, Shopee e políticas de grupo — 30/10/2026
+
+Atualização incremental local após implementação integrada: 57 arquivos reprocessados e 1.689 reutilizados; passagem final com 10 reprocessados, 1.735 reutilizados e um temporário removido. Resultado final: **8.794 nós / 31.660 relações**. Comando `graphify extract . --code-only --max-workers 4 --no-cluster`, sem LLM/API/clustering. Testes E2E/configurações sem símbolos e CSS continuam fora da prova estrutural. Código/testes e capturas foram conferidos separadamente. O patch Evolution possui validação própria em checkout oficial isolado; seu build não é comprovado pelo grafo do aplicativo.
+
+## Descarte manual de ofertas — 30/10/2026
+
+Consulta dirigida ao grafo e confirmação no código de avaliação, descoberta e cartões. Extração incremental local `graphify extract . --code-only --max-workers 4 --no-cluster`: 20 arquivos processados, 1.703 reutilizados; **8.680 nós / 31.216 relações**. Sem API/LLM ou clustering. O teste catalog-product-card.test.tsx não produziu símbolos. CSS/capturas não são validados pelo índice. Verificação e limites em `docs/relatorios/2026-10-30-afiliados-descarte-manual.md`.
+
 ## Catálogo e clareza de Ofertas — 28/10/2026
 
 Consulta dirigida ao grafo e confirmação no código de descoberta, adapter e tela. Extração incremental code-only final: **8522 nós / 30713 relações**; passagem inicial27 arquivos/1659 reutilizados, passagem final10 arquivos/1676 reutilizados. Sem LLM/API, clustering ou envio de código. Campos opcionais de preço anterior, classificação técnica e consulta em lote de reputação confirmados por testes; CSS/Prisma/capturas não ganham validade pelo índice. Runtime, métricas locais e limites: `docs/relatorios/2026-10-28-afiliados-catalogo-clareza.md`.
@@ -230,3 +242,9 @@ Fechamento dos bloqueios gerais: filtros usam navegação de documento com resta
 Consulta dirigida ao grafo confirmada no código; atualização incremental local code-only final: 11 arquivos reprocessados, 8598 nós e 30964 relações. Sem LLM/API, clustering ou envio de código. Removida configuração temporária de teste antes da extração final. Redis, PostgreSQL, CSS, imagens e execução de OpenAI exigem provas próprias; evidências em docs/relatorios/2026-10-29-convite-rapido-presentes-copy.md.
 
 Handoff antecipado do convite: extração incremental code-only de20 arquivos,8628 nós/31023 relações. Inclui script nonced, adoção React e executor E2E isolado com build de produção. Sem LLM/API/envio externo. O grafo não comprova performance, CSP ou execução;955 testes e28 E2E locais são evidências separadas no relatório do lote.
+
+## Convite independente da instância — 30/10/2026
+Consulta dirigida aos dois resolvedores e consumidores HTTP, confirmada na fonte. Extração incremental local code-only:15 reprocessados,1732 reutilizados,8798 nós/31679 relações; sem LLM/API/clustering. Preservadas políticas paralelas locais antes do atalho de convite salvo. O lote de produção isolado contém apenas a correção de convites e respectivos testes, sem essas políticas paralelas. Evidências de runtime e limites em docs/relatorios/2026-10-30-convite-independente-instancia.md.
+
+## Títulos enxutos de afiliados — 30/10/2026
+Consulta dirigida ao gerador de copy, compositor de mensagem e prévia/aprovação, confirmada na fonte. Extração incremental code-only final:12 arquivos reprocessados/1738 reutilizados,8810 nós/31711 relações. Sem LLM/API/clustering. product-title.spec.ts sem símbolos no extrator;42 testes unitários e57 PostgreSQL do lote isolado foram executados separadamente. A árvore compartilhada tem outras alterações, sem atribuir toda diferença a este lote. Evidência e limites em docs/relatorios/2026-10-30-titulos-enxutos-afiliados.md.

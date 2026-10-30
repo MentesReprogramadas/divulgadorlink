@@ -20,6 +20,20 @@ beforeEach(() => { fixture.user.mockResolvedValue({ id: actorId }); fixture.conn
 const token = (claims: Record<string, unknown> = {}) => app.jwt.sign({ sub: actorId, tenantId, role: 'ADMIN', typ: 'access', ...claims })
 
 describe('Admin affiliate catalog authorization', () => {
+  it('guards every Shopee credential operation with admin access and redacts invalid payloads', async () => {
+    const base = '/api/v1/admin/affiliates/catalog/shopee'
+    for (const method of ['GET','PUT','DELETE','POST'] as const) {
+      const result = await app.inject({ method, url: method === 'POST' ? base + '/verify' : base, headers: { host: 'tenant.test' }, ...(method === 'PUT' ? { payload: { appId: '123456', secret: 'secret-sentinel', accountLabel: 'Conta' } } : {}) })
+      expect(result.statusCode).toBe(401)
+      expect(result.body).not.toContain('secret-sentinel')
+    }
+    expect(fixture.connection).not.toHaveBeenCalled()
+    const invalid = await app.inject({ method: 'PUT', url: base, headers: { host: 'tenant.test', authorization: `Bearer ${token()}` }, payload: { appId: 'invalid', secret: 'secret-sentinel', accountLabel: 'Conta' } })
+    expect(invalid.statusCode).toBe(400)
+    expect(invalid.body).not.toContain('secret-sentinel')
+    const status = await app.inject({ url: base, headers: { host: 'tenant.test', authorization: `Bearer ${token()}` } })
+    expect(status.json()).toMatchObject({ provider: 'SHOPEE', configured: false, connected: false })
+  })
   it('rejects unauthenticated users and refresh tokens before consulting credentials', async () => {
     for (const authorization of [undefined, `Bearer ${token({ typ: 'refresh' })}`]) {
       const result = await app.inject({ url: '/api/v1/admin/affiliates/catalog/status', headers: { host: 'tenant.test', ...(authorization ? { authorization } : {}) } })

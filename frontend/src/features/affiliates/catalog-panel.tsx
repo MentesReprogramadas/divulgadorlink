@@ -13,9 +13,11 @@ import styles from './affiliates.module.css'
 import { DiscoveryPanel } from './discovery-panel'
 import { CatalogProductCard } from './catalog-product-card'
 import discoveryStyles from './discovery.module.css'
+import { ShopeeSettings, type ShopeeStatus } from './shopee-settings'
 
 export function CatalogPanel({ createOffer, contextName, segmentId, focusSearch = false }: { createOffer: (product: OfferSeed) => void; contextName?: string; segmentId?: string; focusSearch?: boolean }) {
   const [status, setStatus] = useState<CatalogStatus | null>(null), [products, setProducts] = useState<CatalogProduct[]>([])
+  const [shopee, setShopee] = useState<ShopeeStatus | null>(null)
   const [counts, setCounts] = useState<{catalogsFound:number;catalogsChecked:number;withoutOffers:number;failed:number}|null>(null)
   const [warnings, setWarnings] = useState<string[]>([]), [error, setError] = useState(''), [notice, setNotice] = useState('')
   const [busy, setBusy] = useState(false), [config, setConfig] = useState(false), [clientId, setClientId] = useState(''), [clientSecret, setClientSecret] = useState('')
@@ -33,6 +35,11 @@ export function CatalogPanel({ createOffer, contextName, segmentId, focusSearch 
     setStatus(result); setClientId(result.clientId ?? '')
   }, [])
   useEffect(() => { void load().catch(reason => setError(reason instanceof Error ? reason.message : 'Não foi possível conferir o catálogo.')) }, [load])
+  const loadShopee = useCallback(async () => {
+    const result = await affiliateRequest<ShopeeStatus>('/catalog/shopee')
+    if (active.current) setShopee(result.provider === 'SHOPEE' ? result : null)
+  }, [])
+  useEffect(() => { void loadShopee().catch(() => { if (active.current) setShopee(null) }) }, [loadShopee])
   async function perform(action: () => Promise<void>) {
     if (lock.current) return
     lock.current = true; setBusy(true); setError(''); setNotice('')
@@ -85,7 +92,7 @@ export function CatalogPanel({ createOffer, contextName, segmentId, focusSearch 
   return <section className={styles.section} aria-label="Catálogo Mercado Livre">
     {error ? <p role="alert" className={styles.error}>{error}</p> : null}{notice ? <p role="status" className={styles.notice}>{notice}</p> : null}
 
-    {segmentId ? <DiscoveryPanel segmentId={segmentId} contextName={contextName ?? 'esta segmentação'} busy={busy} canGenerate={status?.affiliateConfigured ?? false} prepare={prepareProduct} settingsContent={<>{segmentId && !status?.affiliateConfigured && status ? <div className={discoveryStyles.sessionPrompt}><p>Configure uma sessão de afiliados para gerar links e preparar estas sugestões.</p><Button variant="secondary" disabled={busy} onClick={event => { trigger.current = event.currentTarget; setSessionOpen(true) }}>Configurar sessão de afiliados</Button></div> : null}{catalogTools}</>} /> : catalogTools}
+    {segmentId ? <DiscoveryPanel segmentId={segmentId} contextName={contextName ?? 'esta segmentação'} busy={busy} canGenerate={status?.affiliateConfigured ?? false} canGenerateShopee={shopee?.configured ?? false} prepare={prepareProduct} settingsContent={<><ShopeeSettings status={shopee} onChanged={loadShopee} />{segmentId && !status?.affiliateConfigured && status ? <div className={discoveryStyles.sessionPrompt}><p>Configure uma sessão de afiliados do Mercado Livre para gerar links desta fonte.</p><Button variant="secondary" disabled={busy} onClick={event => { trigger.current = event.currentTarget; setSessionOpen(true) }}>Configurar sessão de afiliados</Button></div> : null}{catalogTools}</>} /> : <><ShopeeSettings status={shopee} onChanged={loadShopee} />{catalogTools}</>}
     <OverlayDialog open={sessionOpen} title="Configurar sessão de afiliados" onClose={() => { if (!sessionBusy) setSessionOpen(false) }} closeDisabled={sessionBusy} returnFocusTo={trigger.current}>
       {sessionOpen ? <CatalogSessionForm session={status?.session} pending={setSessionBusy} saved={async () => { await load(); setGenerated(null); setSessionOpen(false); setNotice('Sessão configurada. Gere um link para conferir sua validade e atribuição.') }} /> : null}
     </OverlayDialog>

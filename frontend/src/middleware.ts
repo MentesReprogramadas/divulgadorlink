@@ -14,7 +14,7 @@ function withPath(request: NextRequest): { headers: Headers; csp: string } {
   const googleScripts = 'https://www.googletagmanager.com https://www.googleadservices.com https://www.google.com'
   const googleAds = `${googleScripts} https://www.google.com.br https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com`
   // CSP belongs to the initial document and survives client navigation from login to affiliates.
-  const affiliateImages = ' https://mlstatic.com https://*.mlstatic.com'
+  const affiliateImages = ' https://mlstatic.com https://*.mlstatic.com https://susercontent.com https://*.susercontent.com'
   const csp = [
     "default-src 'self'",
     `script-src 'self'${devEval} 'nonce-${nonce}' https://js.stripe.com https://connect.facebook.net ${googleScripts}`,

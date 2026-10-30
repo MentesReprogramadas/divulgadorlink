@@ -20,6 +20,7 @@ export function priceCents(value: unknown): number | null {
 }
 
 export type CatalogProduct = {
+  provider?: 'MERCADO_LIVRE' | 'SHOPEE'
   id: string
   catalogId: string
   title: string

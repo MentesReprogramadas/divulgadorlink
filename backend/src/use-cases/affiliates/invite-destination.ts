@@ -2,6 +2,8 @@ import type { AffiliateInstance, PrismaClient } from '@prisma/client'
 import type { AffiliateWhatsApp } from '@/adapters/affiliates/evolution'
 import { validInvite } from '@/domain/affiliates/contracts'
 import { affiliateInviteEvolution } from './instances'
+import { resolveStoredAffiliateInvite } from './stored-invite'
+import { groupPolicyHash, segmentGroupPolicy } from '@/domain/affiliates/group-policy'
 
 // GET may resolve existing invitations, but must never sync, rotate or provision groups.
 export async function resolveAffiliateInviteDestination(db:PrismaClient,tenantId:string,slug:string,factory:(instance:AffiliateInstance)=>AffiliateWhatsApp=affiliateInviteEvolution):Promise<{url:string}|null> {
@@ -9,6 +11,9 @@ export async function resolveAffiliateInviteDestination(db:PrismaClient,tenantId
   if(!segment)return null
   const accounts=segment.instanceLinks.length?segment.instanceLinks.map(link=>link.instance).filter(instance=>instance.enabled):segment.instance?.enabled?[segment.instance]:[]
   for(const group of segment.groups){
+    if(segment.groupPolicyEnabled && group.groupPolicyAppliedHash!==groupPolicyHash(segmentGroupPolicy(segment)))return null
+    const saved=await resolveStoredAffiliateInvite(db,tenantId,segment,group,true)
+    if(saved)return saved
     const candidates=segment.instanceLinks.length?accounts:group.instance.enabled?[group.instance]:accounts
     for(const instance of candidates){
       try {

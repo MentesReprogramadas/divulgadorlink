@@ -5,6 +5,8 @@ import { ProfileError } from '@/domain/profiles/profile'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
 import { affiliateSessionSchema, AffiliateCatalogError } from '@/domain/affiliates/mercado-livre'
 import { requireAffiliateAdmin } from './affiliate-access'
+import { affiliateCatalogProvider, shopeeConfigSchema } from '@/domain/affiliates/shopee'
+import { configureShopee, disconnectShopee, shopeeStatus, verifyShopee } from '@/use-cases/affiliates/shopee'
 import { configureAffiliateSession, disconnectAffiliateSession, affiliateCatalogStatus, catalogCallbackSchema, catalogConfigSchema, configureAffiliateCatalog, connectAffiliateCatalog, disconnectAffiliateCatalog, finishAffiliateCatalogAuthorization, generateCatalogAffiliate, searchAffiliateCatalog } from '@/use-cases/@Affiliates/catalog'
 
 async function run(request: FastifyRequest, reply: FastifyReply, work: (tenantId: string, actorId: string) => Promise<unknown>) {
@@ -24,6 +26,10 @@ async function run(request: FastifyRequest, reply: FastifyReply, work: (tenantId
 
 export async function registerAffiliateCatalogRoutes(app: FastifyInstance) {
   const base = '/admin/affiliates/catalog'
+  app.get(`${base}/shopee`, (q,r) => run(q,r, tenantId => shopeeStatus(prisma,tenantId)))
+  app.put(`${base}/shopee`, (q,r) => run(q,r, (tenantId,actorId) => configureShopee(prisma,tenantId,actorId,shopeeConfigSchema.parse(q.body))))
+  app.delete(`${base}/shopee`, (q,r) => run(q,r, (tenantId,actorId) => disconnectShopee(prisma,tenantId,actorId)))
+  app.post(`${base}/shopee/verify`, (q,r) => run(q,r, (tenantId,actorId) => verifyShopee(prisma,tenantId,actorId)))
   app.get(`${base}/status`, (q, r) => run(q, r, tenantId => affiliateCatalogStatus(prisma, tenantId)))
   app.post(`${base}/session`, (q, r) => run(q, r, (tenantId, actorId) => configureAffiliateSession(prisma, tenantId, actorId, affiliateSessionSchema.parse(q.body))))
   app.post(`${base}/session/disconnect`, (q, r) => run(q, r, (tenantId, actorId) => disconnectAffiliateSession(prisma, tenantId, actorId)))
@@ -33,7 +39,10 @@ export async function registerAffiliateCatalogRoutes(app: FastifyInstance) {
     await finishAffiliateCatalogAuthorization(prisma, tenantId, actorId, catalogCallbackSchema.parse(q.query))
     return r.redirect('/admin/afiliados?catalog=connected')
   }))
-  app.get(`${base}/search`, (q, r) => run(q, r, tenantId => searchAffiliateCatalog(prisma, tenantId, z.object({ q: z.string().trim().min(2).max(120) }).strict().parse(q.query).q)))
+  app.get(`${base}/search`, (q, r) => run(q, r, tenantId => {
+    const query = z.object({ q: z.string().trim().min(2).max(120), provider: affiliateCatalogProvider.default('MERCADO_LIVRE') }).strict().parse(q.query)
+    return searchAffiliateCatalog(prisma, tenantId, query.q, { provider: query.provider })
+  }))
   app.post(`${base}/affiliate`, (q, r) => run(q, r, (tenantId, actorId) => generateCatalogAffiliate(prisma, tenantId, actorId, z.object({ productUrl: z.string().min(1).max(2048) }).strict().parse(q.body).productUrl)))
   app.post(`${base}/disconnect`, (q, r) => run(q, r, (tenantId, actorId) => disconnectAffiliateCatalog(prisma, tenantId, actorId)))
 }

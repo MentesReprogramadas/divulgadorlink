@@ -33,6 +33,10 @@ Não há desconto ou preço anterior inventado. Na captura do usuário, R$ 149,9
 - `docs/frontend-profissional/evidencias/afiliados-descarte-2026-10-30/desktop.png`
 - `docs/frontend-profissional/evidencias/afiliados-descarte-2026-10-30/mobile.png`
 
-Não houve commit, push nem deploy. Produção continua com a regra anterior até publicação autorizada; nenhuma conexão WhatsApp, participante ou campanha foi alterada nesta correção. A conta em revisão continua sem novas tentativas.
+Publicação posteriormente autorizada pelo usuário: commit `d8374eeff01194ca14bd4e4d80c626c57949e998`, workflow [41080079096](https://github.com/MentesReprogramadas/divulgadorlink/actions/runs/41080079096), concluído com sucesso. Os quatro serviços foram publicados no mesmo SHA; API e web passaram nos health checks, bridge e worker em execução, sem readiness de consumo.
+
+Smoke administrativo HTTP em produção, somente leitura, confirmou `policy.version=v2`: 185 produtos na segmentação Pets, 43 SELECTED, 142 REVIEW e zero DISCARDED nesse catálogo. Percorridas as páginas para conferir o exemplo MLB6839186178 / MLB54325401: REVIEW, v2 e sem decisão manual. Autorização usa administrador ativo existente, tenant conferido e credencial temporária mantida apenas em memória; nenhum token foi exibido ou salvo. O primeiro smoke com fetch nativo não preservou Host e recebeu503; usando transporte HTTP com Host explícito, como o proxy do frontend, retornou200. A consulta direta à função da imagem publicada também confirmou v2.
+
+Nenhuma conexão WhatsApp, participante ou campanha foi alterada nesta correção. A conta em revisão continua sem novas tentativas. Os novos recursos Shopee, LP Pets e políticas de grupo permanecem fora deste commit.
 
 Reversão: reverter os arquivos de código/testes desta correção para a versão anterior. Nenhuma migração de banco foi adicionada e nenhum descarte manual existente foi apagado. As páginas JSON v1 permanecem armazenadas e são reclassificadas somente na leitura da v2.

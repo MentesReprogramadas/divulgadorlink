@@ -3,12 +3,12 @@
 Autorização explícita do usuário em29/10: publicar todo o trabalho, reproduzir configuração local de ML/WhatsApp na própria conta de produção, usar o grupo real **TLA | Achadinhos de Natal 🎄🎁 #03** e enviar exatamente um produto de teste após configurar. Não usar o grupo local de testes. Credenciais fornecidas pelo usuário não devem aparecer em código, relatórios, logs ou commits.
 
 - [x] Finalizar rodapé somente com aviso de preço/estoque e preservar título/mensagem exatos da prévia.
-- [ ] Preparar gateway permanente HTTPS na VPS, SQLite VHG somente leitura; nenhuma cópia de tokens em texto aberto ou alteração da sessão de origem.
-- [ ] Corrigir integração CI dos novos testes, conferir diff/segredos/migrations, executar checks e publicar commit revisável na main pelo fluxo existente de CI/CD.
-- [ ] Publicar API/migrations, worker e frontend; conferir saúde e rollback disponível. Configurar chave de cifragem privada consistente em API/worker, ponte e integrações existentes.
-- [ ] Recriar instância/segmentação por API ou script com contexto de tenant/conta corretos e cifragem de produção; consultar Evolution e confirmar nome/JID do grupo real. Nenhum outro grupo ativo na segmentação do teste.
-- [ ] Gerar produto/preço/link/título reais, conferir snapshot de destino único, aprovar um envio e verificar resultado sem repetir respostas incertas.
-- [ ] Verificar painel de produção com a conta do usuário, registrar versão, IDs de implantação e evidências sem segredos; manter local preservado e remover apenas fixtures descartáveis.
+- [x] Preparar gateway permanente HTTPS na VPS, SQLite VHG somente leitura; nenhuma cópia de tokens em texto aberto ou alteração da sessão de origem.
+- [x] Corrigir integração CI dos novos testes, conferir diff/segredos/migrations, executar checks e publicar commit revisável na main pelo fluxo existente de CI/CD.
+- [x] Publicar API/migrations, worker e frontend; conferir saúde e rollback disponível. Configurar chave de cifragem privada consistente em API/worker, ponte e integrações existentes.
+- [x] Recriar instância/segmentação por API ou script com contexto de tenant/conta corretos e cifragem de produção; consultar Evolution e confirmar nome/JID do grupo real. Nenhum outro grupo ativo na segmentação do teste.
+- [x] Gerar produto/preço/link/título reais, conferir snapshot de destino único, aprovar um envio e verificar resultado sem repetir respostas incertas.
+- [x] Verificar painel de produção com a conta do usuário, registrar versão, IDs de implantação e evidências sem segredos; manter local preservado e remover apenas fixtures descartáveis.
 
 Rulings: a autorização de publicação substitui as restrições anteriores de não publicar, sem autorizar alterações em outros produtos. A ponte local loopback não funciona em produção; serviço dedicado somente de leitura é necessário para reproduzir a integração. Credenciais cifradas não podem ser copiadas entre tenant/chaves; recriar com o contexto de produção. A mensagem aprovada distribui para todos os grupos ativos da segmentação; por isso o teste terá um único destino confirmado.
 
@@ -22,4 +22,10 @@ Fechamento dos bloqueios restantes: confirmação de idade retornava204 e consul
 
 Outra falha real: GET inicial de favorito podia terminar depois de um PUT e sobrescrever visualmente o estado confirmado. Contador de mutação invalida leituras antigas e evita novas leituras durante a alteração. Regressão unitária falhou antes e passou após correção;13 testes dos componentes afetados e dois E2E de favoritos, incluindo setup, passaram. Lint/tipos frontend passaram. Grafo incremental local:8547 nós/30789 relações, sem LLM/API/envio externo.
 
-Preflight VPS: Docker Node24, usuário node, rede desativada e volume de dados inteiro readonly abriram SQLite real com WAL/SHM; catálogo conectado e sessão de afiliados presente. Chave Evolution da própria conexão local difere da integração antiga; configurada apenas nas variáveis AFFILIATE da API/worker, preservando integrações existentes. Nenhuma mensagem real enviada até esta etapa.
+Preflight VPS: Docker Node 24, usuário node, rede desativada e volume de dados inteiro readonly abriram SQLite real com WAL/SHM; catálogo conectado e sessão de afiliados presente. Chave Evolution da própria conexão local difere da integração antiga; configurada apenas nas variáveis AFFILIATE da API/worker, preservando integrações existentes. Nenhuma mensagem real enviada até esta etapa.
+
+## Resultado operacional
+
+Código publicado em 54c1543e02240185fadf8aa513d253a9ba67b99d. CI 40857990791:25/25 jobs aprovados, incluindo deploy. API, worker e frontend no mesmo SHA; ponte reimplantada no mesmo SHA após corrigir montagem de dados e configurar readiness. Um produto real enviado e confirmado pelo provedor; mensagem/título idênticos à prévia regenerada.
+
+Limite externo pendente: a conta Principal 01 participa do grupo real #03, mas não é administradora. Evolution retorna 404/No invite code/not-authorized. Destino de envio cadastrado com metadados verificados e inviteUrl nulo, em transação com validação do admin/tenant, vínculo da instância e auditoria. Grupo permite mensagens de participantes e envio foi confirmado. Nenhuma permissão foi alterada ou contornada. Convites desse grupo aguardam promoção da conta no WhatsApp; solicitação apresentada ao usuário. Não se forçou lotação/criação de outro grupo real.

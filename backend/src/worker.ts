@@ -1,4 +1,5 @@
 import { purgeInviteEvents } from '@/use-cases/affiliates/invite-metrics'
+import { runAffiliateGroupPolicies } from '@/use-cases/affiliates/group-policy'
 import { purgeAffiliateMembership } from '@/use-cases/affiliates/membership'
 import { runAffiliateDiscovery } from '@/use-cases/affiliates/discovery'
 import {purgeAgencyAccess} from '@/repositories/agency-clients'
@@ -374,6 +375,15 @@ export async function startWorker(): Promise<void> {
     void requestAffiliateDeliveryDrain(prisma).catch(() => logDomainEvent('affiliate.drain.failed',{result:'processing_failed'}))
   }, 1000)
   affiliateDrain.unref()
+  let groupPolicyRunning=false
+  const drainGroupPolicies=async()=>{
+    if(groupPolicyRunning)return
+    groupPolicyRunning=true
+    try {await runAffiliateGroupPolicies(prisma)} catch {logDomainEvent('affiliate.group_policy.failed',{result:'processing_failed'})} finally {groupPolicyRunning=false}
+  }
+  void drainGroupPolicies()
+  const groupPolicyDrain=setInterval(()=>{void drainGroupPolicies()},30_000)
+  groupPolicyDrain.unref()
   const drain = setInterval(() => {
     void runAffiliateDiscovery(prisma).catch(() => logDomainEvent('affiliate.discovery.failed', { result: 'processing_failed' }))
     void enqueueWebhookCycle().catch(()=>logDomainEvent('webhook.drain.failed',{result:'queue_unavailable'}))

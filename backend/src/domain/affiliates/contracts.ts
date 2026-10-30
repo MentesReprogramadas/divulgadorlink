@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { affiliateImageReference } from './image'
+import { compactAffiliateTitle } from './product-title'
 
 export class AffiliateError extends Error {
   constructor(public readonly status: number, message: string) { super(message) }
@@ -10,15 +11,15 @@ export const marketUrl = z.string().trim().max(2048).url().refine(raw => {
   if(!URL.canParse(raw)) return false
   const url = new URL(raw)
   return url.protocol === 'https:' && !url.username && !url.password && !url.port &&
-    ['mercadolivre.com.br', 'mercadolibre.com', 'meli.la'].some(host => url.hostname === host || url.hostname.endsWith(`.${host}`))
-}, 'Use um link HTTPS do Mercado Livre.')
+    ['mercadolivre.com.br', 'mercadolibre.com', 'meli.la', 'shopee.com.br', 'shope.ee'].some(host => url.hostname === host || url.hostname.endsWith(`.${host}`))
+}, 'Use um link HTTPS do Mercado Livre ou da Shopee Brasil.')
 // Image URLs are handed to Evolution, so restrict their origin as well as scheme.
 export const imageUrl = z.string().max(2048).url().refine(raw => {
   if(!URL.canParse(raw)) return false
   const url = new URL(raw)
   return url.protocol === 'https:' && !url.username && !url.password && !url.port &&
-    ['mlstatic.com', 'temlinkaqui.com', 'whatsapp.net'].some(host => url.hostname === host || url.hostname.endsWith(`.${host}`))
-}, 'Use imagem HTTPS do Mercado Livre, WhatsApp ou Tem Link Aqui.').nullable().optional()
+    ['mlstatic.com', 'temlinkaqui.com', 'whatsapp.net', 'susercontent.com'].some(host => url.hostname === host || url.hostname.endsWith(`.${host}`))
+}, 'Use imagem HTTPS do Mercado Livre, Shopee, WhatsApp ou Tem Link Aqui.').nullable().optional()
 export const groupImage = imageUrl.or(affiliateImageReference)
 export const segmentInput = z.object({
   name: z.string().trim().min(2).max(80), slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).min(2).max(80),
@@ -41,7 +42,8 @@ const safeText = (text: string) => text.replace(/[\r\n*_~`]/g, ' ').replace(/\s+
 const money = (cents: number) => (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 export function offerMessage(offer: OfferMessage) {
   const saving = offer.oldPriceCents && offer.oldPriceCents > offer.priceCents ? offer.oldPriceCents - offer.priceCents : 0
-  const lines = offer.headline ? [safeText(offer.headline), `*${safeText(offer.title)}*`, ''] : [saving ? '🔥 Olha esse desconto!' : '✨ Um achado para você!', '', `*${safeText(offer.title)}*`, '']
+  const title=safeText(compactAffiliateTitle(offer.title))
+  const lines = offer.headline ? [safeText(offer.headline), `*${title}*`, ''] : [saving ? '🔥 Olha esse desconto!' : '✨ Um achado para você!', '', `*${title}*`, '']
   if (saving) lines.push(`De: ~${money(offer.oldPriceCents!)}~`)
   lines.push(`💰 *${money(offer.priceCents)}*`)
   if (saving) {

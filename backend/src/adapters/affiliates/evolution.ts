@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { membershipParticipant } from '@/domain/affiliates/membership'
 import { AffiliateError, groupJid, imageUrl, validInvite } from '@/domain/affiliates/contracts'
 import type { AffiliateInviteReadCache } from './invite-read-cache'
+import { admissionJid } from '@/domain/affiliates/group-policy'
 
 export class AffiliateProviderError extends AffiliateError {
   constructor(public readonly uncertain: boolean, public readonly providerStatus?: number) {
@@ -14,6 +15,11 @@ const remoteGroup = z.object({
 }).refine(row => row.size !== undefined || row.participants !== undefined)
 export type WhatsAppGroup = { jid:string; name:string; participantCount:number; description:string; imageUrl:string|null }
 export interface AffiliateWhatsApp {
+  setDisappearingMessages?(jid:string,seconds:number):Promise<void>
+  groupAdmissionCapabilities?():Promise<{joinApproval:boolean}>
+  setJoinApproval?(jid:string,enabled:boolean):Promise<void>
+  pendingJoinRequests?(jid:string):Promise<string[]>
+  approveJoinRequest?(jid:string,participant:string):Promise<void>
   status?(options?:{fresh:true}):Promise<{state:string}>
   group(jid:string):Promise<WhatsAppGroup>
   groups():Promise<WhatsAppGroup[]>
@@ -64,6 +70,34 @@ export class AffiliateEvolution implements AffiliateWhatsApp {
     } catch { throw new AffiliateProviderError(uncertain) }
   }
   private path(action:string,jid?:string) {return `/${action}/${encodeURIComponent(this.config.instance)}${jid ? `?groupJid=${encodeURIComponent(jid)}`:''}`}
+  async setDisappearingMessages(jid:string,seconds:number) {
+    groupJid.parse(jid)
+    z.union([z.literal(0),z.literal(86400),z.literal(604800),z.literal(7776000)]).parse(seconds)
+    const value=await this.request(this.path('group/toggleEphemeral',jid),{expiration:seconds})
+    if(!z.object({success:z.literal(true)}).safeParse(value).success)throw new AffiliateProviderError(false)
+  }
+  async groupAdmissionCapabilities() {
+    try {
+      const value=z.object({version:z.literal(1),joinApproval:z.literal(true)}).safeParse(await this.request(this.path('group/admissionCapabilities')))
+      return {joinApproval:value.success}
+    } catch(error) {if(error instanceof AffiliateProviderError&&[404,405,501].includes(error.providerStatus??0))return {joinApproval:false};throw error}
+  }
+  async setJoinApproval(jid:string,enabled:boolean) {
+    groupJid.parse(jid)
+    const value=await this.request(this.path('group/joinApprovalMode',jid),{enabled})
+    if(!z.object({success:z.literal(true)}).safeParse(value).success)throw new AffiliateProviderError(false)
+  }
+  async pendingJoinRequests(jid:string) {
+    groupJid.parse(jid)
+    const value=z.object({participants:z.array(admissionJid).max(10000)}).safeParse(await this.request(this.path('group/requestParticipants',jid)))
+    if(!value.success)throw new AffiliateProviderError(false)
+    return value.data.participants
+  }
+  async approveJoinRequest(jid:string,participant:string) {
+    groupJid.parse(jid);admissionJid.parse(participant)
+    const value=z.object({participants:z.array(z.object({jid:admissionJid,status:z.literal('200')})).length(1)}).safeParse(await this.request(this.path('group/updateRequestParticipants',jid),{action:'approve',participants:[participant]},true))
+    if(!value.success || value.data.participants[0].jid!==participant)throw new AffiliateProviderError(true)
+  }
   async participants(jid:string):Promise<string[]> {
     const parsed=z.object({participants:z.array(membershipParticipant).max(10000)}).safeParse(await this.request(this.path('group/participants',jid)))
     if(!parsed.success) throw new AffiliateProviderError(false)

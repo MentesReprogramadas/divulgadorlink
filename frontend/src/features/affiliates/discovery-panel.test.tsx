@@ -12,6 +12,20 @@ const initial: DiscoveryState = { enabled: true, usesSegmentName: true, terms: [
 const product = { id: 'MLB123', title: 'Produto conferido', priceCents: 12990, oldPriceCents: null, imageUrl: 'https://http2.mlstatic.com/fixture.jpg', checkedAt: '2026-10-28T12:00:00Z', productUrl: 'https://produto.mercadolivre.com.br/MLB-123' }
 const ready: DiscoveryState = { ...initial, status: 'READY', checkedAt: '2026-10-28T12:00:00Z', products: [product] }
 const props = { segmentId: 'natal', contextName: 'Natal', busy: false, canGenerate: true, prepare: vi.fn() }
+it('mantém a fonte apenas em Configurações e libera a revisão Shopee com credenciais próprias', async () => {
+  vi.mocked(api).mockResolvedValue({status:200,body:{...ready,provider:'SHOPEE',products:[{...product,id:'SHP123_456',provider:'SHOPEE',productUrl:'https://shopee.com.br/product/123/456'}]}})
+  render(<DiscoveryPanel {...props} canGenerate={false} canGenerateShopee />)
+  const review = await screen.findByRole('button',{name:'Revisar e enviar'})
+  expect(review.hasAttribute('disabled')).toBe(false)
+  expect(screen.getByRole('link',{name:/Ver na Shopee/})).toBeTruthy()
+  expect(screen.queryByRole('combobox')).toBeNull()
+  fireEvent.click(screen.getByRole('tab',{name:'Configurações'}))
+  expect(screen.getByRole('combobox',{name:'Fonte dos produtos'}).textContent).toContain('Shopee')
+  fireEvent.click(screen.getByRole('button',{name:'Salvar termos'}))
+  await waitFor(()=>expect(api).toHaveBeenCalledWith('/v1/admin/affiliates/segments/natal/discovery/config',expect.objectContaining({method:'POST',body:JSON.stringify({enabled:true,terms:['Natal'],provider:'SHOPEE'})})))
+  expect(screen.queryByRole('combobox',{name:/termo/i})).toBeNull()
+})
+
 it('mantém avaliações automáticas antigas em Produtos e reserva Descartados às decisões do administrador',async()=>{
  const automatic={...product,evaluation:{status:'DISCARDED',rulesVersion:'v1',reasons:[],reportedDiscountPercent:null,history:{days:0,medianPriceCents:null,dropPercent:null,verified:false,windowDays:30},reputation:{level:'2_orange',status:'POOR'}}}
  vi.mocked(api).mockImplementation(async path=>({status:200,body:{...ready,products:path.includes('view=DISCARDED')?[{...automatic,id:'MLB456',title:'Descartado manualmente',decision:'DISCARDED'}]:[automatic]}}))
@@ -102,7 +116,7 @@ it('preserva pausa, salva termos e exige ação para retomar', async () => {
   fireEvent.click(screen.getByRole('tab', {name:'Configurações'}))
   fireEvent.change(screen.getByLabelText('Termos de busca'), { target: { value: 'presentes, decoração' } })
   fireEvent.click(screen.getByRole('button', { name: 'Salvar termos' }))
-  await waitFor(() => expect(api).toHaveBeenCalledWith('/v1/admin/affiliates/segments/natal/discovery/config', expect.objectContaining({ method: 'POST', body: JSON.stringify({ enabled: false, terms: ['presentes', 'decoração'] }) })))
+  await waitFor(() => expect(api).toHaveBeenCalledWith('/v1/admin/affiliates/segments/natal/discovery/config', expect.objectContaining({ method: 'POST', body: JSON.stringify({ enabled: false, terms: ['presentes', 'decoração'], provider: 'MERCADO_LIVRE' }) })))
 })
 
 it('mostra falha de coleta junto do cache e não apaga produtos válidos', async () => {
@@ -184,7 +198,7 @@ it('mantém termos implícitos ao pausar e retomar a descoberta', async () => {
   await screen.findByText('Produto conferido')
   fireEvent.click(screen.getByRole('tab', {name:'Configurações'}))
   fireEvent.click(screen.getByRole('button', { name: 'Pausar descoberta automática' }))
-  await waitFor(() => expect(api).toHaveBeenCalledWith('/v1/admin/affiliates/segments/natal/discovery/config', expect.objectContaining({ method: 'POST', body: JSON.stringify({ enabled: false, terms: [] }) })))
+  await waitFor(() => expect(api).toHaveBeenCalledWith('/v1/admin/affiliates/segments/natal/discovery/config', expect.objectContaining({ method: 'POST', body: JSON.stringify({ enabled: false, terms: [], provider: 'MERCADO_LIVRE' }) })))
 })
 
 

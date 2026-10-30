@@ -7,6 +7,7 @@ import { decideAffiliateProduct, previewAffiliateProduct, regenerateAffiliatePro
 import { affiliateBroadcastHistory, affiliateBroadcastStatus } from '@/use-cases/affiliates/broadcast-history'
 import { requestAffiliateDeliveryDrain } from '@/use-cases/affiliates/deliveries'
 import { requireAffiliateAdmin } from './affiliate-access'
+import { affiliateProductId } from '@/domain/affiliates/shopee'
 
 async function run(request:FastifyRequest,reply:FastifyReply,work:(tenantId:string,actorId:string)=>Promise<unknown>) {
   reply.header('cache-control','private, no-store').header('x-robots-tag','noindex, nofollow')
@@ -22,7 +23,7 @@ async function run(request:FastifyRequest,reply:FastifyReply,work:(tenantId:stri
   }
 }
 export async function registerAffiliateProductRoutes(app:FastifyInstance) {
-  const base='/admin/affiliates',segment=(q:FastifyRequest)=>z.object({id:entityId}).parse(q.params).id,item=z.string().regex(/^MLB\d+$/).max(40)
+  const base='/admin/affiliates',segment=(q:FastifyRequest)=>z.object({id:entityId}).parse(q.params).id,item=affiliateProductId
   app.post(`${base}/segments/:id/products/preview`,(q,r)=>run(q,r,(tenantId,actorId)=>previewAffiliateProduct(prisma,tenantId,actorId,segment(q),z.object({itemId:item}).strict().parse(q.body).itemId)))
   app.post(`${base}/segments/:id/products/preview/title`,(q,r)=>run(q,r,(tenantId,actorId)=>regenerateAffiliateProductTitle(prisma,tenantId,actorId,segment(q),z.object({previewToken:z.string().min(1).max(24000)}).strict().parse(q.body).previewToken)))
   app.post(`${base}/segments/:id/products/send`,(q,r)=>run(q,r,async(tenantId,actorId)=>{

@@ -39,6 +39,7 @@ async function fixtures(page: Page, emptyConnections = false) {
     const selectedId=pathname.startsWith('/v1/admin/affiliates/segments/')?pathname.split('/').at(-1):undefined
     const selected=data.segments.find(item=>item.id===selectedId),selectedGroups=data.groups.filter(item=>item.segmentId===selectedId),selectedOffers=data.offers.filter(item=>item.segmentId===selectedId),selectedBroadcasts=data.broadcasts.filter(item=>selectedOffers.some(offer=>offer.id===item.offerId)),selectedDeliveries=data.deliveries.filter(item=>item.group.segmentId===selectedId)
     const body = selected ? {...data,segments:[selected],groups:selectedGroups,offers:selectedOffers,broadcasts:selectedBroadcasts,deliveries:selectedDeliveries,summary:{...data.summary,segments:1,groups:selectedGroups.length,offers:selectedOffers.length},readiness:{activeGroups:selectedGroups.filter(item=>item.enabled).length,currentOffers:selectedOffers.length,approvedDeliveries:selectedDeliveries.length,nextOffer:selectedOffers.find(item=>!selectedBroadcasts.some(batch=>batch.offerId===item.id))??null}}
+      : pathname.endsWith('/group-policy') ? {enabled:false,disappearingSeconds:604800,joinApproval:true,autoApproveDelaySeconds:120,groups:data.groups.filter(group=>group.segmentId===pathname.split('/').at(-2)).map(group=>({id:group.id,name:group.name,groupPolicyState:'UNSUPPORTED',groupPolicyErrorCode:'admission_extension_required',groupPolicyNextRunAt:null}))}
       : pathname.endsWith('/auth/session') ? { role: 'ADMIN', status: 'ACTIVE', canSubmit: true }
       : pathname.endsWith('/team/context') ? { ownerId: null, grants: null }
       : pathname === '/v1/admin/affiliates' ? data
@@ -208,9 +209,10 @@ test('admin gerencia segmentos, revisa oferta e confere entrega sem reenvio impl
   const segmentDialog = page.getByRole('dialog', { name: 'Editar segmentação' })
   await expect(segmentDialog.getByLabel('Nome da segmentação')).toHaveValue('Natal')
   await expect(segmentDialog.getByRole('radio', { name: 'Mostrar tela de convite' })).toBeVisible()
+  await expect(segmentDialog.getByRole('button', { name: 'Salvar política dos grupos', exact: true })).toBeVisible()
   await segmentDialog.getByRole('button', { name: 'Fechar janela' }).focus()
   await page.keyboard.press('Shift+Tab')
-  await expect(segmentDialog.getByRole('button', { name: 'Continuar para WhatsApp', exact: true })).toBeFocused()
+  await expect(segmentDialog.getByRole('button', { name: 'Salvar política dos grupos', exact: true })).toBeFocused()
   await page.keyboard.press('Tab')
   await expect(segmentDialog.getByRole('button', { name: 'Fechar janela' })).toBeFocused()
   await page.keyboard.press('Escape')

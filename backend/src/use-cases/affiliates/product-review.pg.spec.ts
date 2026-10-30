@@ -8,7 +8,7 @@ import { decideAffiliateProduct, previewAffiliateProduct, readAffiliateProductPr
 import { runAffiliateDeliveries } from './deliveries'
 
 const url=process.env.AFFILIATE_DATABASE_URL
-if(!url || !['127.0.0.1','localhost'].includes(new URL(url).hostname) || new URL(url).pathname!=='/affiliate_ops_regression_20261028') throw new Error('Disposable affiliate review regression database required')
+if(!url || !['127.0.0.1','localhost'].includes(new URL(url).hostname) || !['/affiliate_ops_regression_20261028','/affiliate_predeploy_regression_20261030'].includes(new URL(url).pathname)) throw new Error('Disposable affiliate review regression database required')
 const db=new PrismaClient({datasourceUrl:url}),tenantId=randomUUID(),otherTenant=randomUUID(),actorId=randomUUID()
 let segmentId:string,instanceId:string,groupId:string
 const baseProduct=()=>({id:'MLB123456',catalogId:'MLB123',title:'Árvore de Natal verde',productUrl:'https://www.mercadolivre.com.br/p/MLB123?wid=MLB123456',priceCents:2590,oldPriceCents:3990,imageUrl:'https://http2.mlstatic.com/fixture.jpg',checkedAt:new Date().toISOString(),oldPriceSource:'MERCADO_LIVRE' as const,reputation:{status:'GREEN' as const,level:'5_green'}})
@@ -31,6 +31,15 @@ afterAll(async()=>{
 })
 
 describe('prévia e envio único no PostgreSQL',()=>{
+  it('aprova o mesmo título compacto da prévia sem alterar preço, link ou histórico',async()=>{
+    const dependencies=ports()
+    dependencies.title.mockResolvedValue({title:'Árvore De Natal Luxo 210 Cm 1200 Galhos NEXMIDIO Verde Galhos Pinheiro Verde-musgo Arvore de Natal 210cm arvore natal',headline:'Uma árvore de Natal para sua sala 🎄',source:'OPENAI'})
+    const result=await previewAffiliateProduct(db,tenantId,actorId,segmentId,'MLB123456',dependencies)
+    expect(result.message.split('\n')[1]).toBe('*Árvore De Natal Luxo 210 Cm 1200 Galhos NEXMIDIO Verde*')
+    expect(result.message).toContain(result.affiliateUrl)
+    const sent=await sendAffiliateProduct(db,tenantId,actorId,segmentId,result.previewToken)
+    expect((await db.affiliateBroadcast.findUniqueOrThrow({where:{id:sent.broadcastId}})).message).toBe(result.message)
+  })
   it('envia exatamente o título e a mensagem regenerados; prévia anterior não reaprova produto enviado',async()=>{
     const initial=await preview(),dependencies=ports()
     dependencies.title.mockResolvedValue({title:'Árvore verde de Natal',headline:'Sua sala com uma árvore de Natal 🎄',source:'OPENAI'})

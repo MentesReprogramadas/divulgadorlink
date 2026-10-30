@@ -1,0 +1,1 @@
+ALTER TABLE affiliate_discoveries ADD COLUMN provider TEXT NOT NULL DEFAULT 'MERCADO_LIVRE';

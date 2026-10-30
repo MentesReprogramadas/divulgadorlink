@@ -143,6 +143,10 @@ model AffiliateSegment {
   capacity Int @default(1024)
   autoExpand Boolean @default(false)
   joinMode String @default("REDIRECT")
+  groupPolicyEnabled Boolean @default(false)
+  groupDisappearingSeconds Int @default(604800)
+  groupJoinApproval Boolean @default(true)
+  groupAutoApproveDelaySeconds Int @default(120)
   instanceId String?
   instance AffiliateInstance? @relation(fields: [instanceId, tenantId], references: [id, tenantId], onDelete: Restrict)
   enabled Boolean @default(true)
@@ -190,6 +194,7 @@ model AffiliateInviteEvent {
 }
 
 model AffiliateDiscovery {
+  provider String @default("MERCADO_LIVRE")
   segmentId String @id
   tenantId String
   segment AffiliateSegment @relation(fields: [segmentId, tenantId], references: [id, tenantId], onDelete: Cascade)
@@ -300,6 +305,15 @@ model AffiliateGroup {
   updatedAt DateTime @updatedAt
   deliveries AffiliateDelivery[]
   membershipTracking AffiliateMembershipTracking?
+  groupPolicyState String @default("PENDING")
+  groupPolicyErrorCode String?
+  groupPolicyAppliedHash String?
+  groupDescriptionAppliedHash String?
+  groupPolicyNextRunAt DateTime @default(now())
+  groupPolicyLeaseToken String?
+  groupPolicyLeaseExpiresAt DateTime?
+  admissions AffiliateGroupAdmission[]
+  @@index([enabled, groupPolicyNextRunAt], map: "affiliate_groups_policy_due_idx")
   @@unique([id, tenantId])
   @@unique([tenantId, jid])
   @@unique([segmentId, sequence])
@@ -2210,4 +2224,19 @@ model ProfileContentBlocks {
  profile Profile @relation(fields:[profileId,tenantId,ownerId],references:[id,tenantId,ownerId],onDelete:Cascade)
  @@unique([profileId,tenantId,ownerId])
  @@map("profile_content_blocks")
+}
+
+model AffiliateGroupAdmission {
+  id String @id @default(cuid())
+  tenantId String
+  groupId String
+  group AffiliateGroup @relation(fields: [groupId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  participantHash String
+  encryptedJid String?
+  state String @default("PENDING")
+  firstSeenAt DateTime @default(now())
+  eligibleAt DateTime
+  @@unique([groupId, participantHash])
+  @@index([tenantId, groupId, state, eligibleAt])
+  @@map("affiliate_group_admissions")
 }

@@ -41,3 +41,15 @@ A solução final mantém os mesmos filtros, validação, URLs, cursor e SSR, us
 A região rolável da sidebar agora tem nome, foco de teclado e contorno visível, tanto pronta quanto pendente. O E2E W04 preserva sua auditoria Axe e exige foco nessa região no desktop. Não se alterou logout, sessão ou autorização.
 
 Verificação final atual: lint/tipos e 919 testes unitários aprovados; detector mecânico sem achados. Nove jornadas de regressão desktop/mobile (incluindo setup, três casos de descoberta e W04 por projeto) e build aprovados. A causa interna do stream Next/React não foi comprovada; a correção evita esse transporte nos filtros, sem upgrade de dependências nem supressão de erros/testes.
+
+## Publicação e conferência final
+
+Revisão c0520e742bbc85ac27ab7eee0e7b737b109b17ae publicada. CI 40873065415: 25/25 jobs aprovados, incluindo deploy. Ponte, API, worker e web fixados nessa revisão e com deployments concluídos; ponte/API/web healthy, worker running sem readiness HTTP própria. Na nova ponte, Docker confirmou /data somente leitura, usuário node e health healthy. Catálogo real connected=true/affiliateConfigured=true e WhatsApp open após a atualização.
+
+Conferência autenticada em produção: cinco áreas principais e cinco visualizações internas da segmentação em 320, 390 e 430px, sem excesso de largura no documento ou nas abas, nomes visíveis e alvos >=44px. Desktop 1440px também sem overflow. Três fotos reais de produtos carregadas e botão de revisão habilitado; links Ver no Mercado Livre presentes. Capturas privadas locais em output/prod-release/mobile-fixed-*.png, mobile-products-fixed-*.png, mobile-products-loaded-320.png, mobile-product-photo-live.png e desktop-final.png.
+
+Limite observado: a primeira abertura do detalhe em 320px não encontrou as abas em 30s; a repetição em 320px e as demais larguras passaram, inclusive após carregar os produtos. Registros recentes continham 401 de sessão/refresh, sem erro dos endpoints de afiliados; não foi comprovada relação causal com essa abertura. Não se declarou ausência de falhas intermitentes. Não houve teste em aparelho físico nem lotação/criação de grupo real.
+
+Estado final: ADMIN/ACTIVE, Natal, Principal 01, apenas grupo #03 com convite disponível; dois envios confirmados, zero pendentes/falhas/incertos. O envio adicional de sacolas foi criado às 12:28 UTC e é distinto do teste original das almofadas de 11:01 UTC; esta conferência não chamou a operação de enviar oferta. Nenhuma instância/grupo extra foi importado.
+
+Grafo final incremental: 14 arquivos reprocessados, 8550 nós/30792 relações, sem LLM/API; CSS e capturas fora dessa comprovação. Serviços locais na porta 3016 preservados. Reversão de código pelos commits 5f399361 (abas), 1ec6c032/3e60eaa6 (testes) e c0520e74 (estabilização), usando o mesmo fluxo de CI; não há migration desta correção.

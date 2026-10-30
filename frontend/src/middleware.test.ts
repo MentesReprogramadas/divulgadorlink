@@ -76,8 +76,11 @@ describe('middleware', () => {
       const policy = (await run(path, 'catalogo_role=ADMIN')).headers.get('content-security-policy') ?? ''
       const directives = new Map(policy.split('; ').map(value => { const [name, ...sources] = value.split(' '); return [name, sources] }))
       expect(directives.get('img-src')).toContain('https://*.mlstatic.com')
+      expect(directives.get('img-src')).toContain('https://*.susercontent.com')
       expect(directives.get('script-src')).not.toContain('https://*.mlstatic.com')
       expect(directives.get('connect-src')).not.toContain('https://*.mlstatic.com')
+      expect(directives.get('script-src')).not.toContain('https://*.susercontent.com')
+      expect(directives.get('connect-src')).not.toContain('https://*.susercontent.com')
     }
   })
 

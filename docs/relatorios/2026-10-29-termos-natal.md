@@ -11,3 +11,5 @@ Validação: regressões falharam antes da correção; depois passaram 14 testes
 Publicação e configuração real pendentes de CI. Termos solicitados: Natal, Led Natal, Luz Natal, Kit Decoração Natal, Kit Enfeites Natal. Correção de digitação prevista: Luz Nata para Luz Natal. Não executar envio de ofertas nesta validação.
 
 Reversão: reverter o commit desta correção e publicar pelo CI. Não há migration; guardar os termos anteriores antes de alterar a configuração real.
+
+Fechamento: correção publicada junto de 69163c95965d919f7d207d4c5e761432358dc2d4, CI 40902787980 aprovado 25/25. Cinco termos configurados pela API da conta admin correta, incluindo correção Luz Nata para Luz Natal. Coleta final READY com 63 resultados, 20 na primeira página, e cinco páginas iniciais dos termos confirmadas. Cache anterior preservado: após a expansão, a lista retomou 44 antes de crescer a 63. Sessão temporária encerrada (204). Nenhum envio de oferta executado. O catálogo representa a cobertura consultada, sem promessa de desconto em todos os itens.

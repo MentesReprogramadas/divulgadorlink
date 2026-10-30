@@ -43,6 +43,19 @@ afterAll(async()=>{
   await db.affiliateDelivery.deleteMany({where:{tenantId}});await db.affiliateBroadcast.deleteMany({where:{tenantId}});await db.affiliateOffer.deleteMany({where:{tenantId}});await db.affiliateGroup.deleteMany({where:{tenantId}});await db.affiliateSegment.deleteMany({where:{tenantId}});await db.affiliateInstance.deleteMany({where:{tenantId}});await db.auditLog.deleteMany({where:{tenantId}});await db.user.deleteMany({where:{tenantId}});await db.tenant.delete({where:{id:tenantId}});await app.close();await db.$disconnect()
 })
 const headers=()=>({host,authorization:'Bearer '+app.jwt.sign({sub:actorId,tenantId,typ:'access',role:'ADMIN'})})
+
+it('configura política de grupos só com admin e valida limites sem acessar WhatsApp',async()=>{
+  const segment=await db.affiliateSegment.create({data:{tenantId,name:'Política fixture',slug:'politica-fixture'}})
+  const url=`/api/v1/admin/affiliates/segments/${segment.id}/group-policy`,payload={enabled:true,disappearingSeconds:604800,joinApproval:true,autoApproveDelaySeconds:120}
+  try {
+    expect((await app.inject({url,headers:{host}})).statusCode).toBe(401)
+    expect((await app.inject({method:'PUT',url,headers:headers(),payload:{...payload,autoApproveDelaySeconds:119}})).statusCode).toBe(400)
+    expect((await app.inject({method:'PUT',url,headers:headers(),payload:{...payload,extra:true}})).statusCode).toBe(400)
+    expect((await app.inject({method:'PUT',url,headers:headers(),payload})).statusCode).toBe(200)
+    expect((await app.inject({url,headers:headers()})).json()).toMatchObject({...payload,groups:[]})
+    expect((await app.inject({url:url.replace(segment.id,'missing-policy'),headers:headers()})).statusCode).toBe(404)
+  } finally {await db.affiliateSegment.delete({where:{id:segment.id}})}
+})
 describe('HTTP e persistência afiliados',()=>{
   it('nega anônimo, tenant incorreto e role revogado no banco',async()=>{
     expect((await app.inject({url:'/api/v1/admin/affiliates',headers:{host}})).statusCode).toBe(401)
@@ -115,6 +128,7 @@ describe('HTTP e persistência afiliados',()=>{
     const visitor={host,'user-agent':'Mozilla/5.0 Chrome/130.0','sec-fetch-dest':'document','sec-fetch-mode':'navigate'}
     try {
       for(const change of ['group','instance','mode','instance-config','capacity'] as const){
+        await db.affiliateGroup.updateMany({where:{tenantId},data:{inviteUrl:null}})
         transport.mockImplementation(async(input,init)=>{
           if(new URL(String(input)).pathname.includes('findGroupInfos')){
             if(change==='group')await db.affiliateGroup.updateMany({where:{tenantId},data:{enabled:false}})
@@ -189,7 +203,18 @@ describe('HTTP e persistência afiliados',()=>{
     expect((await db.affiliateInviteMetrics.findUniqueOrThrow({where:{segmentId}})).views).toBe(1)
     expect((await app.inject({method:'POST',url:'/api/v1/public/affiliates/natal/visit',headers:visitor,payload:{eventId:'bad'}})).statusCode).toBe(400)
   })
-  it('conta o clique com erro no WhatsApp, sem inventar encaminhamento',async()=>{
+  it('encaminha convite salvo com WhatsApp desconectado, sem consultar o provedor',async()=>{
+    connectionState='close'
+    const transport=vi.mocked(fetch);transport.mockClear()
+    try {
+      const result=await app.inject({method:'POST',url:'/api/v1/public/affiliates/natal/join',headers:{host,dnt:'1'},payload:{}})
+      expect(result.statusCode).toBe(200)
+      expect(result.json()).toHaveProperty('url','https://chat.whatsapp.com/AbCdEf0123456789AbCdEf')
+      expect(transport).not.toHaveBeenCalled()
+    } finally {connectionState='open'}
+  })
+  it('sem convite salvo, conta o clique com erro no WhatsApp sem inventar encaminhamento',async()=>{
+    await db.affiliateGroup.updateMany({where:{tenantId},data:{inviteUrl:null}})
     connectionState='close'
     const before=await db.affiliateInviteMetrics.findUniqueOrThrow({where:{segmentId}})
     try {

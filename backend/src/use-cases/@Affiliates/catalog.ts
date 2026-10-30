@@ -6,6 +6,9 @@ import { openWebhookSecret, sealWebhookSecret } from '@/lib/webhook-secret'
 import { affiliateSellerUrl, affiliateSessionSchema, AffiliateCatalogError, catalogItem, type CatalogProduct } from '@/domain/affiliates/mercado-livre'
 import { affiliateGeneratorConfigured, exchangeMercadoLivreToken, generateAffiliateLink, generateSessionAffiliateLink, mercadoLivreRequest, searchMercadoLivreCatalog, type MercadoLivreTokens, sellers, parseSellerReputation } from '@/adapters/affiliates/mercado-livre'
 import { affiliateCatalogGatewayEnabled, affiliateCatalogGatewayRequest, affiliateCatalogGatewayRequests, affiliateCatalogGatewayStatus } from '@/adapters/affiliates/catalog-gateway'
+import { isShopeeProduct, type AffiliateCatalogProvider } from '@/domain/affiliates/shopee'
+import { refreshShopeeCatalogProduct, searchShopeeCatalog } from '@/adapters/affiliates/shopee'
+import { generateTenantShopeeAffiliate, shopeeConnection } from '@/use-cases/affiliates/shopee'
 
 const PROVIDER = 'MERCADO_LIVRE'
 const credentialsSchema = z.object({ clientId: z.string(), clientSecret: z.string(), accessToken: z.string().optional(), refreshToken: z.string().optional(), expiresAt: z.number().optional(), accountId: z.string().optional() })
@@ -163,7 +166,8 @@ export async function affiliateCatalogAccessToken(db: PrismaClient, tenantId: st
   return token
 }
 
-export async function searchAffiliateCatalog(db: PrismaClient, tenantId: string, term: string, options?: { offset?: number }) {
+export async function searchAffiliateCatalog(db: PrismaClient, tenantId: string, term: string, options?: { offset?: number; provider?: AffiliateCatalogProvider }) {
+  if (options?.provider === 'SHOPEE') return searchShopeeCatalog(term, (await shopeeConnection(db, tenantId)).request, options)
   const gateway = gatewaySettings()
   const native = await db.affiliateConnection.findUnique({ where: connectionWhere(tenantId) })
   if (!native && affiliateCatalogGatewayEnabled(gateway)) {
@@ -182,6 +186,7 @@ export async function searchAffiliateCatalog(db: PrismaClient, tenantId: string,
 }
 
 export async function generateCatalogAffiliate(db: PrismaClient, tenantId: string, actorId: string, productUrl: string) {
+  if (URL.canParse(productUrl) && ['shopee.com.br','www.shopee.com.br'].includes(new URL(productUrl).hostname)) return generateTenantShopeeAffiliate(db, tenantId, actorId, productUrl)
   const row = await db.affiliateConnection.findUnique({ where: sessionWhere(tenantId) })
   if (row && !['CONFIGURED', 'CONNECTED'].includes(row.status)) throw new AffiliateCatalogError(409, 'Configure a sessão de afiliado antes de gerar links.')
   if (!row) await requireGatewayTenant(db, tenantId)
@@ -224,6 +229,7 @@ export async function disconnectAffiliateCatalog(db: PrismaClient, tenantId: str
 
 // Exact-item revalidation never substitutes another seller's cheaper listing.
 export async function refreshAffiliateCatalogProduct(db:PrismaClient,tenantId:string,product:CatalogProduct):Promise<CatalogProduct> {
+  if (isShopeeProduct(product.id)) return refreshShopeeCatalogProduct(product, (await shopeeConnection(db, tenantId)).request)
   const gateway=gatewaySettings(),native=await db.affiliateConnection.findUnique({where:connectionWhere(tenantId)})
   let request:(path:string)=>Promise<unknown>
   if(!native && affiliateCatalogGatewayEnabled(gateway)) { await requireGatewayTenant(db,tenantId);request=path=>affiliateCatalogGatewayRequest(gateway,path) }
