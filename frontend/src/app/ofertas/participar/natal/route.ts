@@ -1,5 +1,3 @@
-import { NextResponse } from 'next/server'
-
-export function GET(request: Request) {
-  return NextResponse.redirect(new URL('/ofertas/entrar/natal', request.url), 307)
+export function GET() {
+  return new Response(null, { status: 307, headers: { location: '/ofertas/entrar/natal' } })
 }

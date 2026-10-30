@@ -57,6 +57,6 @@ test('privacy page explains optional measurement and limited retention', async (
 test('Natal identification lives only on its separate LP; legacy entry goes straight to invite', async ({ request }) => {
   const response = await request.get('/ofertas/participar/natal', { maxRedirects: 0 })
   expect(response.status()).toBe(307)
-  expect(new URL(response.headers().location).pathname).toBe('/ofertas/entrar/natal')
+  expect(response.headers().location).toBe('/ofertas/entrar/natal')
   expect(await response.text()).not.toContain('Seu WhatsApp com DDD')
 })
