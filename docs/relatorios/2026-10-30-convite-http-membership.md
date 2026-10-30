@@ -24,6 +24,10 @@ Sessão Meta acessível no navegador; dataset Tem Link Aqui2981954672158122. For
 
 Nenhum telefone/identidade de participante enviado à Meta, nenhum consentimento fabricado, nenhuma conversão de ingresso simulada em dados reais. Não declarar mensuração publicitária ou campanha100% concluídas com base somente no webhook.
 
+Após publicar o código no CI, o usuário escolheu explicitamente “Manter entrada direta, sem etapa extra”. Preservar esse caminho: nenhuma identificação/formulário adicional. Métricas de participação no painel não são atribuição individual ao anúncio. Leitura Windsor posterior confirmou CTALEARN_MORE, novo criativo40071134125818333, URL e tags idênticos e orçamento4000BRL centavos por dia.
+
+Para alinhar a campanha à navegação direta, foi validado update_adset optimization_goalLINK_CLICKS com execution_optionsvalidate_only e depois aplicado sem esse parâmetro. Leitura posterior confirmou LINK_CLICKS, billingIMPRESSIONS, destinationWEBSITE e orçamento4000BRL. Objetivo da campanhaOUTCOME_TRAFFIC preservado; público não editado nessa ação. Primeiro snapshot após a mudança mostrou anúncioIN_PROCESS e conjunto depoisACTIVE. Revalidar estado final. Essa otimização usa cliques, não ingressos, e não promete melhoria de conversão. O307 não executa nosso HTML/Pixel; não é correto afirmar LPVzero, pois a cobertura/modelagem do navegador interno não foi confirmada.
+
 ## Publicação e ativação
 
 Pendentes até concluir CI e deploy: comprovar307 e latência em produção, HEAD/OG, gravar backup cifrado da configuração Evolution na auditoria, instalar apenas GROUP_PARTICIPANTS_UPDATE na conexãoPrincipal01, concluir baseline real e verificar receptor externo com evento sintético de grupo não cadastrado, que deve ser ignorado sem alterar métricas. Não alterar participantes reais nem enviar mensagens.
@@ -31,3 +35,7 @@ Pendentes até concluir CI e deploy: comprovar307 e latência em produção, HEA
 ## Reversão
 
 Código anterior01e06f51 pode ser republicado pelo CI. A migração é aditiva e não exige apagar dados para voltar. Restaurar webhook anterior a partir do backup cifrado auditado; não tocar sessão ou grupos. Hashes expiram por política; não confundir expurgo com rollback de métricas agregadas.
+
+## Correção do transporte entre middleware e API
+
+Sondagem HTTP real do fetch Node mostrou Sec-Fetch-Modenavigate reescrito paracors. A fixture anterior não conferia esses metadados, portanto o307 isolado não comprovava o gate na API real. O middleware agora preserva o modo original já validado emx-affiliate-fetch-mode; cabeçalho fornecido pelo cliente não substitui a validação de navegação original. A API aceita esse marcador ou o header de navegação direto, mantendo o resolver read-only e as exclusões. PostgreSQL/HTTP agora cobre transporte real fetch, cors+marcador e cors sem marcador. Fixture E2E exige o marcador e Sec-Fetch-Destdocument para que o caminho completo seja exercitado. Nova rodada CI necessária; não declarar fast path validado em produção antes dela.

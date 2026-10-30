@@ -245,7 +245,8 @@ export async function registerAffiliateRoutes(app:FastifyInstance) {
     const {slug}=z.object({slug:segmentInput.shape.slug}).parse(q.params)
     const {eventId}=z.object({eventId:z.uuid()}).strict().parse(q.query)
     const agent=q.headers['user-agent']??''
-    if(q.method!=='GET'||q.supportSession||q.cookies?.supportSession||q.headers['sec-fetch-dest']!=='document'||q.headers['sec-fetch-mode']!=='navigate'||!/^Mozilla\//.test(agent)||/bot|crawler|spider|headless|playwright|facebookexternalhit|meta-external|WhatsApp\//i.test(agent)||q.headers['next-router-prefetch']!==undefined||/prefetch|prerender/i.test(String(q.headers.purpose??'')+' '+String(q.headers['sec-purpose']??'')))return {url:null}
+    const mode=q.headers['x-affiliate-fetch-mode']??q.headers['sec-fetch-mode']
+    if(q.method!=='GET'||q.supportSession||q.cookies?.supportSession||q.headers['sec-fetch-dest']!=='document'||mode!=='navigate'||!/^Mozilla\//.test(agent)||/bot|crawler|spider|headless|playwright|facebookexternalhit|meta-external|WhatsApp\//i.test(agent)||q.headers['next-router-prefetch']!==undefined||/prefetch|prerender/i.test(String(q.headers.purpose??'')+' '+String(q.headers['sec-purpose']??'')))return {url:null}
     const result=await resolveAffiliateInviteDestination(prisma,tenantId,slug)
     if(!result||q.raw.aborted||r.raw.destroyed)return {url:null}
     await Promise.all([captureInviteEvent(q,tenantId,slug,eventId,'VIEW'),captureInviteEvent(q,tenantId,slug,eventId,'AUTOMATIC_REDIRECT')])

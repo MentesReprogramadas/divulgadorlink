@@ -49,12 +49,12 @@ describe('middleware', () => {
     const [url,options]=fetchMock.mock.calls[0]!
     expect(new URL(url).pathname).toBe('/api/v1/public/affiliates/natal/destination')
     expect(options).toMatchObject({method:'GET',cache:'no-store',redirect:'error'})
-    expect(Object.fromEntries(options.headers as Headers)).toMatchObject({host:'temlink.test','user-agent':'Mozilla/5.0 Chrome/130.0',cookie:'csrf=existing; tla_consent=denied',dnt:'1','sec-gpc':'1'})
+    expect(Object.fromEntries(options.headers as Headers)).toMatchObject({host:'temlink.test','user-agent':'Mozilla/5.0 Chrome/130.0','x-affiliate-fetch-mode':'navigate',cookie:'csrf=existing; tla_consent=denied',dnt:'1','sec-gpc':'1'})
   })
   it('preserva HTML OG para crawler, HEAD, prefetch, suporte e requests sem navegação explícita', async () => {
     const fetchMock=vi.fn();vi.stubGlobal('fetch',fetchMock)
     const browser={'user-agent':'Mozilla/5.0 Chrome/130.0','sec-fetch-dest':'document','sec-fetch-mode':'navigate'}
-    const excluded:Record<string,string>[]=[{'user-agent':'facebookexternalhit/1.1'},{'user-agent':'WhatsApp/2.0'},{purpose:'prefetch'},{'sec-purpose':'prefetch;prerender'},{'next-router-prefetch':'1'},{cookie:'supportSession=fixture'},{'sec-fetch-mode':''}]
+    const excluded:Record<string,string>[]=[{'user-agent':'facebookexternalhit/1.1'},{'user-agent':'WhatsApp/2.0'},{purpose:'prefetch'},{'sec-purpose':'prefetch;prerender'},{'next-router-prefetch':'1'},{cookie:'supportSession=fixture'},{'sec-fetch-mode':''},{'sec-fetch-mode':'cors','x-affiliate-fetch-mode':'navigate'}]
     for(const extra of excluded){
       expect((await middleware(new NextRequest('https://temlink.test/ofertas/entrar/natal',{headers:{...browser,...extra}}))).status).toBe(200)
     }

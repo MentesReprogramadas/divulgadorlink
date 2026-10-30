@@ -20,6 +20,7 @@ vi.mock('@/lib/prisma',async()=>{
   return {prisma:new PrismaClient({datasourceUrl:url})}
 })
 const app=Fastify(),tenantId=randomUUID(),actorId=randomUUID(),host=tenantId+'.test',key=env.WEBHOOK_ENCRYPTION_KEY
+const networkFetch=globalThis.fetch
 let instanceId:string,segmentId:string,offerId:string
 let connectionState='open'
 beforeAll(async()=>{
@@ -73,12 +74,22 @@ describe('HTTP e persistência afiliados',()=>{
     const url='/api/v1/public/affiliates/natal/destination?eventId='+eventId
     expect((await app.inject({url,headers:visitor})).json()).toEqual({url:'https://chat.whatsapp.com/AbCdEf0123456789AbCdEf'})
     expect((await app.inject({url,headers:visitor})).statusCode).toBe(200)
+    expect((await app.inject({url,headers:{...visitor,'sec-fetch-mode':'cors','x-affiliate-fetch-mode':'navigate'}})).json()).toEqual({url:'https://chat.whatsapp.com/AbCdEf0123456789AbCdEf'})
+    expect((await app.inject({url,headers:{...visitor,'sec-fetch-mode':'cors'}})).json()).toEqual({url:null})
     expect(await db.affiliateGroup.findUniqueOrThrow({where:{id:before.id}})).toEqual(before)
     expect(await db.affiliateInviteMetrics.findUniqueOrThrow({where:{segmentId}})).toMatchObject({views:1,automaticRedirects:1,buttonClicks:0,buttonRedirects:0})
     for(const extra of [{'user-agent':'facebookexternalhit'},{purpose:'prefetch'},{'sec-purpose':'prefetch;prerender'},{'next-router-prefetch':'1'},{'sec-fetch-mode':''}])expect((await app.inject({url,headers:{...visitor,...extra}})).json()).toEqual({url:null})
     expect((await app.inject({method:'HEAD',url,headers:visitor})).statusCode).toBe(200)
     expect(await db.affiliateInviteEvent.count({where:{tenantId,segmentId}})).toBe(2)
     await db.affiliateInviteEvent.deleteMany({where:{tenantId,segmentId}});await db.affiliateInviteMetrics.deleteMany({where:{tenantId,segmentId}})
+  })
+  it('GET destino recebe o modo validado pelo frontend mesmo quando fetch real reescreve Sec-Fetch-Mode',async()=>{
+    const address=await app.listen({port:0,host:'127.0.0.1'})
+    const url=address+'/api/v1/public/affiliates/natal/destination?eventId='+randomUUID()
+    const visitor={host,'user-agent':'Mozilla/5.0 Chrome/130.0','sec-fetch-dest':'document','sec-fetch-mode':'navigate','x-analytics-test':'1'}
+    expect(await (await networkFetch(url,{headers:visitor})).json()).toEqual({url:null})
+    expect(await (await networkFetch(url,{headers:{...visitor,'x-affiliate-fetch-mode':'navigate'}})).json()).toEqual({url:'https://chat.whatsapp.com/AbCdEf0123456789AbCdEf'})
+    expect(await db.affiliateInviteMetrics.findUnique({where:{segmentId}})).toBeNull()
   })
   it('GET destino mantém SCREEN/pausas/cheio sem provisionar e exclui DNT da medição',async()=>{
     const visitor={host,'user-agent':'Mozilla/5.0 Chrome/130.0','sec-fetch-dest':'document','sec-fetch-mode':'navigate'}

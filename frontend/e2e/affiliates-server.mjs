@@ -11,6 +11,9 @@ const metadata=createServer((request,response)=>{
   response.setHeader('content-type','application/json')
   if(request.method!=='GET'){response.writeHead(405);response.end('{}');return}
   if(/^\/api\/v1\/public\/affiliates\/fast-natal\/destination\?eventId=/.test(request.url??'')){
+    if(request.headers['x-affiliate-fetch-mode']!=='navigate'||request.headers['sec-fetch-dest']!=='document'){
+      response.writeHead(400);response.end('{}');return
+    }
     response.writeHead(200);response.end(JSON.stringify({url:'https://chat.whatsapp.com/AbCdEf0123456789AbCdEf'}));return
   }
   const slug=/^\/api\/v1\/public\/affiliates\/(early-natal|early-retry)$/.exec(request.url??'')?.[1]
