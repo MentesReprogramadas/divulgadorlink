@@ -8,7 +8,7 @@ import { decideAffiliateProduct, previewAffiliateProduct, readAffiliateProductPr
 import { runAffiliateDeliveries } from './deliveries'
 
 const url=process.env.AFFILIATE_DATABASE_URL
-if(!url || !['127.0.0.1','localhost'].includes(new URL(url).hostname) || !['/affiliate_ops_regression_20261028','/affiliate_predeploy_regression_20261030'].includes(new URL(url).pathname)) throw new Error('Disposable affiliate review regression database required')
+if(!url || !['127.0.0.1','localhost'].includes(new URL(url).hostname) || !['/affiliate_ops_regression_20261028','/affiliate_predeploy_regression_20261030','/affiliate_combined_regression_20261030'].includes(new URL(url).pathname)) throw new Error('Disposable affiliate review regression database required')
 const db=new PrismaClient({datasourceUrl:url}),tenantId=randomUUID(),otherTenant=randomUUID(),actorId=randomUUID()
 let segmentId:string,instanceId:string,groupId:string
 const baseProduct=()=>({id:'MLB123456',catalogId:'MLB123',title:'Árvore de Natal verde',productUrl:'https://www.mercadolivre.com.br/p/MLB123?wid=MLB123456',priceCents:2590,oldPriceCents:3990,imageUrl:'https://http2.mlstatic.com/fixture.jpg',checkedAt:new Date().toISOString(),oldPriceSource:'MERCADO_LIVRE' as const,reputation:{status:'GREEN' as const,level:'5_green'}})

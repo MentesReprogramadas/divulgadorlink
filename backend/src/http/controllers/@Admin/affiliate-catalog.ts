@@ -1,3 +1,4 @@
+import { searchCombinedAffiliateCatalog } from '@/use-cases/affiliates/combined-search'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { z, ZodError } from 'zod'
 import { prisma } from '@/lib/prisma'
@@ -40,8 +41,8 @@ export async function registerAffiliateCatalogRoutes(app: FastifyInstance) {
     return r.redirect('/admin/afiliados?catalog=connected')
   }))
   app.get(`${base}/search`, (q, r) => run(q, r, tenantId => {
-    const query = z.object({ q: z.string().trim().min(2).max(120), provider: affiliateCatalogProvider.default('MERCADO_LIVRE') }).strict().parse(q.query)
-    return searchAffiliateCatalog(prisma, tenantId, query.q, { provider: query.provider })
+    const query = z.object({ q: z.string().trim().min(2).max(120), provider: affiliateCatalogProvider.optional() }).strict().parse(q.query)
+    return query.provider ? searchAffiliateCatalog(prisma, tenantId, query.q, { provider: query.provider }) : searchCombinedAffiliateCatalog(prisma, tenantId, query.q)
   }))
   app.post(`${base}/affiliate`, (q, r) => run(q, r, (tenantId, actorId) => generateCatalogAffiliate(prisma, tenantId, actorId, z.object({ productUrl: z.string().min(1).max(2048) }).strict().parse(q.body).productUrl)))
   app.post(`${base}/disconnect`, (q, r) => run(q, r, (tenantId, actorId) => disconnectAffiliateCatalog(prisma, tenantId, actorId)))

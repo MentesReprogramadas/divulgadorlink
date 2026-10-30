@@ -4,7 +4,8 @@ import cookie from '@fastify/cookie'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { registerAffiliateCatalogRoutes } from './controllers/@Admin/affiliate-catalog'
 
-const fixture = vi.hoisted(() => ({ user: vi.fn(), connection: vi.fn(), tenant: vi.fn() }))
+const fixture = vi.hoisted(() => ({ user: vi.fn(), connection: vi.fn(), tenant: vi.fn(), combined: vi.fn() }))
+vi.mock('@/use-cases/affiliates/combined-search', () => ({ searchCombinedAffiliateCatalog: fixture.combined }))
 vi.mock('@/lib/prisma', () => ({ prisma: { user: { findFirst: fixture.user }, affiliateConnection: { findUnique: fixture.connection } } }))
 vi.mock('@/http/tenant', () => ({ normalizeTenantHost: (host: string) => host.split(':')[0], resolveTenant: fixture.tenant }))
 
@@ -20,6 +21,13 @@ beforeEach(() => { fixture.user.mockResolvedValue({ id: actorId }); fixture.conn
 const token = (claims: Record<string, unknown> = {}) => app.jwt.sign({ sub: actorId, tenantId, role: 'ADMIN', typ: 'access', ...claims })
 
 describe('Admin affiliate catalog authorization', () => {
+  it('searches both sources by default with the authenticated tenant and no source selector', async () => {
+    fixture.combined.mockResolvedValueOnce({products:[{id:'MLB123'},{id:'SHP123_456'}],warnings:[]})
+    const response=await app.inject({url:'/api/v1/admin/affiliates/catalog/search?q=Pets',headers:{host:'tenant.test',authorization:`Bearer ${token()}`}})
+    expect(response.statusCode).toBe(200)
+    expect(response.json().products.map((product:{id:string})=>product.id)).toEqual(['MLB123','SHP123_456'])
+    expect(fixture.combined).toHaveBeenLastCalledWith(expect.anything(),tenantId,'Pets')
+  })
   it('guards every Shopee credential operation with admin access and redacts invalid payloads', async () => {
     const base = '/api/v1/admin/affiliates/catalog/shopee'
     for (const method of ['GET','PUT','DELETE','POST'] as const) {

@@ -178,7 +178,7 @@ test('catálogo separa conta e sessão, limpa segredos e gera oferta por URL exa
   await expect(dialog).not.toBeVisible()
   expect(mutations.filter(item => item.path === '/catalog/session')).toHaveLength(1)
   await expect(page.getByText(/Minha conta · configurada; validação pendente/)).toBeVisible()
-  const search = page.getByRole('searchbox', { name: 'Buscar produtos' }), searchButton = page.getByRole('button', { name: 'Buscar no Mercado Livre' })
+  const search = page.getByRole('searchbox', { name: 'Buscar produtos' }), searchButton = page.getByRole('button', { name: 'Buscar nas duas lojas' })
   if (!testInfo.project.name.includes('mobile')) {
     const inputBox = await search.boundingBox(), buttonBox = await searchButton.boundingBox()
     expect(Math.abs(inputBox!.y + inputBox!.height - buttonBox!.y - buttonBox!.height)).toBeLessThan(2)
@@ -283,7 +283,7 @@ test('admin gerencia segmentos, revisa oferta e confere entrega sem reenvio impl
   expect(mutations.filter(mutation => mutation.path.endsWith('/cancel'))).toHaveLength(1)
   await area(page, 'Catálogo Mercado Livre')
   await expect(page.getByText('Contas do Mercado Livre', { exact: false })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Buscar no Mercado Livre' })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Buscar nas duas lojas' })).toBeDisabled()
   await capture(page, 'catalog-pending', testInfo.project.name)
 })
 
@@ -381,6 +381,34 @@ test('assistente cadastra conexão do zero e preserva identidade antes de criar 
 })
 
 
+
+test('Shopee e Mercado Livre aparecem juntos sem escolha de fonte e preservam permissão por produto', async ({page},testInfo) => {
+  const mutations=await fixtures(page)
+  await page.route('**/catalog/status',route=>route.fulfill({json:{mode:'CENTRAL',connected:true,configured:true,affiliateConfigured:true}}))
+  await page.route('**/catalog/shopee',route=>route.fulfill({json:{provider:'SHOPEE',configured:false,connected:false,status:'NOT_CONFIGURED',accountLabel:'',subIds:[],updatedAt:null}}))
+  await page.route('**/discovery?*',route=>route.fulfill({json:{enabled:true,usesSegmentName:true,terms:['Natal'],providers:['MERCADO_LIVRE','SHOPEE'],products:[{...offer,id:'MLB123'}, {...offer,id:'SHP123_456',provider:'SHOPEE',title:'Luzes de Natal Shopee',productUrl:'https://shopee.com.br/product/123/456'}],counts:null,checkedAt:'2026-10-30T12:00:00Z',nextRunAt:null,status:'READY',error:null}}))
+  await page.goto('/admin/afiliados/segmentacoes/segment-1')
+  await area(page,'Ofertas')
+  const suggestions=page.getByRole('region',{name:'Sugestões para Natal'})
+  await expect(suggestions.getByRole('heading',{name:offer.title})).toBeVisible()
+  await expect(suggestions.getByRole('heading',{name:'Luzes de Natal Shopee'})).toBeVisible()
+  await expect(suggestions.getByRole('link',{name:/Ver no Mercado Livre/})).toBeVisible()
+  await expect(suggestions.getByRole('link',{name:/Ver na Shopee/})).toBeVisible()
+  const reviews=suggestions.getByRole('button',{name:'Revisar e enviar'})
+  await expect(reviews.nth(0)).toBeEnabled();await expect(reviews.nth(1)).toBeDisabled()
+  const evidence=path.resolve('../docs/frontend-profissional/evidencias/afiliados-busca-conjunta-2026-10-30')
+  await mkdir(evidence,{recursive:true})
+  await page.screenshot({path:path.join(evidence,testInfo.project.name.includes('mobile')?'mobile.png':'desktop.png'),fullPage:true,animations:'disabled'})
+  await suggestions.getByRole('tab',{name:'Configurações',exact:true}).focus();await page.keyboard.press('Enter')
+  await expect(suggestions.getByText(/Shopee e Mercado Livre são consultados juntos/)).toBeVisible()
+  await expect(suggestions.getByRole('combobox',{name:'Fonte dos produtos'})).toHaveCount(0)
+  await suggestions.getByRole('button',{name:'Salvar termos',exact:true}).click()
+  await expect.poll(()=>mutations.filter(item=>item.path.endsWith('/discovery/config')).length).toBe(1)
+  expect(mutations.find(item=>item.path.endsWith('/discovery/config'))?.body).toEqual({enabled:true,terms:['Natal']})
+  expect((await new AxeBuilder({page}).include('[aria-label="Central de afiliados"]').analyze()).violations).toEqual([])
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true)
+  expect(mutations.some(item=>item.path.endsWith('/products/send'))).toBe(false)
+})
 
 test('sugestões aparecem sem busca manual e foto ausente mantém revisão explícita', async ({ page }, testInfo) => {
   const mutations = await fixtures(page)
