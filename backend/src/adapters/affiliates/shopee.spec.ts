@@ -55,6 +55,18 @@ it('parses exact money and identity without inventing discounts or seller reputa
   expect(shopeeCatalogItem({ ...row, periodEndTime: 1 })).toBeNull()
   expect(shopeeCatalogItem({ ...row, imageUrl: 'http://127.0.0.1/image' })?.imageUrl).toBeNull()
 })
+it('retains the rounded discount without deriving an inaccurate previous price', async () => {
+  const discounted={...row,priceMin:'28.8',priceMax:'28.8',priceDiscountRate:3}
+  expect(shopeeCatalogItem(discounted)).toMatchObject({priceCents:2880,reportedDiscountPercent:3,oldPriceCents:null,oldPriceSource:null})
+  for(const priceDiscountRate of [undefined,null,0,-1,101,3.5,'3']) {
+    expect(shopeeCatalogItem({...discounted,priceDiscountRate})).toMatchObject({priceCents:2880,reportedDiscountPercent:null,oldPriceCents:null})
+  }
+  const request=vi.fn<(query:string)=>Promise<ReturnType<typeof response>>>(async()=>response([discounted]))
+  expect((await searchShopeeCatalog('areia',request)).products[0].reportedDiscountPercent).toBe(3)
+  expect(request.mock.calls[0][0]).toContain('priceDiscountRate')
+  await refreshShopeeCatalogProduct(shopeeCatalogItem(discounted)!,request)
+  expect(request.mock.calls[1][0]).toContain('priceDiscountRate')
+})
 it('uses bounded variables for keyword pagination, honors hasNextPage and exposes unusable prices', async () => {
   const request = vi.fn(async () => response([row, { ...row, itemId: 457, productLink: 'https://shopee.com.br/product/123/457', priceMax: '39.90' }], 2, true))
   const result = await searchShopeeCatalog('ração "gato"', request, { offset: 20 })

@@ -5,6 +5,16 @@ const now=new Date('2026-10-28T15:00:00Z')
 const product:CatalogProduct={id:'MLB1',catalogId:'MLB2',title:'Produto',productUrl:'https://www.mercadolivre.com.br/p/MLB2?wid=MLB1',priceCents:900,oldPriceCents:null,imageUrl:null,checkedAt:now.toISOString(),reputation:{level:'5_green',status:'GREEN'}}
 const history=[25,26,27].map(day=>({day:new Date(`2026-10-${day}T00:00:00Z`),priceCents:1000}))
 describe('evidence policy v2',()=>{
+  it('reports Shopee discounts without inventing an old price or changing automatic selection',()=>{
+    const shopee={...product,provider:'SHOPEE' as const,id:'SHP1_2',reportedDiscountPercent:3}
+    const result=evaluateAffiliateProduct(shopee,[],now)
+    expect(result).toMatchObject({status:'REVIEW',reportedDiscountPercent:3})
+    expect(result.reasons.join(' ')).toContain('Desconto informado pela Shopee: 3%')
+    expect(evaluateAffiliateProduct({...shopee,reportedDiscountPercent:35},[],now).status).toBe('REVIEW')
+    const cached={...shopee,sourceTerm:'Pets',sourcePage:1,evaluation:{...result,reportedDiscountPercent:null}}
+    expect(refreshCachedAffiliateEvaluation(cached).evaluation.reportedDiscountPercent).toBe(3)
+    expect(shopee.oldPriceCents).toBeNull()
+  })
   it('selects verified ML discount only with green reputation and keeps other sellers for review',()=>{
     const value={...product,oldPriceCents:1000,oldPriceSource:'MERCADO_LIVRE' as const}
     expect(evaluateAffiliateProduct(value,[],now)).toMatchObject({status:'SELECTED',reportedDiscountPercent:10,history:{verified:false,days:0}})

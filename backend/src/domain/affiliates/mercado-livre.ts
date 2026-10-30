@@ -28,6 +28,7 @@ export type CatalogProduct = {
   productUrl: string
   priceCents: number
   oldPriceCents: number | null
+  reportedDiscountPercent?: number | null
   imageUrl: string | null
   checkedAt: string
   sellerId?: string | null

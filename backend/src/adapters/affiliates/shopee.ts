@@ -38,7 +38,7 @@ const id = z.union([z.string().regex(/^[1-9]\d{0,18}$/), z.number().int().positi
 const price = z.union([z.string().regex(/^\d{1,7}(?:\.\d{1,6})?$/), z.number().finite().nonnegative()])
 const offerSchema = z.object({ itemId: id, shopId: id, productName: z.string().trim().min(3).max(250), productLink: z.string(), priceMin: price, priceMax: price, imageUrl: z.string(), commissionRate: z.string().optional(), periodStartTime: z.union([z.string(),z.number()]).optional(), periodEndTime: z.union([z.string(),z.number()]).optional() })
 const resultSchema = z.object({ productOfferV2: z.object({ nodes: z.array(z.unknown()).max(50), pageInfo: z.object({ page: z.number().int().positive().nullable().optional(), limit: z.number().int().positive(), hasNextPage: z.boolean() }) }) })
-const fields = 'itemId shopId productName productLink priceMin priceMax imageUrl commissionRate periodStartTime periodEndTime'
+const fields = 'itemId shopId productName productLink priceMin priceMax priceDiscountRate imageUrl commissionRate periodStartTime periodEndTime'
 export type ShopeeRequest = (query: string, variables?: Record<string, unknown>) => Promise<unknown>
 function cents(value: z.infer<typeof price>): number | null {
   const amount = Number(value), result = Math.round(amount * 100)
@@ -62,8 +62,10 @@ export function shopeeCatalogItem(value: unknown, now = new Date()): CatalogProd
     if (image.hostname === 'cf.shopee.com.br' && /^\/file\/[A-Za-z0-9_-]+$/.test(image.pathname)) image.hostname = 'down-br.img.susercontent.com'
     if (image.protocol === 'https:' && !image.username && !image.password && !image.port && (image.hostname === 'susercontent.com' || image.hostname.endsWith('.susercontent.com'))) imageUrl = image.href
   } catch { /* Missing or unsafe images do not make a valid price unusable. */ }
-  // Shopee exposes a rounded discount rate, not a verified previous price.
-  return { provider: 'SHOPEE', id: identity.id, catalogId: identity.id, title: row.productName, displayTitle: compactAffiliateTitle(row.productName), productUrl: identity.url, priceCents: min, oldPriceCents: null, oldPriceSource: null, imageUrl, checkedAt: now.toISOString(), sellerId: row.shopId, reputation: { level: null, status: 'UNKNOWN' } }
+  // Shopee's rounded rate cannot reconstruct the exact previous price.
+  const discount=z.object({priceDiscountRate:z.number().int().min(1).max(100)}).safeParse(value)
+  const reportedDiscountPercent=discount.success?discount.data.priceDiscountRate:null
+  return { provider: 'SHOPEE', id: identity.id, catalogId: identity.id, title: row.productName, displayTitle: compactAffiliateTitle(row.productName), productUrl: identity.url, priceCents: min, oldPriceCents: null, oldPriceSource: null, reportedDiscountPercent, imageUrl, checkedAt: now.toISOString(), sellerId: row.shopId, reputation: { level: null, status: 'UNKNOWN' } }
 }
 export async function searchShopeeCatalog(term: string, request: ShopeeRequest, options?: { offset?: number }) {
   const keyword = z.string().trim().min(2).max(120).parse(term), offset = z.number().int().min(0).max(1_000_000).multipleOf(20).parse(options?.offset ?? 0), page = offset / 20 + 1, now = new Date()

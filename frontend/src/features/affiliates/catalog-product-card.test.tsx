@@ -3,6 +3,14 @@ import { afterEach, expect, it, vi } from 'vitest'
 import { CatalogProductCard } from './catalog-product-card'
 vi.mock('@/components/ui/liquid-lens',()=>({LiquidLens:()=>null}))
 afterEach(cleanup)
+it('mostra o desconto oficial da Shopee sem inventar o preço anterior',()=>{
+ const product={id:'SHP1021296752_58254144707',title:'Areia Biodegradável 4Kg',productUrl:'https://shopee.com.br/product/1021296752/58254144707',priceCents:2880,oldPriceCents:null,reportedDiscountPercent:3,imageUrl:null,checkedAt:'2026-10-30T18:00:00Z'}
+ const view=render(<CatalogProductCard product={product} busy={false} canGenerate review prepare={vi.fn()}/>)
+ expect(screen.getByText('3% de desconto informado pela Shopee')).toBeTruthy()
+ expect(view.container.querySelector('s')).toBeNull()
+ view.rerender(<CatalogProductCard product={{...product,reportedDiscountPercent:null}} busy={false} canGenerate review prepare={vi.fn()}/>)
+ expect(screen.queryByText(/desconto informado pela Shopee/)).toBeNull()
+})
 it('mostra nome curto da Shopee e preserva o nome original nos detalhes e no produto revisado',()=>{
  const prepare=vi.fn(),product={id:'SHP123_456',title:'Pá de Aço Inoxidável com Malha de 2,8mm, Grande 28,5x14x6cm, Pá Robusta para Areia Aglomerante e Limpeza de Resíduos',displayTitle:'Pá de Aço Inoxidável 2,8mm 28,5x14x6cm',productUrl:'https://shopee.com.br/product/123/456',priceCents:16280,oldPriceCents:null,imageUrl:'https://down-br.img.susercontent.com/file/test',checkedAt:'2026-10-30T12:00:00Z'}
  render(<CatalogProductCard product={product} busy={false} canGenerate review prepare={prepare}/>)
