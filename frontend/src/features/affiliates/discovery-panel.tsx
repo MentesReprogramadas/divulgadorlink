@@ -75,7 +75,7 @@ function DiscoveryContent({ segmentId, contextName, busy, canGenerate, settingsC
   const remaining = data?.nextRunAt ? Math.max(0, Date.parse(data.nextRunAt) - now) : null
   const interval = Math.max(1, data?.cycleIntervalMs ?? 900000)
   const countdown = remaining === null ? null : `${Math.floor(remaining / 60000)}:${String(Math.floor(remaining / 1000) % 60).padStart(2, '0')}`
-  const products = data?.products.filter(product => view === 'ALL' ? product.decision !== 'SENT' && product.decision !== 'DISCARDED' && product.evaluation?.status !== 'DISCARDED' : product.decision === 'DISCARDED' || product.evaluation?.status === 'DISCARDED') ?? []
+  const products = data?.products.filter(product => view === 'ALL' ? product.decision !== 'SENT' && product.decision !== 'DISCARDED' : product.decision === 'DISCARDED') ?? []
   const statusMessage = !data ? error ? 'Sugestões indisponíveis no momento.' : 'Conferindo sugestões…' : data.status === 'PAUSED' || !data.enabled ? 'Descoberta automática pausada.' : collecting ? checkingStopped ? 'A conferência foi interrompida. A coleta pode continuar no servidor; confira novamente.' : 'Buscando sugestões em segundo plano…' : data.status === 'ERROR' ? 'A última coleta não foi concluída.' : 'Sugestões atualizadas.'
   return <section className={discoveryStyles.panel} aria-labelledby="discovery-title">
     <header><div><h2 id="discovery-title">Sugestões para {contextName}</h2><p>Abra um produto, confira a mensagem e envie.</p></div></header>

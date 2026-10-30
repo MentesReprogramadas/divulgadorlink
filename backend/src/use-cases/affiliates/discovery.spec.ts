@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { affiliateDiscoveryState, discoveryConfigSchema, mergeDiscoveryProducts, runAffiliateDiscovery } from './discovery'
 import { planAffiliateDiscoveryTerms } from '@/domain/affiliates/discovery-terms'
 import { expandAffiliateTerms } from '@/adapters/affiliates/openai-intelligence'
+import { evaluateAffiliateProduct } from '@/domain/affiliates/evaluation'
 vi.mock('@/adapters/affiliates/openai-intelligence',()=>({expandAffiliateTerms:vi.fn(async(topic:string)=>[topic]),generateAffiliateTitle:vi.fn()}))
 import { AffiliateCatalogError, type CatalogProduct } from '@/domain/affiliates/mercado-livre'
 
@@ -20,22 +21,23 @@ beforeEach(()=>vi.clearAllMocks())
 describe('descoberta automática',()=>{
   it('mostra todos os anúncios válidos sem contar ausência de anúncio como descarte nem reoferecer enviados',async()=>{
     const {db}=fixture()
-    const evaluated=(id:string,status:string)=>({...product(id),catalogId:`catalog-${id}`,sourceTerm:'Natal',sourcePage:1,evaluation:{status,reasons:[]}})
+    const evaluated=(id:string,status:string)=>{const item={...product(id),catalogId:`catalog-${id}`,...(status==='SELECTED'?{oldPriceCents:2000,oldPriceSource:'MERCADO_LIVRE' as const,reputation:{level:'5_green',status:'GREEN' as const}}:status==='DISCARDED'?{reputation:{level:'2_orange',status:'POOR' as const}}:{})};return {...item,sourceTerm:'Natal',sourcePage:1,evaluation:{...evaluateAffiliateProduct(item,[]),rulesVersion:'v1',status}}}
     vi.mocked(db.affiliateDiscoveryPage.findMany).mockResolvedValue([{term:'Natal',page:1,checkedAt:now,productsJson:[evaluated('selected','SELECTED'),evaluated('review','REVIEW'),evaluated('poor','DISCARDED'),evaluated('sent','SELECTED'),evaluated('manual','SELECTED')],countsJson:{rejected:[{id:'absent',title:'Sem anúncios',reason:'Sem anúncios atuais',kind:'NO_LISTINGS'},{id:'failed',title:'Consulta falhou',reason:'Não avaliado',kind:'LOOKUP_FAILED'},{id:'catalog-selected',title:'Antigo indisponível',reason:'Não avaliado',kind:'NO_LISTINGS'}]}}] as never)
     vi.mocked(db.affiliateProductDecision.findMany).mockResolvedValue([{itemId:'sent',decision:'SENT'},{itemId:'manual',decision:'DISCARDED',reason:'Não interessa'}] as never)
     const available=await affiliateDiscoveryState(db,'tenant','segment',{mode:'MIXED',view:'ALL'})
-    expect(available.products.map(p=>p.id)).toEqual(['selected','review'])
-    expect(available.pagination.total).toBe(2)
-    expect(available.statusCounts).toEqual({SELECTED:1,REVIEW:1,DISCARDED:2})
-    expect(available.collectionSummary).toEqual({available:2,unavailable:2,failed:1})
+    expect(available.products.map(p=>p.id)).toEqual(['selected','review','poor'])
+    expect(available.products.find(p=>p.id==='poor')?.evaluation).toMatchObject({status:'REVIEW',rulesVersion:'v2'})
+    expect(available.pagination.total).toBe(3)
+    expect(available.statusCounts).toEqual({SELECTED:1,REVIEW:2,DISCARDED:1})
+    expect(available.collectionSummary).toEqual({available:3,unavailable:2,failed:1})
     expect(available.rejected).toEqual([])
     expect(available.unavailable.map(p=>p.id)).toEqual(['absent','failed'])
     const discarded=await affiliateDiscoveryState(db,'tenant','segment',{mode:'MIXED',view:'DISCARDED'})
-    expect(discarded.products.map(p=>p.id)).toEqual(['poor','manual'])
+    expect(discarded.products.map(p=>p.id)).toEqual(['manual'])
   })
   it('reúne termos e páginas, intercala produtos, deduplica pela cotação mais nova e pagina após avaliação',async()=>{
     const {db}=fixture()
-    const evaluated=(id:string,term:string,priceCents=1000)=>({...product(id),sourceTerm:term,sourcePage:1,priceCents,evaluation:{status:'SELECTED',reasons:[]}})
+    const evaluated=(id:string,term:string,priceCents=1000)=>({...product(id),sourceTerm:term,sourcePage:1,priceCents,evaluation:{status:'SELECTED',rulesVersion:'v2',reasons:[]}})
     const first=Array.from({length:21},(_,i)=>evaluated(`MLB${i+1}`,'Natal'))
     vi.mocked(db.affiliateDiscoveryPage.findMany).mockResolvedValue([
       {term:'Presentes',page:1,productsJson:[evaluated('MLB99','Presentes'),evaluated('MLB1','Presentes',900)],countsJson:{},checkedAt:now},

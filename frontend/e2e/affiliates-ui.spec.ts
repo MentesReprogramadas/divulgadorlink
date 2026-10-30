@@ -404,6 +404,29 @@ test('sugestões aparecem sem busca manual e foto ausente mantém revisão expl�
   expect(mutations.filter(item => item.path.endsWith('/broadcasts'))).toHaveLength(0)
 })
 
+test('reputação fora da faixa verde mantém produto disponível e descarte exige decisão manual',async({page},testInfo)=>{
+ const mutations=await fixtures(page)
+ await page.clock.setFixedTime(new Date('2026-10-30T12:00:00Z'))
+ await page.route('**/catalog/status',route=>route.fulfill({json:{mode:'CENTRAL',configured:true,connected:true,affiliateConfigured:true}}))
+ let discarded=false
+ await page.route('**/segments/segment-1/discovery**',route=>route.fulfill({json:{enabled:true,usesSegmentName:true,terms:['Pets'],products:[{...offer,id:'MLB6839186178',title:'Ração para Cachorro Billy Dog Ossinho',priceCents:16300,oldPriceCents:null,productUrl:'https://www.mercadolivre.com.br/p/MLB54325401?wid=MLB6839186178',...(discarded?{decision:'DISCARDED'}:{}),evaluation:{status:'REVIEW',rulesVersion:'v2',reasons:['Atenção: reputação do vendedor fora da faixa verde. Confira o anúncio antes de enviar.'],reportedDiscountPercent:null,history:{days:0,medianPriceCents:null,dropPercent:null,verified:false,windowDays:30},reputation:{level:'2_orange',status:'POOR'}}}],counts:null,checkedAt:'2026-10-30T12:00:00Z',nextRunAt:null,status:'READY',error:null}}))
+ await page.route('**/products/discard',route=>{discarded=true;return route.fulfill({json:{saved:true}})})
+ await page.goto('/admin/afiliados/segmentacoes/segment-1');await area(page,'Ofertas')
+ const suggestions=page.getByRole('region',{name:'Sugestões para Natal'})
+ await expect(suggestions.getByRole('heading',{name:'Ração para Cachorro Billy Dog Ossinho'})).toBeVisible()
+ await expect(suggestions.getByText('Conferir antes de enviar',{exact:true})).toBeVisible()
+ await suggestions.getByText('Por que este produto?',{exact:true}).click()
+ await expect(suggestions.getByText(/Reputação do vendedor:/)).toBeVisible()
+ await expect(suggestions.getByRole('button',{name:'Revisar e enviar'})).toBeEnabled()
+ expect(mutations.some(item=>item.path.endsWith('/products/send'))).toBe(false)
+ await capture(page,'seller-warning-product-visible',testInfo.project.name)
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true)
+ await suggestions.getByRole('button',{name:'Descartar',exact:true}).click()
+ await expect(suggestions.getByRole('heading',{name:'Ração para Cachorro Billy Dog Ossinho'})).toHaveCount(0)
+ await suggestions.getByRole('tab',{name:'Descartados',exact:true}).click()
+ await expect(suggestions.getByText('Descartado por você',{exact:true})).toBeVisible()
+})
+
 test('avaliação explica evidências, pagina a fonte e confirma mensagem única com teclado', async ({ page }, testInfo) => {
   const mutations = await fixtures(page)
   await page.clock.setFixedTime(new Date('2026-10-28T12:00:00Z'))

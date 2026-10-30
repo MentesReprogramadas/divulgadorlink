@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { affiliateDiscoveryState, configureAffiliateDiscovery, queueAffiliateDiscovery, queueAffiliateDiscoveryPage, findDiscoveryCandidate, runAffiliateDiscovery } from './discovery'
 import {AffiliateCatalogError} from '@/domain/affiliates/mercado-livre'
+import {evaluateAffiliateProduct} from '@/domain/affiliates/evaluation'
 
 vi.mock('@/adapters/affiliates/openai-intelligence',()=>({expandAffiliateTerms:vi.fn(async(topic:string)=>[topic]),generateAffiliateTitle:vi.fn()}))
 const url=process.env.AFFILIATE_DATABASE_URL
@@ -25,6 +26,16 @@ afterAll(async()=>{
 const scope=()=>({tenantId,segmentId})
 const run=(search:Parameters<typeof runAffiliateDiscovery>[1],client=db)=>runAffiliateDiscovery(client,search,undefined,scope())
 describe('PostgreSQL discovery isolation and leases',()=>{
+  it('restores v1 automatic discards from stored pages while preserving manual decisions',async()=>{
+    const item={...result.products[0],reputation:{level:'2_orange',status:'POOR' as const}}
+    await run(vi.fn(async()=>({...result,products:[item]})))
+    const legacy={...item,sourceTerm:'Natal',sourcePage:1,evaluation:{...evaluateAffiliateProduct(item,[]),rulesVersion:'v1',status:'DISCARDED'}}
+    await db.affiliateDiscoveryPage.updateMany({where:{tenantId,segmentId},data:{productsJson:[legacy]}})
+    expect(await affiliateDiscoveryState(db,tenantId,segmentId,{mode:'MIXED',view:'ALL'})).toMatchObject({products:[{id:'MLB100',evaluation:{status:'REVIEW',rulesVersion:'v2'}}],statusCounts:{DISCARDED:0}})
+    await db.affiliateProductDecision.create({data:{tenantId,segmentId,itemId:'MLB100',decision:'DISCARDED',reason:'Não quero divulgar',actorId}})
+    expect((await affiliateDiscoveryState(db,tenantId,segmentId,{mode:'MIXED',view:'ALL'})).products).toHaveLength(0)
+    expect((await affiliateDiscoveryState(db,tenantId,segmentId,{mode:'MIXED',view:'DISCARDED'})).products[0]).toMatchObject({decision:'DISCARDED'})
+  })
   it('warms every expanded term before rotating to each term next page',async()=>{
     await db.affiliateDiscovery.create({data:{tenantId,segmentId,expandedTerms:['Natal','Presentes']}})
     const search=vi.fn<NonNullable<Parameters<typeof runAffiliateDiscovery>[1]>>(async()=>({...result,counts:{...result.counts,catalogsFound:200}}))

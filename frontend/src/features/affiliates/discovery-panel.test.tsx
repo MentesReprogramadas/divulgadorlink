@@ -12,6 +12,14 @@ const initial: DiscoveryState = { enabled: true, usesSegmentName: true, terms: [
 const product = { id: 'MLB123', title: 'Produto conferido', priceCents: 12990, oldPriceCents: null, imageUrl: 'https://http2.mlstatic.com/fixture.jpg', checkedAt: '2026-10-28T12:00:00Z', productUrl: 'https://produto.mercadolivre.com.br/MLB-123' }
 const ready: DiscoveryState = { ...initial, status: 'READY', checkedAt: '2026-10-28T12:00:00Z', products: [product] }
 const props = { segmentId: 'natal', contextName: 'Natal', busy: false, canGenerate: true, prepare: vi.fn() }
+it('mantém avaliações automáticas antigas em Produtos e reserva Descartados às decisões do administrador',async()=>{
+ const automatic={...product,evaluation:{status:'DISCARDED',rulesVersion:'v1',reasons:[],reportedDiscountPercent:null,history:{days:0,medianPriceCents:null,dropPercent:null,verified:false,windowDays:30},reputation:{level:'2_orange',status:'POOR'}}}
+ vi.mocked(api).mockImplementation(async path=>({status:200,body:{...ready,products:path.includes('view=DISCARDED')?[{...automatic,id:'MLB456',title:'Descartado manualmente',decision:'DISCARDED'}]:[automatic]}}))
+ render(<DiscoveryPanel {...props}/>);await screen.findByText(product.title)
+ expect(screen.getByText('Conferir antes de enviar')).toBeTruthy()
+ fireEvent.click(screen.getByRole('tab',{name:/^Descartados$/}))
+ await screen.findByText('Descartado manualmente');expect(screen.queryByText(product.title)).toBeNull()
+})
 
 it('continua acompanhando a coleta enquanto novos termos são concluídos',async()=>{
  vi.useFakeTimers();vi.setSystemTime(new Date('2026-10-29T12:00:00Z'))
@@ -231,7 +239,7 @@ it('não trata desconto anunciado como histórico verificado e mostra reputaçã
   vi.mocked(api).mockResolvedValue({status:200,body:{...ready,products:[{...product,evaluation:{status:'REVIEW',rulesVersion:'v1',reasons:['Histórico insuficiente.'],reportedDiscountPercent:20,history:{days:1,medianPriceCents:null,dropPercent:null,verified:false,windowDays:30},reputation:{level:null,status:'UNKNOWN'}}}],statusCounts:{SELECTED:0,REVIEW:1,DISCARDED:0}}})
   render(<DiscoveryPanel {...props}/>);await screen.findByText('Sugestões atualizadas.');await screen.findByText('Produto conferido')
   fireEvent.click(screen.getByText('Por que este produto?'))
-  expect(screen.getByText(/Reputação no Mercado Livre: não informada/)).toBeTruthy();expect(screen.getByText(/Histórico insuficiente para comprovar queda/)).toBeTruthy()
+  expect(screen.getByText(/Reputação do vendedor: não informada/)).toBeTruthy();expect(screen.getByText(/Histórico insuficiente para comprovar queda/)).toBeTruthy()
 })
 
 it('volta à primeira página da lista combinada depois de trocar a configuração',async()=>{

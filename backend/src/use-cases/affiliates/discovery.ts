@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { AffiliateCatalogError, type CatalogProduct } from '@/domain/affiliates/mercado-livre'
 import { expandAffiliateTerms } from '@/adapters/affiliates/openai-intelligence'
 import { planAffiliateDiscoveryTerms } from '@/domain/affiliates/discovery-terms'
-import { evaluateAffiliateProduct, AFFILIATE_RULES, type DiscoveryProduct } from '@/domain/affiliates/evaluation'
+import { evaluateAffiliateProduct, refreshCachedAffiliateEvaluation, AFFILIATE_RULES, type DiscoveryProduct } from '@/domain/affiliates/evaluation'
 import { refreshAffiliateCatalogProduct } from '@/use-cases/@Affiliates/catalog'
 export { generateAffiliateTitle } from '@/adapters/affiliates/openai-intelligence'
 import { searchAffiliateCatalog } from '@/use-cases/@Affiliates/catalog'
@@ -44,7 +44,7 @@ export async function affiliateDiscoveryState(db: PrismaClient, tenantId: string
   const cached=mixed?null:await db.affiliateDiscoveryPage.findUnique({where:{tenantId_segmentId_term_page:{tenantId,segmentId,term,page}}})
   const pages=mixed?await db.affiliateDiscoveryPage.findMany({where:{tenantId,segmentId,term:{in:terms},checkedAt:{gte:new Date(Date.now()-TTL)}},orderBy:[{checkedAt:'desc'},{term:'asc'},{page:'asc'}],take:500}):cached?[cached]:[]
   const newest=new Map<string,DiscoveryProduct>()
-  for(const cachedPage of pages)for(const product of mergeDiscoveryProducts(cachedPage.productsJson,[],new Date()) as DiscoveryProduct[])if(!newest.has(product.id))newest.set(product.id,product)
+  for(const cachedPage of pages)for(const product of mergeDiscoveryProducts(cachedPage.productsJson,[],new Date()) as DiscoveryProduct[])if(!newest.has(product.id))newest.set(product.id,refreshCachedAffiliateEvaluation(product))
   const buckets=terms.map(value=>[...newest.values()].filter(product=>product.sourceTerm===value))
   const products:DiscoveryProduct[]=mixed?Array.from({length:Math.max(0,...buckets.map(bucket=>bucket.length))},(_,index)=>buckets.flatMap(bucket=>bucket[index]?[bucket[index]]:[])).flat():[...newest.values()]
   const decisions=await db.affiliateProductDecision.findMany({where:{tenantId,segmentId,itemId:{in:products.map(p=>p.id)}}})
@@ -61,8 +61,7 @@ export async function affiliateDiscoveryState(db: PrismaClient, tenantId: string
     if(parsed.success)for(const item of parsed.data.rejected??[])if(!validCatalogs.has(item.id)&&!unavailableById.has(item.id))unavailableById.set(item.id,{...item,...(!item.kind?{reason:'A fonte não retornou um anúncio utilizável nesta consulta. Será conferido novamente nas próximas coletas.'}:{})})
   }
   const rejected=mixed?[...unavailableById.values()]:evidence.success?evidence.data.rejected??[]:[]
-  if(!mixed)statusCounts.DISCARDED+=rejected.length
-  const filtered=visible.filter(p=>query.view==='ALL'? !mixed||p.evaluation.status!=='DISCARDED':p.evaluation.status===query.view),rejections=!mixed&&(query.view==='ALL'||query.view==='DISCARDED')?rejected:[]
+  const filtered=visible.filter(p=>query.view==='ALL'? !mixed||p.evaluation.status!=='DISCARDED':p.evaluation.status===query.view),rejections=!mixed&&query.view==='ALL'?rejected:[]
   const total=filtered.length+rejections.length,displayPage=mixed?Math.min(page,Math.max(1,Math.ceil(total/20))):page,offset=(displayPage-1)*20
   return {...state(row,segment),products:mixed?filtered.slice(offset,offset+20):filtered,rejected:rejections,unavailable:mixed?rejected.slice(0,20):[],collectionSummary:{available:statusCounts.SELECTED+statusCounts.REVIEW,unavailable:rejected.length,failed:rejected.filter(item=>item.kind==='LOOKUP_FAILED').length},expandedTerms:terms,statusCounts,policy:AFFILIATE_RULES,pagination:{mode:mixed?'MIXED':'SOURCE',term,page:displayPage,pageSize:20,total:mixed?total:cached?.total??0,hasPrevious:displayPage>1,hasNext:mixed?displayPage*20<total:cached? page*20<cached.total && !(evidence.success&&evidence.data.providerBoundaryReached):false,providerBoundaryReached:!mixed&&evidence.success&&evidence.data.providerBoundaryReached===true},pageStatus:pages.length?'READY':'NOT_COLLECTED',cycleIntervalMs:row?.checkedAt?Math.max(1,row.nextRunAt.getTime()-row.checkedAt.getTime()):INTERVAL,runStartedAt:row?.runStartedAt?.toISOString()??null,durationMs:row?.durationMs??null}
 }
