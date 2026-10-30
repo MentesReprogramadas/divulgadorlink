@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { affiliateImageReference } from './image'
+import { compactAffiliateTitle } from './product-title'
 
 export class AffiliateError extends Error {
   constructor(public readonly status: number, message: string) { super(message) }
@@ -41,7 +42,8 @@ const safeText = (text: string) => text.replace(/[\r\n*_~`]/g, ' ').replace(/\s+
 const money = (cents: number) => (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 export function offerMessage(offer: OfferMessage) {
   const saving = offer.oldPriceCents && offer.oldPriceCents > offer.priceCents ? offer.oldPriceCents - offer.priceCents : 0
-  const lines = offer.headline ? [safeText(offer.headline), `*${safeText(offer.title)}*`, ''] : [saving ? '🔥 Olha esse desconto!' : '✨ Um achado para você!', '', `*${safeText(offer.title)}*`, '']
+  const title=safeText(compactAffiliateTitle(offer.title))
+  const lines = offer.headline ? [safeText(offer.headline), `*${title}*`, ''] : [saving ? '🔥 Olha esse desconto!' : '✨ Um achado para você!', '', `*${title}*`, '']
   if (saving) lines.push(`De: ~${money(offer.oldPriceCents!)}~`)
   lines.push(`💰 *${money(offer.priceCents)}*`)
   if (saving) {

@@ -31,6 +31,15 @@ afterAll(async()=>{
 })
 
 describe('prévia e envio único no PostgreSQL',()=>{
+  it('aprova o mesmo título compacto da prévia sem alterar preço, link ou histórico',async()=>{
+    const dependencies=ports()
+    dependencies.title.mockResolvedValue({title:'Árvore De Natal Luxo 210 Cm 1200 Galhos NEXMIDIO Verde Galhos Pinheiro Verde-musgo Arvore de Natal 210cm arvore natal',headline:'Uma árvore de Natal para sua sala 🎄',source:'OPENAI'})
+    const result=await previewAffiliateProduct(db,tenantId,actorId,segmentId,'MLB123456',dependencies)
+    expect(result.message.split('\n')[1]).toBe('*Árvore De Natal Luxo 210 Cm 1200 Galhos NEXMIDIO Verde*')
+    expect(result.message).toContain(result.affiliateUrl)
+    const sent=await sendAffiliateProduct(db,tenantId,actorId,segmentId,result.previewToken)
+    expect((await db.affiliateBroadcast.findUniqueOrThrow({where:{id:sent.broadcastId}})).message).toBe(result.message)
+  })
   it('envia exatamente o título e a mensagem regenerados; prévia anterior não reaprova produto enviado',async()=>{
     const initial=await preview(),dependencies=ports()
     dependencies.title.mockResolvedValue({title:'Árvore verde de Natal',headline:'Sua sala com uma árvore de Natal 🎄',source:'OPENAI'})
