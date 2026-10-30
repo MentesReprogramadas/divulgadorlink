@@ -416,7 +416,7 @@ test('Shopee carrega foto e desconto na lista e prévia e permite tentar outro t
  await page.route(product.imageUrl,route=>route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144"><rect width="144" height="144" fill="#24534b"/></svg>'}))
  await page.route('**/catalog/shopee',route=>route.fulfill({json:{provider:'SHOPEE',configured:true,connected:true,status:'CONNECTED',accountLabel:'Fixture',subIds:[]}}))
  await page.route('**/discovery?*',route=>route.fulfill({json:{enabled:true,usesSegmentName:true,terms:['Natal'],products:[product],counts:null,checkedAt:'2026-10-30T12:00:00Z',nextRunAt:null,status:'READY',error:null}}))
- const message='Um petisco saboroso para seu cão 🐾\nBifinho para Cães Lion Pet 1 Kg\nDe (estimado): ~R$ 28,35~\nR$ 27,50\nEconomia estimada R$ 0,85 · 3% OFF\nhttps://s.shopee.com.br/fixture'
+ const message='Um petisco saboroso para seu cão 🐾\nBifinho para Cães Lion Pet 1 Kg\nDe: ~R$ 28,35~\nR$ 27,50\nEconomize R$ 0,85 · 3% OFF\nhttps://s.shopee.com.br/fixture'
  await page.route('**/products/preview',route=>route.fulfill({json:{previewToken:'first-signature',expiresAt:'2099-10-30T12:00:00Z',product,title:product.displayTitle,headline:'Um petisco saboroso para seu cão 🐾',message,affiliateUrl:'https://s.shopee.com.br/fixture',destinations:{segmentId:segment.id,name:segment.name,groups:[{id:'group-1',name:'Natal #1'}],count:1},titleSource:'OPENAI',priceChanged:false}}))
  let attempts=0
  const failure='A IA não conseguiu gerar outra chamada. A prévia anterior foi mantida. Tente novamente.'
@@ -432,7 +432,7 @@ test('Shopee carrega foto e desconto na lista e prévia e permite tentar outro t
  const dialog=page.getByRole('dialog',{name:'Revisar e enviar oferta'})
  await expect(dialog.getByText('3% OFF',{exact:true})).toBeVisible()
  await expect(dialog.getByText(/Preço anterior estimado:/)).toBeVisible()
- await expect(dialog.getByLabel('Mensagem exata para o WhatsApp')).toContainText('Economia estimada R$ 0,85 · 3% OFF')
+ await expect(dialog.getByLabel('Mensagem exata para o WhatsApp')).toContainText('Economize R$ 0,85 · 3% OFF')
  await page.screenshot({path:testInfo.outputPath('shopee-discount-preview.png'),fullPage:true})
  await expect.poll(()=>dialog.getByRole('img').first().evaluate((element:HTMLImageElement)=>element.naturalWidth)).toBeGreaterThan(0)
  await dialog.getByRole('button',{name:'Gerar outro título'}).click();await expect(dialog.getByRole('alert')).toHaveText(failure)

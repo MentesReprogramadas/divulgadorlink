@@ -11,7 +11,7 @@ const preview: ProductPreview = {previewToken:'server-signed',expiresAt:'2099-10
 const props = {segmentId:'natal',product,onClose:vi.fn(),onChanged:vi.fn(),returnFocusTo:null}
 it('mostra a referência estimada da Shopee e preserva a mensagem exata assinada',async()=>{
  const shopee={...product,id:'SHP123_456',provider:'SHOPEE' as const,productUrl:'https://shopee.com.br/product/123/456',priceCents:2130,oldPriceCents:3492,oldPriceEstimated:true,reportedDiscountPercent:39}
- const message='De (estimado): ~R$ 34,92~\n💰 *R$ 21,30*\n💸 Economia estimada *R$ 13,62* · 39% OFF'
+ const message='De: ~R$ 34,92~\n💰 *R$ 21,30*\n💸 Economize *R$ 13,62* · 39% OFF'
  vi.mocked(api).mockResolvedValue({status:200,body:{...preview,product:shopee,message}})
  render(<ProductPreviewDialog {...props} product={shopee}/>);
  expect(await screen.findByText('39% OFF')).toBeTruthy()

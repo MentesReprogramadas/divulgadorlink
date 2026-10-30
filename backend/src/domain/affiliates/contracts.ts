@@ -46,11 +46,11 @@ export function offerMessage(offer: OfferMessage) {
   const reportedDiscount=typeof rate==='number'&&Number.isInteger(rate)&&rate>0&&rate<=100?rate:0
   const title=safeText(compactAffiliateTitle(offer.title))
   const lines = offer.headline ? [safeText(offer.headline), `*${title}*`, ''] : [saving||reportedDiscount ? '🔥 Olha esse desconto!' : '✨ Um achado para você!', '', `*${title}*`, '']
-  if (saving) lines.push(`De${offer.oldPriceEstimated?' (estimado)':''}: ~${money(offer.oldPriceCents!)}~`)
+  if (saving) lines.push(`De: ~${money(offer.oldPriceCents!)}~`)
   lines.push(`💰 *${money(offer.priceCents)}*`)
   if (saving) {
     const percent = offer.oldPriceEstimated&&reportedDiscount?reportedDiscount:Math.floor(saving / offer.oldPriceCents! * 100)
-    lines.push(`💸 ${offer.oldPriceEstimated?'Economia estimada':'Economize'} *${money(saving)}*${percent ? ` · ${percent}% OFF` : ''}`)
+    lines.push(`💸 Economize *${money(saving)}*${percent ? ` · ${percent}% OFF` : ''}`)
   } else if(reportedDiscount) lines.push(`💸 *${reportedDiscount}% OFF*`)
   if (offer.note) lines.push('', safeText(offer.note))
   lines.push('', 'Confira as opções e aproveite 👇', offer.affiliateUrl, '', '_Preço e estoque podem mudar. Confira as condições na loja._')
