@@ -10,6 +10,25 @@ it('accepts cão in a real headline for Cães without inventing a new product fa
   const fetcher=vi.fn<typeof fetch>(async()=>response({title:'Bifinho para Cães Lion Pet 1 Kg',headline:'Um petisco saboroso para seu cão 🐾'}))
   expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher)).toMatchObject({source:'OPENAI',headline:'Um petisco saboroso para seu cão 🐾'})
 })
+it('accepts neutral espaço context from the exact screenshot product and retains its measurements',async()=>{
+ vi.stubEnv('OPENAI_API_KEY','test-never-real')
+ const product={id:'SHP1_3',catalogId:'SHP1_3',title:'Pá de Aço Inoxidável com Malha de 2,8mm, Grande 28,5x14x6cm, Pá Robusta para Areia Aglomerante e Limpeza de Resíduos',productUrl:'https://shopee.com.br/product/1/3',priceCents:16280,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}
+ const fetcher=vi.fn<typeof fetch>(async()=>response({title:'Pá de Aço Inoxidável Grande 28,5x14x6cm',headline:'Uma opção robusta para limpeza do seu espaço 🧹'}))
+ const copy=await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher)
+ expect(copy).toMatchObject({source:'OPENAI',headline:'Uma opção robusta para limpeza do seu espaço 🧹'})
+ expect(copy.title).toContain('2,8mm');expect(copy.title).toContain('28,5x14x6cm')
+})
+it('retries one invalid regeneration with corrective context, without accepting invented practicality',async()=>{
+ vi.stubEnv('OPENAI_API_KEY','test-never-real')
+ const product={id:'SHP1_4',catalogId:'SHP1_4',title:'Pá para limpeza',productUrl:'https://shopee.com.br/product/1/4',priceCents:16280,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}
+ const fetcher=vi.fn<typeof fetch>().mockResolvedValueOnce(response({title:product.title,headline:'Uma opção prática para a limpeza do dia a dia 🧼'})).mockResolvedValueOnce(response({title:product.title,headline:'Pá para acompanhar sua rotina ✨'}))
+ expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher,{title:product.title,headline:'Uma pá para sua casa 🧹'})).toMatchObject({source:'OPENAI',headline:'Pá para acompanhar sua rotina ✨'})
+ expect(fetcher).toHaveBeenCalledTimes(2)
+ const choices=JSON.parse(String(fetcher.mock.calls[1][1]?.body)).response_format.json_schema.schema.properties.headline.enum
+ expect(choices).toContain('Pá para acompanhar sua rotina ✨')
+ expect(choices.join(' ')).not.toContain('prática')
+ expect(JSON.parse(String(fetcher.mock.calls[1][1]?.body)).messages[1].content[0].text).toContain('rejectedCopy')
+})
 it('keeps the previous objective title when the model drops a measurement but provides a safe new headline',async()=>{
   vi.stubEnv('OPENAI_API_KEY','test-never-real')
   const product={id:'MLB1',catalogId:'MLB2',title:'Árvore de Natal 180 cm safe fallback',productUrl:'https://www.mercadolivre.com.br',priceCents:1000,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}
@@ -57,13 +76,15 @@ it('regenerates without the title cache, excludes the previous title and rejects
     .mockResolvedValueOnce(response({title:'Luminária branca USB',headline:'Uma luminária para sua casa ✨'}))
     .mockResolvedValueOnce(response({title:'USB Luminária branca',headline:'Confira uma luminária para sua sala ✨'}))
     .mockResolvedValueOnce(response({title:'Luminária USB branca',headline:'Uma luminária para sua rotina ✨'}))
+    .mockResolvedValueOnce(response({title:'Luminária USB branca',headline:'Uma luminária para sua rotina ✨'}))
+    .mockResolvedValueOnce(response({title:'Luminária USB barata',headline:'Confira uma luminária ✨'}))
     .mockResolvedValueOnce(response({title:'Luminária USB barata',headline:'Confira uma luminária ✨'}))
   const generate=()=>generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher,{title:'Luminária USB branca',headline:'Uma luminária para sua rotina ✨'})
   expect(await generate()).toMatchObject({source:'OPENAI',title:'Luminária branca USB'})
   expect(await generate()).toMatchObject({source:'OPENAI',title:'USB Luminária branca'})
   expect(await generate()).toMatchObject({source:'ORIGINAL'})
   expect(await generate()).toMatchObject({source:'ORIGINAL'})
-  expect(fetcher).toHaveBeenCalledTimes(4)
+  expect(fetcher).toHaveBeenCalledTimes(6)
   expect(JSON.parse(String(fetcher.mock.calls[0]?.[1]?.body)).messages[1].content[0].text).toContain('previousCopy')
 })
 it('preserves qualified product facts instead of changing sem WiFi into com WiFi',async()=>{
