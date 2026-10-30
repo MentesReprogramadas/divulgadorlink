@@ -8,9 +8,11 @@ export const affiliateTitleHasQualifier=(title:string)=>(normalize(title).match(
 
 export function compactAffiliateTitle(title:string):string {
   const clean=title.replace(/[\r\n*_~`]/g,' ').replace(/\s+/g,' ').trim()
-  // Keep qualified facts intact: shortening “sem cartão” can misrepresent the product.
-  if(affiliateTitleHasQualifier(clean))return clean
-  const words=clean.split(' '),seen=new Set<string>(),atoms:{text:string;required:boolean}[]=[]
+  const allWords=clean.split(' '),qualifierIndex=allWords.findIndex(affiliateTitleHasQualifier)
+  if(qualifierIndex>=0&&clean.length<=affiliateTitleLimit)return clean
+  // Keep the whole restriction together: shortening “sem cartão” can misrepresent the product.
+  const restriction=qualifierIndex>=0?allWords.slice(qualifierIndex).join(' '):null
+  const words=qualifierIndex>=0?allWords.slice(0,qualifierIndex):allWords,seen=new Set<string>(),atoms:{text:string;required:boolean}[]=[]
   let skipConnective=false
   for(let i=0;i<words.length;i++){
     let text=words[i].replace(/^[,;:|]+|[,;:|]+$/g,'')
@@ -26,6 +28,7 @@ export function compactAffiliateTitle(title:string):string {
     if(quantity&&quantities.has(next))seen.add(next)
     atoms.push({text,required:atoms.length===0||/\d/.test(text)})
   }
+  if(restriction)atoms.push({text:restriction,required:true})
   const required=atoms.filter(atom=>atom.required).map(atom=>atom.text).join(' ')
   // shortcut: exceptionally long model/specification lists remain intact rather than losing facts.
   if(required.length>affiliateTitleLimit)return clean
@@ -33,6 +36,7 @@ export function compactAffiliateTitle(title:string):string {
   for(let i=0;i<atoms.length;i++){
     const atom=atoms[i],remaining=atoms.slice(i+1).filter(part=>part.required).map(part=>part.text)
     if(atom.required||[...selected,atom.text,...remaining].join(' ').length<=affiliateTitleLimit)selected.push(atom.text)
+    else while(selected.length>1&&connectives.has(normalize(selected[selected.length-1])))selected.pop()
   }
   while(selected.length>1&&connectives.has(normalize(selected[selected.length-1])))selected.pop()
   return selected.join(' ')

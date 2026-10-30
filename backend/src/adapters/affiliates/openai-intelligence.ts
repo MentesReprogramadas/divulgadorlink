@@ -36,7 +36,7 @@ export async function generateAffiliateTitle(_db:PrismaClient,_tenantId:string,p
   const tokens=(text:string):string[]=>text.normalize('NFD').replace(/\p{M}/gu,'').toLocaleLowerCase('pt-BR').replace(/(\d)(cm|mm|kg|mg|ml|gb|tb|mah|ghz|mhz|hz|m|g|l|w|v)\b/gu,'$1 $2').match(/[\p{L}\p{N}]+/gu)??[]
   const sourceWords=tokens(product.title)
   // Removing or moving a qualifier can reverse a product fact; keep these titles intact.
-  if(affiliateTitleHasQualifier(product.title)) return {title:product.title,source:'ORIGINAL' as const}
+  if(affiliateTitleHasQualifier(product.title)) return {title:compactAffiliateTitle(product.title),source:'ORIGINAL' as const}
   const previous=typeof previousTitle==='string'?{title:previousTitle}:previousTitle
   // Only catalog CDN images are sent to OpenAI; never fetch arbitrary URLs on this server.
   const image=trustedProductImage(product.imageUrl)
