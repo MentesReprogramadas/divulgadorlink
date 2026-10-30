@@ -2,14 +2,12 @@ import { test, expect } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { mkdir } from 'node:fs/promises'
 import path from 'node:path'
-import { selectOption } from './select-control'
 
-test('configures Shopee source and desired group policy without claiming unsupported approval', async ({ page, context }, testInfo) => {
+test('configures Shopee alongside Mercado Livre and desired group policy without claiming unsupported approval', async ({ page, context }, testInfo) => {
   await context.addCookies([{ name: 'catalogo_role', value: 'ADMIN', domain: 'localhost', path: '/' }, { name: 'csrf', value: 'a'.repeat(32), domain: 'localhost', path: '/' }, { name: 'tla_consent', value: 'denied', domain: 'localhost', path: '/' }])
   const segment = { id: 'pets', name: 'Pets', groupName: 'Achadinhos Pet', slug: 'pets', description: 'Ofertas para pets.', imageUrl: null, capacity: 1024, instanceId: null, instanceIds: [], autoExpand: true, enabled: true, provisionState: 'IDLE' }
   const snapshot = { instances: [], segments: [segment], groups: [], offers: [], broadcasts: [], deliveries: [], summary: { instances: 0, segments: 1, groups: 0, offers: 0, pending: 0, sent: 0, uncertain: 0, failed: 0 } }
   let shopee = { provider: 'SHOPEE', configured: false, connected: false, status: 'NOT_CONFIGURED', accountLabel: '', subIds: [] as string[], updatedAt: null }
-  let provider = 'MERCADO_LIVRE'
   let policy = { enabled: false, disappearingSeconds: 604800, joinApproval: true, autoApproveDelaySeconds: 120 }
   const mutations: Array<{ path: string; method: string; body: Record<string, unknown> }> = []
   await page.route('**/bff/**', async route => {
@@ -18,7 +16,6 @@ test('configures Shopee source and desired group policy without claiming unsuppo
       const body = request.postDataJSON() ?? {}
       mutations.push({ path: pathname, method: request.method(), body })
       if (pathname.endsWith('/catalog/shopee')) shopee = { ...shopee, configured: true, status: 'CONFIGURED', accountLabel: body.accountLabel, subIds: body.subIds }
-      if (pathname.endsWith('/discovery/config')) provider = body.provider
       if (pathname.endsWith('/group-policy')) policy = { ...policy, ...body }
       return route.fulfill({ json: {} })
     }
@@ -29,7 +26,7 @@ test('configures Shopee source and desired group policy without claiming unsuppo
       : pathname.endsWith('/catalog/status') ? { configured: false, connected: false, status: 'NOT_CONFIGURED', clientId: null, redirectUri: '', affiliateConfigured: false }
       : pathname.endsWith('/catalog/shopee') ? shopee
       : pathname.endsWith('/group-policy') ? { ...policy, groups: [{ id: 'g1', name: 'Achadinhos Pet #1', groupPolicyState: 'UNSUPPORTED', groupPolicyErrorCode: 'admission_extension_required', groupPolicyNextRunAt: null }] }
-      : pathname.endsWith('/discovery') ? { provider, enabled: true, usesSegmentName: true, terms: ['Pets'], products: [], counts: null, checkedAt: '2026-10-30T12:00:00Z', nextRunAt: null, status: 'READY', error: null }
+      : pathname.endsWith('/discovery') ? { providers: ['MERCADO_LIVRE','SHOPEE'], enabled: true, usesSegmentName: true, terms: ['Pets'], products: [], counts: null, checkedAt: '2026-10-30T12:00:00Z', nextRunAt: null, status: 'READY', error: null }
       : {}
     return route.fulfill({ json: body })
   })
@@ -44,9 +41,10 @@ test('configures Shopee source and desired group policy without claiming unsuppo
   await page.getByLabel('Identificadores de atribuição (Sub IDs)').fill('pets, whatsapp')
   await page.getByRole('button', { name: 'Salvar credenciais Shopee' }).click()
   await expect(page.getByText('Configurada; verificação pendente', { exact: false })).toBeVisible()
-  await selectOption(page.getByRole('combobox', { name: 'Fonte dos produtos' }), 'SHOPEE')
+  await expect(page.getByRole('combobox', { name: 'Fonte dos produtos' })).toHaveCount(0)
+  await expect(page.getByText(/Shopee e Mercado Livre são consultados juntos/)).toBeVisible()
   await page.getByRole('button', { name: 'Salvar termos' }).click()
-  await expect.poll(() => mutations.find(item => item.path.endsWith('/discovery/config'))?.body.provider).toBe('SHOPEE')
+  await expect.poll(() => mutations.find(item => item.path.endsWith('/discovery/config'))?.body).toEqual({enabled:true,terms:['Pets']})
   await expect(page.getByRole('combobox', { name: /termo/i })).toHaveCount(0)
   const evidence = path.resolve('../docs/frontend-profissional/evidencias/pets-landing-2026-10-30')
   await mkdir(evidence, { recursive: true })
