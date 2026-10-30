@@ -8,9 +8,9 @@ const frontend = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'
 const fixture = createServer((req, res) => {
   res.setHeader('content-type', 'application/json')
   if (req.method !== 'GET') { res.writeHead(405); res.end('{}'); return }
-  const slug = /^\/api\/v1\/public\/affiliates\/(natal|pausado)$/.exec(req.url ?? '')?.[1]
+  const slug = /^\/api\/v1\/public\/affiliates\/(natal|pets|pausado)$/.exec(req.url ?? '')?.[1]
   res.writeHead(slug ? 200 : 404)
-  res.end(JSON.stringify(slug ? { name: 'Ofertas de Natal', description: 'Convite isolado', available: slug === 'natal', imageUrl: '/brand/confluencia/simbolo-escuro.svg', shareImageUrl: null } : {}))
+  res.end(JSON.stringify(slug ? { name: slug === 'pets' ? 'Ofertas Pet' : 'Ofertas de Natal', description: 'Convite isolado', available: slug !== 'pausado', imageUrl: '/brand/confluencia/simbolo-escuro.svg', shareImageUrl: null } : {}))
 })
 await new Promise((resolve, reject) => { fixture.once('error', reject); fixture.listen(4461, '127.0.0.1', resolve) })
 const child = spawn(process.execPath, [path.join(frontend, 'node_modules/next/dist/bin/next'), 'start', '--hostname', '127.0.0.1', '--port', '3021'], { cwd: frontend, env: { ...process.env, TEMLINK_DEMO_BUILD: '0', TEMLINK_E2E_BUILD: '1', API_ORIGIN: 'http://127.0.0.1:4461', TENANT_HOST: 'temlinkaqui.com' }, stdio: 'inherit', windowsHide: true })

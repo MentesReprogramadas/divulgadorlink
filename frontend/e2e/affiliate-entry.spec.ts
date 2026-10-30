@@ -13,11 +13,11 @@ test('SSR title, canonical, optional consent, busy and retry preserve the form',
   let finish!: () => void
   const ready = new Promise<void>(resolve => { finish = resolve })
   let body: Record<string, unknown> = {}
-  await page.route('**/api/affiliate-entry/natal', async route => { calls++; body = route.request().postDataJSON(); await ready; await route.fulfill({ status: 503, json: {} }) })
-  const response = await page.goto('/ofertas/participar/natal?fbclid=real-click')
+  await page.route('**/api/affiliate-entry/pets', async route => { calls++; body = route.request().postDataJSON(); await ready; await route.fulfill({ status: 503, json: {} }) })
+  const response = await page.goto('/ofertas/participar/pets?fbclid=real-click')
   expect(response?.status()).toBe(200)
-  await expect(page.getByRole('heading', { name: 'Ofertas de Natal' })).toBeVisible()
-  await expect(page.locator('link[rel=canonical]')).toHaveAttribute('href', 'https://temlinkaqui.com/ofertas/participar/natal')
+  await expect(page.getByRole('heading', { name: 'Ofertas Pet' })).toBeVisible()
+  await expect(page.locator('link[rel=canonical]')).toHaveAttribute('href', 'https://temlinkaqui.com/ofertas/participar/pets')
   await expect(page.locator('meta[name=robots]')).toHaveAttribute('content', 'noindex, nofollow')
   expect(calls).toBe(0)
   const checkbox = page.getByRole('checkbox', { name: 'Autorizo usar meu número e compartilhar meu cadastro e a confirmação de ingresso com a Meta para medir e otimizar anúncios.' })
@@ -28,7 +28,7 @@ test('SSR title, canonical, optional consent, busy and retry preserve the form',
   await expect(page.getByLabel('Seu WhatsApp com DDD')).toBeDisabled()
   finish()
   await expect(page.locator('form [role=alert]')).toContainText('tente novamente')
-  expect(body).toMatchObject({ phone: '', marketingConsent: false, sourceUrl: 'http://127.0.0.1:3021/ofertas/participar/natal' })
+  expect(body).toMatchObject({ phone: '', marketingConsent: false, sourceUrl: 'http://127.0.0.1:3021/ofertas/participar/pets' })
   expect(body.fbclid).toBeUndefined()
   await expect(page.getByLabel('Seu WhatsApp com DDD')).toHaveValue('(11) 99999-9999')
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
@@ -52,4 +52,11 @@ test('privacy page explains optional measurement and limited retention', async (
   await expect(section).toContainText('cifrados por até 7 dias')
   await expect(section).toContainText('HMAC')
   await expect(section).toContainText('até 90 dias')
+})
+
+test('Natal identification lives only on its separate LP; legacy entry goes straight to invite', async ({ request }) => {
+  const response = await request.get('/ofertas/participar/natal', { maxRedirects: 0 })
+  expect(response.status()).toBe(307)
+  expect(new URL(response.headers().location).pathname).toBe('/ofertas/entrar/natal')
+  expect(await response.text()).not.toContain('Seu WhatsApp com DDD')
 })

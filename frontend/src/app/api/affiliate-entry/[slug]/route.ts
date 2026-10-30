@@ -1,6 +1,6 @@
 import { forward, tenantHost } from '@/lib/upstream'
 
-const origins = new Set(['https://temlinkaqui.com', 'https://pets.temlinkaqui.com'])
+const origins = new Set(['https://temlinkaqui.com', 'https://pets.temlinkaqui.com', 'https://natal.temlinkaqui.com'])
 function allowed(origin: string | null) {
   return !!origin && (origins.has(origin) || process.env.NODE_ENV !== 'production' && ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:3018', 'http://127.0.0.1:3018', 'http://localhost:3019', 'http://127.0.0.1:3019'].includes(origin))
 }
