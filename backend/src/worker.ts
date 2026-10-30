@@ -1,4 +1,5 @@
 import { purgeInviteEvents } from '@/use-cases/affiliates/invite-metrics'
+import { purgeAffiliateMembership } from '@/use-cases/affiliates/membership'
 import { runAffiliateDiscovery } from '@/use-cases/affiliates/discovery'
 import {purgeAgencyAccess} from '@/repositories/agency-clients'
 import {purgeButtonTests} from '@/repositories/button-tests'
@@ -399,6 +400,7 @@ export async function startWorker(): Promise<void> {
     await purgeSearchObservations(prisma)
     await purgeProfileInteractions(prisma)
     await purgeInviteEvents(prisma)
+    await purgeAffiliateMembership(prisma)
     const deleted = await runAnalyticsPurge(prismaRetentionView(), new Date())
     if (deleted > 0) logDomainEvent('analytics.purged', { entity: String(deleted) })
     const stale = await getOrderInsightsRepository().purgeMetaContexts(new Date(Date.now() - META_CONTEXT_TTL_DAYS * day))

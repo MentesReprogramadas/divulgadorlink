@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { membershipParticipant } from '@/domain/affiliates/membership'
 import { AffiliateError, groupJid, imageUrl, validInvite } from '@/domain/affiliates/contracts'
 import type { AffiliateInviteReadCache } from './invite-read-cache'
 
@@ -63,6 +64,11 @@ export class AffiliateEvolution implements AffiliateWhatsApp {
     } catch { throw new AffiliateProviderError(uncertain) }
   }
   private path(action:string,jid?:string) {return `/${action}/${encodeURIComponent(this.config.instance)}${jid ? `?groupJid=${encodeURIComponent(jid)}`:''}`}
+  async participants(jid:string):Promise<string[]> {
+    const parsed=z.object({participants:z.array(membershipParticipant).max(10000)}).safeParse(await this.request(this.path('group/participants',jid)))
+    if(!parsed.success) throw new AffiliateProviderError(false)
+    return parsed.data.participants
+  }
   async group(jid:string) {
     const group = parseGroup(await this.request(this.path('group/findGroupInfos',jid)))
     if (group.jid !== jid) throw new AffiliateProviderError(false)

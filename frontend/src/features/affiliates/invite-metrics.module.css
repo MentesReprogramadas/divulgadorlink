@@ -1,5 +1,9 @@
 .panel { display: grid; gap: var(--space-3); min-width: 0; }
 .panel h3 { margin: 0; font-size: var(--text-lg); }
+.heading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
+.groups { display: grid; gap: var(--space-3); list-style: none; margin: 0; padding: 0; }
+.groups li { display: grid; gap: var(--space-1); min-width: 0; overflow-wrap: anywhere; }
+.groups span, .groups small { color: var(--text-secondary); font-size: .875rem; }
 .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); margin: 0; }
 .grid > div { position: relative; isolation: isolate; overflow: hidden; min-width: 0; padding: var(--space-4); border: 1px solid var(--border-default); border-radius: var(--radius-lg); background: var(--surface-raised); }
 .grid dl { margin: 0; }

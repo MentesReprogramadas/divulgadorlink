@@ -10,6 +10,9 @@ if(![webPort,metadataPort].every(port=>Number.isInteger(port)&&port>=1024&&port<
 const metadata=createServer((request,response)=>{
   response.setHeader('content-type','application/json')
   if(request.method!=='GET'){response.writeHead(405);response.end('{}');return}
+  if(/^\/api\/v1\/public\/affiliates\/fast-natal\/destination\?eventId=/.test(request.url??'')){
+    response.writeHead(200);response.end(JSON.stringify({url:'https://chat.whatsapp.com/AbCdEf0123456789AbCdEf'}));return
+  }
   const slug=/^\/api\/v1\/public\/affiliates\/(early-natal|early-retry)$/.exec(request.url??'')?.[1]
   response.writeHead(slug?200:404)
   response.end(JSON.stringify(slug?{name:'Presentes de Natal',description:'Convite isolado',available:true,joinMode:'REDIRECT',imageUrl:null,shareImageUrl:null}:{}))

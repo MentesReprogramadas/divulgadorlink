@@ -12,6 +12,7 @@ import { affiliateEvolution, affiliateInviteEvolution, publicInstance } from '@/
 import { assertAffiliateImage } from '@/use-cases/affiliates/images'
 import { scheduleAffiliateBroadcast, resolveAffiliateDelivery, requestAffiliateDeliveryDrain } from '@/use-cases/affiliates/deliveries'
 import { joinAffiliateSegment, prepareFirstAffiliateGroup, reconcileAffiliateSegment } from '@/use-cases/affiliates/invitations'
+import { resolveAffiliateInviteDestination } from '@/use-cases/affiliates/invite-destination'
 import { requireAffiliateAdmin } from './affiliate-access'
 import { affiliateImageId } from '@/domain/affiliates/image'
 import { ProfileError } from '@/domain/profiles/profile'
@@ -239,6 +240,16 @@ export async function registerAffiliateRoutes(app:FastifyInstance) {
     const segment=await prisma.affiliateSegment.findFirst({where:{tenantId,slug,enabled:true},select:{name:true,groupName:true,description:true,imageUrl:true,joinMode:true,autoExpand:true,instance:{select:{enabled:true}},instanceLinks:{where:{instance:{enabled:true}},select:{instanceId:true}},groups:{where:{enabled:true},select:{participantCount:true,capacity:true,instance:{select:{enabled:true}}}}}})
     if(!segment) throw new AffiliateError(404,'Segmentação indisponível.')
     return {name:segment.groupName ?? segment.name,description:segment.description,shareImageUrl:segment.imageUrl?(affiliateImageId(segment.imageUrl)?`/ofertas/entrar/${slug}/imagem?v=${createHash('sha256').update(segment.imageUrl).digest('hex').slice(0,16)}`:segment.imageUrl):null,imageUrl:segment.imageUrl?(affiliateImageId(segment.imageUrl)?`/bff/v1/public/affiliates/${slug}/image`:segment.imageUrl):null,joinMode:segment.joinMode,available:segment.groups.some(group=>group.participantCount<group.capacity&&(segment.instanceLinks.length||group.instance.enabled))||Boolean(segment.autoExpand&&(segment.instanceLinks.length||segment.instance?.enabled))}
+  },true))
+  app.get('/public/affiliates/:slug/destination',(q,r)=>run(q,r,async tenantId=>{
+    const {slug}=z.object({slug:segmentInput.shape.slug}).parse(q.params)
+    const {eventId}=z.object({eventId:z.uuid()}).strict().parse(q.query)
+    const agent=q.headers['user-agent']??''
+    if(q.method!=='GET'||q.supportSession||q.cookies?.supportSession||q.headers['sec-fetch-dest']!=='document'||q.headers['sec-fetch-mode']!=='navigate'||!/^Mozilla\//.test(agent)||/bot|crawler|spider|headless|playwright|facebookexternalhit|meta-external|WhatsApp\//i.test(agent)||q.headers['next-router-prefetch']!==undefined||/prefetch|prerender/i.test(String(q.headers.purpose??'')+' '+String(q.headers['sec-purpose']??'')))return {url:null}
+    const result=await resolveAffiliateInviteDestination(prisma,tenantId,slug)
+    if(!result||q.raw.aborted||r.raw.destroyed)return {url:null}
+    await Promise.all([captureInviteEvent(q,tenantId,slug,eventId,'VIEW'),captureInviteEvent(q,tenantId,slug,eventId,'AUTOMATIC_REDIRECT')])
+    return result
   },true))
   app.get('/public/affiliates/:slug/image',(q,r)=>run(q,r,async tenantId=>{
     const {slug}=z.object({slug:segmentInput.shape.slug}).parse(q.params)

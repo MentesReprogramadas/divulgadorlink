@@ -42,6 +42,7 @@ async function fixtures(page: Page, emptyConnections = false) {
       : pathname.endsWith('/auth/session') ? { role: 'ADMIN', status: 'ACTIVE', canSubmit: true }
       : pathname.endsWith('/team/context') ? { ownerId: null, grants: null }
       : pathname === '/v1/admin/affiliates' ? data
+      : pathname === '/v1/admin/affiliates/membership' ? {since:'2026-09-30T00:00:00Z',until:'2026-10-30T00:00:00Z',totals:{joins:8,rejoins:2,leaves:3},groups:[{groupId:'group-3',groupName:'Natal #3',segmentId:segment.id,status:'READY',baselineAt:'2026-10-29T22:00:00Z',expiresAt:'2027-01-27T22:00:00Z',lastReceivedAt:'2026-10-29T23:00:00Z',lastErrorCode:null,receivedDuringBaseline:0,joins:8,rejoins:2,leaves:3,staleEvents:0}]}
       : pathname.endsWith('/status') && pathname.includes('/instances/') ? { state: 'open' }
       : pathname === '/v1/admin/affiliates/broadcasts' ? {broadcasts:data.broadcasts.map(item=>({...item,segmentId:segment.id,segment,counts:{pending:1,sending:0,sent:1,failed:0,uncertain:1,cancelled:0}})),nextCursor:null,totalCount:data.broadcasts.length}
       : pathname.includes('/broadcasts/') && pathname.endsWith('/status') ? {id:'broadcast-1',counts:{pending:0,sending:0,sent:2,failed:0,uncertain:1}}
@@ -219,6 +220,14 @@ test('admin gerencia segmentos, revisa oferta e confere entrega sem reenvio impl
   await expect(page.getByRole('table')).toContainText('Natal #3')
   await expect(page.getByRole('region',{name:'Desempenho do convite'})).toBeVisible()
   await expect(page.getByText('70 automáticos · 15 pelo botão')).toBeVisible()
+  const membership=page.getByRole('region',{name:'Participação nos grupos'})
+  await expect(membership.getByText('Medição ativa')).toBeVisible()
+  await expect(membership.getByText('Novas entradas').locator('..')).toContainText('8')
+  await expect(membership.getByText('Retornos').locator('..')).toContainText('2')
+  await expect(membership.getByText('Saídas do grupo').locator('..')).toContainText('3')
+  await membership.getByRole('button',{name:'Atualizar entradas'}).focus()
+  await page.keyboard.press('Enter')
+  await expect(membership.getByRole('button',{name:'Atualizar entradas'})).toBeEnabled()
   expect((await new AxeBuilder({page}).include('[aria-label="Desempenho do convite"]').analyze()).violations).toEqual([])
   await capture(page, 'groups', testInfo.project.name)
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true)

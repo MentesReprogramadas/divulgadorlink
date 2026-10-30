@@ -25,6 +25,52 @@ it('a paleta pessoal usa apenas o slug resolvido pelo host, nunca um cabeçalho 
 })
 
 describe('middleware', () => {
+  it('prepara CSRF no HTML do convite sem ida adicional ao backend', async () => {
+    const response = await middleware(new NextRequest('https://temlink.test/ofertas/entrar/natal'))
+    expect(response.cookies.get('csrf')).toMatchObject({ value: expect.stringMatching(/^[a-f0-9]{64}$/), httpOnly: false, secure: true, sameSite: 'lax', path: '/' })
+    expect(response.headers.get('cache-control')).toBe('private, no-store')
+    const existing = 'a'.repeat(64)
+    expect((await run('/ofertas/entrar/natal', 'csrf=' + existing)).cookies.get('csrf')).toBeUndefined()
+    expect((await run('/ofertas/entrar/natal', 'csrf=short')).cookies.get('csrf')?.value).toMatch(/^[a-f0-9]{64}$/)
+    expect((await run('/')).cookies.get('csrf')).toBeUndefined()
+    const mutation = await middleware(new NextRequest('https://temlink.test/ofertas/entrar/natal', { method: 'POST' }))
+    expect(mutation.cookies.get('csrf')).toBeUndefined()
+  })
+
+  it('redireciona navegação de navegador no primeiro HTTP e repassa contexto para métricas', async () => {
+    const destination='https://chat.whatsapp.com/AbCdEf0123456789AbCdEf'
+    const fetchMock=vi.fn().mockResolvedValue(Response.json({url:destination}))
+    vi.stubGlobal('fetch',fetchMock)
+    const response=await middleware(new NextRequest('https://temlink.test/ofertas/entrar/natal',{headers:{host:'temlink.test','user-agent':'Mozilla/5.0 Chrome/130.0','sec-fetch-dest':'document','sec-fetch-mode':'navigate',cookie:'csrf=existing; tla_consent=denied',dnt:'1','sec-gpc':'1'}}))
+    expect(response.status).toBe(307)
+    expect(response.headers.get('location')).toBe(destination)
+    expect(response.headers.get('cache-control')).toBe('private, no-store')
+    expect(fetchMock).toHaveBeenCalledOnce()
+    const [url,options]=fetchMock.mock.calls[0]!
+    expect(new URL(url).pathname).toBe('/api/v1/public/affiliates/natal/destination')
+    expect(options).toMatchObject({method:'GET',cache:'no-store',redirect:'error'})
+    expect(Object.fromEntries(options.headers as Headers)).toMatchObject({host:'temlink.test','user-agent':'Mozilla/5.0 Chrome/130.0',cookie:'csrf=existing; tla_consent=denied',dnt:'1','sec-gpc':'1'})
+  })
+  it('preserva HTML OG para crawler, HEAD, prefetch, suporte e requests sem navegação explícita', async () => {
+    const fetchMock=vi.fn();vi.stubGlobal('fetch',fetchMock)
+    const browser={'user-agent':'Mozilla/5.0 Chrome/130.0','sec-fetch-dest':'document','sec-fetch-mode':'navigate'}
+    const excluded:Record<string,string>[]=[{'user-agent':'facebookexternalhit/1.1'},{'user-agent':'WhatsApp/2.0'},{purpose:'prefetch'},{'sec-purpose':'prefetch;prerender'},{'next-router-prefetch':'1'},{cookie:'supportSession=fixture'},{'sec-fetch-mode':''}]
+    for(const extra of excluded){
+      expect((await middleware(new NextRequest('https://temlink.test/ofertas/entrar/natal',{headers:{...browser,...extra}}))).status).toBe(200)
+    }
+    expect((await middleware(new NextRequest('https://temlink.test/ofertas/entrar/natal',{method:'HEAD',headers:browser}))).status).toBe(200)
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+  it('mantém fallback HTML quando resolver falha, está cheio/SCREEN ou devolve URL inválida', async () => {
+    const browser={'user-agent':'Mozilla/5.0 Chrome/130.0','sec-fetch-dest':'document','sec-fetch-mode':'navigate'}
+    for(const result of [Response.json({url:'https://evil.test/'}),Response.json({url:null}),Response.json({}, {status:503})]){
+      vi.stubGlobal('fetch',vi.fn().mockResolvedValue(result))
+      expect((await middleware(new NextRequest('https://temlink.test/ofertas/entrar/natal',{headers:browser}))).status).toBe(200)
+    }
+    vi.stubGlobal('fetch',vi.fn().mockRejectedValue(new Error('offline')))
+    expect((await middleware(new NextRequest('https://temlink.test/ofertas/entrar/natal',{headers:browser}))).status).toBe(200)
+  })
+
   it('permite fotos do ML desde o documento inicial para navegação cliente sem ampliar scripts ou conexões', async () => {
     for (const path of ['/login', '/', '/painel', '/admin/visao', '/admin/afiliados', '/admin/afiliados/segmentacoes/natal']) {
       const policy = (await run(path, 'catalogo_role=ADMIN')).headers.get('content-security-policy') ?? ''

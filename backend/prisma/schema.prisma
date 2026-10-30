@@ -299,10 +299,53 @@ model AffiliateGroup {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deliveries AffiliateDelivery[]
+  membershipTracking AffiliateMembershipTracking?
   @@unique([id, tenantId])
   @@unique([tenantId, jid])
   @@unique([segmentId, sequence])
   @@map("affiliate_groups")
+}
+
+model AffiliateMembershipTracking {
+  groupId String @id
+  tenantId String
+  group AffiliateGroup @relation(fields: [groupId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  status String @default("BASELINING")
+  baselineAt DateTime?
+  expiresAt DateTime?
+  startedAt DateTime @default(now())
+  receivedDuringBaseline Int @default(0)
+  lastReceivedAt DateTime?
+  lastErrorCode String?
+  states AffiliateMembershipState[]
+  days AffiliateMembershipDaily[]
+  @@unique([groupId, tenantId])
+  @@index([expiresAt])
+  @@map("affiliate_membership_tracking")
+}
+
+model AffiliateMembershipState {
+  tenantId String
+  groupId String
+  identityHash String @db.Char(64)
+  present Boolean
+  lastEventAt DateTime
+  tracking AffiliateMembershipTracking @relation(fields: [groupId, tenantId], references: [groupId, tenantId], onDelete: Cascade)
+  @@id([tenantId, groupId, identityHash])
+  @@map("affiliate_membership_states")
+}
+
+model AffiliateMembershipDaily {
+  tenantId String
+  groupId String
+  day DateTime @db.Date
+  joins Int @default(0)
+  leaves Int @default(0)
+  rejoins Int @default(0)
+  staleEvents Int @default(0)
+  tracking AffiliateMembershipTracking @relation(fields: [groupId, tenantId], references: [groupId, tenantId], onDelete: Cascade)
+  @@id([tenantId, groupId, day])
+  @@map("affiliate_membership_daily")
 }
 
 model AffiliateOffer {

@@ -67,6 +67,59 @@ describe('HTTP e persistência afiliados',()=>{
     const snapshot=await app.inject({url:'/api/v1/admin/affiliates',headers:headers()})
     expect(snapshot.statusCode).toBe(200);expect(snapshot.json().summary.pending).toBe(1);expect(snapshot.body).not.toContain('secret')
   })
+  it('GET destino entrega convite sem sincronizar grupo e conta uma navegação por evento',async()=>{
+    const before=await db.affiliateGroup.findFirstOrThrow({where:{tenantId}})
+    const eventId=randomUUID(),visitor={host,'user-agent':'Mozilla/5.0 Chrome/130.0','sec-fetch-dest':'document','sec-fetch-mode':'navigate'}
+    const url='/api/v1/public/affiliates/natal/destination?eventId='+eventId
+    expect((await app.inject({url,headers:visitor})).json()).toEqual({url:'https://chat.whatsapp.com/AbCdEf0123456789AbCdEf'})
+    expect((await app.inject({url,headers:visitor})).statusCode).toBe(200)
+    expect(await db.affiliateGroup.findUniqueOrThrow({where:{id:before.id}})).toEqual(before)
+    expect(await db.affiliateInviteMetrics.findUniqueOrThrow({where:{segmentId}})).toMatchObject({views:1,automaticRedirects:1,buttonClicks:0,buttonRedirects:0})
+    for(const extra of [{'user-agent':'facebookexternalhit'},{purpose:'prefetch'},{'sec-purpose':'prefetch;prerender'},{'next-router-prefetch':'1'},{'sec-fetch-mode':''}])expect((await app.inject({url,headers:{...visitor,...extra}})).json()).toEqual({url:null})
+    expect((await app.inject({method:'HEAD',url,headers:visitor})).statusCode).toBe(200)
+    expect(await db.affiliateInviteEvent.count({where:{tenantId,segmentId}})).toBe(2)
+    await db.affiliateInviteEvent.deleteMany({where:{tenantId,segmentId}});await db.affiliateInviteMetrics.deleteMany({where:{tenantId,segmentId}})
+  })
+  it('GET destino mantém SCREEN/pausas/cheio sem provisionar e exclui DNT da medição',async()=>{
+    const visitor={host,'user-agent':'Mozilla/5.0 Chrome/130.0','sec-fetch-dest':'document','sec-fetch-mode':'navigate'}
+    const url='/api/v1/public/affiliates/natal/destination?eventId='+randomUUID()
+    for(const patch of [{joinMode:'SCREEN' as const},{enabled:false}]){
+      await db.affiliateSegment.update({where:{id:segmentId},data:patch})
+      expect((await app.inject({url,headers:visitor})).json()).toEqual({url:null})
+      await db.affiliateSegment.update({where:{id:segmentId},data:{enabled:true,joinMode:'REDIRECT'}})
+    }
+    await db.affiliateSegment.update({where:{id:segmentId},data:{capacity:1}})
+    expect((await app.inject({url,headers:visitor})).json()).toEqual({url:null})
+    await db.affiliateSegment.update({where:{id:segmentId},data:{capacity:10}})
+    for(const extra of [{dnt:'1'},{'sec-gpc':'1'},{'x-analytics-test':'1'},headers()])expect((await app.inject({url,headers:{...visitor,...extra}})).json()).toHaveProperty('url','https://chat.whatsapp.com/AbCdEf0123456789AbCdEf')
+    expect((await app.inject({url,headers:{...visitor,cookie:'supportSession=fixture'}})).json()).toEqual({url:null})
+    expect(await db.affiliateInviteMetrics.findUnique({where:{segmentId}})).toBeNull()
+    expect(await db.affiliateGroup.count({where:{tenantId}})).toBe(1)
+  })
+  it('GET destino revalida pausa e mudança de modo durante a consulta do provedor',async()=>{
+    const transport=vi.mocked(fetch),original=transport.getMockImplementation()!
+    const visitor={host,'user-agent':'Mozilla/5.0 Chrome/130.0','sec-fetch-dest':'document','sec-fetch-mode':'navigate'}
+    try {
+      for(const change of ['group','instance','mode','instance-config','capacity'] as const){
+        transport.mockImplementation(async(input,init)=>{
+          if(new URL(String(input)).pathname.includes('findGroupInfos')){
+            if(change==='group')await db.affiliateGroup.updateMany({where:{tenantId},data:{enabled:false}})
+            if(change==='instance')await db.affiliateInstance.update({where:{id:instanceId},data:{enabled:false}})
+            if(change==='mode')await db.affiliateSegment.update({where:{id:segmentId},data:{joinMode:'SCREEN'}})
+            if(change==='instance-config')await db.affiliateInstance.update({where:{id:instanceId},data:{name:'Outra conexão'}})
+            if(change==='capacity')await db.affiliateGroup.updateMany({where:{tenantId},data:{capacity:1}})
+          }
+          return original(input,init)
+        })
+        const url='/api/v1/public/affiliates/natal/destination?eventId='+randomUUID()
+        expect((await app.inject({url,headers:visitor})).json()).toEqual({url:null})
+        await db.affiliateGroup.updateMany({where:{tenantId},data:{enabled:true,capacity:10}})
+        await db.affiliateInstance.update({where:{id:instanceId},data:{enabled:true,name:'Natal 01'}})
+        await db.affiliateSegment.update({where:{id:segmentId},data:{joinMode:'REDIRECT'}})
+      }
+      expect(await db.affiliateInviteMetrics.findUnique({where:{segmentId}})).toBeNull()
+    } finally {transport.mockImplementation(original)}
+  })
   it('GET público é inerte e POST consulta grupo real sem autenticação',async()=>{
     expect((await app.inject({url:'/api/v1/public/affiliates/natal',headers:{host}})).json()).toMatchObject({name:'Ofertas de Natal',available:true,joinMode:'REDIRECT'})
     expect(await db.affiliateGroup.count({where:{tenantId}})).toBe(1)

@@ -2,6 +2,7 @@ import {personalHostTarget,personalHostOrigin} from '@/features/profile-hosts/ho
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { touchDecision } from '@/domain/campaign-touch'
+import { loadAffiliateInviteDestination } from '@/features/affiliates/server/invite-destination'
 
 function withPath(request: NextRequest): { headers: Headers; csp: string } {
   const requestHeaders = new Headers(request.headers)
@@ -33,6 +34,13 @@ function withPath(request: NextRequest): { headers: Headers; csp: string } {
 
 function finish(request: NextRequest, response: NextResponse, csp: string): NextResponse {
   response.headers.set('Content-Security-Policy', csp)
+  if(request.method==='GET'&&/^\/ofertas\/entrar\/[a-z0-9]+(?:-[a-z0-9]+)*\/?$/.test(request.nextUrl.pathname)){
+    response.headers.set('cache-control','private, no-store')
+    if((request.cookies.get('csrf')?.value.length??0)<32){
+      const bytes=crypto.getRandomValues(new Uint8Array(32))
+      response.cookies.set({name:'csrf',value:Array.from(bytes,byte=>byte.toString(16).padStart(2,'0')).join(''),httpOnly:false,sameSite:'lax',path:'/',secure:request.nextUrl.protocol==='https:'})
+    }
+  }
   const session = request.cookies.get('analyticsSession')?.value
   if (request.method === 'GET' && !(session && /^[0-9a-f-]{36}$/i.test(session))) {
     // Mint once on HTML, before visits and impressions can race to set cookies.
@@ -83,6 +91,8 @@ export async function middleware(request: NextRequest) {
     const next=new URL('/p/'+resolved.slug+request.nextUrl.search,request.url)
     const output=NextResponse.rewrite(next,{request:{headers}});output.headers.set('cache-control','private, no-store');output.headers.set('x-robots-tag','noindex, follow');return finish(request,output,csp)
   }
+  const destination=await loadAffiliateInviteDestination(request)
+  if(destination)return finish(request,NextResponse.redirect(destination,307),csp)
   const hidden = request.nextUrl.pathname.startsWith('/admin')
     && request.cookies.get('catalogo_role')?.value !== 'ADMIN'
     // This only permits rendering the shell. AreaFrame and every API request
