@@ -7,6 +7,8 @@ import type { AffiliateWhatsApp } from '@/adapters/affiliates/evolution'
 import { groupPolicyHash } from '@/domain/affiliates/group-policy'
 import { prepareFirstAffiliateGroup } from './invitations'
 import { resolveAffiliateInviteDestination } from './invite-destination'
+import {baselineAffiliateMembership,recordAffiliateMembership} from './membership'
+import {recordConversionIntent} from './conversions'
 
 const url=process.env.AFFILIATE_DATABASE_URL
 if(!url || !['127.0.0.1','localhost'].includes(new URL(url).hostname))throw new Error('Disposable local AFFILIATE_DATABASE_URL required')
@@ -45,6 +47,43 @@ it('observa pedidos existentes e aguarda no mínimo 120 segundos; confirma apena
   await runAffiliateGroupPolicies(db,()=>remote,new Date(now.getTime()+300000))
   expect(remote.approveJoinRequest).toHaveBeenCalledOnce()
   expect(remote.setJoinApproval).toHaveBeenCalledOnce()
+})
+it('serializa edição de política e ingresso usando segment antes de group, sem deadlock ou perda de qualificação',async()=>{
+  const group=await db.affiliateGroup.findUniqueOrThrow({where:{id:groupId}}),origin=`https://${tenantId}.test`
+  const previousPixel=process.env.META_PIXEL_ID
+  process.env.META_PIXEL_ID='123'
+  await db.config.create({data:{tenantId,key:'AFFILIATE_META_CONVERSIONS',value:JSON.stringify({enabled:true,pixelId:'123',segmentIds:[segmentId],allowedOrigins:[origin]})}})
+  await baselineAffiliateMembership(db,tenantId,groupId,env.WEBHOOK_ENCRYPTION_KEY,async()=>[],new Date(now.getTime()-2000))
+  await recordConversionIntent(db,{id:tenantId,host:`${tenantId}.test`},'pets',{phone:'11999991234',marketingConsent:true,sourceUrl:origin+'/'},'fixture-agent',origin,new Date(now.getTime()-1000))
+  let segmentLocked!:()=>void,continuePolicy!:()=>void
+  const locked=new Promise<void>(resolve=>{segmentLocked=resolve}),release=new Promise<void>(resolve=>{continuePolicy=resolve})
+  const policyDb=db.$extends({query:{affiliateSegment:{async updateMany({args,query}) {
+    const result=await query(args)
+    segmentLocked()
+    await release
+    return result
+  }}}}) as unknown as PrismaClient
+  const saving=saveAffiliateGroupPolicy(policyDb,tenantId,actorId,segmentId,policy)
+  let recording:ReturnType<typeof recordAffiliateMembership>|undefined
+  try {
+    await locked
+    recording=recordAffiliateMembership(db,tenantId,group.instanceId,{instance:'Fixture',jid:group.jid,action:'add',participants:['5511999991234@s.whatsapp.net'],occurredAt:now},env.WEBHOOK_ENCRYPTION_KEY,now)
+    // Hold the policy's segment lock until membership is actually waiting for that lock.
+    await vi.waitFor(async()=>{
+      const waiting=await db.$queryRaw<{pid:number}[]>`SELECT pid FROM pg_stat_activity WHERE wait_event_type='Lock' AND query LIKE '%affiliate_segments%FOR UPDATE%'`
+      expect(waiting.length).toBeGreaterThan(0)
+    })
+    continuePolicy()
+    expect(await Promise.all([saving,recording])).toEqual([{saved:true},'accepted'])
+    expect(await db.affiliateConversionOutbox.count({where:{kind:'QUALIFIED_GROUP_LEAD',intent:{tenantId,segmentId}}})).toBe(1)
+    expect(await db.affiliateMembershipDaily.findFirstOrThrow({where:{tenantId,groupId}})).toMatchObject({joins:1})
+  } finally {
+    continuePolicy()
+    await Promise.allSettled(recording?[saving,recording]:[saving])
+    await db.config.deleteMany({where:{tenantId,key:'AFFILIATE_META_CONVERSIONS'}})
+    if(previousPixel===undefined)delete process.env.META_PIXEL_ID
+    else process.env.META_PIXEL_ID=previousPixel
+  }
 })
 it('não acessa conexão fechada, segmentos sem política ou pausados',async()=>{
   const remote=port();remote.status.mockResolvedValue({state:'close'})

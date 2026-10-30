@@ -46,6 +46,8 @@ export async function recordAffiliateMembership(db:PrismaClient,tenantId:string,
     const group=await tx.affiliateGroup.findFirst({where:{tenantId,jid:event.jid,enabled:true,segment:{enabled:true},OR:[{instanceId},{segment:{instanceId}},{segment:{instanceLinks:{some:{instanceId,tenantId}}}}]}})
     const instance=await tx.affiliateInstance.findFirst({where:{id:instanceId,tenantId,name:event.instance,enabled:true},select:{id:true}})
     if(!group || !instance) return 'unrelated'
+    // Policy updates lock segment before groups; correlation must keep the same order even before opt-in.
+    await tx.$queryRaw`SELECT id FROM affiliate_segments WHERE id=${group.segmentId} AND "tenantId"=${tenantId} FOR UPDATE`
     await tx.$queryRaw`SELECT id FROM affiliate_groups WHERE id=${group.id} AND "tenantId"=${tenantId} FOR UPDATE`
     const tracking=await tx.affiliateMembershipTracking.upsert({where:{groupId:group.id},create:{tenantId,groupId:group.id,status:'UNCONFIGURED',lastReceivedAt:receivedAt},update:{lastReceivedAt:receivedAt}})
     if(tracking.status!=='READY' || !tracking.expiresAt || tracking.expiresAt<=receivedAt) {
