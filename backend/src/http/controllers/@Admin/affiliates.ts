@@ -35,10 +35,10 @@ async function captureInviteEvent(q:FastifyRequest,tenantId:string,slug:string,e
     if(segment) await recordInviteEvent(prisma,tenantId,segment.id,eventId,kind)
   } catch {q.log.warn({event:'affiliate.invite.measurement.failed'},'Falha ao contar acesso ao convite')}
 }
-async function run(q:FastifyRequest,r:FastifyReply,work:(tenantId:string,actorId:string)=>Promise<unknown>,publicRoute=false) {
+async function run(q:FastifyRequest,r:FastifyReply,work:(tenantId:string,actorId:string)=>Promise<unknown>,publicRoute=false,publicTenantHost?:string) {
   r.header('cache-control','private, no-store').header('x-robots-tag','noindex, nofollow')
   try {
-    const tenant = publicRoute ? await resolveTenant(normalizeTenantHost(q.headers.host ?? '')):await requireAffiliateAdmin(q,r)
+    const tenant = publicRoute ? await resolveTenant(normalizeTenantHost(publicTenantHost ?? q.headers.host ?? '')):await requireAffiliateAdmin(q,r)
     if (!tenant) return
     return await work(tenant.id,publicRoute?'':q.user.sub)
   } catch(error) {
@@ -251,7 +251,7 @@ export async function registerAffiliateRoutes(app:FastifyInstance) {
     if(!result||q.raw.aborted||r.raw.destroyed)return {url:null}
     await Promise.all([captureInviteEvent(q,tenantId,slug,eventId,'VIEW'),captureInviteEvent(q,tenantId,slug,eventId,'AUTOMATIC_REDIRECT')])
     return result
-  },true))
+  },true,typeof q.headers['x-affiliate-tenant-host']==='string'?q.headers['x-affiliate-tenant-host']:undefined))
   app.get('/public/affiliates/:slug/image',(q,r)=>run(q,r,async tenantId=>{
     const {slug}=z.object({slug:segmentInput.shape.slug}).parse(q.params)
     const segment=await prisma.affiliateSegment.findFirst({where:{tenantId,slug,enabled:true},select:{imageUrl:true}})

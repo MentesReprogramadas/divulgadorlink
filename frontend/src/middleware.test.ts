@@ -41,7 +41,7 @@ describe('middleware', () => {
     const destination='https://chat.whatsapp.com/AbCdEf0123456789AbCdEf'
     const fetchMock=vi.fn().mockResolvedValue(Response.json({url:destination}))
     vi.stubGlobal('fetch',fetchMock)
-    const response=await middleware(new NextRequest('https://temlink.test/ofertas/entrar/natal',{headers:{host:'temlink.test','user-agent':'Mozilla/5.0 Chrome/130.0','sec-fetch-dest':'document','sec-fetch-mode':'navigate',cookie:'csrf=existing; tla_consent=denied',dnt:'1','sec-gpc':'1'}}))
+    const response=await middleware(new NextRequest('https://temlink.test/ofertas/entrar/natal',{headers:{host:'temlink.test','user-agent':'Mozilla/5.0 Chrome/130.0','sec-fetch-dest':'document','sec-fetch-mode':'navigate','x-affiliate-tenant-host':'evil.test','x-affiliate-fetch-mode':'cors',cookie:'csrf=existing; tla_consent=denied',dnt:'1','sec-gpc':'1'}}))
     expect(response.status).toBe(307)
     expect(response.headers.get('location')).toBe(destination)
     expect(response.headers.get('cache-control')).toBe('private, no-store')
@@ -49,7 +49,7 @@ describe('middleware', () => {
     const [url,options]=fetchMock.mock.calls[0]!
     expect(new URL(url).pathname).toBe('/api/v1/public/affiliates/natal/destination')
     expect(options).toMatchObject({method:'GET',cache:'no-store',redirect:'error'})
-    expect(Object.fromEntries(options.headers as Headers)).toMatchObject({host:'temlink.test','user-agent':'Mozilla/5.0 Chrome/130.0','x-affiliate-fetch-mode':'navigate',cookie:'csrf=existing; tla_consent=denied',dnt:'1','sec-gpc':'1'})
+    expect(Object.fromEntries(options.headers as Headers)).toMatchObject({host:'temlink.test','x-affiliate-tenant-host':'temlink.test','user-agent':'Mozilla/5.0 Chrome/130.0','x-affiliate-fetch-mode':'navigate',cookie:'csrf=existing; tla_consent=denied',dnt:'1','sec-gpc':'1'})
   })
   it('preserva HTML OG para crawler, HEAD, prefetch, suporte e requests sem navegação explícita', async () => {
     const fetchMock=vi.fn();vi.stubGlobal('fetch',fetchMock)

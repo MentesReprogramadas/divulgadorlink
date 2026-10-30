@@ -86,9 +86,12 @@ describe('HTTP e persistência afiliados',()=>{
   it('GET destino recebe o modo validado pelo frontend mesmo quando fetch real reescreve Sec-Fetch-Mode',async()=>{
     const address=await app.listen({port:0,host:'127.0.0.1'})
     const url=address+'/api/v1/public/affiliates/natal/destination?eventId='+randomUUID()
-    const visitor={host,'user-agent':'Mozilla/5.0 Chrome/130.0','sec-fetch-dest':'document','sec-fetch-mode':'navigate','x-analytics-test':'1'}
+    const visitor={host,'x-affiliate-tenant-host':host,'user-agent':'Mozilla/5.0 Chrome/130.0','sec-fetch-dest':'document','sec-fetch-mode':'navigate','x-analytics-test':'1'}
     expect(await (await networkFetch(url,{headers:visitor})).json()).toEqual({url:null})
     expect(await (await networkFetch(url,{headers:{...visitor,'x-affiliate-fetch-mode':'navigate'}})).json()).toEqual({url:'https://chat.whatsapp.com/AbCdEf0123456789AbCdEf'})
+    expect((await networkFetch(url,{headers:{...visitor,'x-affiliate-fetch-mode':'navigate','x-affiliate-tenant-host':'missing-tenant.test'}})).status).toBe(404)
+    const spoofed=await networkFetch(address+'/api/v1/public/affiliates/natal',{headers:{...visitor,'x-affiliate-fetch-mode':'navigate'}})
+    expect(spoofed.status).toBe(404)
     expect(await db.affiliateInviteMetrics.findUnique({where:{segmentId}})).toBeNull()
   })
   it('GET destino mantém SCREEN/pausas/cheio sem provisionar e exclui DNT da medição',async()=>{

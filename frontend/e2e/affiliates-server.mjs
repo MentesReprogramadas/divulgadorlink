@@ -11,7 +11,7 @@ const metadata=createServer((request,response)=>{
   response.setHeader('content-type','application/json')
   if(request.method!=='GET'){response.writeHead(405);response.end('{}');return}
   if(/^\/api\/v1\/public\/affiliates\/fast-natal\/destination\?eventId=/.test(request.url??'')){
-    if(request.headers['x-affiliate-fetch-mode']!=='navigate'||request.headers['sec-fetch-dest']!=='document'){
+    if(request.headers['x-affiliate-fetch-mode']!=='navigate'||request.headers['sec-fetch-dest']!=='document'||typeof request.headers['x-affiliate-tenant-host']!=='string'||!/^[a-z0-9.-]+$/.test(request.headers['x-affiliate-tenant-host'])){
       response.writeHead(400);response.end('{}');return
     }
     response.writeHead(200);response.end(JSON.stringify({url:'https://chat.whatsapp.com/AbCdEf0123456789AbCdEf'}));return
