@@ -20,7 +20,7 @@ function shutdown(code=0){
   stopping=true
   if(child?.pid){
     if(process.platform==='win32')spawnSync('taskkill',['/pid',String(child.pid),'/t','/f'],{stdio:'ignore',windowsHide:true})
-    else{try{process.kill(-child.pid,'SIGTERM')}catch{/* Already stopped. */}}
+    else child.kill('SIGTERM')
   }
   metadata.close(()=>process.exit(code))
 }
@@ -28,7 +28,8 @@ for(const signal of ['SIGINT','SIGTERM'])process.once(signal,()=>shutdown())
 await new Promise((resolve,reject)=>{metadata.once('error',reject);metadata.listen(metadataPort,'127.0.0.1',resolve)})
 const env={...process.env,TEMLINK_DEMO_BUILD:'0',TEMLINK_E2E_BUILD:'1',API_ORIGIN:'http://127.0.0.1:'+metadataPort}
 const next=path.join(frontend,'node_modules/next/dist/bin/next')
-function start(args){child=spawn(process.execPath,[next,...args],{cwd:frontend,env,stdio:'inherit',windowsHide:true,detached:process.platform!=='win32'});return child}
+// Keep Next in Playwright's process group so forced teardown cannot orphan the server.
+function start(args){child=spawn(process.execPath,[next,...args],{cwd:frontend,env,stdio:'inherit',windowsHide:true,detached:false});return child}
 const built=await new Promise(resolve=>{const build=start(['build']);build.once('error',()=>resolve(1));build.once('exit',code=>resolve(code??1))})
 child=undefined
 if(built!==0)shutdown(1)

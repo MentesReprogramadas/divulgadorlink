@@ -3522,8 +3522,8 @@
     "semantic_hash": "b1f76480d79d30af6a6ffa1e1ba8c74d"
   },
   "frontend/next-env.d.ts": {
-    "mtime": 1793318986.6662161,
-    "seen": 1793319001.850852,
+    "mtime": 1793320444.5961945,
+    "seen": 1793320459.0035245,
     "ast_hash": "90426577ad8f38459f3e566411c85589",
     "semantic_hash": "90426577ad8f38459f3e566411c85589"
   },
@@ -10014,10 +10014,10 @@
     "semantic_hash": "f94b5979bb2f0549a7ada419923cf1dc"
   },
   "frontend/playwright.affiliates.config.ts": {
-    "mtime": 1793318883.4720006,
-    "seen": 1793319001.851425,
-    "ast_hash": "7e489e5ccdac08c2a01d2d7ef756fcb3",
-    "semantic_hash": "7e489e5ccdac08c2a01d2d7ef756fcb3"
+    "mtime": 1793320092.7116873,
+    "seen": 1793320459.0040307,
+    "ast_hash": "ffb52924e3d2bd6e612ae0353fae7483",
+    "semantic_hash": "ffb52924e3d2bd6e612ae0353fae7483"
   },
   "frontend/src/app/admin/afiliados/loading.tsx": {
     "mtime": 1793205492.1854556,
@@ -10596,10 +10596,10 @@
     "semantic_hash": "77e1c77286355fac4d0b026050134ea3"
   },
   "frontend/e2e/affiliates-server.mjs": {
-    "mtime": 1793318688.3254416,
-    "seen": 1793319001.8348682,
-    "ast_hash": "296dc00189b638be3ef59d3cb7951789",
-    "semantic_hash": "296dc00189b638be3ef59d3cb7951789"
+    "mtime": 1793320625.9371042,
+    "seen": 1793320640.4902816,
+    "ast_hash": "c63b40e07435b0b4027e0531330ff1bb",
+    "semantic_hash": "c63b40e07435b0b4027e0531330ff1bb"
   },
   "frontend/src/features/affiliates/early-invite.test.ts": {
     "mtime": 1793318634.7704177,
