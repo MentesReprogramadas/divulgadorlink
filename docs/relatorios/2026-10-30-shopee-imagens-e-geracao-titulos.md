@@ -8,7 +8,7 @@ Os títulos reais da Shopee também trazem repetição e caudas de SEO. A lista 
 
 A geração real de copy respondeu HTTP 200 com `Um petisco saboroso para seu cão 🐾`, para um anúncio que dizia “Cães”. A validação literal recusava a flexão, devolvia a identificação original e fazia a regeneração terminar em 503. Agora somente uma lista explícita de flexões comuns é equivalente na chamada; sinônimos, marcas e atributos novos continuam sujeitos à validação literal. Uma identificação inválida da IA não invalida uma chamada segura: preserva-se a identificação anterior válida ou a versão segura do original, com medidas e quantidades.
 
-Títulos qualificados conservam sua restrição inteira. A chamada pode ser neutra, mas não pode promover uma característica negada, como WiFi em “Câmera sem WiFi”. Chamadas repetidas, inventadas, recusas, interrupções e falhas do provedor continuam sem substituir uma prévia aprovada. O frontend exibe uma única mensagem quando o servidor já informou que a prévia anterior foi mantida. O modelo, limite de chamadas, permissões e confirmação de envio foram preservados.
+Títulos qualificados conservam sua restrição inteira. A chamada pode ser neutra, mas não pode promover uma característica negada, como WiFi em “Câmera sem WiFi”. Chamadas repetidas, inventadas, recusas, interrupções e falhas do provedor continuam sem substituir uma prévia aprovada. O frontend exibe uma única mensagem quando o servidor já informou que a prévia anterior foi mantida. O modelo, limite de tokens por chamada, permissões e confirmação de envio foram preservados. Na regeneração, uma resposta textual inválida ou repetida pode receber uma única tentativa corretiva: até duas chamadas, sem retentativa para erro HTTP, recusa ou resposta interrompida. A correção usa um enum de chamadas derivadas do anúncio, previamente validadas e diferentes da versão anterior; a seleção continua sendo feita pela IA.
 
 ## Prova local com serviços reais
 
@@ -16,6 +16,7 @@ As credenciais permaneceram no runtime do servidor. O código novo rodou localme
 
 - Três buscas reais: `pet`, `ração pet`, `pá areia gato`. Respectivamente 18, 17 e 12 anúncios com preço único válido, todos com imagem normalizada: 47 de 47.
 - Revalidação oficial do mesmo `shopId/itemId` e geração oficial de link do anúncio confirmadas.
+- O anúncio exato do print, `SHP1906192909_44615273206`, foi reencontrado e revalidado por loja/anúncio: R$ 162,80 e imagem no CDN permitido. Sua copy inicial e outra chamada foram aceitas no teste real; a segunda precisou da única tentativa corretiva. O caso revelou também “espaço” como contexto neutro ausente e a tendência do modelo a inventar “prática”; a primeira foi admitida como contexto e a segunda continua proibida se ausente na fonte.
 - Copy real antes da correção: HTTP 200, mas geração e regeneração rejeitadas localmente. Depois: duas chamadas diferentes aceitas, com a mesma identificação e peso de 1 Kg.
 - PostgreSQL descartável: prévia assinada com imagem e preço real, regeneração com nova assinatura e mensagem, mantendo preço, link, imagem e vencimento. Usou as respostas reais de IA capturadas anteriormente, sem novas chamadas. Zero entregas criadas. A primeira execução comprovou as invariantes, mas falhou na limpeza por ordem de FK; corrigida a ordem e a execução completa passou.
 - Playwright MCP em contexto local isolado: imagem real do CDN, sem interceptação da requisição de imagem, decodificada em 1000 × 1000 na lista e na prévia; troca de chamada renderizada com zero alertas. As respostas administrativas desse navegador reproduziram os dados e as prévias reais capturados pelo código local. Não se declara que esse replay seja uma sessão autenticada de produção.
@@ -23,7 +24,7 @@ As credenciais permaneceram no runtime do servidor. O código novo rodou localme
 
 ## Regressão e checks
 
-- Backend: lint, typecheck e build aprovados; 206 testes afetados aprovados e 1 já ignorado. Após reforçar a negação, a suíte de inteligência passou com 14 testes.
+- Backend: lint, typecheck e build aprovados; 206 testes afetados aprovados e 1 já ignorado na primeira passagem. A revisão com o anúncio exato acrescentou duas regressões; inteligência, compactação e prévia passaram com 30 testes focados.
 - Frontend: lint, typecheck e build de produção aprovados; 135 testes de componentes de afiliados aprovados.
 - Banco descartável com as 85 migrações existentes: 26 testes de descoberta, Shopee e prévia/envio aprovados.
 - Playwright Test: 38 cenários aprovados em desktop/mobile. O teste novo carrega a imagem com fixture determinística, confere a foto na prévia, preserva a mensagem durante uma falha e permite nova tentativa sem duplicar o erro. As chamadas reais e imagens externas pertencem à prova local separada acima.
