@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { AffiliateCatalogError, type CatalogProduct } from '@/domain/affiliates/mercado-livre'
 import { shopeeConfigSchema, shopeeProductIdentity, shopeeUrl, type ShopeeCredentials } from '@/domain/affiliates/shopee'
 import { readCatalogJson } from './mercado-livre'
+import { compactAffiliateTitle } from '@/domain/affiliates/product-title'
 
 const endpoint = 'https://open-api.affiliate.shopee.com.br/graphql'
 // Official BR Explorer: /explorer and /explorer/v2, inspected 2026-10-30.
@@ -57,10 +58,12 @@ export function shopeeCatalogItem(value: unknown, now = new Date()): CatalogProd
   let imageUrl: string | null = null
   try {
     const image = new URL(row.imageUrl)
+    // Both official BR CDN hosts serve the same file; use the origin already allowed by preview, CSP and WhatsApp.
+    if (image.hostname === 'cf.shopee.com.br' && /^\/file\/[A-Za-z0-9_-]+$/.test(image.pathname)) image.hostname = 'down-br.img.susercontent.com'
     if (image.protocol === 'https:' && !image.username && !image.password && !image.port && (image.hostname === 'susercontent.com' || image.hostname.endsWith('.susercontent.com'))) imageUrl = image.href
   } catch { /* Missing or unsafe images do not make a valid price unusable. */ }
   // Shopee exposes a rounded discount rate, not a verified previous price.
-  return { provider: 'SHOPEE', id: identity.id, catalogId: identity.id, title: row.productName, productUrl: identity.url, priceCents: min, oldPriceCents: null, oldPriceSource: null, imageUrl, checkedAt: now.toISOString(), sellerId: row.shopId, reputation: { level: null, status: 'UNKNOWN' } }
+  return { provider: 'SHOPEE', id: identity.id, catalogId: identity.id, title: row.productName, displayTitle: compactAffiliateTitle(row.productName), productUrl: identity.url, priceCents: min, oldPriceCents: null, oldPriceSource: null, imageUrl, checkedAt: now.toISOString(), sellerId: row.shopId, reputation: { level: null, status: 'UNKNOWN' } }
 }
 export async function searchShopeeCatalog(term: string, request: ShopeeRequest, options?: { offset?: number }) {
   const keyword = z.string().trim().min(2).max(120).parse(term), offset = z.number().int().min(0).max(1_000_000).multipleOf(20).parse(options?.offset ?? 0), page = offset / 20 + 1, now = new Date()

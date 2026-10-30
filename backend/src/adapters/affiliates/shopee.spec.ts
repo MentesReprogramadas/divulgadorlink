@@ -7,6 +7,20 @@ import { generateShopeeAffiliateLink, refreshShopeeCatalogProduct, searchShopeeC
 const credentials = { appId: '123456', secret: 'test-only-shopee-secret', accountLabel: 'Teste', subIds: ['catalogo'] }
 const row = { itemId: 456, shopId: 123, productName: 'Brinquedo para gatos', productLink: 'https://shopee.com.br/Brinquedo-i.123.456', priceMin: '29.90', priceMax: '29.90', imageUrl: 'https://down-br.img.susercontent.com/file/test', commissionRate: '0.03' }
 const response = (nodes: unknown[], page = 1, hasNextPage = false) => ({ productOfferV2: { nodes, pageInfo: { page, limit: 20, hasNextPage } } })
+
+it('normalizes the real BR API image CDN and preserves the original title beside a concise display title', () => {
+  const title='Pá de Aço Inoxidável com Malha de 2,8mm, Grande 28,5x14x6cm, Pá Robusta para Areia Aglomerante e Limpeza de Resíduos'
+  const product=shopeeCatalogItem({...row,productName:title,imageUrl:'https://cf.shopee.com.br/file/br-11134207-81z1k-meuvcvmcu41s4c'})!
+  expect(product.imageUrl).toBe('https://down-br.img.susercontent.com/file/br-11134207-81z1k-meuvcvmcu41s4c')
+  expect(imageUrl.safeParse(product.imageUrl).success).toBe(true)
+  expect(product.title).toBe(title)
+  expect(product.displayTitle!.length).toBeLessThanOrEqual(60)
+  expect(product.displayTitle).toContain('2,8mm')
+  expect(product.displayTitle).toContain('28,5x14x6cm')
+  for(const image of ['https://cf.shopee.com.br.evil.test/file/id','https://cf.shopee.com.br@evil.test/file/id','http://cf.shopee.com.br/file/id','https://cf.shopee.com.br:8080/file/id','https://cf.shopee.com.br/internal']){
+    expect(shopeeCatalogItem({...row,imageUrl:image})?.imageUrl).toBeNull()
+  }
+})
 afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks() })
 
 it('signs exactly the transmitted UTF-8 JSON using the official BR scheme and a fixed HTTPS origin', async () => {

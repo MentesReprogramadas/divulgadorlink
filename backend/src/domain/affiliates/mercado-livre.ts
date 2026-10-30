@@ -24,6 +24,7 @@ export type CatalogProduct = {
   id: string
   catalogId: string
   title: string
+  displayTitle?: string
   productUrl: string
   priceCents: number
   oldPriceCents: number | null

@@ -9,7 +9,7 @@ export type AffiliateBroadcast = { id: string; offerId: string; message: string;
 export type AffiliateDelivery = { id: string; state: string; errorCode: string | null; providerMessageId: string | null; updatedAt: string; group?: AffiliateGroup; broadcast?: AffiliateBroadcast }
 export type AffiliateSnapshot = { instances: AffiliateInstance[]; segments: AffiliateSegment[]; groups: AffiliateGroup[]; offers: AffiliateOffer[]; broadcasts: AffiliateBroadcast[]; deliveries: AffiliateDelivery[]; readiness?: { activeGroups: number; currentOffers: number; approvedDeliveries: number; nextOffer?: AffiliateOffer | null }; summary: Record<'segments' | 'groups' | 'instances' | 'offers' | 'pending' | 'sent' | 'uncertain' | 'failed', number> }
 export type CatalogProvider = 'MERCADO_LIVRE' | 'SHOPEE'
-export type CatalogProduct = { id: string; provider?: CatalogProvider; catalogId?: string; title: string; productUrl: string; priceCents: number; oldPriceCents: number | null; imageUrl: string | null; checkedAt: string }
+export type CatalogProduct = { id: string; provider?: CatalogProvider; catalogId?: string; title: string; displayTitle?: string; productUrl: string; priceCents: number; oldPriceCents: number | null; imageUrl: string | null; checkedAt: string }
 export function productProvider(product: CatalogProduct): CatalogProvider { return product.provider === 'SHOPEE' || product.id.startsWith('SHP') ? 'SHOPEE' : 'MERCADO_LIVRE' }
 export function providerLabel(provider: CatalogProvider): string { return provider === 'SHOPEE' ? 'Shopee' : 'Mercado Livre' }
 export type OfferSeed = Partial<CatalogProduct> & { productUrl: string; affiliateUrl?: string }

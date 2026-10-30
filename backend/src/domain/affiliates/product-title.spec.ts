@@ -15,6 +15,11 @@ it.each([
 it('não omite negações e exceções para caber no limite visual',()=>{
   for(const source of ['Câmera digital sem WiFi','Câmera não acompanha cartão','Somente capa de câmera','Câmera without WiFi'])expect(compactAffiliateTitle(source)).toBe(source)
 })
+it('não termina o título resumido com uma alternativa incompleta',()=>{
+ const source='Bifinho para Cães Lion Pet 1 Kg – Petisco Canino Saboroso em Carne ou Frango, Ideal para Recompensa, Treinamento Pet.'
+ expect(compactAffiliateTitle(source)).not.toMatch(/\bou$/)
+ expect(compactAffiliateTitle(source)).toContain('1 Kg')
+})
 it('encurta um título qualificado longo mantendo a restrição inteira',()=>{
   const source='Câmera Câmera Digital Digital WiFi WiFi de Segurança Segurança HD 1080p sem cartão de memória'
   const result=compactAffiliateTitle(source)

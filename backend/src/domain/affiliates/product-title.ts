@@ -1,7 +1,7 @@
 export const affiliateTitleLimit=60
 const normalize=(value:string)=>value.normalize('NFD').replace(/\p{M}/gu,'').toLocaleLowerCase('pt-BR')
 const qualifiers=new Set('sem nao nem exceto except without not menos exclui excluido excluida excluindo excluding somente apenas'.split(' '))
-const connectives=new Set('de do da dos das com para e em o a os as no na nos nas'.split(' '))
+const connectives=new Set('de do da dos das com para e ou em o a os as no na nos nas'.split(' '))
 const units=new Set('cm mm m kg g ml l w v gb tb mah hz mhz ghz un'.split(' '))
 const quantities=new Set('unidade unidades peca pecas galho galhos'.split(' '))
 export const affiliateTitleHasQualifier=(title:string)=>(normalize(title).match(/[\p{L}\p{N}]+/gu)??[]).some(word=>qualifiers.has(word))

@@ -42,6 +42,15 @@ it('regenera título e mensagem juntos e envia apenas a nova assinatura',async()
  fireEvent.click(screen.getByRole('button',{name:'Enviar'}))
  await waitFor(()=>expect(api).toHaveBeenCalledWith('/v1/admin/affiliates/segments/natal/products/send',expect.objectContaining({body:JSON.stringify({previewToken:regenerated.previewToken,confirm:true})})))
 })
+it('não duplica o aviso de preservação já devolvido pelo servidor',async()=>{
+ const message='A IA não conseguiu gerar outra chamada. A prévia anterior foi mantida. Tente novamente.'
+ vi.mocked(api).mockImplementation(async path=>path.endsWith('/preview')?{status:200,body:preview}:{status:503,body:{message}})
+ render(<ProductPreviewDialog {...props}/>);await screen.findByText('Natal #1')
+ fireEvent.click(screen.getByRole('button',{name:'Gerar outro título'}))
+ expect(await screen.findByRole('alert')).toHaveProperty('textContent',message)
+ expect(screen.getByLabelText('Mensagem exata para o WhatsApp').querySelector('pre')?.textContent).toBe(preview.message)
+})
+
 it('falha de IA mantém título, mensagem e assinatura anteriores',async()=>{
  vi.mocked(api).mockImplementation(async path=>path.endsWith('/preview')?{status:200,body:{...preview,title:product.title,titleSource:'ORIGINAL'}}:path.endsWith('/preview/title')?{status:503,body:{message:'IA indisponível.'}}:path.endsWith('/send')?{status:200,body:{broadcastId:'batch'}}:{status:200,body:{counts:{pending:0,sending:0,sent:1,failed:0,uncertain:0}}})
  render(<ProductPreviewDialog {...props}/>);await screen.findByText('Título original',{selector:'p'})
