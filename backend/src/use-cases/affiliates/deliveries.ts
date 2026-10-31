@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto'
 import { AffiliateError, offerIsCurrent, offerMessage } from '@/domain/affiliates/contracts'
 import { AffiliateProviderError, type AffiliateWhatsApp } from '@/adapters/affiliates/evolution'
 import { affiliateEvolution } from './instances'
+import { affiliateProductFitsSegment } from '@/domain/affiliates/segment-relevance'
 
 export async function scheduleAffiliateBroadcast(db:PrismaClient,tenantId:string,actorId:string,offerId:string,input:{idempotencyKey:string;scheduledAt?:string}) {
   return db.$transaction(tx => approveAffiliateBroadcast(tx,tenantId,actorId,offerId,input))
@@ -11,11 +12,11 @@ export async function scheduleAffiliateBroadcast(db:PrismaClient,tenantId:string
 export const affiliateEligibleGroupWhere=(tenantId:string,segmentId:string):Prisma.AffiliateGroupWhereInput=>({tenantId,segmentId,enabled:true,OR:[{segment:{instanceLinks:{some:{instance:{enabled:true}}}}},{segment:{instanceLinks:{none:{}}},instance:{enabled:true}}]})
 export const affiliateGroupFingerprint=(groups:Array<{id:string}>)=>createHash('sha256').update(groups.map(group=>group.id).sort().join(',')).digest('hex')
 
-export async function approveAffiliateBroadcast(tx:Prisma.TransactionClient,tenantId:string,actorId:string,offerId:string,input:{idempotencyKey:string;scheduledAt?:string;expectedGroupHash?:string;approvedMessage?:string}) {
+export async function approveAffiliateBroadcast(tx:Prisma.TransactionClient,tenantId:string,actorId:string,offerId:string,input:{idempotencyKey:string;scheduledAt?:string;expectedGroupHash?:string;approvedMessage?:string;sourceTitle?:string}) {
     await tx.$queryRaw`SELECT id FROM affiliate_offers WHERE id = ${offerId} AND "tenantId" = ${tenantId} FOR UPDATE`
     const old = await tx.affiliateBroadcast.findUnique({where:{tenantId_idempotencyKey:{tenantId,idempotencyKey:input.idempotencyKey}}})
     if (old) {if(old.offerId !== offerId) throw new AffiliateError(409,'Esta chave já pertence a outra oferta.');return old}
-    const offer = await tx.affiliateOffer.findFirst({where:{id:offerId,tenantId},include:{segment:true}})
+    const offer = await tx.affiliateOffer.findFirst({where:{id:offerId,tenantId},include:{segment:{include:{discovery:{select:{terms:true}}}}}})
     const now = new Date(),scheduledAt = input.scheduledAt ? new Date(input.scheduledAt):now
     if (!offer) throw new AffiliateError(404,'Oferta não encontrada.')
     if (!offer.segment.enabled || !offerIsCurrent(offer,now)) throw new AffiliateError(409,'Oferta pausada, vencida ou com preço sem revisão há mais de 24 horas.')
@@ -26,7 +27,7 @@ export async function approveAffiliateBroadcast(tx:Prisma.TransactionClient,tena
     if(input.expectedGroupHash && affiliateGroupFingerprint(groups)!==input.expectedGroupHash) throw new AffiliateError(409,'Os grupos de destino mudaram. Atualize a prévia para revisar os destinatários.')
     if (!groups.length) throw new AffiliateError(409,'Conecte ao menos um grupo ativo à segmentação.')
     // product-review validates approvedMessage against its signed preview before entering this function.
-    const broadcast = await tx.affiliateBroadcast.create({data:{tenantId,segmentId:offer.segmentId,offerId,idempotencyKey:input.idempotencyKey,message:input.approvedMessage??offerMessage(offer),offerUpdatedAt:offer.updatedAt,imageUrl:offer.imageUrl,productSnapshot:{itemId:offer.itemId,productUrl:offer.productUrl,checkedAt:offer.checkedAt.toISOString(),title:offer.title,priceCents:offer.priceCents,oldPriceCents:offer.oldPriceCents,reportedDiscountPercent:offer.reportedDiscountPercent,oldPriceEstimated:offer.oldPriceEstimated,imageUrl:offer.imageUrl,affiliateUrl:offer.affiliateUrl},scheduledAt}})
+    const broadcast = await tx.affiliateBroadcast.create({data:{tenantId,segmentId:offer.segmentId,offerId,idempotencyKey:input.idempotencyKey,message:input.approvedMessage??offerMessage(offer),offerUpdatedAt:offer.updatedAt,imageUrl:offer.imageUrl,productSnapshot:{...(input.sourceTitle?{sourceTitle:input.sourceTitle}:{}),itemId:offer.itemId,productUrl:offer.productUrl,checkedAt:offer.checkedAt.toISOString(),title:offer.title,priceCents:offer.priceCents,oldPriceCents:offer.oldPriceCents,reportedDiscountPercent:offer.reportedDiscountPercent,oldPriceEstimated:offer.oldPriceEstimated,imageUrl:offer.imageUrl,affiliateUrl:offer.affiliateUrl},scheduledAt}})
     await tx.affiliateDelivery.createMany({data:groups.map(group=>({tenantId,broadcastId:broadcast.id,groupId:group.id,nextAttemptAt:scheduledAt}))})
     await tx.auditLog.create({data:{tenantId,actorId,action:'affiliate.broadcast.approved',entityType:'AffiliateBroadcast',entityId:broadcast.id,after:{groups:groups.length,scheduledAt:scheduledAt.toISOString()}}})
     return broadcast
@@ -41,10 +42,11 @@ export async function runAffiliateDeliveries(db:PrismaClient,ports?: (instance:P
   // Select after each attempt so two healthy accounts distribute distinct destinations.
   for (const instance of instances) {
     const routing = {OR:[{segment:{instanceLinks:{some:{instanceId:instance.id}}}},{instanceId:instance.id,segment:{instanceLinks:{none:{}}}}]} satisfies Prisma.AffiliateGroupWhereInput
-    const row = await db.affiliateDelivery.findFirst({where:{tenantId:instance.tenantId,...(scope?{broadcastId:scope.broadcastId}:{}),state:'PENDING',nextAttemptAt:{lte:now},group:{enabled:true,segment:{enabled:true},...routing}},orderBy:{nextAttemptAt:'asc'},include:{group:{include:{segment:true}},broadcast:{include:{offer:true}}}})
+    const row = await db.affiliateDelivery.findFirst({where:{tenantId:instance.tenantId,...(scope?{broadcastId:scope.broadcastId}:{}),state:'PENDING',nextAttemptAt:{lte:now},group:{enabled:true,segment:{enabled:true},...routing}},orderBy:{nextAttemptAt:'asc'},include:{group:{include:{segment:{include:{discovery:{select:{terms:true}}}}}},broadcast:{include:{offer:true}}}})
     if (!row) continue
     attempted++
     const {group,broadcast} = row
+    if(!affiliateProductFitsSegment(group.segment,typeof (broadcast.productSnapshot as Record<string,unknown>|null)?.sourceTitle==='string'?(broadcast.productSnapshot as Record<string,string>).sourceTitle:broadcast.offer.title)){await db.affiliateDelivery.updateMany({where:{id:row.id,state:'PENDING'},data:{state:'FAILED',errorCode:'product_outside_segment'}});continue}
     if (!offerIsCurrent(broadcast.offer,now) || broadcast.offerUpdatedAt.getTime() !== broadcast.offer.updatedAt.getTime()) {await db.affiliateDelivery.updateMany({where:{id:row.id,state:'PENDING'},data:{state:'FAILED',errorCode:'offer_expired_or_changed'}});continue}
     const leaseAt = new Date(),leaseUntil = new Date(leaseAt.getTime()+55_000)
     const lease = await db.affiliateInstance.updateMany({where:{id:instance.id,tenantId:row.tenantId,enabled:true,nextSendAt:{lte:leaseAt}},data:{nextSendAt:leaseUntil}})

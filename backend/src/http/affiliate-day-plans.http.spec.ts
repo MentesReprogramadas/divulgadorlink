@@ -3,10 +3,10 @@ import jwt from '@fastify/jwt'
 import cookie from '@fastify/cookie'
 import { afterAll, beforeAll, beforeEach, expect, it, vi } from 'vitest'
 import { registerAffiliateDayPlanRoutes } from './controllers/@Admin/affiliate-day-plans'
-const fixture=vi.hoisted(()=>({user:vi.fn(),tenant:vi.fn(),create:vi.fn(),build:vi.fn(),read:vi.fn(),approve:vi.fn(),cancel:vi.fn()}))
-vi.mock('@/lib/prisma',()=>({prisma:{user:{findFirst:fixture.user}}}))
+const fixture=vi.hoisted(()=>({user:vi.fn(),tenant:vi.fn(),create:vi.fn(),build:vi.fn(),read:vi.fn(),approve:vi.fn(),cancel:vi.fn(),retry:vi.fn(),segmentCount:vi.fn(),list:vi.fn(),total:vi.fn()}))
+vi.mock('@/lib/prisma',()=>({prisma:{user:{findFirst:fixture.user},affiliateSegment:{count:fixture.segmentCount},affiliateScheduleBatch:{findMany:fixture.list,count:fixture.total}}}))
 vi.mock('@/http/tenant',()=>({normalizeTenantHost:(host:string)=>host,resolveTenant:fixture.tenant}))
-vi.mock('@/use-cases/affiliates/day-plans',()=>({createAffiliateDayPlan:fixture.create,buildAffiliateDayPlan:fixture.build,readAffiliateDayPlan:fixture.read,approveAffiliateDayPlan:fixture.approve,cancelAffiliateDayPlan:fixture.cancel}))
+vi.mock('@/use-cases/affiliates/day-plans',()=>({createAffiliateDayPlan:fixture.create,buildAffiliateDayPlan:fixture.build,readAffiliateDayPlan:fixture.read,approveAffiliateDayPlan:fixture.approve,cancelAffiliateDayPlan:fixture.cancel,retryAffiliateDayPlan:fixture.retry}))
 const app=Fastify(),tenantId='planner-tenant',actorId='planner-admin',base='/api/v1/admin/affiliates/segments/segment/day-plans'
 beforeAll(async()=>{await app.register(cookie);await app.register(jwt,{secret:'fixture-day-plan-secret'});await app.register(registerAffiliateDayPlanRoutes,{prefix:'/api/v1'});await app.ready()})
 afterAll(()=>app.close())
@@ -34,4 +34,22 @@ it('aceitar e cancelar exigem confirmação explícita; consulta não agenda',as
   }
   expect(fixture.approve).toHaveBeenCalledExactlyOnceWith(expect.anything(),tenantId,actorId,'segment','batch')
   expect(fixture.cancel).toHaveBeenCalledExactlyOnceWith(expect.anything(),tenantId,actorId,'segment','batch')
+})
+
+it('reconfere falhas no tenant autenticado sem aprovar e rejeita campos extras',async()=>{
+  fixture.retry.mockResolvedValue({id:'batch',status:'BUILDING'})
+  const result=await app.inject({method:'POST',url:base+'/batch/retry',headers:headers(),payload:{entryId:'entry'}})
+  expect(result.statusCode).toBe(202)
+  expect(fixture.retry).toHaveBeenCalledWith(expect.anything(),tenantId,actorId,'segment','batch','entry')
+  expect(fixture.approve).not.toHaveBeenCalled()
+  expect((await app.inject({method:'POST',url:base+'/batch/retry',headers:headers(),payload:{confirm:true}})).statusCode).toBe(400)
+})
+
+it('pagina agendas somente da segmentação e tenant atuais e limita tamanho',async()=>{
+  fixture.segmentCount.mockResolvedValue(1);fixture.list.mockResolvedValue([{id:'batch',status:'DRAFT',config:{day:'2026-11-01'},groups:[{id:'g'}],_count:{entries:2}}]);fixture.total.mockResolvedValue(9)
+  const result=await app.inject({method:'GET',url:base+'?page=2&limit=8',headers:headers()})
+  expect(result.statusCode).toBe(200)
+  expect(result.json()).toMatchObject({batches:[{id:'batch',groupCount:1}],pagination:{page:2,total:9,hasPrevious:true,hasNext:false}})
+  expect(fixture.list).toHaveBeenCalledWith(expect.objectContaining({where:{tenantId,segmentId:'segment'},skip:8,take:8}))
+  for(const query of ['page=0','limit=100','tenantId=other'])expect((await app.inject({method:'GET',url:base+'?'+query,headers:headers()})).statusCode).toBe(400)
 })

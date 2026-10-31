@@ -10,7 +10,7 @@ const url=process.env.AFFILIATE_DATABASE_URL
 if(!url || !['127.0.0.1','localhost'].includes(new URL(url).hostname) || !new URL(url).pathname.includes('regression')) throw new Error('Disposable regression AFFILIATE_DATABASE_URL required')
 const db=new PrismaClient({datasourceUrl:url}),second=new PrismaClient({datasourceUrl:url}),tenantId=randomUUID(),otherTenant=randomUUID(),actorId=randomUUID()
 let segmentId:string
-const result={products:[{id:'MLB100',catalogId:'MLB200',title:'Presente de Natal',productUrl:'https://www.mercadolivre.com.br/p/MLB200?wid=MLB100',priceCents:1000,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}],checkedAt:new Date().toISOString(),comparison:'catalog_sellers' as const,warnings:[],counts:{catalogsFound:20,catalogsChecked:20,withoutOffers:19,failed:0}}
+const result={products:[{id:'MLB100',catalogId:'MLB200',title:'Ração para gato',productUrl:'https://www.mercadolivre.com.br/p/MLB200?wid=MLB100',priceCents:1000,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}],checkedAt:new Date().toISOString(),comparison:'catalog_sellers' as const,warnings:[],counts:{catalogsFound:20,catalogsChecked:20,withoutOffers:19,failed:0}}
 beforeAll(async()=>{
   await db.tenant.createMany({data:[{id:tenantId,host:tenantId+'.test',name:'Discovery fixture'},{id:otherTenant,host:otherTenant+'.test',name:'Other discovery'}]})
   await db.user.create({data:{id:actorId,tenantId,name:'Admin',role:'ADMIN',passwordHash:'fixture'}})
@@ -26,6 +26,17 @@ afterAll(async()=>{
 const scope=()=>({tenantId,segmentId})
 const run=(search:Parameters<typeof runAffiliateDiscovery>[1],client=db)=>runAffiliateDiscovery(client,search,undefined,scope())
 describe('PostgreSQL discovery isolation and leases',()=>{
+  it('qualifica termos antigos genéricos de Pets e barra brinquedos infantis na lista, no lote e na revisão',async()=>{
+    await db.affiliateSegment.update({where:{id:segmentId},data:{name:'Pets'}})
+    await db.affiliateDiscovery.create({data:{tenantId,segmentId,terms:['Brinquedo para cachorro'],expandedTerms:['brinquedo interativo']}})
+    const make=(id:string,title:string)=>({...result.products[0],id,title})
+    const search=vi.fn<NonNullable<Parameters<typeof runAffiliateDiscovery>[1]>>(async()=>({...result,products:[make('MLB100','Brinquedo para cachorro'),make('MLB200','Polvo Dançarino Luz Música Movimento para crianças')]}))
+    await run(search)
+    expect(search.mock.calls[0]?.[2]).toBe('brinquedo interativo para pets')
+    expect((await affiliateDiscoveryState(db,tenantId,segmentId,{mode:'MIXED',view:'ALL'})).products.map(p=>p.id)).toEqual(['MLB100'])
+    expect((await affiliateDayCandidates(db,tenantId,segmentId)).map(p=>p.id)).toEqual(['MLB100'])
+    await expect(findDiscoveryCandidate(db,tenantId,segmentId,'MLB200')).rejects.toMatchObject({status:409})
+  })
   it('o planejamento usa os termos atuais da lista e não recupera ofertas ocultas de uma configuração anterior',async()=>{
     await db.affiliateDiscovery.create({data:{tenantId,segmentId,terms:['Pets'],expandedTerms:['Pets']}})
     for(const [term,id] of [['Pets','MLB100'],['Natal','MLB200']]){

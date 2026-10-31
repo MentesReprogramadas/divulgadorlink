@@ -295,3 +295,13 @@ it('mostra espera pelo agendador quando o horário da próxima coleta já chegou
  render(<DiscoveryPanel {...props}/>);await act(async()=>{})
  expect(screen.getByText('Aguardando próxima coleta')).toBeTruthy();expect(screen.queryByText('0:00',{exact:true})).toBeNull()
 })
+
+it('aba Agenda não envia view inválida para a busca de produtos',async()=>{
+  vi.mocked(api).mockResolvedValue({status:200,body:ready})
+  render(<DiscoveryPanel {...props}/>);await screen.findByRole('heading',{name:product.title})
+  fireEvent.click(screen.getByRole('tab',{name:'Agenda'}))
+  expect(vi.mocked(api).mock.calls.some(([path])=>path.includes('view=AGENDA'))).toBe(false)
+  expect(screen.queryByRole('heading',{name:product.title})).toBeNull()
+  fireEvent.click(screen.getByRole('tab',{name:'Produtos'}))
+  expect(await screen.findByRole('heading',{name:product.title})).toBeTruthy()
+})

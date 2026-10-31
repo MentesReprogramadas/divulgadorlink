@@ -154,7 +154,7 @@
 .journeyGuide p { margin: var(--space-2) 0 0; color: var(--text-secondary); }
 @media (width < 50rem) { .journeyGuide { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 @media (width < 30rem) { .journeyGuide { grid-template-columns: minmax(0,1fr); } }
-@media (width < 40rem) { .nextStep { padding: var(--space-4); } .workspaceTitle > button:first-child { padding-inline-start: 0; } .nextStepActions { width: 100%; } }
+@media (width < 40rem) { .nextStep { padding: var(--space-4); } .workspaceTitle > button:first-child { padding-inline: var(--space-4); } .nextStepActions { width: 100%; } }
 @media (width < 48rem) { .summaryCards { grid-template-columns: minmax(0,1fr); } .overviewCard { padding: var(--space-4); } }
 
 .catalogConnection {border:1px solid var(--border-subtle, #304455);border-radius:12px;padding:.8rem 1rem;margin-block:1rem}

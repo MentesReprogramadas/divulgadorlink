@@ -4,12 +4,13 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { afterAll, beforeAll, beforeEach, expect, it, vi } from 'vitest'
 import { evaluateAffiliateProduct } from '@/domain/affiliates/evaluation'
-import { createAffiliateDayPlan, buildAffiliateDayPlan, approveAffiliateDayPlan, readAffiliateDayPlan, cancelAffiliateDayPlan, runAffiliateDayPlans, type DayPlanPorts } from './day-plans'
+import { createAffiliateDayPlan, buildAffiliateDayPlan, approveAffiliateDayPlan, readAffiliateDayPlan, cancelAffiliateDayPlan, runAffiliateDayPlans, retryAffiliateDayPlan, type DayPlanPorts } from './day-plans'
 import { previewAffiliateProduct, sendAffiliateProduct } from './product-review'
 import { affiliateDiscoveryState } from './discovery'
 import { affiliateProductHistory } from './product-history'
 import { runAffiliateDeliveries } from './deliveries'
 import type { AffiliateWhatsApp } from '@/adapters/affiliates/evolution'
+import { AffiliateCatalogError } from '@/domain/affiliates/mercado-livre'
 
 const url=process.env.AFFILIATE_DATABASE_URL
 if(!url||!['localhost','127.0.0.1'].includes(new URL(url).hostname)||!new URL(url).pathname.includes('regression'))throw new Error('Disposable local regression database required')
@@ -32,6 +33,75 @@ async function draft(ports=dependencies(),value=input()){
   await buildAffiliateDayPlan(db,{tenantId,id:batch.id},ports)
   return {id:batch.id,ports,value,plan:await readAffiliateDayPlan(db,tenantId,segmentId,batch.id)}
 }
+it('repete apenas falha transitória, prepara sem rajada e mantém a foto do item não conferido',async()=>{
+  const ports=dependencies(),prepare=ports.prepare,attempts=new Map<string,number>();let active=0,maxActive=0
+  ports.prepare=async(...args)=>{
+    active++;maxActive=Math.max(maxActive,active)
+    const itemId=args[4],count=(attempts.get(itemId)??0)+1;attempts.set(itemId,count)
+    try{
+      if(itemId==='MLB234567')throw new AffiliateCatalogError(409,'A loja não confirmou um preço atual deste produto.')
+      if(count===1)throw new AffiliateCatalogError(429,'A loja limitou as consultas. Aguarde alguns instantes.')
+      return await prepare(...args)
+    }finally{active--}
+  }
+  const {plan}=await draft(ports)
+  expect(maxActive).toBe(1);expect(attempts.get('MLB123456')).toBe(2);expect(attempts.get('MLB234567')).toBe(1)
+  const failed=plan.entries.find(e=>e.state==='FAILED')!
+  expect(failed.product?.imageUrl).toBe(product().imageUrl)
+  expect(failed.error).toContain('preço atual');expect(failed.message).toBeUndefined();expect(plan.summary.offers).toBe(1)
+})
+it('reconfere uma falha ou todas sem refazer itens prontos, trocar identidade ou aprovar envios',async()=>{
+  const ports=dependencies(),prepare=ports.prepare
+  ports.prepare=vi.fn<DayPlanPorts['prepare']>(async(...args)=>{if(args[4]==='MLB234567')throw new AffiliateCatalogError(409,'Falha temporária');return prepare(...args)})
+  const {id,plan}=await draft(ports),failed=plan.entries.find(e=>e.state==='FAILED')!,ready=plan.entries.find(e=>e.state==='READY')!
+  const before=await db.affiliateScheduledOffer.findUniqueOrThrow({where:{id:ready.id}})
+  await expect(retryAffiliateDayPlan(db,otherTenant,actorId,segmentId,id,failed.id)).rejects.toMatchObject({status:404})
+  await expect(retryAffiliateDayPlan(db,tenantId,'other-admin',segmentId,id,failed.id)).rejects.toMatchObject({status:403})
+  vi.mocked(prepare).mockClear();ports.prepare=prepare
+  await retryAffiliateDayPlan(db,tenantId,actorId,segmentId,id,failed.id)
+  await retryAffiliateDayPlan(db,tenantId,actorId,segmentId,id,failed.id)
+  await buildAffiliateDayPlan(db,{tenantId,id},ports)
+  expect(ports.prepare).toHaveBeenCalledTimes(1)
+  expect(ports.order).toHaveBeenCalledTimes(1)
+  const after=await readAffiliateDayPlan(db,tenantId,segmentId,id)
+  expect(after.status).toBe('DRAFT');expect(after.summary.offers).toBe(2)
+  expect(after.entries.map(e=>e.id)).toEqual(plan.entries.map(e=>e.id))
+  expect((await db.affiliateScheduledOffer.findUniqueOrThrow({where:{id:ready.id}})).snapshot).toEqual(before.snapshot)
+  expect(await db.affiliateBroadcast.count({where:{tenantId}})).toBe(0)
+  await db.affiliateScheduledOffer.updateMany({where:{batchId:id},data:{state:'FAILED'}})
+  await retryAffiliateDayPlan(db,tenantId,actorId,segmentId,id)
+  await buildAffiliateDayPlan(db,{tenantId,id},ports)
+  expect((await readAffiliateDayPlan(db,tenantId,segmentId,id)).summary.offers).toBe(2)
+})
+it('envia produto pet pelo título integral mesmo quando o título curto não contém a espécie',async()=>{
+  await db.affiliateSegment.update({where:{id:segmentId},data:{name:'Pets'}})
+  const ports=dependencies(),p={...product(),title:'Brinquedo Interativo Bola Mordedor Resistente Borracha Natural para cachorro',sentCount:0,pendingCount:0,lastSentAt:null}
+  vi.mocked(ports.candidates).mockResolvedValue([p])
+  ports.prepare=async(client,tenant,actor,segment,itemId)=>previewAffiliateProduct(client,tenant,actor,segment,itemId,{candidate:async()=>p,refresh:async()=>p,link:async()=>({url:'https://meli.la/fixture',fullUrl:'https://meli.la/fixture',tag:'fixture',profile:'fixture'}),title:async()=>({title:'Brinquedo Interativo Bola Mordedor',source:'ORIGINAL'})})
+  const {id}=await draft(ports)
+  await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)
+  await db.affiliateScheduledOffer.updateMany({where:{batchId:id},data:{scheduledAt:new Date()}})
+  await runAffiliateDayPlans(db,ports,{tenantId,batchId:id})
+  const sent=vi.fn(async()=> 'fixture-message'),remote={status:async()=>({state:'open'}),group:async(jid:string)=>({jid,name:'Pets',participantCount:2,description:'',imageUrl:null}),send:sent} as unknown as AffiliateWhatsApp
+  for(let i=0;i<2;i++){await db.affiliateInstance.update({where:{id:instanceId},data:{nextSendAt:new Date(Date.now()-1)}});await runAffiliateDeliveries(db,()=>remote,new Date())}
+  expect(sent).toHaveBeenCalledTimes(2)
+  expect((await affiliateDiscoveryState(db,tenantId,segmentId,{mode:'MIXED',view:'ALL'})).products.some(item=>item.id===p.id)).toBe(true)
+})
+it('remove infantis de rascunhos antigos e impede o processamento de um lote antigo já aprovado',async()=>{
+  const ports=dependencies()
+  vi.mocked(ports.candidates).mockResolvedValue([{...product(),title:'Ração para gato',sentCount:0,pendingCount:0,lastSentAt:null},{...product('MLB234567'),title:'Chocalho multifuncional para bebês e brinquedo para morder',sentCount:0,pendingCount:0,lastSentAt:null}])
+  const {id}=await draft(ports)
+  const segment=await db.affiliateSegment.findUniqueOrThrow({where:{id:segmentId}})
+  await db.affiliateSegment.update({where:{id:segmentId},data:{name:'Pets',updatedAt:segment.updatedAt}})
+  const read=await readAffiliateDayPlan(db,tenantId,segmentId,id)
+  expect(read.entries.map(e=>e.itemId)).toEqual(['MLB123456']);expect(read.summary.offers).toBe(1)
+  await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)
+  expect((await db.affiliateScheduledOffer.findFirstOrThrow({where:{batchId:id,itemId:'MLB234567'}})).state).toBe('CANCELLED')
+  await db.affiliateScheduledOffer.updateMany({where:{batchId:id,itemId:'MLB234567'},data:{state:'PENDING',scheduledAt:new Date()}})
+  await runAffiliateDayPlans(db,ports,{tenantId,batchId:id})
+  expect((await db.affiliateScheduledOffer.findFirstOrThrow({where:{batchId:id,itemId:'MLB234567'}})).state).toBe('FAILED')
+  expect(await db.affiliateBroadcast.count({where:{tenantId}})).toBe(0)
+})
 it('prepara desconto primeiro e revisão exata sem gerar entregas; isola tenant e ator',async()=>{
   const {plan,id,value}=await draft()
   expect(plan.status).toBe('DRAFT');expect(plan.entries.map(e=>e.itemId)).toEqual(['MLB123456','MLB234567'])

@@ -12,9 +12,16 @@ import { affiliateProductHistory } from './product-history'
 import type { DiscoveryProduct } from '@/domain/affiliates/evaluation'
 import { affiliateGenerationProviders } from '@/use-cases/@Affiliates/catalog'
 import { isShopeeProduct } from '@/domain/affiliates/shopee'
+import { affiliateProductFitsSegment } from '@/domain/affiliates/segment-relevance'
+import { AffiliateCatalogError } from '@/domain/affiliates/mercado-livre'
+import { setTimeout as pause } from 'node:timers/promises'
+import { compactAffiliateTitle } from '@/domain/affiliates/product-title'
 
 const groupsSchema=z.array(z.object({id:z.string(),name:z.string()}))
-const snapshotSchema=z.object({previewToken:z.string(),sentCount:z.number().int().nonnegative(),product:z.object({id:z.string(),catalogId:z.string(),title:z.string(),priceCents:z.number().int().positive(),oldPriceCents:z.number().int().positive().nullable(),imageUrl:z.string().nullable(),productUrl:z.string(),checkedAt:z.iso.datetime()}).passthrough(),title:z.string(),message:z.string(),affiliateUrl:z.string()})
+const candidateSchema=z.object({id:z.string(),catalogId:z.string(),title:z.string(),priceCents:z.number().int().positive(),oldPriceCents:z.number().int().positive().nullable(),imageUrl:z.string().nullable(),productUrl:z.string(),checkedAt:z.iso.datetime()}).passthrough()
+const snapshotSchema=z.object({previewToken:z.string(),sentCount:z.number().int().nonnegative(),product:candidateSchema,title:z.string(),message:z.string(),affiliateUrl:z.string()})
+const entryTitle=(value:Prisma.JsonValue)=>{const ready=snapshotSchema.safeParse(value),candidate=candidateSchema.safeParse(value);return ready.success?ready.data.product.title:candidate.success?candidate.data.title:''}
+const preparationError=(error:unknown)=>error instanceof AffiliateError||error instanceof AffiliateCatalogError?error.message:error instanceof z.ZodError?'A loja retornou dados incompletos deste produto. Confira o anúncio antes de tentar novamente.':'Não foi possível conferir este produto. Abra o anúncio ou tente novamente mais tarde.'
 const json=(value:unknown)=>value as Prisma.InputJsonValue
 const lockSegment=async(tx:Prisma.TransactionClient,tenantId:string,segmentId:string)=>{
   await tx.$queryRaw`SELECT id FROM tenants WHERE id = ${tenantId} FOR UPDATE`
@@ -25,6 +32,14 @@ const planPorts={candidates:async(db:PrismaClient,tenantId:string,segmentId:stri
   return products.filter(p=>providers[isShopeeProduct(p.id)?'SHOPEE':'MERCADO_LIVRE'])
 },order:suggestDayProductOrder,prepare:previewScheduledAffiliateProduct,refresh:refreshAffiliateCandidate}
 export type DayPlanPorts=typeof planPorts
+async function prepareWithRetry(ports:DayPlanPorts,...args:Parameters<DayPlanPorts['prepare']>){
+  for(let attempt=0;;attempt++){
+    try{return await ports.prepare(...args)}catch(error){
+      if(attempt>=2||!(error instanceof AffiliateCatalogError)||![429,502,503].includes(error.status))throw error
+      await pause(attempt?3000:1000)
+    }
+  }
+}
 
 export async function createAffiliateDayPlan(db:PrismaClient,tenantId:string,actorId:string,segmentId:string,raw:DayPlanInput){
   const input=dayPlanInput.parse(raw)
@@ -51,7 +66,9 @@ export async function buildAffiliateDayPlan(db:PrismaClient,scope?:{tenantId:str
   const token=randomUUID(),guard={id:batch.id,tenantId:batch.tenantId,status:'BUILDING',leaseToken:token}
   if(!(await db.affiliateScheduleBatch.updateMany({where:{...where,id:batch.id},data:{leaseToken:token,leaseExpiresAt:new Date(Date.now()+240000)}})).count)return 0
   try{
-    const input=dayPlanInput.parse(batch.config),available=await ports.candidates(db,batch.tenantId,batch.segmentId)
+    const input=dayPlanInput.parse(batch.config),persisted=await db.affiliateScheduledOffer.count({where:{batchId:batch.id,tenantId:batch.tenantId}})
+    if(!persisted){
+    const available=await ports.candidates(db,batch.tenantId,batch.segmentId)
     const eligible=rankDayProducts(available)
     const order=input.itemIds?[]:await ports.order(eligible.slice(0,100))
     const selected=input.itemIds?input.itemIds.map(id=>{const product=eligible.find(p=>p.id===id);if(!product)throw new AffiliateError(409,'Um produto selecionado foi descartado ou possui envio pendente. Refaça o lote.');return product}):rankDayProducts(eligible,order).slice(0,input.count)
@@ -67,18 +84,17 @@ export async function buildAffiliateDayPlan(db:PrismaClient,scope?:{tenantId:str
         await tx.affiliateScheduleBatch.updateMany({where:guard,data:{source:order.length?'OPENAI':'RULES'}})
       }
     })
+    }
     const entries=await db.affiliateScheduledOffer.findMany({where:{batchId:batch.id,tenantId:batch.tenantId,state:'BUILDING'},orderBy:{position:'asc'}})
-    for(let i=0;i<entries.length;i+=3){
+    for(const entry of entries){
       if(!(await db.affiliateScheduleBatch.updateMany({where:{...guard,expiresAt:{gt:new Date()}},data:{leaseExpiresAt:new Date(Date.now()+240000)}})).count)return 1
-      await Promise.all(entries.slice(i,i+3).map(async entry=>{
         try{
-          const result=await ports.prepare(db,batch.tenantId,batch.actorId,batch.segmentId,entry.itemId)
+          const result=await prepareWithRetry(ports,db,batch.tenantId,batch.actorId,batch.segmentId,entry.itemId)
           const payload=readAffiliateProductPreview(result.previewToken,batch.tenantId,batch.actorId,batch.segmentId)
           if(payload.groupHash!==batch.groupHash)throw new AffiliateError(409,'Os destinos mudaram. Refaça o lote.')
           const previous=entry.snapshot as unknown as DiscoveryProduct
           await db.affiliateScheduledOffer.updateMany({where:{id:entry.id,state:'BUILDING',batch:{...guard}},data:{state:'READY',snapshot:json({previewToken:result.previewToken,product:result.product,title:result.title,message:result.message,affiliateUrl:result.affiliateUrl,sentCount:previous.sentCount??0})}})
-        }catch(error){await db.affiliateScheduledOffer.updateMany({where:{id:entry.id,state:'BUILDING',batch:{...guard}},data:{state:'FAILED',error:error instanceof AffiliateError?error.message:'Não foi possível conferir este produto. Refaça o lote para tentar novamente.'}})}
-      }))
+        }catch(error){await db.affiliateScheduledOffer.updateMany({where:{id:entry.id,state:'BUILDING',batch:{...guard}},data:{state:'FAILED',error:preparationError(error)}})}
     }
     const ready=await db.affiliateScheduledOffer.count({where:{batchId:batch.id,tenantId:batch.tenantId,state:'READY'}})
     await db.affiliateScheduleBatch.updateMany({where:guard,data:{status:ready?'DRAFT':'FAILED',leaseToken:null,leaseExpiresAt:null,error:ready?null:'Não foi possível preparar ofertas. Confira as integrações e tente novamente.',expiresAt:new Date(Date.now()+15*60000)}})
@@ -90,9 +106,11 @@ export async function readAffiliateDayPlan(db:PrismaClient,tenantId:string,segme
   const batch=await db.affiliateScheduleBatch.findFirst({where:{id,tenantId,segmentId},include:{entries:{orderBy:{position:'asc'}}}})
   if(!batch)throw new AffiliateError(404,'Lote não encontrado.')
   const groups=groupsSchema.parse(batch.groups)
-  const entries=batch.entries.map(entry=>{
-    const snapshot=snapshotSchema.safeParse(entry.snapshot)
-    return {id:entry.id,itemId:entry.itemId,position:entry.position,scheduledAt:entry.scheduledAt,state:entry.state,error:entry.error,broadcastId:entry.broadcastId,product:snapshot.success?snapshot.data.product:undefined,title:snapshot.success?snapshot.data.title:typeof (entry.snapshot as Prisma.JsonObject).title==='string'?String((entry.snapshot as Prisma.JsonObject).title):'Produto em preparação',message:snapshot.success?snapshot.data.message:undefined,affiliateUrl:snapshot.success?snapshot.data.affiliateUrl:undefined,sentCount:snapshot.success?snapshot.data.sentCount:0}
+  const segment=await db.affiliateSegment.findFirst({where:{id:segmentId,tenantId},include:{discovery:{select:{terms:true}}}})
+  if(!segment)throw new AffiliateError(404,'Segmentação não encontrada.')
+  const entries=batch.entries.filter(e=>!!e.broadcastId||affiliateProductFitsSegment(segment,entryTitle(e.snapshot))).map(entry=>{
+    const snapshot=snapshotSchema.safeParse(entry.snapshot),candidate=candidateSchema.safeParse(entry.snapshot)
+    return {id:entry.id,itemId:entry.itemId,position:entry.position,scheduledAt:entry.scheduledAt,state:entry.state,error:entry.error,broadcastId:entry.broadcastId,product:snapshot.success?snapshot.data.product:candidate.success?candidate.data:undefined,title:snapshot.success?snapshot.data.title:candidate.success?compactAffiliateTitle(candidate.data.title):'Produto em preparação',message:snapshot.success?snapshot.data.message:undefined,affiliateUrl:snapshot.success?snapshot.data.affiliateUrl:undefined,sentCount:snapshot.success?snapshot.data.sentCount:0}
   })
   const included=entries.filter(e=>['READY','PENDING','PROCESSING','QUEUED'].includes(e.state))
   const deliveryStates=await db.affiliateDelivery.groupBy({by:['broadcastId','state'],where:{tenantId,broadcastId:{in:batch.entries.flatMap(e=>e.broadcastId?[e.broadcastId]:[])}},_count:true})
@@ -115,10 +133,11 @@ export async function approveAffiliateDayPlan(db:PrismaClient,tenantId:string,ac
     if(batch.actorId!==actorId)throw new AffiliateError(403,'Este rascunho pertence a outro administrador.')
     if(batch.status==='APPROVED')return {id,status:batch.status}
     if(batch.status!=='DRAFT'||batch.expiresAt<=new Date())throw new AffiliateError(409,'O rascunho expirou ou não está pronto. Gere outro lote.')
-    const segment=await tx.affiliateSegment.findFirst({where:{id:segmentId,tenantId,enabled:true}})
+    const segment=await tx.affiliateSegment.findFirst({where:{id:segmentId,tenantId,enabled:true},include:{discovery:{select:{terms:true}}}})
     const groups=await tx.affiliateGroup.findMany({where:affiliateEligibleGroupWhere(tenantId,segmentId),select:{id:true}})
     if(!segment||affiliateGroupFingerprint(groups)!==batch.groupHash)throw new AffiliateError(409,'A segmentação ou os destinos mudaram. Gere outro lote.')
-    const entries=batch.entries.filter(e=>e.state==='READY')
+    const outside=batch.entries.filter(e=>!affiliateProductFitsSegment(segment,entryTitle(e.snapshot)))
+    const entries=batch.entries.filter(e=>e.state==='READY'&&!outside.some(o=>o.id===e.id))
     if(!entries.length)throw new AffiliateError(409,'Selecione ao menos uma oferta no lote.')
     for(const entry of entries){
       const snapshot=snapshotSchema.parse(entry.snapshot),payload=readAffiliateProductPreview(snapshot.previewToken,tenantId,actorId,segmentId)
@@ -128,11 +147,34 @@ export async function approveAffiliateDayPlan(db:PrismaClient,tenantId:string,ac
       if(history.pendingCount)throw new AffiliateError(409,'Uma oferta já tem envio pendente ou incerto. Remova-a ou refaça o lote.')
       if((await tx.affiliateProductDecision.findUnique({where:{tenantId_segmentId_itemId:{tenantId,segmentId,itemId:entry.itemId}}}))?.decision==='DISCARDED')throw new AffiliateError(409,'Uma oferta foi descartada. Refaça o lote.')
     }
-    await tx.affiliateScheduledOffer.updateMany({where:{batchId:id,tenantId,state:'READY'},data:{state:'PENDING'}})
+    await tx.affiliateScheduledOffer.updateMany({where:{batchId:id,tenantId,id:{in:outside.map(e=>e.id)},state:{in:['READY','BUILDING','FAILED']}},data:{state:'CANCELLED',error:'Produto fora do tema da segmentação.'}})
+    await tx.affiliateScheduledOffer.updateMany({where:{batchId:id,tenantId,id:{in:entries.map(e=>e.id)},state:'READY'},data:{state:'PENDING'}})
     await tx.affiliateScheduleBatch.update({where:{id},data:{status:'APPROVED'}})
     await tx.auditLog.create({data:{tenantId,actorId,action:'affiliate.schedule.approved',entityType:'AffiliateScheduleBatch',entityId:id,after:{offers:entries.length,groups:groups.length}}})
     return {id,status:'APPROVED'}
   },{timeout:20000})
+}
+
+export async function retryAffiliateDayPlan(db:PrismaClient,tenantId:string,actorId:string,segmentId:string,id:string,entryId?:string){
+  return db.$transaction(async tx=>{
+    await lockSegment(tx,tenantId,segmentId)
+    await tx.$queryRaw`SELECT id FROM affiliate_schedule_batches WHERE id = ${id} AND "tenantId" = ${tenantId} FOR UPDATE`
+    const batch=await tx.affiliateScheduleBatch.findFirst({where:{id,tenantId,segmentId},include:{entries:true}})
+    if(!batch)throw new AffiliateError(404,'Lote não encontrado.')
+    if(batch.actorId!==actorId)throw new AffiliateError(403,'Este rascunho pertence a outro administrador.')
+    if(batch.status==='BUILDING')return {id,status:batch.status}
+    if(!['DRAFT','FAILED'].includes(batch.status))throw new AffiliateError(409,'Confira falhas antes de aceitar o lote. Para ofertas já agendadas, prepare um novo lote.')
+    const segment=await tx.affiliateSegment.findFirst({where:{id:segmentId,tenantId,enabled:true},include:{discovery:{select:{terms:true}}}})
+    const groups=await tx.affiliateGroup.findMany({where:affiliateEligibleGroupWhere(tenantId,segmentId),select:{id:true}})
+    if(!segment||affiliateGroupFingerprint(groups)!==batch.groupHash)throw new AffiliateError(409,'A segmentação ou os destinos mudaram. Gere outro lote.')
+    const entries=batch.entries.filter(e=>e.state==='FAILED'&&(!entryId||e.id===entryId)&&affiliateProductFitsSegment(segment,entryTitle(e.snapshot)))
+    if(!entries.length)throw new AffiliateError(409,'Nenhuma falha disponível para conferir neste lote.')
+    if(entries.some(e=>e.scheduledAt<=new Date(Date.now()+60000)))throw new AffiliateError(409,'O horário desta oferta já passou ou está próximo. Prepare um novo lote com início futuro.')
+    await tx.affiliateScheduledOffer.updateMany({where:{tenantId,batchId:id,id:{in:entries.map(e=>e.id)},state:'FAILED',broadcastId:null},data:{state:'BUILDING',error:null}})
+    await tx.affiliateScheduleBatch.update({where:{id},data:{status:'BUILDING',error:null,leaseToken:null,leaseExpiresAt:null,expiresAt:new Date(Date.now()+15*60000)}})
+    await tx.auditLog.create({data:{tenantId,actorId,action:'affiliate.schedule.retry',entityType:'AffiliateScheduleBatch',entityId:id,after:{entries:entries.map(e=>e.id)}}})
+    return {id,status:'BUILDING'}
+  },{timeout:15000})
 }
 
 export async function cancelAffiliateDayPlan(db:PrismaClient,tenantId:string,actorId:string,segmentId:string,id:string,entryId?:string){
@@ -160,6 +202,8 @@ export async function runAffiliateDayPlans(db:PrismaClient,ports=planPorts,scope
     try{
       if(now.getTime()-entry.scheduledAt.getTime()>30*60000)throw new AffiliateError(409,'Horário passou há mais de 30 minutos. Reagende esta oferta.')
       const snapshot=snapshotSchema.parse(entry.snapshot),payload=readAffiliateProductPreview(snapshot.previewToken,entry.tenantId,entry.batch.actorId,entry.batch.segmentId)
+      const theme=await db.affiliateSegment.findFirst({where:{id:entry.batch.segmentId,tenantId:entry.tenantId},include:{discovery:{select:{terms:true}}}})
+      if(!theme||!affiliateProductFitsSegment(theme,snapshot.product.title))throw new AffiliateError(409,'Produto fora do tema da segmentação. Escolha uma oferta para Pets.')
       const product=await ports.refresh(db,entry.tenantId,{...snapshot.product,sourceTerm:'Agenda',sourcePage:1} as DiscoveryProduct)
       if(product.id!==entry.itemId||product.title!==snapshot.product.title||affiliateProductUrl(product.productUrl).href!==affiliateProductUrl(payload.productUrl).href||product.priceCents!==payload.priceCents||product.oldPriceCents!==payload.oldPriceCents||(product.reportedDiscountPercent??null)!==(payload.reportedDiscountPercent??null)||product.imageUrl!==payload.imageUrl)throw new AffiliateError(409,'Preço, desconto ou anúncio mudou. Revise e agende novamente.')
       if(Date.now()-new Date(product.checkedAt).getTime()>5*60000||new Date(product.checkedAt)>new Date())throw new AffiliateError(409,'Não foi possível confirmar um preço recente. Revise e agende novamente.')
@@ -175,7 +219,7 @@ export async function runAffiliateDayPlans(db:PrismaClient,ports=planPorts,scope
         const existing=await tx.affiliateBroadcast.findUnique({where:{tenantId_idempotencyKey:{tenantId:entry.tenantId,idempotencyKey:`schedule:${entry.id}`}}})
         if(existing){await tx.affiliateScheduledOffer.updateMany({where:guard,data:{state:'QUEUED',broadcastId:existing.id,leaseToken:null,leaseExpiresAt:null}});return}
         const offer=await tx.affiliateOffer.create({data:{tenantId:entry.tenantId,segmentId:entry.batch.segmentId,itemId:entry.itemId,title:payload.title,productUrl:payload.productUrl,affiliateUrl:payload.affiliateUrl,priceCents:payload.priceCents,oldPriceCents:payload.oldPriceCents,reportedDiscountPercent:payload.reportedDiscountPercent??null,oldPriceEstimated:payload.oldPriceEstimated??false,imageUrl:payload.imageUrl,checkedAt:new Date(product.checkedAt),expiresAt:new Date(entry.scheduledAt.getTime()+30*60000)}})
-        const broadcast=await approveAffiliateBroadcast(tx,entry.tenantId,entry.batch.actorId,offer.id,{idempotencyKey:`schedule:${entry.id}`,expectedGroupHash:entry.batch.groupHash,approvedMessage:payload.message})
+        const broadcast=await approveAffiliateBroadcast(tx,entry.tenantId,entry.batch.actorId,offer.id,{idempotencyKey:`schedule:${entry.id}`,expectedGroupHash:entry.batch.groupHash,approvedMessage:payload.message,sourceTitle:snapshot.product.title})
         const decision={decision:'SENT',reason:'Envio de lote agendado aprovado.',actorId:entry.batch.actorId,broadcastId:broadcast.id,priceCents:payload.priceCents}
         await tx.affiliateProductDecision.upsert({where:{tenantId_segmentId_itemId:{tenantId:entry.tenantId,segmentId:entry.batch.segmentId,itemId:entry.itemId}},create:{tenantId:entry.tenantId,segmentId:entry.batch.segmentId,itemId:entry.itemId,...decision},update:decision})
         await tx.affiliateScheduledOffer.updateMany({where:guard,data:{state:'QUEUED',broadcastId:broadcast.id,leaseToken:null,leaseExpiresAt:null}})

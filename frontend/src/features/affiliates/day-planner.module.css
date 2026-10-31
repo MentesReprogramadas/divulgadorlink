@@ -31,3 +31,10 @@
 .agendaRow { display:flex; flex-wrap:wrap; justify-content:space-between; gap:var(--space-2); text-align:start; padding:var(--space-3); min-height:48px; background:var(--surface-page); color:var(--text-primary); border:1px solid var(--border-default); border-radius:var(--radius-md); font:inherit; cursor:pointer; }
 .agendaRow span { color:var(--text-secondary); }
 @media (width < 40rem) { .footer>button { flex:1 1 calc(50% - var(--space-2)); min-width:0; } .footer>button[data-variant="primary"],.footer>p { flex-basis:100%; } .selection { justify-content:center; } .selection p { flex:1 0 100%; text-align:center; } }
+
+.agendaGrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr)); gap:var(--space-4); }
+.agendaCard { display:grid; gap:var(--space-3); padding:var(--space-4); border:1px solid var(--border-default); border-radius:var(--radius-lg); background:var(--surface-page); min-width:0; }
+.agendaCard h4,.agendaCard p { margin:0; }
+.agendaCard h4 { font-size:var(--text-lg); }
+.agendaCard>span { justify-self:start; }
+.pagination { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:var(--space-3); }

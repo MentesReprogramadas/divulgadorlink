@@ -607,3 +607,44 @@ test('planeja o dia, revisa volume e seleciona lote manual no mobile sem esconde
   await expect(suggestions.getByText('Enviado 2 vezes')).toBeVisible()
   expect(changes.some(c=>c.path.endsWith('/products/send'))).toBe(false)
 })
+
+
+test('agenda paginada e nova conferência individual ou de todas as falhas sem envio',async({page},testInfo)=>{
+  await fixtures(page)
+  const changes:Array<Record<string,unknown>>=[]
+  let state='FAILED'
+  await page.route('**/day-plans**',async route=>{
+    const request=route.request(),url=new URL(request.url())
+    if(request.method()==='POST'){
+      changes.push({path:url.pathname,body:request.postDataJSON()});state='READY'
+      return route.fulfill({json:{id:'retry-batch',status:'BUILDING'}})
+    }
+    if(url.pathname.endsWith('/day-plans'))return route.fulfill({json:{batches:[{id:'retry-batch',status:'DRAFT',config:{day:'2099-11-01',start:'09:00',end:'21:00'},groupCount:2,_count:{entries:2}}],pagination:{page:Number(url.searchParams.get('page')),total:9,hasPrevious:url.searchParams.get('page')==='2',hasNext:url.searchParams.get('page')!=='2'}}})
+    return route.fulfill({json:{id:'retry-batch',mode:'AUTO',source:'RULES',status:'DRAFT',expiresAt:'2099-11-01T12:00:00Z',error:null,config:{day:'2099-11-01',start:'09:00',end:'21:00'},groups:[{id:'g',name:'Natal #1'}],summary:{offers:state==='READY'?1:0,groups:1,totalMessages:state==='READY'?1:0,intervalMinutes:null},entries:[{id:'failed-entry',itemId:offer.id,title:offer.title,product:offer,scheduledAt:'2099-11-01T12:00:00Z',state,error:state==='FAILED'?'A loja não confirmou o preço.':null,sentCount:0}]}})
+  })
+  await page.goto('/admin/afiliados/segmentacoes/segment-1');await area(page,'Ofertas')
+  await page.getByRole('tab',{name:'Agenda',exact:true}).click()
+  await expect(page.getByRole('heading',{name:'Agendas de ofertas'})).toBeVisible()
+  await expect(page.getByText('Página 1 · 9 agendas')).toBeVisible()
+  await page.getByRole('button',{name:'Próxima',exact:true}).click()
+  await expect(page.getByText('Página 2 · 9 agendas')).toBeVisible()
+  await page.getByRole('button',{name:'Anterior',exact:true}).click()
+  await expect(page.getByText('Página 1 · 9 agendas')).toBeVisible()
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true)
+  await page.screenshot({path:testInfo.outputPath('agenda-cards.png'),animations:'disabled'})
+  await page.getByRole('button',{name:'Abrir agenda'}).click()
+  const dialog=page.getByRole('dialog')
+  await expect(dialog.getByText('Foto e preço da coleta.',{exact:false})).toBeVisible()
+  await expect(dialog.getByRole('button',{name:'Verificar falhas',exact:true})).toBeVisible()
+  await dialog.getByRole('button',{name:'Verificar novamente: '+offer.title}).click()
+  await expect(dialog.getByText('Pronto',{exact:true})).toBeVisible()
+  expect(changes).toEqual([{path:'/bff/v1/admin/affiliates/segments/segment-1/day-plans/retry-batch/retry',body:{entryId:'failed-entry'}}])
+  await dialog.getByRole('button',{name:'Fechar',exact:true}).click();state='FAILED'
+  await page.getByRole('button',{name:'Abrir agenda'}).click()
+  await dialog.getByRole('button',{name:'Verificar falhas',exact:true}).click()
+  await expect(dialog.getByText('Pronto',{exact:true})).toBeVisible()
+  expect(changes[1].body).toEqual({})
+  expect(changes.some(c=>String(c.path).endsWith('/approve'))).toBe(false)
+  expect((await new AxeBuilder({page}).include('dialog').analyze()).violations).toEqual([])
+  await page.screenshot({path:testInfo.outputPath('retry-reviewed.png'),animations:'disabled'})
+})

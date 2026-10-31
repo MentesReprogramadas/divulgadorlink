@@ -9,11 +9,12 @@ import { findDiscoveryCandidate, generateAffiliateTitle, refreshAffiliateCandida
 import { affiliateEligibleGroupWhere, affiliateGroupFingerprint, approveAffiliateBroadcast } from './deliveries'
 import { affiliateProductHistory } from './product-history'
 import { compactAffiliateTitle } from '@/domain/affiliates/product-title'
+import { affiliateProductFitsSegment } from '@/domain/affiliates/segment-relevance'
 
 const itemIdSchema = affiliateProductId
 const previewSchema = z.object({
   version:z.literal(1),id:z.uuid(),tenantId:z.string(),actorId:z.string(),segmentId:z.string(),segmentRevision:z.string(),affiliateRevision:z.string(),
-  expiresAt:z.number().int(),title:z.string().min(3).max(250),headline:z.string().min(8).max(140).optional(),productUrl:marketUrl,affiliateUrl:marketUrl,
+  expiresAt:z.number().int(),sourceTitle:z.string().max(4000).optional(),title:z.string().min(3).max(250),headline:z.string().min(8).max(140).optional(),productUrl:marketUrl,affiliateUrl:marketUrl,
   itemId:itemIdSchema,priceCents:z.number().int().positive().max(100_000_000),oldPriceCents:z.number().int().positive().max(100_000_000).nullable(),imageUrl,
   reportedDiscountPercent:z.number().int().min(1).max(100).nullable().optional(),
   oldPriceEstimated:z.boolean().optional(),
@@ -42,10 +43,11 @@ const defaults={candidate:findDiscoveryCandidate,refresh:refreshAffiliateCandida
 export const previewScheduledAffiliateProduct=(db:PrismaClient,tenantId:string,actorId:string,segmentId:string,itemId:string)=>previewAffiliateProduct(db,tenantId,actorId,segmentId,itemId,{...defaults,title:async(_db,_tenant,product)=>({title:compactAffiliateTitle(product.title),source:'ORIGINAL' as const})})
 export async function previewAffiliateProduct(db:PrismaClient,tenantId:string,actorId:string,segmentId:string,itemId:string,ports=defaults) {
   itemIdSchema.parse(itemId)
-  const segment=await db.affiliateSegment.findFirst({where:{id:segmentId,tenantId,enabled:true}})
+  const segment=await db.affiliateSegment.findFirst({where:{id:segmentId,tenantId,enabled:true},include:{discovery:{select:{terms:true}}}})
   if(!segment) throw new AffiliateError(404,'Segmentação ativa não encontrada.')
   const revision=await affiliateRevision(db,tenantId,itemId),candidate=await ports.candidate(db,tenantId,segmentId,itemId)
   const [product,link]=await Promise.all([ports.refresh(db,tenantId,candidate),ports.link(db,tenantId,actorId,affiliateProductUrl(candidate.productUrl).href)])
+  if(!affiliateProductFitsSegment(segment,product.title))throw new AffiliateError(409,'Este produto não pertence ao tema Pets. Escolha um produto para animais.')
   if(product.id!==itemId || affiliateProductUrl(product.productUrl).href!==affiliateProductUrl(candidate.productUrl).href) throw new AffiliateError(409,'O anúncio mudou durante a consulta. Abra o produto novamente.')
   const generated=await ports.title(db,tenantId,product)
   const [current,groups,revisionAfter]=await Promise.all([
@@ -59,7 +61,7 @@ export async function previewAffiliateProduct(db:PrismaClient,tenantId:string,ac
   const headline=generated.headline??'Confira esta opção para você ✨'
   const reportedDiscountPercent=isShopeeProduct(product.id)?product.reportedDiscountPercent??null:null
   const message=offerMessage({...product,reportedDiscountPercent,title:generated.title,headline,affiliateUrl:link.url,note:''})
-  const payload=previewSchema.parse({version:1,id:randomUUID(),tenantId,actorId,segmentId,segmentRevision:current.updatedAt.toISOString(),affiliateRevision:revision,expiresAt:now+5*60_000,title:generated.title,headline,productUrl:product.productUrl,affiliateUrl:link.url,itemId,priceCents:product.priceCents,oldPriceCents:product.oldPriceCents,reportedDiscountPercent,oldPriceEstimated:product.oldPriceEstimated??false,imageUrl:product.imageUrl,checkedAt:product.checkedAt,message,groupHash:affiliateGroupFingerprint(groups)})
+  const payload=previewSchema.parse({version:1,id:randomUUID(),tenantId,actorId,segmentId,segmentRevision:current.updatedAt.toISOString(),affiliateRevision:revision,expiresAt:now+5*60_000,sourceTitle:product.title,title:generated.title,headline,productUrl:product.productUrl,affiliateUrl:link.url,itemId,priceCents:product.priceCents,oldPriceCents:product.oldPriceCents,reportedDiscountPercent,oldPriceEstimated:product.oldPriceEstimated??false,imageUrl:product.imageUrl,checkedAt:product.checkedAt,message,groupHash:affiliateGroupFingerprint(groups)})
   const body=Buffer.from(JSON.stringify(payload)).toString('base64url'),previewToken=body+'.'+signature(body)
   return {previewToken,expiresAt:new Date(payload.expiresAt).toISOString(),product,title:generated.title,headline,titleSource:generated.source,message,affiliateUrl:link.url,fullUrl:link.fullUrl,destinations:{segmentId,name:current.name,groups,count:groups.length},analysis:product.evaluation,priceChanged:candidate.priceCents!==product.priceCents}
 }
@@ -99,8 +101,9 @@ export async function sendAffiliateProduct(db:PrismaClient,tenantId:string,actor
     await tx.$queryRaw`SELECT id FROM affiliate_segments WHERE id = ${segmentId} AND "tenantId" = ${tenantId} FOR UPDATE`
     const existing=await tx.affiliateBroadcast.findUnique({where:{tenantId_idempotencyKey:{tenantId,idempotencyKey:preview.id}},include:{_count:{select:{deliveries:true}}}})
     if(existing) return {broadcastId:existing.id,offerId:existing.offerId,groups:existing._count.deliveries}
-    const segment=await tx.affiliateSegment.findFirst({where:{id:segmentId,tenantId,enabled:true}})
+    const segment=await tx.affiliateSegment.findFirst({where:{id:segmentId,tenantId,enabled:true},include:{discovery:{select:{terms:true}}}})
     if(!segment || segment.updatedAt.toISOString()!==preview.segmentRevision || preview.expiresAt<=Date.now()) throw new AffiliateError(409,'A prévia expirou ou a segmentação mudou. Atualize antes de enviar.')
+    if(!affiliateProductFitsSegment(segment,preview.sourceTitle??preview.title))throw new AffiliateError(409,'Este produto não pertence ao tema Pets. Escolha um produto para animais.')
     if(await affiliateRevision(tx,tenantId,preview.itemId)!==preview.affiliateRevision) throw new AffiliateError(409,'A conta de afiliados mudou. Atualize a prévia antes de enviar.')
     const previousDecision=await tx.affiliateProductDecision.findUnique({where:{tenantId_segmentId_itemId:{tenantId,segmentId,itemId:preview.itemId}}})
     if(previousDecision?.decision==='DISCARDED') throw new AffiliateError(409,'Este produto foi descartado nesta segmentação.')
@@ -109,7 +112,7 @@ export async function sendAffiliateProduct(db:PrismaClient,tenantId:string,actor
     if(history.pendingCount)throw new AffiliateError(409,'Este produto já tem um envio pendente ou incerto. Confira a agenda e o histórico.')
     const offer=await tx.affiliateOffer.create({data:{tenantId,segmentId,itemId:preview.itemId,title:preview.title,productUrl:preview.productUrl,affiliateUrl:preview.affiliateUrl,priceCents:preview.priceCents,oldPriceCents:preview.oldPriceCents,reportedDiscountPercent:preview.reportedDiscountPercent??null,oldPriceEstimated:preview.oldPriceEstimated??false,imageUrl:preview.imageUrl,note:'',checkedAt:new Date(preview.checkedAt)}})
     if(offerMessage({...offer,headline:preview.headline})!==preview.message) throw new AffiliateError(409,'A mensagem mudou. Atualize a prévia antes de enviar.')
-    const broadcast=await approveAffiliateBroadcast(tx,tenantId,actorId,offer.id,{idempotencyKey:preview.id,expectedGroupHash:preview.groupHash,approvedMessage:preview.message})
+    const broadcast=await approveAffiliateBroadcast(tx,tenantId,actorId,offer.id,{idempotencyKey:preview.id,expectedGroupHash:preview.groupHash,approvedMessage:preview.message,sourceTitle:preview.sourceTitle})
     const decision={decision:'SENT',reason:'Envio aprovado pelo administrador.',actorId,broadcastId:broadcast.id,priceCents:preview.priceCents}
     await tx.affiliateProductDecision.upsert({where:{tenantId_segmentId_itemId:{tenantId,segmentId,itemId:preview.itemId}},create:{tenantId,segmentId,itemId:preview.itemId,...decision},update:decision})
     const groups=await tx.affiliateDelivery.count({where:{tenantId,broadcastId:broadcast.id}})

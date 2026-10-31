@@ -12,6 +12,7 @@ import { discoveryProviders, searchCombinedAffiliateCatalog } from './combined-s
 import { isShopeeProduct } from '@/domain/affiliates/shopee'
 import { affiliateCatalogProvider, type AffiliateCatalogProvider } from '@/domain/affiliates/shopee'
 import { affiliateProductHistory } from './product-history'
+import { affiliateProductFitsSegment, isPetSegment, petSearchTerm } from '@/domain/affiliates/segment-relevance'
 
 const INTERVAL = 15 * 60_000
 const TTL = 24 * 60 * 60_000
@@ -29,7 +30,7 @@ export function mergeDiscoveryProducts(previous: unknown, fresh: CatalogProduct[
 }
 const termsFor = (terms: string[], name: string) => terms.length ? terms : [name.trim().slice(0,120)]
 async function segmentFor(db: PrismaClient, tenantId: string, segmentId: string) {
-  const segment = await db.affiliateSegment.findFirst({ where: { id: segmentId, tenantId } })
+  const segment = await db.affiliateSegment.findFirst({ where: { id: segmentId, tenantId },include:{discovery:{select:{terms:true}}} })
   if (!segment) throw new AffiliateCatalogError(404, 'Segmentação não encontrada.')
   return segment
 }
@@ -50,9 +51,9 @@ export async function affiliateDiscoveryState(db: PrismaClient, tenantId: string
   const newest=new Map<string,DiscoveryProduct>()
   for(const cachedPage of pages)for(const product of mergeDiscoveryProducts(cachedPage.productsJson,[],new Date()) as DiscoveryProduct[])if(!newest.has(product.id))newest.set(product.id,refreshCachedAffiliateEvaluation(product))
   const buckets=terms.flatMap(value=>discoveryProviders.map(provider=>[...newest.values()].filter(product=>product.sourceTerm===value && (isShopeeProduct(product.id)?'SHOPEE':'MERCADO_LIVRE')===provider)))
-  const candidates:DiscoveryProduct[]=mixed?Array.from({length:Math.max(0,...buckets.map(bucket=>bucket.length))},(_,index)=>buckets.flatMap(bucket=>bucket[index]?[bucket[index]]:[])).flat():[...newest.values()]
+  const candidates:DiscoveryProduct[]=(mixed?Array.from({length:Math.max(0,...buckets.map(bucket=>bucket.length))},(_,index)=>buckets.flatMap(bucket=>bucket[index]?[bucket[index]]:[])).flat():[...newest.values()]).filter(p=>affiliateProductFitsSegment(segment,p.title))
   if(mixed)for(const product of await previouslySentProducts(db,tenantId,segmentId))if(!candidates.some(p=>p.id===product.id))candidates.push(product)
-  const products=await affiliateProductHistory(db,tenantId,segmentId,candidates)
+  const products=await affiliateProductHistory(db,tenantId,segmentId,candidates.filter(p=>affiliateProductFitsSegment(segment,p.title)))
   const decisions=await db.affiliateProductDecision.findMany({where:{tenantId,segmentId,itemId:{in:products.map(p=>p.id)}}})
   const visible=products.map(product=>{
     const decision=decisions.find(d=>d.itemId===product.id)
@@ -119,7 +120,7 @@ export async function runAffiliateDiscovery(db: PrismaClient, search: Search = s
     const owner = {...guard,enabled:true,leaseToken,leaseExpiresAt:{gt:new Date()}}
     try {
       const seeds=termsFor(row.terms,row.segment.name)
-      const terms = row.expandedTerms.length?row.expandedTerms:planAffiliateDiscoveryTerms(seeds,(await Promise.all(seeds.map(term=>expandAffiliateTerms(term).catch(()=>[])))).flat())
+      const terms = row.expandedTerms.length?row.expandedTerms:planAffiliateDiscoveryTerms(seeds,(await Promise.all(seeds.map(term=>expandAffiliateTerms(term).catch(()=>[])))).flat(),row.segment.name)
       if(!row.expandedTerms.length) {
         const saved=await db.affiliateDiscovery.updateMany({where:{...owner,leaseExpiresAt:{gt:new Date()}},data:{expandedTerms:terms}})
         if(!saved.count)return 1
@@ -127,7 +128,8 @@ export async function runAffiliateDiscovery(db: PrismaClient, search: Search = s
       const cursor=row.cursor%terms.length, pageCursors=pageCursorsFor(row.pageCursors)
       const term=row.requestedTerm??terms[cursor], page=row.requestedPage??pageCursors[term]??1
       if(!terms.includes(term))throw new AffiliateCatalogError(400,'O termo solicitado não pertence à segmentação.')
-      const result=await search(db,row.tenantId,term,{offset:(page-1)*20})
+      const searchTerm=isPetSegment({name:row.segment.name,discovery:{terms:row.terms}})?petSearchTerm(term):term
+      const result=await search(db,row.tenantId,searchTerm,{offset:(page-1)*20})
       const finished=new Date()
       const observations=await db.affiliatePriceObservation.findMany({where:{tenantId:row.tenantId,itemId:{in:result.products.map(p=>p.id)},day:{gte:new Date(finished.getTime()-30*86400000),lt:new Date(finished.toISOString().slice(0,10))}}})
       let products:DiscoveryProduct[]=result.products.map(product=>({...product,evaluation:evaluateAffiliateProduct(product,observations.filter(o=>o.itemId===product.id),finished),sourceTerm:term,sourcePage:page}))
@@ -170,24 +172,24 @@ export async function runAffiliateDiscovery(db: PrismaClient, search: Search = s
 }
 
 export async function findDiscoveryCandidate(db:PrismaClient,tenantId:string,segmentId:string,itemId:string):Promise<DiscoveryProduct> {
-  await segmentFor(db,tenantId,segmentId)
+  const segment=await segmentFor(db,tenantId,segmentId)
   if((await db.affiliateProductDecision.findUnique({where:{tenantId_segmentId_itemId:{tenantId,segmentId,itemId}}}))?.decision==='DISCARDED')throw new AffiliateCatalogError(409,'Este produto foi descartado nesta segmentação.')
   const rows=await db.affiliateDiscoveryPage.findMany({where:{tenantId,segmentId,checkedAt:{gte:new Date(Date.now()-TTL)}},orderBy:{checkedAt:'desc'},take:500})
-  for(const row of rows){const product=mergeDiscoveryProducts(row.productsJson,[],new Date()).find(p=>p.id===itemId);if(product)return product as DiscoveryProduct}
+  for(const row of rows){const product=mergeDiscoveryProducts(row.productsJson,[],new Date()).find(p=>p.id===itemId);if(product){if(!affiliateProductFitsSegment(segment,product.title))throw new AffiliateCatalogError(409,'Este produto não pertence ao tema Pets. Escolha um produto para animais.');return product as DiscoveryProduct}}
   const previous=(await previouslySentProducts(db,tenantId,segmentId)).find(p=>p.id===itemId)
-  if(previous)return previous
+  if(previous&&affiliateProductFitsSegment(segment,previous.title))return previous
   throw new AffiliateCatalogError(404,'Produto não encontrado no cache atual desta segmentação. Atualize os produtos.')
 }
 
 async function previouslySentProducts(db:PrismaClient,tenantId:string,segmentId:string):Promise<DiscoveryProduct[]>{
   const rows=await db.affiliateBroadcast.findMany({where:{tenantId,segmentId,deliveries:{some:{state:'SENT'}}},orderBy:{createdAt:'desc'},select:{productSnapshot:true,offer:true}})
-  const schema=z.object({itemId:z.string(),title:z.string(),productUrl:z.string().url(),priceCents:z.number().int().positive(),oldPriceCents:z.number().int().positive().nullable(),reportedDiscountPercent:z.number().nullable().optional(),oldPriceEstimated:z.boolean().optional(),imageUrl:z.string().nullable(),checkedAt:z.iso.datetime()})
+  const schema=z.object({itemId:z.string(),sourceTitle:z.string().optional(),title:z.string(),productUrl:z.string().url(),priceCents:z.number().int().positive(),oldPriceCents:z.number().int().positive().nullable(),reportedDiscountPercent:z.number().nullable().optional(),oldPriceEstimated:z.boolean().optional(),imageUrl:z.string().nullable(),checkedAt:z.iso.datetime()})
   const products=new Map<string,DiscoveryProduct>()
   for(const row of rows){
     const saved=schema.safeParse(row.productSnapshot),offer=saved.success?saved.data:row.offer,itemId=offer.itemId
     if(!itemId||products.has(itemId))continue
     const catalogId=isShopeeProduct(itemId)?itemId:new URL(offer.productUrl).pathname.match(/\/p\/(MLB\d+)(?:\/|$)/)?.[1]??itemId
-    const product:CatalogProduct={id:itemId,catalogId,provider:isShopeeProduct(itemId)?'SHOPEE':'MERCADO_LIVRE',title:offer.title,productUrl:offer.productUrl,priceCents:offer.priceCents,oldPriceCents:offer.oldPriceCents,oldPriceEstimated:offer.oldPriceEstimated??false,reportedDiscountPercent:offer.reportedDiscountPercent??null,imageUrl:offer.imageUrl,checkedAt:typeof offer.checkedAt==='string'?offer.checkedAt:offer.checkedAt.toISOString()}
+    const product:CatalogProduct={id:itemId,catalogId,provider:isShopeeProduct(itemId)?'SHOPEE':'MERCADO_LIVRE',title:saved.success?saved.data.sourceTitle??offer.title:offer.title,productUrl:offer.productUrl,priceCents:offer.priceCents,oldPriceCents:offer.oldPriceCents,oldPriceEstimated:offer.oldPriceEstimated??false,reportedDiscountPercent:offer.reportedDiscountPercent??null,imageUrl:offer.imageUrl,checkedAt:typeof offer.checkedAt==='string'?offer.checkedAt:offer.checkedAt.toISOString()}
     products.set(itemId,{...product,sourceTerm:'Histórico de envios',sourcePage:1,evaluation:evaluateAffiliateProduct(product,[])})
   }
   return [...products.values()]
@@ -201,7 +203,7 @@ export async function affiliateDayCandidates(db:PrismaClient,tenantId:string,seg
   for(const row of rows)for(const p of mergeDiscoveryProducts(row.productsJson,[],new Date()) as DiscoveryProduct[])if(!products.has(p.id))products.set(p.id,refreshCachedAffiliateEvaluation(p))
   for(const product of await previouslySentProducts(db,tenantId,segmentId))if(!products.has(product.id))products.set(product.id,product)
   const decisions=await db.affiliateProductDecision.findMany({where:{tenantId,segmentId,decision:'DISCARDED'}})
-  return affiliateProductHistory(db,tenantId,segmentId,[...products.values()].filter(p=>!decisions.some(d=>d.itemId===p.id)))
+  return affiliateProductHistory(db,tenantId,segmentId,[...products.values()].filter(p=>affiliateProductFitsSegment(segment,p.title)&&!decisions.some(d=>d.itemId===p.id)))
 }
 export async function refreshAffiliateCandidate(db:PrismaClient,tenantId:string,candidate:DiscoveryProduct):Promise<DiscoveryProduct> {
   const product=await refreshAffiliateCatalogProduct(db,tenantId,candidate),now=new Date()
