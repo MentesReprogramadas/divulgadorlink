@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest'
-import { dayPlanInput, dayPlanSlots, rankDayProducts,selectDayProducts } from './day-plan'
+import { dayPlanInput, dayPlanSlots, rankDayProducts,selectDayProducts,dayPlanCandidatePool } from './day-plan'
 import { evaluateAffiliateProduct } from './evaluation'
 
 const now=new Date('2026-10-31T12:00:00Z'),input={day:'2026-11-01',start:'09:00',end:'21:00'}
@@ -53,4 +53,13 @@ it('não limita a análise semântica a categorias natalinas pré-programadas',(
  const products=[make('1','Guirlanda decorativa'),make('2','Papai Noel'),make('3','Chocolates sortidos')]
  const analysis=products.map((p,i)=>({id:p.id,context:{role:i===2?'RELATED' as const:'CORE' as const,framing:i===2?'GIFT' as const:'THEME' as const,reason:'Contexto sazonal compreendido pela IA.'}}))
  expect(selectDayProducts(products,{name:'Natal'},3,analysis)).toHaveLength(3)
+})
+
+it('distribui a amostra pelos termos para não ocultar o tema atrás de descontos de uma categoria',()=>{
+ const make=(id:string,sourceTerm:string)=>{const p={id,catalogId:id,title:id,priceCents:1000,oldPriceCents:null,imageUrl:null,productUrl:'https://meli.la/test',checkedAt:now.toISOString(),sourceTerm,sourcePage:1};return {...p,evaluation:evaluateAffiliateProduct(p,[])}}
+ const high=Array.from({length:150},(_,i)=>make('fone'+i,'Fone Bluetooth')),core=Array.from({length:30},(_,i)=>make('natal'+i,'Decoração de Natal'))
+ const selected=dayPlanCandidatePool([...high,...core],100)
+ expect(selected).toHaveLength(100);expect(selected.filter(p=>p.sourceTerm==='Decoração de Natal')).toHaveLength(30)
+ expect(selected[0].id).toBe('fone0');expect(selected[1].id).toBe('natal0');expect(new Set(selected.map(p=>p.id)).size).toBe(100)
+ expect(dayPlanCandidatePool(core,120)).toHaveLength(30)
 })

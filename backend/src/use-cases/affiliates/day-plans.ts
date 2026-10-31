@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto'
 import type { Prisma, PrismaClient } from '@prisma/client'
 import { z } from 'zod'
 import { AffiliateError, offerMessage } from '@/domain/affiliates/contracts'
-import { dayPlanInput, dayPlanSlots, rankDayProducts, selectDayProducts, type DayPlanInput } from '@/domain/affiliates/day-plan'
+import { dayPlanInput, dayPlanSlots, rankDayProducts, selectDayProducts, dayPlanCandidatePool, type DayPlanInput } from '@/domain/affiliates/day-plan'
 import { affiliateProductUrl } from '@/domain/affiliates/shopee'
 import { suggestDayProductOrder } from '@/adapters/affiliates/openai-day-plan'
 import { affiliateDayCandidates, refreshAffiliateCandidate } from './discovery'
@@ -74,7 +74,7 @@ export async function buildAffiliateDayPlan(db:PrismaClient,scope?:{tenantId:str
     if(!persisted){
     const available=await ports.candidates(db,batch.tenantId,batch.segmentId)
     const eligible=(input.itemIds?available.filter(p=>input.itemIds!.includes(p.id)&&p.decision!=='DISCARDED'&&!available.some(other=>!!other.pendingCount&&sameAffiliateProduct(p,other))):rankDayProducts(available)).filter(p=>affiliateProductFitsSegment(segment,p.title))
-    const order=input.itemIds?[]:await ports.order(eligible.slice(0,100),undefined,segment,input.count)
+    const order=input.itemIds?[]:await ports.order(dayPlanCandidatePool(eligible),undefined,segment,input.count)
     const selected=input.itemIds?input.itemIds.map(id=>{const product=eligible.find(p=>p.id===id);if(!product)throw new AffiliateError(409,'Um produto selecionado foi descartado ou possui envio pendente. Refaça o lote.');return product}):selectDayProducts(eligible,segment,input.count,order)
     if(input.itemIds&&uniqueAffiliateProducts(selected).length!==selected.length)throw new AffiliateError(409,'Há anúncios do mesmo produto na seleção. Escolha somente uma oferta de cada produto.')
     if(!selected.length)throw new AffiliateError(409,'Nenhuma oferta disponível. Aguarde a coleta ou confira os envios pendentes.')

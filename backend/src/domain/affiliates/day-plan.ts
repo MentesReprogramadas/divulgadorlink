@@ -34,6 +34,22 @@ export function rankDayProducts<T extends DiscoveryProduct & {sentCount?:number;
   return eligible.sort(compare)
 }
 
+// Cover the collected search contexts before the AI decides the final mix.
+// Ranking the entire catalog first can fill the prompt with one high-discount category.
+export function dayPlanCandidatePool<T extends DiscoveryProduct>(products:T[],limit=120):T[]{
+  const buckets=new Map<string,T[]>()
+  for(const product of products){
+    const key=(product.sourceTerm??'').normalize('NFD').replace(/\p{M}/gu,'').toLowerCase().trim()
+    const bucket=buckets.get(key)??[];bucket.push(product);buckets.set(key,bucket)
+  }
+  const result:T[]=[]
+  for(let round=0;result.length<limit;round++){
+    let added=false
+    for(const bucket of buckets.values()){if(bucket[round]){result.push(bucket[round]);added=true;if(result.length===limit)break}}
+    if(!added)break
+  }
+  return result
+}
 export type DayProductSelection={id:string;context:AffiliatePlanContext}
 export function selectDayProducts<T extends DiscoveryProduct & {sentCount?:number;pendingCount?:number}>(products:T[],segment:AffiliateSegmentTheme,count:number,analysis:DayProductSelection[]=[]){
   const ranked=rankDayProducts(products).filter(p=>affiliateProductFitsSegment(segment,p.title))
