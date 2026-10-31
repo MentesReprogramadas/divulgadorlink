@@ -325,6 +325,12 @@ describe('HTTP e persistência afiliados',()=>{
     expect((await app.inject({method:'PATCH',url:`/api/v1/admin/affiliates/offers/${offerId}`,headers:headers(),payload:{priceCents:2000,oldPriceCents:3492}})).statusCode).toBe(200)
     expect(await db.affiliateOffer.findUniqueOrThrow({where:{id:offerId}})).toMatchObject({priceCents:2000,oldPriceCents:null,reportedDiscountPercent:null,oldPriceEstimated:false})
   })
+  it('trocar o anúncio manualmente remove identidade de catálogo herdada',async()=>{
+    await db.affiliateOffer.update({where:{id:offerId},data:{itemId:'MLB123456'}})
+    const response=await app.inject({method:'PATCH',url:`/api/v1/admin/affiliates/offers/${offerId}`,headers:headers(),payload:{productUrl:'https://www.mercadolivre.com.br/p/MLB888888?wid=MLB777777'}})
+    expect(response.statusCode).toBe(200)
+    expect((await db.affiliateOffer.findUniqueOrThrow({where:{id:offerId}})).itemId).toBeNull()
+  })
   it('pausa preserva metadados e edição invalida envios pendentes',async()=>{
     const before=await db.affiliateSegment.findUniqueOrThrow({where:{id:segmentId}})
     expect((await app.inject({method:'PATCH',url:`/api/v1/admin/affiliates/segments/${segmentId}`,headers:headers(),payload:{enabled:false}})).statusCode).toBe(200)

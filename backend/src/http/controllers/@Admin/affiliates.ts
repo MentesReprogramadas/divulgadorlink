@@ -232,7 +232,7 @@ export async function registerAffiliateRoutes(app:FastifyInstance) {
       if(body.checkedAt && new Date(body.checkedAt)>new Date(Date.now()+60_000)) throw new AffiliateError(400,'Data de verificação inválida.')
       const discountChanged=body.priceCents!==undefined&&body.priceCents!==row.priceCents || body.oldPriceCents!==undefined&&body.oldPriceCents!==row.oldPriceCents || body.productUrl!==undefined&&body.productUrl!==row.productUrl
       const clearEstimatedPrice=discountChanged&&row.oldPriceEstimated&&(body.oldPriceCents===undefined||body.oldPriceCents===row.oldPriceCents)
-      await tx.affiliateOffer.updateMany({where:{id,tenantId},data:{...body,...(discountChanged?{reportedDiscountPercent:null,oldPriceEstimated:false}:{}),...(clearEstimatedPrice?{oldPriceCents:null}:{}),...(body.checkedAt?{checkedAt:new Date(body.checkedAt)}:{}),...(body.expiresAt!==undefined?{expiresAt:body.expiresAt?new Date(body.expiresAt):null}:{})}})
+      await tx.affiliateOffer.updateMany({where:{id,tenantId},data:{...body,...(body.productUrl!==undefined&&body.productUrl!==row.productUrl?{itemId:null}:{}),...(discountChanged?{reportedDiscountPercent:null,oldPriceEstimated:false}:{}),...(clearEstimatedPrice?{oldPriceCents:null}:{}),...(body.checkedAt?{checkedAt:new Date(body.checkedAt)}:{}),...(body.expiresAt!==undefined?{expiresAt:body.expiresAt?new Date(body.expiresAt):null}:{})}})
       await tx.affiliateDelivery.updateMany({where:{tenantId,state:'PENDING',broadcast:{offerId:id}},data:{state:'CANCELLED',errorCode:'offer_changed_after_approval'}})
       await audit(tx,tenantId,actorId,'offer.updated',id);return {saved:true}
     })

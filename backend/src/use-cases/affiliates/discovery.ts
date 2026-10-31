@@ -180,12 +180,17 @@ export async function findDiscoveryCandidate(db:PrismaClient,tenantId:string,seg
 }
 
 async function previouslySentProducts(db:PrismaClient,tenantId:string,segmentId:string):Promise<DiscoveryProduct[]>{
-  const offers=await db.affiliateOffer.findMany({where:{tenantId,segmentId,itemId:{not:null},broadcasts:{some:{deliveries:{some:{state:'SENT'}}}}},orderBy:{createdAt:'desc'},distinct:['itemId']})
-  return [...new Map(offers.map(offer=>{
-    const catalogId=isShopeeProduct(offer.itemId!)?offer.itemId!:new URL(offer.productUrl).pathname.match(/\/p\/(MLB\d+)(?:\/|$)/)?.[1]??offer.itemId!
-    const product:DiscoveryProduct={id:offer.itemId!,catalogId,provider:isShopeeProduct(offer.itemId!)?'SHOPEE':'MERCADO_LIVRE',title:offer.title,productUrl:offer.productUrl,priceCents:offer.priceCents,oldPriceCents:offer.oldPriceCents,oldPriceEstimated:offer.oldPriceEstimated,reportedDiscountPercent:offer.reportedDiscountPercent,imageUrl:offer.imageUrl,checkedAt:offer.checkedAt.toISOString(),sourceTerm:'Histórico de envios',sourcePage:1,evaluation:evaluateAffiliateProduct(offer as unknown as CatalogProduct,[])}
-    return [product.id,product] as const
-  }).reverse()).values()]
+  const rows=await db.affiliateBroadcast.findMany({where:{tenantId,segmentId,deliveries:{some:{state:'SENT'}}},orderBy:{createdAt:'desc'},select:{productSnapshot:true,offer:true}})
+  const schema=z.object({itemId:z.string(),title:z.string(),productUrl:z.string().url(),priceCents:z.number().int().positive(),oldPriceCents:z.number().int().positive().nullable(),reportedDiscountPercent:z.number().nullable().optional(),oldPriceEstimated:z.boolean().optional(),imageUrl:z.string().nullable(),checkedAt:z.iso.datetime()})
+  const products=new Map<string,DiscoveryProduct>()
+  for(const row of rows){
+    const saved=schema.safeParse(row.productSnapshot),offer=saved.success?saved.data:row.offer,itemId=offer.itemId
+    if(!itemId||products.has(itemId))continue
+    const catalogId=isShopeeProduct(itemId)?itemId:new URL(offer.productUrl).pathname.match(/\/p\/(MLB\d+)(?:\/|$)/)?.[1]??itemId
+    const product:CatalogProduct={id:itemId,catalogId,provider:isShopeeProduct(itemId)?'SHOPEE':'MERCADO_LIVRE',title:offer.title,productUrl:offer.productUrl,priceCents:offer.priceCents,oldPriceCents:offer.oldPriceCents,oldPriceEstimated:offer.oldPriceEstimated??false,reportedDiscountPercent:offer.reportedDiscountPercent??null,imageUrl:offer.imageUrl,checkedAt:typeof offer.checkedAt==='string'?offer.checkedAt:offer.checkedAt.toISOString()}
+    products.set(itemId,{...product,sourceTerm:'Histórico de envios',sourcePage:1,evaluation:evaluateAffiliateProduct(product,[])})
+  }
+  return [...products.values()]
 }
 
 export async function affiliateDayCandidates(db:PrismaClient,tenantId:string,segmentId:string){

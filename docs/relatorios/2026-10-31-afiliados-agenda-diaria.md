@@ -16,6 +16,8 @@ Implementação solicitada e publicação autorizada pelo usuário em 31/10/2026
 
 Migração aditiva `20261031010000_affiliate_schedule_batches`: lotes, itens, leases, índices, FKs compostas por tenant e `AffiliateOffer.itemId`, com preenchimento do histórico existente a partir das decisões. Não modifica mensagens/distribuições já aprovadas.
 
+Identidade, URL e data consultada ficam também no snapshot imutável de cada distribuição. A migração complementar `20261031011000_affiliate_product_snapshot_identity` preenche esses metadados nos snapshots anteriores, sem alterar mensagem ou preços. Assim, editar o anúncio de uma oferta antiga não troca o produto do histórico nem apaga sua contagem. Trocar URL manualmente limpa a identidade herdada na oferta editável. Regressões PostgreSQL cobrem ambos os caminhos.
+
 Reutilizados geração de link, validação de produto, prévia assinada, fingerprint de grupos e `approveAffiliateBroadcast`/`runAffiliateDeliveries`. Não foram adicionadas dependências ou alterados limites comerciais, permissões ou contratos de envio incerto.
 
 Revisão independente encontrou diferença entre catálogo e anúncio do ML. O worker agora preserva `catalogId` do snapshot; histórico recupera `/p/{catalogId}` do URL. Regressão usa catálogo `MLB999999` distinto dos anúncios. Leitura final do revisor não encontrou bloqueios restantes.

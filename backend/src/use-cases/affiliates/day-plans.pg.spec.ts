@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, type Prisma } from '@prisma/client'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { afterAll, beforeAll, beforeEach, expect, it, vi } from 'vitest'
 import { evaluateAffiliateProduct } from '@/domain/affiliates/evaluation'
 import { createAffiliateDayPlan, buildAffiliateDayPlan, approveAffiliateDayPlan, readAffiliateDayPlan, cancelAffiliateDayPlan, runAffiliateDayPlans, type DayPlanPorts } from './day-plans'
@@ -103,8 +105,19 @@ it('reconfere no horário, enfileira uma única vez e conta envios confirmados s
   for(let i=0;i<4;i++){await db.affiliateInstance.update({where:{id:instanceId},data:{nextSendAt:new Date(Date.now()-1)}});await runAffiliateDeliveries(db,()=>remote,new Date())}
   expect(sent).toHaveBeenCalledTimes(4)
   const history=await affiliateProductHistory(db,tenantId,segmentId,[product()]);expect(history[0]).toMatchObject({sentCount:1,pendingCount:0})
+  const legacy=await db.affiliateBroadcast.findFirstOrThrow({where:{tenantId,offer:{itemId:product().id}}})
+  const oldSnapshot={...legacy.productSnapshot as Prisma.JsonObject}
+  delete oldSnapshot.itemId;delete oldSnapshot.productUrl;delete oldSnapshot.checkedAt
+  await db.affiliateBroadcast.update({where:{id:legacy.id},data:{productSnapshot:oldSnapshot}})
+  // Exercise the shipped backfill against a legacy snapshot, including its timestamp format.
+  await db.$executeRawUnsafe(readFileSync(resolve('prisma/migrations/20261031011000_affiliate_product_snapshot_identity/migration.sql'),'utf8'))
+  const migrated=await db.affiliateBroadcast.findUniqueOrThrow({where:{id:legacy.id}})
+  expect((migrated.productSnapshot as Prisma.JsonObject).checkedAt).toMatch(/^\d{4}-\d{2}-\d{2}T.+Z$/)
+  expect(migrated.message).toBe(legacy.message)
+  await db.affiliateOffer.updateMany({where:{tenantId,itemId:product().id},data:{itemId:null,title:'Outra oferta editada',productUrl:'https://www.mercadolivre.com.br/p/MLB888888?wid=MLB777777',priceCents:9999}})
+  expect((await affiliateProductHistory(db,tenantId,segmentId,[product()]))[0]).toMatchObject({sentCount:1,pendingCount:0})
   const discovery=await affiliateDiscoveryState(db,tenantId,segmentId,{mode:'MIXED',view:'ALL'})
-  expect(discovery.products.find(p=>p.id===product().id)).toMatchObject({sentCount:1,decision:'SENT',catalogId:'MLB999999'})
+  expect(discovery.products.find(p=>p.id===product().id)).toMatchObject({sentCount:1,decision:'SENT',catalogId:'MLB999999',priceCents:2590,title:product().title})
   // A fresh review can intentionally resend, while old approvals remain idempotent.
   await new Promise(resolve=>setTimeout(resolve,5))
   const preview=await ports.prepare(db,tenantId,actorId,segmentId,product().id)
