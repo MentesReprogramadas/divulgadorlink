@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { PrismaClient } from '@prisma/client'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import { affiliateDiscoveryState, configureAffiliateDiscovery, queueAffiliateDiscovery, queueAffiliateDiscoveryPage, findDiscoveryCandidate, runAffiliateDiscovery } from './discovery'
+import { affiliateDayCandidates, affiliateDiscoveryState, configureAffiliateDiscovery, queueAffiliateDiscovery, queueAffiliateDiscoveryPage, findDiscoveryCandidate, runAffiliateDiscovery } from './discovery'
 import {AffiliateCatalogError} from '@/domain/affiliates/mercado-livre'
 import {evaluateAffiliateProduct} from '@/domain/affiliates/evaluation'
 
@@ -26,6 +26,14 @@ afterAll(async()=>{
 const scope=()=>({tenantId,segmentId})
 const run=(search:Parameters<typeof runAffiliateDiscovery>[1],client=db)=>runAffiliateDiscovery(client,search,undefined,scope())
 describe('PostgreSQL discovery isolation and leases',()=>{
+  it('o planejamento usa os termos atuais da lista e não recupera ofertas ocultas de uma configuração anterior',async()=>{
+    await db.affiliateDiscovery.create({data:{tenantId,segmentId,terms:['Pets'],expandedTerms:['Pets']}})
+    for(const [term,id] of [['Pets','MLB100'],['Natal','MLB200']]){
+      const p={...result.products[0],id,catalogId:id,sourceTerm:term,sourcePage:1,evaluation:evaluateAffiliateProduct(result.products[0],[])}
+      await db.affiliateDiscoveryPage.create({data:{tenantId,segmentId,term,page:1,productsJson:[p],countsJson:{},total:1}})
+    }
+    expect((await affiliateDayCandidates(db,tenantId,segmentId)).map(p=>p.id)).toEqual(['MLB100'])
+  })
   it('retains failed-source cache with its original timestamp and retries the same page without recording stale prices',async()=>{
     const oldAt=new Date(Date.now()-86400000+60000).toISOString()
     await db.affiliateDiscovery.create({data:{tenantId,segmentId,expandedTerms:['Pets'],terms:['Pets'],pageCursors:{Pets:2}}})

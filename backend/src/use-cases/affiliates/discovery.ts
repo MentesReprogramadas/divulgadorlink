@@ -194,8 +194,9 @@ async function previouslySentProducts(db:PrismaClient,tenantId:string,segmentId:
 }
 
 export async function affiliateDayCandidates(db:PrismaClient,tenantId:string,segmentId:string){
-  await segmentFor(db,tenantId,segmentId)
-  const rows=await db.affiliateDiscoveryPage.findMany({where:{tenantId,segmentId,checkedAt:{gte:new Date(Date.now()-TTL)}},orderBy:{checkedAt:'desc'},take:500})
+  const segment=await segmentFor(db,tenantId,segmentId),config=await db.affiliateDiscovery.findFirst({where:{tenantId,segmentId}})
+  const terms=config?.expandedTerms.length?config.expandedTerms:termsFor(config?.terms??[],segment.name)
+  const rows=await db.affiliateDiscoveryPage.findMany({where:{tenantId,segmentId,term:{in:terms},checkedAt:{gte:new Date(Date.now()-TTL)}},orderBy:{checkedAt:'desc'},take:500})
   const products=new Map<string,DiscoveryProduct>()
   for(const row of rows)for(const p of mergeDiscoveryProducts(row.productsJson,[],new Date()) as DiscoveryProduct[])if(!products.has(p.id))products.set(p.id,refreshCachedAffiliateEvaluation(p))
   for(const product of await previouslySentProducts(db,tenantId,segmentId))if(!products.has(product.id))products.set(product.id,product)
