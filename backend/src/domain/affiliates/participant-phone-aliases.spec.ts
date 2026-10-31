@@ -7,6 +7,9 @@ describe('trusted participant aliases',()=>{
   expect(parseParticipantPhoneAliases({unknown:[]})).toBeNull()
  })
  it('drops both sides of ambiguous mappings instead of guessing from LID digits',()=>{
+  const legacy={id:'123@lid',phoneNumber:'551199991234@s.whatsapp.net'}
+  expect(parseParticipantPhoneAliases({participants:[legacy]})).toEqual([legacy])
+  expect(parseParticipantPhoneAliases({participants:[legacy,{id:'456@lid',phoneNumber:'5511999991234@s.whatsapp.net'}]})).toEqual([])
   expect(parseParticipantPhoneAliases({participants:[{id:'123@lid',phoneNumber:'5511999991234@s.whatsapp.net'},{id:'123@lid',phoneNumber:'5511999995678@s.whatsapp.net'}]})).toEqual([])
   expect(parseParticipantPhoneAliases({participants:[{id:'123@lid',phoneNumber:'5511999991234@s.whatsapp.net'},{id:'456@lid',phoneNumber:'5511999991234@s.whatsapp.net'}]})).toEqual([])
  })

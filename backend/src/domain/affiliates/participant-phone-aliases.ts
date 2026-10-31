@@ -9,12 +9,13 @@ export function parseParticipantPhoneAliases(value:unknown):ParticipantPhoneAlia
   const candidates=envelope.data.participants.flatMap(row=>{const parsed=alias.safeParse(row);return parsed.success&&conversionParticipantPhone(parsed.data.phoneNumber)?[parsed.data]:[]})
   const phonesById=new Map<string,Set<string>>(),idsByPhone=new Map<string,Set<string>>()
   for(const row of candidates) {
+    const phone=conversionParticipantPhone(row.phoneNumber)!
     phonesById.set(row.id,(phonesById.get(row.id)??new Set()).add(row.phoneNumber))
-    idsByPhone.set(row.phoneNumber,(idsByPhone.get(row.phoneNumber)??new Set()).add(row.id))
+    idsByPhone.set(phone,(idsByPhone.get(phone)??new Set()).add(row.id))
   }
   return [...phonesById].flatMap(([id,phones])=>{
     const phoneNumber=[...phones][0]
-    return phones.size===1&&idsByPhone.get(phoneNumber)?.size===1?[{id,phoneNumber}]:[]
+    return phones.size===1&&idsByPhone.get(conversionParticipantPhone(phoneNumber)!)?.size===1?[{id,phoneNumber}]:[]
   })
 }
 

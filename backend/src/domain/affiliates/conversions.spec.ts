@@ -9,6 +9,14 @@ describe('conversion identity boundary',()=>{
   expect(conversionParticipantPhone('5511999991234:1@s.whatsapp.net')).toBeNull()
   expect(conversionParticipantPhone('5511999991234@s.whatsapp.net')).toBe('5511999991234')
  })
+ it('canonicalizes legacy Brazilian mobile PNs from WhatsApp without changing landlines or trusting LIDs',()=>{
+  expect(conversionParticipantPhone('551199991234@s.whatsapp.net')).toBe('5511999991234')
+  expect(conversionParticipantPhone('553188881234@s.whatsapp.net')).toBe('5531988881234')
+  expect(conversionParticipantPhone('551133331234@s.whatsapp.net')).toBe('551133331234')
+  expect(conversionParticipantPhone('551199991234@lid')).toBeNull()
+  expect(conversionParticipantPhone('551199991234:1@s.whatsapp.net')).toBeNull()
+  expect(normalizeConversionPhone('1199991234')).toBeNull()
+ })
  it('isolates identities by tenant and segment and uses a qualified CRM stage without raw phone',()=>{
   const key=Buffer.alloc(32,42).toString('base64'),hash=conversionPhoneHash(key,'one','segment','5511999991234')
   expect(hash).not.toBe(conversionPhoneHash(key,'two','segment','5511999991234'))

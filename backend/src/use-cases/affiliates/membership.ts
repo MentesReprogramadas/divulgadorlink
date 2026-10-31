@@ -2,6 +2,7 @@ import type { PrismaClient } from '@prisma/client'
 import { z } from 'zod'
 import { membershipIdentity, membershipParticipant, membershipTransition, type parseMembershipEvent } from '@/domain/affiliates/membership'
 import { AffiliateError } from '@/domain/affiliates/contracts'
+import { conversionParticipantPhone } from '@/domain/affiliates/conversions'
 import { correlateConversionJoin, type ScopedParticipantAliases } from './conversions'
 
 const retentionMs=90*24*60*60*1000
@@ -69,7 +70,8 @@ export async function recordAffiliateMembership(db:PrismaClient,tenantId:string,
       joins+=change.joins;leaves+=change.leaves;rejoins+=change.rejoins
       const scopedAliases=aliases?.tenantId===tenantId&&aliases.groupId===group.id&&aliases.segmentId===group.segmentId&&aliases.baselineAt.getTime()===tracking.baselineAt?.getTime()&&Math.abs(aliases.resolvedAt.getTime()-receivedAt.getTime())<=5000?aliases.aliases:[]
       const phoneAlias=scopedAliases.find(row=>row.id===identity)?.phoneNumber
-      const knownAlias=phoneAlias?await tx.affiliateMembershipState.findUnique({where:{tenantId_groupId_identityHash:{tenantId,groupId:group.id,identityHash:membershipIdentity(master,tenantId,event.jid,phoneAlias)}}}):null
+      const phone=conversionParticipantPhone(phoneAlias??identity)
+      const knownAlias=phone?await tx.affiliateMembershipState.findFirst({where:{tenantId,groupId:group.id,identityHash:{in:[phoneAlias??identity,phone+'@s.whatsapp.net'].map(alias=>membershipIdentity(master,tenantId,event.jid,alias))}}}):null
       if(change.joins&&!knownAlias) await correlateConversionJoin(tx,{tenantId,segmentId:group.segmentId,groupId:group.id,identity,occurredAt:event.occurredAt,receivedAt,master,phoneAlias})
       await tx.affiliateMembershipState.upsert({where,create:{tenantId,groupId:group.id,identityHash,present:change.present,lastEventAt:event.occurredAt},update:{present:change.present,lastEventAt:event.occurredAt}})
     }

@@ -14,7 +14,10 @@ export function normalizeConversionPhone(raw:string):string|null {
 }
 export function conversionParticipantPhone(identity:string) {
   const match=/^(\d+)@s\.whatsapp\.net$/.exec(identity)
-  return match?normalizeConversionPhone(match[1]):null
+  if(!match)return null
+  // WhatsApp can retain Brazilian mobile PNs from before the ninth digit migration.
+  const phone=match[1].replace(/^(55[1-9]\d)([6-9]\d{7})$/,'$19$2')
+  return normalizeConversionPhone(phone)
 }
 export function conversionPhoneHash(master:string,tenantId:string,segmentId:string,phone:string) {
   if(!/^[A-Za-z0-9+/]{43}=$/.test(master)||Buffer.from(master,'base64').length!==32)throw new Error('Conversion secure configuration unavailable')
