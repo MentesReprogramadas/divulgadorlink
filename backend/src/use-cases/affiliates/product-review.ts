@@ -8,7 +8,7 @@ import { generateCatalogAffiliate } from '@/use-cases/@Affiliates/catalog'
 import { findDiscoveryCandidate, generateAffiliateTitle, refreshAffiliateCandidate } from './discovery'
 import { affiliateEligibleGroupWhere, affiliateGroupFingerprint, approveAffiliateBroadcast } from './deliveries'
 import { affiliateProductHistory } from './product-history'
-import { affiliateProductFitsSegment, affiliateCopyContext, isChristmasSegment } from '@/domain/affiliates/segment-relevance'
+import { affiliateProductFitsSegment, affiliateCopyContext, isChristmasSegment, type AffiliatePlanContext } from '@/domain/affiliates/segment-relevance'
 
 const itemIdSchema = affiliateProductId
 const previewSchema = z.object({
@@ -39,8 +39,8 @@ export async function affiliateRevision(db:Pick<PrismaClient,'affiliateConnectio
   return createHash('sha256').update(value).digest('hex')
 }
 const defaults={candidate:findDiscoveryCandidate,refresh:refreshAffiliateCandidate,link:generateCatalogAffiliate,title:generateAffiliateTitle}
-export const previewScheduledAffiliateProduct=(db:PrismaClient,tenantId:string,actorId:string,segmentId:string,itemId:string)=>previewAffiliateProduct(db,tenantId,actorId,segmentId,itemId)
-export async function previewAffiliateProduct(db:PrismaClient,tenantId:string,actorId:string,segmentId:string,itemId:string,ports=defaults) {
+export const previewScheduledAffiliateProduct=(db:PrismaClient,tenantId:string,actorId:string,segmentId:string,itemId:string,planContext?:AffiliatePlanContext)=>previewAffiliateProduct(db,tenantId,actorId,segmentId,itemId,defaults,planContext)
+export async function previewAffiliateProduct(db:PrismaClient,tenantId:string,actorId:string,segmentId:string,itemId:string,ports=defaults,planContext?:AffiliatePlanContext) {
   itemIdSchema.parse(itemId)
   const segment=await db.affiliateSegment.findFirst({where:{id:segmentId,tenantId,enabled:true},include:{discovery:{select:{terms:true}}}})
   if(!segment) throw new AffiliateError(404,'Segmentação ativa não encontrada.')
@@ -48,7 +48,7 @@ export async function previewAffiliateProduct(db:PrismaClient,tenantId:string,ac
   const [product,link]=await Promise.all([ports.refresh(db,tenantId,candidate),ports.link(db,tenantId,actorId,affiliateProductUrl(candidate.productUrl).href)])
   if(!affiliateProductFitsSegment(segment,product.title))throw new AffiliateError(409,'Este produto não pertence ao tema Pets. Escolha um produto para animais.')
   if(product.id!==itemId || affiliateProductUrl(product.productUrl).href!==affiliateProductUrl(candidate.productUrl).href) throw new AffiliateError(409,'O anúncio mudou durante a consulta. Abra o produto novamente.')
-  const generated=await ports.title(db,tenantId,product,undefined,undefined,segment)
+  const generated=await ports.title(db,tenantId,product,undefined,undefined,{...segment,planContext})
   const [current,groups,revisionAfter]=await Promise.all([
     db.affiliateSegment.findFirst({where:{id:segmentId,tenantId,enabled:true},include:{discovery:{select:{terms:true}}}}),
     db.affiliateGroup.findMany({where:affiliateEligibleGroupWhere(tenantId,segmentId),select:{id:true,name:true},orderBy:{sequence:'asc'}}),
@@ -57,7 +57,7 @@ export async function previewAffiliateProduct(db:PrismaClient,tenantId:string,ac
   if(!current || current.updatedAt.getTime()!==segment.updatedAt.getTime() || revisionAfter!==revision) throw new AffiliateError(409,'A segmentação ou a conta de afiliados mudou. Atualize a prévia.')
   const checkedAt=new Date(product.checkedAt),now=Date.now()
   if(!Number.isFinite(checkedAt.getTime()) || checkedAt.getTime()>now || now-checkedAt.getTime()>5*60_000) throw new AffiliateError(409,'Não foi possível confirmar um preço recente. Atualize a prévia.')
-  const headline=generated.headline??(affiliateCopyContext(segment,product.title).purpose==='GIFT_IDEA'?'Uma opção de presente para o Natal 🎁':isChristmasSegment(segment)?'Uma opção para o seu Natal 🎄':'Confira uma opção para sua rotina ✨')
+  const headline=generated.headline??(affiliateCopyContext({...segment,planContext},product.title).purpose==='GIFT_IDEA'?(isChristmasSegment(segment)?'Uma opção de presente para o Natal 🎁':'Uma ideia de presente para você 🎁'):isChristmasSegment(segment)?'Uma opção para o seu Natal 🎄':'Confira uma opção para sua rotina ✨')
   const reportedDiscountPercent=isShopeeProduct(product.id)?product.reportedDiscountPercent??null:null
   const message=offerMessage({...product,reportedDiscountPercent,title:generated.title,headline,showHeadline:true,affiliateUrl:link.url,note:''})
   const payload=previewSchema.parse({version:1,id:randomUUID(),tenantId,actorId,segmentId,segmentRevision:current.updatedAt.toISOString(),affiliateRevision:revision,expiresAt:now+5*60_000,sourceTitle:product.title,title:generated.title,headline,showHeadline:true,productUrl:product.productUrl,affiliateUrl:link.url,itemId,priceCents:product.priceCents,oldPriceCents:product.oldPriceCents,reportedDiscountPercent,oldPriceEstimated:product.oldPriceEstimated??false,imageUrl:product.imageUrl,checkedAt:product.checkedAt,message,groupHash:affiliateGroupFingerprint(groups)})

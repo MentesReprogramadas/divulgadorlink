@@ -11,7 +11,7 @@ import styles from './day-planner.module.css'
 import common from './affiliates.module.css'
 
 type PlanSummary={id:string;status:string;config:{day:string;start:string;end:string};groupCount?:number;_count:{entries:number}}
-export type DayPlan={id:string;status:string;mode:'AUTO'|'MANUAL';source:'RULES'|'OPENAI';expiresAt:string;error:string|null;config:{day:string;start:string;end:string};groups:Array<{id:string;name:string}>;dailyByGroup?:Array<{id:string;name:string;messages:number}>;summary:{offers:number;groups:number;totalMessages:number;intervalMinutes:number|null;maxIntervalMinutes?:number|null;firstAt?:string|null;lastAt?:string|null};entries:Array<{id:string;itemId:string;scheduledAt:string;state:string;kind?:'THEME'|'GIFT'|'OUTSIDE';error:string|null;title:string;product?:CatalogProduct;message?:string;affiliateUrl?:string;sentCount?:number;counts?:Array<{state:string;count:number}>}>}
+export type DayPlan={id:string;status:string;mode:'AUTO'|'MANUAL';source:'RULES'|'OPENAI';expiresAt:string;error:string|null;config:{day:string;start:string;end:string};groups:Array<{id:string;name:string}>;dailyByGroup?:Array<{id:string;name:string;messages:number}>;summary:{coreOffers?:number;relatedOffers?:number;offers:number;groups:number;totalMessages:number;intervalMinutes:number|null;maxIntervalMinutes?:number|null;firstAt?:string|null;lastAt?:string|null};entries:Array<{id:string;itemId:string;scheduledAt:string;state:string;kind?:'THEME'|'GIFT'|'RELATED'|'OUTSIDE';error:string|null;title:string;product?:CatalogProduct;message?:string;affiliateUrl?:string;sentCount?:number;counts?:Array<{state:string;count:number}>}>}
 const labels:Record<string,string>={BUILDING:'Preparando',DRAFT:'Revisar',APPROVED:'Agendado',CANCELLED:'Cancelado',FAILED:'Conferir',READY:'Pronto',PENDING:'Agendado',PROCESSING:'Conferindo preço',QUEUED:'Na fila'}
 const brDay=(date:Date)=>new Intl.DateTimeFormat('sv-SE',{timeZone:'America/Sao_Paulo'}).format(date)
 const brTime=(date:string)=>new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Sao_Paulo',hour:'2-digit',minute:'2-digit'}).format(new Date(date))
@@ -40,8 +40,6 @@ export function DayPlanner({segmentId,segmentName='',selected,clearSelection,onC
 function DayPlanDialog({base,segmentName,initialId,selected,onClose,onChanged,clearSelection,returnFocusTo}:{base:string;segmentName:string;initialId:string|null;selected?:DiscoveryProduct[];onClose:()=>void;onChanged:()=>void;clearSelection:()=>void;returnFocusTo:HTMLElement|null}){
   const [retryProducts,setRetryProducts]=useState<DiscoveryProduct[]|null>(null)
   const chosen=retryProducts??selected
-  const christmas=/\b(?:natal|natalino|natalina|christmas|xmas)\b/i.test(segmentName)
-  const [includeGiftIdeas,setIncludeGiftIdeas]=useState(false)
   const [defaults]=useState(()=>dayPlanDefaults())
   const [id,setId]=useState(initialId),[plan,setPlan]=useState<DayPlan|null>(null),[day,setDay]=useState(defaults.day),[start,setStart]=useState(defaults.start),[end,setEnd]=useState(defaults.end),[count,setCount]=useState(12),[busy,setBusy]=useState(false),[error,setError]=useState(''),[reload,setReload]=useState(0),[cancelConfirm,setCancelConfirm]=useState(false),[now,setNow]=useState(Date.now())
   const lock=useRef(false),mounted=useRef(true),requestKey=useRef<{input:string;key:string}|null>(null)
@@ -55,7 +53,7 @@ function DayPlanDialog({base,segmentName,initialId,selected,onClose,onChanged,cl
   async function generate(event:FormEvent){
     event.preventDefault();if(lock.current)return
     lock.current=true;setBusy(true);setError('')
-    const input={day,start,end,count:chosen?.length??count,...(christmas&&!chosen?{includeGiftIdeas}:{}),...(chosen?{itemIds:chosen.map(p=>p.id)}:{})}
+    const input={day,start,end,count:chosen?.length??count,...(chosen?{itemIds:chosen.map(p=>p.id)}:{})}
     const serialized=JSON.stringify(input)
     if(requestKey.current?.input!==serialized)requestKey.current={input:serialized,key:crypto.randomUUID()}
     try{const value=await affiliateRequest<{id:string}>(base,'POST',{...input,idempotencyKey:requestKey.current!.key});if(mounted.current){setId(value.id);onChanged()}}
@@ -84,7 +82,7 @@ function DayPlanDialog({base,segmentName,initialId,selected,onClose,onChanged,cl
     {!id?<form className={styles.form} onSubmit={event=>void generate(event)}>
       {retryProducts?<p>As ofertas que falharam serão conferidas em um novo lote. Escolha o horário e revise antes de aceitar.</p>:null}
       <p>{chosen?`${chosen.length} ofertas escolhidas por você.`:'A IA escolhe produtos diferentes, priorizando descontos e os menos enviados.'}</p>
-      {christmas&&!chosen?<><p>Somente produtos natalinos por padrão.</p><label className={styles.giftChoice}><input type="checkbox" checked={includeGiftIdeas} onChange={event=>setIncludeGiftIdeas(event.target.checked)}/><span>Incluir algumas ideias de presente</span></label><p className={common.muted}>Até 20% de presentes, intercalados com itens de Natal. A chamada apresenta a ideia de presente.</p></>:null}
+      {!chosen?<p>A IA analisa o contexto de {segmentName||'seu segmento'} e mantém o tema em destaque. Complementos entram quando fazem sentido para o grupo, sem proporção fixa.</p>:null}
       <label>Dia<input required type="date" value={day} min={brDay(new Date())} max={brDay(new Date(Date.now()+30*86400000))} onChange={e=>setDay(e.target.value)}/></label>
       <div className={styles.fields}><label>Começa às<input required type="time" value={start} onChange={e=>setStart(e.target.value)}/></label><label>Termina às<input required type="time" value={end} onChange={e=>setEnd(e.target.value)}/></label></div>
       {!chosen?<label>Ofertas no dia<input required type="number" min={1} max={24} value={count} onChange={e=>setCount(Number(e.target.value))}/></label>:null}
@@ -95,11 +93,12 @@ function DayPlanDialog({base,segmentName,initialId,selected,onClose,onChanged,cl
       {plan.status==='BUILDING'?<p role="status">Preparando fotos, preços e links… Você pode fechar e retomar pela Agenda.</p>:null}
       {plan.error?<p role="alert" className={common.warning}>{plan.error}</p>:null}
       {plan.status!=='BUILDING'?<><div className={styles.summary}><strong>{plan.summary.offers} {plan.summary.offers===1?'oferta · 1 mensagem':'ofertas · '+plan.summary.offers+' mensagens'} por grupo</strong><span>{plan.summary.groups} {plan.summary.groups===1?'grupo':'grupos'} · {plan.summary.totalMessages} mensagens neste lote</span><span>{planCadence(plan)}</span>{plan.dailyByGroup?.length?<span>Total do dia: {Math.min(...plan.dailyByGroup.map(g=>g.messages))===Math.max(...plan.dailyByGroup.map(g=>g.messages))?plan.dailyByGroup[0].messages:`${Math.min(...plan.dailyByGroup.map(g=>g.messages))} a ${Math.max(...plan.dailyByGroup.map(g=>g.messages))}`} mensagens por grupo.</span>:null}</div>
+        {plan.mode==='AUTO'&&plan.summary.coreOffers!==undefined?<p className={common.muted}>{plan.summary.coreOffers} do tema · {plan.summary.relatedOffers??0} complementares</p>:null}
         <details><summary className={styles.detailsSummary}>Destinos e total de mensagens no dia</summary><ul>{plan.groups.map(g=><li key={g.id}>{g.name}{plan.dailyByGroup?` · ${plan.dailyByGroup.find(d=>d.id===g.id)?.messages??0} mensagens no dia, incluindo este lote`:''}</li>)}</ul></details>
-        {plan.mode==='AUTO'?<p className={common.muted}>{plan.source==='OPENAI'?'Sequência organizada com IA.':'Sequência organizada por desconto e histórico; IA indisponível nesta geração.'}</p>:null}
+        {plan.mode==='AUTO'?<p className={common.muted}>{plan.source==='OPENAI'?'Composição e sequência escolhidas pela IA conforme o segmento.':'Sequência organizada por desconto e histórico; IA indisponível nesta geração.'}</p>:null}
         </>:null}
       <ol className={styles.entries}>{plan.entries.filter(e=>e.state!=='CANCELLED').map(entry=><li key={entry.id} className={styles.entry}>
-        <div className={styles.entryTop}><time dateTime={entry.scheduledAt}>{brTime(entry.scheduledAt)}</time><span>{entry.counts?.length?entry.counts.map(c=>`${c.count} ${deliveryLabels[c.state]??c.state}`).join(' · '):labels[entry.state]??entry.state}</span>{entry.kind==='GIFT'?<span>Ideia de presente</span>:null}</div>
+        <div className={styles.entryTop}><time dateTime={entry.scheduledAt}>{brTime(entry.scheduledAt)}</time><span>{entry.counts?.length?entry.counts.map(c=>`${c.count} ${deliveryLabels[c.state]??c.state}`).join(' · '):labels[entry.state]??entry.state}</span>{entry.kind==='GIFT'?<span>Ideia de presente</span>:entry.kind==='RELATED'?<span>Complemento ao tema</span>:null}</div>
         <div className={styles.product}>{entry.product?<ProductImage src={entry.product.imageUrl} title={entry.title}/>:<div aria-hidden="true"/>}<div><strong>{entry.title}</strong>{entry.product?<p><b>{formatCents(entry.product.priceCents)}</b>{entry.product.reportedDiscountPercent?` · ${entry.product.reportedDiscountPercent}% OFF`:entry.product.oldPriceCents&&entry.product.oldPriceCents>entry.product.priceCents?` · ${Math.floor((1-entry.product.priceCents/entry.product.oldPriceCents)*100)}% OFF`:''}</p>:null}<span className={common.muted}>{entry.sentCount??0} {entry.sentCount===1?'envio anterior':'envios anteriores'}</span></div></div>
         {entry.error?<p className={common.warning}>{entry.error}</p>:null}
         {entry.product&&entry.state==='FAILED'?<p className={common.muted}>Foto e preço da coleta. Esta oferta não está incluída no agendamento.</p>:null}

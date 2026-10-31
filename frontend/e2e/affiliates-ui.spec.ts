@@ -650,7 +650,7 @@ test('agenda paginada e nova conferência individual ou de todas as falhas sem e
 })
 
 
-test('planejamento de Natal controla presentes e mostra chamada contextual acima do produto',async({page},testInfo)=>{
+test('planejamento usa composição automática contextual e mostra chamada contextual acima do produto',async({page},testInfo)=>{
  await fixtures(page)
  await page.route('**/catalog/status',route=>route.fulfill({json:{configured:true,connected:true,status:'CONNECTED',affiliateConfigured:true}}))
  const phone={...offer,id:'MLB123456',title:'Fone Bluetooth JBL',priceCents:9990,oldPriceCents:12990}
@@ -658,17 +658,18 @@ test('planejamento de Natal controla presentes e mostra chamada contextual acima
  const requests:Array<Record<string,unknown>>=[]
  await page.route('**/day-plans**',async route=>{
   if(route.request().method()==='POST'){requests.push(route.request().postDataJSON());return route.fulfill({json:{id:'christmas-plan',status:'BUILDING'}})}
-  return route.fulfill({json:{id:'christmas-plan',status:'DRAFT',mode:'AUTO',source:'OPENAI',expiresAt:'2099-11-01T12:00:00Z',error:null,config:{day:'2099-11-01',start:'09:00',end:'21:00',includeGiftIdeas:true},groups:[{id:'group-1',name:'Natal #1'}],summary:{offers:1,groups:1,totalMessages:1,intervalMinutes:null},entries:[{id:'gift-entry',itemId:phone.id,title:phone.title,kind:'GIFT',product:phone,message,scheduledAt:'2099-11-01T12:00:00Z',state:'READY',error:null,sentCount:0}]}})
+  return route.fulfill({json:{id:'christmas-plan',status:'DRAFT',mode:'AUTO',source:'OPENAI',expiresAt:'2099-11-01T12:00:00Z',error:null,config:{day:'2099-11-01',start:'09:00',end:'21:00'},groups:[{id:'group-1',name:'Natal #1'}],summary:{offers:1,groups:1,totalMessages:1,intervalMinutes:null},entries:[{id:'gift-entry',itemId:phone.id,title:phone.title,kind:'GIFT',product:phone,message,scheduledAt:'2099-11-01T12:00:00Z',state:'READY',error:null,sentCount:0}]}})
  })
  await page.goto('/admin/afiliados/segmentacoes/segment-1');await area(page,'Ofertas')
  await page.getByRole('button',{name:'Planejar o dia'}).click()
- const dialog=page.getByRole('dialog'),gift=dialog.getByRole('checkbox',{name:'Incluir algumas ideias de presente'})
- await expect(gift).not.toBeChecked()
- await gift.check();await dialog.getByRole('button',{name:'Gerar prévia do lote'}).click()
+ const dialog=page.getByRole('dialog')
+ await expect(dialog.getByRole('checkbox')).toHaveCount(0)
+ await expect(dialog.getByText(/sem proporção fixa/)).toBeVisible()
+ await dialog.getByRole('button',{name:'Gerar prévia do lote'}).click()
  await expect(dialog.getByText('Ideia de presente',{exact:true})).toBeVisible()
  await dialog.getByText('Ver mensagem e link').click()
  await expect(dialog.locator('pre')).toContainText(headline+'\n*Fone Bluetooth JBL*')
- expect(requests[0].includeGiftIdeas).toBe(true)
+ expect(requests[0].includeGiftIdeas).toBeUndefined()
  expect((await new AxeBuilder({page}).include('dialog').analyze()).violations).toEqual([])
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true)
  await page.screenshot({path:testInfo.outputPath('christmas-gift-headline.png'),animations:'disabled'})

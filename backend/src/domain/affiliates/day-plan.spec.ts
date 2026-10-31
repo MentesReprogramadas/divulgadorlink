@@ -21,16 +21,16 @@ it('prioriza descontos e contabiliza repetições; sem desconto ainda completa, 
   expect(dayPlanInput.safeParse({idempotencyKey:crypto.randomUUID(),...input,itemIds:['MLB123','MLB123']}).success).toBe(false)
 })
 
-it('Natal usa somente produtos natalinos; presentes são opcionais e limitados a um em cada cinco',()=>{
+it('aceita composições sem quota fixa escolhidas pela IA e preserva predominância do núcleo',()=>{
  const product=(id:string,title:string)=>{const p={id,catalogId:id,title,priceCents:1000,oldPriceCents:2000,imageUrl:null,productUrl:'https://meli.la/test',checkedAt:now.toISOString(),sourceTerm:'Natal',sourcePage:1};return {...p,evaluation:evaluateAffiliateProduct(p,[])}}
- const theme=Array.from({length:20},(_,i)=>product('n'+i,'Enfeite Natal modelo '+i)),gifts=Array.from({length:10},(_,i)=>product('g'+i,['Fone Bluetooth','Tênis casual','Caixa de som','Relógio','Perfume','Bolsa','Mochila','Caneca','Livro','Console'][i]+' modelo '+i))
- const products=[...gifts,...theme,product('duplicate',theme[0].title),product('outside','Ração para cachorro')]
- expect(selectDayProducts(products,{name:'Natal'},24).every(p=>p.title.includes('Natal'))).toBe(true)
- const mixed=selectDayProducts(products,{name:'Natal'},24,true)
- expect(mixed).toHaveLength(24);expect(mixed.filter(p=>p.id.startsWith('g'))).toHaveLength(4)
- expect(mixed.slice(0,5).map(p=>p.id.startsWith('g'))).toEqual([false,false,false,false,true])
- expect(selectDayProducts(gifts,{name:'Natal'},24,true)).toHaveLength(0)
- expect(selectDayProducts([...gifts,...theme.slice(0,3)],{name:'Natal'},24,true)).toHaveLength(3)
+ const theme=Array.from({length:7},(_,i)=>product('n'+i,'Enfeite Natal modelo '+i)),gifts=Array.from({length:3},(_,i)=>product('g'+i,['Fone Bluetooth','Tênis casual','Relógio'][i]))
+ const products=[...theme,...gifts]
+ const analysis=products.map(p=>({id:p.id,context:{role:p.id.startsWith('n')?'CORE' as const:'RELATED' as const,framing:p.id.startsWith('n')?'THEME' as const:'GIFT' as const,reason:'Relação contextual analisada pela IA.'}}))
+ expect(selectDayProducts(products,{name:'Natal'},10,analysis)).toHaveLength(10)
+ expect(selectDayProducts(products,{name:'Natal'},10,analysis.slice(0,8))).toHaveLength(8)
+ expect(selectDayProducts(products,{name:'Natal'},10,analysis.slice(0,7))).toHaveLength(7)
+ expect(selectDayProducts(products,{name:'Natal'},10,analysis.slice(6))).toHaveLength(7)
+ expect(selectDayProducts(products,{name:'Natal'},10).every(p=>p.title.includes('Natal'))).toBe(true)
 })
 
 it('contabiliza o histórico de anúncios equivalentes e bloqueia variante com envio já pendente',()=>{
@@ -40,11 +40,17 @@ it('contabiliza o histórico de anúncios equivalentes e bloqueia variante com e
  expect(rankDayProducts([a,{...b,pendingCount:1}])).toHaveLength(0)
 })
 
-it('varia os presentes entre categorias, incluindo aliases de celulares e tablets',()=>{
- const product=(id:string,title:string)=>{const p={id,catalogId:id,title,priceCents:1000,oldPriceCents:null,imageUrl:null,productUrl:'https://meli.la/test',checkedAt:now.toISOString(),sourceTerm:'Natal',sourcePage:1};return {...p,evaluation:evaluateAffiliateProduct(p,[])}}
- const native=Array.from({length:20},(_,i)=>product('n'+i,'Enfeite Natal modelo '+i))
- const gifts=[product('g1','Smartphone Samsung modelo 1'),product('g2','Celular Motorola modelo 2'),product('g3','Tablet Samsung modelo 3'),product('g4','iPad Apple modelo 4'),product('g5','Notebook modelo 5')]
- const selected=selectDayProducts([...native,...gifts],{name:'Natal'},24,true)
- expect(selected.filter(p=>/Smartphone|Celular/.test(p.title))).toHaveLength(1)
- expect(selected.filter(p=>/Tablet|iPad/.test(p.title))).toHaveLength(1)
+it('aplica a análise contextual a qualquer segmento e mantém a exclusão de infantis em Pets',()=>{
+ const p={id:'MLB1',catalogId:'MLB1',title:'Tapete para yoga',priceCents:1000,oldPriceCents:null,imageUrl:null,productUrl:'https://meli.la/test',checkedAt:now.toISOString(),sourceTerm:'Yoga',sourcePage:1}
+ const a={...p,evaluation:evaluateAffiliateProduct(p,[])},b={...a,id:'MLB2',catalogId:'MLB2',title:'Garrafa térmica'},c={...a,id:'MLB3',catalogId:'MLB3',title:'Bloco para yoga'}
+ const analysis=[{id:a.id,context:{role:'CORE' as const,framing:'THEME' as const,reason:'Equipamento usado na prática.'}},{id:b.id,context:{role:'RELATED' as const,framing:'COMPANION' as const,reason:'Hidratação durante a prática.'}},{id:c.id,context:{role:'CORE' as const,framing:'THEME' as const,reason:'Apoio para exercícios de yoga.'}}]
+ expect(selectDayProducts([a,b,c],{name:'Yoga'},3,analysis).map(p=>p.id)).toEqual(['MLB1','MLB2','MLB3'])
+ expect(selectDayProducts([{...a,title:'Chocalho para bebê'}],{name:'Pets'},1,[analysis[0]])).toHaveLength(0)
+})
+
+it('não limita a análise semântica a categorias natalinas pré-programadas',()=>{
+ const make=(id:string,title:string)=>{const p={id,catalogId:id,title,priceCents:1000,oldPriceCents:null,imageUrl:null,productUrl:'https://meli.la/test',checkedAt:now.toISOString(),sourceTerm:'Natal',sourcePage:1};return {...p,evaluation:evaluateAffiliateProduct(p,[])}}
+ const products=[make('1','Guirlanda decorativa'),make('2','Papai Noel'),make('3','Chocolates sortidos')]
+ const analysis=products.map((p,i)=>({id:p.id,context:{role:i===2?'RELATED' as const:'CORE' as const,framing:i===2?'GIFT' as const:'THEME' as const,reason:'Contexto sazonal compreendido pela IA.'}}))
+ expect(selectDayProducts(products,{name:'Natal'},3,analysis)).toHaveLength(3)
 })

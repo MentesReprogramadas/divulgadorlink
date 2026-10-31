@@ -1,5 +1,5 @@
 import { groupAffiliateProducts } from './product-identity'
-import { christmasProductKind, isChristmasSegment, type AffiliateSegmentTheme } from './segment-relevance'
+import { christmasProductKind, isChristmasSegment, type AffiliateSegmentTheme, type AffiliatePlanContext, affiliateProductFitsSegment } from './segment-relevance'
 import { z } from 'zod'
 import { affiliateProductId } from './shopee'
 import { AffiliateError } from './contracts'
@@ -34,17 +34,18 @@ export function rankDayProducts<T extends DiscoveryProduct & {sentCount?:number;
   return eligible.sort(compare)
 }
 
-export function selectDayProducts<T extends DiscoveryProduct & {sentCount?:number;pendingCount?:number}>(products:T[],segment:AffiliateSegmentTheme,count:number,includeGiftIdeas=false,aiOrder:string[]=[]){
-  const ranked=rankDayProducts(products,aiOrder)
-  if(!isChristmasSegment(segment))return ranked.slice(0,count)
-  const theme=ranked.filter(p=>christmasProductKind(p.title)==='THEME')
-  const giftLimit=includeGiftIdeas?Math.floor(count/5):0
-  const categories=new Set<string>()
-  const gifts=ranked.filter(p=>christmasProductKind(p.title)==='GIFT').filter(p=>{const title=p.title.normalize('NFD').replace(/\p{M}/gu,'').toLowerCase(),category=title.match(/caixa de som|fones?|tenis|relogio|smartwatch|perfume|caneca|console|jogos?|livro|bolsa|carteira|mochila|panelas?|brinquedo|smartphone|celular|tablet|ipad|notebook/)?.[0]??title;const key=/^(?:smartphone|celular)$/.test(category)?'celular':/^(?:tablet|ipad)$/.test(category)?'tablet':category.replace(/s$/,'');if(categories.has(key))return false;categories.add(key);return true}).slice(0,giftLimit)
-  const selected=theme.slice(0,count-gifts.length)
-  // Gifts stay a minority even if the catalog has very few Christmas products.
-  const safeGifts=gifts.slice(0,Math.floor(selected.length/4))
-  const result:T[]=[]
-  for(let i=0;i<selected.length;i++){result.push(selected[i]);if((i+1)%4===0&&safeGifts.length)result.push(safeGifts.shift()!)}
-  return result
+export type DayProductSelection={id:string;context:AffiliatePlanContext}
+export function selectDayProducts<T extends DiscoveryProduct & {sentCount?:number;pendingCount?:number}>(products:T[],segment:AffiliateSegmentTheme,count:number,analysis:DayProductSelection[]=[]){
+  const ranked=rankDayProducts(products).filter(p=>affiliateProductFitsSegment(segment,p.title))
+  const byId=new Map(ranked.map(p=>[p.id,p]))
+  const chosen=analysis.slice(0,count).flatMap(item=>{
+    const product=byId.get(item.id)
+    if(!product)return []
+    if(item.context.role==='CORE'&&item.context.framing!=='THEME'||item.context.role==='RELATED'&&item.context.framing==='THEME')return []
+    return [{...product,planContext:item.context}]
+  })
+  const core=chosen.filter(p=>p.planContext.role==='CORE').length
+  if(chosen.length===analysis.length&&new Set(chosen.map(p=>p.id)).size===chosen.length&&core>chosen.length-core)return chosen
+  // When the AI is unavailable, do not invent relationships to complete a quota.
+  return ranked.filter(p=>!isChristmasSegment(segment)||christmasProductKind(p.title)==='THEME').slice(0,count).map(p=>({...p,planContext:{role:'CORE',framing:'THEME',reason:'Produto do catálogo do segmento; seleção conservadora sem análise da IA.'} as AffiliatePlanContext}))
 }

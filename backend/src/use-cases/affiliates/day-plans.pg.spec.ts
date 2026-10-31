@@ -22,9 +22,9 @@ const product=(id='MLB123456',discount=true)=>{const p={id,catalogId:id==='MLB12
 const input=()=>({idempotencyKey:randomUUID(),day:new Date(Date.now()+86400000).toISOString().slice(0,10),start:'09:00',end:'21:00',count:2})
 function dependencies():DayPlanPorts{
   const candidates=vi.fn(async()=>[product(),product('MLB234567',false)].map(p=>({...p,sentCount:0,pendingCount:0,lastSentAt:null})))
-  return {candidates,order:vi.fn(async()=>['MLB234567','MLB123456']),refresh:vi.fn(async(_db,_tenant,p)=>{expect(p.catalogId).toBe(p.id==='MLB123456'?'MLB999999':'MLB888888');return {...p,checkedAt:new Date().toISOString()}}),prepare:vi.fn(async(client,tenant,actor,segment,itemId)=>{
+  return {candidates,order:vi.fn<DayPlanPorts['order']>(async(products)=>products.map(p=>({id:p.id,context:{role:/Fone/.test(p.title)?'RELATED' as const:'CORE' as const,framing:/Fone/.test(p.title)?'GIFT' as const:'THEME' as const,reason:'Relação com o tema analisada pela IA.'}}))),refresh:vi.fn(async(_db,_tenant,p)=>{expect(p.catalogId).toBe(p.id==='MLB123456'?'MLB999999':'MLB888888');return {...p,checkedAt:new Date().toISOString()}}),prepare:vi.fn(async(client,tenant,actor,segment,itemId,context)=>{
     const p=(await candidates()).find(p=>p.id===itemId)!
-    return previewAffiliateProduct(client,tenant,actor,segment,itemId,{candidate:async()=>p,refresh:async()=>p,link:async()=>({url:'https://meli.la/fixture',fullUrl:'https://meli.la/fixture',tag:'fixture',profile:'fixture'}),title:async()=>({title:p.title,source:'ORIGINAL'})})
+    return previewAffiliateProduct(client,tenant,actor,segment,itemId,{candidate:async()=>p,refresh:async()=>p,link:async()=>({url:'https://meli.la/fixture',fullUrl:'https://meli.la/fixture',tag:'fixture',profile:'fixture'}),title:async()=>({title:p.title,source:'ORIGINAL'})},context)
   })}}
 async function clean(){await db.affiliateScheduleBatch.deleteMany({where:{tenantId}});await db.affiliateDelivery.deleteMany({where:{tenantId}});await db.affiliateBroadcast.deleteMany({where:{tenantId}});await db.affiliateOffer.deleteMany({where:{tenantId}});await db.affiliateGroup.deleteMany({where:{tenantId}});await db.affiliateSegment.deleteMany({where:{tenantId}});await db.affiliateInstance.deleteMany({where:{tenantId}})}
 beforeAll(async()=>{await db.tenant.createMany({data:[{id:tenantId,host:tenantId+'.test',name:'Planner'},{id:otherTenant,host:otherTenant+'.test',name:'Other'}]});await db.user.create({data:{id:actorId,tenantId,name:'Admin',role:'ADMIN',status:'ACTIVE',passwordHash:'fixture'}})})
@@ -122,15 +122,15 @@ it('continua enviando a mensagem antiga assinada sem acrescentar chamada após a
  expect((await db.affiliateBroadcast.findFirstOrThrow({where:{tenantId,offer:{itemId:product().id}}})).message).toBe(payload.message)
  expect(payload.message.startsWith('*')).toBe(true)
 })
-it('mantém presentes em até 20% das ofertas prontas mesmo quando uma oferta natalina falha',async()=>{
+it.each([1,3])('preserva predominância sem quota fixa quando %i itens do núcleo falham',async(failures)=>{
  const ports=dependencies(),candidates=[1,2,3,4,5].map(i=>({...product('MLB90000'+i),catalogId:'MLB90000'+i,title:i===5?'Fone Bluetooth JBL':'Enfeite de Natal modelo '+i,sentCount:0,pendingCount:0,lastSentAt:null}))
  vi.mocked(ports.candidates).mockResolvedValue(candidates)
  const prepare=ports.prepare
- ports.prepare=async(...args)=>{if(args[4]==='MLB900001')throw new AffiliateCatalogError(409,'Não foi possível confirmar este anúncio.');return prepare(...args)}
+ ports.prepare=async(...args)=>{if(Number(args[4].slice(-1))<=failures)throw new AffiliateCatalogError(409,'Não foi possível confirmar este anúncio.');return prepare(...args)}
  const {plan}=await draft(ports,{...input(),count:5,includeGiftIdeas:true})
  const ready=plan.entries.filter(e=>e.state==='READY')
- expect(ready).toHaveLength(3);expect(ready.every(e=>e.kind==='THEME')).toBe(true)
- expect(plan.entries.find(e=>e.itemId==='MLB900005')?.state).toBe('CANCELLED')
+ expect(ready).toHaveLength(failures===1?4:1);expect(ready.filter(e=>e.kind==='THEME')).toHaveLength(4-failures)
+ expect(plan.entries.find(e=>e.itemId==='MLB900005')?.state).toBe(failures===1?'READY':'CANCELLED')
 })
 it('não transforma um item natalino em presente genérico quando o catálogo muda o título',async()=>{
  const ports=dependencies(),candidates=await ports.candidates(db,tenantId,segmentId)
@@ -139,17 +139,23 @@ it('não transforma um item natalino em presente genérico quando o catálogo mu
   return previewAffiliateProduct(client,tenant,actor,segment,itemId,{candidate:async()=>p,refresh:async()=>fresh,link:async()=>({url:'https://meli.la/fixture',fullUrl:'https://meli.la/fixture',tag:'fixture',profile:'fixture'}),title:async()=>({title:fresh.title,source:'ORIGINAL'})})
  }
  const {plan}=await draft(ports)
- expect(plan.entries.find(e=>e.itemId===product().id)).toMatchObject({state:'FAILED',error:expect.stringContaining('mudou de contexto')})
+ expect(plan.entries.find(e=>e.itemId===product().id)).toMatchObject({state:'FAILED',error:expect.stringContaining('mudou na loja')})
  expect(plan.summary.offers).toBe(1)
+})
+it('lê o contexto semântico persistido antes da heurística legada de Natal',async()=>{
+ const ports=dependencies(),candidates=[1,2,3].map(i=>({...product('MLB96000'+i),catalogId:'MLB96000'+i,title:i===1?'Guirlanda decorativa':i===2?'Estrela para árvore':'Fone Bluetooth JBL',sentCount:0,pendingCount:0,lastSentAt:null}))
+ vi.mocked(ports.candidates).mockResolvedValue(candidates)
+ const {plan}=await draft(ports,{...input(),count:3})
+ expect(plan.source).toBe('OPENAI');expect(plan.summary).toMatchObject({coreOffers:2,relatedOffers:1})
+ expect(plan.entries.map(e=>e.kind)).toEqual(['THEME','THEME','GIFT'])
 })
 it('revalida a proporção de presentes quando o administrador remove itens natalinos da revisão',async()=>{
  const ports=dependencies(),candidates=[1,2,3,4,5].map(i=>({...product('MLB95000'+i),catalogId:'MLB95000'+i,title:i===5?'Fone Bluetooth JBL':'Enfeite de Natal modelo '+i,sentCount:0,pendingCount:0,lastSentAt:null}))
  vi.mocked(ports.candidates).mockResolvedValue(candidates)
  const {id,plan}=await draft(ports,{...input(),count:5,includeGiftIdeas:true})
  expect(plan.summary.offers).toBe(5)
- const native=plan.entries.find(e=>e.kind==='THEME')!
- await cancelAffiliateDayPlan(db,tenantId,actorId,segmentId,id,native.id)
- await expect(approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)).rejects.toThrow('20%')
+ for(const native of plan.entries.filter(e=>e.kind==='THEME').slice(0,3))await cancelAffiliateDayPlan(db,tenantId,actorId,segmentId,id,native.id)
+ await expect(approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)).rejects.toThrow('núcleo do segmento')
  expect(await db.affiliateDelivery.count({where:{tenantId}})).toBe(0)
 })
 it('remove infantis de rascunhos antigos e impede o processamento de um lote antigo já aprovado',async()=>{

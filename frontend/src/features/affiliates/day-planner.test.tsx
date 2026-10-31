@@ -115,12 +115,12 @@ it('falhas de agenda aprovada abrem nova revisão com horário futuro e preserva
   expect(JSON.parse(String(posts[1][1]?.body)).itemIds).toEqual([product.id])
 })
 
-it('Natal é temático por padrão e permite poucas sugestões de presente por escolha explícita',async()=>{
+it('a composição contextual é automática sem checkbox nem percentual fixo',async()=>{
  mock();render(<DayPlanner {...props} segmentName="Natal"/>);fireEvent.click(screen.getByRole('button',{name:'Planejar o dia'}))
- const checkbox=screen.getByRole('checkbox',{name:'Incluir algumas ideias de presente'}) as HTMLInputElement
- expect(checkbox.checked).toBe(false)
- fireEvent.click(checkbox);fireEvent.click(screen.getByRole('button',{name:'Gerar prévia do lote'}))
+ expect(screen.queryByRole('checkbox')).toBeNull()
+ expect(screen.getByText(/sem proporção fixa/)).toBeTruthy()
+ fireEvent.click(screen.getByRole('button',{name:'Gerar prévia do lote'}))
  await screen.findByText('1 oferta · 1 mensagem por grupo')
  const call=vi.mocked(api).mock.calls.find(([path,init])=>path.endsWith('/day-plans')&&init?.method==='POST')!
- expect(JSON.parse(String(call[1]?.body)).includeGiftIdeas).toBe(true)
+ expect(JSON.parse(String(call[1]?.body)).includeGiftIdeas).toBeUndefined()
 })

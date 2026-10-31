@@ -1,5 +1,5 @@
 import { expect,it } from 'vitest'
-import { affiliateProductFitsSegment,petSearchTerm,christmasProductKind } from './segment-relevance'
+import { affiliateProductFitsSegment,petSearchTerm,christmasProductKind,affiliateCopyContext } from './segment-relevance'
 import { planAffiliateDiscoveryTerms } from './discovery-terms'
 const pets={name:'Pets'}
 it('exclui os produtos infantis do lote real sem confundir mordedores e brinquedos de animais',()=>{
@@ -19,4 +19,8 @@ it('presentes genéricos com Natal no SEO não se tornam decoração natalina',(
  for(const title of ['Guirlanda Natalina','Caneca decorada de Natal','Caixa de presente de Natal','Enfeite de árvore de Natal'])expect(christmasProductKind(title)).toBe('THEME')
  expect(affiliateProductFitsSegment({name:'Pets'},'Brinquedo de pelúcia de papagaio pássaro')).toBe(false)
  expect(affiliateProductFitsSegment({name:'Pets'},'Brinquedo de pelúcia para gatos')).toBe(true)
+})
+
+it('preserva a relação complementar explícita em vez de forçar presente de Natal',()=>{
+ expect(affiliateCopyContext({name:'Natal',planContext:{role:'RELATED',framing:'COMPANION',reason:'Preparo da ceia de Natal.'}},'Panela de pressão').purpose).toBe('COMPANION')
 })

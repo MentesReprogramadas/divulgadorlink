@@ -20,7 +20,9 @@ import { compactAffiliateTitle } from '@/domain/affiliates/product-title'
 
 const groupsSchema=z.array(z.object({id:z.string(),name:z.string()}))
 const candidateSchema=z.object({id:z.string(),catalogId:z.string(),title:z.string(),priceCents:z.number().int().positive(),oldPriceCents:z.number().int().positive().nullable(),imageUrl:z.string().nullable(),productUrl:z.string(),checkedAt:z.iso.datetime()}).passthrough()
-const snapshotSchema=z.object({previewToken:z.string(),sentCount:z.number().int().nonnegative(),product:candidateSchema,title:z.string(),titleSource:z.enum(['OPENAI','ORIGINAL']).optional(),message:z.string(),affiliateUrl:z.string()})
+const contextSchema=z.object({role:z.enum(['CORE','RELATED']),framing:z.enum(['THEME','GIFT','COMPANION']),reason:z.string().min(5).max(300)})
+const planContext=(value:Prisma.JsonValue)=>contextSchema.safeParse((value as Record<string,Prisma.JsonValue>)?.planContext)
+const snapshotSchema=z.object({previewToken:z.string(),sentCount:z.number().int().nonnegative(),product:candidateSchema,title:z.string(),titleSource:z.enum(['OPENAI','ORIGINAL']).optional(),message:z.string(),affiliateUrl:z.string(),planContext:contextSchema.optional()})
 const entryTitle=(value:Prisma.JsonValue)=>{const ready=snapshotSchema.safeParse(value),candidate=candidateSchema.safeParse(value);return ready.success?ready.data.product.title:candidate.success?candidate.data.title:''}
 const preparationError=(error:unknown)=>error instanceof AffiliateError||error instanceof AffiliateCatalogError?error.message:error instanceof z.ZodError?'A loja retornou dados incompletos deste produto. Confira o anúncio antes de tentar novamente.':'Não foi possível conferir este produto. Abra o anúncio ou tente novamente mais tarde.'
 const json=(value:unknown)=>value as Prisma.InputJsonValue
@@ -71,9 +73,9 @@ export async function buildAffiliateDayPlan(db:PrismaClient,scope?:{tenantId:str
     const segment=await db.affiliateSegment.findFirstOrThrow({where:{id:batch.segmentId,tenantId:batch.tenantId},include:{discovery:{select:{terms:true}}}})
     if(!persisted){
     const available=await ports.candidates(db,batch.tenantId,batch.segmentId)
-    const eligible=(input.itemIds?available.filter(p=>input.itemIds!.includes(p.id)&&p.decision!=='DISCARDED'&&!available.some(other=>!!other.pendingCount&&sameAffiliateProduct(p,other))):rankDayProducts(available)).filter(p=>input.itemIds||!isChristmasSegment(segment)||christmasProductKind(p.title)==='THEME'||input.includeGiftIdeas&&christmasProductKind(p.title)==='GIFT')
-    const order=input.itemIds?[]:await ports.order(eligible.slice(0,100),undefined,segment)
-    const selected=input.itemIds?input.itemIds.map(id=>{const product=eligible.find(p=>p.id===id);if(!product)throw new AffiliateError(409,'Um produto selecionado foi descartado ou possui envio pendente. Refaça o lote.');return product}):selectDayProducts(eligible,segment,input.count,input.includeGiftIdeas,order)
+    const eligible=(input.itemIds?available.filter(p=>input.itemIds!.includes(p.id)&&p.decision!=='DISCARDED'&&!available.some(other=>!!other.pendingCount&&sameAffiliateProduct(p,other))):rankDayProducts(available)).filter(p=>affiliateProductFitsSegment(segment,p.title))
+    const order=input.itemIds?[]:await ports.order(eligible.slice(0,100),undefined,segment,input.count)
+    const selected=input.itemIds?input.itemIds.map(id=>{const product=eligible.find(p=>p.id===id);if(!product)throw new AffiliateError(409,'Um produto selecionado foi descartado ou possui envio pendente. Refaça o lote.');return product}):selectDayProducts(eligible,segment,input.count,order)
     if(input.itemIds&&uniqueAffiliateProducts(selected).length!==selected.length)throw new AffiliateError(409,'Há anúncios do mesmo produto na seleção. Escolha somente uma oferta de cada produto.')
     if(!selected.length)throw new AffiliateError(409,'Nenhuma oferta disponível. Aguarde a coleta ou confira os envios pendentes.')
     const slots=dayPlanSlots(input,selected.length)
@@ -84,7 +86,7 @@ export async function buildAffiliateDayPlan(db:PrismaClient,scope?:{tenantId:str
       const existing=await tx.affiliateScheduledOffer.count({where:{batchId:batch.id,tenantId:batch.tenantId}})
       if(!existing){
         await tx.affiliateScheduledOffer.createMany({data:selected.map((p,i)=>({tenantId:batch.tenantId,batchId:batch.id,itemId:p.id,position:i,scheduledAt:slots[i],snapshot:json(p)}))})
-        await tx.affiliateScheduleBatch.updateMany({where:guard,data:{source:order.length?'OPENAI':'RULES'}})
+        await tx.affiliateScheduleBatch.updateMany({where:guard,data:{source:order.length&&selected.every(p=>'planContext' in p&&order.some(item=>item.id===p.id&&item.context===p.planContext))?'OPENAI':'RULES'}})
       }
     })
     }
@@ -92,27 +94,25 @@ export async function buildAffiliateDayPlan(db:PrismaClient,scope?:{tenantId:str
     for(const entry of entries){
       if(!(await db.affiliateScheduleBatch.updateMany({where:{...guard,expiresAt:{gt:new Date()}},data:{leaseExpiresAt:new Date(Date.now()+240000)}})).count)return 1
         try{
-          const result=await prepareWithRetry(ports,db,batch.tenantId,batch.actorId,batch.segmentId,entry.itemId)
-          if(batch.mode==='AUTO'&&isChristmasSegment(segment)){
-            const freshKind=christmasProductKind(result.product.title)
-            if(freshKind!==christmasProductKind(entryTitle(entry.snapshot))||freshKind==='OUTSIDE'||freshKind==='GIFT'&&!input.includeGiftIdeas)throw new AffiliateError(409,'O produto mudou de contexto na loja. Escolha outra oferta para este lote.')
-          }
+          const context=planContext(entry.snapshot)
+          const result=await prepareWithRetry(ports,db,batch.tenantId,batch.actorId,batch.segmentId,entry.itemId,context.success?context.data:undefined)
+          if(batch.mode==='AUTO'&&!sameAffiliateProduct({id:'expected',catalogId:'expected',title:entryTitle(entry.snapshot)},{id:'fresh',catalogId:'fresh',title:result.product.title}))throw new AffiliateError(409,'O produto mudou na loja. Refaça o lote para analisar o contexto novamente.')
           const prepared=await db.affiliateScheduledOffer.findMany({where:{batchId:batch.id,tenantId:batch.tenantId,state:'READY'},select:{snapshot:true}})
           if(prepared.some(e=>{const old=snapshotSchema.safeParse(e.snapshot);return old.success&&sameAffiliateProduct(old.data.product,result.product)})){await db.affiliateScheduledOffer.updateMany({where:{id:entry.id,state:'BUILDING',batch:{...guard}},data:{state:'CANCELLED',error:'Outra oferta deste produto já está neste lote.'}});continue}
           const payload=readAffiliateProductPreview(result.previewToken,batch.tenantId,batch.actorId,batch.segmentId)
           if(payload.groupHash!==batch.groupHash)throw new AffiliateError(409,'Os destinos mudaram. Refaça o lote.')
           const previous=entry.snapshot as unknown as DiscoveryProduct
-          await db.affiliateScheduledOffer.updateMany({where:{id:entry.id,state:'BUILDING',batch:{...guard}},data:{state:'READY',snapshot:json({previewToken:result.previewToken,product:result.product,title:result.title,titleSource:result.titleSource,message:result.message,affiliateUrl:result.affiliateUrl,sentCount:previous.sentCount??0})}})
+          await db.affiliateScheduledOffer.updateMany({where:{id:entry.id,state:'BUILDING',batch:{...guard}},data:{state:'READY',snapshot:json({previewToken:result.previewToken,product:result.product,title:result.title,titleSource:result.titleSource,message:result.message,affiliateUrl:result.affiliateUrl,sentCount:previous.sentCount??0,...(context.success?{planContext:context.data}:{})})}})
         }catch(error){await db.affiliateScheduledOffer.updateMany({where:{id:entry.id,state:'BUILDING',batch:{...guard}},data:{state:'FAILED',error:preparationError(error)}})}
     }
-    if(batch.mode==='AUTO'&&isChristmasSegment(segment)){
+    if(batch.mode==='AUTO'){
       const prepared=await db.affiliateScheduledOffer.findMany({where:{tenantId:batch.tenantId,batchId:batch.id,state:'READY'},orderBy:{position:'asc'},select:{id:true,snapshot:true}})
-      const native=prepared.filter(e=>christmasProductKind(entryTitle(e.snapshot))==='THEME'),gifts=prepared.filter(e=>christmasProductKind(entryTitle(e.snapshot))==='GIFT')
-      const remove=[...prepared.filter(e=>christmasProductKind(entryTitle(e.snapshot))==='OUTSIDE'),...gifts.slice(input.includeGiftIdeas?Math.floor(native.length/4):0)]
-      if(remove.length)await db.affiliateScheduledOffer.updateMany({where:{tenantId:batch.tenantId,batchId:batch.id,id:{in:remove.map(e=>e.id)},state:'READY',batch:{...guard}},data:{state:'CANCELLED',error:'Preservamos a prioridade de produtos natalinos neste lote.'}})
+      const related=prepared.filter(e=>planContext(e.snapshot).data?.role==='RELATED'),core=prepared.length-related.length
+      const remove=related.slice(Math.max(0,core-1))
+      if(remove.length)await db.affiliateScheduledOffer.updateMany({where:{tenantId:batch.tenantId,batchId:batch.id,id:{in:remove.map(e=>e.id)},state:'READY',batch:{...guard}},data:{state:'CANCELLED',error:'Preservamos a predominância do tema após falhas na conferência.'}})
     }
     const ready=await db.affiliateScheduledOffer.count({where:{batchId:batch.id,tenantId:batch.tenantId,state:'READY'}})
-    await db.affiliateScheduleBatch.updateMany({where:guard,data:{status:ready?'DRAFT':'FAILED',leaseToken:null,leaseExpiresAt:null,error:ready?(ready<input.count?`${ready} de ${input.count} ofertas prontas. Não repetimos produtos nem ampliamos as exceções de presente para completar o lote.`:null):'Não foi possível preparar ofertas. Confira as integrações e tente novamente.',expiresAt:new Date(Date.now()+15*60000)}})
+    await db.affiliateScheduleBatch.updateMany({where:guard,data:{status:ready?'DRAFT':'FAILED',leaseToken:null,leaseExpiresAt:null,error:ready?(ready<input.count?`${ready} de ${input.count} ofertas prontas. Mantivemos a coerência do segmento e a variedade, sem repetir produtos para completar o lote.`:null):'Não foi possível preparar ofertas. Confira as integrações e tente novamente.',expiresAt:new Date(Date.now()+15*60000)}})
   }catch(error){await db.affiliateScheduleBatch.updateMany({where:guard,data:{status:'FAILED',leaseToken:null,leaseExpiresAt:null,error:error instanceof AffiliateError?error.message:'Não foi possível montar o lote. Tente novamente.'}})}
   return 1
 }
@@ -125,7 +125,7 @@ export async function readAffiliateDayPlan(db:PrismaClient,tenantId:string,segme
   if(!segment)throw new AffiliateError(404,'Segmentação não encontrada.')
   const entries=batch.entries.filter(e=>!!e.broadcastId||affiliateProductFitsSegment(segment,entryTitle(e.snapshot))).map(entry=>{
     const snapshot=snapshotSchema.safeParse(entry.snapshot),candidate=candidateSchema.safeParse(entry.snapshot)
-    return {id:entry.id,itemId:entry.itemId,position:entry.position,scheduledAt:entry.scheduledAt,state:entry.state,kind:isChristmasSegment(segment)?christmasProductKind(entryTitle(entry.snapshot)):'THEME',error:entry.error,broadcastId:entry.broadcastId,product:snapshot.success?snapshot.data.product:candidate.success?candidate.data:undefined,title:snapshot.success?snapshot.data.title:candidate.success?compactAffiliateTitle(candidate.data.title):'Produto em preparação',titleSource:snapshot.success?snapshot.data.titleSource:undefined,message:snapshot.success?snapshot.data.message:undefined,affiliateUrl:snapshot.success?snapshot.data.affiliateUrl:undefined,sentCount:snapshot.success?snapshot.data.sentCount:0}
+    return {id:entry.id,itemId:entry.itemId,position:entry.position,scheduledAt:entry.scheduledAt,state:entry.state,kind:planContext(entry.snapshot).success?(planContext(entry.snapshot).data!.role==='CORE'?'THEME':planContext(entry.snapshot).data!.framing==='GIFT'?'GIFT':'RELATED'):isChristmasSegment(segment)?christmasProductKind(entryTitle(entry.snapshot)):'THEME',error:entry.error,broadcastId:entry.broadcastId,product:snapshot.success?snapshot.data.product:candidate.success?candidate.data:undefined,title:snapshot.success?snapshot.data.title:candidate.success?compactAffiliateTitle(candidate.data.title):'Produto em preparação',titleSource:snapshot.success?snapshot.data.titleSource:undefined,message:snapshot.success?snapshot.data.message:undefined,affiliateUrl:snapshot.success?snapshot.data.affiliateUrl:undefined,sentCount:snapshot.success?snapshot.data.sentCount:0}
   })
   const included=entries.filter(e=>['READY','PENDING','PROCESSING','QUEUED'].includes(e.state))
   const deliveryStates=await db.affiliateDelivery.groupBy({by:['broadcastId','state'],where:{tenantId,broadcastId:{in:batch.entries.flatMap(e=>e.broadcastId?[e.broadcastId]:[])}},_count:true})
@@ -136,7 +136,7 @@ export async function readAffiliateDayPlan(db:PrismaClient,tenantId:string,segme
   ])
   const dailyByGroup=groups.map(group=>({...group,messages:(dailyDeliveries.find(d=>d.groupId===group.id)?._count??0)+dailyScheduled.filter(e=>groupsSchema.parse(e.batch.groups).some(g=>g.id===group.id)).length+(batch.status==='DRAFT'?included.length:0)}))
   const intervals=included.slice(1).map((entry,i)=>Math.round((entry.scheduledAt.getTime()-included[i].scheduledAt.getTime())/60000))
-  return {id:batch.id,mode:batch.mode,status:batch.status,source:batch.source,config:batch.config,expiresAt:batch.expiresAt,error:batch.error,groups,dailyByGroup,entries:entries.map(e=>({...e,counts:deliveryStates.filter(d=>d.broadcastId===e.broadcastId).map(d=>({state:d.state,count:d._count}))})),summary:{offers:included.length,groups:groups.length,totalMessages:included.length*groups.length,intervalMinutes:intervals.length?Math.min(...intervals):null,maxIntervalMinutes:intervals.length?Math.max(...intervals):null,firstAt:included[0]?.scheduledAt??null,lastAt:included.at(-1)?.scheduledAt??null},createdAt:batch.createdAt}
+  return {id:batch.id,mode:batch.mode,status:batch.status,source:batch.source,config:batch.config,expiresAt:batch.expiresAt,error:batch.error,groups,dailyByGroup,entries:entries.map(e=>({...e,counts:deliveryStates.filter(d=>d.broadcastId===e.broadcastId).map(d=>({state:d.state,count:d._count}))})),summary:{coreOffers:included.filter(e=>e.kind==='THEME').length,relatedOffers:included.filter(e=>e.kind==='GIFT'||e.kind==='RELATED').length,offers:included.length,groups:groups.length,totalMessages:included.length*groups.length,intervalMinutes:intervals.length?Math.min(...intervals):null,maxIntervalMinutes:intervals.length?Math.max(...intervals):null,firstAt:included[0]?.scheduledAt??null,lastAt:included.at(-1)?.scheduledAt??null},createdAt:batch.createdAt}
 }
 
 export async function approveAffiliateDayPlan(db:PrismaClient,tenantId:string,actorId:string,segmentId:string,id:string){
@@ -154,9 +154,9 @@ export async function approveAffiliateDayPlan(db:PrismaClient,tenantId:string,ac
     const outside=batch.entries.filter(e=>!affiliateProductFitsSegment(segment,entryTitle(e.snapshot)))
     const entries=batch.entries.filter(e=>e.state==='READY'&&!outside.some(o=>o.id===e.id))
     if(!entries.length)throw new AffiliateError(409,'Selecione ao menos uma oferta no lote.')
-    if(batch.mode==='AUTO'&&isChristmasSegment(segment)){
-      const config=dayPlanInput.parse(batch.config),kinds=entries.map(e=>christmasProductKind(entryTitle(e.snapshot))),native=kinds.filter(kind=>kind==='THEME').length,gifts=kinds.filter(kind=>kind==='GIFT').length
-      if(kinds.includes('OUTSIDE')||gifts>(config.includeGiftIdeas?Math.floor(native/4):0))throw new AffiliateError(409,'Mantenha produtos natalinos e, se habilitado, até 20% de presentes. Remova os presentes excedentes ou refaça o lote.')
+    if(batch.mode==='AUTO'){
+      const related=entries.filter(e=>planContext(e.snapshot).data?.role==='RELATED'||!planContext(e.snapshot).success&&isChristmasSegment(segment)&&christmasProductKind(entryTitle(e.snapshot))==='GIFT').length
+      if(related&&related>=entries.length-related)throw new AffiliateError(409,'O núcleo do segmento precisa predominar. Remova complementos ou refaça o lote para a IA analisar a composição novamente.')
     }
     if(uniqueAffiliateProducts(entries.map(e=>snapshotSchema.parse(e.snapshot).product)).length!==entries.length)throw new AffiliateError(409,'Este lote contém ofertas do mesmo produto. Refaça o planejamento para variar os produtos.')
     const activeBroadcasts=await tx.affiliateBroadcast.findMany({where:{tenantId,segmentId,deliveries:{some:{state:{in:['PENDING','SENDING','UNCERTAIN']}}}},select:{id:true}})
