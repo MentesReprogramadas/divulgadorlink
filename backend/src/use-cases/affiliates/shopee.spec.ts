@@ -16,7 +16,11 @@ function fixture() {
     return row
   })
   const updateMany = vi.fn(async (args: { where: Record<string, unknown>; data: Partial<AffiliateConnection> }) => {
-    if (!row || Object.entries(args.where).some(([name, value]) => row?.[name as keyof AffiliateConnection] !== value && !(value instanceof Date && (row?.[name as keyof AffiliateConnection] as Date)?.getTime() === value.getTime()))) return { count: 0 }
+    if (!row || Object.entries(args.where).some(([name, value]) => {
+      const actual = row?.[name as keyof AffiliateConnection]
+      if (value && typeof value === 'object' && 'in' in value) return !(value.in as unknown[]).includes(actual)
+      return actual !== value && !(value instanceof Date && (actual as Date)?.getTime() === value.getTime())
+    })) return { count: 0 }
     row = { ...row, ...args.data, updatedAt: new Date() }
     return { count: 1 }
   })
@@ -66,4 +70,46 @@ it('rejects encrypted credentials copied from another tenant context', async () 
   state.replace({ ...state.row(), credentials: sealWebhookSecret(JSON.stringify(input), key, 'affiliates:other:SHOPEE') })
   await expect(shopeeConnection(state.db, tenantId)).rejects.toMatchObject({ status: 503 })
   expect(remote.request).not.toHaveBeenCalled()
+})
+
+it.each(['CONFIGURED', 'CONNECTED'])('allows concurrent generations with unchanged %s credentials', async status => {
+  const state = fixture()
+  await configureShopee(state.db, tenantId, actorId, input)
+  state.replace({ ...state.row(), status, updatedAt: new Date('2020-01-01') })
+  let arrived = 0
+  let release!: () => void
+  const gate = new Promise<void>(resolve => { release = resolve })
+  remote.request.mockImplementation(async () => {
+    if (++arrived === 2) release()
+    await gate
+    return { generateShortLink: { shortLink: 'https://s.shopee.com.br/test' } }
+  })
+  const generate = () => generateTenantShopeeAffiliate(state.db, tenantId, actorId, 'https://shopee.com.br/product/123/456')
+  const results = await Promise.all([generate(), generate()])
+  expect(results.map(result => result.url)).toEqual(['https://s.shopee.com.br/test', 'https://s.shopee.com.br/test'])
+  expect(state.audit.mock.calls).toHaveLength(3)
+  expect(state.row().status).toBe('CONNECTED')
+})
+
+it('allows verification racing with a successful generation for the same credentials', async () => {
+  const state = fixture()
+  await configureShopee(state.db, tenantId, actorId, input)
+  state.replace({ ...state.row(), updatedAt: new Date('2020-01-01') })
+  remote.request.mockImplementationOnce(async () => {
+    await generateTenantShopeeAffiliate(state.db, tenantId, actorId, 'https://shopee.com.br/product/123/456')
+    return { productOfferV2: { nodes: [], pageInfo: { page: 1, limit: 20, hasNextPage: false } } }
+  }).mockResolvedValue({ generateShortLink: { shortLink: 'https://s.shopee.com.br/test' } })
+  await expect(verifyShopee(state.db, tenantId, actorId)).resolves.toEqual({ connected: true })
+})
+
+it.each(['DISCONNECTED', 'RECONNECT'])('rejects an in-flight generation after status changes to %s', async status => {
+  const state = fixture()
+  await configureShopee(state.db, tenantId, actorId, input)
+  remote.request.mockImplementation(async () => {
+    state.replace({ ...state.row(), status })
+    return { generateShortLink: { shortLink: 'https://s.shopee.com.br/test' } }
+  })
+  await expect(generateTenantShopeeAffiliate(state.db, tenantId, actorId, 'https://shopee.com.br/product/123/456')).rejects.toMatchObject({ status: 409 })
+  expect(state.row().status).toBe(status)
+  expect(state.audit.mock.calls).toHaveLength(1)
 })

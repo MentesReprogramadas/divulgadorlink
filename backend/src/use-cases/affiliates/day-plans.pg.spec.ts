@@ -35,6 +35,30 @@ async function draft(ports=dependencies(),value:DayPlanInput=input()){
   await buildAffiliateDayPlan(db,{tenantId,id:batch.id},ports)
   return {id:batch.id,ports,value,plan:await readAffiliateDayPlan(db,tenantId,segmentId,batch.id)}
 }
+it('limita pedido enorme ao catálogo antes de alocar e prepara mais de 24 com prazo renovável',async()=>{
+ const small=await draft(dependencies(),{...input(),count:1000000})
+ expect(small.plan.entries).toHaveLength(2)
+ await cancelAffiliateDayPlan(db,tenantId,actorId,segmentId,small.id)
+ const ports=dependencies(),catalog=Array.from({length:60},(_,i)=>({...product(),id:'MLB'+(10000+i),catalogId:'MLB'+(10000+i),title:'Enfeite Natal modelo '+i,productUrl:'https://www.mercadolivre.com.br/p/MLB'+(10000+i)+'?wid=MLB'+(10000+i),sentCount:0,pendingCount:0,lastSentAt:null}))
+ vi.mocked(ports.candidates).mockResolvedValue(catalog)
+ ports.order=vi.fn<DayPlanPorts['order']>(async(products,_fetch,_segment,count,renew)=>{
+  expect(count).toBe(60);await renew?.()
+  return products.slice(0,9).map(p=>({id:p.id,context:{role:'CORE',framing:'THEME',reason:'Produto do tema natalino.'}}))
+ })
+ const batch=await createAffiliateDayPlan(db,tenantId,actorId,segmentId,{...input(),count:60,start:'09:00',end:'10:00'})
+ await db.affiliateScheduleBatch.update({where:{id:batch.id},data:{expiresAt:new Date(Date.now()+10000)}})
+ ports.prepare=async(client,tenant,actor,segment,itemId)=>{
+  const current=await client.affiliateScheduleBatch.findUniqueOrThrow({where:{id:batch.id}})
+  expect(current.expiresAt.getTime()-Date.now()).toBeGreaterThan(14*60000)
+  const p=catalog.find(p=>p.id===itemId)!
+  return previewAffiliateProduct(client,tenant,actor,segment,itemId,{candidate:async()=>p,refresh:async()=>p,link:async()=>({url:'https://meli.la/fixture',fullUrl:'https://meli.la/fixture',tag:'fixture',profile:'fixture'}),title:async()=>({title:p.title,source:'ORIGINAL'})})
+ }
+ await buildAffiliateDayPlan(db,{tenantId,id:batch.id},ports)
+ const plan=await readAffiliateDayPlan(db,tenantId,segmentId,batch.id)
+ expect(plan.summary.offers,JSON.stringify({error:plan.error,entries:plan.entries.slice(0,2)})).toBe(60);expect(plan.entries).toHaveLength(60)
+ expect(new Set(plan.entries.map(p=>p.scheduledAt.toISOString())).size).toBe(60)
+ expect(plan.summary.intervalMinutes).toBe(1);expect(await db.affiliateBroadcast.count({where:{tenantId}})).toBe(0)
+})
 it('repete apenas falha transitória, prepara sem rajada e mantém a foto do item não conferido',async()=>{
   const ports=dependencies(),prepare=ports.prepare,attempts=new Map<string,number>();let active=0,maxActive=0
   ports.prepare=async(...args)=>{
@@ -88,6 +112,66 @@ it('envia produto pet pelo título integral mesmo quando o título curto não co
   for(let i=0;i<2;i++){await db.affiliateInstance.update({where:{id:instanceId},data:{nextSendAt:new Date(Date.now()-1)}});await runAffiliateDeliveries(db,()=>remote,new Date())}
   expect(sent).toHaveBeenCalledTimes(2)
   expect((await affiliateDiscoveryState(db,tenantId,segmentId,{mode:'MIXED',view:'ALL'})).products.some(item=>item.id===p.id)).toBe(true)
+})
+it('recupera falhas dentro da agenda aprovada, mantém pendências ativas e exige novo aceite',async()=>{
+ const ports=dependencies(),prepare=ports.prepare
+ ports.prepare=async(...args)=>{if(args[4]==='MLB234567')throw new AffiliateCatalogError(409,'A loja não confirmou o preço.');return prepare(...args)}
+ const {id,plan}=await draft(ports),failed=plan.entries.find(e=>e.state==='FAILED')!,ready=plan.entries.find(e=>e.state==='READY')!
+ await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)
+ await db.affiliateScheduledOffer.update({where:{id:ready.id},data:{scheduledAt:new Date()}})
+ const pending=await db.affiliateScheduledOffer.findUniqueOrThrow({where:{id:ready.id}})
+ await db.affiliateScheduledOffer.update({where:{id:failed.id},data:{scheduledAt:new Date(Date.now()-60000)}})
+ await expect(retryAffiliateDayPlan(db,tenantId,actorId,segmentId,id,failed.id)).rejects.toMatchObject({status:409})
+ await retryAffiliateDayPlan(db,tenantId,actorId,segmentId,id,failed.id,{start:'09:00',end:'21:00'})
+ expect((await db.affiliateScheduleBatch.findUniqueOrThrow({where:{id}})).status).toBe('APPROVED')
+ expect((await db.affiliateScheduledOffer.findUniqueOrThrow({where:{id:ready.id}})).snapshot).toEqual(pending.snapshot)
+ expect((await db.affiliateScheduledOffer.findUniqueOrThrow({where:{id:ready.id}})).scheduledAt).toEqual(pending.scheduledAt)
+ await runAffiliateDayPlans(db,ports,{tenantId,batchId:id})
+ expect(await db.affiliateBroadcast.count({where:{tenantId}})).toBe(1)
+ vi.mocked(prepare).mockClear();ports.prepare=prepare
+ await buildAffiliateDayPlan(db,{tenantId,id},ports)
+ const recovered=await readAffiliateDayPlan(db,tenantId,segmentId,id)
+ expect(recovered.status).toBe('APPROVED');expect(recovered.summary.readyOffers).toBe(1)
+ expect(recovered.entries.find(e=>e.id===failed.id)?.state).toBe('READY')
+ expect(ports.prepare).toHaveBeenCalledTimes(1)
+ await runAffiliateDayPlans(db,ports,{tenantId,batchId:id},new Date(Date.now()+2*86400000))
+ expect(await db.affiliateBroadcast.count({where:{tenantId}})).toBe(1)
+ await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)
+ await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)
+ expect((await db.affiliateScheduledOffer.findUniqueOrThrow({where:{id:failed.id}})).state).toBe('PENDING')
+ expect((await db.affiliateScheduledOffer.findUniqueOrThrow({where:{id:ready.id}})).state).toBe('QUEUED')
+})
+it('reagendamento de falhas evita horários ocupados de outras ofertas',async()=>{
+ const ports=dependencies(),prepare=ports.prepare
+ ports.prepare=async(...args)=>{if(args[4]==='MLB234567')throw new AffiliateCatalogError(409,'Preço não confirmado.');return prepare(...args)}
+ const {id,plan}=await draft(ports),failed=plan.entries.find(e=>e.state==='FAILED')!,ready=plan.entries.find(e=>e.state==='READY')!
+ await retryAffiliateDayPlan(db,tenantId,actorId,segmentId,id,failed.id,{start:'09:00',end:'09:01'})
+ expect((await db.affiliateScheduledOffer.findUniqueOrThrow({where:{id:failed.id}})).scheduledAt.getTime()).toBe(ready.scheduledAt.getTime()+60000)
+ await db.affiliateScheduledOffer.update({where:{id:ready.id},data:{scheduledAt:new Date(ready.scheduledAt.getTime()+12*3600000)}})
+ ports.prepare=prepare;await buildAffiliateDayPlan(db,{tenantId,id},ports)
+ const rescheduled=await readAffiliateDayPlan(db,tenantId,segmentId,id)
+ expect(rescheduled.summary.intervalMinutes).toBe(719)
+ expect(rescheduled.summary.firstAt!.getTime()).toBeLessThan(rescheduled.summary.lastAt!.getTime())
+ expect(rescheduled.entries.map(e=>e.id)).toEqual([failed.id,ready.id])
+ expect(rescheduled.entries.map(e=>e.position)).toEqual([1,0])
+})
+it('preserva complemento recuperado quando o núcleo já aprovado continua predominante',async()=>{
+ const ports=dependencies(),catalog=[{...product(),sentCount:0,pendingCount:0,lastSentAt:null},{...product('MLB234567'),sentCount:0,pendingCount:0,lastSentAt:null},{...product(),id:'MLB345678',catalogId:'MLB777777',title:'Fone Bluetooth JBL',productUrl:'https://www.mercadolivre.com.br/p/MLB777777?wid=MLB345678',sentCount:0,pendingCount:0,lastSentAt:null}]
+ vi.mocked(ports.candidates).mockResolvedValue(catalog)
+ let fail=true
+ ports.prepare=async(client,tenant,actor,segment,itemId,context)=>{
+  const p=catalog.find(p=>p.id===itemId)!
+  if(fail&&itemId==='MLB345678')throw new AffiliateCatalogError(409,'Preço não confirmado.')
+  return previewAffiliateProduct(client,tenant,actor,segment,itemId,{candidate:async()=>p,refresh:async()=>p,link:async()=>({url:'https://meli.la/fixture',fullUrl:'https://meli.la/fixture',tag:'fixture',profile:'fixture'}),title:async()=>({title:p.title,source:'ORIGINAL'})},context)
+ }
+ const {id}=await draft(ports,{...input(),count:3})
+ await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)
+ fail=false;await retryAffiliateDayPlan(db,tenantId,actorId,segmentId,id)
+ await buildAffiliateDayPlan(db,{tenantId,id},ports)
+ const plan=await readAffiliateDayPlan(db,tenantId,segmentId,id)
+ expect(plan.summary).toMatchObject({coreOffers:2,relatedOffers:1,readyOffers:1})
+ await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)
+ expect(await db.affiliateScheduledOffer.count({where:{batchId:id,state:'PENDING'}})).toBe(3)
 })
 it('deduplica anúncios no automático sem substituir a escolha manual de um vendedor',async()=>{
  const ports=dependencies(),a=product(),b={...a,id:'MLB345678',catalogId:'MLB777777',priceCents:3000}

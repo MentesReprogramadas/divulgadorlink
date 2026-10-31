@@ -20,7 +20,7 @@ it('nega anônimos, tenant trocado e administrador revogado antes de preparar',a
   expect(fixture.create).not.toHaveBeenCalled()
 })
 it('prepara em segundo plano sem aprovar e rejeita payload injetado ou seleção duplicada',async()=>{
-  for(const body of [{...input(),priceCents:1},{...input(),count:25},{...input(),itemIds:['MLB123','MLB123']}])expect((await app.inject({method:'POST',url:base,headers:headers(),payload:body})).statusCode).toBe(400)
+  for(const body of [{...input(),priceCents:1},{...input(),count:1.5},{...input(),itemIds:['MLB123','MLB123']}])expect((await app.inject({method:'POST',url:base,headers:headers(),payload:body})).statusCode).toBe(400)
   const result=await app.inject({method:'POST',url:base,headers:headers(),payload:input()})
   expect(result.statusCode).toBe(202);expect(result.headers['cache-control']).toBe('private, no-store')
   expect(fixture.build).toHaveBeenCalledWith(expect.anything(),{tenantId,id:'batch'})
@@ -35,14 +35,23 @@ it('aceitar e cancelar exigem confirmação explícita; consulta não agenda',as
   expect(fixture.approve).toHaveBeenCalledExactlyOnceWith(expect.anything(),tenantId,actorId,'segment','batch')
   expect(fixture.cancel).toHaveBeenCalledExactlyOnceWith(expect.anything(),tenantId,actorId,'segment','batch')
 })
+it('aceita quantidade flexível e seleção manual acima de 24 sem aprovar',async()=>{
+ for(const payload of [{...input(),count:1000000},{...input(),count:60,itemIds:Array.from({length:60},(_,i)=>'MLB'+(1000+i))}]){
+  expect((await app.inject({method:'POST',url:base,headers:headers(),payload})).statusCode).toBe(202)
+ }
+ expect(fixture.approve).not.toHaveBeenCalled()
+})
 
 it('reconfere falhas no tenant autenticado sem aprovar e rejeita campos extras',async()=>{
   fixture.retry.mockResolvedValue({id:'batch',status:'BUILDING'})
   const result=await app.inject({method:'POST',url:base+'/batch/retry',headers:headers(),payload:{entryId:'entry'}})
   expect(result.statusCode).toBe(202)
-  expect(fixture.retry).toHaveBeenCalledWith(expect.anything(),tenantId,actorId,'segment','batch','entry')
+  expect(fixture.retry).toHaveBeenCalledWith(expect.anything(),tenantId,actorId,'segment','batch','entry',undefined)
   expect(fixture.approve).not.toHaveBeenCalled()
   expect((await app.inject({method:'POST',url:base+'/batch/retry',headers:headers(),payload:{confirm:true}})).statusCode).toBe(400)
+  expect((await app.inject({method:'POST',url:base+'/batch/retry',headers:headers(),payload:{period:{start:'13:00',end:'20:00'}}})).statusCode).toBe(202)
+  expect(fixture.retry).toHaveBeenLastCalledWith(expect.anything(),tenantId,actorId,'segment','batch',undefined,{start:'13:00',end:'20:00'})
+  expect((await app.inject({method:'POST',url:base+'/batch/retry',headers:headers(),payload:{period:{start:'25:00',end:'20:00'}}})).statusCode).toBe(400)
 })
 
 it('pagina agendas somente da segmentação e tenant atuais e limita tamanho',async()=>{

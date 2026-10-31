@@ -10,7 +10,8 @@ it('distribui o dia em Brasília com limites exatos e intervalo mínimo',()=>{
   expect(slots[1].getTime()-slots[0].getTime()).toBe(3600000)
   expect(dayPlanSlots({...input,start:'22:00',end:'23:00'},1,now)[0].toISOString()).toBe('2026-11-02T01:00:00.000Z')
   for(const bad of [{...input,day:'2026-02-30'},{...input,day:'2026-12-01'},{...input,start:'21:00',end:'09:00'},{...input,day:'2026-10-31',start:'09:00'}])expect(()=>dayPlanSlots(bad,12,now)).toThrow()
-  expect(()=>dayPlanSlots({...input,end:'10:00'},24,now)).toThrow(/15 minutos/)
+  expect(dayPlanSlots({...input,end:'10:00'},61,now)).toHaveLength(61)
+  expect(()=>dayPlanSlots({...input,end:'10:00'},62,now)).toThrow(/um minuto/)
   expect(()=>dayPlanSlots(input,0,now)).toThrow()
 })
 it('prioriza descontos e contabiliza repetições; sem desconto ainda completa, sem duplicar pendências',()=>{
@@ -62,4 +63,12 @@ it('distribui a amostra pelos termos para não ocultar o tema atrás de desconto
  expect(selected).toHaveLength(100);expect(selected.filter(p=>p.sourceTerm==='Decoração de Natal')).toHaveLength(30)
  expect(selected[0].id).toBe('fone0');expect(selected[1].id).toBe('natal0');expect(new Set(selected.map(p=>p.id)).size).toBe(100)
  expect(dayPlanCandidatePool(core,120)).toHaveLength(30)
+})
+
+it('aceita volume solicitado acima de 24 sem alocar horários antes de conhecer disponibilidade',()=>{
+ expect(dayPlanInput.safeParse({idempotencyKey:crypto.randomUUID(),...input,count:1000000}).success).toBe(true)
+ expect(dayPlanInput.safeParse({idempotencyKey:crypto.randomUUID(),...input,count:Number.MAX_SAFE_INTEGER+1}).success).toBe(false)
+ const slots=dayPlanSlots(input,121,now)
+ expect(slots).toHaveLength(121);expect(new Set(slots.map(s=>s.getTime())).size).toBe(121)
+ expect(slots.at(-1)?.toISOString()).toBe('2026-11-02T00:00:00.000Z')
 })

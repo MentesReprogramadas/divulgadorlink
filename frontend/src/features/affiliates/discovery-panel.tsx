@@ -18,7 +18,7 @@ function DiscoveryContent({ segmentId, contextName, busy, canGenerate, canGenera
   const [view, setView] = useState('ALL'), [settingsOpen, setSettingsOpen] = useState(false), [loading, setLoading] = useState(true), [page, setPage] = useState(1), [now, setNow] = useState(Date.now()), [previewProduct, setPreviewProduct] = useState<CatalogProduct | null>(null)
   const trigger = useRef<HTMLElement | null>(null), controller = useRef<AbortController | null>(null), initialized = useRef(false), mutationLock = useRef(false), requestVersion = useRef(0), pageCache = useRef(new Map<string, DiscoveryState>())
   const [selected,setSelected]=useState<DiscoveryProduct[]>([])
-  function toggleSelection(product:DiscoveryProduct){setSelected(previous=>previous.some(p=>p.id===product.id)?previous.filter(p=>p.id!==product.id):previous.length<24?[...previous,product]:previous)}
+  function toggleSelection(product:DiscoveryProduct){setSelected(previous=>previous.some(p=>p.id===product.id)?previous.filter(p=>p.id!==product.id):[...previous,product])}
   function changed(){pageCache.current.clear();setRevision(v=>v+1)}
   const base = '/segments/' + encodeURIComponent(segmentId) + '/discovery'
   useEffect(() => { const timer = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(timer) }, [])
@@ -88,7 +88,6 @@ function DiscoveryContent({ segmentId, contextName, busy, canGenerate, canGenera
     <TabNavigation className={styles.mobileTabs} value={settingsOpen ? 'SETTINGS' : view} onChange={value => {setSettingsOpen(value === 'SETTINGS'); if (value !== 'SETTINGS') {setPage(1);setView(value)} else if (data) {setTerms(data.terms.join(', '))}}} label="Ofertas e configurações" idPrefix="discovery-evaluation" items={[{id:'ALL',label:'Produtos'},{id:'AGENDA',label:'Agenda'},{id:'DISCARDED',label:'Descartados'},{id:'SETTINGS',label:'Configurações'}]} />
     {!settingsOpen?<DayPlanner segmentName={contextName} segmentId={segmentId} agenda={view==='AGENDA'} onAgendaChange={open=>setView(open?'AGENDA':'ALL')} selected={selected} clearSelection={()=>setSelected([])} onChanged={changed} disabled={busy||!canGenerate&&!canGenerateShopee}/>:null}
     <div hidden={view==='AGENDA'&&!settingsOpen}>
-    {selected.length>=24?<p role="status" className={styles.muted}>24 ofertas selecionadas. Agende este lote ou remova uma para trocar.</p>:null}
     <div className={discoveryStyles.freshness}><p role="status" className={styles.muted}>{loading && data ? 'Atualizando produtos…' : statusMessage}</p>{data?.enabled && countdown !== null ? <><span className={styles.muted}>{remaining === 0 ? 'Aguardando próxima coleta' : <>Próxima coleta em <strong>{countdown}</strong></>}</span><progress aria-label="Tempo até a próxima coleta" max={interval} value={Math.min(interval,Math.max(0,interval-(remaining??0)))} /></> : null}</div>
     {data?.error ? <p className={styles.warning}>{data.error}</p> : null}
     {(!canGenerate || !canGenerateShopee) && !settingsOpen ? <p className={styles.muted}>Para enviar, confira a integração em <button className={discoveryStyles.textAction} onClick={() => {setSettingsOpen(true);if(data){setTerms(data.terms.join(', '))}}}>Configurações</button>.</p> : null}

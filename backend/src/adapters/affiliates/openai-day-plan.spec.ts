@@ -4,6 +4,20 @@ import { evaluateAffiliateProduct } from '@/domain/affiliates/evaluation'
 const p={id:'MLB123',catalogId:'MLB123',title:'Produto de Natal',priceCents:1000,oldPriceCents:2000,imageUrl:null,productUrl:'https://meli.la/test',checkedAt:new Date().toISOString(),sentCount:3,lastSentAt:'2026-10-30T12:00:00Z',sourceTerm:'Natal',sourcePage:1}
 const products=[{...p,evaluation:evaluateAffiliateProduct(p,[])}]
 afterEach(()=>vi.unstubAllEnvs())
+it('percorre candidatos além da primeira amostra e seleciona mais de 24 sem uma chamada por produto',async()=>{
+ vi.stubEnv('OPENAI_API_KEY','fixture')
+ const catalog=Array.from({length:250},(_,i)=>({...products[0],id:'MLB'+i,title:'Enfeite Natal modelo '+i}))
+ const renew=vi.fn(async()=>{})
+ const fetcher=vi.fn(async(_url:unknown,init?:RequestInit)=>{
+  const request=JSON.parse(String(init?.body)),data=JSON.parse(request.messages[1].content)
+  const selected=data.products.slice(0,Math.min(data.requestedCount,70))
+  return new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:JSON.stringify({coreCount:selected.length,relatedCount:0,items:selected.map((p:{id:string})=>({id:p.id,context:{role:'CORE',framing:'THEME',reason:'Produto do núcleo do tema.'}}))})}}]}))
+ }) as unknown as typeof fetch
+ const selected=await suggestDayProductOrder(catalog,fetcher,{name:'Natal'},140,renew)
+ expect(selected).toHaveLength(140);expect(new Set(selected.map(p=>p.id)).size).toBe(140)
+ expect(selected[70].id).toBe('MLB120');expect(fetcher).toHaveBeenCalledTimes(2);expect(renew).toHaveBeenCalledTimes(2)
+ for(const [,init] of vi.mocked(fetcher).mock.calls){const request=JSON.parse(String(init?.body));expect(JSON.parse(request.messages[1].content).products.length).toBeLessThanOrEqual(120)}
+})
 it('envia desconto e contagem de envios; só aceita ids existentes, sem duplicação',async()=>{
   vi.stubEnv('OPENAI_API_KEY','fixture-not-real')
   const respond=(itemIds:string[])=>vi.fn(async()=>new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:JSON.stringify({coreCount:itemIds.length,relatedCount:0,items:itemIds.map(id=>({id,context:{role:'CORE',framing:'THEME',reason:'Produto adequado ao tema do grupo.'}}))})}}]}))) as unknown as typeof fetch

@@ -38,8 +38,8 @@ export async function registerAffiliateDayPlanRoutes(app:FastifyInstance){
   }))
   app.get(base+'/:id',(q,r)=>run(q,r,(tenantId,_actorId,{segmentId,id})=>readAffiliateDayPlan(prisma,tenantId,segmentId,id!)))
   app.post(base+'/:id/retry',(q,r)=>run(q,r,async(tenantId,actorId,{segmentId,id})=>{
-    const {entryId}=z.object({entryId:entityId.optional()}).strict().parse(q.body)
-    const result=await retryAffiliateDayPlan(prisma,tenantId,actorId,segmentId,id!,entryId)
+    const {entryId,period}=z.object({entryId:entityId.optional(),period:z.object({start:z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/),end:z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/)}).strict().optional()}).strict().parse(q.body)
+    const result=await retryAffiliateDayPlan(prisma,tenantId,actorId,segmentId,id!,entryId,period)
     r.code(202)
     void buildAffiliateDayPlan(prisma,{tenantId,id:id!}).catch(()=>q.log.error({event:'affiliate.schedule.retry_failed'},'Falha ao conferir rascunho'))
     return result

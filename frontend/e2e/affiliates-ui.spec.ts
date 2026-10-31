@@ -577,10 +577,18 @@ test('planeja o dia, revisa volume e seleciona lote manual no mobile sem esconde
   await expect(suggestions.getByText('Enviado 2 vezes')).toBeVisible()
   await suggestions.getByRole('button',{name:'Planejar o dia'}).click()
   let dialog=page.getByRole('dialog')
-  await dialog.getByLabel('Ofertas no dia').fill('2')
+  await dialog.getByLabel('Começa às').fill('09:00')
+  await dialog.getByLabel('Termina às').fill('10:00')
+  await dialog.getByLabel('Ofertas no dia').fill('60')
+  await expect(dialog.getByText('60 ofertas por grupo · cerca de 1 min entre ofertas')).toBeVisible()
+  await expect(dialog.getByLabel('Ofertas no dia')).not.toHaveAttribute('max')
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true)
+  expect((await new AxeBuilder({page}).include('dialog').analyze()).violations).toEqual([])
+  await page.screenshot({path:testInfo.outputPath('day-plan-flexible-quantity.png'),animations:'disabled'})
   await dialog.getByRole('button',{name:'Gerar prévia do lote'}).click()
   await expect(dialog.getByText('2 ofertas · 2 mensagens por grupo')).toBeVisible()
   await expect(dialog.getByText('2 grupos · 4 mensagens neste lote')).toBeVisible()
+  expect(changes[0].body.count).toBe(60)
   expect(changes.some(c=>c.path.endsWith('/approve'))).toBe(false)
   await dialog.getByText('Destinos e total de mensagens no dia').click()
   await expect(dialog.getByText(/Natal #1 · 4 mensagens no dia/)).toBeVisible()
@@ -608,6 +616,39 @@ test('planeja o dia, revisa volume e seleciona lote manual no mobile sem esconde
   expect(changes.some(c=>c.path.endsWith('/products/send'))).toBe(false)
 })
 
+
+test('recupera falhas passadas no mesmo lote aprovado com período escolhido e aceite incremental',async({page},testInfo)=>{
+ await fixtures(page)
+ const changes:Array<{path:string;body:Record<string,unknown>}>=[]
+ let state='FAILED'
+ await page.route('**/day-plans**',async route=>{
+  const request=route.request(),path=new URL(request.url()).pathname
+  if(request.method()==='POST'){
+   changes.push({path,body:request.postDataJSON()});state=path.endsWith('/approve')?'PENDING':'READY'
+   return route.fulfill({json:{id:'approved-batch',status:'APPROVED'}})
+  }
+  if(path.endsWith('/day-plans'))return route.fulfill({json:{batches:[{id:'approved-batch',status:'APPROVED',config:{day:'2099-11-01',start:'09:00',end:'21:00'},groupCount:1,_count:{entries:2}}]}})
+  return route.fulfill({json:{id:'approved-batch',status:'APPROVED',mode:'MANUAL',source:'RULES',expiresAt:'2099-11-01T12:00:00Z',error:null,config:{day:'2099-11-01',start:'09:00',end:'21:00'},groups:[{id:'group-1',name:'Natal #1'}],summary:{offers:state==='FAILED'?1:2,readyOffers:state==='READY'?1:0,groups:1,totalMessages:state==='FAILED'?1:2,intervalMinutes:120},entries:[{id:'pending-entry',itemId:'MLB111',title:'Oferta já agendada',product:{...offer,id:'MLB111'},scheduledAt:'2099-11-01T14:00:00Z',state:'PENDING',error:null},{id:'failed-entry',itemId:offer.id,title:offer.title,product:offer,scheduledAt:state==='FAILED'?'2020-01-01T12:00:00Z':'2099-11-01T16:00:00Z',state,error:state==='FAILED'?'A loja não confirmou o preço atual.':null}]}})
+ })
+ await page.goto('/admin/afiliados/segmentacoes/segment-1');await area(page,'Ofertas')
+ await page.getByRole('tab',{name:'Agenda',exact:true}).click();await page.getByRole('button',{name:'Abrir agenda'}).click()
+ const dialog=page.getByRole('dialog')
+ await dialog.getByRole('button',{name:'Verificar falhas',exact:true}).click()
+ await expect(dialog.getByLabel('Novo início das falhas')).toBeFocused()
+ await dialog.getByLabel('Novo início das falhas').fill('13:00');await dialog.getByLabel('Novo término das falhas').fill('20:00')
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true)
+ expect((await new AxeBuilder({page}).include('dialog').analyze()).violations).toEqual([])
+ await page.screenshot({path:testInfo.outputPath('approved-retry-period.png'),animations:'disabled'})
+ await dialog.getByRole('button',{name:'Conferir falhas neste período'}).click()
+ await expect(dialog.getByText('1 oferta recuperada aguarda seu aceite. Os envios já agendados continuam normalmente.')).toBeVisible()
+ await expect(dialog.getByText('Oferta já agendada',{exact:true})).toBeVisible()
+ expect(changes).toEqual([{path:'/bff/v1/admin/affiliates/segments/segment-1/day-plans/approved-batch/retry',body:{period:{start:'13:00',end:'20:00'}}}])
+ await page.screenshot({path:testInfo.outputPath('approved-retry-ready.png'),animations:'disabled'})
+ await dialog.getByRole('button',{name:'Aceitar e agendar 1 oferta'}).focus();await page.keyboard.press('Enter')
+ await expect(dialog.getByRole('button',{name:'Aceitar e agendar 1 oferta'})).toHaveCount(0)
+ expect(changes[1]).toEqual({path:'/bff/v1/admin/affiliates/segments/segment-1/day-plans/approved-batch/approve',body:{confirm:true}})
+ expect(changes.some(c=>c.path.endsWith('/day-plans'))).toBe(false)
+})
 
 test('agenda paginada e nova conferência individual ou de todas as falhas sem envio',async({page},testInfo)=>{
   await fixtures(page)

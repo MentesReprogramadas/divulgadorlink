@@ -44,7 +44,8 @@ export async function verifyShopee(db: PrismaClient, tenantId: string, actorId: 
   const connection = await shopeeConnection(db, tenantId)
   await searchShopeeCatalog('oferta', connection.request)
   await db.$transaction(async tx => {
-    const saved = await tx.affiliateConnection.updateMany({ where: { id: connection.row.id, tenantId, credentials: connection.row.credentials, updatedAt: connection.row.updatedAt, status: connection.row.status }, data: { status: 'CONNECTED' } })
+    // Guard credential rotation/disconnect without treating successful concurrent requests as configuration changes.
+    const saved = await tx.affiliateConnection.updateMany({ where: { id: connection.row.id, tenantId, credentials: connection.row.credentials, status: { in: ['CONFIGURED', 'CONNECTED'] } }, data: { status: 'CONNECTED' } })
     if (!saved.count) throw new AffiliateCatalogError(409, 'A configuração Shopee mudou durante a verificação. Tente novamente.')
     await tx.auditLog.create({ data: { tenantId, actorId, action: 'affiliate.shopee.verify', entityType: 'AffiliateConnection', entityId: connection.row.id, after: { provider: SHOPEE_PROVIDER } } })
   })
@@ -54,7 +55,8 @@ export async function generateTenantShopeeAffiliate(db: PrismaClient, tenantId: 
   const connection = await shopeeConnection(db, tenantId)
   const result = await generateShopeeAffiliateLink(productUrl, connection.credentials.subIds, connection.request)
   await db.$transaction(async tx => {
-    const saved = await tx.affiliateConnection.updateMany({ where: { id: connection.row.id, tenantId, credentials: connection.row.credentials, updatedAt: connection.row.updatedAt, status: connection.row.status }, data: { status: 'CONNECTED' } })
+    // Guard credential rotation/disconnect without treating successful concurrent requests as configuration changes.
+    const saved = await tx.affiliateConnection.updateMany({ where: { id: connection.row.id, tenantId, credentials: connection.row.credentials, status: { in: ['CONFIGURED', 'CONNECTED'] } }, data: { status: 'CONNECTED' } })
     if (!saved.count) throw new AffiliateCatalogError(409, 'A configuração Shopee mudou durante a geração. Gere novamente.')
     await tx.auditLog.create({ data: { tenantId, actorId, action: 'affiliate.link.generate', entityType: 'AffiliateConnection', entityId: connection.row.id, after: { provider: SHOPEE_PROVIDER } } })
   })

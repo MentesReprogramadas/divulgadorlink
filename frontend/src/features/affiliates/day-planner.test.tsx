@@ -17,6 +17,30 @@ function mock(){
   })
 }
 const props={segmentId:'natal',selected:[],clearSelection:vi.fn(),onChanged:vi.fn()}
+it('aceita mais de 24 e mostra capacidade real sem exigir intervalo de 15 minutos',async()=>{
+ mock();render(<DayPlanner {...props}/>);fireEvent.click(screen.getByRole('button',{name:'Planejar o dia'}))
+ fireEvent.change(screen.getByLabelText('Começa às'),{target:{value:'09:00'}})
+ fireEvent.change(screen.getByLabelText('Termina às'),{target:{value:'10:00'}})
+ fireEvent.change(screen.getByLabelText('Ofertas no dia'),{target:{value:'60'}})
+ expect(screen.getByLabelText('Ofertas no dia').hasAttribute('max')).toBe(false)
+ expect(screen.getByText('60 ofertas por grupo · cerca de 1 min entre ofertas')).toBeTruthy()
+ expect(screen.getByRole('button',{name:'Gerar prévia do lote'}).hasAttribute('disabled')).toBe(false)
+ fireEvent.change(screen.getByLabelText('Ofertas no dia'),{target:{value:'1000'}})
+ expect(screen.getByText(/Até 61 ofertas cabem/)).toBeTruthy()
+ fireEvent.click(screen.getByRole('button',{name:'Gerar prévia do lote'}))
+ await screen.findByText('1 oferta · 1 mensagem por grupo')
+ const call=vi.mocked(api).mock.calls.find(([path,init])=>path.endsWith('/day-plans')&&init?.method==='POST')!
+ expect(JSON.parse(String(call[1]?.body)).count).toBe(1000)
+})
+it('leva mais de 24 ofertas manuais ao mesmo lote',async()=>{
+ mock();const selected=Array.from({length:50},(_,i)=>({...product,id:'MLB'+(1000+i)}))
+ render(<DayPlanner {...props} selected={selected}/>);fireEvent.click(screen.getByRole('button',{name:'Agendar grupo'}))
+ fireEvent.change(screen.getByLabelText('Começa às'),{target:{value:'09:00'}})
+ fireEvent.change(screen.getByLabelText('Termina às'),{target:{value:'21:00'}})
+ fireEvent.click(screen.getByRole('button',{name:'Gerar prévia do lote'}));await screen.findByText('1 oferta · 1 mensagem por grupo')
+ const call=vi.mocked(api).mock.calls.find(([path,init])=>path.endsWith('/day-plans')&&init?.method==='POST')!
+ expect(JSON.parse(String(call[1]?.body)).itemIds).toHaveLength(50)
+})
 it('inicia hoje com horário futuro e destaca amanhã quando a data é alterada',()=>{
   vi.useFakeTimers();vi.setSystemTime(new Date('2026-10-31T14:27:25Z'))
   render(<DayPlanner {...props}/>);fireEvent.click(screen.getByRole('button',{name:'Planejar o dia'}))
@@ -95,24 +119,41 @@ it('abre agenda com cards e paginação e permite voltar aos produtos',async()=>
   expect(screen.queryByLabelText('Agendas de ofertas')).toBeNull()
 })
 
-it('falhas de agenda aprovada abrem nova revisão com horário futuro e preservam o lote existente',async()=>{
-  mock();const original=vi.mocked(api).getMockImplementation()!
-  vi.mocked(api).mockImplementation(async(path,init)=>{
-    const result=await original(path,init)
-    if(!path.endsWith('/batch'))return result
-    const value=result.body as DayPlan
-    return {...result,body:{...value,status:'APPROVED',entries:value.entries.map(e=>({...e,state:'FAILED',error:'A loja falhou na conferência.'}))}}
-  })
-  render(<DayPlanner {...props}/>);fireEvent.click(screen.getByRole('button',{name:'Planejar o dia'}));fireEvent.click(screen.getByRole('button',{name:'Gerar prévia do lote'}))
-  fireEvent.click(await screen.findByRole('button',{name:'Verificar falhas'}))
-  expect(screen.getByText(/As ofertas que falharam serão conferidas em um novo lote/)).toBeTruthy()
-  expect(screen.getByLabelText('Dia')).toBeTruthy()
-  expect(screen.queryByLabelText('Ofertas no dia')).toBeNull()
-  expect(vi.mocked(api).mock.calls.some(([path])=>path.endsWith('/retry')||path.endsWith('/approve')||path.endsWith('/cancel'))).toBe(false)
-  fireEvent.click(screen.getByRole('button',{name:'Gerar prévia do lote'}))
-  await waitFor(()=>expect(vi.mocked(api).mock.calls.filter(([path,init])=>path.endsWith('/day-plans')&&init?.method==='POST')).toHaveLength(2))
-  const posts=vi.mocked(api).mock.calls.filter(([path,init])=>path.endsWith('/day-plans')&&init?.method==='POST')
-  expect(JSON.parse(String(posts[1][1]?.body)).itemIds).toEqual([product.id])
+it('recupera falha no mesmo lote aprovado e exige aceite somente da oferta recuperada',async()=>{
+ mock();const original=vi.mocked(api).getMockImplementation()!;let state='FAILED'
+ vi.mocked(api).mockImplementation(async(path,init)=>{
+  const result=await original(path,init)
+  if(path.endsWith('/retry'))state='READY'
+  if(!path.endsWith('/batch'))return result
+  const value=result.body as DayPlan
+  return {...result,body:{...value,status:'APPROVED',summary:{...value.summary,readyOffers:state==='READY'?1:0},entries:value.entries.map(e=>({...e,state,error:state==='FAILED'?'A loja falhou na conferencia.':null}))}}
+ })
+ render(<DayPlanner {...props}/>);fireEvent.click(screen.getByRole('button',{name:'Planejar o dia'}));fireEvent.click(screen.getByRole('button',{name:'Gerar prévia do lote'}))
+ fireEvent.click(await screen.findByRole('button',{name:'Verificar falhas'}))
+ expect(await screen.findByText(/oferta recuperada aguarda/)).toBeTruthy()
+ expect(screen.getByRole('button',{name:'Aceitar e agendar 1 oferta'})).toBeTruthy()
+ expect(vi.mocked(api).mock.calls.filter(([path,init])=>path.endsWith('/day-plans')&&init?.method==='POST')).toHaveLength(1)
+ expect(vi.mocked(api).mock.calls.filter(([path])=>path.endsWith('/retry'))).toHaveLength(1)
+ expect(vi.mocked(api).mock.calls.some(([path])=>path.endsWith('/approve'))).toBe(false)
+})
+it('permite escolher novo periodo para falha passada sem criar outro lote',async()=>{
+ mock();const original=vi.mocked(api).getMockImplementation()!
+ vi.mocked(api).mockImplementation(async(path,init)=>{
+  const result=await original(path,init);if(!path.endsWith('/batch'))return result
+  const value=result.body as DayPlan
+  return {...result,body:{...value,status:'APPROVED',entries:value.entries.map(e=>({...e,state:'FAILED',scheduledAt:'2020-01-01T12:00:00Z'}))}}
+ })
+ render(<DayPlanner {...props}/>);fireEvent.click(screen.getByRole('button',{name:'Planejar o dia'}));fireEvent.click(screen.getByRole('button',{name:'Gerar prévia do lote'}))
+ const retry=await screen.findByRole('button',{name:'Verificar falhas'});retry.focus();fireEvent.click(retry)
+ expect(document.activeElement).toBe(screen.getByLabelText('Novo início das falhas'))
+ fireEvent.click(screen.getByRole('button',{name:'Voltar à revisão'}));expect(document.activeElement).toBe(retry)
+ expect(vi.mocked(api).mock.calls.some(([path])=>path.endsWith('/retry'))).toBe(false)
+ fireEvent.click(retry)
+ fireEvent.change(screen.getByLabelText('Novo início das falhas'),{target:{value:'16:00'}})
+ fireEvent.change(screen.getByLabelText('Novo término das falhas'),{target:{value:'20:00'}})
+ fireEvent.click(screen.getByRole('button',{name:'Conferir falhas neste período'}))
+ await waitFor(()=>expect(vi.mocked(api).mock.calls.find(([path])=>path.endsWith('/retry'))?.[1]?.body).toBe(JSON.stringify({period:{start:'16:00',end:'20:00'}})))
+ expect(vi.mocked(api).mock.calls.filter(([path,init])=>path.endsWith('/day-plans')&&init?.method==='POST')).toHaveLength(1)
 })
 
 it('a composição contextual é automática sem checkbox nem percentual fixo',async()=>{

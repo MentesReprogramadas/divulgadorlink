@@ -2,9 +2,9 @@ import { randomUUID } from 'node:crypto'
 import { PrismaClient } from '@prisma/client'
 import { afterAll, beforeAll, expect, it, vi } from 'vitest'
 import { env } from '@/env'
-import { configureShopee, shopeeStatus } from './shopee'
+import { configureShopee, generateTenantShopeeAffiliate, shopeeStatus } from './shopee'
 import { affiliateDiscoveryState, configureAffiliateDiscovery, runAffiliateDiscovery } from './discovery'
-import { previewAffiliateProduct, sendAffiliateProduct } from './product-review'
+import { affiliateRevision, previewAffiliateProduct, sendAffiliateProduct } from './product-review'
 
 vi.mock('@/adapters/affiliates/openai-intelligence', () => ({ expandAffiliateTerms: vi.fn(async (term: string) => [term]), generateAffiliateTitle: vi.fn(async (_db: unknown, _tenant: string, product: { title: string }) => ({ title: product.title, source: 'ORIGINAL' })) }))
 const url = process.env.AFFILIATE_DATABASE_URL
@@ -63,4 +63,33 @@ it('collects Shopee, revalidates exact price, signs preview and queues one appro
   expect((await db.affiliateBroadcast.findUniqueOrThrow({where:{id:sent.broadcastId}})).productSnapshot).toMatchObject({reportedDiscountPercent:39,oldPriceEstimated:true})
   expect(await db.affiliateConnection.count({where:{tenantId,provider:'MERCADO_LIVRE_SESSION'}})).toBe(0)
   expect(requests).toHaveLength(3)
+})
+
+it.each(['CONFIGURED', 'CONNECTED'])('generates concurrently from %s without invalidating the account revision', async status => {
+  await configureShopee(db, tenantId, actorId, { appId: '123456', secret: 'test-only-shopee-secret', accountLabel: 'Fixture', subIds: ['pets'] })
+  await db.affiliateConnection.updateMany({ where: { tenantId, provider: 'SHOPEE' }, data: { status, updatedAt: new Date('2020-01-01') } })
+  const before = await affiliateRevision(db, tenantId, 'SHP123_456')
+  let arrived = 0
+  let release!: () => void
+  const gate = new Promise<void>(resolve => { release = resolve })
+  vi.stubGlobal('fetch', vi.fn(async () => {
+    if (++arrived === 2) release()
+    await gate
+    return Response.json({ data: { generateShortLink: { shortLink: 'https://s.shopee.com.br/test' } } })
+  }))
+  const generate = () => generateTenantShopeeAffiliate(db, tenantId, actorId, 'https://shopee.com.br/product/123/456')
+  expect((await Promise.all([generate(), generate()])).map(result => result.url)).toEqual(['https://s.shopee.com.br/test', 'https://s.shopee.com.br/test'])
+  expect(await affiliateRevision(db, tenantId, 'SHP123_456')).toBe(before)
+  expect((await shopeeStatus(db, tenantId)).connected).toBe(true)
+})
+
+it('rejects real credential rotation while generation is in flight', async () => {
+  vi.stubGlobal('fetch', vi.fn(async () => {
+    await configureShopee(db, tenantId, actorId, { appId: '654321', secret: 'rotated-test-only-secret', accountLabel: 'Other account', subIds: ['natal'] })
+    return Response.json({ data: { generateShortLink: { shortLink: 'https://s.shopee.com.br/test' } } })
+  }))
+  const before = await affiliateRevision(db, tenantId, 'SHP123_456')
+  await expect(generateTenantShopeeAffiliate(db, tenantId, actorId, 'https://shopee.com.br/product/123/456')).rejects.toMatchObject({ status: 409 })
+  expect(await affiliateRevision(db, tenantId, 'SHP123_456')).not.toBe(before)
+  expect(await shopeeStatus(db, tenantId)).toMatchObject({ status: 'CONFIGURED', accountLabel: 'Other account' })
 })
