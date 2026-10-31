@@ -31,3 +31,6 @@ Publicação e reparo dos lotes serão registrados após a esteira finalizar. O 
 Equivalência usa dados de catálogo e nomes normalizados; não é comparação visual ou identificação universal de produtos com nomes inteiramente diferentes. Catálogos e IA podem falhar; a revisão apresenta a quantidade pronta e utiliza chamada neutra quando a IA não retorna copy válida. Não há garantia de descontos futuros ou entrega de todos os horários do dia.
 
 Reversão do código por revert do commit desta entrega. Não reenviar ou reativar cancelamentos operacionais sem nova revisão do estado e das pendências. Grafo atualizado de forma incremental e code-only, sem LLM/API; relatórios e artefatos antigos foram preservados fora do commit.
+
+
+Complemento de conferência: limite de presentes recalculado sobre ofertas READY após falhas de preparação; mudança de contexto entre cache e catálogo bloqueia o item; aprovação revalida a proporção caso itens natalinos tenham sido removidos. A seleção manual continua explícita. 23 testes PostgreSQL afetados passaram, incluindo três regressões novas; typecheck, lint e build passaram após o complemento. Revisão independente não encontrou novo problema importante nesse patch.

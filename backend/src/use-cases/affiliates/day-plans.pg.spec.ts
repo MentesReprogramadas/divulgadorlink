@@ -122,6 +122,36 @@ it('continua enviando a mensagem antiga assinada sem acrescentar chamada após a
  expect((await db.affiliateBroadcast.findFirstOrThrow({where:{tenantId,offer:{itemId:product().id}}})).message).toBe(payload.message)
  expect(payload.message.startsWith('*')).toBe(true)
 })
+it('mantém presentes em até 20% das ofertas prontas mesmo quando uma oferta natalina falha',async()=>{
+ const ports=dependencies(),candidates=[1,2,3,4,5].map(i=>({...product('MLB90000'+i),catalogId:'MLB90000'+i,title:i===5?'Fone Bluetooth JBL':'Enfeite de Natal modelo '+i,sentCount:0,pendingCount:0,lastSentAt:null}))
+ vi.mocked(ports.candidates).mockResolvedValue(candidates)
+ const prepare=ports.prepare
+ ports.prepare=async(...args)=>{if(args[4]==='MLB900001')throw new AffiliateCatalogError(409,'Não foi possível confirmar este anúncio.');return prepare(...args)}
+ const {plan}=await draft(ports,{...input(),count:5,includeGiftIdeas:true})
+ const ready=plan.entries.filter(e=>e.state==='READY')
+ expect(ready).toHaveLength(3);expect(ready.every(e=>e.kind==='THEME')).toBe(true)
+ expect(plan.entries.find(e=>e.itemId==='MLB900005')?.state).toBe('CANCELLED')
+})
+it('não transforma um item natalino em presente genérico quando o catálogo muda o título',async()=>{
+ const ports=dependencies(),candidates=await ports.candidates(db,tenantId,segmentId)
+ ports.prepare=async(client,tenant,actor,segment,itemId)=>{
+  const p=candidates.find(p=>p.id===itemId)!,fresh=itemId===product().id?{...p,title:'Fone Bluetooth JBL'}:p
+  return previewAffiliateProduct(client,tenant,actor,segment,itemId,{candidate:async()=>p,refresh:async()=>fresh,link:async()=>({url:'https://meli.la/fixture',fullUrl:'https://meli.la/fixture',tag:'fixture',profile:'fixture'}),title:async()=>({title:fresh.title,source:'ORIGINAL'})})
+ }
+ const {plan}=await draft(ports)
+ expect(plan.entries.find(e=>e.itemId===product().id)).toMatchObject({state:'FAILED',error:expect.stringContaining('mudou de contexto')})
+ expect(plan.summary.offers).toBe(1)
+})
+it('revalida a proporção de presentes quando o administrador remove itens natalinos da revisão',async()=>{
+ const ports=dependencies(),candidates=[1,2,3,4,5].map(i=>({...product('MLB95000'+i),catalogId:'MLB95000'+i,title:i===5?'Fone Bluetooth JBL':'Enfeite de Natal modelo '+i,sentCount:0,pendingCount:0,lastSentAt:null}))
+ vi.mocked(ports.candidates).mockResolvedValue(candidates)
+ const {id,plan}=await draft(ports,{...input(),count:5,includeGiftIdeas:true})
+ expect(plan.summary.offers).toBe(5)
+ const native=plan.entries.find(e=>e.kind==='THEME')!
+ await cancelAffiliateDayPlan(db,tenantId,actorId,segmentId,id,native.id)
+ await expect(approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)).rejects.toThrow('20%')
+ expect(await db.affiliateDelivery.count({where:{tenantId}})).toBe(0)
+})
 it('remove infantis de rascunhos antigos e impede o processamento de um lote antigo já aprovado',async()=>{
   await db.affiliateSegment.update({where:{id:segmentId},data:{name:'Geral'}})
   const ports=dependencies()
