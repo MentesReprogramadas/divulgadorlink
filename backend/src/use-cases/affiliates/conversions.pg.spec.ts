@@ -72,7 +72,7 @@ describe('consented lead capture and real group qualification',()=>{
   expect(fetchImpl).toHaveBeenCalledTimes(3)
   const payloads=fetchImpl.mock.calls.map(call=>JSON.parse(String(call[1]?.body)).data[0])
   expect(payloads[0]).toEqual(payloads[1])
-  expect(payloads[1]).toMatchObject({event_name:'Lead',action_source:'website',event_source_url:origin+'/ofertas/participar/pets',event_time:Math.floor(touch.getTime()/1000),user_data:{client_user_agent:'fixture-agent'}})
+  expect(payloads[1]).toMatchObject({event_name:'SubmitGroupRegistration',action_source:'website',event_source_url:origin+'/ofertas/participar/pets',event_time:Math.floor(touch.getTime()/1000),user_data:{client_user_agent:'fixture-agent'}})
   expect(payloads[2]).toMatchObject({event_name:'QualifiedGroupLead',action_source:'system_generated',event_time:Math.floor(joined.getTime()/1000),custom_data:{event_source:'crm',lead_event_source:'Tem Link Aqui',segment_id:segmentId}})
   const row=await db.affiliateConversionIntent.findFirstOrThrow({where})
   expect(payloads[1].user_data.external_id).toEqual([createHash('sha256').update(row.id).digest('hex')])

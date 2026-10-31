@@ -20,7 +20,7 @@ describe('conversion identity boundary',()=>{
   expect(payload.user_data).not.toHaveProperty('client_user_agent')
   expect(payload).not.toHaveProperty('event_source_url')
   const initial=conversionMetaPayload({phoneSha:hash,userAgent:'real-lp-agent',sourceUrl:'https://example.test/ofertas/participar/pets',pixelId:'123'},'initial-id','segment',new Date(),'INITIAL_LEAD')
-  expect(initial).toMatchObject({event_name:'Lead',action_source:'website',event_source_url:'https://example.test/ofertas/participar/pets',user_data:{client_user_agent:'real-lp-agent'}})
+  expect(initial).toMatchObject({event_name:'SubmitGroupRegistration',action_source:'website',event_source_url:'https://example.test/ofertas/participar/pets',user_data:{client_user_agent:'real-lp-agent'}})
  })
  it('does not accept manufactured fbc or consent values',()=>{
   const input={phone:'',marketingConsent:false,sourceUrl:'https://example.test'}
