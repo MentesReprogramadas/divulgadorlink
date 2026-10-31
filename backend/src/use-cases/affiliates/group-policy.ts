@@ -95,7 +95,7 @@ export async function runAffiliateGroupPolicies(db:PrismaClient,factory:Factory=
       processed++
     } catch(error) {state='ERROR';errorCode=error instanceof AffiliateProviderError&&[404,405,501].includes(error.providerStatus??0)?'admission_extension_required':'provider_rejected'}
     finally {
-      await db.affiliateGroup.updateMany({where:{id:group.id,tenantId:group.tenantId,groupPolicyLeaseToken:token},data:{groupPolicyState:state,groupPolicyErrorCode:errorCode,groupPolicyNextRunAt:new Date(now.getTime()+(state==='ACTIVE'?30_000:300_000)),groupPolicyLeaseToken:null,groupPolicyLeaseExpiresAt:null}})
+      await db.affiliateGroup.updateMany({where:{id:group.id,tenantId:group.tenantId,groupPolicyLeaseToken:token},data:{groupPolicyState:state,groupPolicyErrorCode:errorCode,groupPolicyNextRunAt:new Date(now.getTime()+((state==='ACTIVE'||state==='ATTENTION')?2_000:300_000)),groupPolicyLeaseToken:null,groupPolicyLeaseExpiresAt:null}})
     }
   }
   // Keep uncertain hashes until the request disappears: deleting them would silently authorize a retry.

@@ -17,8 +17,8 @@ vi.mock('@/lib/prisma',async()=>{
   return {prisma:new PrismaClient({datasourceUrl:url})}
 })
 const app=Fastify(),tenantA=randomUUID(),tenantB=randomUUID(),actorA=randomUUID(),actorB=randomUUID(),oldKey=env.WEBHOOK_ENCRYPTION_KEY
-const policy={enabled:true,disappearingSeconds:86400 as const,joinApproval:true,autoApproveDelaySeconds:120}
-const legacy={groupPolicyEnabled:false,groupDisappearingSeconds:604800,groupJoinApproval:true,groupAutoApproveDelaySeconds:120}
+const policy={enabled:true,disappearingSeconds:86400 as const,joinApproval:true,autoApproveDelaySeconds:10}
+const legacy={groupPolicyEnabled:false,groupDisappearingSeconds:604800,groupJoinApproval:true,groupAutoApproveDelaySeconds:10}
 const instances=new Map<string,string>(),base='/api/v1/admin/affiliates'
 const headers=(tenantId:string=tenantA,actorId:string=tenantId===tenantA?actorA:actorB)=>({host:tenantId+'.test',authorization:'Bearer '+app.jwt.sign({sub:actorId,tenantId,typ:'access',role:'ADMIN'})})
 async function createSegment(tenantId:string,slug:string){return app.inject({method:'POST',url:base+'/segments',headers:headers(tenantId),payload:{name:'Segmento '+slug,slug,instanceId:instances.get(tenantId),enabled:false}})}
@@ -57,7 +57,7 @@ it('aplica defaults do tenant somente a novas segmentações e preserva outro te
   expect(saved.statusCode).toBe(200)
   const newA=await createSegment(tenantA,'novo-a'),newB=await createSegment(tenantB,'novo-b')
   expect(newA.statusCode).toBe(200);expect(newB.statusCode).toBe(200)
-  expect(newA.json()).toMatchObject({groupPolicyEnabled:true,groupDisappearingSeconds:86400,groupJoinApproval:true,groupAutoApproveDelaySeconds:120})
+  expect(newA.json()).toMatchObject({groupPolicyEnabled:true,groupDisappearingSeconds:86400,groupJoinApproval:true,groupAutoApproveDelaySeconds:10})
   expect(newB.json()).toMatchObject(legacy)
   expect(await db.affiliateSegment.findUniqueOrThrow({where:{id:oldA.json().id}})).toMatchObject(legacy)
   expect((await app.inject({url:base+'/group-policy-defaults',headers:headers()})).json()).toEqual({configured:true,policy})
@@ -71,7 +71,7 @@ it('nega anônimo, conta cruzada e admin revogado; rejeita defaults inválidos',
   await db.user.update({where:{id:actorA},data:{role:'USER'}})
   try {expect((await app.inject({method:'PUT',url:path,headers:headers(),payload:policy})).statusCode).toBe(403)}
   finally {await db.user.update({where:{id:actorA},data:{role:'ADMIN'}})}
-  for(const patch of [{autoApproveDelaySeconds:119},{disappearingSeconds:3600},{tenantId:tenantB}])expect((await app.inject({method:'PUT',url:path,headers:headers(),payload:{...policy,...patch}})).statusCode).toBe(400)
+  for(const patch of [{autoApproveDelaySeconds:9},{disappearingSeconds:3600},{tenantId:tenantB}])expect((await app.inject({method:'PUT',url:path,headers:headers(),payload:{...policy,...patch}})).statusCode).toBe(400)
 })
 it('serviço de configuração também nega ator de outro tenant e conta bloqueada',async()=>{
   await expect(saveAffiliateGroupPolicyDefaults(db,tenantB,actorA,policy)).rejects.toMatchObject({status:403})

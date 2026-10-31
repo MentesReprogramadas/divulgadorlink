@@ -405,7 +405,7 @@ export async function startWorker(): Promise<void> {
     try {await runAffiliateGroupPolicies(prisma)} catch {logDomainEvent('affiliate.group_policy.failed',{result:'processing_failed'})} finally {groupPolicyRunning=false}
   }
   void drainGroupPolicies()
-  const groupPolicyDrain=setInterval(()=>{void drainGroupPolicies()},30_000)
+  const groupPolicyDrain=setInterval(()=>{void drainGroupPolicies()},2_000)
   groupPolicyDrain.unref()
   const drain = setInterval(() => {
     void runAffiliateDiscovery(prisma).catch(() => logDomainEvent('affiliate.discovery.failed', { result: 'processing_failed' }))

@@ -6,18 +6,38 @@ const products=[{...p,evaluation:evaluateAffiliateProduct(p,[])}]
 afterEach(()=>vi.unstubAllEnvs())
 it('envia desconto e contagem de envios; só aceita ids existentes, sem duplicação',async()=>{
   vi.stubEnv('OPENAI_API_KEY','fixture-not-real')
-  const respond=(itemIds:string[])=>vi.fn(async()=>new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:JSON.stringify({items:itemIds.map(id=>({id,context:{role:'CORE',framing:'THEME',reason:'Produto adequado ao tema do grupo.'}}))})}}]}))) as unknown as typeof fetch
-  const fetcher=respond(['MLB123'])
+  const respond=(itemIds:string[])=>vi.fn(async()=>new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:JSON.stringify({coreCount:itemIds.length,relatedCount:0,items:itemIds.map(id=>({id,context:{role:'CORE',framing:'THEME',reason:'Produto adequado ao tema do grupo.'}}))})}}]}))) as unknown as typeof fetch
+  const fetcher=respond(['p0'])
   expect(await suggestDayProductOrder(products,fetcher,{name:'Jardinagem',discovery:{terms:['plantas']}},12)).toEqual([{id:'MLB123',context:{role:'CORE',framing:'THEME',reason:'Produto adequado ao tema do grupo.'}}])
   const request=JSON.parse(String(vi.mocked(fetcher).mock.calls[0][1]?.body))
   expect(JSON.parse(request.messages[1].content).products[0]).toMatchObject({discountPercent:50,sentCount:3,lastSentAt:p.lastSentAt})
   expect(request.store).toBe(false)
+  expect(request.response_format.json_schema.schema.properties.items.items.properties.id.enum).toEqual(['p0'])
   expect(JSON.parse(request.messages[1].content)).toMatchObject({segment:{name:'Jardinagem',terms:['plantas']},requestedCount:12})
   expect(request.messages[0].content).toContain('nunca uma quota')
-  for(const ids of [['foreign'],['MLB123','MLB123'],[]])expect(await suggestDayProductOrder(products,respond(ids))).toEqual([])
+  for(const ids of [['foreign'],['p0','p0'],[]])expect(await suggestDayProductOrder(products,respond(ids))).toEqual([])
 })
 it('usa regras sem chave ou resposta interrompida, sem comprometer o lote',async()=>{
   const fetcher=vi.fn(async()=>new Response('{}',{status:503})) as unknown as typeof fetch
   vi.stubEnv('OPENAI_API_KEY','');expect(await suggestDayProductOrder(products,fetcher)).toEqual([]);expect(fetcher).not.toHaveBeenCalled()
   vi.stubEnv('OPENAI_API_KEY','fixture');expect(await suggestDayProductOrder(products,fetcher)).toEqual([])
+})
+
+it.each([{coreCount:12,relatedCount:4,expected:2},{coreCount:10,relatedCount:5,expected:3},{coreCount:12,relatedCount:0,expected:0}])('ajusta complementos à proporção calculada pela IA: $coreCount/$relatedCount',async({coreCount,relatedCount,expected})=>{
+ vi.stubEnv('OPENAI_API_KEY','fixture')
+ const catalog=Array.from({length:12},(_,i)=>({...products[0],id:'MLB'+i}))
+ const items=catalog.map((_,i)=>({id:'p'+i,context:{role:i<6?'CORE':'RELATED',framing:i<6?'THEME':'GIFT',reason:'Relação contextual escolhida pela IA.'}}))
+ const fetcher=vi.fn(async()=>new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:JSON.stringify({coreCount,relatedCount,items})}}]}))) as unknown as typeof fetch
+ const selected=await suggestDayProductOrder(catalog,fetcher,{name:'Natal'},24)
+ expect(selected.filter(p=>p.context.role==='CORE')).toHaveLength(6)
+ expect(selected.filter(p=>p.context.role==='RELATED')).toHaveLength(expected)
+ expect(selected.every(p=>p.id.startsWith('MLB'))).toBe(true)
+})
+it.each([0,1])('pede correção se a composição não prioriza o núcleo: %i',async(initialCore)=>{
+ vi.stubEnv('OPENAI_API_KEY','fixture')
+ const response=(coreCount:number,relatedCount:number)=>new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:JSON.stringify({coreCount,relatedCount,items:[{id:'p0',context:{role:'CORE',framing:'THEME',reason:'Produto do núcleo do grupo.'}}]})}}]}))
+ const fetcher=vi.fn().mockResolvedValueOnce(response(initialCore,1)).mockResolvedValueOnce(response(1,0)) as unknown as typeof fetch
+ expect(await suggestDayProductOrder(products,fetcher)).toHaveLength(1)
+ expect(fetcher).toHaveBeenCalledTimes(2)
+ expect(JSON.parse(String(vi.mocked(fetcher).mock.calls[1][1]?.body)).messages.at(-1).content).toContain('Não reclassifique')
 })

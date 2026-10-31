@@ -148,7 +148,7 @@ model AffiliateSegment {
   groupPolicyEnabled Boolean @default(false)
   groupDisappearingSeconds Int @default(604800)
   groupJoinApproval Boolean @default(true)
-  groupAutoApproveDelaySeconds Int @default(120)
+  groupAutoApproveDelaySeconds Int @default(10)
   instanceId String?
   instance AffiliateInstance? @relation(fields: [instanceId, tenantId], references: [id, tenantId], onDelete: Restrict)
   enabled Boolean @default(true)

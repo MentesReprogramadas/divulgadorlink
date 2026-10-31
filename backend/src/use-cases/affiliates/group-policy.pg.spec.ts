@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import { readFileSync } from 'node:fs'
 import { PrismaClient } from '@prisma/client'
 import { afterAll, beforeAll, beforeEach, expect, it, vi } from 'vitest'
 import { env } from '@/env'
@@ -13,7 +14,7 @@ import {recordConversionIntent} from './conversions'
 const url=process.env.AFFILIATE_DATABASE_URL
 if(!url || !['127.0.0.1','localhost'].includes(new URL(url).hostname))throw new Error('Disposable local AFFILIATE_DATABASE_URL required')
 const db=new PrismaClient({datasourceUrl:url}),tenantId=randomUUID(),otherTenant=randomUUID(),actorId=randomUUID()
-const policy={enabled:true,disappearingSeconds:604800 as const,joinApproval:true,autoApproveDelaySeconds:120}
+const policy={enabled:true,disappearingSeconds:604800 as const,joinApproval:true,autoApproveDelaySeconds:10}
 const now=new Date('2026-10-30T15:00:00Z')
 let groupId:string,segmentId:string
 const port=()=>({status:vi.fn(async()=>({state:'open'})),group:vi.fn(),groups:vi.fn(),invite:vi.fn(),create:vi.fn(),picture:vi.fn(),describe:vi.fn(),send:vi.fn(),setDisappearingMessages:vi.fn(async()=>{}),groupAdmissionCapabilities:vi.fn(async()=>({joinApproval:true})),setJoinApproval:vi.fn(async()=>{}),pendingJoinRequests:vi.fn(async()=>['5511999999999@s.whatsapp.net']),approveJoinRequest:vi.fn(async()=>{})}) satisfies AffiliateWhatsApp
@@ -25,23 +26,23 @@ beforeAll(async()=>{
 beforeEach(async()=>{
   await db.affiliateGroup.deleteMany({where:{tenantId}});await db.affiliateSegment.deleteMany({where:{tenantId}});await db.affiliateInstance.deleteMany({where:{tenantId}})
   const instance=await db.affiliateInstance.create({data:{tenantId,name:'Fixture'}})
-  const segment=await db.affiliateSegment.create({data:{tenantId,name:'Pets',slug:'pets',instanceId:instance.id,groupPolicyEnabled:true}});segmentId=segment.id
+  const segment=await db.affiliateSegment.create({data:{tenantId,name:'Pets',slug:'pets',instanceId:instance.id,groupPolicyEnabled:true,groupAutoApproveDelaySeconds:10}});segmentId=segment.id
   groupId=(await db.affiliateGroup.create({data:{tenantId,segmentId,instanceId:instance.id,jid:'123@g.us',name:'Pets #1',sequence:1,groupPolicyNextRunAt:now}})).id
 })
 afterAll(async()=>{
   await db.affiliateGroup.deleteMany({where:{tenantId}});await db.affiliateSegment.deleteMany({where:{tenantId}});await db.affiliateInstance.deleteMany({where:{tenantId}});await db.auditLog.deleteMany({where:{tenantId}});await db.user.deleteMany({where:{tenantId}});await db.tenant.deleteMany({where:{id:{in:[tenantId,otherTenant]}}});await db.$disconnect()
 })
-it('observa pedidos existentes e aguarda no mínimo 120 segundos; confirma apenas uma vez',async()=>{
+it('observa pedidos existentes e aguarda no mínimo 10 segundos; confirma apenas uma vez',async()=>{
   const remote=port()
   await runAffiliateGroupPolicies(db,()=>remote,now)
   expect(remote.setDisappearingMessages).toHaveBeenCalledWith('123@g.us',604800)
   expect(remote.setJoinApproval).toHaveBeenCalledWith('123@g.us',true)
   const request=await db.affiliateGroupAdmission.findFirstOrThrow({where:{tenantId}})
   expect(request.encryptedJid).not.toContain('5511999999999')
-  expect(request.eligibleAt.getTime()-request.firstSeenAt.getTime()).toBe(120000)
-  await runAffiliateGroupPolicies(db,()=>remote,new Date(now.getTime()+119000))
+  expect(request.eligibleAt.getTime()-request.firstSeenAt.getTime()).toBe(10000)
+  await runAffiliateGroupPolicies(db,()=>remote,new Date(now.getTime()+9000))
   expect(remote.approveJoinRequest).not.toHaveBeenCalled()
-  await runAffiliateGroupPolicies(db,()=>remote,new Date(now.getTime()+150000))
+  await runAffiliateGroupPolicies(db,()=>remote,new Date(now.getTime()+12000))
   expect(remote.approveJoinRequest).toHaveBeenCalledOnce()
   expect(await db.affiliateGroupAdmission.findUniqueOrThrow({where:{id:request.id}})).toMatchObject({state:'APPROVED',encryptedJid:null})
   await runAffiliateGroupPolicies(db,()=>remote,new Date(now.getTime()+300000))
@@ -105,7 +106,7 @@ it('serializa workers concorrentes e não repete aprovação de resposta incerta
   await Promise.all([runAffiliateGroupPolicies(db,()=>remote,now),runAffiliateGroupPolicies(db,()=>remote,now)])
   expect(remote.setJoinApproval).toHaveBeenCalledOnce()
   remote.approveJoinRequest.mockRejectedValue(new Error('uncertain'))
-  await runAffiliateGroupPolicies(db,()=>remote,new Date(now.getTime()+150000))
+  await runAffiliateGroupPolicies(db,()=>remote,new Date(now.getTime()+12000))
   await runAffiliateGroupPolicies(db,()=>remote,new Date(now.getTime()+600000))
   await runAffiliateGroupPolicies(db,()=>remote,new Date(now.getTime()+8*86400000))
   expect(remote.approveJoinRequest).toHaveBeenCalledOnce()
@@ -114,19 +115,19 @@ it('serializa workers concorrentes e não repete aprovação de resposta incerta
 it('retira pedido cancelado e reinicia prazo de nova solicitação',async()=>{
   const remote=port();await runAffiliateGroupPolicies(db,()=>remote,now)
   remote.pendingJoinRequests.mockResolvedValue([])
-  await runAffiliateGroupPolicies(db,()=>remote,new Date(now.getTime()+150000))
+  await runAffiliateGroupPolicies(db,()=>remote,new Date(now.getTime()+12000))
   expect(await db.affiliateGroupAdmission.findFirstOrThrow({where:{tenantId}})).toMatchObject({state:'WITHDRAWN',encryptedJid:null})
   remote.pendingJoinRequests.mockResolvedValue(['5511999999999@s.whatsapp.net'])
   await runAffiliateGroupPolicies(db,()=>remote,new Date(now.getTime()+300000))
   expect(remote.approveJoinRequest).not.toHaveBeenCalled()
-  expect((await db.affiliateGroupAdmission.findFirstOrThrow({where:{tenantId}})).eligibleAt.getTime()).toBeGreaterThanOrEqual(now.getTime()+420000)
+  expect((await db.affiliateGroupAdmission.findFirstOrThrow({where:{tenantId}})).eligibleAt.getTime()).toBeGreaterThanOrEqual(now.getTime()+310000)
 })
 it('isola leitura/escrita por tenant, valida atraso e audita a configuração',async()=>{
   await expect(readAffiliateGroupPolicy(db,otherTenant,segmentId)).rejects.toMatchObject({status:404})
   await expect(saveAffiliateGroupPolicy(db,otherTenant,actorId,segmentId,policy)).rejects.toMatchObject({status:404})
   await expect(saveAffiliateGroupPolicy(db,tenantId,actorId,segmentId,{...policy,autoApproveDelaySeconds:0})).rejects.toThrow()
   await saveAffiliateGroupPolicy(db,tenantId,actorId,segmentId,{...policy,enabled:false})
-  expect(await readAffiliateGroupPolicy(db,tenantId,segmentId)).toMatchObject({enabled:false,autoApproveDelaySeconds:120,groups:[{groupPolicyState:'PAUSED'}]})
+  expect(await readAffiliateGroupPolicy(db,tenantId,segmentId)).toMatchObject({enabled:false,autoApproveDelaySeconds:10,groups:[{groupPolicyState:'PAUSED'}]})
   expect(await db.auditLog.count({where:{tenantId,action:'affiliate.group_policy.updated'}})).toBeGreaterThan(0)
   expect(groupPolicyHash(policy)).toBe(groupPolicyHash({...policy,autoApproveDelaySeconds:240}))
 })
@@ -177,4 +178,63 @@ it.each(['duration','approval','enabled'] as const)('não libera o convite inici
   expect(await db.affiliateSegment.findUniqueOrThrow({where:{id:segmentId}})).toMatchObject({provisionState:'IDLE'})
   expect(await db.auditLog.count({where:{tenantId,action:'affiliate.group.provision_uncertain'}})).toBe(0)
   expect(await resolveAffiliateInviteDestination(db,tenantId,'pets',()=>remote)).toBeNull()
+})
+
+it('processa pedidos em dez segundos sem esperar o polling antigo de trinta segundos',async()=>{
+  const remote=port()
+  await runAffiliateGroupPolicies(db,()=>remote,now)
+  const request=await db.affiliateGroupAdmission.findFirstOrThrow({where:{tenantId}})
+  const group=await db.affiliateGroup.findUniqueOrThrow({where:{id:groupId}})
+  expect(group.groupPolicyNextRunAt.getTime()).toBeLessThanOrEqual(now.getTime()+2000)
+  await runAffiliateGroupPolicies(db,()=>remote,new Date(request.eligibleAt.getTime()-1))
+  expect(remote.approveJoinRequest).not.toHaveBeenCalled()
+  await runAffiliateGroupPolicies(db,()=>remote,new Date(request.eligibleAt.getTime()+2000))
+  expect(remote.approveJoinRequest).toHaveBeenCalledExactlyOnceWith('123@g.us','5511999999999@s.whatsapp.net')
+})
+
+it('migra somente 120 segundos legados e pedidos pendentes, preservando configuração customizada e incerteza',async()=>{
+  await db.affiliateSegment.update({where:{id:segmentId},data:{groupAutoApproveDelaySeconds:120}})
+  const custom=await db.affiliateSegment.create({data:{tenantId:otherTenant,name:'Custom',slug:'custom',groupAutoApproveDelaySeconds:240}})
+  const remote=port()
+  await runAffiliateGroupPolicies(db,()=>remote,now)
+  const request=await db.affiliateGroupAdmission.findFirstOrThrow({where:{tenantId}})
+  await db.affiliateGroupAdmission.create({data:{tenantId,groupId,participantHash:'uncertain-fixture',state:'UNCERTAIN',firstSeenAt:now,eligibleAt:new Date(now.getTime()+120000)}})
+  await db.config.createMany({data:[{tenantId,key:'AFFILIATE_GROUP_POLICY_DEFAULTS',value:JSON.stringify({...policy,autoApproveDelaySeconds:120})},{tenantId:otherTenant,key:'AFFILIATE_GROUP_POLICY_DEFAULTS',value:JSON.stringify({...policy,autoApproveDelaySeconds:240})}]})
+  try {
+    const migration=readFileSync('prisma/migrations/20261031180000_affiliate_admission_ten_seconds/migration.sql','utf8')
+    await db.$transaction(async tx=>{
+      for(const statement of migration.replace(/\r\n/g,'\n').split(/\n\n(?=--|WITH|DO|UPDATE)/))await tx.$executeRawUnsafe(statement)
+    })
+    expect((await db.affiliateSegment.findUniqueOrThrow({where:{id:segmentId}})).groupAutoApproveDelaySeconds).toBe(10)
+    expect((await db.affiliateSegment.findUniqueOrThrow({where:{id:custom.id}})).groupAutoApproveDelaySeconds).toBe(240)
+    const migrated=await db.affiliateGroupAdmission.findUniqueOrThrow({where:{id:request.id}})
+    expect(migrated.eligibleAt.getTime()-migrated.firstSeenAt.getTime()).toBe(10000)
+    expect(migrated.state).toBe('PENDING')
+    expect(await db.affiliateGroupAdmission.findFirstOrThrow({where:{participantHash:'uncertain-fixture'}})).toMatchObject({state:'UNCERTAIN',eligibleAt:new Date(now.getTime()+120000)})
+    expect(JSON.parse((await db.config.findUniqueOrThrow({where:{tenantId_key:{tenantId,key:'AFFILIATE_GROUP_POLICY_DEFAULTS'}}})).value).autoApproveDelaySeconds).toBe(10)
+    expect(JSON.parse((await db.config.findUniqueOrThrow({where:{tenantId_key:{tenantId:otherTenant,key:'AFFILIATE_GROUP_POLICY_DEFAULTS'}}})).value).autoApproveDelaySeconds).toBe(240)
+    expect(remote.approveJoinRequest).not.toHaveBeenCalled()
+  } finally {
+    await db.config.deleteMany({where:{tenantId:{in:[tenantId,otherTenant]},key:'AFFILIATE_GROUP_POLICY_DEFAULTS'}})
+    await db.affiliateSegment.delete({where:{id:custom.id}})
+  }
+})
+
+it('continua aprovando novos pedidos em ATTENTION sem repetir participante incerto',async()=>{
+  const remote=port()
+  await runAffiliateGroupPolicies(db,()=>remote,now)
+  const first=await db.affiliateGroupAdmission.findFirstOrThrow({where:{tenantId}})
+  remote.approveJoinRequest.mockRejectedValueOnce(new Error('uncertain'))
+  await runAffiliateGroupPolicies(db,()=>remote,new Date(first.eligibleAt.getTime()+2000))
+  expect(await db.affiliateGroup.findUniqueOrThrow({where:{id:groupId}})).toMatchObject({groupPolicyState:'ATTENTION'})
+  const observedAt=new Date(first.eligibleAt.getTime()+4000)
+  remote.pendingJoinRequests.mockResolvedValue(['5511999999999@s.whatsapp.net','5511888888888@s.whatsapp.net'])
+  await runAffiliateGroupPolicies(db,()=>remote,observedAt)
+  const second=await db.affiliateGroupAdmission.findFirstOrThrow({where:{tenantId,state:'PENDING'}})
+  expect(second.eligibleAt.getTime()-second.firstSeenAt.getTime()).toBe(10000)
+  await runAffiliateGroupPolicies(db,()=>remote,new Date(second.eligibleAt.getTime()+2000))
+  expect(remote.approveJoinRequest).toHaveBeenCalledTimes(2)
+  expect(remote.approveJoinRequest).toHaveBeenLastCalledWith('123@g.us','5511888888888@s.whatsapp.net')
+  expect(await db.affiliateGroupAdmission.findUniqueOrThrow({where:{id:first.id}})).toMatchObject({state:'UNCERTAIN',encryptedJid:null})
+  expect(await db.affiliateGroupAdmission.findUniqueOrThrow({where:{id:second.id}})).toMatchObject({state:'APPROVED',encryptedJid:null})
 })

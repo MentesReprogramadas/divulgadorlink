@@ -5,7 +5,7 @@ export const groupPolicyInput = z.object({
   enabled:z.boolean(),
   disappearingSeconds:z.union([z.literal(0),z.literal(86400),z.literal(604800),z.literal(7776000)]),
   joinApproval:z.boolean(),
-  autoApproveDelaySeconds:z.number().int().min(120).max(86400),
+  autoApproveDelaySeconds:z.number().int().min(10).max(86400),
 }).strict()
 export type AffiliateGroupPolicy = z.infer<typeof groupPolicyInput>
 export const admissionJid = z.string().regex(/^\d+(?::\d+)?@(s\.whatsapp\.net|lid)$/).max(100)

@@ -49,7 +49,7 @@ it('configura política de grupos só com admin e valida limites sem acessar Wha
   const url=`/api/v1/admin/affiliates/segments/${segment.id}/group-policy`,payload={enabled:true,disappearingSeconds:604800,joinApproval:true,autoApproveDelaySeconds:120}
   try {
     expect((await app.inject({url,headers:{host}})).statusCode).toBe(401)
-    expect((await app.inject({method:'PUT',url,headers:headers(),payload:{...payload,autoApproveDelaySeconds:119}})).statusCode).toBe(400)
+    expect((await app.inject({method:'PUT',url,headers:headers(),payload:{...payload,autoApproveDelaySeconds:9}})).statusCode).toBe(400)
     expect((await app.inject({method:'PUT',url,headers:headers(),payload:{...payload,extra:true}})).statusCode).toBe(400)
     expect((await app.inject({method:'PUT',url,headers:headers(),payload})).statusCode).toBe(200)
     expect((await app.inject({url,headers:headers()})).json()).toMatchObject({...payload,groups:[]})

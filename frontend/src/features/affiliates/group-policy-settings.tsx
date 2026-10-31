@@ -12,7 +12,7 @@ const errors: Record<string, string> = { connection_unavailable: 'Conecte a cont
 
 export function GroupPolicySettings({ segmentId, pending }: { segmentId: string; pending: (value: boolean) => void }) {
   const [policy, setPolicy] = useState<GroupPolicy | null>(null), [error, setError] = useState(''), [notice, setNotice] = useState(''), [busy, setBusy] = useState(false), [revision, setRevision] = useState(0)
-  const [enabled, setEnabled] = useState(false), [disappearingSeconds, setDisappearingSeconds] = useState<GroupPolicy['disappearingSeconds']>(604800), [joinApproval, setJoinApproval] = useState(true), [delay, setDelay] = useState('120')
+  const [enabled, setEnabled] = useState(false), [disappearingSeconds, setDisappearingSeconds] = useState<GroupPolicy['disappearingSeconds']>(604800), [joinApproval, setJoinApproval] = useState(true), [delay, setDelay] = useState('10')
   const lock = useRef(false), active = useRef(true)
   const path = '/segments/' + encodeURIComponent(segmentId) + '/group-policy'
   useEffect(() => {
@@ -24,7 +24,7 @@ export function GroupPolicySettings({ segmentId, pending }: { segmentId: string;
     event.preventDefault()
     if (lock.current || !policy) return
     const seconds = Number(delay)
-    if (!Number.isInteger(seconds) || seconds < 120 || seconds > 86400) { setError('Use um intervalo inteiro entre 120 e 86400 segundos.'); return }
+    if (!Number.isInteger(seconds) || seconds < 10 || seconds > 86400) { setError('Use um intervalo inteiro entre 10 e 86400 segundos.'); return }
     lock.current = true; setBusy(true); pending(true); setError(''); setNotice('')
     try { await affiliateRequest(path, 'PUT', { enabled, disappearingSeconds, joinApproval, autoApproveDelaySeconds: seconds }); if (active.current) { setNotice('Preferências salvas. Confira abaixo a aplicação em cada grupo.'); setRevision(value => value + 1) } }
     catch { if (active.current) setError('Não foi possível salvar a política. Seus dados foram mantidos.') }
@@ -41,7 +41,7 @@ export function GroupPolicySettings({ segmentId, pending }: { segmentId: string;
       <label className={styles.check}><Input type="checkbox" checked={enabled} disabled={busy} onChange={event => setEnabled(event.target.checked)} />Automatizar esta política nos grupos</label>
       <Field label="Mensagens temporárias"><Select value={String(disappearingSeconds)} disabled={busy} onChange={event => setDisappearingSeconds(Number(event.target.value) as GroupPolicy['disappearingSeconds'])}><option value="0">Desativadas</option><option value="86400">24 horas</option><option value="604800">7 dias</option><option value="7776000">90 dias</option></Select></Field>
       <label className={styles.check}><Input type="checkbox" checked={joinApproval} disabled={busy} onChange={event => setJoinApproval(event.target.checked)} />Exigir aprovação para entrar pelo convite</label>
-      <Field label="Espera antes da aprovação automática (segundos)" hint="Entre 120 segundos (2 minutos) e 86400 segundos (24 horas). Depende do suporte do provedor."><Input type="number" required min={120} max={86400} step={1} value={delay} disabled={busy} onChange={event => setDelay(event.target.value)} /></Field>
+      <Field label="Espera antes da aprovação automática (segundos)" hint="Entre 10 segundos e 86400 segundos (24 horas). Depende do suporte do provedor."><Input type="number" required min={10} max={86400} step={1} value={delay} disabled={busy} onChange={event => setDelay(event.target.value)} /></Field>
       <p className={styles.muted}>Pausar a automação não desfaz configurações já aplicadas no WhatsApp.</p>
       <Button loading={busy} disabled={busy} type="submit">Salvar política dos grupos</Button>
     </form> : null}
