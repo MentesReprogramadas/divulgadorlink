@@ -10,7 +10,7 @@ it('envia desconto e contagem de envios; s√≥ aceita ids existentes, sem duplica√
   const fetcher=respond(['MLB123'])
   expect(await suggestDayProductOrder(products,fetcher)).toEqual(['MLB123'])
   const request=JSON.parse(String(vi.mocked(fetcher).mock.calls[0][1]?.body))
-  expect(JSON.parse(request.messages[1].content)[0]).toMatchObject({discountPercent:50,sentCount:3,lastSentAt:p.lastSentAt})
+  expect(JSON.parse(request.messages[1].content).products[0]).toMatchObject({discountPercent:50,sentCount:3,lastSentAt:p.lastSentAt})
   expect(request.store).toBe(false)
   for(const ids of [['foreign'],['MLB123','MLB123'],[]])expect(await suggestDayProductOrder(products,respond(ids))).toEqual([])
 })

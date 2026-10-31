@@ -148,3 +148,13 @@ it('accepts natural gift contexts without inventing product properties',async()=
     expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,vi.fn(async()=>response({title,headline:headline+' resistente'})),'retry')).toMatchObject({source:'ORIGINAL'})
   }
 })
+
+it('contextualiza um fone como presente de Natal, sem inventar que o produto é natalino',async()=>{
+ vi.stubEnv('OPENAI_API_KEY','fixture')
+ const product={id:'SHP1_2',catalogId:'SHP1_2',title:'Fone Bluetooth JBL',priceCents:1000,oldPriceCents:null,imageUrl:null,productUrl:'https://shopee.com.br/product/1/2',checkedAt:new Date().toISOString()}
+ const fetcher=vi.fn<typeof fetch>(async()=>response({title:'Fone Bluetooth JBL',headline:'Uma opção de presente para o Natal 🎁'}))
+ const result=await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher,undefined,{name:'Natal',discovery:{terms:['Decoração de Natal']}})
+ expect(result).toMatchObject({source:'OPENAI',title:product.title,headline:'Uma opção de presente para o Natal 🎁'})
+ const request=JSON.parse(String(fetcher.mock.calls[0][1]?.body))
+ expect(JSON.parse(request.messages[1].content[0].text).context).toMatchObject({segment:'Natal',purpose:'GIFT_IDEA'})
+})

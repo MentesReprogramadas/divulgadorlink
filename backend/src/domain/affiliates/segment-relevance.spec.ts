@@ -1,5 +1,5 @@
 import { expect,it } from 'vitest'
-import { affiliateProductFitsSegment,petSearchTerm } from './segment-relevance'
+import { affiliateProductFitsSegment,petSearchTerm,christmasProductKind } from './segment-relevance'
 import { planAffiliateDiscoveryTerms } from './discovery-terms'
 const pets={name:'Pets'}
 it('exclui os produtos infantis do lote real sem confundir mordedores e brinquedos de animais',()=>{
@@ -12,4 +12,11 @@ it('mantém o contexto pet na expansão e deduplica termos depois da qualificaç
   expect(terms).toContain('brinquedo interativo para pets')
   expect(terms).not.toContain('brinquedo interativo')
   expect(petSearchTerm('areia de sílica')).toBe('areia de sílica para gatos')
+})
+
+it('presentes genéricos com Natal no SEO não se tornam decoração natalina',()=>{
+ for(const title of ['Fone Bluetooth presente de Natal','Tênis feminino presente Natal','Caixa de som Bluetooth para o Natal'])expect(christmasProductKind(title)).toBe('GIFT')
+ for(const title of ['Guirlanda Natalina','Caneca decorada de Natal','Caixa de presente de Natal','Enfeite de árvore de Natal'])expect(christmasProductKind(title)).toBe('THEME')
+ expect(affiliateProductFitsSegment({name:'Pets'},'Brinquedo de pelúcia de papagaio pássaro')).toBe(false)
+ expect(affiliateProductFitsSegment({name:'Pets'},'Brinquedo de pelúcia para gatos')).toBe(true)
 })

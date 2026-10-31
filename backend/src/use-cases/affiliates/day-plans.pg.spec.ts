@@ -1,11 +1,13 @@
-import { randomUUID } from 'node:crypto'
+import { randomUUID,createHmac } from 'node:crypto'
 import { PrismaClient, type Prisma } from '@prisma/client'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { afterAll, beforeAll, beforeEach, expect, it, vi } from 'vitest'
+import { offerMessage } from '@/domain/affiliates/contracts'
+import type { DayPlanInput } from '@/domain/affiliates/day-plan'
 import { evaluateAffiliateProduct } from '@/domain/affiliates/evaluation'
 import { createAffiliateDayPlan, buildAffiliateDayPlan, approveAffiliateDayPlan, readAffiliateDayPlan, cancelAffiliateDayPlan, runAffiliateDayPlans, retryAffiliateDayPlan, type DayPlanPorts } from './day-plans'
-import { previewAffiliateProduct, sendAffiliateProduct } from './product-review'
+import { previewAffiliateProduct, readAffiliateProductPreview, sendAffiliateProduct } from './product-review'
 import { affiliateDiscoveryState } from './discovery'
 import { affiliateProductHistory } from './product-history'
 import { runAffiliateDeliveries } from './deliveries'
@@ -16,11 +18,11 @@ const url=process.env.AFFILIATE_DATABASE_URL
 if(!url||!['localhost','127.0.0.1'].includes(new URL(url).hostname)||!new URL(url).pathname.includes('regression'))throw new Error('Disposable local regression database required')
 const db=new PrismaClient({datasourceUrl:url}),other=new PrismaClient({datasourceUrl:url}),tenantId=randomUUID(),otherTenant=randomUUID(),actorId=randomUUID()
 let segmentId:string,instanceId:string
-const product=(id='MLB123456',discount=true)=>{const p={id,catalogId:'MLB999999',title:'Árvore de Natal verde',productUrl:`https://www.mercadolivre.com.br/p/MLB999999?wid=${id}`,priceCents:2590,oldPriceCents:discount?3990:null,imageUrl:'https://http2.mlstatic.com/fixture.jpg',checkedAt:new Date().toISOString(),oldPriceSource:'MERCADO_LIVRE' as const,reputation:{status:'GREEN' as const,level:'5_green'}};return {...p,evaluation:evaluateAffiliateProduct(p,[]),sourceTerm:'Natal',sourcePage:1}}
+const product=(id='MLB123456',discount=true)=>{const p={id,catalogId:id==='MLB123456'?'MLB999999':'MLB888888',title:id==='MLB123456'?'Árvore de Natal verde':'Cascata de Natal 100 LEDs',productUrl:`https://www.mercadolivre.com.br/p/MLB999999?wid=${id}`,priceCents:2590,oldPriceCents:discount?3990:null,imageUrl:'https://http2.mlstatic.com/fixture.jpg',checkedAt:new Date().toISOString(),oldPriceSource:'MERCADO_LIVRE' as const,reputation:{status:'GREEN' as const,level:'5_green'}};return {...p,evaluation:evaluateAffiliateProduct(p,[]),sourceTerm:'Natal',sourcePage:1}}
 const input=()=>({idempotencyKey:randomUUID(),day:new Date(Date.now()+86400000).toISOString().slice(0,10),start:'09:00',end:'21:00',count:2})
 function dependencies():DayPlanPorts{
   const candidates=vi.fn(async()=>[product(),product('MLB234567',false)].map(p=>({...p,sentCount:0,pendingCount:0,lastSentAt:null})))
-  return {candidates,order:vi.fn(async()=>['MLB234567','MLB123456']),refresh:vi.fn(async(_db,_tenant,p)=>{expect(p.catalogId).toBe('MLB999999');return {...p,checkedAt:new Date().toISOString()}}),prepare:vi.fn(async(client,tenant,actor,segment,itemId)=>{
+  return {candidates,order:vi.fn(async()=>['MLB234567','MLB123456']),refresh:vi.fn(async(_db,_tenant,p)=>{expect(p.catalogId).toBe(p.id==='MLB123456'?'MLB999999':'MLB888888');return {...p,checkedAt:new Date().toISOString()}}),prepare:vi.fn(async(client,tenant,actor,segment,itemId)=>{
     const p=(await candidates()).find(p=>p.id===itemId)!
     return previewAffiliateProduct(client,tenant,actor,segment,itemId,{candidate:async()=>p,refresh:async()=>p,link:async()=>({url:'https://meli.la/fixture',fullUrl:'https://meli.la/fixture',tag:'fixture',profile:'fixture'}),title:async()=>({title:p.title,source:'ORIGINAL'})})
   })}}
@@ -28,7 +30,7 @@ async function clean(){await db.affiliateScheduleBatch.deleteMany({where:{tenant
 beforeAll(async()=>{await db.tenant.createMany({data:[{id:tenantId,host:tenantId+'.test',name:'Planner'},{id:otherTenant,host:otherTenant+'.test',name:'Other'}]});await db.user.create({data:{id:actorId,tenantId,name:'Admin',role:'ADMIN',status:'ACTIVE',passwordHash:'fixture'}})})
 beforeEach(async()=>{await clean();instanceId=(await db.affiliateInstance.create({data:{tenantId,name:'Fixture'}})).id;segmentId=(await db.affiliateSegment.create({data:{tenantId,name:'Natal',slug:'natal',instanceId}})).id;await db.affiliateSegmentInstance.create({data:{tenantId,segmentId,instanceId}});await db.affiliateGroup.createMany({data:[1,2].map(n=>({tenantId,segmentId,instanceId,jid:`${n}23@g.us`,name:`Natal #${n}`,sequence:n}))})})
 afterAll(async()=>{await clean();await db.auditLog.deleteMany({where:{tenantId}});await db.user.deleteMany({where:{tenantId}});await db.tenant.deleteMany({where:{id:{in:[tenantId,otherTenant]}}});await db.$disconnect();await other.$disconnect()})
-async function draft(ports=dependencies(),value=input()){
+async function draft(ports=dependencies(),value:DayPlanInput=input()){
   const batch=await createAffiliateDayPlan(db,tenantId,actorId,segmentId,value)
   await buildAffiliateDayPlan(db,{tenantId,id:batch.id},ports)
   return {id:batch.id,ports,value,plan:await readAffiliateDayPlan(db,tenantId,segmentId,batch.id)}
@@ -87,7 +89,41 @@ it('envia produto pet pelo título integral mesmo quando o título curto não co
   expect(sent).toHaveBeenCalledTimes(2)
   expect((await affiliateDiscoveryState(db,tenantId,segmentId,{mode:'MIXED',view:'ALL'})).products.some(item=>item.id===p.id)).toBe(true)
 })
+it('deduplica anúncios no automático sem substituir a escolha manual de um vendedor',async()=>{
+ const ports=dependencies(),a=product(),b={...a,id:'MLB345678',catalogId:'MLB777777',priceCents:3000}
+ vi.mocked(ports.candidates).mockResolvedValue([{...a,sentCount:0,pendingCount:0,lastSentAt:null},{...b,sentCount:0,pendingCount:0,lastSentAt:null}])
+ const auto=await draft(ports)
+ expect(auto.plan.entries).toHaveLength(1)
+ await cancelAffiliateDayPlan(db,tenantId,actorId,segmentId,auto.id)
+ const manual=await draft(ports,{...input(),count:1,itemIds:[b.id]})
+ expect(manual.plan.entries.map(e=>e.itemId)).toEqual([b.id])
+ await cancelAffiliateDayPlan(db,tenantId,actorId,segmentId,manual.id)
+ const repeated=await draft(ports,{...input(),itemIds:[a.id,b.id]})
+ expect(repeated.plan.status).toBe('FAILED');expect(repeated.plan.error).toContain('mesmo produto')
+})
+it('revalida produtos equivalentes entre dois rascunhos dentro do bloqueio da aprovação',async()=>{
+ const first=await draft()
+ const ports=dependencies(),original=product(),variant={...original,id:'MLB345678',catalogId:'MLB777777',sentCount:0,pendingCount:0,lastSentAt:null}
+ vi.mocked(ports.candidates).mockResolvedValue([variant])
+ const second=await draft(ports,{...input(),count:1})
+ expect(second.plan.status).toBe('DRAFT')
+ await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,first.id)
+ await expect(approveAffiliateDayPlan(db,tenantId,actorId,segmentId,second.id)).rejects.toMatchObject({status:409})
+})
+it('continua enviando a mensagem antiga assinada sem acrescentar chamada após a atualização',async()=>{
+ const {id,ports}=await draft(),entry=await db.affiliateScheduledOffer.findFirstOrThrow({where:{batchId:id,itemId:product().id}})
+ const saved=entry.snapshot as Prisma.JsonObject,payload=readAffiliateProductPreview(String(saved.previewToken),tenantId,actorId,segmentId)
+ delete payload.showHeadline;payload.message=offerMessage({...payload,note:''})
+ const body=Buffer.from(JSON.stringify(payload)).toString('base64url'),mac=createHmac('sha256',process.env.JWT_SECRET!).update('affiliate-preview:v1:'+body).digest('base64url')
+ await db.affiliateScheduledOffer.update({where:{id:entry.id},data:{snapshot:{...saved,previewToken:body+'.'+mac,message:payload.message}}})
+ await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)
+ await db.affiliateScheduledOffer.updateMany({where:{batchId:id},data:{scheduledAt:new Date()}})
+ await runAffiliateDayPlans(db,ports,{tenantId,batchId:id})
+ expect((await db.affiliateBroadcast.findFirstOrThrow({where:{tenantId,offer:{itemId:product().id}}})).message).toBe(payload.message)
+ expect(payload.message.startsWith('*')).toBe(true)
+})
 it('remove infantis de rascunhos antigos e impede o processamento de um lote antigo já aprovado',async()=>{
+  await db.affiliateSegment.update({where:{id:segmentId},data:{name:'Geral'}})
   const ports=dependencies()
   vi.mocked(ports.candidates).mockResolvedValue([{...product(),title:'Ração para gato',sentCount:0,pendingCount:0,lastSentAt:null},{...product('MLB234567'),title:'Chocalho multifuncional para bebês e brinquedo para morder',sentCount:0,pendingCount:0,lastSentAt:null}])
   const {id}=await draft(ports)
@@ -106,7 +142,7 @@ it('prepara desconto primeiro e revisão exata sem gerar entregas; isola tenant 
   const {plan,id,value}=await draft()
   expect(plan.status).toBe('DRAFT');expect(plan.entries.map(e=>e.itemId)).toEqual(['MLB123456','MLB234567'])
   expect(plan.summary).toMatchObject({offers:2,groups:2,totalMessages:4,intervalMinutes:720})
-  expect(plan.entries[0].message).toMatch(/^\*Árvore/);expect(plan.entries[0].message).toContain('🔥');expect(plan.entries[0].message).not.toContain('Preço e estoque')
+  expect(plan.entries[0].message?.split('\n')[1]).toMatch(/^\*Árvore/);expect(plan.entries[0].message).toContain('🔥');expect(plan.entries[0].message).not.toContain('Preço e estoque')
   expect(await db.affiliateDelivery.count({where:{tenantId}})).toBe(0)
   await expect(readAffiliateDayPlan(db,otherTenant,segmentId,id)).rejects.toMatchObject({status:404})
   await expect(approveAffiliateDayPlan(db,tenantId,'other-actor',segmentId,id)).rejects.toMatchObject({status:403})
@@ -117,7 +153,7 @@ it('prepara desconto primeiro e revisão exata sem gerar entregas; isola tenant 
   expect(await db.affiliateDelivery.count({where:{tenantId}})).toBe(0)
 })
 it('agenda seleção manual conjunta Shopee e ML preservando catálogo, percentual e links de cada fonte',async()=>{
-  const ports=dependencies(),shoe={...product(),provider:'SHOPEE' as const,id:'SHP123_456',catalogId:'SHP123_456',productUrl:'https://shopee.com.br/product/123/456',priceCents:2130,oldPriceCents:3492,reportedDiscountPercent:39,oldPriceEstimated:true,oldPriceSource:'SHOPEE_ESTIMATED' as const,sentCount:0,pendingCount:0,lastSentAt:null}
+  const ports=dependencies(),shoe={...product(),title:'Tênis feminino casual',provider:'SHOPEE' as const,id:'SHP123_456',catalogId:'SHP123_456',productUrl:'https://shopee.com.br/product/123/456',priceCents:2130,oldPriceCents:3492,reportedDiscountPercent:39,oldPriceEstimated:true,oldPriceSource:'SHOPEE_ESTIMATED' as const,sentCount:0,pendingCount:0,lastSentAt:null}
   vi.mocked(ports.candidates).mockResolvedValue([shoe,{...product(),sentCount:0,pendingCount:0,lastSentAt:null}])
   ports.prepare=async(client,tenant,actor,segment,itemId)=>{
     const p=itemId===shoe.id?shoe:product()

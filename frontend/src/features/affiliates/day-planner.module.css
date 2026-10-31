@@ -38,3 +38,6 @@
 .agendaCard h4 { font-size:var(--text-lg); }
 .agendaCard>span { justify-self:start; }
 .pagination { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:var(--space-3); }
+
+.form .giftChoice { display:flex; align-items:center; gap:var(--space-3); min-height:48px; cursor:pointer; }
+.form .giftChoice input { width:20px; height:20px; min-height:20px; padding:0; flex:none; accent-color:var(--color-primary); }

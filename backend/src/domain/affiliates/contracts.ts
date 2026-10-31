@@ -37,7 +37,7 @@ export const offerInput = z.object({
   imageUrl, note: z.string().trim().max(600).optional(),
   expiresAt: z.iso.datetime().nullable().optional(), checkedAt: z.iso.datetime().optional(),
 }).strict()
-export type OfferMessage = Pick<z.infer<typeof offerInput>, 'title'|'affiliateUrl'|'priceCents'|'oldPriceCents'|'note'> & {headline?:string;reportedDiscountPercent?:number|null;oldPriceEstimated?:boolean}
+export type OfferMessage = Pick<z.infer<typeof offerInput>, 'title'|'affiliateUrl'|'priceCents'|'oldPriceCents'|'note'> & {headline?:string;showHeadline?:boolean;reportedDiscountPercent?:number|null;oldPriceEstimated?:boolean}
 const safeText = (text: string) => text.replace(/[\r\n*_~`]/g, ' ').replace(/\s+/g, ' ').trim()
 const money = (cents: number) => (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 export function offerMessage(offer: OfferMessage) {
@@ -45,7 +45,7 @@ export function offerMessage(offer: OfferMessage) {
   const rate=offer.reportedDiscountPercent
   const reportedDiscount=typeof rate==='number'&&Number.isInteger(rate)&&rate>0&&rate<=100?rate:0
   const title=safeText(compactAffiliateTitle(offer.title))
-  const lines = [`*${title}*`, '']
+  const lines = [...(offer.showHeadline&&offer.headline?[safeText(offer.headline)]:[]),`*${title}*`, '']
   if (saving) lines.push(`De: ~${money(offer.oldPriceCents!)}~`)
   lines.push(`🔥 *${money(offer.priceCents)}*`)
   if (saving) {

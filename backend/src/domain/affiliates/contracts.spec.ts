@@ -85,3 +85,9 @@ describe('contratos de afiliados', () => {
     expect(offerIsCurrent({status:'DRAFT',checkedAt:now,expiresAt:null},now)).toBe(true)
   })
 })
+
+it('novas prévias incluem a chamada acima do produto sem alterar mensagens antigas já aprovadas',()=>{
+ const offer={headline:'Uma opção de presente para o Natal 🎁',title:'Fone Bluetooth',priceCents:2590,oldPriceCents:null,affiliateUrl:'https://meli.la/abc'}
+ expect(offerMessage({...offer,showHeadline:true}).split('\n').slice(0,3)).toEqual([offer.headline,'*Fone Bluetooth*',''])
+ expect(offerMessage(offer).split('\n')[0]).toBe('*Fone Bluetooth*')
+})

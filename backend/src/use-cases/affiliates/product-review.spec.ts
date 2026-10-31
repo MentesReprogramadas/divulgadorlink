@@ -44,7 +44,7 @@ it('regenerates the signed title/message/id without refreshing price/link or ext
   expect(next).toEqual({...old,id:next.id,title:result.title,message:result.message})
   expect(next.id).not.toBe(old.id);expect(result.expiresAt).toBe(preview.expiresAt)
   expect(result.message).toContain(result.title);expect(result.message).toContain(preview.affiliateUrl)
-  expect(ports.title).toHaveBeenCalledWith(db,'tenant',candidate,undefined,{title:preview.title,headline:preview.headline})
+  expect(ports.title).toHaveBeenCalledWith(db,'tenant',candidate,undefined,{title:preview.title,headline:preview.headline},expect.objectContaining({name:'Natal'}))
   expect(ports.refresh).not.toHaveBeenCalled();expect(ports.link).not.toHaveBeenCalled()
 })
 
@@ -98,7 +98,7 @@ it('regenerates the product title and sends the exact short approved message',as
   ports.title.mockResolvedValue({title:'Árvore verde de Natal',headline:'Sua sala com uma árvore de Natal 🎄',source:'OPENAI'})
   const regenerated=await regenerateAffiliateProductTitle(db,'tenant','actor','segment',preview.previewToken,ports)
   const signed=readAffiliateProductPreview(regenerated.previewToken,'tenant','actor','segment')
-  expect(regenerated.message.split('\n').slice(0,2)).toEqual([`*${regenerated.title}*`,''])
+  expect(regenerated.message.split('\n').slice(0,2)).toEqual([regenerated.headline,`*${regenerated.title}*`])
   expect(signed.headline).toBe(regenerated.headline)
   expect(signed.message).toBe(regenerated.message)
   const offer={...signed,id:'offer',status:'DRAFT',checkedAt:new Date(signed.checkedAt),expiresAt:null,updatedAt:new Date(),note:'',segment:{enabled:true}}
