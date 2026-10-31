@@ -34,3 +34,6 @@ Reversão do código por revert do commit desta entrega. Não reenviar ou reativ
 
 
 Complemento de conferência: limite de presentes recalculado sobre ofertas READY após falhas de preparação; mudança de contexto entre cache e catálogo bloqueia o item; aprovação revalida a proporção caso itens natalinos tenham sido removidos. A seleção manual continua explícita. 23 testes PostgreSQL afetados passaram, incluindo três regressões novas; typecheck, lint e build passaram após o complemento. Revisão independente não encontrou novo problema importante nesse patch.
+
+
+A esteira `41221726002` teve uma falha preexistente em F16-E03 de modelos de página mobile: `boundingBox()` retornou null e o teste acessou height. Capturas de loading e conteúdo foram inspecionadas. A conta de ações retornou 403 (admin necessário) ao pedir repetição isolada do job. O teste agora aguarda card visível, mede dimensões positivas pelo DOM e mantém a comparação final menor que 1px sem retry dessa comparação. Rede, conflito de versão e foco em 320px permanecem cobertos. O cenário completo passou três vezes consecutivas em infraestrutura própria com offset107 e run-id exclusivo; typecheck e lint passaram. Nenhuma tela ou regra comercial de modelos foi alterada. Revisão independente confirmou que as asserções de layout não foram enfraquecidas.

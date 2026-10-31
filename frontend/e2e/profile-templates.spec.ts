@@ -3,7 +3,7 @@ import { profileEditorTool } from './profile-editor'
 import {readFileSync} from 'node:fs'
 import {randomUUID} from 'node:crypto'
 import path from 'node:path'
-import {expect,test,type Page} from '@playwright/test'
+import {expect,test,type Page,type Locator} from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import {runtime} from './runtime.cjs'
 import {sql} from './db'
@@ -17,6 +17,17 @@ function row(){return sql(`SELECT row_to_json(p)::text FROM profiles p WHERE "te
 async function seed(page:Page){await login(page);const g=randomUUID(),i=randomUUID(),content={slug:'pagina-f16',name:'Página real F16',bio:'Minha apresentação real',avatarAssetId:null,requiresAge:false,primaryItemId:i,categories:[{id:g,name:'Meus materiais',visible:true}],items:[{id:i,categoryId:g,type:'URL',label:'Material original',destination:'https://example.com/f16-original',visible:true}]};expect((await mutate(page,'/me/profile',{expectedVersion:0,content},'PATCH')).status).toBe(200);expect((await mutate(page,'/me/profile/publish',{expectedVersion:1})).status).toBe(200);await page.goto(origin+'/painel/perfil');await expect(page.getByRole('region',{name:'Editor do perfil'})).toHaveAttribute('data-save-state','saved');return content}
 async function openModels(page:Page){await profileEditorTool(page,'Modelos');await expect(page.getByRole('heading',{name:'Modelos da minha página',exact:true})).toBeVisible();await expect(page.getByRole('article',{name:'Criadores',exact:true})).toBeVisible()}
 const card=(page:Page,name:string)=>page.getByRole('article',{name,exact:true})
+
+async function visibleCardSize(locator:Locator){
+  let size:{width:number;height:number}|undefined
+  await expect(async()=>{
+    await expect(locator).toBeVisible()
+    size=await locator.evaluate(element=>{const {width,height}=element.getBoundingClientRect();return {width,height}})
+    expect(size.width).toBeGreaterThan(0);expect(size.height).toBeGreaterThan(0)
+  }).toPass({timeout:20_000})
+  return size!
+}
+
 async function openDialog(page:Page,name:string){await card(page,name).getByRole('button',{name:'Ver modelo'}).click();const dialog=page.getByRole('dialog',{name,exact:true});await expect(dialog).toHaveCSS('opacity','1');return dialog}
 test.beforeEach(()=>sql(`DELETE FROM profiles WHERE "tenantId"='${fixture().tenantId}'`))
 
@@ -39,7 +50,7 @@ test('F16-E02/T03/T04 replacement needs confirmation, examples need real destina
 })
 
 test('F16-E03 loading/refresh preserve layout, real network failure retries, stale version is rejected and 320px zoom keeps confirmation reachable',async({page,browser},info)=>{
-  await seed(page);let release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve});await page.route('**/bff/v1/profile-templates',async route=>{await gate;await route.continue()},{times:1});await profileEditorTool(page,'Modelos');await expect(page.getByRole('status',{name:'Carregando modelos'})).toBeVisible();const loading=await page.getByRole('status',{name:'Carregando modelos'}).locator('article').filter({hasText:'Criadores'}).boundingBox();await capturePage(page,info.outputPath('templates-loading.png'));release();await expect(page.getByRole('status',{name:'Carregando modelos'})).toHaveCount(0);await expect(card(page,'Criadores')).toBeVisible();const ready=await card(page,'Criadores').boundingBox();expect(Math.abs(loading!.height-ready!.height)).toBeLessThan(1);expect(Math.abs(loading!.width-ready!.width)).toBeLessThan(1)
+  await seed(page);let release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve});await page.route('**/bff/v1/profile-templates',async route=>{await gate;await route.continue()},{times:1});await profileEditorTool(page,'Modelos');await expect(page.getByRole('status',{name:'Carregando modelos'})).toBeVisible();const loading=await visibleCardSize(page.getByRole('status',{name:'Carregando modelos'}).locator('article').filter({hasText:'Criadores'}));await capturePage(page,info.outputPath('templates-loading.png'));release();await expect(page.getByRole('status',{name:'Carregando modelos'})).toHaveCount(0);await expect(card(page,'Criadores')).toBeVisible();const ready=await visibleCardSize(card(page,'Criadores'));expect(Math.abs(loading.height-ready.height)).toBeLessThan(1);expect(Math.abs(loading.width-ready.width)).toBeLessThan(1)
   let dialog=await openDialog(page,'Criadores');await dialog.getByRole('button',{name:'Continuar'}).click();await page.route('**/bff/v1/me/profile/apply-template',route=>route.abort(),{times:1});const before=row();await dialog.getByRole('button',{name:'Aplicar ao rascunho'}).click();await expect(dialog.getByRole('alert')).toContainText('Sem conexão');await expect(dialog.getByLabel('Manter meus grupos e links')).toBeChecked();expect(row()).toBe(before);await capturePage(page,info.outputPath('template-network-error.png'),false);await dialog.getByRole('button',{name:'Aplicar ao rascunho'}).click();await expect(dialog).toHaveCount(0)
   dialog=await openDialog(page,'Lojas');await dialog.getByRole('button',{name:'Continuar'}).click();const context=await browser.newContext(),other=await context.newPage();try{await login(other);const current=await other.evaluate(async()=>{const r=await fetch('/bff/v1/me/profile');return r.json()}) as {draft:{version:number;[key:string]:unknown}};const {version,...content}=current.draft;expect((await mutate(other,'/me/profile',{expectedVersion:version,content:{...content,bio:'Outra aba preservada'}},'PATCH')).status).toBe(200)}finally{await context.close()}
   const concurrent=row();await dialog.getByRole('button',{name:'Aplicar ao rascunho'}).click();await expect(dialog.getByRole('alert')).toContainText('outra aba');expect(row()).toBe(concurrent);await page.keyboard.press('Escape');await page.getByRole('button',{name:'Atualizar dados'}).click();await expect(page.getByRole('status',{name:'Atualizando modelos'})).toHaveCount(0)
