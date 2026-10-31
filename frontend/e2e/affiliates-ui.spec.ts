@@ -551,3 +551,59 @@ test('regenera título com teclado e confirma a mensagem da nova prévia', async
   await expect(page.getByRole('dialog',{name:'Acompanhar envio'})).toBeVisible()
   expect(mutations.filter(item=>item.path.endsWith('/products/send'))).toEqual([{path:'/v1/admin/affiliates/segments/segment-1/products/send',body:{previewToken:'fixture-regenerated-token',confirm:true}}])
 })
+
+test('planeja o dia, revisa volume e seleciona lote manual no mobile sem esconder enviados',async({page},testInfo)=>{
+  await fixtures(page)
+  await page.route('**/catalog/status',route=>route.fulfill({json:{configured:true,connected:true,status:'CONNECTED',affiliateConfigured:true}}))
+  const products=[{...offer,id:'MLB123456',displayTitle:'Árvore de Natal 1,80 m',sentCount:2,pendingCount:0,decision:'SENT'},{...offer,id:'MLB234567',title:'Cascata de Luzes de Natal 10m 400 LEDs 54 Quedas',displayTitle:'Cascata de Luzes de Natal 10m 400 LEDs 54 Quedas',priceCents:6198,oldPriceCents:15117,sentCount:0,pendingCount:0}]
+  await page.route('**/discovery?*',route=>route.fulfill({json:{enabled:true,usesSegmentName:true,terms:['Natal'],products,counts:null,checkedAt:'2026-10-31T12:00:00Z',nextRunAt:null,status:'READY',error:null}}))
+  const changes:Array<{path:string;body:Record<string,unknown>}>=[]
+  let status='DRAFT',mode='AUTO'
+  const entries=products.map((product,i)=>({id:'entry-'+i,itemId:product.id,title:product.displayTitle,scheduledAt:`2099-11-01T${i?'15':'12'}:00:00Z`,state:'READY',error:null,product,sentCount:product.sentCount,message:`*${product.displayTitle}*\n\nDe: ~R$ 151,17~\n🔥 *R$ 61,98*\n💸 *59% OFF* · Economize *R$ 89,19*\n\nCompre aqui 👇\nhttps://meli.la/fixture`}))
+  await page.route('**/day-plans**',async route=>{
+    const request=route.request(),pathname=new URL(request.url()).pathname
+    if(request.method()==='POST'){
+      const body=request.postDataJSON() as Record<string,unknown>;changes.push({path:pathname,body})
+      if(pathname.endsWith('/approve'))status='APPROVED'
+      else if(pathname.endsWith('/cancel'))status='CANCELLED'
+      else{status='DRAFT';mode=body.itemIds?'MANUAL':'AUTO'}
+      return route.fulfill({json:{id:'day-batch',status}})
+    }
+    if(pathname.endsWith('/day-plans'))return route.fulfill({json:{batches:[]}})
+    return route.fulfill({json:{id:'day-batch',mode,status,source:'OPENAI',expiresAt:'2099-11-01T12:00:00Z',error:null,config:{day:'2099-11-01',start:'09:00',end:'12:00'},groups:[{id:'group-1',name:'Natal #1'},{id:'group-2',name:'Natal #2'}],dailyByGroup:[{id:'group-1',name:'Natal #1',messages:4},{id:'group-2',name:'Natal #2',messages:4}],summary:{offers:2,groups:2,totalMessages:4,intervalMinutes:180},entries:entries.map(e=>({...e,state:status==='APPROVED'?'PENDING':e.state}))}})
+  })
+  await page.goto('/admin/afiliados/segmentacoes/segment-1');await area(page,'Ofertas')
+  const suggestions=page.getByRole('region',{name:'Sugestões para Natal'})
+  await expect(suggestions.getByText('Enviado 2 vezes')).toBeVisible()
+  await suggestions.getByRole('button',{name:'Planejar o dia'}).click()
+  let dialog=page.getByRole('dialog')
+  await dialog.getByLabel('Ofertas no dia').fill('2')
+  await dialog.getByRole('button',{name:'Gerar prévia do lote'}).click()
+  await expect(dialog.getByText('2 ofertas · 2 mensagens por grupo')).toBeVisible()
+  await expect(dialog.getByText('2 grupos · 4 mensagens neste lote')).toBeVisible()
+  expect(changes.some(c=>c.path.endsWith('/approve'))).toBe(false)
+  await dialog.getByText('Destinos e total de mensagens no dia').click()
+  await expect(dialog.getByText(/Natal #1 · 4 mensagens no dia/)).toBeVisible()
+  await dialog.getByText('Ver mensagem e link').first().click()
+  await expect(dialog.locator('pre').first()).toContainText('🔥 *R$ 61,98*')
+  await expect(dialog.locator('pre').first()).not.toContainText('Confira esta opção')
+  expect((await new AxeBuilder({page}).include('dialog').analyze()).violations).toEqual([])
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true)
+  await page.screenshot({path:testInfo.outputPath('day-plan-review.png'),animations:'disabled'})
+  await dialog.getByRole('button',{name:'Descartar lote',exact:true}).click()
+  await dialog.getByRole('button',{name:'Fechar',exact:true}).click()
+  await suggestions.getByRole('checkbox').nth(0).check();await suggestions.getByRole('checkbox').nth(1).check()
+  await expect(page.getByLabel('Ofertas selecionadas')).toBeVisible()
+  await page.screenshot({path:testInfo.outputPath('day-plan-selection.png'),animations:'disabled'})
+  await page.getByRole('button',{name:'Agendar grupo',exact:true}).click()
+  dialog=page.getByRole('dialog');await expect(dialog.getByLabel('Ofertas no dia')).toHaveCount(0)
+  await dialog.getByRole('button',{name:'Gerar prévia do lote'}).click()
+  await expect(dialog.getByRole('button',{name:'Aceitar e agendar 2 ofertas'})).toBeVisible()
+  expect(changes.filter(c=>c.path.endsWith('/day-plans')).at(-1)?.body.itemIds).toEqual(products.map(p=>p.id))
+  await dialog.getByRole('button',{name:'Aceitar e agendar 2 ofertas'}).focus();await page.keyboard.press('Enter')
+  await expect(page.getByRole('dialog',{name:'Ofertas agendadas'})).toBeVisible()
+  expect(changes.filter(c=>c.path.endsWith('/approve'))).toHaveLength(1)
+  await dialog.getByRole('button',{name:'Fechar',exact:true}).click()
+  await expect(suggestions.getByText('Enviado 2 vezes')).toBeVisible()
+  expect(changes.some(c=>c.path.endsWith('/products/send'))).toBe(false)
+})

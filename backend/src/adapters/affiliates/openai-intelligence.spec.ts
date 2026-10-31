@@ -21,7 +21,7 @@ it('accepts neutral espaço context from the exact screenshot product and retain
 it('retries one invalid regeneration with corrective context, without accepting invented practicality',async()=>{
  vi.stubEnv('OPENAI_API_KEY','test-never-real')
  const product={id:'SHP1_4',catalogId:'SHP1_4',title:'Pá para limpeza',productUrl:'https://shopee.com.br/product/1/4',priceCents:16280,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}
- const fetcher=vi.fn<typeof fetch>().mockResolvedValueOnce(response({title:product.title,headline:'Uma opção prática para a limpeza do dia a dia 🧼'})).mockResolvedValueOnce(response({title:product.title,headline:'Pá para acompanhar sua rotina ✨'}))
+ const fetcher=vi.fn<typeof fetch>().mockResolvedValueOnce(response({title:product.title,headline:'Uma opção prática para a limpeza do dia a dia 🧼'})).mockResolvedValueOnce(response({title:'Pá de limpeza',headline:'Pá para acompanhar sua rotina ✨'}))
  expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher,{title:product.title,headline:'Uma pá para sua casa 🧹'})).toMatchObject({source:'OPENAI',headline:'Pá para acompanhar sua rotina ✨'})
  expect(fetcher).toHaveBeenCalledTimes(2)
  const choices=JSON.parse(String(fetcher.mock.calls[1][1]?.body)).response_format.json_schema.schema.properties.headline.enum
@@ -29,17 +29,17 @@ it('retries one invalid regeneration with corrective context, without accepting 
  expect(choices.join(' ')).not.toContain('prática')
  expect(JSON.parse(String(fetcher.mock.calls[1][1]?.body)).messages[1].content[0].text).toContain('rejectedCopy')
 })
-it('keeps the previous objective title when the model drops a measurement but provides a safe new headline',async()=>{
+it('falls back when regeneration drops a measurement and only changes the unused headline',async()=>{
   vi.stubEnv('OPENAI_API_KEY','test-never-real')
   const product={id:'MLB1',catalogId:'MLB2',title:'Árvore de Natal 180 cm safe fallback',productUrl:'https://www.mercadolivre.com.br',priceCents:1000,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}
   const fetcher=vi.fn<typeof fetch>(async()=>response({title:'Árvore de Natal',headline:'Sua sala com uma árvore de Natal 🎄'}))
-  expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher,{title:'Árvore de Natal 180 cm',headline:'Uma árvore de Natal para sua casa 🎄'})).toMatchObject({title:'Árvore de Natal 180 cm',headline:'Sua sala com uma árvore de Natal 🎄',source:'OPENAI'})
+  expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher,{title:'Árvore de Natal 180 cm',headline:'Uma árvore de Natal para sua casa 🎄'})).toMatchObject({title:product.title,source:'ORIGINAL'})
 })
-it('regenerates neutral copy for qualified products while preserving the restriction and excluding denied features',async()=>{
+it('preserves restrictions and rejects a regeneration that cannot change the objective title safely',async()=>{
   vi.stubEnv('OPENAI_API_KEY','test-never-real')
   const product={id:'MLB1',catalogId:'MLB2',title:'Câmera sem WiFi',productUrl:'https://www.mercadolivre.com.br',priceCents:1000,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}
   const fetcher=vi.fn<typeof fetch>(async()=>response({title:'Câmera com WiFi',headline:'Uma câmera para sua casa 📷'}))
-  expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher,{title:product.title})).toMatchObject({title:'Câmera sem WiFi',headline:'Uma câmera para sua casa 📷',source:'OPENAI'})
+  expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher,{title:product.title})).toMatchObject({title:'Câmera sem WiFi',source:'ORIGINAL'})
   const unsafe=vi.fn<typeof fetch>(async()=>response({title:product.title,headline:'Uma câmera com WiFi para sua casa 📷'}))
   expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,unsafe,{title:product.title})).toEqual({title:product.title,source:'ORIGINAL'})
 })
@@ -123,12 +123,13 @@ it('rejects unverified headline facts, hype and hostile images before model inpu
   }
 })
 
-it('regenerates the headline while keeping the objective identity unchanged',async()=>{
+it('retries headline-only changes and accepts a different objective product title',async()=>{
   vi.stubEnv('OPENAI_API_KEY','test-never-real')
   const product={id:'MLB1',catalogId:'MLB2',title:'Árvore de Natal 180 cm repeat copy',productUrl:'https://www.mercadolivre.com.br',priceCents:1000,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}
   const previous={title:'Árvore de Natal 180 cm',headline:'Uma árvore de Natal para sua sala 🎄'}
-  const fetcher=vi.fn<typeof fetch>(async()=>response({...previous,headline:'Sua sala com uma árvore de Natal 🎄'}))
-  expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher,previous)).toEqual({title:previous.title,headline:'Sua sala com uma árvore de Natal 🎄',source:'OPENAI'})
+  const fetcher=vi.fn<typeof fetch>().mockResolvedValueOnce(response({...previous,headline:'Sua sala com uma árvore de Natal 🎄'})).mockResolvedValueOnce(response({title:'Árvore 180 cm de Natal',headline:'Árvore de Natal para acompanhar sua rotina ✨'}))
+  expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher,previous)).toEqual({title:'Árvore 180 cm de Natal',headline:'Árvore de Natal para acompanhar sua rotina ✨',source:'OPENAI'})
+  expect(fetcher).toHaveBeenCalledTimes(2)
 })
 
 it('keeps units and measurements in the objective identity and refuses incomplete model output',async()=>{

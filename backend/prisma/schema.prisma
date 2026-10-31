@@ -72,6 +72,7 @@ model Tenant {
   affiliateGroups AffiliateGroup[]
   affiliateOffers AffiliateOffer[]
   affiliateBroadcasts AffiliateBroadcast[]
+  affiliateScheduleBatches AffiliateScheduleBatch[]
   affiliateDeliveries AffiliateDelivery[]
   affiliateConnections AffiliateConnection[]
   affiliatePriceObservations AffiliatePriceObservation[]
@@ -301,6 +302,54 @@ model AffiliateProductDecision {
   @@map("affiliate_product_decisions")
 }
 
+model AffiliateScheduleBatch {
+  id String @id @default(cuid())
+  tenantId String
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  segmentId String
+  actorId String
+  idempotencyKey String
+  status String @default("BUILDING")
+  mode String
+  source String @default("RULES")
+  config Json
+  groupHash String
+  groups Json
+  expiresAt DateTime
+  leaseToken String?
+  leaseExpiresAt DateTime?
+  error String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  entries AffiliateScheduledOffer[]
+  @@unique([id, tenantId])
+  @@unique([tenantId, idempotencyKey])
+  @@index([tenantId, segmentId, createdAt])
+  @@map("affiliate_schedule_batches")
+}
+
+model AffiliateScheduledOffer {
+  id String @id @default(cuid())
+  tenantId String
+  batchId String
+  batch AffiliateScheduleBatch @relation(fields: [batchId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  itemId String
+  position Int
+  scheduledAt DateTime
+  state String @default("BUILDING")
+  snapshot Json
+  broadcastId String?
+  error String?
+  leaseToken String?
+  leaseExpiresAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([batchId, itemId])
+  @@index([state, scheduledAt])
+  @@index([tenantId, itemId])
+  @@map("affiliate_scheduled_offers")
+}
+
 model AffiliateImage {
   id String @id @default(cuid())
   tenantId String
@@ -407,6 +456,7 @@ model AffiliateOffer {
   segmentId String
   segment AffiliateSegment @relation(fields: [segmentId, tenantId], references: [id, tenantId], onDelete: Restrict)
   title String
+  itemId String?
   productUrl String
   affiliateUrl String
   priceCents Int
@@ -421,6 +471,7 @@ model AffiliateOffer {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   broadcasts AffiliateBroadcast[]
+  @@index([tenantId, segmentId, itemId])
   @@unique([id, tenantId])
   @@index([tenantId, createdAt])
   @@map("affiliate_offers")

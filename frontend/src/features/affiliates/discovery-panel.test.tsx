@@ -6,12 +6,20 @@ import { ProductImage } from './product-image'
 import type { DiscoveryState } from './contracts'
 
 vi.mock('@/lib/api', () => ({ api: vi.fn() }))
+vi.mock('./day-planner',()=>({DayPlanner:()=>null}))
 vi.mock('@/components/ui/liquid-lens', () => ({ LiquidLens: () => null }))
 afterEach(() => { cleanup(); vi.clearAllMocks(); vi.useRealTimers() })
 const initial: DiscoveryState = { enabled: true, usesSegmentName: true, terms: ['Natal'], products: [], counts: null, checkedAt: null, nextRunAt: null, status: 'QUEUED', error: null }
 const product = { id: 'MLB123', title: 'Produto conferido', priceCents: 12990, oldPriceCents: null, imageUrl: 'https://http2.mlstatic.com/fixture.jpg', checkedAt: '2026-10-28T12:00:00Z', productUrl: 'https://produto.mercadolivre.com.br/MLB-123' }
 const ready: DiscoveryState = { ...initial, status: 'READY', checkedAt: '2026-10-28T12:00:00Z', products: [product] }
 const props = { segmentId: 'natal', contextName: 'Natal', busy: false, canGenerate: true, prepare: vi.fn() }
+it('mantém produto enviado visível e permite nova revisão depois de concluir as pendências',async()=>{
+  vi.mocked(api).mockResolvedValue({status:200,body:{...ready,products:[{...product,decision:'SENT',sentCount:3,pendingCount:0}]}})
+  render(<DiscoveryPanel {...props}/>)
+  expect(await screen.findByRole('heading',{name:product.title})).toBeTruthy()
+  expect(screen.getByText('Enviado 3 vezes')).toBeTruthy()
+  expect(screen.getByRole('button',{name:'Revisar e enviar'}).hasAttribute('disabled')).toBe(false)
+})
 it('consulta as duas fontes sem seletor e libera a revisão Shopee com credenciais próprias', async () => {
   vi.mocked(api).mockResolvedValue({status:200,body:{...ready,products:[{...product,id:'SHP123_456',productUrl:'https://shopee.com.br/product/123/456'}]}})
   render(<DiscoveryPanel {...props} canGenerate={false} canGenerateShopee />)

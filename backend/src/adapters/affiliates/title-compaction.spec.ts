@@ -39,8 +39,8 @@ it('aceita medidas equivalentes com e sem espaço sem voltar ao título de SEO',
 })
 it('mensagem de oferta também protege títulos antigos e mantém preço, economia e link',()=>{
   const message=offerMessage({...product(tree),affiliateUrl:'https://meli.la/2Rej1vz',headline:'Confira esta opção para você ✨'})
-  expect(message.split('\n')[1]).toBe('*Árvore De Natal Luxo 210 Cm 1200 Galhos NEXMIDIO Verde*')
-  expect(message.replace(/\u00a0/g,' ')).toContain('💰 *R$ 227,24*')
+  expect(message.split('\n')[0]).toBe('*Árvore De Natal Luxo 210 Cm 1200 Galhos NEXMIDIO Verde*')
+  expect(message.replace(/\u00a0/g,' ')).toContain('🔥 *R$ 227,24*')
   expect(message.replace(/\u00a0/g,' ')).toContain('R$ 160,76')
   expect(message).toContain('https://meli.la/2Rej1vz')
 })

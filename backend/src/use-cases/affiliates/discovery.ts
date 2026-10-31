@@ -11,6 +11,7 @@ import { searchAffiliateCatalog } from '@/use-cases/@Affiliates/catalog'
 import { discoveryProviders, searchCombinedAffiliateCatalog } from './combined-search'
 import { isShopeeProduct } from '@/domain/affiliates/shopee'
 import { affiliateCatalogProvider, type AffiliateCatalogProvider } from '@/domain/affiliates/shopee'
+import { affiliateProductHistory } from './product-history'
 
 const INTERVAL = 15 * 60_000
 const TTL = 24 * 60 * 60_000
@@ -49,12 +50,14 @@ export async function affiliateDiscoveryState(db: PrismaClient, tenantId: string
   const newest=new Map<string,DiscoveryProduct>()
   for(const cachedPage of pages)for(const product of mergeDiscoveryProducts(cachedPage.productsJson,[],new Date()) as DiscoveryProduct[])if(!newest.has(product.id))newest.set(product.id,refreshCachedAffiliateEvaluation(product))
   const buckets=terms.flatMap(value=>discoveryProviders.map(provider=>[...newest.values()].filter(product=>product.sourceTerm===value && (isShopeeProduct(product.id)?'SHOPEE':'MERCADO_LIVRE')===provider)))
-  const products:DiscoveryProduct[]=mixed?Array.from({length:Math.max(0,...buckets.map(bucket=>bucket.length))},(_,index)=>buckets.flatMap(bucket=>bucket[index]?[bucket[index]]:[])).flat():[...newest.values()]
+  const candidates:DiscoveryProduct[]=mixed?Array.from({length:Math.max(0,...buckets.map(bucket=>bucket.length))},(_,index)=>buckets.flatMap(bucket=>bucket[index]?[bucket[index]]:[])).flat():[...newest.values()]
+  if(mixed)for(const product of await previouslySentProducts(db,tenantId,segmentId))if(!candidates.some(p=>p.id===product.id))candidates.push(product)
+  const products=await affiliateProductHistory(db,tenantId,segmentId,candidates)
   const decisions=await db.affiliateProductDecision.findMany({where:{tenantId,segmentId,itemId:{in:products.map(p=>p.id)}}})
   const visible=products.map(product=>{
     const decision=decisions.find(d=>d.itemId===product.id)
-    return decision?{...product,decision:decision.decision,evaluation:{...product.evaluation,status:'DISCARDED' as const,reasons:[decision.decision==='SENT'?'Produto já enviado nesta segmentação.':`Descartado nesta segmentação: ${decision.reason}`,...product.evaluation.reasons]}}:product
-  }).filter(product=>!mixed||product.decision!=='SENT')
+    return decision?{...product,decision:decision.decision,evaluation:decision.decision==='DISCARDED'?{...product.evaluation,status:'DISCARDED' as const,reasons:[`Descartado nesta segmentação: ${decision.reason}`,...product.evaluation.reasons]}:product.evaluation}:product
+  })
   const statusCounts={SELECTED:0,REVIEW:0,DISCARDED:0}
   visible.forEach(p=>statusCounts[p.evaluation.status]++)
   const evidence=z.object({rejected:z.array(unavailableSchema).optional(),providerBoundaryReached:z.boolean().optional(),hasNext:z.boolean().optional()}).safeParse(cached?.countsJson)
@@ -168,10 +171,31 @@ export async function runAffiliateDiscovery(db: PrismaClient, search: Search = s
 
 export async function findDiscoveryCandidate(db:PrismaClient,tenantId:string,segmentId:string,itemId:string):Promise<DiscoveryProduct> {
   await segmentFor(db,tenantId,segmentId)
-  if(await db.affiliateProductDecision.findUnique({where:{tenantId_segmentId_itemId:{tenantId,segmentId,itemId}}}))throw new AffiliateCatalogError(409,'Este produto já foi enviado ou descartado nesta segmentação.')
+  if((await db.affiliateProductDecision.findUnique({where:{tenantId_segmentId_itemId:{tenantId,segmentId,itemId}}}))?.decision==='DISCARDED')throw new AffiliateCatalogError(409,'Este produto foi descartado nesta segmentação.')
   const rows=await db.affiliateDiscoveryPage.findMany({where:{tenantId,segmentId,checkedAt:{gte:new Date(Date.now()-TTL)}},orderBy:{checkedAt:'desc'},take:500})
   for(const row of rows){const product=mergeDiscoveryProducts(row.productsJson,[],new Date()).find(p=>p.id===itemId);if(product)return product as DiscoveryProduct}
+  const previous=(await previouslySentProducts(db,tenantId,segmentId)).find(p=>p.id===itemId)
+  if(previous)return previous
   throw new AffiliateCatalogError(404,'Produto não encontrado no cache atual desta segmentação. Atualize os produtos.')
+}
+
+async function previouslySentProducts(db:PrismaClient,tenantId:string,segmentId:string):Promise<DiscoveryProduct[]>{
+  const offers=await db.affiliateOffer.findMany({where:{tenantId,segmentId,itemId:{not:null},broadcasts:{some:{deliveries:{some:{state:'SENT'}}}}},orderBy:{createdAt:'desc'},distinct:['itemId']})
+  return [...new Map(offers.map(offer=>{
+    const catalogId=isShopeeProduct(offer.itemId!)?offer.itemId!:new URL(offer.productUrl).pathname.match(/\/p\/(MLB\d+)(?:\/|$)/)?.[1]??offer.itemId!
+    const product:DiscoveryProduct={id:offer.itemId!,catalogId,provider:isShopeeProduct(offer.itemId!)?'SHOPEE':'MERCADO_LIVRE',title:offer.title,productUrl:offer.productUrl,priceCents:offer.priceCents,oldPriceCents:offer.oldPriceCents,oldPriceEstimated:offer.oldPriceEstimated,reportedDiscountPercent:offer.reportedDiscountPercent,imageUrl:offer.imageUrl,checkedAt:offer.checkedAt.toISOString(),sourceTerm:'Histórico de envios',sourcePage:1,evaluation:evaluateAffiliateProduct(offer as unknown as CatalogProduct,[])}
+    return [product.id,product] as const
+  }).reverse()).values()]
+}
+
+export async function affiliateDayCandidates(db:PrismaClient,tenantId:string,segmentId:string){
+  await segmentFor(db,tenantId,segmentId)
+  const rows=await db.affiliateDiscoveryPage.findMany({where:{tenantId,segmentId,checkedAt:{gte:new Date(Date.now()-TTL)}},orderBy:{checkedAt:'desc'},take:500})
+  const products=new Map<string,DiscoveryProduct>()
+  for(const row of rows)for(const p of mergeDiscoveryProducts(row.productsJson,[],new Date()) as DiscoveryProduct[])if(!products.has(p.id))products.set(p.id,refreshCachedAffiliateEvaluation(p))
+  for(const product of await previouslySentProducts(db,tenantId,segmentId))if(!products.has(product.id))products.set(product.id,product)
+  const decisions=await db.affiliateProductDecision.findMany({where:{tenantId,segmentId,decision:'DISCARDED'}})
+  return affiliateProductHistory(db,tenantId,segmentId,[...products.values()].filter(p=>!decisions.some(d=>d.itemId===p.id)))
 }
 export async function refreshAffiliateCandidate(db:PrismaClient,tenantId:string,candidate:DiscoveryProduct):Promise<DiscoveryProduct> {
   const product=await refreshAffiliateCatalogProduct(db,tenantId,candidate),now=new Date()

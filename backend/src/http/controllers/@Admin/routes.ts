@@ -1,5 +1,6 @@
 import { registerAffiliateDiscoveryRoutes } from './affiliate-discovery'
 import { registerAffiliateProductRoutes } from './affiliate-products'
+import { registerAffiliateDayPlanRoutes } from './affiliate-day-plans'
 import { registerSearchOpportunityRoutes } from './search-opportunities'
 import { registerAffiliateRoutes } from './affiliates'
 import { registerAffiliateCatalogRoutes } from './affiliate-catalog'
@@ -131,6 +132,7 @@ export async function adminRoutes(app: FastifyInstance) {
   await registerAffiliateCatalogRoutes(app)
   await registerAffiliateDiscoveryRoutes(app)
   await registerAffiliateProductRoutes(app)
+  await registerAffiliateDayPlanRoutes(app)
   await registerAffiliateImageRoutes(app)
   app.patch('/admin/config/:key', { onRequest: [verifyJWT] }, patchConfig)
   await registerModerationRoutes(app)

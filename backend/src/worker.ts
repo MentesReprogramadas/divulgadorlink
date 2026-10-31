@@ -21,6 +21,7 @@ import { enqueueRenewalReminderCycle, RENEWAL_QUEUE_NAME } from '@/adapters/queu
 import type { PrismaClient } from '@prisma/client'
 import { Worker } from 'bullmq'
 import { requestAffiliateDeliveryDrain } from '@/use-cases/affiliates/deliveries'
+import { buildAffiliateDayPlan, runAffiliateDayPlans } from '@/use-cases/affiliates/day-plans'
 import type Redis from 'ioredis'
 import { createRedis } from '@/lib/redis'
 import { OpenAiEmbeddingService } from '@/adapters/embeddings/openai-embedding-service'
@@ -376,6 +377,20 @@ export async function startWorker(): Promise<void> {
     void requestAffiliateDeliveryDrain(prisma).catch(() => logDomainEvent('affiliate.drain.failed',{result:'processing_failed'}))
   }, 1000)
   affiliateDrain.unref()
+  let dayPlanRunning=false
+  const dayPlanDrain=setInterval(()=>{
+    if(dayPlanRunning)return
+    dayPlanRunning=true
+    void runAffiliateDayPlans(prisma).catch(()=>logDomainEvent('affiliate.schedule.failed',{result:'processing_failed'})).finally(()=>{dayPlanRunning=false})
+  },10000)
+  dayPlanDrain.unref()
+  let dayPlanBuilding=false
+  const dayPlanBuilder=setInterval(()=>{
+    if(dayPlanBuilding)return
+    dayPlanBuilding=true
+    void buildAffiliateDayPlan(prisma).catch(()=>logDomainEvent('affiliate.schedule.build_failed',{result:'processing_failed'})).finally(()=>{dayPlanBuilding=false})
+  },30000)
+  dayPlanBuilder.unref()
   let conversionRunning=false
   const conversionDrain=setInterval(()=>{
     if(conversionRunning)return

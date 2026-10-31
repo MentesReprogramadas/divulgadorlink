@@ -12,24 +12,24 @@ const product = (id='MLB1',checkedAt=now.toISOString()):CatalogProduct=>({id,cat
 const row = {segmentId:'segment',tenantId:'tenant',enabled:true,terms:['Natal','Presentes'],expandedTerms:['Natal','Presentes'],requestedTerm:null,requestedPage:null,pageCursors:{Natal:2,Presentes:2},cursor:3,configVersion:2,productsJson:[],checkedAt:now,nextRunAt:now,segment:{name:'Natal',updatedAt:now}}
 const fixture = () => {
   const mocks = {segments:vi.fn(async()=>[]),find:vi.fn(async()=>row),update:vi.fn<(input:unknown)=>Promise<{count:number}>>(async()=>({count:1})),create:vi.fn(),segment:vi.fn(async()=>({name:'Natal',enabled:true}))}
-  const db = {affiliateSegment:{findMany:mocks.segments,findFirst:mocks.segment},affiliatePriceObservation:{findMany:vi.fn(async()=>[]),upsert:vi.fn()},affiliateDiscoveryPage:{findUnique:vi.fn(async()=>null),findMany:vi.fn(async()=>[{term:'Natal'},{term:'Presentes'}]),upsert:vi.fn()},affiliateProductDecision:{findMany:vi.fn(async()=>[])},affiliateDiscovery:{findFirst:mocks.find,findUniqueOrThrow:mocks.find,updateMany:mocks.update,createMany:mocks.create}} as unknown as PrismaClient
+  const db = {affiliateOffer:{findMany:vi.fn(async()=>[])},affiliateBroadcast:{findMany:vi.fn(async()=>[])},affiliateScheduledOffer:{findMany:vi.fn(async()=>[])},affiliateSegment:{findMany:mocks.segments,findFirst:mocks.segment},affiliatePriceObservation:{findMany:vi.fn(async()=>[]),upsert:vi.fn()},affiliateDiscoveryPage:{findUnique:vi.fn(async()=>null),findMany:vi.fn(async()=>[{term:'Natal'},{term:'Presentes'}]),upsert:vi.fn()},affiliateProductDecision:{findMany:vi.fn(async()=>[])},affiliateDiscovery:{findFirst:mocks.find,findUniqueOrThrow:mocks.find,updateMany:mocks.update,createMany:mocks.create}} as unknown as PrismaClient
   Object.assign(db,{$transaction:async(work:(tx:PrismaClient)=>Promise<unknown>)=>work(db)})
   return {mocks,db}
 }
 const result = {products:[product()],checkedAt:now.toISOString(),comparison:'catalog_sellers' as const,warnings:[],counts:{catalogsFound:200,catalogsChecked:20,withoutOffers:19,failed:0}}
 beforeEach(()=>vi.clearAllMocks())
 describe('descoberta automática',()=>{
-  it('mostra todos os anúncios válidos sem contar ausência de anúncio como descarte nem reoferecer enviados',async()=>{
+  it('mostra todos os anúncios válidos sem contar ausência de anúncio como descarte e preserva enviados na listagem',async()=>{
     const {db}=fixture()
     const evaluated=(id:string,status:string)=>{const item={...product(id),catalogId:`catalog-${id}`,...(status==='SELECTED'?{oldPriceCents:2000,oldPriceSource:'MERCADO_LIVRE' as const,reputation:{level:'5_green',status:'GREEN' as const}}:status==='DISCARDED'?{reputation:{level:'2_orange',status:'POOR' as const}}:{})};return {...item,sourceTerm:'Natal',sourcePage:1,evaluation:{...evaluateAffiliateProduct(item,[]),rulesVersion:'v1',status}}}
     vi.mocked(db.affiliateDiscoveryPage.findMany).mockResolvedValue([{term:'Natal',page:1,checkedAt:now,productsJson:[evaluated('selected','SELECTED'),evaluated('review','REVIEW'),evaluated('poor','DISCARDED'),evaluated('sent','SELECTED'),evaluated('manual','SELECTED')],countsJson:{rejected:[{id:'absent',title:'Sem anúncios',reason:'Sem anúncios atuais',kind:'NO_LISTINGS'},{id:'failed',title:'Consulta falhou',reason:'Não avaliado',kind:'LOOKUP_FAILED'},{id:'catalog-selected',title:'Antigo indisponível',reason:'Não avaliado',kind:'NO_LISTINGS'}]}}] as never)
     vi.mocked(db.affiliateProductDecision.findMany).mockResolvedValue([{itemId:'sent',decision:'SENT'},{itemId:'manual',decision:'DISCARDED',reason:'Não interessa'}] as never)
     const available=await affiliateDiscoveryState(db,'tenant','segment',{mode:'MIXED',view:'ALL'})
-    expect(available.products.map(p=>p.id)).toEqual(['selected','review','poor'])
+    expect(available.products.map(p=>p.id)).toEqual(['selected','review','poor','sent'])
     expect(available.products.find(p=>p.id==='poor')?.evaluation).toMatchObject({status:'REVIEW',rulesVersion:'v2'})
-    expect(available.pagination.total).toBe(3)
-    expect(available.statusCounts).toEqual({SELECTED:1,REVIEW:2,DISCARDED:1})
-    expect(available.collectionSummary).toEqual({available:3,unavailable:2,failed:1})
+    expect(available.pagination.total).toBe(4)
+    expect(available.statusCounts).toEqual({SELECTED:2,REVIEW:2,DISCARDED:1})
+    expect(available.collectionSummary).toEqual({available:4,unavailable:2,failed:1})
     expect(available.rejected).toEqual([])
     expect(available.unavailable.map(p=>p.id)).toEqual(['absent','failed'])
     const discarded=await affiliateDiscoveryState(db,'tenant','segment',{mode:'MIXED',view:'DISCARDED'})

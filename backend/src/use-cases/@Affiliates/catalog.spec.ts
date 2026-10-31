@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { env } from '@/env'
 import { openWebhookSecret, sealWebhookSecret } from '@/lib/webhook-secret'
 import { AffiliateCatalogError } from '@/domain/affiliates/mercado-livre'
-import { affiliateCatalogAccessToken, affiliateCatalogStatus, configureAffiliateCatalog, connectAffiliateCatalog, disconnectAffiliateCatalog, finishAffiliateCatalogAuthorization, refreshAffiliateCatalogProduct } from './catalog'
+import { affiliateCatalogAccessToken, affiliateCatalogStatus, affiliateGenerationProviders, configureAffiliateCatalog, connectAffiliateCatalog, disconnectAffiliateCatalog, finishAffiliateCatalogAuthorization, refreshAffiliateCatalogProduct } from './catalog'
 
 const provider = vi.hoisted(() => ({ exchange: vi.fn(),request:vi.fn<(path:string)=>Promise<unknown>>() }))
 vi.mock('@/adapters/affiliates/mercado-livre', async importOriginal => ({ ...await importOriginal<typeof import('@/adapters/affiliates/mercado-livre')>(), exchangeMercadoLivreToken: provider.exchange,mercadoLivreRequest:provider.request }))
@@ -34,6 +34,14 @@ beforeEach(() => { env.WEBHOOK_ENCRYPTION_KEY = encryptionKey; provider.exchange
 afterEach(() => { env.WEBHOOK_ENCRYPTION_KEY = originalKey; vi.unstubAllEnvs() })
 
 describe('Mercado Livre connection lifecycle', () => {
+  it('exclui da agenda fontes desconectadas e credenciais inválidas sem acessar serviços externos',async()=>{
+    const read=vi.fn(async()=>({status:'DISCONNECTED',credentials:'',updatedAt:new Date()}))
+    const client={affiliateConnection:{findUnique:read}} as unknown as PrismaClient
+    expect(await affiliateGenerationProviders(client,tenantId)).toEqual({MERCADO_LIVRE:false,SHOPEE:false})
+    read.mockResolvedValue({status:'CONFIGURED',credentials:'invalid-ciphertext',updatedAt:new Date()})
+    expect(await affiliateGenerationProviders(client,tenantId)).toEqual({MERCADO_LIVRE:false,SHOPEE:false})
+    expect(provider.request).not.toHaveBeenCalled()
+  })
   it('revalidação não transforma falhas de autorização/permissão/limite em reputação desconhecida',async()=>{
     const state=fixture('CONNECTED',{clientId:'123456',clientSecret:'test-secret',accessToken:'test-access',refreshToken:'test-refresh',expiresAt:Date.now()+3600000})
     const product={id:'MLB100',catalogId:'MLB200',sellerId:'123',title:'Produto',productUrl:'https://produto.mercadolivre.com.br/MLB-100-_JM',priceCents:1000,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}

@@ -4,11 +4,12 @@ import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'rea
 import { TabNavigation } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { ActionIcon } from '@/components/ui/action-icon'
-import { affiliateRequest, localDate, productProvider, type CatalogProduct, type DiscoveryState } from './contracts'
+import { affiliateRequest, localDate, productProvider, type CatalogProduct, type DiscoveryProduct, type DiscoveryState } from './contracts'
 import { CatalogProductCard } from './catalog-product-card'
 import { ProductPreviewDialog } from './product-preview-dialog'
 import styles from './affiliates.module.css'
 import discoveryStyles from './discovery.module.css'
+import { DayPlanner } from './day-planner'
 
 type DiscoveryProps = {segmentId: string; contextName: string; busy: boolean; canGenerate: boolean; canGenerateShopee?: boolean; prepare?: (product: CatalogProduct) => void; settingsContent?: ReactNode}
 export function DiscoveryPanel(props: DiscoveryProps) { return <DiscoveryContent key={props.segmentId} {...props} /> }
@@ -16,6 +17,9 @@ function DiscoveryContent({ segmentId, contextName, busy, canGenerate, canGenera
   const [data, setData] = useState<DiscoveryState | null>(null), [error, setError] = useState(''), [terms, setTerms] = useState(''), [saving, setSaving] = useState(false), [revision, setRevision] = useState(0), [checkingStopped, setCheckingStopped] = useState(false)
   const [view, setView] = useState('ALL'), [settingsOpen, setSettingsOpen] = useState(false), [loading, setLoading] = useState(true), [page, setPage] = useState(1), [now, setNow] = useState(Date.now()), [previewProduct, setPreviewProduct] = useState<CatalogProduct | null>(null)
   const trigger = useRef<HTMLElement | null>(null), controller = useRef<AbortController | null>(null), initialized = useRef(false), mutationLock = useRef(false), requestVersion = useRef(0), pageCache = useRef(new Map<string, DiscoveryState>())
+  const [selected,setSelected]=useState<DiscoveryProduct[]>([])
+  function toggleSelection(product:DiscoveryProduct){setSelected(previous=>previous.some(p=>p.id===product.id)?previous.filter(p=>p.id!==product.id):previous.length<24?[...previous,product]:previous)}
+  function changed(){pageCache.current.clear();setRevision(v=>v+1)}
   const base = '/segments/' + encodeURIComponent(segmentId) + '/discovery'
   useEffect(() => { const timer = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(timer) }, [])
   useEffect(() => {
@@ -75,11 +79,13 @@ function DiscoveryContent({ segmentId, contextName, busy, canGenerate, canGenera
   const remaining = data?.nextRunAt ? Math.max(0, Date.parse(data.nextRunAt) - now) : null
   const interval = Math.max(1, data?.cycleIntervalMs ?? 900000)
   const countdown = remaining === null ? null : `${Math.floor(remaining / 60000)}:${String(Math.floor(remaining / 1000) % 60).padStart(2, '0')}`
-  const products = data?.products.filter(product => view === 'ALL' ? product.decision !== 'SENT' && product.decision !== 'DISCARDED' : product.decision === 'DISCARDED') ?? []
+  const products = data?.products.filter(product => view === 'ALL' ? product.decision !== 'DISCARDED' : product.decision === 'DISCARDED') ?? []
   const statusMessage = !data ? error ? 'Sugestões indisponíveis no momento.' : 'Conferindo sugestões…' : data.status === 'PAUSED' || !data.enabled ? 'Descoberta automática pausada.' : collecting ? checkingStopped ? 'A conferência foi interrompida. A coleta pode continuar no servidor; confira novamente.' : 'Buscando sugestões em segundo plano…' : data.status === 'ERROR' ? 'A última coleta não foi concluída.' : 'Sugestões atualizadas.'
   return <section className={discoveryStyles.panel} aria-labelledby="discovery-title">
     <header><div><h2 id="discovery-title">Sugestões para {contextName}</h2><p>Abra um produto, confira a mensagem e envie.</p></div></header>
     {error ? <p className={styles.error} role="alert">{error}</p> : null}
+    {!settingsOpen?<DayPlanner segmentId={segmentId} selected={selected} clearSelection={()=>setSelected([])} onChanged={changed} disabled={busy||!canGenerate&&!canGenerateShopee}/>:null}
+    {selected.length>=24?<p role="status" className={styles.muted}>24 ofertas selecionadas. Agende este lote ou remova uma para trocar.</p>:null}
     <TabNavigation className={styles.mobileTabs} value={settingsOpen ? 'SETTINGS' : view} onChange={value => {setSettingsOpen(value === 'SETTINGS'); if (value !== 'SETTINGS') {setPage(1);setView(value)} else if (data) {setTerms(data.terms.join(', '))}}} label="Ofertas e configurações" idPrefix="discovery-evaluation" items={[{id:'ALL',label:'Produtos'},{id:'DISCARDED',label:'Descartados'},{id:'SETTINGS',label:'Configurações'}]} />
     <div className={discoveryStyles.freshness}><p role="status" className={styles.muted}>{loading && data ? 'Atualizando produtos…' : statusMessage}</p>{data?.enabled && countdown !== null ? <><span className={styles.muted}>{remaining === 0 ? 'Aguardando próxima coleta' : <>Próxima coleta em <strong>{countdown}</strong></>}</span><progress aria-label="Tempo até a próxima coleta" max={interval} value={Math.min(interval,Math.max(0,interval-(remaining??0)))} /></> : null}</div>
     {data?.error ? <p className={styles.warning}>{data.error}</p> : null}
@@ -92,10 +98,10 @@ function DiscoveryContent({ segmentId, contextName, busy, canGenerate, canGenera
       {data?.collectionSummary ? <p className={styles.muted}>{data.collectionSummary.available} produtos disponíveis · {data.collectionSummary.unavailable} sem oferta disponível · {data.collectionSummary.failed} falhas de consulta.</p> : data?.counts ? <p className={styles.muted}>Última coleta: {data.counts.catalogsChecked} produtos consultados, {data.counts.withoutOffers} sem anúncio e {data.counts.failed} falhas.</p> : null}
       {data?.unavailable?.length ? <details className={discoveryStyles.evidence}><summary>Produtos sem oferta disponível</summary>{data.unavailable.map(item => <p key={item.id}><strong>{item.title}</strong> · {item.reason}</p>)}</details> : null}
     </div> : <div role="tabpanel" id={'discovery-evaluation-panel-' + view} aria-labelledby={'discovery-evaluation-' + view}>
-      <div className={discoveryStyles.productList} aria-busy={loading}>{products.length ? products.map(product => <CatalogProductCard key={product.id} product={product} busy={busy || saving || loading} canGenerate={productProvider(product) === 'SHOPEE' ? canGenerateShopee : canGenerate} review prepare={product => {trigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null; setPreviewProduct(product)}} discard={discard} restore={product => void discard(product, true)} />) : !data || collecting || data.pageStatus === 'NOT_COLLECTED' ? <p className={styles.empty}>{data?.pageStatus === 'NOT_COLLECTED' ? 'As primeiras ofertas estão sendo coletadas. Aguarde a atualização.' : 'Buscando produtos…'}</p> : <p className={styles.empty}>Nenhum produto por aqui. Aguarde a próxima coleta.</p>}</div>
+      <div className={discoveryStyles.productList} aria-busy={loading}>{products.length ? products.map(product => <CatalogProductCard key={product.id} product={product} busy={busy || saving || loading} canGenerate={productProvider(product) === 'SHOPEE' ? canGenerateShopee : canGenerate} selected={selected.some(p=>p.id===product.id)} toggleSelection={toggleSelection} review prepare={product => {trigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null; setPreviewProduct(product)}} discard={discard} restore={product => void discard(product, true)} />) : !data || collecting || data.pageStatus === 'NOT_COLLECTED' ? <p className={styles.empty}>{data?.pageStatus === 'NOT_COLLECTED' ? 'As primeiras ofertas estão sendo coletadas. Aguarde a atualização.' : 'Buscando produtos…'}</p> : <p className={styles.empty}>Nenhum produto por aqui. Aguarde a próxima coleta.</p>}</div>
       {data?.pagination ? <nav className={discoveryStyles.pagination} aria-label="Páginas de ofertas da segmentação"><Button variant="secondary" disabled={saving || loading || !data.pagination.hasPrevious} onClick={() => setPage(data.pagination!.page - 1)}>Anterior</Button><span>Página {data.pagination.page} · {data.pagination.total.toLocaleString('pt-BR')} produtos</span><Button variant="secondary" disabled={saving || loading || !data.pagination.hasNext} onClick={() => setPage(data.pagination!.page + 1)}>Próxima</Button></nav> : null}
       <p className={styles.muted}>Shopee e Mercado Livre · Preços e disponibilidade podem mudar. Envio somente após sua confirmação.</p>
     </div>}
-    {previewProduct ? <ProductPreviewDialog key={segmentId + ':' + previewProduct.id} segmentId={segmentId} product={previewProduct} onClose={() => setPreviewProduct(null)} onChanged={() => setRevision(value => value + 1)} returnFocusTo={trigger.current} /> : null}
+    {previewProduct ? <ProductPreviewDialog key={segmentId + ':' + previewProduct.id} segmentId={segmentId} product={previewProduct} onClose={() => setPreviewProduct(null)} onChanged={changed} returnFocusTo={trigger.current} /> : null}
   </section>
 }

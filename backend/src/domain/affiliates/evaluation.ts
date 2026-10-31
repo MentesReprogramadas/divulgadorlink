@@ -31,7 +31,7 @@ function assessEvidence(product:CatalogProduct,history:PriceHistory):AffiliateEv
   if (!evidence) reasons.push(shopeeDiscount!==null?'O percentual informado pela Shopee não comprova queda histórica; você pode revisar e enviar.':'Desconto ainda não confirmado pelos dados disponíveis; você pode revisar e enviar.')
   return {status,rulesVersion:AFFILIATE_RULES.version,reasons,reportedDiscountPercent,reputation,history}
 }
-export type DiscoveryProduct = CatalogProduct & { evaluation: ReturnType<typeof evaluateAffiliateProduct>; sourceTerm: string; sourcePage: number; decision?: 'SENT'|'DISCARDED' }
+export type DiscoveryProduct = CatalogProduct & { evaluation: ReturnType<typeof evaluateAffiliateProduct>; sourceTerm: string; sourcePage: number; decision?: 'SENT'|'DISCARDED';sentCount?:number;pendingCount?:number;lastSentAt?:string|null }
 export function refreshCachedAffiliateEvaluation(product:DiscoveryProduct):DiscoveryProduct {
   if(product.provider==='SHOPEE'){
     const oldPriceCents=shopeePreviousPriceEstimate(product.priceCents,product.reportedDiscountPercent)

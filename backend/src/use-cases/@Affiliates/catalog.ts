@@ -54,6 +54,11 @@ async function sessionStatus(db: PrismaClient, tenantId: string) {
   const allowed = tenant?.host === env.TENANT_HOST
   return { mode: 'CENTRAL' as const, configured: allowed && affiliateGeneratorConfigured(settings), verified: false, status: 'NOT_CONFIGURED', accountLabel: '', tag: allowed ? settings.tag ?? '' : '', profile: allowed ? settings.profile ?? '' : '' }
 }
+export async function affiliateGenerationProviders(db:PrismaClient,tenantId:string){
+  const session=await sessionStatus(db,tenantId).catch(()=>null)
+  const shopee=await shopeeConnection(db,tenantId).then(()=>true).catch(()=>false)
+  return {MERCADO_LIVRE:!!session?.configured&&session.status!=='RECONNECT',SHOPEE:shopee}
+}
 export async function affiliateCatalogStatus(db: PrismaClient, tenantId: string) {
   const session = await sessionStatus(db, tenantId)
   const shared = { session, affiliateConfigured: session.configured && session.status !== 'RECONNECT', affiliateTag: session.tag, affiliateProfile: session.profile }
