@@ -1,5 +1,5 @@
 import { groupAffiliateProducts } from './product-identity'
-import { christmasProductKind, isChristmasSegment, type AffiliateSegmentTheme, type AffiliatePlanContext, affiliateProductFitsSegment } from './segment-relevance'
+import { christmasProductKind, isChristmasSegment, isPetSegment, type AffiliateSegmentTheme, type AffiliatePlanContext, affiliateProductFitsSegment } from './segment-relevance'
 import { z } from 'zod'
 import { affiliateProductId } from './shopee'
 import { AffiliateError } from './contracts'
@@ -66,7 +66,7 @@ export function selectDayProducts<T extends DiscoveryProduct & {sentCount?:numbe
   })
   const core=chosen.filter(p=>p.planContext.role==='CORE').length
   if(chosen.length===analysis.length&&new Set(chosen.map(p=>p.id)).size===chosen.length&&core>chosen.length-core){
-    const remaining=ranked.filter(p=>!chosen.some(item=>item.id===p.id)&&isChristmasSegment(segment)&&christmasProductKind(p.title)==='THEME')
+    const remaining=ranked.filter(p=>!chosen.some(item=>item.id===p.id)&&(isPetSegment(segment)||isChristmasSegment(segment)&&christmasProductKind(p.title)==='THEME'))
     return [...chosen,...remaining.slice(0,Math.max(0,count-chosen.length)).map(p=>({...p,planContext:{role:'CORE',framing:'THEME',reason:'Produto do segmento, distinto dos demais produtos selecionados.'} as AffiliatePlanContext}))]
   }
   // When the AI is unavailable, do not invent relationships to complete a quota.

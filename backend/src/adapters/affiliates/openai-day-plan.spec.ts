@@ -36,6 +36,16 @@ it('usa regras sem chave ou resposta interrompida, sem comprometer o lote',async
   vi.stubEnv('OPENAI_API_KEY','');expect(await suggestDayProductOrder(products,fetcher)).toEqual([]);expect(fetcher).not.toHaveBeenCalled()
   vi.stubEnv('OPENAI_API_KEY','fixture');expect(await suggestDayProductOrder(products,fetcher)).toEqual([])
 })
+it('aproveita resposta válida maior que o restante sem perder predominância ou validar só o prefixo',async()=>{
+ vi.stubEnv('OPENAI_API_KEY','fixture')
+ const catalog=Array.from({length:12},(_,i)=>({...products[0],id:'MLB'+i}))
+ const items=catalog.map((_,i)=>({id:'p'+i,context:{role:i<4?'RELATED':'CORE',framing:i<4?'GIFT':'THEME',reason:'Relação contextual analisada pela IA.'}}))
+ const respond=(selected:typeof items)=>vi.fn(async()=>new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:JSON.stringify({coreCount:8,relatedCount:4,items:selected})}}]}))) as unknown as typeof fetch
+ const selected=await suggestDayProductOrder(catalog,respond(items),{name:'Natal'},6)
+ expect(selected).toHaveLength(6);expect(selected.filter(p=>p.context.role==='CORE')).toHaveLength(4)
+ expect(selected.every(p=>catalog.some(c=>c.id===p.id))).toBe(true)
+ expect(await suggestDayProductOrder(catalog,respond([...items.slice(0,11),{...items[11],id:'foreign'}]),{name:'Natal'},6)).toEqual([])
+})
 
 it.each([{coreCount:12,relatedCount:4,expected:2},{coreCount:10,relatedCount:5,expected:3},{coreCount:12,relatedCount:0,expected:0}])('ajusta complementos à proporção calculada pela IA: $coreCount/$relatedCount',async({coreCount,relatedCount,expected})=>{
  vi.stubEnv('OPENAI_API_KEY','fixture')

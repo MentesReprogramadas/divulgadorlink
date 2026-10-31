@@ -72,3 +72,11 @@ it('aceita volume solicitado acima de 24 sem alocar horários antes de conhecer 
  expect(slots).toHaveLength(121);expect(new Set(slots.map(s=>s.getTime())).size).toBe(121)
  expect(slots.at(-1)?.toISOString()).toBe('2026-11-02T00:00:00.000Z')
 })
+it('completa análise curta com produtos Pets estritamente elegíveis e não inventa núcleo genérico',()=>{
+ const catalog=Array.from({length:80},(_,i)=>{const p={id:'MLB'+i,catalogId:'MLB'+i,title:'Brinquedo para cachorro modelo '+i,priceCents:1000,oldPriceCents:null,imageUrl:null,productUrl:'https://meli.la/test',checkedAt:now.toISOString(),sourceTerm:'Pets',sourcePage:1};return {...p,evaluation:evaluateAffiliateProduct(p,[])}})
+ const analysis=catalog.slice(0,12).map(p=>({id:p.id,context:{role:'CORE' as const,framing:'THEME' as const,reason:'Produto apropriado para animais.'}}))
+ const selected=selectDayProducts([...catalog,{...catalog[0],id:'MLB999',catalogId:'MLB999',title:'Brinquedo para bebê infantil'}],{name:'Pets'},60,analysis)
+ expect(selected).toHaveLength(60);expect(new Set(selected.map(p=>p.id)).size).toBe(60)
+ expect(selected.some(p=>p.title.includes('bebê'))).toBe(false)
+ expect(selectDayProducts(catalog,{name:'Colecionadores'},60,analysis)).toHaveLength(12)
+})

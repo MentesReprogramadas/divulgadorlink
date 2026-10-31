@@ -3,10 +3,10 @@ import jwt from '@fastify/jwt'
 import cookie from '@fastify/cookie'
 import { afterAll, beforeAll, beforeEach, expect, it, vi } from 'vitest'
 import { registerAffiliateDayPlanRoutes } from './controllers/@Admin/affiliate-day-plans'
-const fixture=vi.hoisted(()=>({user:vi.fn(),tenant:vi.fn(),create:vi.fn(),build:vi.fn(),read:vi.fn(),approve:vi.fn(),cancel:vi.fn(),retry:vi.fn(),segmentCount:vi.fn(),list:vi.fn(),total:vi.fn()}))
+const fixture=vi.hoisted(()=>({user:vi.fn(),tenant:vi.fn(),create:vi.fn(),build:vi.fn(),read:vi.fn(),approve:vi.fn(),cancel:vi.fn(),retry:vi.fn(),reschedule:vi.fn(),segmentCount:vi.fn(),list:vi.fn(),total:vi.fn()}))
 vi.mock('@/lib/prisma',()=>({prisma:{user:{findFirst:fixture.user},affiliateSegment:{count:fixture.segmentCount},affiliateScheduleBatch:{findMany:fixture.list,count:fixture.total}}}))
 vi.mock('@/http/tenant',()=>({normalizeTenantHost:(host:string)=>host,resolveTenant:fixture.tenant}))
-vi.mock('@/use-cases/affiliates/day-plans',()=>({createAffiliateDayPlan:fixture.create,buildAffiliateDayPlan:fixture.build,readAffiliateDayPlan:fixture.read,approveAffiliateDayPlan:fixture.approve,cancelAffiliateDayPlan:fixture.cancel,retryAffiliateDayPlan:fixture.retry}))
+vi.mock('@/use-cases/affiliates/day-plans',()=>({createAffiliateDayPlan:fixture.create,buildAffiliateDayPlan:fixture.build,readAffiliateDayPlan:fixture.read,approveAffiliateDayPlan:fixture.approve,cancelAffiliateDayPlan:fixture.cancel,retryAffiliateDayPlan:fixture.retry,rescheduleAffiliateDayPlan:fixture.reschedule}))
 const app=Fastify(),tenantId='planner-tenant',actorId='planner-admin',base='/api/v1/admin/affiliates/segments/segment/day-plans'
 beforeAll(async()=>{await app.register(cookie);await app.register(jwt,{secret:'fixture-day-plan-secret'});await app.register(registerAffiliateDayPlanRoutes,{prefix:'/api/v1'});await app.ready()})
 afterAll(()=>app.close())
@@ -40,6 +40,18 @@ it('aceita quantidade flexível e seleção manual acima de 24 sem aprovar',asyn
   expect((await app.inject({method:'POST',url:base,headers:headers(),payload})).statusCode).toBe(202)
  }
  expect(fixture.approve).not.toHaveBeenCalled()
+})
+it('ajusta horários e reconfere expiradas somente com admin e payload explícitos',async()=>{
+ fixture.reschedule.mockResolvedValue({id:'batch',status:'DRAFT'});fixture.retry.mockResolvedValue({id:'batch',status:'BUILDING'})
+ expect((await app.inject({method:'POST',url:base+'/batch/reschedule',headers:headers(),payload:{period:{start:'13:00',end:'21:00'}}})).statusCode).toBe(200)
+ expect(fixture.reschedule).toHaveBeenCalledWith(expect.anything(),tenantId,actorId,'segment','batch',{start:'13:00',end:'21:00'})
+ expect((await app.inject({method:'POST',url:base+'/batch/reschedule',headers:headers(),payload:{period:{start:'13:00',end:'21:00'},count:20}})).statusCode).toBe(400)
+ expect((await app.inject({method:'POST',url:base+'/batch/recheck-ready',headers:headers(),payload:{}})).statusCode).toBe(400)
+ expect((await app.inject({method:'POST',url:base+'/batch/recheck-ready',headers:headers(),payload:{confirm:true}})).statusCode).toBe(202)
+ expect(fixture.retry).toHaveBeenLastCalledWith(expect.anything(),tenantId,actorId,'segment','batch',undefined,undefined,true)
+ expect(fixture.approve).not.toHaveBeenCalled()
+ fixture.user.mockResolvedValue(null)
+ expect((await app.inject({method:'POST',url:base+'/batch/reschedule',headers:headers(),payload:{period:{start:'13:00',end:'21:00'}}})).statusCode).toBe(403)
 })
 
 it('reconfere falhas no tenant autenticado sem aprovar e rejeita campos extras',async()=>{

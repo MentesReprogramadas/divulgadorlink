@@ -644,10 +644,40 @@ test('recupera falhas passadas no mesmo lote aprovado com período escolhido e a
  await expect(dialog.getByText('Oferta já agendada',{exact:true})).toBeVisible()
  expect(changes).toEqual([{path:'/bff/v1/admin/affiliates/segments/segment-1/day-plans/approved-batch/retry',body:{period:{start:'13:00',end:'20:00'}}}])
  await page.screenshot({path:testInfo.outputPath('approved-retry-ready.png'),animations:'disabled'})
+ await dialog.getByRole('button',{name:'Escolher outro período'}).click()
+ await expect(dialog.getByLabel('Novo início das ofertas prontas')).toBeFocused()
+ await dialog.getByLabel('Novo início das ofertas prontas').fill('14:00');await dialog.getByLabel('Novo término das ofertas prontas').fill('20:00')
+ await dialog.getByRole('button',{name:'Atualizar horários das ofertas prontas'}).click()
+ await expect(dialog.getByLabel('Novo início das ofertas prontas')).toHaveCount(0)
+ expect(changes[1]).toEqual({path:'/bff/v1/admin/affiliates/segments/segment-1/day-plans/approved-batch/reschedule',body:{period:{start:'14:00',end:'20:00'}}})
  await dialog.getByRole('button',{name:'Aceitar e agendar 1 oferta'}).focus();await page.keyboard.press('Enter')
  await expect(dialog.getByRole('button',{name:'Aceitar e agendar 1 oferta'})).toHaveCount(0)
- expect(changes[1]).toEqual({path:'/bff/v1/admin/affiliates/segments/segment-1/day-plans/approved-batch/approve',body:{confirm:true}})
+ expect(changes[2]).toEqual({path:'/bff/v1/admin/affiliates/segments/segment-1/day-plans/approved-batch/approve',body:{confirm:true}})
  expect(changes.some(c=>c.path.endsWith('/day-plans'))).toBe(false)
+})
+
+test('reconfere revisão expirada no mesmo lote e exige novo aceite',async({page},testInfo)=>{
+ await fixtures(page)
+ const changes:Array<{path:string;body:Record<string,unknown>}>=[]
+ let expired=true
+ await page.route('**/day-plans**',async route=>{
+  const request=route.request(),path=new URL(request.url()).pathname
+  if(request.method()==='POST'){changes.push({path,body:request.postDataJSON()});expired=false;return route.fulfill({json:{id:'expired-batch',status:'BUILDING'}})}
+  if(path.endsWith('/day-plans'))return route.fulfill({json:{batches:[{id:'expired-batch',status:'DRAFT',config:{day:'2099-11-01',start:'09:00',end:'21:00'},groupCount:1,_count:{entries:1}}]}})
+  return route.fulfill({json:{id:'expired-batch',status:'DRAFT',mode:'MANUAL',source:'RULES',expiresAt:expired?'2020-01-01T12:00:00Z':'2099-11-01T12:00:00Z',error:null,config:{day:'2099-11-01',start:'09:00',end:'21:00'},groups:[{id:'g',name:'Natal #1'}],summary:{offers:1,readyOffers:1,groups:1,totalMessages:1,intervalMinutes:null},entries:[{id:'ready-entry',itemId:offer.id,title:offer.title,product:offer,scheduledAt:'2099-11-01T12:00:00Z',state:'READY',error:null}]}})
+ })
+ await page.goto('/admin/afiliados/segmentacoes/segment-1');await area(page,'Ofertas')
+ await page.getByRole('tab',{name:'Agenda',exact:true}).click();await page.getByRole('button',{name:'Abrir agenda'}).click()
+ const dialog=page.getByRole('dialog')
+ await expect(dialog.getByRole('button',{name:'Aceitar e agendar 1 oferta'})).toBeDisabled()
+ await expect(dialog.getByText('Esta revisão expirou.',{exact:false})).toBeVisible()
+ expect((await new AxeBuilder({page}).include('dialog').analyze()).violations).toEqual([])
+ await page.screenshot({path:testInfo.outputPath('ready-expired-recheck.png'),animations:'disabled'})
+ await dialog.getByRole('button',{name:'Conferir ofertas expiradas'}).focus();await page.keyboard.press('Enter')
+ await expect(dialog.getByRole('button',{name:'Aceitar e agendar 1 oferta'})).toBeEnabled()
+ expect(changes).toEqual([{path:'/bff/v1/admin/affiliates/segments/segment-1/day-plans/expired-batch/recheck-ready',body:{confirm:true}}])
+ await expect(dialog.getByText(offer.title,{exact:true})).toBeVisible()
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true)
 })
 
 test('agenda paginada e nova conferência individual ou de todas as falhas sem envio',async({page},testInfo)=>{

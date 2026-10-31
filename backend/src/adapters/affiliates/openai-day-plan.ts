@@ -16,7 +16,7 @@ async function suggestDayProductChunk(products:Array<DiscoveryProduct & {sentCou
     if(!response.ok){await response.body?.cancel();return []}
     const raw=z.object({choices:z.array(z.object({finish_reason:z.literal('stop'),message:z.object({content:z.string(),refusal:z.string().nullable().optional()})})).length(1)}).parse(await readCatalogJson(response))
     if(raw.choices[0].message.refusal)return []
-    const value=z.object({coreCount:z.number().int().min(0).max(120),relatedCount:z.number().int().min(0).max(120),items:z.array(z.object({id:z.string(),context:z.object({role:z.enum(['CORE','RELATED']),framing:z.enum(['THEME','GIFT','COMPANION']),reason:z.string().trim().min(5).max(300)}).strict()}).strict()).min(1).max(Math.min(count,120))}).strict().parse(JSON.parse(raw.choices[0].message.content))
+    const value=z.object({coreCount:z.number().int().min(0).max(120),relatedCount:z.number().int().min(0).max(120),items:z.array(z.object({id:z.string(),context:z.object({role:z.enum(['CORE','RELATED']),framing:z.enum(['THEME','GIFT','COMPANION']),reason:z.string().trim().min(5).max(300)}).strict()}).strict()).min(1).max(120)}).strict().parse(JSON.parse(raw.choices[0].message.content))
     const allowed=new Set(candidates.map(p=>p.id)),core=value.items.filter(item=>item.context.role==='CORE').length
     if(!core||value.coreCount<=value.relatedCount){
       messages.push({role:'assistant',content:raw.choices[0].message.content},{role:'user',content:`A composição anterior tem ${core} itens do núcleo e ${value.items.length-core} complementos, e as contagens declaradas foram ${value.coreCount}/${value.relatedCount}. Confira todos os produtos disponíveis e refaça a seleção: o núcleo deve predominar claramente, e as contagens devem corresponder aos itens. Não reclassifique um complemento como núcleo para contornar isso. Pode reduzir a quantidade, até ${count}, mas não complete com itens fora do tema.`})
@@ -27,7 +27,10 @@ async function suggestDayProductChunk(products:Array<DiscoveryProduct & {sentCou
     // rather than inventing native products or imposing a fixed percentage.
     const relatedLimit=Math.min(value.relatedCount,Math.floor(core*value.relatedCount/value.coreCount))
     let related=0
-    return value.items.filter(item=>item.context.role==='CORE'||related++<relatedLimit).map(item=>({...item,id:productIds.get(item.id)!}))
+    const coherent=value.items.filter(item=>item.context.role==='CORE'||related++<relatedLimit)
+    const total=Math.min(count,coherent.length),availableRelated=coherent.filter(item=>item.context.role==='RELATED').length
+    let keepRelated=Math.min(availableRelated,Math.floor((total-1)/2),Math.floor(total*availableRelated/coherent.length)),keepCore=total-keepRelated
+    return coherent.filter(item=>item.context.role==='CORE'?keepCore-->0:keepRelated-->0).map(item=>({...item,id:productIds.get(item.id)!}))
    }
    return []
   }catch{return []}

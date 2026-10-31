@@ -6,7 +6,7 @@ import { afterAll, beforeAll, beforeEach, expect, it, vi } from 'vitest'
 import { offerMessage } from '@/domain/affiliates/contracts'
 import type { DayPlanInput } from '@/domain/affiliates/day-plan'
 import { evaluateAffiliateProduct } from '@/domain/affiliates/evaluation'
-import { createAffiliateDayPlan, buildAffiliateDayPlan, approveAffiliateDayPlan, readAffiliateDayPlan, cancelAffiliateDayPlan, runAffiliateDayPlans, retryAffiliateDayPlan, type DayPlanPorts } from './day-plans'
+import { createAffiliateDayPlan, buildAffiliateDayPlan, approveAffiliateDayPlan, readAffiliateDayPlan, cancelAffiliateDayPlan, runAffiliateDayPlans, retryAffiliateDayPlan, rescheduleAffiliateDayPlan, type DayPlanPorts } from './day-plans'
 import { previewAffiliateProduct, readAffiliateProductPreview, sendAffiliateProduct } from './product-review'
 import { affiliateDiscoveryState } from './discovery'
 import { affiliateProductHistory } from './product-history'
@@ -35,6 +35,38 @@ async function draft(ports=dependencies(),value:DayPlanInput=input()){
   await buildAffiliateDayPlan(db,{tenantId,id:batch.id},ports)
   return {id:batch.id,ports,value,plan:await readAffiliateDayPlan(db,tenantId,segmentId,batch.id)}
 }
+it.each([{end:'12:00',aiDelay:0},{end:'09:31',aiDelay:0},{end:'12:00',aiDelay:180000}])('mantém identidades após IA/preparação lentas: $end / $aiDelay',async({end,aiDelay})=>{
+ vi.useFakeTimers({toFake:['Date']});vi.setSystemTime(new Date('2026-10-31T12:00:00Z'))
+ try{
+  const ports=dependencies(),catalog=Array.from({length:30},(_,i)=>({...product(),id:'MLB'+(20000+i),catalogId:'MLB'+(20000+i),title:'Enfeite Natal modelo '+i,productUrl:'https://www.mercadolivre.com.br/p/MLB'+(20000+i)+'?wid=MLB'+(20000+i),sentCount:0,pendingCount:0,lastSentAt:null}))
+  vi.mocked(ports.candidates).mockResolvedValue(catalog)
+  ports.prepare=async(client,tenant,actor,segment,itemId,context)=>{
+   vi.setSystemTime(new Date(Date.now()+10000))
+   const p={...catalog.find(p=>p.id===itemId)!,checkedAt:new Date().toISOString()}
+   return previewAffiliateProduct(client,tenant,actor,segment,itemId,{candidate:async()=>p,refresh:async()=>p,link:async()=>({url:'https://meli.la/fixture',fullUrl:'https://meli.la/fixture',tag:'fixture',profile:'fixture'}),title:async()=>({title:p.title,source:'ORIGINAL'})},context)
+  }
+  const order=ports.order;ports.order=async(...args)=>{vi.setSystemTime(new Date(Date.now()+aiDelay));return order(...args)}
+  const {id}=await createAffiliateDayPlan(db,tenantId,actorId,segmentId,{...input(),day:'2026-10-31',start:'09:02',end,count:30})
+  await db.affiliateScheduleBatch.update({where:{id},data:{createdAt:new Date()}})
+  await buildAffiliateDayPlan(db,{tenantId,id},ports)
+  const plan=await readAffiliateDayPlan(db,tenantId,segmentId,id)
+  expect(plan.summary.readyOffers).toBe(30)
+  expect(Date.now()).toBe(Date.parse('2026-10-31T12:05:00Z')+aiDelay)
+  if(end==='09:31'){
+   expect(plan.status).toBe('DRAFT');expect(plan.error).toContain('outro período neste mesmo lote')
+   const snapshots=plan.entries.map(e=>({id:e.id,message:e.message}))
+   await rescheduleAffiliateDayPlan(db,tenantId,actorId,segmentId,id,{start:'09:07',end:'12:00'})
+   const moved=await readAffiliateDayPlan(db,tenantId,segmentId,id)
+   expect(moved.entries.map(e=>({id:e.id,message:e.message}))).toEqual(snapshots)
+   expect(moved.summary.firstAt!.getTime()).toBeGreaterThan(Date.now()+60000)
+   expect(await db.affiliateScheduleBatch.count({where:{tenantId}})).toBe(1)
+  }else{
+   expect(plan.error).toContain('Ajustamos somente ofertas')
+   expect(plan.summary.firstAt!.getTime()).toBeGreaterThan(Date.now()+60000)
+  }
+  await expect(approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)).resolves.toMatchObject({id,status:'APPROVED'})
+ }finally{vi.useRealTimers()}
+})
 it('limita pedido enorme ao catálogo antes de alocar e prepara mais de 24 com prazo renovável',async()=>{
  const small=await draft(dependencies(),{...input(),count:1000000})
  expect(small.plan.entries).toHaveLength(2)
@@ -172,6 +204,53 @@ it('preserva complemento recuperado quando o núcleo já aprovado continua predo
  expect(plan.summary).toMatchObject({coreOffers:2,relatedOffers:1,readyOffers:1})
  await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)
  expect(await db.affiliateScheduledOffer.count({where:{batchId:id,state:'PENDING'}})).toBe(3)
+})
+it('reconfere somente READY expiradas por ação explícita sem estender TTL pelo reagendamento',async()=>{
+ const {id,plan,ports}=await draft(),first=plan.entries[0],second=plan.entries[1]
+ await expect(retryAffiliateDayPlan(db,tenantId,actorId,segmentId,id,undefined,undefined,true)).rejects.toMatchObject({status:409})
+ await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)
+ await db.affiliateScheduledOffer.update({where:{id:second.id},data:{state:'READY'}})
+ const pending=await db.affiliateScheduledOffer.findUniqueOrThrow({where:{id:first.id}})
+ await Promise.all([rescheduleAffiliateDayPlan(db,tenantId,actorId,segmentId,id,{start:'09:00',end:'12:00'}),rescheduleAffiliateDayPlan(other,tenantId,actorId,segmentId,id,{start:'09:00',end:'12:00'})])
+ expect((await db.affiliateScheduledOffer.findUniqueOrThrow({where:{id:second.id}})).scheduledAt.getTime()).not.toBe(pending.scheduledAt.getTime())
+ const expired=new Date(Date.now()-1)
+ await db.affiliateScheduleBatch.update({where:{id},data:{expiresAt:expired}})
+ await expect(rescheduleAffiliateDayPlan(db,otherTenant,actorId,segmentId,id,{start:'12:00',end:'21:00'})).rejects.toMatchObject({status:404})
+ await expect(rescheduleAffiliateDayPlan(db,tenantId,'other-admin',segmentId,id,{start:'12:00',end:'21:00'})).rejects.toMatchObject({status:403})
+ await expect(rescheduleAffiliateDayPlan(db,tenantId,actorId,segmentId,id,{start:'12:00',end:'21:00'})).rejects.toMatchObject({status:409})
+ expect((await db.affiliateScheduleBatch.findUniqueOrThrow({where:{id}})).expiresAt).toEqual(expired)
+ vi.mocked(ports.prepare).mockClear()
+ await retryAffiliateDayPlan(db,tenantId,actorId,segmentId,id,undefined,undefined,true)
+ expect((await db.affiliateScheduledOffer.findUniqueOrThrow({where:{id:first.id}}))).toMatchObject({state:'PENDING',snapshot:pending.snapshot,scheduledAt:pending.scheduledAt})
+ expect((await db.affiliateScheduledOffer.findUniqueOrThrow({where:{id:second.id}})).state).toBe('BUILDING')
+ await buildAffiliateDayPlan(db,{tenantId,id},ports)
+ expect(ports.prepare).toHaveBeenCalledTimes(1)
+ expect((await readAffiliateDayPlan(db,tenantId,segmentId,id)).summary.readyOffers).toBe(1)
+ expect(await db.affiliateBroadcast.count({where:{tenantId}})).toBe(0)
+ await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)
+ expect(await db.affiliateScheduledOffer.count({where:{batchId:id,state:'PENDING'}})).toBe(2)
+})
+it('não estende a janela escolhida quando a reconferência termina depois do novo período',async()=>{
+ vi.useFakeTimers({toFake:['Date']});vi.setSystemTime(new Date('2026-10-31T12:00:00Z'))
+ try{
+  const ports=dependencies(),prepare=ports.prepare
+  const {id}=await createAffiliateDayPlan(db,tenantId,actorId,segmentId,{...input(),day:'2026-10-31',start:'09:02',end:'21:00'})
+  await db.affiliateScheduleBatch.update({where:{id},data:{createdAt:new Date()}})
+  await buildAffiliateDayPlan(db,{tenantId,id},ports)
+  await rescheduleAffiliateDayPlan(db,tenantId,actorId,segmentId,id,{start:'09:03',end:'09:04'})
+  const entries=await db.affiliateScheduledOffer.findMany({where:{batchId:id},orderBy:{position:'asc'}})
+  await db.affiliateScheduledOffer.update({where:{id:entries[0].id},data:{state:'FAILED'}})
+  await retryAffiliateDayPlan(db,tenantId,actorId,segmentId,id,entries[0].id)
+  ports.prepare=async(...args)=>{vi.setSystemTime(new Date(Date.now()+5*60000));return prepare(...args)}
+  // Fresh provider fixtures retain current prices after the simulated provider latency.
+  vi.mocked(ports.candidates).mockImplementation(async()=>[product(),product('MLB234567',false)].map(p=>({...p,sentCount:0,pendingCount:0,lastSentAt:null})))
+  await buildAffiliateDayPlan(db,{tenantId,id},ports)
+  const plan=await readAffiliateDayPlan(db,tenantId,segmentId,id)
+  expect(plan.error).toContain('outro período neste mesmo lote')
+  expect(plan.summary.readyOffers).toBe(2)
+  expect(plan.summary.lastAt!.getTime()).toBeLessThanOrEqual(Date.parse('2026-10-31T12:04:00Z'))
+  expect(plan.entries.map(e=>e.id).sort()).toEqual(entries.map(e=>e.id).sort())
+ }finally{vi.useRealTimers()}
 })
 it('deduplica anúncios no automático sem substituir a escolha manual de um vendedor',async()=>{
  const ports=dependencies(),a=product(),b={...a,id:'MLB345678',catalogId:'MLB777777',priceCents:3000}

@@ -17,6 +17,40 @@ function mock(){
   })
 }
 const props={segmentId:'natal',selected:[],clearSelection:vi.fn(),onChanged:vi.fn()}
+it('altera o período de ofertas prontas sem criar lote ou aprovar mensagens',async()=>{
+ mock();render(<DayPlanner {...props}/>);fireEvent.click(screen.getByRole('button',{name:'Planejar o dia'}));fireEvent.click(screen.getByRole('button',{name:'Gerar prévia do lote'}))
+ fireEvent.click(await screen.findByRole('button',{name:'Escolher outro período'}))
+ const start=screen.getByLabelText('Novo início das ofertas prontas')
+ expect(document.activeElement).toBe(start)
+ fireEvent.change(start,{target:{value:'14:00'}});fireEvent.change(screen.getByLabelText('Novo término das ofertas prontas'),{target:{value:'20:00'}})
+ fireEvent.click(screen.getByRole('button',{name:'Atualizar horários das ofertas prontas'}))
+ await waitFor(()=>expect(vi.mocked(api).mock.calls.find(([path])=>path.endsWith('/reschedule'))?.[1]?.body).toBe(JSON.stringify({period:{start:'14:00',end:'20:00'}})))
+ expect(vi.mocked(api).mock.calls.filter(([path,init])=>path.endsWith('/day-plans')&&init?.method==='POST')).toHaveLength(1)
+ expect(vi.mocked(api).mock.calls.some(([path])=>path.endsWith('/approve'))).toBe(false)
+})
+it('troca ajuste de READY por falhas sem enviar a ação para reschedule',async()=>{
+ mock();const original=vi.mocked(api).getMockImplementation()!
+ vi.mocked(api).mockImplementation(async(path,init)=>{const result=await original(path,init);if(!path.endsWith('/batch'))return result;const plan=result.body as DayPlan;return {...result,body:{...plan,entries:[...plan.entries,{...plan.entries[0],id:'failed-entry',title:'Oferta com falha',state:'FAILED',scheduledAt:'2020-01-01T12:00:00Z'}]}}})
+ render(<DayPlanner {...props}/>);fireEvent.click(screen.getByRole('button',{name:'Planejar o dia'}));fireEvent.click(screen.getByRole('button',{name:'Gerar prévia do lote'}))
+ fireEvent.click(await screen.findByRole('button',{name:'Escolher outro período'}))
+ expect(screen.getByLabelText('Novo início das ofertas prontas')).toBeTruthy()
+ fireEvent.click(screen.getByRole('button',{name:'Verificar novamente: Oferta com falha'}))
+ expect(screen.queryByLabelText('Novo início das ofertas prontas')).toBeNull()
+ fireEvent.change(screen.getByLabelText('Novo início das falhas'),{target:{value:'14:00'}});fireEvent.change(screen.getByLabelText('Novo término das falhas'),{target:{value:'20:00'}})
+ fireEvent.click(screen.getByRole('button',{name:'Conferir falhas neste período'}))
+ await waitFor(()=>expect(vi.mocked(api).mock.calls.find(([path])=>path.endsWith('/retry'))?.[1]?.body).toBe(JSON.stringify({entryId:'failed-entry',period:{start:'14:00',end:'20:00'}})))
+ expect(vi.mocked(api).mock.calls.some(([path])=>path.endsWith('/reschedule'))).toBe(false)
+})
+it('reconfere READY expiradas no mesmo lote por ação explícita e mantém aceite bloqueado',async()=>{
+ mock();const original=vi.mocked(api).getMockImplementation()!
+ vi.mocked(api).mockImplementation(async(path,init)=>{const result=await original(path,init);return path.endsWith('/batch')?{...result,body:{...result.body as DayPlan,expiresAt:'2020-01-01T12:00:00Z'}}:result})
+ render(<DayPlanner {...props}/>);fireEvent.click(screen.getByRole('button',{name:'Planejar o dia'}));fireEvent.click(screen.getByRole('button',{name:'Gerar prévia do lote'}))
+ expect((await screen.findByRole('button',{name:'Aceitar e agendar 1 oferta'})).hasAttribute('disabled')).toBe(true)
+ fireEvent.click(screen.getByRole('button',{name:'Conferir ofertas expiradas'}))
+ await waitFor(()=>expect(vi.mocked(api).mock.calls.find(([path])=>path.endsWith('/recheck-ready'))?.[1]?.body).toBe(JSON.stringify({confirm:true})))
+ expect(vi.mocked(api).mock.calls.filter(([path,init])=>path.endsWith('/day-plans')&&init?.method==='POST')).toHaveLength(1)
+ expect(vi.mocked(api).mock.calls.some(([path])=>path.endsWith('/approve'))).toBe(false)
+})
 it('aceita mais de 24 e mostra capacidade real sem exigir intervalo de 15 minutos',async()=>{
  mock();render(<DayPlanner {...props}/>);fireEvent.click(screen.getByRole('button',{name:'Planejar o dia'}))
  fireEvent.change(screen.getByLabelText('Começa às'),{target:{value:'09:00'}})

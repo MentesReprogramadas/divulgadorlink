@@ -39,8 +39,9 @@ export function DayPlanner({segmentId,segmentName='',selected,clearSelection,onC
 
 function DayPlanDialog({base,segmentName,initialId,selected,onClose,onChanged,clearSelection,returnFocusTo}:{base:string;segmentName:string;initialId:string|null;selected?:DiscoveryProduct[];onClose:()=>void;onChanged:()=>void;clearSelection:()=>void;returnFocusTo:HTMLElement|null}){
   const [retryTarget,setRetryTarget]=useState<string|null|undefined>(undefined)
+  const [rescheduleReady,setRescheduleReady]=useState(false)
   const retryStart=useRef<HTMLInputElement|null>(null),retryTrigger=useRef<HTMLElement|null>(null)
-  useEffect(()=>{if(retryTarget!==undefined)retryStart.current?.focus()},[retryTarget])
+  useEffect(()=>{if(retryTarget!==undefined||rescheduleReady)retryStart.current?.focus()},[retryTarget,rescheduleReady])
   const chosen=selected
   const [defaults]=useState(()=>dayPlanDefaults())
   const [id,setId]=useState(initialId),[plan,setPlan]=useState<DayPlan|null>(null),[day,setDay]=useState(defaults.day),[start,setStart]=useState(defaults.start),[end,setEnd]=useState(defaults.end),[count,setCount]=useState(12),[busy,setBusy]=useState(false),[error,setError]=useState(''),[reload,setReload]=useState(0),[cancelConfirm,setCancelConfirm]=useState(false),[now,setNow]=useState(Date.now())
@@ -65,12 +66,13 @@ function DayPlanDialog({base,segmentName,initialId,selected,onClose,onChanged,cl
   async function mutate(path:string,body?:unknown,method='POST'){
     if(lock.current||!id)return
     lock.current=true;setBusy(true);setError('')
-    try{await affiliateRequest(base+'/'+encodeURIComponent(id)+path,method,body);if(mounted.current){setReload(v=>v+1);onChanged();if(path==='/approve'){clearSelection()}if(path==='/retry'){setRetryTarget(undefined);setPlan(previous=>previous&&previous.status!=='APPROVED'?{...previous,status:'BUILDING'}:previous)};setCancelConfirm(false)}}
+    try{await affiliateRequest(base+'/'+encodeURIComponent(id)+path,method,body);if(mounted.current){setReload(v=>v+1);onChanged();if(path==='/approve'){clearSelection()}if(path==='/reschedule')setRescheduleReady(false);if(['/retry','/recheck-ready'].includes(path)){setRetryTarget(undefined);setPlan(previous=>previous&&previous.status!=='APPROVED'?{...previous,status:'BUILDING'}:previous)};setCancelConfirm(false)}}
     catch(reason){if(mounted.current)setError(reason instanceof Error?reason.message:'Não foi possível salvar. Confira a agenda antes de repetir.')}
     finally{lock.current=false;if(mounted.current)setBusy(false)}
   }
   function retryFailed(entryId?:string){
     if(busy||!plan)return
+    setRescheduleReady(false)
     const failed=plan.entries.filter(e=>e.state==='FAILED'&&(!entryId||e.id===entryId))
     if(failed.every(e=>Date.parse(e.scheduledAt)>Date.now()+60000)){void mutate('/retry',entryId?{entryId}:{});return}
     retryTrigger.current=document.activeElement instanceof HTMLElement?document.activeElement:null
@@ -97,11 +99,11 @@ function DayPlanDialog({base,segmentName,initialId,selected,onClose,onChanged,cl
     </form>:!plan?<p role="status">Carregando lote…</p>:<div className={styles.review}>
       {plan.status==='BUILDING'||plan.entries.some(e=>e.state==='BUILDING')?<p role="status">Preparando fotos, preços e links… Você pode fechar e retomar pela Agenda.</p>:null}
       {plan.error?<p role="alert" className={common.warning}>{plan.error}</p>:null}
-      {retryTarget!==undefined?<form className={styles.form} onSubmit={event=>{event.preventDefault();void mutate('/retry',{...(retryTarget?{entryId:retryTarget}:{}),period:{start,end}})}}>
-        <p>Reagendar somente as falhas em {dayPlanDateLabel(plan.config.day)}. Escolha um período futuro neste dia; os horários já ocupados serão preservados. Se o dia acabou, escolha outro dia em uma nova agenda.</p>
-        <div className={styles.fields}><label>Novo início das falhas<input ref={retryStart} required type="time" value={start} onChange={event=>setStart(event.target.value)}/></label><label>Novo término das falhas<input required type="time" value={end} onChange={event=>setEnd(event.target.value)}/></label></div>
-        <Button type="submit" disabled={busy}>Conferir falhas neste período</Button>
-        <Button type="button" variant="ghost" disabled={busy} onClick={()=>{setRetryTarget(undefined);retryTrigger.current?.focus()}}>Voltar à revisão</Button>
+      {retryTarget!==undefined||rescheduleReady?<form className={styles.form} onSubmit={event=>{event.preventDefault();void mutate(rescheduleReady?'/reschedule':'/retry',{...(!rescheduleReady&&retryTarget?{entryId:retryTarget}:{}),period:{start,end}})}}>
+        <p>{rescheduleReady?'Ajustar somente ofertas prontas ainda não aceitas':'Reagendar somente as falhas'} em {dayPlanDateLabel(plan.config.day)}. Escolha um período futuro neste dia; os horários já ocupados serão preservados. Se o dia acabou, escolha outro dia em uma nova agenda.</p>
+        <div className={styles.fields}><label>{rescheduleReady?'Novo início das ofertas prontas':'Novo início das falhas'}<input ref={retryStart} required type="time" value={start} onChange={event=>setStart(event.target.value)}/></label><label>{rescheduleReady?'Novo término das ofertas prontas':'Novo término das falhas'}<input required type="time" value={end} onChange={event=>setEnd(event.target.value)}/></label></div>
+        <Button type="submit" disabled={busy}>{rescheduleReady?'Atualizar horários das ofertas prontas':'Conferir falhas neste período'}</Button>
+        <Button type="button" variant="ghost" disabled={busy} onClick={()=>{setRetryTarget(undefined);setRescheduleReady(false);retryTrigger.current?.focus()}}>Voltar à revisão</Button>
       </form>:null}
       {plan.status==='APPROVED'&&readyOffers>0?<p role="status">{readyOffers} {readyOffers===1?'oferta recuperada aguarda':'ofertas recuperadas aguardam'} seu aceite. Os envios já agendados continuam normalmente.</p>:null}
       {plan.status!=='BUILDING'?<><div className={styles.summary}><strong>{plan.summary.offers} {plan.summary.offers===1?'oferta · 1 mensagem':'ofertas · '+plan.summary.offers+' mensagens'} por grupo</strong><span>{plan.summary.groups} {plan.summary.groups===1?'grupo':'grupos'} · {plan.summary.totalMessages} mensagens neste lote</span><span>{planCadence(plan)}</span>{plan.dailyByGroup?.length?<span>Total do dia: {Math.min(...plan.dailyByGroup.map(g=>g.messages))===Math.max(...plan.dailyByGroup.map(g=>g.messages))?plan.dailyByGroup[0].messages:`${Math.min(...plan.dailyByGroup.map(g=>g.messages))} a ${Math.max(...plan.dailyByGroup.map(g=>g.messages))}`} mensagens por grupo.</span>:null}</div>
@@ -119,8 +121,9 @@ function DayPlanDialog({base,segmentName,initialId,selected,onClose,onChanged,cl
         {['DRAFT','APPROVED'].includes(plan.status)&&entry.state==='READY'?<Button variant="ghost" disabled={busy} onClick={()=>void mutate('/entries/'+encodeURIComponent(entry.id),undefined,'DELETE')} aria-label={'Remover do lote: '+entry.title}>Remover</Button>:null}</div>
       </li>)}</ol>
       {plan.status!=='BUILDING'?<details><summary className={styles.detailsSummary}>Como funciona o envio</summary><p className={common.muted}>Cada oferta entra na fila no horário mostrado e segue para os grupos. O tempo de entrega depende das conexões, com tolerância de 30 minutos. Mudança de preço bloqueia a oferta para revisão.</p></details>:null}
-      {['DRAFT','APPROVED'].includes(plan.status)&&readyOffers>0&&expired?<p role="alert" className={common.warning}>Este rascunho expirou. Feche e gere outro lote para reconferir os preços.</p>:null}
+      {['DRAFT','APPROVED'].includes(plan.status)&&readyOffers>0&&expired?<p role="alert" className={common.warning}>Esta revisão expirou. Confira novamente as ofertas neste mesmo lote para atualizar preços, fotos e links antes de aceitar.</p>:null}
       <div className={styles.footer}>
+        {['DRAFT','APPROVED'].includes(plan.status)&&readyOffers>0?expired?<Button variant="secondary" disabled={busy} onClick={()=>void mutate('/recheck-ready',{confirm:true})}>Conferir ofertas expiradas</Button>:<Button variant="secondary" disabled={busy} onClick={()=>{retryTrigger.current=document.activeElement instanceof HTMLElement?document.activeElement:null;setRetryTarget(undefined);setRescheduleReady(true);setStart(plan.config.start);setEnd(plan.config.end)}}>Escolher outro período</Button>:null}
         {['DRAFT','FAILED','APPROVED'].includes(plan.status)&&plan.entries.some(e=>e.state==='FAILED')?<Button variant="secondary" disabled={busy} onClick={()=>retryFailed()}>Verificar falhas</Button>:null}
         {['DRAFT','APPROVED'].includes(plan.status)&&(plan.status==='DRAFT'||readyOffers>0)?<Button disabled={busy||expired||!readyOffers} loading={busy} onClick={()=>void mutate('/approve',{confirm:true})}>Aceitar e agendar {readyOffers} {readyOffers===1?'oferta':'ofertas'}</Button>:null}
         {['BUILDING','DRAFT'].includes(plan.status)?<Button variant="ghost" disabled={busy} onClick={()=>void mutate('/cancel',{confirm:true})}>Descartar lote</Button>:null}

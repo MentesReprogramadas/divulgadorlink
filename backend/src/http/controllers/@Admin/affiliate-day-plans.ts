@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { AffiliateError, entityId } from '@/domain/affiliates/contracts'
 import { AffiliateCatalogError } from '@/domain/affiliates/mercado-livre'
 import { dayPlanInput } from '@/domain/affiliates/day-plan'
-import { approveAffiliateDayPlan, buildAffiliateDayPlan, cancelAffiliateDayPlan, createAffiliateDayPlan, readAffiliateDayPlan, retryAffiliateDayPlan } from '@/use-cases/affiliates/day-plans'
+import { approveAffiliateDayPlan, buildAffiliateDayPlan, cancelAffiliateDayPlan, createAffiliateDayPlan, readAffiliateDayPlan, retryAffiliateDayPlan, rescheduleAffiliateDayPlan } from '@/use-cases/affiliates/day-plans'
 import { requireAffiliateAdmin } from './affiliate-access'
 
 async function run(q:FastifyRequest,r:FastifyReply,work:(tenantId:string,actorId:string,params:{segmentId:string;id?:string;entryId?:string})=>Promise<unknown>){
@@ -23,6 +23,7 @@ async function run(q:FastifyRequest,r:FastifyReply,work:(tenantId:string,actorId
 }
 export async function registerAffiliateDayPlanRoutes(app:FastifyInstance){
   const base='/admin/affiliates/segments/:segmentId/day-plans'
+  const periodSchema=z.object({start:z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/),end:z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/)}).strict()
   app.post(base,(q,r)=>run(q,r,async(tenantId,actorId,{segmentId})=>{
     const result=await createAffiliateDayPlan(prisma,tenantId,actorId,segmentId,dayPlanInput.parse(q.body))
     r.code(202)
@@ -38,10 +39,21 @@ export async function registerAffiliateDayPlanRoutes(app:FastifyInstance){
   }))
   app.get(base+'/:id',(q,r)=>run(q,r,(tenantId,_actorId,{segmentId,id})=>readAffiliateDayPlan(prisma,tenantId,segmentId,id!)))
   app.post(base+'/:id/retry',(q,r)=>run(q,r,async(tenantId,actorId,{segmentId,id})=>{
-    const {entryId,period}=z.object({entryId:entityId.optional(),period:z.object({start:z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/),end:z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/)}).strict().optional()}).strict().parse(q.body)
+    const {entryId,period}=z.object({entryId:entityId.optional(),period:periodSchema.optional()}).strict().parse(q.body)
     const result=await retryAffiliateDayPlan(prisma,tenantId,actorId,segmentId,id!,entryId,period)
     r.code(202)
     void buildAffiliateDayPlan(prisma,{tenantId,id:id!}).catch(()=>q.log.error({event:'affiliate.schedule.retry_failed'},'Falha ao conferir rascunho'))
+    return result
+  }))
+  app.post(base+'/:id/reschedule',(q,r)=>run(q,r,(tenantId,actorId,{segmentId,id})=>{
+    const {period}=z.object({period:periodSchema}).strict().parse(q.body)
+    return rescheduleAffiliateDayPlan(prisma,tenantId,actorId,segmentId,id!,period)
+  }))
+  app.post(base+'/:id/recheck-ready',(q,r)=>run(q,r,async(tenantId,actorId,{segmentId,id})=>{
+    z.object({confirm:z.literal(true)}).strict().parse(q.body)
+    const result=await retryAffiliateDayPlan(prisma,tenantId,actorId,segmentId,id!,undefined,undefined,true)
+    r.code(202)
+    void buildAffiliateDayPlan(prisma,{tenantId,id:id!}).catch(()=>q.log.error({event:'affiliate.schedule.recheck_failed'},'Falha ao reconferir ofertas expiradas'))
     return result
   }))
   app.post(base+'/:id/approve',(q,r)=>run(q,r,(tenantId,actorId,{segmentId,id})=>{
