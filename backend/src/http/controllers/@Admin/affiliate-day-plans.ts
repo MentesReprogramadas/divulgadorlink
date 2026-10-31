@@ -56,9 +56,14 @@ export async function registerAffiliateDayPlanRoutes(app:FastifyInstance){
     void buildAffiliateDayPlan(prisma,{tenantId,id:id!}).catch(()=>q.log.error({event:'affiliate.schedule.recheck_failed'},'Falha ao reconferir ofertas expiradas'))
     return result
   }))
-  app.post(base+'/:id/approve',(q,r)=>run(q,r,(tenantId,actorId,{segmentId,id})=>{
-    z.object({confirm:z.literal(true)}).strict().parse(q.body)
-    return approveAffiliateDayPlan(prisma,tenantId,actorId,segmentId,id!)
+  app.post(base+'/:id/approve',(q,r)=>run(q,r,async(tenantId,actorId,{segmentId,id})=>{
+    const {reviewRevision}=z.object({confirm:z.literal(true),reviewRevision:z.string().regex(/^[a-f0-9]{64}$/).optional()}).strict().parse(q.body)
+    const result=await approveAffiliateDayPlan(prisma,tenantId,actorId,segmentId,id!,reviewRevision)
+    if('replacements' in result&&result.replacements){
+      r.code(202)
+      void buildAffiliateDayPlan(prisma,{tenantId,id:id!}).catch(()=>q.log.error({event:'affiliate.schedule.replace_failed'},'Falha ao substituir ofertas do rascunho'))
+    }
+    return result
   }))
   app.post(base+'/:id/cancel',(q,r)=>run(q,r,(tenantId,actorId,{segmentId,id})=>{
     z.object({confirm:z.literal(true)}).strict().parse(q.body)

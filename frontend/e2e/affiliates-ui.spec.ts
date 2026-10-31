@@ -745,3 +745,37 @@ test('planejamento usa composição automática contextual e mostra chamada cont
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true)
  await page.screenshot({path:testInfo.outputPath('christmas-gift-headline.png'),animations:'disabled'})
 })
+
+test('substitui repetição ao aceitar no mesmo lote e pede revisão do novo produto',async({page},testInfo)=>{
+ await fixtures(page)
+ const changes:Array<{path:string;body:Record<string,unknown>}>=[]
+ let approvals=0,buildingRead=false
+ const replacement={...offer,id:'MLB987654',title:'Guirlanda de Natal Verde 40 cm'}
+ await page.route('**/day-plans**',async route=>{
+  const request=route.request(),path=new URL(request.url()).pathname
+  if(request.method()==='POST'){
+   changes.push({path,body:request.postDataJSON()});approvals++
+   return route.fulfill({status:approvals===1?202:200,json:{id:'same-day-batch',status:approvals===1?'BUILDING':'APPROVED',...(approvals===1?{replacements:1}:{})}})
+  }
+  if(path.endsWith('/day-plans'))return route.fulfill({json:{batches:[{id:'same-day-batch',status:'DRAFT',config:{day:'2099-11-01',start:'09:00',end:'21:00'},groupCount:1,_count:{entries:1}}]}})
+  const building=approvals===1&&!buildingRead;if(building)buildingRead=true
+  const product=approvals?replacement:offer,state=approvals>1?'PENDING':building?'BUILDING':'READY'
+  return route.fulfill({json:{id:'same-day-batch',reviewRevision:(approvals?'b':'a').repeat(64),status:approvals>1?'APPROVED':building?'BUILDING':'DRAFT',mode:'AUTO',source:'OPENAI',expiresAt:'2099-11-01T12:00:00Z',error:approvals===1?'Substituindo ofertas repetidas neste dia. Revise os novos produtos antes de aceitar.':null,config:{day:'2099-11-01',start:'09:00',end:'21:00'},groups:[{id:'g',name:'Natal #1'}],summary:{offers:building?0:1,readyOffers:state==='READY'?1:0,groups:1,totalMessages:building?0:1,intervalMinutes:null},entries:[{id:'same-slot',itemId:product.id,title:product.title,product,scheduledAt:'2099-11-01T12:00:00Z',state,error:null}]}})
+ })
+ await page.goto('/admin/afiliados/segmentacoes/segment-1');await area(page,'Ofertas')
+ await page.getByRole('tab',{name:'Agenda',exact:true}).click();await page.getByRole('button',{name:'Abrir agenda'}).click()
+ const dialog=page.getByRole('dialog')
+ await dialog.getByRole('button',{name:'Aceitar e agendar 1 oferta'}).focus();await page.keyboard.press('Enter')
+ await expect(dialog.getByText(replacement.title,{exact:true})).toBeVisible()
+ await expect(dialog.getByRole('button',{name:'Aceitar e agendar 1 oferta'})).toBeEnabled()
+ expect(changes).toHaveLength(1)
+ expect(changes[0].path).toBe('/bff/v1/admin/affiliates/segments/segment-1/day-plans/same-day-batch/approve')
+ expect((await new AxeBuilder({page}).include('dialog').analyze()).violations).toEqual([])
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true)
+ await page.screenshot({path:testInfo.outputPath('same-day-replacement-review.png'),animations:'disabled'})
+ await dialog.getByRole('button',{name:'Aceitar e agendar 1 oferta'}).click()
+ await expect(page.getByRole('dialog',{name:'Ofertas agendadas'})).toBeVisible()
+ expect(changes).toHaveLength(2)
+ expect(changes.map(c=>c.body.reviewRevision)).toEqual(['a'.repeat(64),'b'.repeat(64)])
+ expect(changes.every(c=>c.path.endsWith('/same-day-batch/approve'))).toBe(true)
+})

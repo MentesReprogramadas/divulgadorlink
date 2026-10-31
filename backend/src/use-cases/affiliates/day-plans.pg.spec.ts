@@ -30,6 +30,10 @@ async function clean(){await db.affiliateScheduleBatch.deleteMany({where:{tenant
 beforeAll(async()=>{await db.tenant.createMany({data:[{id:tenantId,host:tenantId+'.test',name:'Planner'},{id:otherTenant,host:otherTenant+'.test',name:'Other'}]});await db.user.create({data:{id:actorId,tenantId,name:'Admin',role:'ADMIN',status:'ACTIVE',passwordHash:'fixture'}})})
 beforeEach(async()=>{await clean();instanceId=(await db.affiliateInstance.create({data:{tenantId,name:'Fixture'}})).id;segmentId=(await db.affiliateSegment.create({data:{tenantId,name:'Natal',slug:'natal',instanceId}})).id;await db.affiliateSegmentInstance.create({data:{tenantId,segmentId,instanceId}});await db.affiliateGroup.createMany({data:[1,2].map(n=>({tenantId,segmentId,instanceId,jid:`${n}23@g.us`,name:`Natal #${n}`,sequence:n}))})})
 afterAll(async()=>{await clean();await db.auditLog.deleteMany({where:{tenantId}});await db.user.deleteMany({where:{tenantId}});await db.tenant.deleteMany({where:{id:{in:[tenantId,otherTenant]}}});await db.$disconnect();await other.$disconnect()})
+async function approveReviewedDayPlan(client:PrismaClient,tenant:string,actor:string,segment:string,id:string){
+ const plan=await readAffiliateDayPlan(client,tenant,segment,id)
+ return approveAffiliateDayPlan(client,tenant,actor,segment,id,plan.reviewRevision)
+}
 async function draft(ports=dependencies(),value:DayPlanInput=input()){
   const batch=await createAffiliateDayPlan(db,tenantId,actorId,segmentId,value)
   await buildAffiliateDayPlan(db,{tenantId,id:batch.id},ports)
@@ -64,7 +68,7 @@ it.each([{end:'12:00',aiDelay:0},{end:'09:31',aiDelay:0},{end:'12:00',aiDelay:18
    expect(plan.error).toContain('Ajustamos somente ofertas')
    expect(plan.summary.firstAt!.getTime()).toBeGreaterThan(Date.now()+60000)
   }
-  await expect(approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)).resolves.toMatchObject({id,status:'APPROVED'})
+  await expect(approveReviewedDayPlan(db,tenantId,actorId,segmentId,id)).resolves.toMatchObject({id,status:'APPROVED'})
  }finally{vi.useRealTimers()}
 })
 it('limita pedido enorme ao catálogo antes de alocar e prepara mais de 24 com prazo renovável',async()=>{
@@ -137,7 +141,7 @@ it('envia produto pet pelo título integral mesmo quando o título curto não co
   vi.mocked(ports.candidates).mockResolvedValue([p])
   ports.prepare=async(client,tenant,actor,segment,itemId)=>previewAffiliateProduct(client,tenant,actor,segment,itemId,{candidate:async()=>p,refresh:async()=>p,link:async()=>({url:'https://meli.la/fixture',fullUrl:'https://meli.la/fixture',tag:'fixture',profile:'fixture'}),title:async()=>({title:'Brinquedo Interativo Bola Mordedor',source:'ORIGINAL'})})
   const {id}=await draft(ports)
-  await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)
+  await approveReviewedDayPlan(db,tenantId,actorId,segmentId,id)
   await db.affiliateScheduledOffer.updateMany({where:{batchId:id},data:{scheduledAt:new Date()}})
   await runAffiliateDayPlans(db,ports,{tenantId,batchId:id})
   const sent=vi.fn(async()=> 'fixture-message'),remote={status:async()=>({state:'open'}),group:async(jid:string)=>({jid,name:'Pets',participantCount:2,description:'',imageUrl:null}),send:sent} as unknown as AffiliateWhatsApp
@@ -149,7 +153,7 @@ it('recupera falhas dentro da agenda aprovada, mantém pendências ativas e exig
  const ports=dependencies(),prepare=ports.prepare
  ports.prepare=async(...args)=>{if(args[4]==='MLB234567')throw new AffiliateCatalogError(409,'A loja não confirmou o preço.');return prepare(...args)}
  const {id,plan}=await draft(ports),failed=plan.entries.find(e=>e.state==='FAILED')!,ready=plan.entries.find(e=>e.state==='READY')!
- await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)
+ await approveReviewedDayPlan(db,tenantId,actorId,segmentId,id)
  await db.affiliateScheduledOffer.update({where:{id:ready.id},data:{scheduledAt:new Date()}})
  const pending=await db.affiliateScheduledOffer.findUniqueOrThrow({where:{id:ready.id}})
  await db.affiliateScheduledOffer.update({where:{id:failed.id},data:{scheduledAt:new Date(Date.now()-60000)}})
@@ -168,8 +172,8 @@ it('recupera falhas dentro da agenda aprovada, mantém pendências ativas e exig
  expect(ports.prepare).toHaveBeenCalledTimes(1)
  await runAffiliateDayPlans(db,ports,{tenantId,batchId:id},new Date(Date.now()+2*86400000))
  expect(await db.affiliateBroadcast.count({where:{tenantId}})).toBe(1)
- await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)
- await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)
+ await approveReviewedDayPlan(db,tenantId,actorId,segmentId,id)
+ await approveReviewedDayPlan(db,tenantId,actorId,segmentId,id)
  expect((await db.affiliateScheduledOffer.findUniqueOrThrow({where:{id:failed.id}})).state).toBe('PENDING')
  expect((await db.affiliateScheduledOffer.findUniqueOrThrow({where:{id:ready.id}})).state).toBe('QUEUED')
 })
@@ -197,18 +201,18 @@ it('preserva complemento recuperado quando o núcleo já aprovado continua predo
   return previewAffiliateProduct(client,tenant,actor,segment,itemId,{candidate:async()=>p,refresh:async()=>p,link:async()=>({url:'https://meli.la/fixture',fullUrl:'https://meli.la/fixture',tag:'fixture',profile:'fixture'}),title:async()=>({title:p.title,source:'ORIGINAL'})},context)
  }
  const {id}=await draft(ports,{...input(),count:3})
- await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)
+ await approveReviewedDayPlan(db,tenantId,actorId,segmentId,id)
  fail=false;await retryAffiliateDayPlan(db,tenantId,actorId,segmentId,id)
  await buildAffiliateDayPlan(db,{tenantId,id},ports)
  const plan=await readAffiliateDayPlan(db,tenantId,segmentId,id)
  expect(plan.summary).toMatchObject({coreOffers:2,relatedOffers:1,readyOffers:1})
- await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)
+ await approveReviewedDayPlan(db,tenantId,actorId,segmentId,id)
  expect(await db.affiliateScheduledOffer.count({where:{batchId:id,state:'PENDING'}})).toBe(3)
 })
 it('reconfere somente READY expiradas por ação explícita sem estender TTL pelo reagendamento',async()=>{
  const {id,plan,ports}=await draft(),first=plan.entries[0],second=plan.entries[1]
  await expect(retryAffiliateDayPlan(db,tenantId,actorId,segmentId,id,undefined,undefined,true)).rejects.toMatchObject({status:409})
- await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)
+ await approveReviewedDayPlan(db,tenantId,actorId,segmentId,id)
  await db.affiliateScheduledOffer.update({where:{id:second.id},data:{state:'READY'}})
  const pending=await db.affiliateScheduledOffer.findUniqueOrThrow({where:{id:first.id}})
  await Promise.all([rescheduleAffiliateDayPlan(db,tenantId,actorId,segmentId,id,{start:'09:00',end:'12:00'}),rescheduleAffiliateDayPlan(other,tenantId,actorId,segmentId,id,{start:'09:00',end:'12:00'})])
@@ -227,7 +231,7 @@ it('reconfere somente READY expiradas por ação explícita sem estender TTL pel
  expect(ports.prepare).toHaveBeenCalledTimes(1)
  expect((await readAffiliateDayPlan(db,tenantId,segmentId,id)).summary.readyOffers).toBe(1)
  expect(await db.affiliateBroadcast.count({where:{tenantId}})).toBe(0)
- await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)
+ await approveReviewedDayPlan(db,tenantId,actorId,segmentId,id)
  expect(await db.affiliateScheduledOffer.count({where:{batchId:id,state:'PENDING'}})).toBe(2)
 })
 it('não estende a janela escolhida quando a reconferência termina depois do novo período',async()=>{
@@ -270,8 +274,11 @@ it('revalida produtos equivalentes entre dois rascunhos dentro do bloqueio da ap
  vi.mocked(ports.candidates).mockResolvedValue([variant])
  const second=await draft(ports,{...input(),count:1})
  expect(second.plan.status).toBe('DRAFT')
- await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,first.id)
- await expect(approveAffiliateDayPlan(db,tenantId,actorId,segmentId,second.id)).rejects.toMatchObject({status:409})
+ await approveReviewedDayPlan(db,tenantId,actorId,segmentId,first.id)
+ await expect(approveReviewedDayPlan(db,tenantId,actorId,segmentId,second.id)).resolves.toMatchObject({status:'BUILDING',replacements:1})
+ await buildAffiliateDayPlan(db,{tenantId,id:second.id},ports)
+ expect((await readAffiliateDayPlan(db,tenantId,segmentId,second.id)).entries[0].state).toBe('FAILED')
+ expect(await db.affiliateScheduledOffer.count({where:{batchId:first.id,state:'PENDING'}})).toBe(2)
 })
 it('continua enviando a mensagem antiga assinada sem acrescentar chamada após a atualização',async()=>{
  const {id,ports}=await draft(),entry=await db.affiliateScheduledOffer.findFirstOrThrow({where:{batchId:id,itemId:product().id}})
@@ -279,7 +286,7 @@ it('continua enviando a mensagem antiga assinada sem acrescentar chamada após a
  delete payload.showHeadline;payload.message=offerMessage({...payload,note:''})
  const body=Buffer.from(JSON.stringify(payload)).toString('base64url'),mac=createHmac('sha256',process.env.JWT_SECRET!).update('affiliate-preview:v1:'+body).digest('base64url')
  await db.affiliateScheduledOffer.update({where:{id:entry.id},data:{snapshot:{...saved,previewToken:body+'.'+mac,message:payload.message}}})
- await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)
+ await approveReviewedDayPlan(db,tenantId,actorId,segmentId,id)
  await db.affiliateScheduledOffer.updateMany({where:{batchId:id},data:{scheduledAt:new Date()}})
  await runAffiliateDayPlans(db,ports,{tenantId,batchId:id})
  expect((await db.affiliateBroadcast.findFirstOrThrow({where:{tenantId,offer:{itemId:product().id}}})).message).toBe(payload.message)
@@ -318,7 +325,7 @@ it('revalida a proporção de presentes quando o administrador remove itens nata
  const {id,plan}=await draft(ports,{...input(),count:5,includeGiftIdeas:true})
  expect(plan.summary.offers).toBe(5)
  for(const native of plan.entries.filter(e=>e.kind==='THEME').slice(0,3))await cancelAffiliateDayPlan(db,tenantId,actorId,segmentId,id,native.id)
- await expect(approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)).rejects.toThrow('núcleo do segmento')
+ await expect(approveReviewedDayPlan(db,tenantId,actorId,segmentId,id)).rejects.toThrow('núcleo do segmento')
  expect(await db.affiliateDelivery.count({where:{tenantId}})).toBe(0)
 })
 it('remove infantis de rascunhos antigos e impede o processamento de um lote antigo já aprovado',async()=>{
@@ -330,7 +337,7 @@ it('remove infantis de rascunhos antigos e impede o processamento de um lote ant
   await db.affiliateSegment.update({where:{id:segmentId},data:{name:'Pets',updatedAt:segment.updatedAt}})
   const read=await readAffiliateDayPlan(db,tenantId,segmentId,id)
   expect(read.entries.map(e=>e.itemId)).toEqual(['MLB123456']);expect(read.summary.offers).toBe(1)
-  await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)
+  await approveReviewedDayPlan(db,tenantId,actorId,segmentId,id)
   expect((await db.affiliateScheduledOffer.findFirstOrThrow({where:{batchId:id,itemId:'MLB234567'}})).state).toBe('CANCELLED')
   await db.affiliateScheduledOffer.updateMany({where:{batchId:id,itemId:'MLB234567'},data:{state:'PENDING',scheduledAt:new Date()}})
   await runAffiliateDayPlans(db,ports,{tenantId,batchId:id})
@@ -344,10 +351,10 @@ it('prepara desconto primeiro e revisão exata sem gerar entregas; isola tenant 
   expect(plan.entries[0].message?.split('\n')[1]).toMatch(/^\*Árvore/);expect(plan.entries[0].message).toContain('🔥');expect(plan.entries[0].message).not.toContain('Preço e estoque')
   expect(await db.affiliateDelivery.count({where:{tenantId}})).toBe(0)
   await expect(readAffiliateDayPlan(db,otherTenant,segmentId,id)).rejects.toMatchObject({status:404})
-  await expect(approveAffiliateDayPlan(db,tenantId,'other-actor',segmentId,id)).rejects.toMatchObject({status:403})
+  await expect(approveReviewedDayPlan(db,tenantId,'other-actor',segmentId,id)).rejects.toMatchObject({status:403})
   expect((await createAffiliateDayPlan(db,tenantId,actorId,segmentId,value)).id).toBe(id)
   await expect(createAffiliateDayPlan(db,tenantId,actorId,segmentId,{...value,count:1})).rejects.toMatchObject({status:409})
-  const approvals=await Promise.all([approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id),approveAffiliateDayPlan(other,tenantId,actorId,segmentId,id)])
+  const approvals=await Promise.all([approveReviewedDayPlan(db,tenantId,actorId,segmentId,id),approveReviewedDayPlan(other,tenantId,actorId,segmentId,id)])
   expect(approvals.map(a=>a.status)).toEqual(['APPROVED','APPROVED'])
   expect(await db.affiliateDelivery.count({where:{tenantId}})).toBe(0)
 })
@@ -364,7 +371,7 @@ it('agenda seleção manual conjunta Shopee e ML preservando catálogo, percentu
   const {plan,id}=await draft(ports,value)
   expect(plan.entries.map(e=>e.itemId)).toEqual(value.itemIds)
   expect(plan.entries[0].message).toContain('*39% OFF*');expect(plan.entries[0].affiliateUrl).toBe('https://s.shopee.com.br/fixture')
-  await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)
+  await approveReviewedDayPlan(db,tenantId,actorId,segmentId,id)
   await db.affiliateScheduledOffer.updateMany({where:{batchId:id},data:{scheduledAt:new Date()}})
   await runAffiliateDayPlans(db,ports,{tenantId,batchId:id})
   expect(await db.affiliateOffer.findFirst({where:{tenantId,itemId:shoe.id}})).toMatchObject({reportedDiscountPercent:39,oldPriceEstimated:true,affiliateUrl:'https://s.shopee.com.br/fixture'})
@@ -377,7 +384,7 @@ it('retoma construção após lease perdido e permite remover antes de aceitar; 
   expect(ports.prepare).toHaveBeenCalledTimes(2)
   const plan=await readAffiliateDayPlan(db,tenantId,segmentId,batch.id)
   await cancelAffiliateDayPlan(db,tenantId,actorId,segmentId,batch.id,plan.entries[1].id)
-  await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,batch.id)
+  await approveReviewedDayPlan(db,tenantId,actorId,segmentId,batch.id)
   await cancelAffiliateDayPlan(db,tenantId,actorId,segmentId,batch.id)
   expect(await runAffiliateDayPlans(db,ports,{tenantId,batchId:batch.id},new Date(Date.now()+86400000))).toBe(0)
   expect(await db.affiliateBroadcast.count({where:{tenantId}})).toBe(0)
@@ -385,13 +392,13 @@ it('retoma construção após lease perdido e permite remover antes de aceitar; 
 it('bloqueia mudança de preço e de destinatários, expiração e aprovação concorrente do mesmo produto',async()=>{
   const {id,ports}=await draft()
   await db.affiliateGroup.updateMany({where:{tenantId,sequence:2},data:{enabled:false}})
-  await expect(approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)).rejects.toMatchObject({status:409})
+  await expect(approveReviewedDayPlan(db,tenantId,actorId,segmentId,id)).rejects.toMatchObject({status:409})
   await db.affiliateGroup.updateMany({where:{tenantId},data:{enabled:true}})
-  await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)
+  await approveReviewedDayPlan(db,tenantId,actorId,segmentId,id)
   const second=await draft()
-  await expect(approveAffiliateDayPlan(db,tenantId,actorId,segmentId,second.id)).rejects.toMatchObject({status:409})
+  await expect(approveReviewedDayPlan(db,tenantId,actorId,segmentId,second.id)).rejects.toMatchObject({status:409})
   await db.affiliateScheduleBatch.update({where:{id:second.id},data:{expiresAt:new Date(Date.now()-1)}})
-  await expect(approveAffiliateDayPlan(db,tenantId,actorId,segmentId,second.id)).rejects.toMatchObject({status:409})
+  await expect(approveReviewedDayPlan(db,tenantId,actorId,segmentId,second.id)).rejects.toMatchObject({status:409})
   await db.affiliateScheduledOffer.updateMany({where:{batchId:id},data:{scheduledAt:new Date()}})
   ports.refresh=vi.fn(async(_db,_tenant,p)=>({...p,priceCents:9999,checkedAt:new Date().toISOString()}))
   await runAffiliateDayPlans(db,ports,{tenantId,batchId:id})
@@ -400,7 +407,7 @@ it('bloqueia mudança de preço e de destinatários, expiração e aprovação c
 })
 it('reconfere no horário, enfileira uma única vez e conta envios confirmados sem sumir da lista',async()=>{
   const {id,ports}=await draft()
-  await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,id)
+  await approveReviewedDayPlan(db,tenantId,actorId,segmentId,id)
   await db.affiliateScheduledOffer.updateMany({where:{batchId:id},data:{scheduledAt:new Date()}})
   await Promise.all([runAffiliateDayPlans(db,ports,{tenantId,batchId:id}),runAffiliateDayPlans(other,ports,{tenantId,batchId:id})])
   expect(await db.affiliateBroadcast.count({where:{tenantId}})).toBe(2)
@@ -430,4 +437,143 @@ it('reconfere no horário, enfileira uma única vez e conta envios confirmados s
   expect(await db.affiliateBroadcast.count({where:{tenantId}})).toBe(3)
   await cancelAffiliateDayPlan(db,tenantId,actorId,segmentId,id)
   expect(await db.affiliateDelivery.count({where:{tenantId,state:'SENT'}})).toBe(4)
+})
+
+function replacementPorts(){
+ const ports=dependencies(),catalog=Array.from({length:5},(_,i)=>({...product(),id:'MLB'+(800001+i),catalogId:'MLB'+(900001+i),title:'Enfeite Natal modelo '+i,productUrl:'https://www.mercadolivre.com.br/p/MLB'+(900001+i)+'?wid=MLB'+(800001+i),sentCount:0,pendingCount:0,lastSentAt:null}))
+ vi.mocked(ports.candidates).mockResolvedValue(catalog)
+ ports.prepare=vi.fn<DayPlanPorts['prepare']>(async(client,tenant,actor,segment,itemId,context)=>{const p={...catalog.find(p=>p.id===itemId)!,checkedAt:new Date().toISOString()};return previewAffiliateProduct(client,tenant,actor,segment,itemId,{candidate:async()=>p,refresh:async()=>p,link:async()=>({url:'https://meli.la/fixture',fullUrl:'https://meli.la/fixture',tag:'fixture',profile:'fixture'}),title:async()=>({title:p.title,source:'ORIGINAL'})},context)})
+ return {ports,catalog}
+}
+it('seleciona outra identidade pendente somente no mesmo dia de Brasília',async()=>{
+ const {ports,catalog}=replacementPorts(),value={...input(),count:1,start:'23:00',end:'23:10'}
+ const first=await draft(ports,value);await approveReviewedDayPlan(db,tenantId,actorId,segmentId,first.id)
+ // The global discovery count also includes the other date: planning must recompute its own scope.
+ catalog[0].pendingCount=1
+ const tomorrow=new Date(new Date(value.day+'T12:00:00Z').getTime()+86400000).toISOString().slice(0,10)
+ const next=await draft(ports,{...value,idempotencyKey:randomUUID(),day:tomorrow})
+ expect(next.plan.entries[0].itemId).toBe(first.plan.entries[0].itemId)
+ await expect(approveReviewedDayPlan(db,tenantId,actorId,segmentId,next.id)).resolves.toMatchObject({status:'APPROVED'})
+ const same=await draft(ports,{...value,idempotencyKey:randomUUID()})
+ expect(same.plan.entries[0].itemId).not.toBe(first.plan.entries[0].itemId)
+ expect(same.plan.entries[0].product?.catalogId).not.toBe(first.plan.entries[0].product?.catalogId)
+})
+it('substitui nova falha dentro do mesmo lote, posição e horário, sem mudar ofertas aceitas',async()=>{
+ const {ports,catalog}=replacementPorts(),prepare=ports.prepare,failedId=catalog[1].id
+ ports.prepare=vi.fn<DayPlanPorts['prepare']>(async(...args)=>{if(args[4]===failedId)throw new AffiliateCatalogError(409,'Preço não confirmado.');return prepare(...args)})
+ const initial=await draft(ports),failed=initial.plan.entries.find(e=>e.state==='FAILED')!,ready=initial.plan.entries.find(e=>e.state==='READY')!
+ await approveReviewedDayPlan(db,tenantId,actorId,segmentId,initial.id)
+ const accepted=await db.affiliateScheduledOffer.findUniqueOrThrow({where:{id:ready.id}})
+ await retryAffiliateDayPlan(db,tenantId,actorId,segmentId,initial.id,failed.id)
+ await buildAffiliateDayPlan(db,{tenantId,id:initial.id},ports)
+ const recovered=await readAffiliateDayPlan(db,tenantId,segmentId,initial.id),replacement=recovered.entries.find(e=>e.id===failed.id)!
+ expect(replacement).toMatchObject({state:'READY',position:failed.position,scheduledAt:failed.scheduledAt})
+ expect(replacement.itemId).not.toBe(failed.itemId)
+ expect(recovered.status).toBe('APPROVED')
+ expect(await db.affiliateScheduledOffer.findUniqueOrThrow({where:{id:ready.id}})).toEqual(accepted)
+ expect(await db.affiliateBroadcast.count({where:{tenantId}})).toBe(0)
+ await approveReviewedDayPlan(db,tenantId,actorId,segmentId,initial.id)
+ expect((await db.affiliateScheduledOffer.findUniqueOrThrow({where:{id:failed.id}})).state).toBe('PENDING')
+})
+it('recupera conflito de aprovação concorrente substituindo só a oferta ainda não aceita',async()=>{
+ const {ports}=replacementPorts(),first=await draft(ports,{...input(),count:1}),second=await draft(ports,{...input(),count:1})
+ await approveReviewedDayPlan(db,tenantId,actorId,segmentId,first.id)
+ await expect(approveReviewedDayPlan(db,tenantId,actorId,segmentId,second.id)).resolves.toMatchObject({id:second.id,status:'BUILDING'})
+ await buildAffiliateDayPlan(db,{tenantId,id:second.id},ports)
+ const recovered=await readAffiliateDayPlan(db,tenantId,segmentId,second.id)
+ expect(recovered.entries[0]).toMatchObject({id:second.plan.entries[0].id,state:'READY',scheduledAt:second.plan.entries[0].scheduledAt})
+ expect(recovered.entries[0].itemId).not.toBe(first.plan.entries[0].itemId)
+ await approveReviewedDayPlan(db,tenantId,actorId,segmentId,second.id)
+})
+
+it('reserva a família física no limite 23:59 de Brasília e libera às 00:00 do dia seguinte',async()=>{
+ const {ports,catalog}=replacementPorts(),value={...input(),count:1,start:'23:59',end:'23:59'},first=await draft(ports,value)
+ await approveReviewedDayPlan(db,tenantId,actorId,segmentId,first.id)
+ // Another listing has the same catalog identity but a different source title.
+ catalog.unshift({...catalog[0],id:'MLB811111',title:'Árvore Natal oferta alternativa'})
+ expect(first.plan.entries[0].scheduledAt.toISOString()).toContain('T02:59:00.000Z')
+ const same=await draft(ports,{...value,idempotencyKey:randomUUID(),start:'00:00',end:'00:00'})
+ expect(same.plan.entries[0].product?.catalogId).not.toBe(first.plan.entries[0].product?.catalogId)
+ const day=new Date(Date.parse(value.day+'T12:00:00Z')+86400000).toISOString().slice(0,10)
+ const next=await draft(ports,{...value,idempotencyKey:randomUUID(),day,start:'00:00',end:'00:00'})
+ expect(next.plan.entries[0].product?.catalogId).toBe(first.plan.entries[0].product?.catalogId)
+ await approveReviewedDayPlan(db,tenantId,actorId,segmentId,next.id)
+})
+it('ignora reservas de outro tenant, outra segmentação e lotes cancelados',async()=>{
+ const {ports,catalog}=replacementPorts(),value={...input(),count:1},original=await draft(ports,value)
+ await approveReviewedDayPlan(db,tenantId,actorId,segmentId,original.id)
+ const batch=await db.affiliateScheduleBatch.findUniqueOrThrow({where:{id:original.id}}),entry=await db.affiliateScheduledOffer.findFirstOrThrow({where:{batchId:original.id}})
+ const otherAdmin=await db.user.create({data:{tenantId:otherTenant,name:'Other admin',role:'ADMIN',status:'ACTIVE',passwordHash:'fixture'}})
+ const foreignSegments=await Promise.all([db.affiliateSegment.create({data:{tenantId:otherTenant,name:'Natal',slug:'foreign'}}),db.affiliateSegment.create({data:{tenantId,name:'Natal',slug:'another'}})])
+ for(const owner of [{tenantId:otherTenant,segmentId:foreignSegments[0].id,actorId:otherAdmin.id},{tenantId,segmentId:foreignSegments[1].id,actorId}]){
+   const foreign=await db.affiliateScheduleBatch.create({data:{...owner,idempotencyKey:randomUUID(),status:'APPROVED',mode:'AUTO',config:batch.config as Prisma.InputJsonValue,groupHash:batch.groupHash,groups:batch.groups as Prisma.InputJsonValue,expiresAt:batch.expiresAt}})
+   await db.affiliateScheduledOffer.create({data:{tenantId:owner.tenantId,batchId:foreign.id,itemId:catalog[0].id,position:0,scheduledAt:entry.scheduledAt,state:'PENDING',snapshot:entry.snapshot as Prisma.InputJsonValue}})
+ }
+ await cancelAffiliateDayPlan(db,tenantId,actorId,segmentId,original.id)
+ try{const next=await draft(ports,{...value,idempotencyKey:randomUUID()});expect(next.plan.entries[0].itemId).toBe(catalog[0].id);await approveReviewedDayPlan(db,tenantId,actorId,segmentId,next.id)}
+ finally{await db.affiliateScheduleBatch.deleteMany({where:{tenantId:otherTenant}});await db.affiliateSegment.deleteMany({where:{tenantId:otherTenant}});await db.user.delete({where:{id:otherAdmin.id}})}
+})
+it('substitui falhas sucessivas sem voltar a identidades rejeitadas e preserva Pets',async()=>{
+ await db.affiliateSegment.update({where:{id:segmentId},data:{name:'Pets'}})
+ const {ports,catalog}=replacementPorts(),prepare=ports.prepare
+ for(let i=0;i<catalog.length;i++)catalog[i].title=i===3?'Mordedor para bebê infantil':'Brinquedo cachorro modelo '+i
+ const firstId=catalog[0].id,secondId=catalog[1].id,attempts:string[]=[]
+ ports.prepare=vi.fn<DayPlanPorts['prepare']>(async(...args)=>{attempts.push(args[4]);if([firstId,secondId].includes(args[4]))throw new AffiliateCatalogError(409,'Preço não confirmado.');return prepare(...args)})
+ const initial=await draft(ports,{...input(),count:1}),failed=initial.plan.entries[0]
+ await retryAffiliateDayPlan(db,tenantId,actorId,segmentId,initial.id,failed.id)
+ await buildAffiliateDayPlan(db,{tenantId,id:initial.id},ports)
+ const recovered=await readAffiliateDayPlan(db,tenantId,segmentId,initial.id)
+ expect(recovered.entries[0]).toMatchObject({id:failed.id,state:'READY',itemId:catalog[2].id})
+ expect(attempts).toEqual([firstId,firstId,secondId,catalog[2].id])
+ const order=vi.mocked(ports.order).mock.calls.at(-1)!
+ expect(order[0].every(p=>!['Mordedor para bebê infantil',catalog[0].title,catalog[1].title].includes(p.title))).toBe(true)
+})
+
+it('exige revisão atual das substituições e recusa aba antiga antes do novo aceite',async()=>{
+ const {ports}=replacementPorts(),first=await draft(ports,{...input(),count:1}),second=await draft(ports,{...input(),count:1})
+ await approveReviewedDayPlan(db,tenantId,actorId,segmentId,first.id)
+ await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,second.id,second.plan.reviewRevision)
+ await buildAffiliateDayPlan(db,{tenantId,id:second.id},ports)
+ await expect(approveAffiliateDayPlan(db,tenantId,actorId,segmentId,second.id,second.plan.reviewRevision)).rejects.toMatchObject({status:409})
+ await expect(approveAffiliateDayPlan(db,tenantId,actorId,segmentId,second.id)).rejects.toMatchObject({status:409})
+ const current=await readAffiliateDayPlan(db,tenantId,segmentId,second.id)
+ expect(current.reviewRevision).not.toBe(second.plan.reviewRevision)
+ expect(current.entries[0].state).toBe('READY')
+ await expect(approveAffiliateDayPlan(db,tenantId,actorId,segmentId,second.id,current.reviewRevision)).resolves.toMatchObject({status:'APPROVED'})
+})
+
+it('não escolhe item cancelado no mesmo lote e renova lease durante a IA de substituição',async()=>{
+ const {ports,catalog}=replacementPorts(),prepare=ports.prepare
+ ports.prepare=vi.fn<DayPlanPorts['prepare']>(async(...args)=>{if(args[4]===catalog[0].id)throw new AffiliateCatalogError(409,'Preço não confirmado.');return prepare(...args)})
+ const initial=await draft(ports,{...input(),count:2}),failed=initial.plan.entries.find(e=>e.state==='FAILED')!,cancelled=initial.plan.entries.find(e=>e.state==='READY')!
+ await cancelAffiliateDayPlan(db,tenantId,actorId,segmentId,initial.id,cancelled.id)
+ ports.order=vi.fn<DayPlanPorts['order']>(async(products,_fetch,_segment,_count,renew)=>{
+  expect(renew).toBeTypeOf('function');await renew!()
+  expect(products.some(p=>p.id===cancelled.itemId)).toBe(false)
+  const batch=await db.affiliateScheduleBatch.findUniqueOrThrow({where:{id:initial.id}})
+  expect(batch.leaseExpiresAt!.getTime()).toBeGreaterThan(Date.now()+230000)
+  return products.map(p=>({id:p.id,context:{role:'CORE',framing:'THEME',reason:'Produto adequado ao segmento.'}}))
+ })
+ await retryAffiliateDayPlan(db,tenantId,actorId,segmentId,initial.id,failed.id)
+ await buildAffiliateDayPlan(db,{tenantId,id:initial.id},ports)
+ const plan=await readAffiliateDayPlan(db,tenantId,segmentId,initial.id)
+ expect(plan.entries.find(e=>e.id===failed.id)).toMatchObject({state:'READY',itemId:catalog[2].id})
+ expect(plan.entries.find(e=>e.id===cancelled.id)?.state).toBe('CANCELLED')
+ expect(await db.auditLog.count({where:{tenantId,entityId:initial.id,action:'affiliate.schedule.replaced'}})).toBe(1)
+})
+
+it('substitui seleção manual reservada no dia e falha repetida sem perder o lote',async()=>{
+ const {ports,catalog}=replacementPorts(),prepare=ports.prepare
+ const first=await draft(ports,{...input(),count:1});await approveReviewedDayPlan(db,tenantId,actorId,segmentId,first.id)
+ const manual=await draft(ports,{...input(),count:1,itemIds:[catalog[0].id]})
+ expect(manual.plan.entries[0]).toMatchObject({state:'READY',itemId:catalog[1].id})
+ await expect(approveAffiliateDayPlan(db,tenantId,actorId,segmentId,manual.id)).rejects.toMatchObject({status:409})
+ await approveReviewedDayPlan(db,tenantId,actorId,segmentId,manual.id)
+ ports.prepare=vi.fn<DayPlanPorts['prepare']>(async(...args)=>{if(args[4]===catalog[2].id)throw new AffiliateCatalogError(409,'Preço não confirmado.');return prepare(...args)})
+ const failed=await draft(ports,{...input(),count:1,itemIds:[catalog[2].id]})
+ expect(failed.plan.entries[0].state).toBe('FAILED')
+ await retryAffiliateDayPlan(db,tenantId,actorId,segmentId,failed.id,failed.plan.entries[0].id)
+ await buildAffiliateDayPlan(db,{tenantId,id:failed.id},ports)
+ const recovered=await readAffiliateDayPlan(db,tenantId,segmentId,failed.id)
+ expect(recovered.entries[0]).toMatchObject({id:failed.plan.entries[0].id,state:'READY',itemId:catalog[3].id})
 })

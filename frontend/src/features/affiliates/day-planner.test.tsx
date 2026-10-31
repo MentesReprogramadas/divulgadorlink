@@ -17,6 +17,39 @@ function mock(){
   })
 }
 const props={segmentId:'natal',selected:[],clearSelection:vi.fn(),onChanged:vi.fn()}
+it('mantém a seleção e volta à preparação quando o aceite encontra repetição no mesmo dia',async()=>{
+ mock();const original=vi.mocked(api).getMockImplementation()!;let replacing=false
+ vi.mocked(api).mockImplementation(async(path,init)=>{
+  const result=await original(path,init)
+  if(path.endsWith('/approve')){replacing=true;return {status:202,body:{id:'batch',status:'BUILDING',replacements:1}}}
+  if(path.endsWith('/batch')&&replacing){const plan=result.body as DayPlan;return {...result,body:{...plan,status:'BUILDING',error:'Substituindo ofertas repetidas neste dia. Revise os novos produtos antes de aceitar.',summary:{...plan.summary,readyOffers:0},entries:plan.entries.map(e=>({...e,state:'BUILDING'}))}}}
+  return result
+ })
+ const clearSelection=vi.fn()
+ render(<DayPlanner {...props} clearSelection={clearSelection}/>);fireEvent.click(screen.getByRole('button',{name:'Planejar o dia'}));fireEvent.click(screen.getByRole('button',{name:'Gerar prévia do lote'}))
+ fireEvent.click(await screen.findByRole('button',{name:'Aceitar e agendar 1 oferta'}))
+ await screen.findByText('Substituindo ofertas repetidas neste dia. Revise os novos produtos antes de aceitar.')
+ expect(clearSelection).not.toHaveBeenCalled()
+ expect(vi.mocked(api).mock.calls.filter(([path])=>path.endsWith('/approve'))).toHaveLength(1)
+ expect(screen.queryByRole('button',{name:/Aceitar e agendar/})).toBeNull()
+})
+it('envia a revisão atual no aceite, incluindo depois de substituir o produto',async()=>{
+ mock();const original=vi.mocked(api).getMockImplementation()!;let replaced=false
+ vi.mocked(api).mockImplementation(async(path,init)=>{
+  const result=await original(path,init)
+  if(path.endsWith('/approve')&&!replaced){replaced=true;return {status:202,body:{id:'batch',status:'BUILDING',replacements:1}}}
+  if(path.endsWith('/batch')){const plan=result.body as DayPlan;return {...result,body:{...plan,status:replaced?'DRAFT':plan.status,reviewRevision:(replaced?'b':'a').repeat(64),entries:plan.entries.map(e=>({...e,title:replaced?'Novo produto de Natal':e.title}))}}}
+  return result
+ })
+ render(<DayPlanner {...props}/>);fireEvent.click(screen.getByRole('button',{name:'Planejar o dia'}));fireEvent.click(screen.getByRole('button',{name:'Gerar prévia do lote'}))
+ fireEvent.click(await screen.findByRole('button',{name:'Aceitar e agendar 1 oferta'}))
+ await screen.findByText('Novo produto de Natal')
+ fireEvent.click(screen.getByRole('button',{name:'Aceitar e agendar 1 oferta'}))
+ await waitFor(()=>expect(vi.mocked(api).mock.calls.filter(([path])=>path.endsWith('/approve'))).toHaveLength(2))
+ const approvals=vi.mocked(api).mock.calls.filter(([path])=>path.endsWith('/approve'))
+ expect(JSON.parse(String(approvals[0][1]?.body))).toEqual({confirm:true,reviewRevision:'a'.repeat(64)})
+ expect(JSON.parse(String(approvals[1][1]?.body))).toEqual({confirm:true,reviewRevision:'b'.repeat(64)})
+})
 it('altera o período de ofertas prontas sem criar lote ou aprovar mensagens',async()=>{
  mock();render(<DayPlanner {...props}/>);fireEvent.click(screen.getByRole('button',{name:'Planejar o dia'}));fireEvent.click(screen.getByRole('button',{name:'Gerar prévia do lote'}))
  fireEvent.click(await screen.findByRole('button',{name:'Escolher outro período'}))

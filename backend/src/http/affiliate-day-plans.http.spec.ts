@@ -32,7 +32,7 @@ it('aceitar e cancelar exigem confirmação explícita; consulta não agenda',as
     for(const payload of [{},{confirm:false},{confirm:true,message:'injected'}])expect((await app.inject({method:'POST',url:base+'/batch/'+action,headers:headers(),payload})).statusCode).toBe(400)
     expect((await app.inject({method:'POST',url:base+'/batch/'+action,headers:headers(),payload:{confirm:true}})).statusCode).toBe(200)
   }
-  expect(fixture.approve).toHaveBeenCalledExactlyOnceWith(expect.anything(),tenantId,actorId,'segment','batch')
+  expect(fixture.approve).toHaveBeenCalledExactlyOnceWith(expect.anything(),tenantId,actorId,'segment','batch',undefined)
   expect(fixture.cancel).toHaveBeenCalledExactlyOnceWith(expect.anything(),tenantId,actorId,'segment','batch')
 })
 it('aceita quantidade flexível e seleção manual acima de 24 sem aprovar',async()=>{
@@ -73,4 +73,21 @@ it('pagina agendas somente da segmentação e tenant atuais e limita tamanho',as
   expect(result.json()).toMatchObject({batches:[{id:'batch',groupCount:1}],pagination:{page:2,total:9,hasPrevious:true,hasNext:false}})
   expect(fixture.list).toHaveBeenCalledWith(expect.objectContaining({where:{tenantId,segmentId:'segment'},skip:8,take:8}))
   for(const query of ['page=0','limit=100','tenantId=other'])expect((await app.inject({method:'GET',url:base+'?'+query,headers:headers()})).statusCode).toBe(400)
+})
+
+it.each(['BUILDING','APPROVED'])('inicia substituição de conflito sem aprovar ofertas novas: %s',async(status)=>{
+ fixture.approve.mockResolvedValue({id:'batch',status,replacements:2})
+ const response=await app.inject({method:'POST',url:base+'/batch/approve',headers:headers(),payload:{confirm:true}})
+ expect(response.statusCode).toBe(202)
+ expect(response.json()).toEqual({id:'batch',status,replacements:2})
+ expect(fixture.build).toHaveBeenCalledExactlyOnceWith(expect.anything(),{tenantId,id:'batch'})
+ expect(fixture.approve).toHaveBeenCalledTimes(1)
+})
+
+it('encaminha a revisão visual do lote e rejeita revisão malformada',async()=>{
+ const revision='a'.repeat(64)
+ const response=await app.inject({method:'POST',url:base+'/batch/approve',headers:headers(),payload:{confirm:true,reviewRevision:revision}})
+ expect(response.statusCode).toBe(200)
+ expect(fixture.approve).toHaveBeenCalledExactlyOnceWith(expect.anything(),tenantId,actorId,'segment','batch',revision)
+ expect((await app.inject({method:'POST',url:base+'/batch/approve',headers:headers(),payload:{confirm:true,reviewRevision:'invalid'}})).statusCode).toBe(400)
 })
