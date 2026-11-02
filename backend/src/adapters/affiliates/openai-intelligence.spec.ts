@@ -4,6 +4,31 @@ import type {PrismaClient} from '@prisma/client'
 beforeEach(()=>vi.stubEnv('OPENAI_API_KEY','test-never-real'))
 afterEach(()=>vi.unstubAllEnvs())
 const response=(output:unknown)=>new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:JSON.stringify(output),refusal:null}}]}))
+it('asks for concise varied copy while keeping price and URL outside the model',async()=>{
+ const product={id:'copy-prompt-v8',catalogId:'copy-prompt-v8',title:'Caneca de cerâmica azul copy prompt',productUrl:'https://example.test/?exact=%2B',priceCents:12345,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}
+ const fetcher=vi.fn<typeof fetch>(async()=>response({title:'Caneca de cerâmica azul',headline:'Uma caneca para presentear alguém especial 🎁'}))
+ await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher)
+ const request=JSON.parse(String(fetcher.mock.calls[0][1]?.body)),prompt=request.messages[0].content
+ expect(prompt).toContain('até 60 caracteres')
+ for(const instruction of ['Benefício','Oportunidade','Presente','Direto','Utilidade','travessão','preço e link','Sem saudações'])expect(prompt).toContain(instruction)
+ expect(JSON.stringify(request)).not.toContain(product.productUrl)
+ expect(JSON.stringify(request)).not.toContain('12345')
+})
+it('rejects long, dashed, generic, urgent and invented headlines and sanitizes fallback copy only',async()=>{
+ const base={id:'copy-guards-v8',catalogId:'copy-guards-v8',productUrl:'https://example.test/',priceCents:1000,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}
+ for(const [index,headline] of ['Uma caneca — para sua casa ☕','Uma caneca – para sua casa ☕','Corra aproveitar uma caneca para sua casa ☕','Uma opção para você 🎁','Uma caneca de qualidade para sua casa ☕',`Uma caneca para ${'sua casa '.repeat(8)}☕`].entries()){
+  const product={...base,title:`Caneca azul – cerâmica teste ${index}`},original=product.title
+  const result=await generateAffiliateTitle({} as PrismaClient,'tenant',product,vi.fn(async()=>response({title:'Caneca azul',headline})))
+  expect(result.source).toBe('ORIGINAL');expect(result.title).not.toMatch(/[–—]/)
+  expect(product.title).toBe(original)
+ }
+})
+it('preserves ranges, units and negations while cleaning fallback punctuation and emoji',async()=>{
+ const product={id:'range-v8',catalogId:'range-v8',title:'Luminária 💡 10–20 cm — sem pilhas',productUrl:'https://example.test/',priceCents:1000,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}
+ const result=await generateAffiliateTitle({} as PrismaClient,'tenant',product,vi.fn(async()=>{throw new Error('offline')}))
+ expect(result).toEqual({source:'ORIGINAL',title:'Luminária 10 a 20 cm, sem pilhas'})
+ expect(product.title).toBe('Luminária 💡 10–20 cm — sem pilhas')
+})
 it('accepts cão in a real headline for Cães without inventing a new product fact',async()=>{
   vi.stubEnv('OPENAI_API_KEY','test-never-real')
   const product={id:'SHP1_2',catalogId:'SHP1_2',title:'Bifinho para Cães Lion Pet 1 Kg – Petisco Canino Saboroso em Carne ou Frango, Ideal para Recompensa, Treinamento Pet.',productUrl:'https://shopee.com.br/product/1/2',priceCents:2750,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}
@@ -152,9 +177,25 @@ it('accepts natural gift contexts without inventing product properties',async()=
 it('contextualiza um fone como presente de Natal, sem inventar que o produto é natalino',async()=>{
  vi.stubEnv('OPENAI_API_KEY','fixture')
  const product={id:'SHP1_2',catalogId:'SHP1_2',title:'Fone Bluetooth JBL',priceCents:1000,oldPriceCents:null,imageUrl:null,productUrl:'https://shopee.com.br/product/1/2',checkedAt:new Date().toISOString()}
- const fetcher=vi.fn<typeof fetch>(async()=>response({title:'Fone Bluetooth JBL',headline:'Uma opção de presente para o Natal 🎁'}))
+ const fetcher=vi.fn<typeof fetch>(async()=>response({title:'Fone Bluetooth JBL',headline:'Fone Bluetooth JBL para presentear no Natal 🎁'}))
  const result=await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher,undefined,{name:'Natal',discovery:{terms:['Decoração de Natal']}})
- expect(result).toMatchObject({source:'OPENAI',title:product.title,headline:'Uma opção de presente para o Natal 🎁'})
+ expect(result).toMatchObject({source:'OPENAI',title:product.title,headline:'Fone Bluetooth JBL para presentear no Natal 🎁'})
  const request=JSON.parse(String(fetcher.mock.calls[0][1]?.body))
  expect(JSON.parse(request.messages[1].content[0].text).context).toMatchObject({segment:'Natal',purpose:'GIFT_IDEA'})
+})
+it('keeps corrective gift and utility choices tied to the actual product',async()=>{
+ const base={id:'corrective-v8',catalogId:'corrective-v8',priceCents:1000,oldPriceCents:null,imageUrl:null,productUrl:'https://example.test/',checkedAt:new Date().toISOString()}
+ const product={...base,title:'Fone Bluetooth JBL gift-v8'}
+ const fetcher=vi.fn<typeof fetch>(async()=>response({title:product.title,headline:'Uma opção de presente para o Natal 🎁'}))
+ expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher,undefined,{name:'Natal',discovery:{terms:['Decoração de Natal']}})).toMatchObject({source:'ORIGINAL'})
+ const request=JSON.parse(String(fetcher.mock.calls[0][1]?.body))
+ const choices:string[]=request.response_format.json_schema.schema.properties.headline.enum
+ expect(choices.length).toBeGreaterThan(0)
+ for(const choice of choices){expect(choice).toContain('Fone');expect(choice.length).toBeLessThanOrEqual(60);expect(choice).not.toMatch(/[–—]/)}
+ const utility=vi.fn<typeof fetch>().mockResolvedValueOnce(response({title:'Pá limpeza',headline:'Uma pá prática para sua casa ✨'})).mockImplementationOnce(async(_url,options)=>{
+  const choices:string[]=JSON.parse(String(options?.body)).response_format.json_schema.schema.properties.headline.enum
+  expect(choices).toContain('Pá para a limpeza do dia a dia 🧹')
+  return response({title:'Pá limpeza',headline:'Pá para a limpeza do dia a dia 🧹'})
+ })
+ expect(await generateAffiliateTitle({} as PrismaClient,'tenant',{...base,title:'Pá para limpeza'},utility,{title:'Pá para limpeza',headline:'Uma pá para sua casa 🧹'})).toMatchObject({source:'OPENAI',headline:'Pá para a limpeza do dia a dia 🧹'})
 })

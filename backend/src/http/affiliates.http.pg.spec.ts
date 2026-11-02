@@ -13,6 +13,7 @@ import { setTenantsRepositoryForTest } from '@/http/tenant'
 import { InMemoryTenantsRepository } from '@/repositories/tenants-repository'
 import { registerAffiliateRoutes } from './controllers/@Admin/affiliates'
 import { prisma as db } from '@/lib/prisma'
+import { offerMessage } from '@/domain/affiliates/contracts'
 
 vi.mock('@/lib/prisma',async()=>{
   const {PrismaClient}=await import('@prisma/client'),url=process.env.AFFILIATE_DATABASE_URL
@@ -273,6 +274,8 @@ describe('HTTP e persistência afiliados',()=>{
       const response=await app.inject({url:`/api/v1/admin/affiliates/segments/${segmentId}`,headers:headers()})
       expect(response.statusCode,response.body).toBe(200)
       expect(response.json().offers.some((offer:{id:string})=>offer.id===fresh.id)).toBe(false)
+      for (const offer of response.json().offers) expect(offer.message).toBe(offerMessage(offer))
+      expect(response.json().readiness.nextOffer.message).toBe(offerMessage(fresh))
       expect(response.json().readiness).toMatchObject({approvedDeliveries:1,nextOffer:{id:fresh.id,title:fresh.title,affiliateUrl:fresh.affiliateUrl,segment:{id:segmentId,name:'Natal'}}})
       const group=await db.affiliateGroup.findFirstOrThrow({where:{tenantId,segmentId}})
       const broadcast=await db.affiliateBroadcast.create({data:{tenantId,segmentId,offerId:fresh.id,idempotencyKey:randomUUID(),message:'Nova oferta aprovada',offerUpdatedAt:fresh.updatedAt}})

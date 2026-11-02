@@ -1,10 +1,11 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
-import { afterEach, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { api } from '@/lib/api'
 import { DayPlanner, type DayPlan } from './day-planner'
 
 vi.mock('@/lib/api',()=>({api:vi.fn()}))
 vi.mock('@/components/ui/liquid-lens',()=>({LiquidLens:()=>null}))
+beforeEach(()=>{vi.useFakeTimers({toFake:['Date']});vi.setSystemTime(new Date('2026-10-31T12:00:00Z'))})
 afterEach(()=>{cleanup();vi.useRealTimers();vi.clearAllMocks()})
 const product={id:'MLB123',title:'Cascata de Luzes de Natal',productUrl:'https://www.mercadolivre.com.br/p/MLB123',imageUrl:null,priceCents:6198,oldPriceCents:15117,checkedAt:'2026-10-31T12:00:00Z'}
 const message='*Cascata de Luzes de Natal*\n\nDe: ~R$ 151,17~\n🔥 *R$ 61,98*\n💸 *59% OFF* · Economize *R$ 89,19*\n\nCompre aqui 👇\nhttps://meli.la/fixture'

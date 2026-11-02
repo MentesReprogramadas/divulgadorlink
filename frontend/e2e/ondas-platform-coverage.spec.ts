@@ -3,8 +3,11 @@ import { expect, test } from '@playwright/test'
 import { runtime } from './runtime.cjs'
 import { sql } from './db'
 import { roadmapApi } from './roadmap-profile'
-import { grantProfileCapability } from './profile-schedule-fixture'
+import { grantProfileCapability, setProfileTestClock, clearProfileTestClock } from './profile-schedule-fixture'
 import { isolatedFixture, login, audit, visit, saveProfile, publishProfile, redirect } from './ondas-visual-fixture'
+
+test.beforeEach(() => setProfileTestClock('2026-10-19T12:00:00Z'))
+test.afterEach(() => clearProfileTestClock())
 
 for (const theme of ['Areia', 'Botânico']) test('Ondas publicação real ' + theme + ', contato e preservação da paleta', async ({ page, browser }, info) => {
   const fixture = isolatedFixture()

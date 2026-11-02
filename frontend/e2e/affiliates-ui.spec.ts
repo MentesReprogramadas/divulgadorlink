@@ -9,7 +9,8 @@ import { selectOption } from './select-control'
 const instance = { id: 'instance-1', name: 'Natal 01', ownerPhone: '5511999999999', configured: true, enabled: true }
 const segment = { id: 'segment-1', name: 'Natal', groupName: 'Ofertas de Natal', instanceIds: [instance.id], slug: 'natal', description: 'Presentes e ofertas para celebrar o Natal.', imageUrl: null, capacity: 1024, instanceId: instance.id, autoExpand: true, enabled: true, provisionState: 'IDLE', inviteMetrics: {views:124,buttonClicks:18,automaticRedirects:70,buttonRedirects:15,createdAt:'2026-10-29T12:00:00Z'} }
 const groups = [1, 2, 3].map(sequence => ({ id: `group-${sequence}`, jid: `12036300000000${sequence}@g.us`, name: sequence === 1 ? 'Natal' : `Natal #${sequence}`, segmentId: segment.id, instanceId: instance.id, participantCount: sequence === 1 ? 1024 : sequence === 2 ? 840 : 120, capacity: 1024, enabled: true, syncedAt: '2026-10-28T12:00:00Z', segment, instance }))
-const offer = { id: 'offer-1', segmentId: segment.id, segment, title: 'Árvore de Natal 1,80 m', productUrl: 'https://www.mercadolivre.com.br/p/MLB123', affiliateUrl: 'https://meli.la/fixture', priceCents: 12990, oldPriceCents: 15990, imageUrl: null, note: 'Confira as medidas e as opções do anúncio.', status: 'DRAFT', checkedAt: '2026-10-28T12:00:00Z', expiresAt: null }
+const offerMessage = 'Árvore de Natal 1,80 m\n🔥 *R$ 129,90*\n🛒 https://meli.la/fixture\nPublicidade'
+const offer = { message: offerMessage, id: 'offer-1', segmentId: segment.id, segment, title: 'Árvore de Natal 1,80 m', productUrl: 'https://www.mercadolivre.com.br/p/MLB123', affiliateUrl: 'https://meli.la/fixture', priceCents: 12990, oldPriceCents: 15990, imageUrl: null, note: 'Confira as medidas e as opções do anúncio.', status: 'DRAFT', checkedAt: '2026-10-28T12:00:00Z', expiresAt: null }
 const broadcast = { id: 'broadcast-1', offerId: offer.id, offer, message: 'Árvore de Natal 1,80 m\nR$ 129,90\nhttps://meli.la/fixture', scheduledAt: '2026-10-28T12:00:00Z', createdAt: '2026-10-28T12:00:00Z', _count: { deliveries: 3 } }
 const deliveries = [{ id: 'delivery-1', state: 'SENT', providerMessageId: 'fixture-confirmed', errorCode: null, group: groups[0], broadcast, updatedAt: '2026-10-28T12:01:00Z' }, { id: 'delivery-2', state: 'UNCERTAIN', providerMessageId: null, errorCode: 'provider_timeout', group: groups[1], broadcast, updatedAt: '2026-10-28T12:01:00Z' }]
 const snapshot = { instances: [instance], segments: [segment], groups, offers: [offer], broadcasts: [broadcast], deliveries, summary: { instances: 1, segments: 1, groups: 3, offers: 1, pending: 1, sent: 1, uncertain: 2, failed: 0 } }
@@ -254,6 +255,12 @@ test('admin gerencia segmentos, revisa oferta e confere entrega sem reenvio impl
   await page.locator('details').filter({has:page.getByText('Ofertas cadastradas e ferramentas manuais',{exact:true})}).getByRole('button', { name: 'Revisar e enviar', exact:true }).click()
   const send = page.getByRole('dialog', { name: 'Revisar envio da oferta' })
   await expect(send).toContainText('3 grupos ativos')
+  const message = send.getByLabel('Mensagem para o WhatsApp')
+  expect(await message.textContent()).toBe(offerMessage)
+  await expect(message).toHaveCSS('white-space', 'pre-wrap')
+  await expect(send).not.toContainText(offer.note)
+  await expect(send).not.toContainText('Preço e estoque podem mudar a qualquer momento.')
+  await page.screenshot({path:testInfo.outputPath('manual-offer-compact-preview.png'),fullPage:true,animations:'disabled'})
   expect(mutations.filter(mutation => mutation.path.endsWith('/send'))).toHaveLength(0)
   await send.getByRole('checkbox').check()
   await send.getByRole('button', { name: 'Confirmar envio' }).click()

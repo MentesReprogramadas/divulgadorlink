@@ -2,7 +2,7 @@ import { createHash, createHmac, randomUUID, timingSafeEqual } from 'node:crypto
 import type { PrismaClient } from '@prisma/client'
 import { z } from 'zod'
 import { env } from '@/env'
-import { AffiliateError, imageUrl, marketUrl, offerMessage } from '@/domain/affiliates/contracts'
+import { AffiliateError, imageUrl, marketUrl, offerMessage, offerMessageMatches } from '@/domain/affiliates/contracts'
 import { affiliateProductId, affiliateProductUrl, isShopeeProduct } from '@/domain/affiliates/shopee'
 import { generateCatalogAffiliate } from '@/use-cases/@Affiliates/catalog'
 import { findDiscoveryCandidate, generateAffiliateTitle, refreshAffiliateCandidate } from './discovery'
@@ -111,7 +111,7 @@ export async function sendAffiliateProduct(db:PrismaClient,tenantId:string,actor
     const [history]=await affiliateProductHistory(tx,tenantId,segmentId,[{...preview,id:preview.itemId,catalogId:preview.itemId,imageUrl:preview.imageUrl??null}])
     if(history.pendingCount)throw new AffiliateError(409,'Este produto já tem um envio pendente ou incerto. Confira a agenda e o histórico.')
     const offer=await tx.affiliateOffer.create({data:{tenantId,segmentId,itemId:preview.itemId,title:preview.title,productUrl:preview.productUrl,affiliateUrl:preview.affiliateUrl,priceCents:preview.priceCents,oldPriceCents:preview.oldPriceCents,reportedDiscountPercent:preview.reportedDiscountPercent??null,oldPriceEstimated:preview.oldPriceEstimated??false,imageUrl:preview.imageUrl,note:'',checkedAt:new Date(preview.checkedAt)}})
-    if(offerMessage({...offer,headline:preview.headline,showHeadline:preview.showHeadline})!==preview.message) throw new AffiliateError(409,'A mensagem mudou. Atualize a prévia antes de enviar.')
+    if(!offerMessageMatches({...offer,headline:preview.headline,showHeadline:preview.showHeadline},preview.message)) throw new AffiliateError(409,'A mensagem mudou. Atualize a prévia antes de enviar.')
     const broadcast=await approveAffiliateBroadcast(tx,tenantId,actorId,offer.id,{idempotencyKey:preview.id,expectedGroupHash:preview.groupHash,approvedMessage:preview.message,sourceTitle:preview.sourceTitle})
     const decision={decision:'SENT',reason:'Envio aprovado pelo administrador.',actorId,broadcastId:broadcast.id,priceCents:preview.priceCents}
     await tx.affiliateProductDecision.upsert({where:{tenantId_segmentId_itemId:{tenantId,segmentId,itemId:preview.itemId}},create:{tenantId,segmentId,itemId:preview.itemId,...decision},update:decision})

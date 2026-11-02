@@ -7,7 +7,7 @@ import { Prisma, type PrismaClient } from '@prisma/client'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { env } from '@/env'
-import { AffiliateError, entityId, groupJid, offerInput, segmentInput } from '@/domain/affiliates/contracts'
+import { AffiliateError, entityId, groupJid, offerInput, offerMessage, segmentInput } from '@/domain/affiliates/contracts'
 import { sealWebhookSecret } from '@/lib/webhook-secret'
 import { normalizeTenantHost, resolveTenant } from '@/http/tenant'
 import { AffiliateProviderError } from '@/adapters/affiliates/evolution'
@@ -85,7 +85,7 @@ async function affiliateSnapshot(tenantId:string,segmentId?:string) {
     prisma.affiliateOffer.findFirst({where:{...currentOffer,broadcasts:{none:{deliveries:{some:{state:{in:['PENDING','SENDING','SENT','UNCERTAIN']}}}}}},orderBy:{createdAt:'desc'},include:{segment:{select:{id:true,name:true}}}}),
   ])
   const count=(state:string)=>states.find(row=>row.state===state)?._count??0
-  return {segments:segments.map(({instanceLinks,...segment})=>({...segment,instanceIds:instanceLinks.length?instanceLinks.map(link=>link.instanceId):segment.instanceId?[segment.instanceId]:[],instances:instanceLinks.map(link=>link.instance)})),instances:instances.map(publicInstance),groups,offers,broadcasts,deliveries,summary:{segments:totals[0],groups:totals[1],instances:totals[2],offers:totals[3],pending:count('PENDING')+count('SENDING'),sent:count('SENT'),uncertain:count('UNCERTAIN'),failed:count('FAILED')},readiness:{activeGroups:readiness[0],currentOffers:readiness[1],approvedDeliveries:readiness[2],nextOffer},limits:{segments:segmentId?1:200,instances:200,groups:500,offers:200,broadcasts:100,deliveries:200}}
+  return {segments:segments.map(({instanceLinks,...segment})=>({...segment,instanceIds:instanceLinks.length?instanceLinks.map(link=>link.instanceId):segment.instanceId?[segment.instanceId]:[],instances:instanceLinks.map(link=>link.instance)})),instances:instances.map(publicInstance),groups,offers:offers.map(offer=>({...offer,message:offerMessage(offer)})),broadcasts,deliveries,summary:{segments:totals[0],groups:totals[1],instances:totals[2],offers:totals[3],pending:count('PENDING')+count('SENDING'),sent:count('SENT'),uncertain:count('UNCERTAIN'),failed:count('FAILED')},readiness:{activeGroups:readiness[0],currentOffers:readiness[1],approvedDeliveries:readiness[2],nextOffer:nextOffer?{...nextOffer,message:offerMessage(nextOffer)}:null},limits:{segments:segmentId?1:200,instances:200,groups:500,offers:200,broadcasts:100,deliveries:200}}
 }
 export async function registerAffiliateRoutes(app:FastifyInstance) {
   app.get(prefix+'/group-policy-defaults',(q,r)=>run(q,r,async tenantId=>{const policy=await readAffiliateGroupPolicyDefaults(prisma,tenantId);return {configured:policy!==null,policy}}))

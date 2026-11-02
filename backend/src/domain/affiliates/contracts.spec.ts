@@ -1,5 +1,31 @@
 import { describe, expect, it } from 'vitest'
-import { groupName, marketUrl, offerInput, offerIsCurrent, offerMessage, segmentInput, validInvite } from './contracts'
+import { groupName, marketUrl, offerInput, offerIsCurrent, legacyOfferMessage as offerMessage, offerMessage as compactOfferMessage, offerMessageMatches, segmentInput, validInvite } from './contracts'
+
+it.each(['https://s.shopee.com.br/4qGtib2dfp?tag=a-b','https://meli.la/abc?x=1%2B2'])('gera mensagem compacta sem alterar o link %s',affiliateUrl=>{
+ const offer={title:'Camiseta masculina básica — algodão',headline:'Uma camiseta para o dia a dia 👕',showHeadline:true,priceCents:3037,oldPriceCents:5990,reportedDiscountPercent:49,note:'Corra aproveitar! Últimas unidades',affiliateUrl}
+ const message=compactOfferMessage(offer).replace(/\u00a0/g,' ')
+ expect(message.split('\n')).toHaveLength(4)
+ expect(message).toContain('*R$ 30,37*')
+ expect(message).toContain(affiliateUrl)
+ expect(message).toContain('Publicidade')
+ expect((message.match(/\p{Extended_Pictographic}/gu)??[]).length).toBeLessThanOrEqual(2)
+ expect(message).not.toMatch(/[—–]|Compre aqui|Corra|Últimas|OFF|De:|```/)
+ expect(offer.title).toContain('—');expect(offer.priceCents).toBe(3037)
+})
+it('mantém restrições e faixas verificadas sem travessão no fallback',()=>{
+ const message=compactOfferMessage({title:'Coleira 10–20 cm sem guia',priceCents:1234,affiliateUrl:'https://meli.la/x'})
+ expect(message).toContain('10 a 20 cm sem guia')
+ expect(message).not.toMatch(/[—–]/)
+})
+it('rejeita mensagem divergente e preserva o texto legado exato já assinado',()=>{
+ const offer={title:'Kit de Natal',priceCents:1099,oldPriceCents:null,affiliateUrl:'https://meli.la/abc'}
+ const legacy='*Kit de Natal*\n\n🔥 *R$\u00a010,99*\n\nCompre aqui 👇\nhttps://meli.la/abc'
+ expect(offerMessage(offer)).toBe(legacy)
+ expect(offerMessageMatches(offer,legacy)).toBe(true)
+ expect(offerMessageMatches(offer,compactOfferMessage(offer))).toBe(true)
+ expect(offerMessageMatches(offer,legacy.replace('10,99','1,99'))).toBe(false)
+ expect(offerMessageMatches({...offer,affiliateUrl:'https://meli.la/changed'},legacy)).toBe(false)
+})
 
 describe('contratos de afiliados', () => {
   it('aceita imagem enviada e conexões únicas, sem lançar para URL inválida',()=>{

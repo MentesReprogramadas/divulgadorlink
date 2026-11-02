@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto'
 import type { Prisma, PrismaClient } from '@prisma/client'
 import { z } from 'zod'
-import { AffiliateError, offerMessage } from '@/domain/affiliates/contracts'
+import { AffiliateError, offerMessageMatches } from '@/domain/affiliates/contracts'
 import { dayPlanInput, dayPlanSlots, dayPlanCapacity, rankDayProducts, selectDayProducts, dayPlanCandidatePool, type DayPlanInput } from '@/domain/affiliates/day-plan'
 import { affiliateProductUrl } from '@/domain/affiliates/shopee'
 import { suggestDayProductOrder } from '@/adapters/affiliates/openai-day-plan'
@@ -264,7 +264,7 @@ export async function approveAffiliateDayPlan(db:PrismaClient,tenantId:string,ac
     for(const entry of entries){
       const snapshot=snapshotSchema.parse(entry.snapshot),payload=readAffiliateProductPreview(snapshot.previewToken,tenantId,actorId,segmentId)
       if(entry.scheduledAt<=new Date(Date.now()+60000))throw new AffiliateError(409,'Um horário já passou ou está muito próximo. Escolha outro período para as ofertas prontas neste mesmo lote e revise antes de aceitar.')
-      if(segment.updatedAt.toISOString()!==payload.segmentRevision||await affiliateRevision(tx,tenantId,entry.itemId)!==payload.affiliateRevision||offerMessage({...payload,note:''})!==payload.message)throw new AffiliateError(409,'A configuração ou a mensagem mudou. Gere outro lote.')
+      if(segment.updatedAt.toISOString()!==payload.segmentRevision||await affiliateRevision(tx,tenantId,entry.itemId)!==payload.affiliateRevision||!offerMessageMatches({...payload,note:''},payload.message))throw new AffiliateError(409,'A configuração ou a mensagem mudou. Gere outro lote.')
       if((await tx.affiliateProductDecision.findUnique({where:{tenantId_segmentId_itemId:{tenantId,segmentId,itemId:entry.itemId}}}))?.decision==='DISCARDED')throw new AffiliateError(409,'Uma oferta foi descartada. Refaça o lote.')
     }
     await tx.affiliateScheduledOffer.updateMany({where:{batchId:id,tenantId,id:{in:outside.map(e=>e.id)},state:{in:['READY','BUILDING','FAILED']}},data:{state:'CANCELLED',error:'Produto fora do tema da segmentação.'}})
@@ -368,7 +368,7 @@ export async function runAffiliateDayPlans(db:PrismaClient,ports=planPorts,scope
         if(!segment||segment.updatedAt.toISOString()!==payload.segmentRevision||await affiliateRevision(tx,entry.tenantId,entry.itemId)!==payload.affiliateRevision)throw new AffiliateError(409,'A segmentação ou a conta de afiliados mudou. Revise o lote.')
         if(!await tx.user.count({where:{id:entry.batch.actorId,tenantId:entry.tenantId,role:'ADMIN',status:'ACTIVE'}}))throw new AffiliateError(403,'O administrador responsável não está ativo. Revise o lote.')
         if((await tx.affiliateProductDecision.findUnique({where:{tenantId_segmentId_itemId:{tenantId:entry.tenantId,segmentId:entry.batch.segmentId,itemId:entry.itemId}}}))?.decision==='DISCARDED')throw new AffiliateError(409,'Oferta descartada depois do agendamento.')
-        if(offerMessage({...payload,note:''})!==payload.message)throw new AffiliateError(409,'O formato da mensagem mudou. Revise o lote.')
+        if(!offerMessageMatches({...payload,note:''},payload.message))throw new AffiliateError(409,'O formato da mensagem mudou. Revise o lote.')
         const existing=await tx.affiliateBroadcast.findUnique({where:{tenantId_idempotencyKey:{tenantId:entry.tenantId,idempotencyKey:`schedule:${entry.id}`}}})
         if(existing){await tx.affiliateScheduledOffer.updateMany({where:guard,data:{state:'QUEUED',broadcastId:existing.id,leaseToken:null,leaseExpiresAt:null}});return}
         const offer=await tx.affiliateOffer.create({data:{tenantId:entry.tenantId,segmentId:entry.batch.segmentId,itemId:entry.itemId,title:payload.title,productUrl:payload.productUrl,affiliateUrl:payload.affiliateUrl,priceCents:payload.priceCents,oldPriceCents:payload.oldPriceCents,reportedDiscountPercent:payload.reportedDiscountPercent??null,oldPriceEstimated:payload.oldPriceEstimated??false,imageUrl:payload.imageUrl,checkedAt:new Date(product.checkedAt),expiresAt:new Date(entry.scheduledAt.getTime()+30*60000)}})

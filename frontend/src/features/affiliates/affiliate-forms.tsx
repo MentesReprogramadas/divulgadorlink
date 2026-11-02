@@ -52,13 +52,15 @@ export function OfferForm({ offer, product, segments, scopedSegment, save }: { o
 }
 
 export function SendForm({ offer, groupCount, save }: { offer: AffiliateOffer; groupCount: number; save: (body: Record<string, unknown>) => Promise<void> }) {
+  // shortcut: older APIs omit message; use a compact fallback until the next snapshot refresh.
+  const message = offer.message ?? [offer.title, `*${formatCents(offer.priceCents)}*`, offer.affiliateUrl, 'Publicidade'].join('\n')
   const [schedule, setSchedule] = useState('')
   const [key] = useState(() => crypto.randomUUID())
   return <Form label={schedule ? 'Confirmar agendamento' : 'Confirmar envio'} icon={schedule ? 'schedule' : 'check'} onSubmit={data => {
     if (!data.has('confirm')) throw new Error('Confirme a revisão antes de enviar.')
     return save({ idempotencyKey: key, ...(schedule ? { scheduledAt: new Date(schedule).toISOString() } : {}) })
   }}>
-    <div className={styles.preview}><strong>{offer.title}</strong>{offer.oldPriceCents && offer.oldPriceCents > offer.priceCents ? <p>De: <s>{formatCents(offer.oldPriceCents)}</s></p> : null}<p>Por: <strong>{formatCents(offer.priceCents)}</strong></p>{offer.note ? <p>{offer.note}</p> : null}<p className={styles.url}>{offer.affiliateUrl}</p><p className={styles.muted}>Preço e estoque podem mudar a qualquer momento.</p></div>
+    <pre className={styles.preview} aria-label="Mensagem para o WhatsApp">{message}</pre>
     <p>Destino: <strong>{offer.segment?.name ?? 'Segmentação da oferta'}</strong> · {groupCount} {groupCount === 1 ? 'grupo ativo' : 'grupos ativos'} nesta lista. O envio inclui todos os grupos ativos da segmentação, respeitando pausas de conexões e grupos. Cada destino terá seu próprio registro de entrega.</p>
     <Field label="Agendar envio (opcional)" hint="Deixe vazio para colocar na fila agora. Horário local."><DatePicker withTime value={schedule} onChange={event => setSchedule(event.target.value)} /></Field>
     <label className={styles.check}><Input name="confirm" type="checkbox" required />Revisei o preço, o link de afiliado e os grupos de destino.</label>

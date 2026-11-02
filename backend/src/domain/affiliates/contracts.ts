@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { affiliateImageReference } from './image'
-import { compactAffiliateTitle } from './product-title'
+import { affiliateTitleHasQualifier, compactAffiliateTitle } from './product-title'
 
 export class AffiliateError extends Error {
   constructor(public readonly status: number, message: string) { super(message) }
@@ -40,7 +40,25 @@ export const offerInput = z.object({
 export type OfferMessage = Pick<z.infer<typeof offerInput>, 'title'|'affiliateUrl'|'priceCents'|'oldPriceCents'|'note'> & {headline?:string;showHeadline?:boolean;reportedDiscountPercent?:number|null;oldPriceEstimated?:boolean}
 const safeText = (text: string) => text.replace(/[\r\n*_~`]/g, ' ').replace(/\s+/g, ' ').trim()
 const money = (cents: number) => (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-export function offerMessage(offer: OfferMessage) {
+const emojiPattern=/\p{Extended_Pictographic}|\p{Regional_Indicator}|\p{Emoji_Modifier}|\uFE0F|\u200D|\u20E3/gu
+const compactCopyText=(text:string)=>safeText(text).replace(/(\d)\s*[–—]\s*(?=\d)/g,'$1 a ').replace(/[–—]/g,' ').replace(emojiPattern,'').replace(/\s+/g,' ').trim()
+export function offerMessage(offer:OfferMessage) {
+  const title=compactAffiliateTitle(compactCopyText(offer.title))
+  const headline=offer.showHeadline&&offer.headline?compactCopyText(offer.headline):''
+  const usableHeadline=headline.length>=8&&headline.length<=60&&!/\b(?:confira|conheça|conheca|corra|aproveit\w*)\b/iu.test(headline)
+  const variation=[...title].reduce((sum,char)=>(sum+char.codePointAt(0)!)%3,0)
+  const normalized=(text:string)=>text.normalize('NFD').replace(/\p{M}/gu,'').toLowerCase()
+  const showProduct=affiliateTitleHasQualifier(title)||usableHeadline&&!normalized(headline).includes(normalized(title))
+  const categoryEmoji=usableHeadline?offer.headline!.match(/\p{Extended_Pictographic}/u)?.[0]:undefined
+  const opening=usableHeadline?`${categoryEmoji?categoryEmoji+' ':''}${headline}`:title
+  const price=showProduct&&usableHeadline?`${title} | *${money(offer.priceCents)}*`:`🔥 *${money(offer.priceCents)}*`
+  const linkEmoji=variation===2?'🔗':'🛒'
+  const link=categoryEmoji&&price.startsWith('🔥')?offer.affiliateUrl:`${linkEmoji} ${offer.affiliateUrl}`
+  return [opening,price,link,'Publicidade'].join('\n')
+}
+
+// Keep exact previously signed text valid; never use the legacy layout for new previews.
+export function legacyOfferMessage(offer: OfferMessage) {
   const saving = offer.oldPriceCents && offer.oldPriceCents > offer.priceCents ? offer.oldPriceCents - offer.priceCents : 0
   const rate=offer.reportedDiscountPercent
   const reportedDiscount=typeof rate==='number'&&Number.isInteger(rate)&&rate>0&&rate<=100?rate:0
@@ -55,6 +73,9 @@ export function offerMessage(offer: OfferMessage) {
   if (offer.note) lines.push('', safeText(offer.note))
   lines.push('', 'Compre aqui 👇', offer.affiliateUrl)
   return lines.join('\n')
+}
+export function offerMessageMatches(offer:OfferMessage,message:string){
+  return message===offerMessage(offer)||message===legacyOfferMessage(offer)
 }
 export function groupName(base: string, sequence: number) { return `${base.replace(/\s+#\d+$/, '').trim()} #${sequence}` }
 export function validInvite(value: unknown): string {

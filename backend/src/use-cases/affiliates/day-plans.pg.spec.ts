@@ -3,7 +3,7 @@ import { PrismaClient, type Prisma } from '@prisma/client'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { afterAll, beforeAll, beforeEach, expect, it, vi } from 'vitest'
-import { offerMessage } from '@/domain/affiliates/contracts'
+import { legacyOfferMessage } from '@/domain/affiliates/contracts'
 import type { DayPlanInput } from '@/domain/affiliates/day-plan'
 import { petProductCategory } from '@/domain/affiliates/pet-products'
 import { isShopeeProduct } from '@/domain/affiliates/shopee'
@@ -320,10 +320,21 @@ it('revalida produtos equivalentes entre dois rascunhos dentro do bloqueio da ap
  expect((await readAffiliateDayPlan(db,tenantId,segmentId,second.id)).entries[0].state).toBe('FAILED')
  expect(await db.affiliateScheduledOffer.count({where:{batchId:first.id,state:'PENDING'}})).toBe(2)
 })
+it('aceita envio avulso legado exato e rejeita preço divergente mesmo com assinatura válida',async()=>{
+ const {id}=await draft(),entry=await db.affiliateScheduledOffer.findFirstOrThrow({where:{batchId:id,itemId:product().id}})
+ const payload=readAffiliateProductPreview(String((entry.snapshot as Prisma.JsonObject).previewToken),tenantId,actorId,segmentId)
+ payload.message=legacyOfferMessage({...payload,note:''})
+ const signed=(message:string)=>{const body=Buffer.from(JSON.stringify({...payload,message})).toString('base64url');return body+'.'+createHmac('sha256',process.env.JWT_SECRET!).update('affiliate-preview:v1:'+body).digest('base64url')}
+ await expect(sendAffiliateProduct(db,tenantId,actorId,segmentId,signed(payload.message.replace('25,90','1,90')))).rejects.toMatchObject({status:409,message:'A mensagem mudou. Atualize a prévia antes de enviar.'})
+ expect(await db.affiliateBroadcast.count({where:{tenantId}})).toBe(0)
+ const result=await sendAffiliateProduct(db,tenantId,actorId,segmentId,signed(payload.message))
+ expect((await db.affiliateBroadcast.findUniqueOrThrow({where:{id:result.broadcastId}})).message).toBe(payload.message)
+})
 it('continua enviando a mensagem antiga assinada sem acrescentar chamada após a atualização',async()=>{
  const {id,ports}=await draft(),entry=await db.affiliateScheduledOffer.findFirstOrThrow({where:{batchId:id,itemId:product().id}})
  const saved=entry.snapshot as Prisma.JsonObject,payload=readAffiliateProductPreview(String(saved.previewToken),tenantId,actorId,segmentId)
- delete payload.showHeadline;payload.message=offerMessage({...payload,note:''})
+ delete payload.showHeadline;payload.message=legacyOfferMessage({...payload,note:''})
+ expect(payload.message).toBe('*Árvore de Natal verde*\n\nDe: ~R$\u00a039,90~\n🔥 *R$\u00a025,90*\n💸 *35% OFF* · Economize *R$\u00a014,00*\n\nCompre aqui 👇\nhttps://meli.la/fixture')
  const body=Buffer.from(JSON.stringify(payload)).toString('base64url'),mac=createHmac('sha256',process.env.JWT_SECRET!).update('affiliate-preview:v1:'+body).digest('base64url')
  await db.affiliateScheduledOffer.update({where:{id:entry.id},data:{snapshot:{...saved,previewToken:body+'.'+mac,message:payload.message}}})
  await approveReviewedDayPlan(db,tenantId,actorId,segmentId,id)
@@ -388,7 +399,7 @@ it('prepara desconto primeiro e revisão exata sem gerar entregas; isola tenant 
   const {plan,id,value}=await draft()
   expect(plan.status).toBe('DRAFT');expect(plan.entries.map(e=>e.itemId)).toEqual(['MLB123456','MLB234567'])
   expect(plan.summary).toMatchObject({offers:2,groups:2,totalMessages:4,intervalMinutes:720})
-  expect(plan.entries[0].message?.split('\n')[1]).toMatch(/^\*Árvore/);expect(plan.entries[0].message).toContain('🔥');expect(plan.entries[0].message).not.toContain('Preço e estoque')
+  expect(plan.entries[0].message?.split('\n')[1]).toContain('Árvore');expect(plan.entries[0].message).toContain('*R$\u00a025,90*');expect(plan.entries[0].message).not.toContain('Preço e estoque')
   expect(await db.affiliateDelivery.count({where:{tenantId}})).toBe(0)
   await expect(readAffiliateDayPlan(db,otherTenant,segmentId,id)).rejects.toMatchObject({status:404})
   await expect(approveReviewedDayPlan(db,tenantId,'other-actor',segmentId,id)).rejects.toMatchObject({status:403})
@@ -410,7 +421,7 @@ it('agenda seleção manual conjunta Shopee e ML preservando catálogo, percentu
   const value={...input(),itemIds:[shoe.id,product().id]}
   const {plan,id}=await draft(ports,value)
   expect(plan.entries.map(e=>e.itemId)).toEqual(value.itemIds)
-  expect(plan.entries[0].message).toContain('*39% OFF*');expect(plan.entries[0].affiliateUrl).toBe('https://s.shopee.com.br/fixture')
+  expect(plan.entries[0].message).toContain('*R$\u00a021,30*');expect(plan.entries[0].affiliateUrl).toBe('https://s.shopee.com.br/fixture')
   await approveReviewedDayPlan(db,tenantId,actorId,segmentId,id)
   await db.affiliateScheduledOffer.updateMany({where:{batchId:id},data:{scheduledAt:new Date()}})
   await runAffiliateDayPlans(db,ports,{tenantId,batchId:id})
