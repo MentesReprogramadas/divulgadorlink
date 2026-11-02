@@ -5,6 +5,8 @@ import { resolve } from 'node:path'
 import { afterAll, beforeAll, beforeEach, expect, it, vi } from 'vitest'
 import { offerMessage } from '@/domain/affiliates/contracts'
 import type { DayPlanInput } from '@/domain/affiliates/day-plan'
+import { petProductCategory } from '@/domain/affiliates/pet-products'
+import { isShopeeProduct } from '@/domain/affiliates/shopee'
 import { evaluateAffiliateProduct } from '@/domain/affiliates/evaluation'
 import { createAffiliateDayPlan, buildAffiliateDayPlan, approveAffiliateDayPlan, readAffiliateDayPlan, cancelAffiliateDayPlan, runAffiliateDayPlans, retryAffiliateDayPlan, rescheduleAffiliateDayPlan, type DayPlanPorts } from './day-plans'
 import { previewAffiliateProduct, readAffiliateProductPreview, sendAffiliateProduct } from './product-review'
@@ -148,6 +150,44 @@ it('envia produto pet pelo título integral mesmo quando o título curto não co
   for(let i=0;i<2;i++){await db.affiliateInstance.update({where:{id:instanceId},data:{nextSendAt:new Date(Date.now()-1)}});await runAffiliateDeliveries(db,()=>remote,new Date())}
   expect(sent).toHaveBeenCalledTimes(2)
   expect((await affiliateDiscoveryState(db,tenantId,segmentId,{mode:'MIXED',view:'ALL'})).products.some(item=>item.id===p.id)).toBe(true)
+})
+it.each(['food-only','fallback'])('persiste categorias Pets variadas nos horários mesmo com IA %s',async(mode)=>{
+ await db.affiliateSegment.update({where:{id:segmentId},data:{name:'Pets'}})
+ const titles=[...Array.from({length:80},(_,i)=>'Ração para cachorro marca '+i),...['Areia sanitária para gato','Comedouro para cachorro','Shampoo para cachorro','Arranhador para gato','Brinquedo para cachorro'].flatMap(title=>Array.from({length:5},(_,i)=>title+' modelo '+i))]
+ const catalog=titles.map((title,i)=>({...product(),id:'MLB'+(800000+i),catalogId:'MLB'+(800000+i),title,reportedDiscountPercent:i<80?70:10,sentCount:0,pendingCount:0,lastSentAt:null})),ports=dependencies()
+ vi.mocked(ports.candidates).mockResolvedValue(catalog)
+ ports.order=vi.fn(async()=>mode==='fallback'?[]:catalog.slice(0,24).map(p=>({id:p.id,context:{role:'CORE' as const,framing:'THEME' as const,reason:'Produto adequado ao grupo Pets.'}})))
+ ports.prepare=async(client,tenant,actor,segment,itemId,context)=>{
+  const p=catalog.find(p=>p.id===itemId)!
+  return previewAffiliateProduct(client,tenant,actor,segment,itemId,{candidate:async()=>p,refresh:async()=>p,link:async()=>({url:'https://meli.la/fixture',fullUrl:'https://meli.la/fixture',tag:'fixture',profile:'fixture'}),title:async()=>({title:p.title,source:'ORIGINAL'})},context)
+ }
+ const {id,plan}=await draft(ports,{...input(),count:24})
+ expect(plan.summary.offers,plan.error??'').toBe(24)
+ const entries=await db.affiliateScheduledOffer.findMany({where:{batchId:id},orderBy:{position:'asc'}})
+ const categories=entries.map(entry=>petProductCategory(catalog.find(p=>p.id===entry.itemId)!.title))
+ expect(new Set(categories).size).toBe(6)
+ for(const category of new Set(categories))expect(categories.filter(value=>value===category)).toHaveLength(4)
+ expect(new Set(entries.map(entry=>entry.scheduledAt.toISOString())).size).toBe(24)
+ expect(await db.affiliateBroadcast.count({where:{tenantId}})).toBe(0)
+})
+it.each(['Natal','Yoga','Pets'])('persiste alternância de lojas em %s com IA só Shopee',async(name)=>{
+ await db.affiliateSegment.update({where:{id:segmentId},data:{name}})
+ const catalog=['SHP','MLB'].flatMap(provider=>Array.from({length:16},(_,i)=>{
+  const id=provider==='SHP'?`SHP10_${i+100}`:'MLB'+(900000+i),title=(name==='Pets'?'Brinquedo para cachorro':name==='Yoga'?'Tapete para Yoga':'Enfeite Natal')+' modelo '+provider+i
+  return {...product(),id,catalogId:id,title,productUrl:provider==='SHP'?`https://shopee.com.br/product/10/${i+100}`:`https://www.mercadolivre.com.br/p/${id}?wid=${id}`,reportedDiscountPercent:provider==='SHP'?70:20,sentCount:0,pendingCount:0,lastSentAt:null}
+ })),ports=dependencies()
+ vi.mocked(ports.candidates).mockResolvedValue(catalog)
+ ports.order=vi.fn(async()=>catalog.slice(0,12).map(p=>({id:p.id,context:{role:'CORE' as const,framing:'THEME' as const,reason:'Produto nativo do tema do grupo.'}})))
+ ports.prepare=async(client,tenant,actor,segment,itemId,context)=>{
+  const p=catalog.find(p=>p.id===itemId)!
+  return previewAffiliateProduct(client,tenant,actor,segment,itemId,{candidate:async()=>p,refresh:async()=>p,link:async()=>({url:isShopeeProduct(itemId)?'https://shope.ee/fixture':'https://meli.la/fixture',fullUrl:p.productUrl,tag:'fixture',profile:'fixture'}),title:async()=>({title:p.title,source:'ORIGINAL'})},context)
+ }
+ const {id,plan}=await draft(ports,{...input(),count:12})
+ expect(plan.summary.offers,plan.error??'').toBe(12)
+ const entries=await db.affiliateScheduledOffer.findMany({where:{batchId:id},orderBy:{position:'asc'}})
+ expect(entries.filter(entry=>isShopeeProduct(entry.itemId))).toHaveLength(6)
+ expect(entries.every((entry,i)=>!i||isShopeeProduct(entry.itemId)!==isShopeeProduct(entries[i-1].itemId))).toBe(true)
+ expect(await db.affiliateBroadcast.count({where:{tenantId}})).toBe(0)
 })
 it('recupera falhas dentro da agenda aprovada, mantém pendências ativas e exige novo aceite',async()=>{
  const ports=dependencies(),prepare=ports.prepare

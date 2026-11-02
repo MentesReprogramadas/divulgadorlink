@@ -1,8 +1,94 @@
 import { expect, it } from 'vitest'
 import { dayPlanInput, dayPlanSlots, rankDayProducts,selectDayProducts,dayPlanCandidatePool } from './day-plan'
 import { evaluateAffiliateProduct } from './evaluation'
+import { isShopeeProduct } from './shopee'
+
+const petCatalog=()=>{
+ const make=(id:string,title:string,rate=10)=>{const p={id,catalogId:id,title,priceCents:1000,oldPriceCents:null,reportedDiscountPercent:rate,imageUrl:null,productUrl:'https://meli.la/test',checkedAt:now.toISOString(),sourceTerm:'Pets',sourcePage:1};return {...p,evaluation:evaluateAffiliateProduct(p,[])}}
+ return [...Array.from({length:80},(_,i)=>make('food'+i,'Ração para cachorro marca '+i,70)),...['Areia sanitária para gato','Comedouro para cachorro','Shampoo para cachorro','Arranhador para gato','Brinquedo para cachorro'].flatMap((title,j)=>Array.from({length:5},(_,i)=>make('cat'+j+'item'+i,title+' modelo '+i)))]
+}
+it.each(['sem IA','IA só ração','IA inválida'])('diversifica Pets com catálogo dominado por ração: %s',mode=>{
+ const catalog=petCatalog(),analysis=mode==='sem IA'?[]:catalog.slice(0,24).map(p=>({id:mode==='IA inválida'?'foreign':p.id,context:{role:'CORE' as const,framing:'THEME' as const,reason:'Produto adequado ao grupo Pets.'}}))
+ const selected=selectDayProducts(catalog,{name:'Pets'},24,analysis)
+ expect(selected).toHaveLength(24)
+ expect(selected.filter(p=>p.title.startsWith('Ração'))).toHaveLength(4)
+ for(const title of ['Areia','Comedouro','Shampoo','Arranhador','Brinquedo'])expect(selected.filter(p=>p.title.startsWith(title))).toHaveLength(4)
+ expect(selected.some((p,i)=>i>0&&p.title.startsWith('Ração')&&selected[i-1].title.startsWith('Ração'))).toBe(false)
+})
+it('distribui categorias escassas ao longo do dia e completa apenas com Pets disponíveis',()=>{
+ const catalog=petCatalog(),selected=selectDayProducts(catalog,{name:'Pets'},100)
+ expect(selected).toHaveLength(100)
+ expect(selected.slice(0,20).some(p=>!p.title.startsWith('Ração'))).toBe(true)
+ expect(selected.slice(-20).some(p=>!p.title.startsWith('Ração'))).toBe(true)
+ expect(selected.map(p=>p.title.startsWith('Ração')?'f':'x').join('')).not.toContain('ffffff')
+ expect(selectDayProducts(catalog.slice(0,10),{name:'Pets'},24)).toHaveLength(10)
+})
+it('mantém ranking dentro da categoria e bloqueio físico multiloja ao diversificar Pets',()=>{
+ const catalog=petCatalog(),food=catalog[0],feeding=catalog[85]
+ const products=[...catalog,{...food,id:'shopee:999',catalogId:'shopee:999',pendingCount:1},{...feeding,id:'shopee:888',catalogId:'shopee:888',sentCount:2}]
+ const analysis=[{id:'food2',context:{role:'CORE' as const,framing:'THEME' as const,reason:'Ração adequada ao grupo Pets.'}}]
+ const selected=selectDayProducts(products,{name:'Pets'},12,analysis)
+ expect(selected.some(p=>p.title===food.title)).toBe(false)
+ expect(selected.filter(p=>p.title===feeding.title).length).toBeLessThanOrEqual(1)
+ expect(selected.find(p=>p.title.startsWith('Ração'))?.id).toBe('food2')
+ expect(selected.find(p=>p.title.startsWith('Ração'))?.planContext).toBe(analysis[0].context)
+})
 
 const now=new Date('2026-10-31T12:00:00Z'),input={day:'2026-11-01',start:'09:00',end:'21:00'}
+const providerCatalog=(theme='Enfeite Natal')=>['SHP','MLB'].flatMap((provider,j)=>Array.from({length:20},(_,i)=>({...petCatalog()[0],id:provider==='SHP'?`SHP10_${100+i}`:`MLB${100+i}`,catalogId:provider+j+'model'+i,title:theme+' modelo '+provider+i,sourceTerm:theme,reportedDiscountPercent:j?20:80})))
+it.each(['Natal','Yoga','Pets'])('alterna lojas elegíveis em %s apesar da IA escolher só Shopee',name=>{
+ const catalog=providerCatalog(name==='Pets'?'Brinquedo para cachorro':name==='Yoga'?'Tapete para Yoga':'Enfeite Natal')
+ const analysis=catalog.slice(0,12).map(p=>({id:p.id,context:{role:'CORE' as const,framing:'THEME' as const,reason:'Produto nativo do tema do grupo.'}}))
+ for(const selection of [analysis,[]]){
+  const selected=selectDayProducts(catalog,{name},12,selection)
+  expect(selected).toHaveLength(12)
+  expect(selected.filter(p=>isShopeeProduct(p.id))).toHaveLength(6)
+  expect(selected.every((p,i)=>!i||isShopeeProduct(p.id)!==isShopeeProduct(selected[i-1].id))).toBe(true)
+ }
+})
+it('alterna representantes físicos entre lojas e mantém um anúncio por família com histórico e pendência',()=>{
+ const shopee=providerCatalog().slice(0,10),ml=shopee.map((p,i)=>({...p,id:'MLB'+(500+i),catalogId:'MLB'+(500+i),reportedDiscountPercent:20}))
+ const ranked=rankDayProducts([...shopee,...ml])
+ expect(ranked).toHaveLength(10)
+ expect(ranked.filter(p=>isShopeeProduct(p.id))).toHaveLength(5)
+ expect(new Set(ranked.map(p=>p.title)).size).toBe(10)
+ expect(rankDayProducts([...shopee,...ml.map((p,i)=>i? p:{...p,pendingCount:1})]).some(p=>p.title===shopee[0].title)).toBe(false)
+})
+it('inclui ambas as lojas na amostra do mesmo termo e usa só produtos disponíveis sem quota',()=>{
+ const catalog=providerCatalog(),pool=dayPlanCandidatePool(catalog,12)
+ expect(pool.filter(p=>isShopeeProduct(p.id))).toHaveLength(6)
+ expect(selectDayProducts(catalog.slice(0,20),{name:'Natal'},12)).toHaveLength(12)
+ const scarce=[...catalog.slice(0,20),catalog[20]],selected=selectDayProducts(scarce,{name:'Natal'},12)
+ expect(selected).toHaveLength(12)
+ expect(selected.filter(p=>!isShopeeProduct(p.id))).toHaveLength(1)
+ const unrelated=catalog.slice(20).map(p=>({...p,title:'Ração para cachorro '+p.id}))
+ expect(selectDayProducts([...catalog.slice(0,20),...unrelated],{name:'Natal'},12).every(p=>isShopeeProduct(p.id))).toBe(true)
+})
+it('alterna Tecnologia por termos do título e não usa termo de coleta como prova temática',()=>{
+ const catalog=providerCatalog(),products=catalog.map(p=>({...p,title:isShopeeProduct(p.id)?'Celular smartphone modelo '+p.id:'Mouse gamer modelo '+p.id}))
+ const analysis=products.slice(0,12).map(p=>({id:p.id,context:{role:'CORE' as const,framing:'THEME' as const,reason:'Dispositivo tecnológico do grupo.'}}))
+ const segment={name:'Tecnologia',discovery:{terms:['celular','mouse gamer']}}
+ expect(selectDayProducts(products,segment,12,analysis).filter(p=>!isShopeeProduct(p.id))).toHaveLength(6)
+ const unrelated=products.slice(20).map(p=>({...p,title:'Ração para cachorro '+p.id,sourceTerm:'mouse gamer'}))
+ expect(selectDayProducts([...products.slice(0,20),...unrelated],segment,12,analysis).every(p=>isShopeeProduct(p.id))).toBe(true)
+})
+it('combina categorias e lojas em Pets sem preencher com produto infantil',()=>{
+ const catalog=petCatalog().map((p,i)=>({...p,id:i%2?'MLB'+i:`SHP10_${i+100}`,catalogId:'physical'+i}))
+ const selected=selectDayProducts([...catalog,{...catalog[0],id:'MLB999999',catalogId:'baby',title:'Brinquedo para bebê infantil'}],{name:'Pets'},24)
+ expect(selected.filter(p=>isShopeeProduct(p.id))).toHaveLength(12)
+ expect(selected.some(p=>p.title.includes('bebê'))).toBe(false)
+ for(const title of ['Ração','Areia','Comedouro','Shampoo','Arranhador','Brinquedo'])expect(selected.filter(p=>p.title.startsWith(title))).toHaveLength(4)
+})
+it('reduz pool contextual ampliado sem exceder quantidade nem transformar complementos em núcleo',()=>{
+ const catalog=providerCatalog('Produto de tecnologia')
+ const analysis=catalog.slice(0,12).map((p,i)=>({id:p.id,context:{role:i<8?'CORE' as const:'RELATED' as const,framing:i<8?'THEME' as const:'COMPANION' as const,reason:'Relação avaliada semanticamente pela IA.'}}))
+ analysis.push(...catalog.slice(20,32).map(p=>({id:p.id,context:{role:'CORE' as const,framing:'THEME' as const,reason:'Equipamento adequado ao segmento.'}})))
+ const selected=selectDayProducts(catalog,{name:'Tecnologia'},12,analysis)
+ expect(selected).toHaveLength(12)
+ expect(selected.filter(p=>p.planContext.role==='RELATED')).toHaveLength(2)
+ expect(selected.filter(p=>!isShopeeProduct(p.id))).toHaveLength(5)
+ expect(selected.filter(p=>p.planContext.role==='RELATED').every(p=>p.planContext.framing==='COMPANION')).toBe(true)
+})
 it('distribui o dia em Brasília com limites exatos e intervalo mínimo',()=>{
   const slots=dayPlanSlots(input,13,now)
   expect(slots[0].toISOString()).toBe('2026-11-01T12:00:00.000Z')

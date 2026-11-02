@@ -2,6 +2,17 @@ import { describe, expect, it } from 'vitest'
 import { MAX_DISCOVERY_TERMS, planAffiliateDiscoveryTerms } from './discovery-terms'
 
 describe('affiliate discovery term planning', () => {
+  it('inclui categorias de Pets antes de expansões repetitivas de ração',()=>{
+    const terms=planAffiliateDiscoveryTerms(['Pets'],Array.from({length:20},(_,i)=>`Ração para gato ${i}`),'Pets')
+    expect(terms).toEqual(expect.arrayContaining(['Areia higiênica para gatos','Comedouro para pets','Arranhador para gatos','Brinquedos para cachorros','Luva escova para pets','Cama para pets']))
+    expect(terms.indexOf('Comedouro para pets')).toBeLessThan(terms.indexOf('Ração para gato 0'))
+    expect(terms.length).toBeLessThanOrEqual(MAX_DISCOVERY_TERMS)
+  })
+  it('mantém coleta de gatos dentro da espécie e preserva campanhas que não são Pets',()=>{
+    expect(planAffiliateDiscoveryTerms(['Gatos'],[],'Gatos')).toContain('Arranhador para gatos')
+    expect(planAffiliateDiscoveryTerms(['Gatos'],[],'Gatos').some(t=>t.includes('cachorro'))).toBe(false)
+    expect(planAffiliateDiscoveryTerms(['Informática'],['Mouse gamer'],'Informática')).toEqual(['Informática','Mouse gamer'])
+  })
   it('covers gifts across categories and decoration without AI or Christmas-only searches', () => {
     const terms = planAffiliateDiscoveryTerms(['Natal'])
     expect(terms).toEqual(expect.arrayContaining(['Natal', 'Camiseta masculina', 'Tênis feminino', 'Brinquedo educativo', 'Kit perfume', 'Jogo de panelas', 'Fone bluetooth', 'Árvore de Natal']))

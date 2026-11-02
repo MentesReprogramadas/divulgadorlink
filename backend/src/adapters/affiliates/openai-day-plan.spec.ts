@@ -1,9 +1,48 @@
 import { afterEach, expect, it, vi } from 'vitest'
 import { suggestDayProductOrder } from './openai-day-plan'
 import { evaluateAffiliateProduct } from '@/domain/affiliates/evaluation'
+import { selectDayProducts } from '@/domain/affiliates/day-plan'
+import { isShopeeProduct } from '@/domain/affiliates/shopee'
 const p={id:'MLB123',catalogId:'MLB123',title:'Produto de Natal',priceCents:1000,oldPriceCents:2000,imageUrl:null,productUrl:'https://meli.la/test',checkedAt:new Date().toISOString(),sentCount:3,lastSentAt:'2026-10-30T12:00:00Z',sourceTerm:'Natal',sourcePage:1}
 const products=[{...p,evaluation:evaluateAffiliateProduct(p,[])}]
 afterEach(()=>vi.unstubAllEnvs())
+it.each([{refuse:false,initialMl:0,availableMl:16},{refuse:true,initialMl:0,availableMl:16},{refuse:false,initialMl:1,availableMl:16},{refuse:true,initialMl:1,availableMl:16},{refuse:false,initialMl:0,availableMl:1}])('avalia semanticamente loja minoritária em Tecnologia sem termos: $initialMl ML, recusa $refuse',async({refuse,initialMl,availableMl})=>{
+ vi.stubEnv('OPENAI_API_KEY','fixture')
+ const catalog=['SHP','MLB'].flatMap(provider=>Array.from({length:provider==='MLB'?availableMl:16},(_,i)=>{const id=provider==='SHP'?`SHP10_${i+100}`:'MLB'+(100+i);return {...products[0],id,catalogId:id,title:provider==='SHP'?'Smartphone modelo '+i:(refuse&&i>0?'Ração para cachorro ':'Mouse gamer modelo ')+i}}))
+ const renew=vi.fn(async()=>{})
+ const fetcher=vi.fn(async(_url:unknown,init?:RequestInit)=>{
+  const data=JSON.parse(JSON.parse(String(init?.body)).messages[1].content),missing=data.products.every((p:{provider:string})=>p.provider==='MERCADO_LIVRE')
+  if(missing&&refuse)return Response.json({choices:[{finish_reason:'stop',message:{content:'',refusal:'Os produtos não pertencem ao tema.'}}]})
+  const chosen=missing?data.products.slice(0,12):[...data.products.filter((p:{provider:string})=>p.provider==='SHOPEE').slice(0,12-initialMl),...data.products.filter((p:{provider:string})=>p.provider==='MERCADO_LIVRE').slice(0,initialMl)]
+  return Response.json({choices:[{finish_reason:'stop',message:{content:JSON.stringify({coreCount:chosen.length,relatedCount:0,items:chosen.map((p:{id:string})=>({id:p.id,context:{role:'CORE',framing:'THEME',reason:'Equipamento de tecnologia pertinente ao grupo.'}}))})}}]})
+ }) as unknown as typeof fetch
+ const analysis=await suggestDayProductOrder(catalog,fetcher,{name:'Tecnologia'},12,renew)
+ expect(fetcher).toHaveBeenCalledTimes(2);expect(renew).toHaveBeenCalledTimes(2)
+ const selected=selectDayProducts(catalog,{name:'Tecnologia'},12,analysis)
+ expect(selected).toHaveLength(12)
+ expect(selected.filter(p=>!isShopeeProduct(p.id))).toHaveLength(refuse?initialMl:Math.min(6,availableMl))
+ expect(selected.filter(p=>p.title.includes('Ração'))).toHaveLength(0)
+})
+it('amostra lojas em qualquer segmento e informa fornecedor à IA',async()=>{
+ vi.stubEnv('OPENAI_API_KEY','fixture')
+ const catalog=[...Array.from({length:180},(_,i)=>({...products[0],id:`SHP10_${100+i}`,title:'Celular modelo '+i})),...Array.from({length:80},(_,i)=>({...products[0],id:'MLB'+(100+i),title:'Mouse gamer modelo '+i}))]
+ const fetcher=vi.fn(async()=>new Response('{}',{status:503})) as unknown as typeof fetch
+ await suggestDayProductOrder(catalog,fetcher,{name:'Tecnologia'},24)
+ const request=JSON.parse(String(vi.mocked(fetcher).mock.calls[0][1]?.body)),data=JSON.parse(request.messages[1].content)
+ expect(data.products.filter((p:{provider:string})=>p.provider==='MERCADO_LIVRE')).toHaveLength(60)
+ expect(data.products.filter((p:{provider:string})=>p.provider==='SHOPEE')).toHaveLength(60)
+ expect(request.messages[0].content).toContain('lojas')
+})
+it('mostra categorias Pets escassas na primeira janela e informa categoria para a IA',async()=>{
+ vi.stubEnv('OPENAI_API_KEY','fixture')
+ const catalog=[...Array.from({length:500},(_,i)=>({...products[0],id:'food'+i,title:'Ração para cachorro marca '+i})),...['Areia sanitária para gato','Comedouro para cachorro','Shampoo para cachorro','Arranhador para gato','Brinquedo para cachorro'].map((title,i)=>({...products[0],id:'other'+i,title}))]
+ const fetcher=vi.fn(async()=>new Response('{}',{status:503})) as unknown as typeof fetch
+ expect(await suggestDayProductOrder(catalog,fetcher,{name:'Pets'},24)).toEqual([])
+ const request=JSON.parse(String(vi.mocked(fetcher).mock.calls[0][1]?.body)),data=JSON.parse(request.messages[1].content)
+ expect(new Set(data.products.map((p:{category:string})=>p.category))).toEqual(new Set(['FOOD','LITTER','FEEDING','HYGIENE','SCRATCHING','TOYS']))
+ expect(data.products).toHaveLength(120)
+ expect(request.messages[0].content).toContain('ração')
+})
 it('percorre candidatos além da primeira amostra e seleciona mais de 24 sem uma chamada por produto',async()=>{
  vi.stubEnv('OPENAI_API_KEY','fixture')
  const catalog=Array.from({length:250},(_,i)=>({...products[0],id:'MLB'+i,title:'Enfeite Natal modelo '+i}))

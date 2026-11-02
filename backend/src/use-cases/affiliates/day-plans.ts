@@ -109,7 +109,8 @@ export async function buildAffiliateDayPlan(db:PrismaClient,scope?:{tenantId:str
     const renew=async()=>{if(!(await db.affiliateScheduleBatch.updateMany({where:{...guard,expiresAt:{gt:new Date()}},data:{leaseExpiresAt:new Date(Date.now()+240000),expiresAt:new Date(Date.now()+15*60000)}})).count)throw new AffiliateError(409,'A preparação foi interrompida. Confira a agenda.')}
     if(!persisted){
     const available=await dayCandidates(db,batch.tenantId,batch.segmentId,input.day,ports)
-    const eligible=(input.itemIds?available.filter(p=>input.itemIds!.includes(p.id)&&p.decision!=='DISCARDED'):rankDayProducts(available)).filter(p=>affiliateProductFitsSegment(segment,p.title))
+    const fitting=available.filter(p=>affiliateProductFitsSegment(segment,p.title))
+    const eligible=input.itemIds?fitting.filter(p=>input.itemIds!.includes(p.id)&&p.decision!=='DISCARDED'):rankDayProducts(fitting)
     const quantity=Math.min(input.count,eligible.length,dayPlanCapacity(input))
     const order=input.itemIds?[]:await ports.order(dayPlanCandidatePool(eligible,eligible.length),undefined,segment,quantity,renew)
     const selected=input.itemIds?input.itemIds.map(id=>{const product=eligible.find(p=>p.id===id);if(!product)throw new AffiliateError(409,'Um produto selecionado foi descartado ou não está disponível. Refaça o lote.');return product}):selectDayProducts(eligible,segment,quantity,order)
