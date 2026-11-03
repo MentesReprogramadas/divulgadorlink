@@ -53,7 +53,7 @@ it('refaz uma chamada rejeitada e escolhe os elementos do anúncio a cada geraç
 })
 it('recupera a chamada do lote com os dados do catálogo quando a foto falha', async () => {
  const product = {id:'MLB889',catalogId:'MLB889',title:'Kit 10 enfeites de Natal',productUrl:'https://mercadolivre.com.br/p/MLB889',priceCents:1911,oldPriceCents:4990,imageUrl:'https://http2.mlstatic.com/fixture.jpg',checkedAt:new Date().toISOString()}
- const headline = 'Decore sua árvore com um toque especial'
+ const headline = 'Enfeites para montar a árvore'
  const style = {headerEmoji:'🎄',productEmoji:'✨',priceEmoji:'💰',discountEmoji:'🏷️',linkLabel:'Veja os detalhes na loja 🔎'}
  const fetcher = vi.fn<typeof fetch>()
    .mockResolvedValueOnce(new Response(null,{status:400}))
@@ -63,6 +63,15 @@ it('recupera a chamada do lote com os dados do catálogo quando a foto falha', a
  const calls = fetcher.mock.calls.map(([,options]) => JSON.parse(String(options?.body)).messages[1].content)
  expect(calls[0]).toHaveLength(2)
  expect(calls[1]).toHaveLength(1)
+})
+it('troca a frase publicitária por uma abertura simples sobre o uso', async () => {
+ const product = {id:'MLB991',catalogId:'MLB991',title:'Pisca-pisca cerejinha LED 30 metros',productUrl:'https://mercadolivre.com.br/p/MLB991',priceCents:2498,oldPriceCents:8999,imageUrl:null,checkedAt:new Date().toISOString()}
+ const style = {headerEmoji:'🎄',productEmoji:'💡',priceEmoji:'🔥',discountEmoji:'🏷️',linkLabel:'Veja os detalhes na loja'}
+ const fetcher = vi.fn<typeof fetch>()
+   .mockImplementationOnce(async () => response({title:product.title,headline:'Deixe sua festa brilhar com a luz das cerejinhas',style}))
+   .mockImplementationOnce(async () => response({title:product.title,headline:'Luzinhas para decorar a casa',style}))
+ expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher)).toMatchObject({headline:'Luzinhas para decorar a casa',source:'OPENAI'})
+ expect(fetcher).toHaveBeenCalledTimes(2)
 })
 it('rejects long, dashed, generic, urgent and invented headlines and sanitizes fallback copy only',async()=>{
  const base={id:'copy-guards-v8',catalogId:'copy-guards-v8',productUrl:'https://example.test/',priceCents:1000,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}
