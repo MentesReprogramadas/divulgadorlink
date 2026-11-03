@@ -43,6 +43,16 @@ const money = (cents: number) => (cents / 100).toLocaleString('pt-BR', { style: 
 const emojiPattern=/\p{Extended_Pictographic}|\p{Regional_Indicator}|\p{Emoji_Modifier}|\uFE0F|\u200D|\u20E3/gu
 const compactCopyText=(text:string)=>safeText(text).replace(/(\d)\s*[–—]\s*(?=\d)/g,'$1 a ').replace(/[–—]/g,' ').replace(emojiPattern,'').replace(/\s+/g,' ').trim()
 export function offerMessage(offer: OfferMessage) {
+  const rate = offer.reportedDiscountPercent
+  const reported = typeof rate === 'number' && Number.isInteger(rate) && rate > 0 && rate < 100 ? rate : 0
+  const previous = offer.oldPriceCents
+  const discount = !offer.oldPriceEstimated && previous && previous > offer.priceCents
+    ? Math.floor((previous - offer.priceCents) * 100 / previous)
+    : reported
+  return spacedOfferMessage(offer, discount)
+}
+
+function spacedOfferMessage(offer: OfferMessage, discount: number) {
   const normalize = (value: string) => compactCopyText(value).normalize('NFD')
     .replace(/\p{M}/gu, '').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim()
   const product = normalize(offer.title)
@@ -58,9 +68,23 @@ export function offerMessage(offer: OfferMessage) {
   else if (/\b(?:gato|gatos|cao|caes|pet|cachorro)\b/.test(product)) fallback = 'Um cuidado a mais na rotina do seu pet'
   else if (/\b(?:camiseta|blusa|tenis|calca)\b/.test(product)) fallback = 'Uma ideia para montar o look do dia'
 
-  const opening = usableHeadline ? headline : fallback
+  const gift = /\b(?:presente|presentear)\b/.test(normalize(headline))
+  const priceLimit = (Math.floor(offer.priceCents / 500) + 1) * 5
+  const variation = [...product].reduce((sum, char) => (sum + char.charCodeAt(0)) % 3, 0)
+  let opportunity: string | undefined
+  if (discount >= 50) {
+    if (gift && priceLimit <= 100) {
+      const giftLabel = /\bnatal\b/.test(normalize(headline)) ? 'Presente de Natal' : 'Ideia de presente'
+      opportunity = `🎁 ${giftLabel} por menos de R$ ${priceLimit}!`
+    } else {
+      opportunity = ['✨ Olha esse achado!', '✨ Não perca esta oferta!', '✨ Um achado por esse preço!'][variation]
+    }
+  }
+
+  const opening = usableHeadline && !(opportunity && gift) ? headline : fallback
   const emoji = usableHeadline ? offer.headline?.match(/\p{Extended_Pictographic}/u)?.[0] : '✨'
-  const price = `🔥 *${money(offer.priceCents)}*`
+  const price = `🔥 *${money(offer.priceCents)}*${discount ? ` | ${discount}% OFF` : ''}`
+  if (opportunity) return [opportunity, opening, price, offer.affiliateUrl].join('\n\n')
   const link = emoji ? offer.affiliateUrl : `🛒 ${offer.affiliateUrl}`
   return [emoji ? `${emoji} ${opening}` : opening, price, link].join('\n\n')
 }
@@ -98,7 +122,7 @@ export function legacyOfferMessage(offer: OfferMessage) {
   return lines.join('\n')
 }
 export function offerMessageMatches(offer:OfferMessage,message:string){
-  return message===offerMessage(offer)||message===previousCompactOfferMessage(offer)||message===legacyOfferMessage(offer)
+  return message===offerMessage(offer)||message===spacedOfferMessage(offer,0)||message===previousCompactOfferMessage(offer)||message===legacyOfferMessage(offer)
 }
 export function groupName(base: string, sequence: number) { return `${base.replace(/\s+#\d+$/, '').trim()} #${sequence}` }
 export function validInvite(value: unknown): string {
