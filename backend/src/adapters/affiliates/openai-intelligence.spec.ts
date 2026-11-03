@@ -51,6 +51,19 @@ it('refaz uma chamada rejeitada e escolhe os elementos do anúncio a cada geraç
  expect(second.style).toEqual(style)
  expect(fetcher).toHaveBeenCalledTimes(3)
 })
+it('recupera a chamada do lote com os dados do catálogo quando a foto falha', async () => {
+ const product = {id:'MLB889',catalogId:'MLB889',title:'Kit 10 enfeites de Natal',productUrl:'https://mercadolivre.com.br/p/MLB889',priceCents:1911,oldPriceCents:4990,imageUrl:'https://http2.mlstatic.com/fixture.jpg',checkedAt:new Date().toISOString()}
+ const headline = 'Decore sua árvore com um toque especial'
+ const style = {headerEmoji:'🎄',productEmoji:'✨',priceEmoji:'💰',discountEmoji:'🏷️',linkLabel:'Veja os detalhes na loja 🔎'}
+ const fetcher = vi.fn<typeof fetch>()
+   .mockResolvedValueOnce(new Response(null,{status:400}))
+   .mockImplementationOnce(async () => response({title:product.title,headline,style}))
+ const result = await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher,undefined,{name:'Natal'})
+ expect(result).toMatchObject({headline,style,source:'OPENAI'})
+ const calls = fetcher.mock.calls.map(([,options]) => JSON.parse(String(options?.body)).messages[1].content)
+ expect(calls[0]).toHaveLength(2)
+ expect(calls[1]).toHaveLength(1)
+})
 it('rejects long, dashed, generic, urgent and invented headlines and sanitizes fallback copy only',async()=>{
  const base={id:'copy-guards-v8',catalogId:'copy-guards-v8',productUrl:'https://example.test/',priceCents:1000,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}
  for(const [index,headline] of ['Uma caneca — para sua casa ☕','Uma caneca – para sua casa ☕','Corra aproveitar uma caneca para sua casa ☕','Uma opção para você 🎁','Uma caneca de qualidade para sua casa ☕',`Uma caneca para ${'sua casa '.repeat(8)}☕`].entries()){
