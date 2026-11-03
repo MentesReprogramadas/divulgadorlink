@@ -2,7 +2,7 @@ import { createHash, createHmac, randomUUID, timingSafeEqual } from 'node:crypto
 import type { PrismaClient } from '@prisma/client'
 import { z } from 'zod'
 import { env } from '@/env'
-import { AffiliateError, imageUrl, marketUrl, offerMessage, offerMessageMatches } from '@/domain/affiliates/contracts'
+import { AffiliateError, imageUrl, marketUrl, offerMessage, offerMessageMatches, offerStyleSchema } from '@/domain/affiliates/contracts'
 import { affiliateProductId, affiliateProductUrl, isShopeeProduct } from '@/domain/affiliates/shopee'
 import { generateCatalogAffiliate } from '@/use-cases/@Affiliates/catalog'
 import { findDiscoveryCandidate, generateAffiliateTitle, refreshAffiliateCandidate } from './discovery'
@@ -16,7 +16,7 @@ const previewSchema = z.object({
   expiresAt:z.number().int(),sourceTitle:z.string().max(4000).optional(),title:z.string().min(3).max(250),headline:z.string().min(8).max(140).optional(),showHeadline:z.boolean().optional(),productUrl:marketUrl,affiliateUrl:marketUrl,
   itemId:itemIdSchema,priceCents:z.number().int().positive().max(100_000_000),oldPriceCents:z.number().int().positive().max(100_000_000).nullable(),imageUrl,
   reportedDiscountPercent:z.number().int().min(1).max(100).nullable().optional(),
-  oldPriceEstimated:z.boolean().optional(),
+  oldPriceEstimated:z.boolean().optional(),style:offerStyleSchema.optional(),
   checkedAt:z.iso.datetime(),message:z.string().min(1).max(4000),
   groupHash:z.string().regex(/^[a-f0-9]{64}$/),
 }).strict()
@@ -59,8 +59,8 @@ export async function previewAffiliateProduct(db:PrismaClient,tenantId:string,ac
   if(!Number.isFinite(checkedAt.getTime()) || checkedAt.getTime()>now || now-checkedAt.getTime()>5*60_000) throw new AffiliateError(409,'Não foi possível confirmar um preço recente. Atualize a prévia.')
   const headline=generated.headline
   const reportedDiscountPercent=isShopeeProduct(product.id)?product.reportedDiscountPercent??null:null
-  const message=offerMessage({...product,reportedDiscountPercent,title:generated.title,headline,showHeadline:true,affiliateUrl:link.url,note:''})
-  const payload=previewSchema.parse({version:1,id:randomUUID(),tenantId,actorId,segmentId,segmentRevision:current.updatedAt.toISOString(),affiliateRevision:revision,expiresAt:now+5*60_000,sourceTitle:product.title,title:generated.title,headline,showHeadline:true,productUrl:product.productUrl,affiliateUrl:link.url,itemId,priceCents:product.priceCents,oldPriceCents:product.oldPriceCents,reportedDiscountPercent,oldPriceEstimated:product.oldPriceEstimated??false,imageUrl:product.imageUrl,checkedAt:product.checkedAt,message,groupHash:affiliateGroupFingerprint(groups)})
+  const message=offerMessage({...product,reportedDiscountPercent,title:generated.title,headline,style:generated.style,showHeadline:true,affiliateUrl:link.url,note:''})
+  const payload=previewSchema.parse({version:1,id:randomUUID(),tenantId,actorId,segmentId,segmentRevision:current.updatedAt.toISOString(),affiliateRevision:revision,expiresAt:now+5*60_000,sourceTitle:product.title,title:generated.title,headline,style:generated.style,showHeadline:true,productUrl:product.productUrl,affiliateUrl:link.url,itemId,priceCents:product.priceCents,oldPriceCents:product.oldPriceCents,reportedDiscountPercent,oldPriceEstimated:product.oldPriceEstimated??false,imageUrl:product.imageUrl,checkedAt:product.checkedAt,message,groupHash:affiliateGroupFingerprint(groups)})
   const body=Buffer.from(JSON.stringify(payload)).toString('base64url'),previewToken=body+'.'+signature(body)
   return {previewToken,expiresAt:new Date(payload.expiresAt).toISOString(),product,title:generated.title,headline,titleSource:generated.source,message,affiliateUrl:link.url,fullUrl:link.fullUrl,destinations:{segmentId,name:current.name,groups,count:groups.length},analysis:product.evaluation,priceChanged:candidate.priceCents!==product.priceCents}
 }
@@ -89,8 +89,9 @@ export async function regenerateAffiliateProductTitle(db:PrismaClient,tenantId:s
   const headline=generated.headline??preview.headline
   if(generated.source!=='OPENAI' || generated.title===preview.title&&headline===preview.headline) throw new AffiliateError(503,'A IA não conseguiu gerar outro título. A prévia anterior foi mantida. Tente novamente.')
   await validate()
-  const message=offerMessage({...preview,title:generated.title,headline,showHeadline:true,note:''})
-  const payload=previewSchema.parse({...preview,id:randomUUID(),title:generated.title,headline,showHeadline:true,message})
+  const style=generated.style??preview.style
+  const message=offerMessage({...preview,title:generated.title,headline,style,showHeadline:true,note:''})
+  const payload=previewSchema.parse({...preview,id:randomUUID(),title:generated.title,headline,style,showHeadline:true,message})
   const body=Buffer.from(JSON.stringify(payload)).toString('base64url')
   return {previewToken:body+'.'+signature(body),title:payload.title,headline,titleSource:generated.source,message,expiresAt:new Date(payload.expiresAt).toISOString()}
 }
@@ -112,7 +113,7 @@ export async function sendAffiliateProduct(db:PrismaClient,tenantId:string,actor
     const [history]=await affiliateProductHistory(tx,tenantId,segmentId,[{...preview,id:preview.itemId,catalogId:preview.itemId,imageUrl:preview.imageUrl??null}])
     if(history.pendingCount)throw new AffiliateError(409,'Este produto já tem um envio pendente ou incerto. Confira a agenda e o histórico.')
     const offer=await tx.affiliateOffer.create({data:{tenantId,segmentId,itemId:preview.itemId,title:preview.title,productUrl:preview.productUrl,affiliateUrl:preview.affiliateUrl,priceCents:preview.priceCents,oldPriceCents:preview.oldPriceCents,reportedDiscountPercent:preview.reportedDiscountPercent??null,oldPriceEstimated:preview.oldPriceEstimated??false,imageUrl:preview.imageUrl,note:'',checkedAt:new Date(preview.checkedAt)}})
-    if(!offerMessageMatches({...offer,headline:preview.headline,showHeadline:preview.showHeadline},preview.message)) throw new AffiliateError(409,'A mensagem mudou. Atualize a prévia antes de enviar.')
+    if(!offerMessageMatches({...offer,headline:preview.headline,style:preview.style,showHeadline:preview.showHeadline},preview.message)) throw new AffiliateError(409,'A mensagem mudou. Atualize a prévia antes de enviar.')
     const broadcast=await approveAffiliateBroadcast(tx,tenantId,actorId,offer.id,{idempotencyKey:preview.id,expectedGroupHash:preview.groupHash,approvedMessage:preview.message,sourceTitle:preview.sourceTitle})
     const decision={decision:'SENT',reason:'Envio aprovado pelo administrador.',actorId,broadcastId:broadcast.id,priceCents:preview.priceCents}
     await tx.affiliateProductDecision.upsert({where:{tenantId_segmentId_itemId:{tenantId,segmentId,itemId:preview.itemId}},create:{tenantId,segmentId,itemId:preview.itemId,...decision},update:decision})

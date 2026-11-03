@@ -10,7 +10,7 @@ it('asks for concise varied copy while keeping price and URL outside the model',
  await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher)
  const request=JSON.parse(String(fetcher.mock.calls[0][1]?.body)),prompt=request.messages[0].content
  expect(prompt).toContain('até 60 caracteres')
- for(const instruction of ['Benefício','Oportunidade','Presente','Direto','Utilidade','travessão','preço e link','Sem saudações'])expect(prompt).toContain(instruction)
+ for(const instruction of ['Benefício','Oportunidade','Presente','Direto','Utilidade','travessão','preço de venda e link','Sem saudações'])expect(prompt).toContain(instruction)
  expect(JSON.stringify(request)).not.toContain(product.productUrl)
  expect(JSON.stringify(request)).not.toContain('12345')
 })
@@ -36,6 +36,20 @@ it('aceita uma chamada criada para a oferta forte e rejeita teto igual ao preço
  expect(request.response_format.json_schema.schema.properties.headline.enum).toBeUndefined()
  const invalid = await generateAffiliateTitle({} as PrismaClient,'tenant',{...product,priceCents:3500},fetcher,undefined,segment)
  expect(invalid.source).toBe('ORIGINAL')
+})
+it('refaz uma chamada rejeitada e escolhe os elementos do anúncio a cada geração', async () => {
+ const product = {id:'MLB77',catalogId:'MLB77',title:'Areia Higiênica Gatissímo Para Gatos 4kg',productUrl:'https://mercadolivre.com.br/p/MLB77',priceCents:1349,oldPriceCents:1799,imageUrl:null,checkedAt:new Date().toISOString()}
+ const style = {headerEmoji:'🐱',productEmoji:'🐾',priceEmoji:'💰',discountEmoji:'🏷️',linkLabel:'Veja os detalhes na loja 🔎'}
+ const headline = 'Hora de cuidar do cantinho do gato'
+ const fetcher = vi.fn<typeof fetch>()
+   .mockImplementationOnce(async () => response({title:product.title,headline:'O menor preço já visto!',style}))
+   .mockImplementation(async () => response({title:product.title,headline,style}))
+ const result = await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher)
+ expect(result).toMatchObject({headline,style,source:'OPENAI'})
+ expect(fetcher).toHaveBeenCalledTimes(2)
+ const second = await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher)
+ expect(second.style).toEqual(style)
+ expect(fetcher).toHaveBeenCalledTimes(3)
 })
 it('rejects long, dashed, generic, urgent and invented headlines and sanitizes fallback copy only',async()=>{
  const base={id:'copy-guards-v8',catalogId:'copy-guards-v8',productUrl:'https://example.test/',priceCents:1000,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}

@@ -37,7 +37,22 @@ export const offerInput = z.object({
   imageUrl, note: z.string().trim().max(600).optional(),
   expiresAt: z.iso.datetime().nullable().optional(), checkedAt: z.iso.datetime().optional(),
 }).strict()
-export type OfferMessage = Pick<z.infer<typeof offerInput>, 'title'|'affiliateUrl'|'priceCents'|'oldPriceCents'|'note'> & {headline?:string;showHeadline?:boolean;reportedDiscountPercent?:number|null;oldPriceEstimated?:boolean}
+const singleOfferEmoji = z.string().regex(/^\p{Extended_Pictographic}\uFE0F?$/u)
+export const offerStyleSchema = z.object({
+  headerEmoji: singleOfferEmoji,
+  productEmoji: singleOfferEmoji,
+  priceEmoji: singleOfferEmoji,
+  discountEmoji: singleOfferEmoji,
+  linkLabel: z.string().trim().min(6).max(55)
+    .regex(/^[\p{L}\p{M} !?.,:\p{Extended_Pictographic}\uFE0F]+$/u)
+    .refine(label => {
+      const words = label.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().match(/[a-z]+/g) ?? []
+      const allowed = new Set('acesse acessar abre abra aqui clique clicar confira conferir conheca conhecendo consultar consulte dar de detalhes direto do da dos das e em encontre encontrar esta estao ir la link loja mais no na o a os as onde para pagina produto produtos quer saiba saber toque ver veja voce seu sua verifique visitar visite vitrine anuncio compre comprar escolha escolher'.split(' '))
+      return words.length >= 2 && words.every(word => allowed.has(word))
+        && (label.match(/\p{Extended_Pictographic}/gu)?.length ?? 0) <= 1
+    }),
+}).strict()
+export type OfferMessage = Pick<z.infer<typeof offerInput>, 'title'|'affiliateUrl'|'priceCents'|'oldPriceCents'|'note'> & {headline?:string;showHeadline?:boolean;reportedDiscountPercent?:number|null;oldPriceEstimated?:boolean;style?:z.infer<typeof offerStyleSchema>}
 const safeText = (text: string) => text.replace(/[\r\n*_~`]/g, ' ').replace(/\s+/g, ' ').trim()
 const money = (cents: number) => (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 const emojiPattern=/\p{Extended_Pictographic}|\p{Regional_Indicator}|\p{Emoji_Modifier}|\uFE0F|\u200D|\u20E3/gu
@@ -65,9 +80,33 @@ export function headlineWithoutPrice(headline: string, price: OfferPrice): strin
 }
 
 export function offerMessage(offer: OfferMessage) {
-  return productOfferMessage(offer, true)
+  const discount = offerDiscount(offer)
+  const title = compactAffiliateTitle(compactCopyText(offer.title))
+  const headline = offer.showHeadline ? compactCopyText(offer.headline ?? '') : ''
+  const normalizedTitle = title.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase()
+  const normalizedHeadline = headline.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase()
+  const validHeadline = headline.length >= 8 && headline.length <= 60
+    && normalizedHeadline !== normalizedTitle
+    && (!normalizedTitle.includes(' ') || !` ${normalizedHeadline} `.includes(` ${normalizedTitle} `))
+    && Boolean(headlineWithoutPrice(headline, offer))
+  const style = offer.style
+  const header = validHeadline ? headline : fallbackOfferHeadline(normalizedTitle)
+  const headerEmoji = style?.headerEmoji ?? '✨'
+  const productEmoji = style?.productEmoji ?? offer.headline?.match(/\p{Extended_Pictographic}/u)?.[0] ?? '🛍️'
+  const price = `${style?.priceEmoji ?? '🔥'} *${money(offer.priceCents)}*${discount ? ` | ${style?.discountEmoji ?? '💥'} ${discount}% OFF` : ''}`
+  const link = `${style?.linkLabel ?? 'Confira o produto aqui 👇'}\n${offer.affiliateUrl}`
+  return [`${headerEmoji} ${header}`, `${productEmoji} ${title}`, price, link].join('\n\n')
 }
 
+function fallbackOfferHeadline(title: string) {
+  if (/\b(?:areia|caixa sanitaria)\b/.test(title) && /\b(?:gato|gatos|felino|felinos)\b/.test(title)) return 'Hora de cuidar do cantinho do gato'
+  if (/\b(?:bebedouro|fonte de agua)\b/.test(title)) return 'Água à mão para o seu pet'
+  if (/\b(?:pisca|luzes|iluminacao|pisca-pisca)\b/.test(title)) return 'Um toque de luz na decoração'
+  if (/\bnatal\b/.test(title)) return 'Entre no clima de Natal'
+  return 'Uma ideia para o seu dia a dia'
+}
+
+// Keep the two previous layouts available for signed previews.
 function productOfferMessage(offer: OfferMessage, useProductEmojis: boolean) {
   const discount = offerDiscount(offer)
   const title = compactAffiliateTitle(compactCopyText(offer.title))
@@ -161,7 +200,7 @@ export function legacyOfferMessage(offer: OfferMessage) {
   return lines.join('\n')
 }
 export function offerMessageMatches(offer:OfferMessage,message:string){
-  return message===offerMessage(offer)||message===productOfferMessage(offer,false)||message===spacedOfferMessage(offer,offerDiscount(offer))||message===spacedOfferMessage(offer,0)||message===previousCompactOfferMessage(offer)||message===legacyOfferMessage(offer)
+  return message===offerMessage(offer)||message===productOfferMessage(offer,true)||message===productOfferMessage(offer,false)||message===spacedOfferMessage(offer,offerDiscount(offer))||message===spacedOfferMessage(offer,0)||message===previousCompactOfferMessage(offer)||message===legacyOfferMessage(offer)
 }
 export function groupName(base: string, sequence: number) { return `${base.replace(/\s+#\d+$/, '').trim()} #${sequence}` }
 export function validInvite(value: unknown): string {

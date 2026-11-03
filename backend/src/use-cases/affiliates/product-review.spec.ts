@@ -18,7 +18,7 @@ it('signs a Shopee preview against its own tenant connection and accepts the nam
   expect(read).toHaveBeenCalledWith({ where: { tenantId_provider: { tenantId: 'tenant', provider: 'SHOPEE' } } })
   expect(readAffiliateProductPreview(preview.previewToken, 'tenant', 'actor', 'segment')).toMatchObject({ itemId: product.id, affiliateUrl: 'https://s.shopee.com.br/test', priceCents: 2130, oldPriceCents:3492, oldPriceEstimated:true, reportedDiscountPercent:39 })
   expect(preview.message).toContain('*R$\u00a021,30*')
-  expect(preview.message.split('\n\n')).toHaveLength(3)
+  expect(preview.message.split('\n\n')).toHaveLength(4)
   ports.title.mockResolvedValue({title:'Brinquedo para os gatos',headline:'Um brinquedo para sua rotina ✨',source:'OPENAI'})
   const next=await regenerateAffiliateProductTitle(db,'tenant','actor','segment',preview.previewToken,ports)
   expect(readAffiliateProductPreview(next.previewToken,'tenant','actor','segment')).toMatchObject({priceCents:2130,oldPriceCents:3492,oldPriceEstimated:true,reportedDiscountPercent:39})
@@ -95,14 +95,17 @@ it('rechecks destination changes after AI completes',async()=>{
 
 it('regenerates the product title and sends the exact short approved message',async()=>{
   const {db,mocks,ports,preview}=await fixture()
-  ports.title.mockResolvedValue({title:'Árvore verde de Natal',headline:'Sua sala com uma árvore de Natal 🎄',source:'OPENAI'})
+  const style={headerEmoji:'✨',productEmoji:'🎄',priceEmoji:'💰',discountEmoji:'🏷️',linkLabel:'Veja os detalhes do anúncio 🔎'}
+  ports.title.mockResolvedValue({title:'Árvore verde de Natal',headline:'Deixe sua sala no clima de Natal',style,source:'OPENAI'})
   const regenerated=await regenerateAffiliateProductTitle(db,'tenant','actor','segment',preview.previewToken,ports)
   const signed=readAffiliateProductPreview(regenerated.previewToken,'tenant','actor','segment')
   expect(regenerated.message.split('\n\n')).toHaveLength(4)
   expect(regenerated.message).toContain('*R$\u00a025,90*')
+  expect(signed.style).toEqual(style)
+  expect(regenerated.message.split('\n\n')).toEqual(['✨ Deixe sua sala no clima de Natal','🎄 Árvore verde de Natal','💰 *R$\u00a025,90* | 🏷️ 35% OFF',`${style.linkLabel}\n${signed.affiliateUrl}`])
   expect(signed.headline).toBe(regenerated.headline)
   expect(signed.message).toBe(regenerated.message)
-  const offer={...signed,id:'offer',status:'DRAFT',checkedAt:new Date(signed.checkedAt),expiresAt:null,updatedAt:new Date(),note:'',segment:{enabled:true}}
+  const offer={...signed,style:undefined,id:'offer',status:'DRAFT',checkedAt:new Date(signed.checkedAt),expiresAt:null,updatedAt:new Date(),note:'',segment:{enabled:true}}
   const broadcast={id:'broadcast',offerId:'offer'}
   const tx={...mocks,$queryRaw:vi.fn(async()=>[]),affiliateScheduledOffer:{findMany:vi.fn(async()=>[])},affiliateBroadcast:{findMany:vi.fn(async()=>[]),findUnique:vi.fn(async()=>null),create:vi.fn(async()=>broadcast)},affiliateOffer:{create:vi.fn(async()=>offer),findFirst:vi.fn(async()=>offer)},affiliateDelivery:{findFirst:vi.fn(async()=>null),createMany:vi.fn(async()=>({count:1})),count:vi.fn(async()=>1)},affiliateProductDecision:{findUnique:vi.fn(async()=>null),upsert:vi.fn(async()=>({}))},auditLog:{create:vi.fn(async()=>({}))}}
   const sendingDb={...tx,$transaction:async(work:(client:typeof tx)=>Promise<unknown>)=>work(tx)} as unknown as PrismaClient
