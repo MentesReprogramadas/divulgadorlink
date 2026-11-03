@@ -9,7 +9,7 @@ import { selectOption } from './select-control'
 const instance = { id: 'instance-1', name: 'Natal 01', ownerPhone: '5511999999999', configured: true, enabled: true }
 const segment = { id: 'segment-1', name: 'Natal', groupName: 'Ofertas de Natal', instanceIds: [instance.id], slug: 'natal', description: 'Presentes e ofertas para celebrar o Natal.', imageUrl: null, capacity: 1024, instanceId: instance.id, autoExpand: true, enabled: true, provisionState: 'IDLE', inviteMetrics: {views:124,buttonClicks:18,automaticRedirects:70,buttonRedirects:15,createdAt:'2026-10-29T12:00:00Z'} }
 const groups = [1, 2, 3].map(sequence => ({ id: `group-${sequence}`, jid: `12036300000000${sequence}@g.us`, name: sequence === 1 ? 'Natal' : `Natal #${sequence}`, segmentId: segment.id, instanceId: instance.id, participantCount: sequence === 1 ? 1024 : sequence === 2 ? 840 : 120, capacity: 1024, enabled: true, syncedAt: '2026-10-28T12:00:00Z', segment, instance }))
-const offerMessage = 'Árvore de Natal 1,80 m\n🔥 *R$ 129,90*\n🛒 https://meli.la/fixture\nPublicidade'
+const offerMessage = '🎄 Deixe sua sala no clima de Natal\n\n🔥 *R$ 129,90*\n\nhttps://meli.la/fixture'
 const offer = { message: offerMessage, id: 'offer-1', segmentId: segment.id, segment, title: 'Árvore de Natal 1,80 m', productUrl: 'https://www.mercadolivre.com.br/p/MLB123', affiliateUrl: 'https://meli.la/fixture', priceCents: 12990, oldPriceCents: 15990, imageUrl: null, note: 'Confira as medidas e as opções do anúncio.', status: 'DRAFT', checkedAt: '2026-10-28T12:00:00Z', expiresAt: null }
 const broadcast = { id: 'broadcast-1', offerId: offer.id, offer, message: 'Árvore de Natal 1,80 m\nR$ 129,90\nhttps://meli.la/fixture', scheduledAt: '2026-10-28T12:00:00Z', createdAt: '2026-10-28T12:00:00Z', _count: { deliveries: 3 } }
 const deliveries = [{ id: 'delivery-1', state: 'SENT', providerMessageId: 'fixture-confirmed', errorCode: null, group: groups[0], broadcast, updatedAt: '2026-10-28T12:01:00Z' }, { id: 'delivery-2', state: 'UNCERTAIN', providerMessageId: null, errorCode: 'provider_timeout', group: groups[1], broadcast, updatedAt: '2026-10-28T12:01:00Z' }]
@@ -566,7 +566,7 @@ test('planeja o dia, revisa volume e seleciona lote manual no mobile sem esconde
   await page.route('**/discovery?*',route=>route.fulfill({json:{enabled:true,usesSegmentName:true,terms:['Natal'],products,counts:null,checkedAt:'2026-10-31T12:00:00Z',nextRunAt:null,status:'READY',error:null}}))
   const changes:Array<{path:string;body:Record<string,unknown>}>=[]
   let status='DRAFT',mode='AUTO'
-  const entries=products.map((product,i)=>({id:'entry-'+i,itemId:product.id,title:product.displayTitle,scheduledAt:`2099-11-01T${i?'15':'12'}:00:00Z`,state:'READY',error:null,product,sentCount:product.sentCount,message:`*${product.displayTitle}*\n\nDe: ~R$ 151,17~\n🔥 *R$ 61,98*\n💸 *59% OFF* · Economize *R$ 89,19*\n\nCompre aqui 👇\nhttps://meli.la/fixture`}))
+  const entries=products.map((product,i)=>({id:'entry-'+i,itemId:product.id,title:product.displayTitle,scheduledAt:`2099-11-01T${i?'15':'12'}:00:00Z`,state:'READY',error:null,product,sentCount:product.sentCount,message:i?'✨ Dê um toque de luz à decoração\n\n🔥 *R$ 61,98*\n\nhttps://meli.la/fixture':offerMessage}))
   await page.route('**/day-plans**',async route=>{
     const request=route.request(),pathname=new URL(request.url()).pathname
     if(request.method()==='POST'){
@@ -600,7 +600,8 @@ test('planeja o dia, revisa volume e seleciona lote manual no mobile sem esconde
   await dialog.getByText('Destinos e total de mensagens no dia').click()
   await expect(dialog.getByText(/Natal #1 · 4 mensagens no dia/)).toBeVisible()
   await dialog.getByText('Ver mensagem e link').first().click()
-  await expect(dialog.locator('pre').first()).toContainText('🔥 *R$ 61,98*')
+  expect(await dialog.locator('pre').first().textContent()).toBe(entries[0].message)
+  await expect(dialog.locator('pre').first()).toHaveCSS('white-space','pre-wrap')
   await expect(dialog.locator('pre').first()).not.toContainText('Confira esta opção')
   expect((await new AxeBuilder({page}).include('dialog').analyze()).violations).toEqual([])
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true)

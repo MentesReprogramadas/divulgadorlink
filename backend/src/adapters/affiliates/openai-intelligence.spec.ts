@@ -14,6 +14,16 @@ it('asks for concise varied copy while keeping price and URL outside the model',
  expect(JSON.stringify(request)).not.toContain(product.productUrl)
  expect(JSON.stringify(request)).not.toContain('12345')
 })
+it('usa a foto pública da Shopee para uma chamada sobre a cena', async () => {
+ const imageUrl = 'https://down-br.img.susercontent.com/file/test'
+ const product = {id:'SHP4_5',catalogId:'SHP4_5',title:'Pisca Cerejinha LED para Decoração de Natal',productUrl:'https://shopee.com.br/product/4/5',priceCents:2498,oldPriceCents:null,imageUrl,checkedAt:new Date().toISOString()}
+ const headline = '✨ Dê um toque de luz à decoração'
+ const fetcher = vi.fn<typeof fetch>(async () => response({title:product.title,headline}))
+ const result = await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher)
+ expect(result).toMatchObject({headline,source:'OPENAI'})
+ const request = JSON.parse(String(fetcher.mock.calls[0][1]?.body))
+ expect(request.messages[1].content).toContainEqual({type:'image_url',image_url:{url:imageUrl,detail:'low'}})
+})
 it('rejects long, dashed, generic, urgent and invented headlines and sanitizes fallback copy only',async()=>{
  const base={id:'copy-guards-v8',catalogId:'copy-guards-v8',productUrl:'https://example.test/',priceCents:1000,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}
  for(const [index,headline] of ['Uma caneca — para sua casa ☕','Uma caneca – para sua casa ☕','Corra aproveitar uma caneca para sua casa ☕','Uma opção para você 🎁','Uma caneca de qualidade para sua casa ☕',`Uma caneca para ${'sua casa '.repeat(8)}☕`].entries()){
@@ -177,21 +187,21 @@ it('accepts natural gift contexts without inventing product properties',async()=
 it('contextualiza um fone como presente de Natal, sem inventar que o produto é natalino',async()=>{
  vi.stubEnv('OPENAI_API_KEY','fixture')
  const product={id:'SHP1_2',catalogId:'SHP1_2',title:'Fone Bluetooth JBL',priceCents:1000,oldPriceCents:null,imageUrl:null,productUrl:'https://shopee.com.br/product/1/2',checkedAt:new Date().toISOString()}
- const fetcher=vi.fn<typeof fetch>(async()=>response({title:'Fone Bluetooth JBL',headline:'Fone Bluetooth JBL para presentear no Natal 🎁'}))
+ const fetcher=vi.fn<typeof fetch>(async()=>response({title:'Fone Bluetooth JBL',headline:'Uma ideia de presente para a noite de Natal 🎄'}))
  const result=await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher,undefined,{name:'Natal',discovery:{terms:['Decoração de Natal']}})
- expect(result).toMatchObject({source:'OPENAI',title:product.title,headline:'Fone Bluetooth JBL para presentear no Natal 🎁'})
+ expect(result).toMatchObject({source:'OPENAI',title:product.title,headline:'Uma ideia de presente para a noite de Natal 🎄'})
  const request=JSON.parse(String(fetcher.mock.calls[0][1]?.body))
  expect(JSON.parse(request.messages[1].content[0].text).context).toMatchObject({segment:'Natal',purpose:'GIFT_IDEA'})
 })
-it('keeps corrective gift and utility choices tied to the actual product',async()=>{
+it('keeps corrective choices grounded in the gift context or product use',async()=>{
  const base={id:'corrective-v8',catalogId:'corrective-v8',priceCents:1000,oldPriceCents:null,imageUrl:null,productUrl:'https://example.test/',checkedAt:new Date().toISOString()}
  const product={...base,title:'Fone Bluetooth JBL gift-v8'}
- const fetcher=vi.fn<typeof fetch>(async()=>response({title:product.title,headline:'Uma opção de presente para o Natal 🎁'}))
- expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher,undefined,{name:'Natal',discovery:{terms:['Decoração de Natal']}})).toMatchObject({source:'ORIGINAL'})
- const request=JSON.parse(String(fetcher.mock.calls[0][1]?.body))
+ const fetcher=vi.fn<typeof fetch>(async()=>response({title:product.title,headline:'Corra para garantir o presente 🎁'}))
+ expect(await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher,{title:product.title},{name:'Natal',discovery:{terms:['Decoração de Natal']}})).toMatchObject({source:'ORIGINAL'})
+ const request=JSON.parse(String(fetcher.mock.calls.at(-1)?.[1]?.body))
  const choices:string[]=request.response_format.json_schema.schema.properties.headline.enum
  expect(choices.length).toBeGreaterThan(0)
- for(const choice of choices){expect(choice).toContain('Fone');expect(choice.length).toBeLessThanOrEqual(60);expect(choice).not.toMatch(/[–—]/)}
+ for(const choice of choices){expect(choice).toContain('presente');expect(choice).not.toContain('Fone Bluetooth JBL');expect(choice.length).toBeLessThanOrEqual(60);expect(choice).not.toMatch(/[–—]/)}
  const utility=vi.fn<typeof fetch>().mockResolvedValueOnce(response({title:'Pá limpeza',headline:'Uma pá prática para sua casa ✨'})).mockImplementationOnce(async(_url,options)=>{
   const choices:string[]=JSON.parse(String(options?.body)).response_format.json_schema.schema.properties.headline.enum
   expect(choices).toContain('Pá para a limpeza do dia a dia 🧹')

@@ -399,7 +399,7 @@ it('prepara desconto primeiro e revisão exata sem gerar entregas; isola tenant 
   const {plan,id,value}=await draft()
   expect(plan.status).toBe('DRAFT');expect(plan.entries.map(e=>e.itemId)).toEqual(['MLB123456','MLB234567'])
   expect(plan.summary).toMatchObject({offers:2,groups:2,totalMessages:4,intervalMinutes:720})
-  expect(plan.entries[0].message?.split('\n')[1]).toContain('Árvore');expect(plan.entries[0].message).toContain('*R$\u00a025,90*');expect(plan.entries[0].message).not.toContain('Preço e estoque')
+  expect(plan.entries[0].message?.split('\n')[1]).toBe('');expect(plan.entries[0].message).toContain('*R$\u00a025,90*');expect(plan.entries[0].message).not.toContain('Preço e estoque')
   expect(await db.affiliateDelivery.count({where:{tenantId}})).toBe(0)
   await expect(readAffiliateDayPlan(db,otherTenant,segmentId,id)).rejects.toMatchObject({status:404})
   await expect(approveReviewedDayPlan(db,tenantId,'other-actor',segmentId,id)).rejects.toMatchObject({status:403})

@@ -42,7 +42,30 @@ const safeText = (text: string) => text.replace(/[\r\n*_~`]/g, ' ').replace(/\s+
 const money = (cents: number) => (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 const emojiPattern=/\p{Extended_Pictographic}|\p{Regional_Indicator}|\p{Emoji_Modifier}|\uFE0F|\u200D|\u20E3/gu
 const compactCopyText=(text:string)=>safeText(text).replace(/(\d)\s*[–—]\s*(?=\d)/g,'$1 a ').replace(/[–—]/g,' ').replace(emojiPattern,'').replace(/\s+/g,' ').trim()
-export function offerMessage(offer:OfferMessage) {
+export function offerMessage(offer: OfferMessage) {
+  const normalize = (value: string) => compactCopyText(value).normalize('NFD')
+    .replace(/\p{M}/gu, '').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim()
+  const product = normalize(offer.title)
+  const headline = offer.showHeadline ? compactCopyText(offer.headline ?? '') : ''
+  const usableHeadline = headline.length >= 8 && headline.length <= 60
+    && normalize(headline) !== product
+    && (!product.includes(' ') || !` ${normalize(headline)} `.includes(` ${product} `))
+    && !/\b(?:confira|conheça|conheca|corra|aproveit\w*)\b/iu.test(headline)
+
+  let fallback = 'Uma ideia para o seu dia a dia'
+  if (/\b(?:pisca|luzes|iluminacao)\b/.test(product)) fallback = 'Dê um toque de luz à decoração'
+  else if (/\bnatal\b/.test(product)) fallback = 'Entre no clima de Natal com a decoração'
+  else if (/\b(?:gato|gatos|cao|caes|pet|cachorro)\b/.test(product)) fallback = 'Um cuidado a mais na rotina do seu pet'
+  else if (/\b(?:camiseta|blusa|tenis|calca)\b/.test(product)) fallback = 'Uma ideia para montar o look do dia'
+
+  const opening = usableHeadline ? headline : fallback
+  const emoji = usableHeadline ? offer.headline?.match(/\p{Extended_Pictographic}/u)?.[0] : '✨'
+  const price = `🔥 *${money(offer.priceCents)}*`
+  const link = emoji ? offer.affiliateUrl : `🛒 ${offer.affiliateUrl}`
+  return [emoji ? `${emoji} ${opening}` : opening, price, link].join('\n\n')
+}
+
+function previousCompactOfferMessage(offer:OfferMessage) {
   const title=compactAffiliateTitle(compactCopyText(offer.title))
   const headline=offer.showHeadline&&offer.headline?compactCopyText(offer.headline):''
   const usableHeadline=headline.length>=8&&headline.length<=60&&!/\b(?:confira|conheça|conheca|corra|aproveit\w*)\b/iu.test(headline)
@@ -75,7 +98,7 @@ export function legacyOfferMessage(offer: OfferMessage) {
   return lines.join('\n')
 }
 export function offerMessageMatches(offer:OfferMessage,message:string){
-  return message===offerMessage(offer)||message===legacyOfferMessage(offer)
+  return message===offerMessage(offer)||message===previousCompactOfferMessage(offer)||message===legacyOfferMessage(offer)
 }
 export function groupName(base: string, sequence: number) { return `${base.replace(/\s+#\d+$/, '').trim()} #${sequence}` }
 export function validInvite(value: unknown): string {

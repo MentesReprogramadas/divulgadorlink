@@ -4,24 +4,33 @@ import { groupName, marketUrl, offerInput, offerIsCurrent, legacyOfferMessage as
 it.each(['https://s.shopee.com.br/4qGtib2dfp?tag=a-b','https://meli.la/abc?x=1%2B2'])('gera mensagem compacta sem alterar o link %s',affiliateUrl=>{
  const offer={title:'Camiseta masculina básica — algodão',headline:'Uma camiseta para o dia a dia 👕',showHeadline:true,priceCents:3037,oldPriceCents:5990,reportedDiscountPercent:49,note:'Corra aproveitar! Últimas unidades',affiliateUrl}
  const message=compactOfferMessage(offer).replace(/\u00a0/g,' ')
- expect(message.split('\n')).toHaveLength(4)
+ expect(message.split('\n\n')).toHaveLength(3)
  expect(message).toContain('*R$ 30,37*')
  expect(message).toContain(affiliateUrl)
- expect(message).toContain('Publicidade')
+ expect(message).not.toContain('Publicidade')
+ expect(message.split('\n\n')[1]).toBe('🔥 *R$ 30,37*')
+ expect(message).not.toContain(offer.title)
  expect((message.match(/\p{Extended_Pictographic}/gu)??[]).length).toBeLessThanOrEqual(2)
  expect(message).not.toMatch(/[—–]|Compre aqui|Corra|Últimas|OFF|De:|```/)
  expect(offer.title).toContain('—');expect(offer.priceCents).toBe(3037)
 })
-it('mantém restrições e faixas verificadas sem travessão no fallback',()=>{
+it('usa contexto em vez do nome literal no fallback',()=>{
  const message=compactOfferMessage({title:'Coleira 10–20 cm sem guia',priceCents:1234,affiliateUrl:'https://meli.la/x'})
- expect(message).toContain('10 a 20 cm sem guia')
+ expect(message).not.toContain('Coleira')
  expect(message).not.toMatch(/[—–]/)
+})
+it('substitui uma chamada que copia o anúncio por uma frase sobre a decoração', () => {
+ const title = 'Pisca Cerejinha LED para Decoração de Natal'
+ const affiliateUrl = 'https://s.shopee.com.br/80Dw3nxbTY'
+ const message = compactOfferMessage({title, headline: title, showHeadline: true, priceCents: 2498, affiliateUrl})
+ expect(message).toBe(`✨ Dê um toque de luz à decoração\n\n🔥 *R$\u00a024,98*\n\n${affiliateUrl}`)
 })
 it('rejeita mensagem divergente e preserva o texto legado exato já assinado',()=>{
  const offer={title:'Kit de Natal',priceCents:1099,oldPriceCents:null,affiliateUrl:'https://meli.la/abc'}
  const legacy='*Kit de Natal*\n\n🔥 *R$\u00a010,99*\n\nCompre aqui 👇\nhttps://meli.la/abc'
  expect(offerMessage(offer)).toBe(legacy)
  expect(offerMessageMatches(offer,legacy)).toBe(true)
+ expect(offerMessageMatches(offer,'Kit de Natal\n🔥 *R$\u00a010,99*\n🛒 https://meli.la/abc\nPublicidade')).toBe(true)
  expect(offerMessageMatches(offer,compactOfferMessage(offer))).toBe(true)
  expect(offerMessageMatches(offer,legacy.replace('10,99','1,99'))).toBe(false)
  expect(offerMessageMatches({...offer,affiliateUrl:'https://meli.la/changed'},legacy)).toBe(false)

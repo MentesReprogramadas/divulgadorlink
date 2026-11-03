@@ -53,7 +53,7 @@ export function OfferForm({ offer, product, segments, scopedSegment, save }: { o
 
 export function SendForm({ offer, groupCount, save }: { offer: AffiliateOffer; groupCount: number; save: (body: Record<string, unknown>) => Promise<void> }) {
   // shortcut: older APIs omit message; use a compact fallback until the next snapshot refresh.
-  const message = offer.message ?? [offer.title, `*${formatCents(offer.priceCents)}*`, offer.affiliateUrl, 'Publicidade'].join('\n')
+  const message = offer.message ?? ['✨ Uma ideia para o seu dia a dia', `🔥 *${formatCents(offer.priceCents)}*`, offer.affiliateUrl].join('\n\n')
   const [schedule, setSchedule] = useState('')
   const [key] = useState(() => crypto.randomUUID())
   return <Form label={schedule ? 'Confirmar agendamento' : 'Confirmar envio'} icon={schedule ? 'schedule' : 'check'} onSubmit={data => {
