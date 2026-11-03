@@ -24,6 +24,19 @@ it('usa a foto pública da Shopee para uma chamada sobre a cena', async () => {
  const request = JSON.parse(String(fetcher.mock.calls[0][1]?.body))
  expect(request.messages[1].content).toContainEqual({type:'image_url',image_url:{url:imageUrl,detail:'low'}})
 })
+it('aceita uma chamada criada para a oferta forte e rejeita teto igual ao preço', async () => {
+ const product = {id:'SHP41_5',catalogId:'SHP41_5',title:'Camiseta masculina básica',productUrl:'https://shopee.com.br/product/41/5',priceCents:3037,oldPriceCents:null,reportedDiscountPercent:62,imageUrl:null,checkedAt:new Date().toISOString()}
+ const headline = '🎁 Presente de Natal por menos de R$ 35!'
+ const segment = {name:'Natal',discovery:{terms:['Decoração de Natal']}}
+ const fetcher = vi.fn<typeof fetch>(async () => response({title:product.title,headline}))
+ const result = await generateAffiliateTitle({} as PrismaClient,'tenant',product,fetcher,undefined,segment)
+ expect(result).toMatchObject({headline,source:'OPENAI'})
+ const request = JSON.parse(String(fetcher.mock.calls[0][1]?.body))
+ expect(JSON.parse(request.messages[1].content[0].text).strongOffer).toEqual({priceCents:3037,discountPercent:62})
+ expect(request.response_format.json_schema.schema.properties.headline.enum).toBeUndefined()
+ const invalid = await generateAffiliateTitle({} as PrismaClient,'tenant',{...product,priceCents:3500},fetcher,undefined,segment)
+ expect(invalid.source).toBe('ORIGINAL')
+})
 it('rejects long, dashed, generic, urgent and invented headlines and sanitizes fallback copy only',async()=>{
  const base={id:'copy-guards-v8',catalogId:'copy-guards-v8',productUrl:'https://example.test/',priceCents:1000,oldPriceCents:null,imageUrl:null,checkedAt:new Date().toISOString()}
  for(const [index,headline] of ['Uma caneca — para sua casa ☕','Uma caneca – para sua casa ☕','Corra aproveitar uma caneca para sua casa ☕','Uma opção para você 🎁','Uma caneca de qualidade para sua casa ☕',`Uma caneca para ${'sua casa '.repeat(8)}☕`].entries()){

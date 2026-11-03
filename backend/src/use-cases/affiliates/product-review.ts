@@ -8,7 +8,7 @@ import { generateCatalogAffiliate } from '@/use-cases/@Affiliates/catalog'
 import { findDiscoveryCandidate, generateAffiliateTitle, refreshAffiliateCandidate } from './discovery'
 import { affiliateEligibleGroupWhere, affiliateGroupFingerprint, approveAffiliateBroadcast } from './deliveries'
 import { affiliateProductHistory } from './product-history'
-import { affiliateProductFitsSegment, affiliateCopyContext, isChristmasSegment, type AffiliatePlanContext } from '@/domain/affiliates/segment-relevance'
+import { affiliateProductFitsSegment, type AffiliatePlanContext } from '@/domain/affiliates/segment-relevance'
 
 const itemIdSchema = affiliateProductId
 const previewSchema = z.object({
@@ -57,7 +57,7 @@ export async function previewAffiliateProduct(db:PrismaClient,tenantId:string,ac
   if(!current || current.updatedAt.getTime()!==segment.updatedAt.getTime() || revisionAfter!==revision) throw new AffiliateError(409,'A segmentação ou a conta de afiliados mudou. Atualize a prévia.')
   const checkedAt=new Date(product.checkedAt),now=Date.now()
   if(!Number.isFinite(checkedAt.getTime()) || checkedAt.getTime()>now || now-checkedAt.getTime()>5*60_000) throw new AffiliateError(409,'Não foi possível confirmar um preço recente. Atualize a prévia.')
-  const headline=generated.headline??(affiliateCopyContext({...segment,planContext},product.title).purpose==='GIFT_IDEA'?(isChristmasSegment(segment)?'Uma opção de presente para o Natal 🎁':'Uma ideia de presente para você 🎁'):isChristmasSegment(segment)?'Uma opção para o seu Natal 🎄':'Confira uma opção para sua rotina ✨')
+  const headline=generated.headline
   const reportedDiscountPercent=isShopeeProduct(product.id)?product.reportedDiscountPercent??null:null
   const message=offerMessage({...product,reportedDiscountPercent,title:generated.title,headline,showHeadline:true,affiliateUrl:link.url,note:''})
   const payload=previewSchema.parse({version:1,id:randomUUID(),tenantId,actorId,segmentId,segmentRevision:current.updatedAt.toISOString(),affiliateRevision:revision,expiresAt:now+5*60_000,sourceTitle:product.title,title:generated.title,headline,showHeadline:true,productUrl:product.productUrl,affiliateUrl:link.url,itemId,priceCents:product.priceCents,oldPriceCents:product.oldPriceCents,reportedDiscountPercent,oldPriceEstimated:product.oldPriceEstimated??false,imageUrl:product.imageUrl,checkedAt:product.checkedAt,message,groupHash:affiliateGroupFingerprint(groups)})
@@ -84,7 +84,8 @@ export async function regenerateAffiliateProductTitle(db:PrismaClient,tenantId:s
   const segment=await validate()
   const candidate=await ports.candidate(db,tenantId,segmentId,preview.itemId)
   if(candidate.id!==preview.itemId || affiliateProductUrl(candidate.productUrl).href!==affiliateProductUrl(preview.productUrl).href) throw new AffiliateError(409,'O anúncio mudou. Abra o produto novamente.')
-  const generated=await ports.title(db,tenantId,candidate,undefined,{title:preview.title,headline:preview.headline},segment)
+  const copyProduct={...candidate,priceCents:preview.priceCents,oldPriceCents:preview.oldPriceCents,oldPriceEstimated:preview.oldPriceEstimated,reportedDiscountPercent:preview.reportedDiscountPercent}
+  const generated=await ports.title(db,tenantId,copyProduct,undefined,{title:preview.title,headline:preview.headline},segment)
   const headline=generated.headline??preview.headline
   if(generated.source!=='OPENAI' || generated.title===preview.title&&headline===preview.headline) throw new AffiliateError(503,'A IA não conseguiu gerar outro título. A prévia anterior foi mantida. Tente novamente.')
   await validate()

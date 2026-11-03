@@ -42,16 +42,48 @@ const safeText = (text: string) => text.replace(/[\r\n*_~`]/g, ' ').replace(/\s+
 const money = (cents: number) => (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 const emojiPattern=/\p{Extended_Pictographic}|\p{Regional_Indicator}|\p{Emoji_Modifier}|\uFE0F|\u200D|\u20E3/gu
 const compactCopyText=(text:string)=>safeText(text).replace(/(\d)\s*[–—]\s*(?=\d)/g,'$1 a ').replace(/[–—]/g,' ').replace(emojiPattern,'').replace(/\s+/g,' ').trim()
-export function offerMessage(offer: OfferMessage) {
+type OfferPrice = Pick<OfferMessage, 'priceCents'|'oldPriceCents'|'oldPriceEstimated'|'reportedDiscountPercent'>
+export const strongOfferDiscount = 50
+
+export function offerDiscount(offer: OfferPrice) {
   const rate = offer.reportedDiscountPercent
   const reported = typeof rate === 'number' && Number.isInteger(rate) && rate > 0 && rate < 100 ? rate : 0
   const previous = offer.oldPriceCents
-  const discount = !offer.oldPriceEstimated && previous && previous > offer.priceCents
+  return !offer.oldPriceEstimated && previous && previous > offer.priceCents
     ? Math.floor((previous - offer.priceCents) * 100 / previous)
     : reported
-  return spacedOfferMessage(offer, discount)
 }
 
+export function headlineWithoutPrice(headline: string, price: OfferPrice): string {
+  if (!/[\d$%]/.test(headline)) return headline
+  if (offerDiscount(price) < strongOfferDiscount) return ''
+  const match = /^(.*?)\bpor menos de R\$\s*(\d{1,3})(?:,([0-9]{2}))?([!.]?[^\p{L}\p{N}$%]*)$/iu.exec(headline)
+  if (!match) return ''
+  const limit = Number(match[2]) * 100 + Number(match[3] ?? 0)
+  if (price.priceCents >= limit || /[\d$%]/.test(match[1])) return ''
+  return match[1].trim()
+}
+
+export function offerMessage(offer: OfferMessage) {
+  const discount = offerDiscount(offer)
+  const title = compactAffiliateTitle(compactCopyText(offer.title))
+  const headline = offer.showHeadline ? compactCopyText(offer.headline ?? '') : ''
+  const normalize = (value: string) => value.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, ' ').trim()
+  const normalizedTitle = normalize(title)
+  const normalizedHeadline = normalize(headline)
+  const repeatsTitle = normalizedHeadline === normalizedTitle
+    || (normalizedTitle.includes(' ') && ` ${normalizedHeadline} `.includes(` ${normalizedTitle} `))
+  const usableHeadline = headline.length >= 8 && headline.length <= 60 && !repeatsTitle
+    && Boolean(headlineWithoutPrice(headline, offer))
+    && (discount >= strongOfferDiscount || !/\b(?:oferta|achado|perca|corra|aproveit\w*)\b/iu.test(headline))
+  const emoji = usableHeadline ? offer.headline?.match(/\p{Extended_Pictographic}/u)?.[0] : undefined
+  const price = `🔥 *${money(offer.priceCents)}*${discount ? ` | ${discount}% OFF` : ''}`
+  const link = `Confira o produto aqui\n${offer.affiliateUrl}`
+  return [...(usableHeadline ? [emoji ? `${emoji} ${headline}` : headline] : []), title, price, link].join('\n\n')
+}
+
+// These formats are read only for previews and schedules already signed.
 function spacedOfferMessage(offer: OfferMessage, discount: number) {
   const normalize = (value: string) => compactCopyText(value).normalize('NFD')
     .replace(/\p{M}/gu, '').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim()
@@ -122,7 +154,7 @@ export function legacyOfferMessage(offer: OfferMessage) {
   return lines.join('\n')
 }
 export function offerMessageMatches(offer:OfferMessage,message:string){
-  return message===offerMessage(offer)||message===spacedOfferMessage(offer,0)||message===previousCompactOfferMessage(offer)||message===legacyOfferMessage(offer)
+  return message===offerMessage(offer)||message===spacedOfferMessage(offer,offerDiscount(offer))||message===spacedOfferMessage(offer,0)||message===previousCompactOfferMessage(offer)||message===legacyOfferMessage(offer)
 }
 export function groupName(base: string, sequence: number) { return `${base.replace(/\s+#\d+$/, '').trim()} #${sequence}` }
 export function validInvite(value: unknown): string {

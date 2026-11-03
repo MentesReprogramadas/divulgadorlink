@@ -54,7 +54,7 @@ it('collects Shopee, revalidates exact price, signs preview and queues one appro
   const preview = await previewAffiliateProduct(db, tenantId, actorId, segmentId, 'SHP123_456')
   expect(preview.affiliateUrl).toBe('https://s.shopee.com.br/test')
   expect(preview.message).toContain('*R$\u00a021,30*')
-  expect(preview.message.split('\n\n')[1]).toBe('🔥 *R$\u00a021,30* | 39% OFF')
+  expect(preview.message.split('\n\n')).toContain('🔥 *R$\u00a021,30* | 39% OFF')
   const sent = await sendAffiliateProduct(db, tenantId, actorId, segmentId, preview.previewToken)
   expect(await sendAffiliateProduct(db, tenantId, actorId, segmentId, preview.previewToken)).toEqual(sent)
   expect(await db.affiliateDelivery.count({where:{tenantId,broadcastId:sent.broadcastId,state:'PENDING'}})).toBe(1)

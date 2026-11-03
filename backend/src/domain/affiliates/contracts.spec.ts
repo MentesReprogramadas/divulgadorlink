@@ -4,35 +4,35 @@ import { groupName, marketUrl, offerInput, offerIsCurrent, legacyOfferMessage as
 it.each(['https://s.shopee.com.br/4qGtib2dfp?tag=a-b','https://meli.la/abc?x=1%2B2'])('gera mensagem compacta sem alterar o link %s',affiliateUrl=>{
  const offer={title:'Camiseta masculina básica — algodão',headline:'Uma camiseta para o dia a dia 👕',showHeadline:true,priceCents:3037,oldPriceCents:5990,reportedDiscountPercent:49,note:'Corra aproveitar! Últimas unidades',affiliateUrl}
  const message=compactOfferMessage(offer).replace(/\u00a0/g,' ')
- expect(message.split('\n\n')).toHaveLength(3)
+ expect(message.split('\n\n')).toHaveLength(4)
  expect(message).toContain('*R$ 30,37*')
  expect(message).toContain(affiliateUrl)
  expect(message).not.toContain('Publicidade')
- expect(message.split('\n\n')[1]).toBe('🔥 *R$ 30,37* | 49% OFF')
- expect(message).not.toContain(offer.title)
+ expect(message.split('\n\n')[2]).toBe('🔥 *R$ 30,37* | 49% OFF')
+ expect(message.split('\n\n')[1]).toBe('Camiseta masculina básica algodão')
  expect((message.match(/\p{Extended_Pictographic}/gu)??[]).length).toBeLessThanOrEqual(2)
  expect(message).not.toMatch(/[—–]|Compre aqui|Corra|Últimas|De:|```/)
  expect(offer.title).toContain('—');expect(offer.priceCents).toBe(3037)
 })
-it('usa contexto em vez do nome literal no fallback',()=>{
+it('preserva medidas e restrições no nome curto',()=>{
  const message=compactOfferMessage({title:'Coleira 10–20 cm sem guia',priceCents:1234,affiliateUrl:'https://meli.la/x'})
- expect(message).not.toContain('Coleira')
+ expect(message).toContain('Coleira 10 a 20 cm sem guia')
  expect(message).not.toMatch(/[—–]/)
 })
-it('substitui uma chamada que copia o anúncio por uma frase sobre a decoração', () => {
+it('exibe uma vez o nome quando a chamada copia o anúncio', () => {
  const title = 'Pisca Cerejinha LED para Decoração de Natal'
  const affiliateUrl = 'https://s.shopee.com.br/80Dw3nxbTY'
  const message = compactOfferMessage({title, headline: title, showHeadline: true, priceCents: 2498, affiliateUrl})
- expect(message).toBe(`✨ Dê um toque de luz à decoração\n\n🔥 *R$\u00a024,98*\n\n${affiliateUrl}`)
+ expect(message).toBe(`${title}\n\n🔥 *R$\u00a024,98*\n\nConfira o produto aqui\n${affiliateUrl}`)
 })
 it('destaca uma oportunidade de presente com um teto acima do preço real', () => {
- const offer = {title:'Camiseta básica masculina', headline:'Uma ideia de presente de Natal', showHeadline:true, priceCents:3037, reportedDiscountPercent:62, affiliateUrl:'https://s.shopee.com.br/4qGtib2dfp'}
+ const offer = {title:'Camiseta básica masculina', headline:'🎁 Presente de Natal por menos de R$ 35!', showHeadline:true, priceCents:3037, reportedDiscountPercent:62, affiliateUrl:'https://s.shopee.com.br/4qGtib2dfp'}
  const blocks = compactOfferMessage(offer).replace(/\u00a0/g,' ').split('\n\n')
- expect(blocks).toEqual(['🎁 Presente de Natal por menos de R$ 35!', 'Uma ideia para montar o look do dia', '🔥 *R$ 30,37* | 62% OFF', offer.affiliateUrl])
- expect(compactOfferMessage({...offer,priceCents:3500})).toContain('por menos de R$ 40!')
+ expect(blocks).toEqual(['🎁 Presente de Natal por menos de R$ 35!', 'Camiseta básica masculina', '🔥 *R$ 30,37* | 62% OFF', `Confira o produto aqui\n${offer.affiliateUrl}`])
+ expect(compactOfferMessage({...offer,priceCents:3500})).not.toContain('por menos')
  expect(compactOfferMessage({...offer,reportedDiscountPercent:12})).not.toContain('por menos')
  expect(compactOfferMessage({...offer,reportedDiscountPercent:null})).not.toContain('% OFF')
- const previous = `Uma ideia de presente de Natal\n\n🔥 *R$\u00a030,37*\n\n🛒 ${offer.affiliateUrl}`
+ const previous = `🎁 Presente de Natal por menos de R$ 35!\n\n🔥 *R$\u00a030,37*\n\n${offer.affiliateUrl}`
  expect(offerMessageMatches(offer,previous)).toBe(true)
 })
 it('rejeita mensagem divergente e preserva o texto legado exato já assinado',()=>{
