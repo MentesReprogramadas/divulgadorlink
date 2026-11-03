@@ -566,9 +566,15 @@ test('planeja o dia, revisa volume e seleciona lote manual no mobile sem esconde
   await page.route('**/discovery?*',route=>route.fulfill({json:{enabled:true,usesSegmentName:true,terms:['Natal'],products,counts:null,checkedAt:'2026-10-31T12:00:00Z',nextRunAt:null,status:'READY',error:null}}))
   const changes:Array<{path:string;body:Record<string,unknown>}>=[]
   let status='DRAFT',mode='AUTO'
+  const removed=new Set<string>()
   const entries=products.map((product,i)=>({id:'entry-'+i,itemId:product.id,title:product.displayTitle,scheduledAt:`2099-11-01T${i?'15':'12'}:00:00Z`,state:'READY',error:null,product,sentCount:product.sentCount,message:i?'Dê um toque de luz à decoração\n\n✨ Cascata de Luzes de Natal 10 m\n\n🔥 *R$ 61,98* | 💥 59% OFF\n\nConfira o produto aqui 👇\nhttps://meli.la/fixture':offerMessage}))
   await page.route('**/day-plans**',async route=>{
     const request=route.request(),pathname=new URL(request.url()).pathname
+    if(request.method()==='DELETE'){
+      removed.add(pathname.split('/').at(-1)!)
+      changes.push({path:pathname,body:{}})
+      return route.fulfill({json:{saved:true}})
+    }
     if(request.method()==='POST'){
       const body=request.postDataJSON() as Record<string,unknown>;changes.push({path:pathname,body})
       if(pathname.endsWith('/approve'))status='APPROVED'
@@ -577,7 +583,7 @@ test('planeja o dia, revisa volume e seleciona lote manual no mobile sem esconde
       return route.fulfill({json:{id:'day-batch',status}})
     }
     if(pathname.endsWith('/day-plans'))return route.fulfill({json:{batches:[]}})
-    return route.fulfill({json:{id:'day-batch',mode,status,source:'OPENAI',expiresAt:'2099-11-01T12:00:00Z',error:null,config:{day:'2099-11-01',start:'09:00',end:'12:00'},groups:[{id:'group-1',name:'Natal #1'},{id:'group-2',name:'Natal #2'}],dailyByGroup:[{id:'group-1',name:'Natal #1',messages:4},{id:'group-2',name:'Natal #2',messages:4}],summary:{offers:2,groups:2,totalMessages:4,intervalMinutes:180},entries:entries.map(e=>({...e,state:status==='APPROVED'?'PENDING':e.state}))}})
+    return route.fulfill({json:{id:'day-batch',mode,status,source:'OPENAI',expiresAt:'2099-11-01T12:00:00Z',error:null,config:{day:'2099-11-01',start:'09:00',end:'12:00'},groups:[{id:'group-1',name:'Natal #1'},{id:'group-2',name:'Natal #2'}],dailyByGroup:[{id:'group-1',name:'Natal #1',messages:4},{id:'group-2',name:'Natal #2',messages:4}],summary:{offers:2,groups:2,totalMessages:4,intervalMinutes:180},entries:entries.map(e=>({...e,state:removed.has(e.id)?'CANCELLED':status==='APPROVED'?'PENDING':e.state}))}})
   })
   await page.goto('/admin/afiliados/segmentacoes/segment-1');await area(page,'Ofertas')
   const suggestions=page.getByRole('region',{name:'Sugestões para Natal'})
@@ -619,6 +625,13 @@ test('planeja o dia, revisa volume e seleciona lote manual no mobile sem esconde
   await dialog.getByRole('button',{name:'Aceitar e agendar 2 ofertas'}).focus();await page.keyboard.press('Enter')
   await expect(page.getByRole('dialog',{name:'Ofertas agendadas'})).toBeVisible()
   expect(changes.filter(c=>c.path.endsWith('/approve'))).toHaveLength(1)
+  const pendingRemoval=dialog.getByRole('button',{name:'Remover do lote: '+products[0].displayTitle})
+  await expect(pendingRemoval).toHaveText('Remover disparo')
+  await page.screenshot({path:testInfo.outputPath('day-plan-remove-dispatch.png'),animations:'disabled'})
+  await pendingRemoval.click()
+  await expect(pendingRemoval).toHaveCount(0)
+  await expect(dialog.getByRole('button',{name:'Remover do lote: '+products[1].displayTitle})).toBeVisible()
+  expect(changes.filter(c=>c.path.endsWith('/entries/entry-0'))).toHaveLength(1)
   await dialog.getByRole('button',{name:'Fechar',exact:true}).click()
   await expect(suggestions.getByText('Enviado 2 vezes')).toBeVisible()
   expect(changes.some(c=>c.path.endsWith('/products/send'))).toBe(false)

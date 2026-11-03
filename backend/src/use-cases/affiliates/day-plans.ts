@@ -333,11 +333,28 @@ export async function cancelAffiliateDayPlan(db:PrismaClient,tenantId:string,act
     await tx.$queryRaw`SELECT id FROM affiliate_schedule_batches WHERE id = ${id} AND "tenantId" = ${tenantId} FOR UPDATE`
     const batch=await tx.affiliateScheduleBatch.findFirst({where:{id,tenantId,segmentId},include:{entries:{where:entryId?{id:entryId}:{}}}})
     if(!batch)throw new AffiliateError(404,'Lote não encontrado.')
-    if(entryId&&!['DRAFT','APPROVED'].includes(batch.status))throw new AffiliateError(409,'Remova itens somente antes de aceitar. Para interromper, cancele as pendências do lote.')
-    if(entryId&&batch.status==='APPROVED'&&batch.entries.some(e=>e.state!=='READY'))throw new AffiliateError(409,'Remova somente ofertas recuperadas ainda não aceitas.')
-    if(entryId&&!batch.entries.length)throw new AffiliateError(404,'Oferta não encontrada neste lote.')
-    await tx.affiliateDelivery.updateMany({where:{tenantId,broadcastId:{in:batch.entries.flatMap(e=>e.broadcastId?[e.broadcastId]:[])},state:'PENDING'},data:{state:'CANCELLED',errorCode:'schedule_cancelled'}})
-    await tx.affiliateScheduledOffer.updateMany({where:{tenantId,batchId:id,...(entryId?{id:entryId}:{}),state:{in:['BUILDING','READY','PENDING','PROCESSING']}},data:{state:'CANCELLED',leaseToken:null,leaseExpiresAt:null}})
+    const removable = ['BUILDING','READY','FAILED','PENDING','PROCESSING'] as const
+    if(entryId){
+      const entry=batch.entries[0]
+      if(!entry)throw new AffiliateError(404,'Oferta não encontrada neste lote.')
+      if(entry.state==='CANCELLED')return {saved:true}
+      if(!['BUILDING','DRAFT','FAILED','APPROVED'].includes(batch.status))throw new AffiliateError(409,'Este lote não permite remover ofertas.')
+      const removalError='O disparo já começou ou foi enviado. Atualize o lote para conferir.'
+      if(entry.state==='QUEUED'&&entry.broadcastId){
+        const deliveryScope={tenantId,broadcastId:entry.broadcastId}
+        // The same conditional update used by the delivery worker decides who claims the pending rows first.
+        const cancelled=await tx.affiliateDelivery.updateMany({where:{...deliveryScope,state:'PENDING'},data:{state:'CANCELLED',errorCode:'schedule_cancelled'}})
+        if(!cancelled.count||await tx.affiliateDelivery.count({where:{...deliveryScope,state:{not:'CANCELLED'}}}))throw new AffiliateError(409,removalError)
+      }
+      const changed=await tx.affiliateScheduledOffer.updateMany({
+        where:{tenantId,batchId:id,id:entryId,state:{in:entry.state==='QUEUED'&&entry.broadcastId?['QUEUED']:[...removable]}},
+        data:{state:'CANCELLED',leaseToken:null,leaseExpiresAt:null},
+      })
+      if(!changed.count)throw new AffiliateError(409,removalError)
+    }else{
+      await tx.affiliateDelivery.updateMany({where:{tenantId,broadcastId:{in:batch.entries.flatMap(e=>e.broadcastId?[e.broadcastId]:[])},state:'PENDING'},data:{state:'CANCELLED',errorCode:'schedule_cancelled'}})
+      await tx.affiliateScheduledOffer.updateMany({where:{tenantId,batchId:id,state:{in:['BUILDING','READY','PENDING','PROCESSING']}},data:{state:'CANCELLED',leaseToken:null,leaseExpiresAt:null}})
+    }
     if(!entryId)await tx.affiliateScheduleBatch.update({where:{id},data:{status:'CANCELLED',leaseToken:null,leaseExpiresAt:null}})
     await tx.auditLog.create({data:{tenantId,actorId,action:'affiliate.schedule.cancelled',entityType:'AffiliateScheduleBatch',entityId:id,after:{entryId:entryId??null}}})
     return {saved:true}
