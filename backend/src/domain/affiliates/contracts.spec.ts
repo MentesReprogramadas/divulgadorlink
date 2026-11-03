@@ -8,9 +8,9 @@ it.each(['https://s.shopee.com.br/4qGtib2dfp?tag=a-b','https://meli.la/abc?x=1%2
  expect(message).toContain('*R$ 30,37*')
  expect(message).toContain(affiliateUrl)
  expect(message).not.toContain('Publicidade')
- expect(message.split('\n\n')[2]).toBe('🔥 *R$ 30,37* | 49% OFF')
- expect(message.split('\n\n')[1]).toBe('Camiseta masculina básica algodão')
- expect((message.match(/\p{Extended_Pictographic}/gu)??[]).length).toBeLessThanOrEqual(2)
+ expect(message.split('\n\n')[2]).toBe('🔥 *R$ 30,37* | 💥 49% OFF')
+ expect(message.split('\n\n')[1]).toBe('👕 Camiseta masculina básica algodão')
+ expect((message.match(/\p{Extended_Pictographic}/gu)??[]).length).toBeLessThanOrEqual(4)
  expect(message).not.toMatch(/[—–]|Compre aqui|Corra|Últimas|De:|```/)
  expect(offer.title).toContain('—');expect(offer.priceCents).toBe(3037)
 })
@@ -23,17 +23,23 @@ it('exibe uma vez o nome quando a chamada copia o anúncio', () => {
  const title = 'Pisca Cerejinha LED para Decoração de Natal'
  const affiliateUrl = 'https://s.shopee.com.br/80Dw3nxbTY'
  const message = compactOfferMessage({title, headline: title, showHeadline: true, priceCents: 2498, affiliateUrl})
- expect(message).toBe(`${title}\n\n🔥 *R$\u00a024,98*\n\nConfira o produto aqui\n${affiliateUrl}`)
+ expect(message).toBe(`🛍️ ${title}\n\n🔥 *R$\u00a024,98*\n\nConfira o produto aqui 👇\n${affiliateUrl}`)
 })
 it('destaca uma oportunidade de presente com um teto acima do preço real', () => {
  const offer = {title:'Camiseta básica masculina', headline:'🎁 Presente de Natal por menos de R$ 35!', showHeadline:true, priceCents:3037, reportedDiscountPercent:62, affiliateUrl:'https://s.shopee.com.br/4qGtib2dfp'}
  const blocks = compactOfferMessage(offer).replace(/\u00a0/g,' ').split('\n\n')
- expect(blocks).toEqual(['🎁 Presente de Natal por menos de R$ 35!', 'Camiseta básica masculina', '🔥 *R$ 30,37* | 62% OFF', `Confira o produto aqui\n${offer.affiliateUrl}`])
+ expect(blocks).toEqual(['Presente de Natal por menos de R$ 35!', '🎁 Camiseta básica masculina', '🔥 *R$ 30,37* | 💥 62% OFF', `Confira o produto aqui 👇\n${offer.affiliateUrl}`])
  expect(compactOfferMessage({...offer,priceCents:3500})).not.toContain('por menos')
  expect(compactOfferMessage({...offer,reportedDiscountPercent:12})).not.toContain('por menos')
  expect(compactOfferMessage({...offer,reportedDiscountPercent:null})).not.toContain('% OFF')
  const previous = `🎁 Presente de Natal por menos de R$ 35!\n\n🔥 *R$\u00a030,37*\n\n${offer.affiliateUrl}`
  expect(offerMessageMatches(offer,previous)).toBe(true)
+})
+it('usa o emoji de água para bebedouros e preserva a versão aprovada anterior', () => {
+ const offer = {title:'Bebedouro portátil para pets',priceCents:2000,oldPriceCents:3872,affiliateUrl:'https://s.shopee.com.br/qklDN9xlM'}
+ expect(compactOfferMessage({...offer,showHeadline:true,headline:'Água fresca no passeio 🐾'})).toContain('🐾 Bebedouro portátil para pets')
+ expect(compactOfferMessage(offer)).toBe('💧 Bebedouro portátil para pets\n\n🔥 *R$\u00a020,00* | 💥 48% OFF\n\nConfira o produto aqui 👇\nhttps://s.shopee.com.br/qklDN9xlM')
+ expect(offerMessageMatches(offer,'Bebedouro portátil para pets\n\n🔥 *R$\u00a020,00* | 48% OFF\n\nConfira o produto aqui\nhttps://s.shopee.com.br/qklDN9xlM')).toBe(true)
 })
 it('rejeita mensagem divergente e preserva o texto legado exato já assinado',()=>{
  const offer={title:'Kit de Natal',priceCents:1099,oldPriceCents:null,affiliateUrl:'https://meli.la/abc'}

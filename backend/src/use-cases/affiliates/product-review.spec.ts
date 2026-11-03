@@ -43,7 +43,7 @@ it('regenerates the signed title/message/id without refreshing price/link or ext
   const old=readAffiliateProductPreview(preview.previewToken,'tenant','actor','segment'),next=readAffiliateProductPreview(result.previewToken,'tenant','actor','segment')
   expect(next).toEqual({...old,id:next.id,title:result.title,message:result.message})
   expect(next.id).not.toBe(old.id);expect(result.expiresAt).toBe(preview.expiresAt)
-  expect(result.message.split('\n\n')).toContain(result.title);expect(result.message).toContain(preview.affiliateUrl)
+  expect(result.message).toContain(result.title);expect(result.message).toContain(preview.affiliateUrl)
   expect(ports.title).toHaveBeenCalledWith(db,'tenant',expect.objectContaining(candidate),undefined,{title:preview.title,headline:preview.headline},expect.objectContaining({name:'Natal'}))
   expect(ports.refresh).not.toHaveBeenCalled();expect(ports.link).not.toHaveBeenCalled()
 })

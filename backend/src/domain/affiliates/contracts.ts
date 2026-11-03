@@ -65,6 +65,10 @@ export function headlineWithoutPrice(headline: string, price: OfferPrice): strin
 }
 
 export function offerMessage(offer: OfferMessage) {
+  return productOfferMessage(offer, true)
+}
+
+function productOfferMessage(offer: OfferMessage, useProductEmojis: boolean) {
   const discount = offerDiscount(offer)
   const title = compactAffiliateTitle(compactCopyText(offer.title))
   const headline = offer.showHeadline ? compactCopyText(offer.headline ?? '') : ''
@@ -78,9 +82,12 @@ export function offerMessage(offer: OfferMessage) {
     && Boolean(headlineWithoutPrice(headline, offer))
     && (discount >= strongOfferDiscount || !/\b(?:oferta|achado|perca|corra|aproveit\w*)\b/iu.test(headline))
   const emoji = usableHeadline ? offer.headline?.match(/\p{Extended_Pictographic}/u)?.[0] : undefined
-  const price = `🔥 *${money(offer.priceCents)}*${discount ? ` | ${discount}% OFF` : ''}`
-  const link = `Confira o produto aqui\n${offer.affiliateUrl}`
-  return [...(usableHeadline ? [emoji ? `${emoji} ${headline}` : headline] : []), title, price, link].join('\n\n')
+  const price = `🔥 *${money(offer.priceCents)}*${discount ? ` | ${useProductEmojis ? '💥 ' : ''}${discount}% OFF` : ''}`
+  const link = `Confira o produto aqui${useProductEmojis ? ' 👇' : ''}\n${offer.affiliateUrl}`
+  const productEmoji = emoji ?? (/\b(?:bebedouro|fonte de agua)\b/.test(normalizedTitle) ? '💧' : '🛍️')
+  const opening = !useProductEmojis && emoji ? `${emoji} ${headline}` : headline
+  const productLine = useProductEmojis ? `${productEmoji} ${title}` : title
+  return [...(usableHeadline ? [opening] : []), productLine, price, link].join('\n\n')
 }
 
 // These formats are read only for previews and schedules already signed.
@@ -154,7 +161,7 @@ export function legacyOfferMessage(offer: OfferMessage) {
   return lines.join('\n')
 }
 export function offerMessageMatches(offer:OfferMessage,message:string){
-  return message===offerMessage(offer)||message===spacedOfferMessage(offer,offerDiscount(offer))||message===spacedOfferMessage(offer,0)||message===previousCompactOfferMessage(offer)||message===legacyOfferMessage(offer)
+  return message===offerMessage(offer)||message===productOfferMessage(offer,false)||message===spacedOfferMessage(offer,offerDiscount(offer))||message===spacedOfferMessage(offer,0)||message===previousCompactOfferMessage(offer)||message===legacyOfferMessage(offer)
 }
 export function groupName(base: string, sequence: number) { return `${base.replace(/\s+#\d+$/, '').trim()} #${sequence}` }
 export function validInvite(value: unknown): string {
