@@ -142,6 +142,7 @@ test('dispensa inicial sem segundo modal; faixa global pode ocultar e persiste n
   await expect(recovery).toBeVisible()
   await expect(recovery).toBeInViewport()
   expect((await recovery.boundingBox())?.height).toBeGreaterThanOrEqual(44)
+  expect((await reminder.boundingBox())?.height).toBeLessThanOrEqual(96)
   await expect(recovery).toHaveAttribute('href', `/painel/links/${before.linkId}/destaque?launch=1&plan=SEARCH_NICHE&duration=7`)
   await recovery.click()
   await expect(page.getByRole('button', { name: 'Comprar por R$ 14,32', exact: true })).toBeVisible()

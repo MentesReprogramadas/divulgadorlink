@@ -2,7 +2,9 @@
 
 Pedido: disponibilizar uma ação destacada abaixo do resumo e cronômetro, sem exigir que a pessoa expanda o banner pelo símbolo de mais.
 
-O banner recolhido agora contém o link primário "Resgatar oferta". No mobile ocupa a largura disponível, com altura mínima de44px. A faixa expandida usa o mesmo rótulo, mantendo somente uma ação de resgate por estado. São preservados destino, plano, duração, prazo absoluto, elegibilidade, dispensa fora do painel e persistência no painel. Não houve alteração de cobrança, backend, migração ou dependência.
+Após a revisão de tamanho solicitada pelo usuário, o banner recolhido contém "Resgatar oferta" como texto pequeno e sublinhado logo abaixo do desconto, dentro do próprio resumo. O resumo inteiro é um link com alvo mínimo de44px; não há uma segunda faixa com botão largo. Cronômetro e expansão permanecem ao lado. A faixa expandida mantém sua ação existente e somente uma ação de resgate aparece por estado. São preservados destino, plano, duração, prazo absoluto, elegibilidade, dispensa fora do painel e persistência no painel. Não houve alteração de cobrança, backend, migração ou dependência.
+
+Verificação da versão compacta:Agent Browser mediu75,08px de altura do banner em390×844,com alvo58,08px;e95,22px em320×844,com alvo78,22px.Sem rolagem horizontal nos dois casos. O resgate por foco+Enter abriu o mesmo plano de7dias eR$14,32. Componente7/7,frontend1076/1076,lint,tipos,build eE2E desktop/mobile2/2 em42s aprovados. A jornada exige banner até96px e preserva alvo mínimo44px e URL/campanha/prazo. DetectorImpeccable sem achados. Capturas locais emoutput/qa-compact-banner,sem apresentar localhost como produção.
 
 Validação local:7testes do componente,1076testes frontend,ESLint,tipo aplicação/E2E e build aprovados. E2E desktop/mobile2/2:ação visível na primeira tela,alvo mínimo44px,href preservado,clique abre o destaque com preço correto e campanha/prazo não reiniciam. Uma tentativa concorrente com build excedeu120s em screenshot desktop; a repetição após o build aprovou2/2 em44,3s,sem mudar timeout ou asserções. Detector Impeccable:nenhum achado.
 
