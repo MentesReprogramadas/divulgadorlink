@@ -373,10 +373,19 @@ test('Ondas publicação: todas as etapas e card real com ou sem anexo', async (
   } finally { release() }
   await expect(page.getByRole('main').getByRole('alert')).toContainText('Não foi possível enviar')
   await shot(page, info, 'submission-error-preserves-review')
+  const launch = { id: 'visual-launch', linkId: 'visual-submission', linkName: 'Comunidade de criação', discountPercent: 20, expiresAt: '2026-10-25T12:00:00.000Z' }
+  await jsonFixture(page, '/promotions/launch-offer', { offer: launch })
+  await jsonFixture(page, '/orders/mine', { orders: [] })
+  await jsonFixture(page, '/promotions/offers', { launchOffer: launch, cardEnabled: false, offers: [
+    { code: 'SEARCH_NICHE', name: 'Busca e nicho', surfaces: ['SEARCH', 'NICHE'], featured: true, prices: [{ durationDays: 7, amountCents: 1432, referenceAmountCents: 1790 }] },
+    { code: 'SEARCH_NICHE_HOME', name: 'Completo', surfaces: ['SEARCH', 'NICHE', 'HOME'], prices: [{ durationDays: 7, amountCents: 2632, referenceAmountCents: 3290 }] },
+  ] })
   response.set({ id: 'visual-submission', status: 'PENDING_MODERATION' }, 201)
   await page.getByRole('button', { name: 'Enviar', exact: true }).click()
-  await expect(page.getByRole('dialog')).toBeVisible()
-  await shot(page, info, 'submission-result-dialog', { modal: true })
+  await expect(page.getByRole('heading', { name: 'Destaque seu link com 20% OFF' })).toBeVisible()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  await expect(page.getByRole('list', { name: 'Etapas do formulário' })).toHaveCount(0)
+  await shot(page, info, 'submission-result-offer')
 })
 
 test('Ondas meus links: status, filtros, edição e anexos', async ({ page }, info) => {

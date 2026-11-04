@@ -50,6 +50,7 @@ O primeiro fixture adulto mencionava outro nicho na descrição; o bloqueio de p
 3. **Pagamento tardio:** modal dizia “Compra concluída” e enviava aos resultados. Agora diz “Pagamento recebido”, explica que não ativou destaque e oferece “Ver meus pedidos”. Regressão de componente e reteste real do modal/CTA.
 4. **Instabilidade temporal de testes existentes:** dois testes de afiliados esperavam agendamento01/11 ainda futuro. Corrigido apenas o relógio dos cenários, sem alterar produto. Outro teste de retomada passou a aguardar a consulta assíncrona antes de conferir o bloqueio dos controles.
 5. Relatórios gerados `playwright-report-*` excluídos do Git para impedir inclusão acidental de artefatos de teste.
+6. O CI da main7037643c já falhava nos E2E de afiliados por `label-content-name-mismatch`: “Remover disparo” tinha nome acessível “Remover do lote”. Nome acessível ajustado para incluir o texto visível; seletores atualizados, mantendo a regra Axe e as regras de remoção. Módulo17/17, lint e tipos aprovados. A captura exploratória de publicação também foi atualizada para esperar a oferta inline, com fixtures locais e sem dialog.
 
 ## Validação e integração
 
@@ -60,6 +61,14 @@ A primeira suíte completa backend teve1058aprovações e2falhas porque as prova
 Agent Browser/Axe no `main` da escolha de destaque:zero violações reportadas; contraste sobre gradientes retornou itens incompletos. Não é certificação integral de acessibilidade, nem ensaio em aparelho físico/Safari.
 
 Main remota consultada e atualizada somente por fetch:7037643c. Prisma/schema são idênticos à base0f9f0a7a usada na prova das migrações. Integração/push ficam condicionados aos checks do resultado integrado. O relatório deve receber os resultados efetivos antes do envio; não considerar esta seção uma declaração antecipada de merge.
+
+### Fechamento local do resultado integrado
+
+Feature commit138ab331, integração da main7037643c na branch de trabalho pelo commit29d3828e. Workspace original preservado. Frontend integrado:246 arquivos,1072 testes aprovados; lint, tipos e build aprovados. Backend integrado:216 arquivos aprovados/1opcional ignorado,1111 testes aprovados; o teste opcional de cache de convite também passou separadamente comRedis dedicado. Lint, tipos e build backend aprovados. PostgreSQL afetado37/37 e três migrações aprovados conforme relatório próprio. E2E integrado12/12 (4,0min). Proteções de deploy/lease11/11. Nenhuma dependência ou lockfile alterado.
+
+Uma execução backend sob concorrência com build/E2E excedeu o timeout de5s de um teste de simulação. O módulo passou isoladamente e a suíte integral repetida sozinha passou, sem mudar código ou timeout. Uma execução iniciada antes do merge da main ficou inválida pela troca de fontes durante o processo; não foi usada como prova do resultado integrado.
+
+O envio à main foi autorizado pelo usuário depois da solicitação inicial de não realizar merge. A branch de trabalho recebe primeiro os checks remotos de CI; a main só deve avançar após esse conjunto aprovar. O CI da main publica automaticamente após seus próprios gates, sem deploy manual nesta tarefa. Resultados e SHA efetivos do envio constam no histórico/checks remotos e no fechamento da conversa. A galeria local contém43 capturas finais em `output/qa-main/galeria.html`.
 
 ## Limites antes de produção
 
