@@ -36,7 +36,8 @@ async function addClient(profileId:string,name='Cliente'){const result=await cal
 async function analytics(ownerId:string){
  let plan=await db.profilePlan.findFirst({where:{tenantId:tenant,tier:'PRO'},include:{versions:true}})
  if(!plan)plan=await db.profilePlan.create({data:{tenantId:tenant,tier:'PRO',title:'F36 fixture',versions:{create:{version:1,amountCents:1000,providerProductId:'prod_fixture',providerPriceId:'price_'+tenant.replaceAll('-',''),capabilities:[...BASE_PROFILE_CAPABILITIES,'profile.analytics']}}},include:{versions:true}})
- const account=await db.profileBillingAccount.create({data:{tenantId:tenant,ownerId}}),subscription=await db.profileSubscription.create({data:{tenantId:tenant,ownerId,accountId:account.id,planVersionId:plan.versions[0].id,status:'ACTIVE',periodStart:new Date('2026-10-01Z'),periodEnd:new Date('2026-11-01Z'),paidThrough:new Date('2026-11-01Z'),entitlements:{create:{capability:'profile.analytics',validFrom:new Date('2026-10-01Z'),validUntil:new Date('2026-11-01Z')}}}})
+ const now=Date.now(),periodStart=new Date(now-30*24*60*60*1000),periodEnd=new Date(now+30*24*60*60*1000)
+ const account=await db.profileBillingAccount.create({data:{tenantId:tenant,ownerId}}),subscription=await db.profileSubscription.create({data:{tenantId:tenant,ownerId,accountId:account.id,planVersionId:plan.versions[0].id,status:'ACTIVE',periodStart,periodEnd,paidThrough:periodEnd,entitlements:{create:{capability:'profile.analytics',validFrom:periodStart,validUntil:periodEnd}}}})
  setProfileBillingForTest(db,{enabled:false,production:false,gateway:null,webhookReady:false,delivered:new Set([...BASE_PROFILE_CAPABILITIES,'profile.analytics'])});return subscription
 }
 it('F36-PG01/T01/T03 portfólio só aceita páginas autorizadas, respeita capacidade e oculta acesso revogado',async()=>{

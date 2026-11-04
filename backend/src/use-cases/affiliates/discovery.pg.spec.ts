@@ -26,13 +26,32 @@ afterAll(async()=>{
 const scope=()=>({tenantId,segmentId})
 const run=(search:Parameters<typeof runAffiliateDiscovery>[1],client=db)=>runAffiliateDiscovery(client,search,undefined,scope())
 describe('PostgreSQL discovery isolation and leases',()=>{
+  it('atualiza expansão antiga de Pets e intercala categorias já coletadas na primeira página',async()=>{
+    await db.affiliateSegment.update({where:{id:segmentId},data:{name:'Pets'}})
+    await db.affiliateDiscovery.create({data:{tenantId,segmentId,terms:['Pets'],expandedTerms:['Pets','Ração para gatos'],cursor:1}})
+    const make=(id:string,title:string,term:string)=>{const p={...result.products[0],id,catalogId:id,title};return {...p,sourceTerm:term,sourcePage:1,evaluation:evaluateAffiliateProduct(p,[])}}
+    const food=Array.from({length:30},(_,i)=>make('MLB'+(3000+i),'Ração para gatos marca '+i,'Pets'))
+    const accessories=[make('MLB4001','Comedouro lento para pets','Comedouro para pets'),make('MLB4002','Arranhador para gatos','Arranhador para gatos'),make('MLB4003','Kit luva escova para pets','Luva escova para pets')]
+    for(const [term,products] of [['Pets',food],...accessories.map(p=>[p.sourceTerm,[p]])] as Array<[string,typeof food]>){
+      await db.affiliateDiscoveryPage.create({data:{tenantId,segmentId,term,page:1,productsJson:products,countsJson:{},total:products.length}})
+    }
+    const list=await affiliateDiscoveryState(db,tenantId,segmentId,{mode:'MIXED',view:'ALL'})
+    expect(list.products.slice(0,4).map(p=>p.title)).toEqual(expect.arrayContaining(accessories.map(p=>p.title)))
+    expect((await affiliateDayCandidates(db,tenantId,segmentId)).map(p=>p.id)).toEqual(expect.arrayContaining(accessories.map(p=>p.id)))
+    const search=vi.fn(async()=>result);await run(search)
+    expect(search).toHaveBeenCalledWith(db,tenantId,'Areia higiênica para gatos',{offset:0})
+    const saved=await db.affiliateDiscovery.findUniqueOrThrow({where:{segmentId}})
+    expect(saved.expandedTerms).toContain('Comedouro para pets')
+    expect(saved.status).toBe('QUEUED')
+  })
   it('qualifica termos antigos genéricos de Pets e barra brinquedos infantis na lista, no lote e na revisão',async()=>{
     await db.affiliateSegment.update({where:{id:segmentId},data:{name:'Pets'}})
     await db.affiliateDiscovery.create({data:{tenantId,segmentId,terms:['Brinquedo para cachorro'],expandedTerms:['brinquedo interativo']}})
     const make=(id:string,title:string)=>({...result.products[0],id,title})
     const search=vi.fn<NonNullable<Parameters<typeof runAffiliateDiscovery>[1]>>(async()=>({...result,products:[make('MLB100','Brinquedo para cachorro'),make('MLB200','Polvo Dançarino Luz Música Movimento para crianças')]}))
     await run(search)
-    expect(search.mock.calls[0]?.[2]).toBe('brinquedo interativo para pets')
+    expect(search.mock.calls[0]?.[2]).toBe('Brinquedo para cachorro')
+    expect((await db.affiliateDiscovery.findUniqueOrThrow({where:{segmentId}})).expandedTerms).toContain('brinquedo interativo para pets')
     expect((await affiliateDiscoveryState(db,tenantId,segmentId,{mode:'MIXED',view:'ALL'})).products.map(p=>p.id)).toEqual(['MLB100'])
     expect((await affiliateDayCandidates(db,tenantId,segmentId)).map(p=>p.id)).toEqual(['MLB100'])
     await expect(findDiscoveryCandidate(db,tenantId,segmentId,'MLB200')).rejects.toMatchObject({status:409})

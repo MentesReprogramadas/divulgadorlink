@@ -1,6 +1,6 @@
 const normalize=(value:string)=>value.normalize('NFD').replace(/\p{M}/gu,'').toLocaleLowerCase('pt-BR')
 const pets=/\b(?:pets?|cachorros?|caes|cao|gatos?|felinos?|caninos?|dogs?|cats?|hamsters?|roedores?|passaros?|coelhos?|aquarios?|antipulgas?|veterinari[oa]s?|petiscos?|arranhadores?)\b/
-const petCategory=/\bracao\b|\bareia\b.*\b(?:higienica|aglomerante|silica|biodegradavel)\b/
+const petCategory=/\bracao\b|\bcomedouros?\b|\bpipicat\b|\bareia\b.*\b(?:higienica|aglomerante|silica|biodegradavel)\b/
 const children=/\b(?:bebes?|baby|babies|infantis|infantil|criancas?|chocalhos?|manhattan|pediatrico|recem nascid[oa])\b/
 export type AffiliatePlanContext={role:'CORE'|'RELATED';framing:'THEME'|'GIFT'|'COMPANION';reason:string}
 export type AffiliateSegmentTheme={name:string;discovery?:{terms:string[]}|null;planContext?:AffiliatePlanContext}

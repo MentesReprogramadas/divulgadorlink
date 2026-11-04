@@ -2,6 +2,10 @@ import { expect,it } from 'vitest'
 import { affiliateProductFitsSegment,petSearchTerm,christmasProductKind,affiliateCopyContext } from './segment-relevance'
 import { planAffiliateDiscoveryTerms } from './discovery-terms'
 const pets={name:'Pets'}
+it('reconhece comedouros e Pipicat sem admitir itens infantis ou bebedouros humanos',()=>{
+ for(const title of ['Comedouro lento automático','Areia Pipicat Classic 12 kg'])expect(affiliateProductFitsSegment(pets,title)).toBe(true)
+ for(const title of ['Comedouro infantil para bebê','Bebedouro industrial de água gelada'])expect(affiliateProductFitsSegment(pets,title)).toBe(false)
+})
 it('exclui os produtos infantis do lote real sem confundir mordedores e brinquedos de animais',()=>{
   for(const title of ['Chocalho multifuncional para bebês e brinquedo para morder','Brinquedo de Dentição Manhattan Ball Baby - Silicone','Brinquedo de dentição de silicone Manhattan, seguro para morder','Brinquedo Interativo Polvo Dançarino Luz Música Movimento','Brinquedo de pelúcia de panda realista abraçando bambu','Brinquedo de pelúcia infantil de policial labrador','Mordedor de Cogumelo Mini 0-46 Meses','Ração humana'])expect(affiliateProductFitsSegment(pets,title),title).toBe(false)
   for(const title of ['Bola De Brinquedo Para Cachorro Savana Pet 5cm','Mordedor de borracha para cães','Sachê De Ração Úmida Para Gato Adulto Ovelha 85g Gran Plus','Areia higiênica biodegradável','Ração para filhotes','Ração para gatos filhotes de 1 a 12 meses','Ração para cães a partir de 2 meses','Brinquedo para gatos'])expect(affiliateProductFitsSegment(pets,title),title).toBe(true)

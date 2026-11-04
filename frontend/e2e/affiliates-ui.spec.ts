@@ -9,7 +9,8 @@ import { selectOption } from './select-control'
 const instance = { id: 'instance-1', name: 'Natal 01', ownerPhone: '5511999999999', configured: true, enabled: true }
 const segment = { id: 'segment-1', name: 'Natal', groupName: 'Ofertas de Natal', instanceIds: [instance.id], slug: 'natal', description: 'Presentes e ofertas para celebrar o Natal.', imageUrl: null, capacity: 1024, instanceId: instance.id, autoExpand: true, enabled: true, provisionState: 'IDLE', inviteMetrics: {views:124,buttonClicks:18,automaticRedirects:70,buttonRedirects:15,createdAt:'2026-10-29T12:00:00Z'} }
 const groups = [1, 2, 3].map(sequence => ({ id: `group-${sequence}`, jid: `12036300000000${sequence}@g.us`, name: sequence === 1 ? 'Natal' : `Natal #${sequence}`, segmentId: segment.id, instanceId: instance.id, participantCount: sequence === 1 ? 1024 : sequence === 2 ? 840 : 120, capacity: 1024, enabled: true, syncedAt: '2026-10-28T12:00:00Z', segment, instance }))
-const offer = { id: 'offer-1', segmentId: segment.id, segment, title: 'Árvore de Natal 1,80 m', productUrl: 'https://www.mercadolivre.com.br/p/MLB123', affiliateUrl: 'https://meli.la/fixture', priceCents: 12990, oldPriceCents: 15990, imageUrl: null, note: 'Confira as medidas e as opções do anúncio.', status: 'DRAFT', checkedAt: '2026-10-28T12:00:00Z', expiresAt: null }
+const offerMessage = 'Deixe sua sala no clima de Natal\n\n🎄 Árvore de Natal 1,80 m\n\n🔥 *R$ 129,90* | 💥 18% OFF\n\nConfira o produto aqui 👇\nhttps://meli.la/fixture'
+const offer = { message: offerMessage, id: 'offer-1', segmentId: segment.id, segment, title: 'Árvore de Natal 1,80 m', productUrl: 'https://www.mercadolivre.com.br/p/MLB123', affiliateUrl: 'https://meli.la/fixture', priceCents: 12990, oldPriceCents: 15990, imageUrl: null, note: 'Confira as medidas e as opções do anúncio.', status: 'DRAFT', checkedAt: '2026-10-28T12:00:00Z', expiresAt: null }
 const broadcast = { id: 'broadcast-1', offerId: offer.id, offer, message: 'Árvore de Natal 1,80 m\nR$ 129,90\nhttps://meli.la/fixture', scheduledAt: '2026-10-28T12:00:00Z', createdAt: '2026-10-28T12:00:00Z', _count: { deliveries: 3 } }
 const deliveries = [{ id: 'delivery-1', state: 'SENT', providerMessageId: 'fixture-confirmed', errorCode: null, group: groups[0], broadcast, updatedAt: '2026-10-28T12:01:00Z' }, { id: 'delivery-2', state: 'UNCERTAIN', providerMessageId: null, errorCode: 'provider_timeout', group: groups[1], broadcast, updatedAt: '2026-10-28T12:01:00Z' }]
 const snapshot = { instances: [instance], segments: [segment], groups, offers: [offer], broadcasts: [broadcast], deliveries, summary: { instances: 1, segments: 1, groups: 3, offers: 1, pending: 1, sent: 1, uncertain: 2, failed: 0 } }
@@ -254,6 +255,12 @@ test('admin gerencia segmentos, revisa oferta e confere entrega sem reenvio impl
   await page.locator('details').filter({has:page.getByText('Ofertas cadastradas e ferramentas manuais',{exact:true})}).getByRole('button', { name: 'Revisar e enviar', exact:true }).click()
   const send = page.getByRole('dialog', { name: 'Revisar envio da oferta' })
   await expect(send).toContainText('3 grupos ativos')
+  const message = send.getByLabel('Mensagem para o WhatsApp')
+  expect(await message.textContent()).toBe(offerMessage)
+  await expect(message).toHaveCSS('white-space', 'pre-wrap')
+  await expect(send).not.toContainText(offer.note)
+  await expect(send).not.toContainText('Preço e estoque podem mudar a qualquer momento.')
+  await page.screenshot({path:testInfo.outputPath('manual-offer-compact-preview.png'),fullPage:true,animations:'disabled'})
   expect(mutations.filter(mutation => mutation.path.endsWith('/send'))).toHaveLength(0)
   await send.getByRole('checkbox').check()
   await send.getByRole('button', { name: 'Confirmar envio' }).click()
@@ -559,9 +566,15 @@ test('planeja o dia, revisa volume e seleciona lote manual no mobile sem esconde
   await page.route('**/discovery?*',route=>route.fulfill({json:{enabled:true,usesSegmentName:true,terms:['Natal'],products,counts:null,checkedAt:'2026-10-31T12:00:00Z',nextRunAt:null,status:'READY',error:null}}))
   const changes:Array<{path:string;body:Record<string,unknown>}>=[]
   let status='DRAFT',mode='AUTO'
-  const entries=products.map((product,i)=>({id:'entry-'+i,itemId:product.id,title:product.displayTitle,scheduledAt:`2099-11-01T${i?'15':'12'}:00:00Z`,state:'READY',error:null,product,sentCount:product.sentCount,message:`*${product.displayTitle}*\n\nDe: ~R$ 151,17~\n🔥 *R$ 61,98*\n💸 *59% OFF* · Economize *R$ 89,19*\n\nCompre aqui 👇\nhttps://meli.la/fixture`}))
+  const removed=new Set<string>()
+  const entries=products.map((product,i)=>({id:'entry-'+i,itemId:product.id,title:product.displayTitle,scheduledAt:`2099-11-01T${i?'15':'12'}:00:00Z`,state:'READY',error:null,product,sentCount:product.sentCount,message:i?'Dê um toque de luz à decoração\n\n✨ Cascata de Luzes de Natal 10 m\n\n🔥 *R$ 61,98* | 💥 59% OFF\n\nConfira o produto aqui 👇\nhttps://meli.la/fixture':offerMessage}))
   await page.route('**/day-plans**',async route=>{
     const request=route.request(),pathname=new URL(request.url()).pathname
+    if(request.method()==='DELETE'){
+      removed.add(pathname.split('/').at(-1)!)
+      changes.push({path:pathname,body:{}})
+      return route.fulfill({json:{saved:true}})
+    }
     if(request.method()==='POST'){
       const body=request.postDataJSON() as Record<string,unknown>;changes.push({path:pathname,body})
       if(pathname.endsWith('/approve'))status='APPROVED'
@@ -570,7 +583,7 @@ test('planeja o dia, revisa volume e seleciona lote manual no mobile sem esconde
       return route.fulfill({json:{id:'day-batch',status}})
     }
     if(pathname.endsWith('/day-plans'))return route.fulfill({json:{batches:[]}})
-    return route.fulfill({json:{id:'day-batch',mode,status,source:'OPENAI',expiresAt:'2099-11-01T12:00:00Z',error:null,config:{day:'2099-11-01',start:'09:00',end:'12:00'},groups:[{id:'group-1',name:'Natal #1'},{id:'group-2',name:'Natal #2'}],dailyByGroup:[{id:'group-1',name:'Natal #1',messages:4},{id:'group-2',name:'Natal #2',messages:4}],summary:{offers:2,groups:2,totalMessages:4,intervalMinutes:180},entries:entries.map(e=>({...e,state:status==='APPROVED'?'PENDING':e.state}))}})
+    return route.fulfill({json:{id:'day-batch',mode,status,source:'OPENAI',expiresAt:'2099-11-01T12:00:00Z',error:null,config:{day:'2099-11-01',start:'09:00',end:'12:00'},groups:[{id:'group-1',name:'Natal #1'},{id:'group-2',name:'Natal #2'}],dailyByGroup:[{id:'group-1',name:'Natal #1',messages:4},{id:'group-2',name:'Natal #2',messages:4}],summary:{offers:2,groups:2,totalMessages:4,intervalMinutes:180},entries:entries.map(e=>({...e,state:removed.has(e.id)?'CANCELLED':status==='APPROVED'?'PENDING':e.state}))}})
   })
   await page.goto('/admin/afiliados/segmentacoes/segment-1');await area(page,'Ofertas')
   const suggestions=page.getByRole('region',{name:'Sugestões para Natal'})
@@ -593,7 +606,8 @@ test('planeja o dia, revisa volume e seleciona lote manual no mobile sem esconde
   await dialog.getByText('Destinos e total de mensagens no dia').click()
   await expect(dialog.getByText(/Natal #1 · 4 mensagens no dia/)).toBeVisible()
   await dialog.getByText('Ver mensagem e link').first().click()
-  await expect(dialog.locator('pre').first()).toContainText('🔥 *R$ 61,98*')
+  expect(await dialog.locator('pre').first().textContent()).toBe(entries[0].message)
+  await expect(dialog.locator('pre').first()).toHaveCSS('white-space','pre-wrap')
   await expect(dialog.locator('pre').first()).not.toContainText('Confira esta opção')
   expect((await new AxeBuilder({page}).include('dialog').analyze()).violations).toEqual([])
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true)
@@ -611,6 +625,13 @@ test('planeja o dia, revisa volume e seleciona lote manual no mobile sem esconde
   await dialog.getByRole('button',{name:'Aceitar e agendar 2 ofertas'}).focus();await page.keyboard.press('Enter')
   await expect(page.getByRole('dialog',{name:'Ofertas agendadas'})).toBeVisible()
   expect(changes.filter(c=>c.path.endsWith('/approve'))).toHaveLength(1)
+  const pendingRemoval=dialog.getByRole('button',{name:'Remover do lote: '+products[0].displayTitle})
+  await expect(pendingRemoval).toHaveText('Remover disparo')
+  await page.screenshot({path:testInfo.outputPath('day-plan-remove-dispatch.png'),animations:'disabled'})
+  await pendingRemoval.click()
+  await expect(pendingRemoval).toHaveCount(0)
+  await expect(dialog.getByRole('button',{name:'Remover do lote: '+products[1].displayTitle})).toBeVisible()
+  expect(changes.filter(c=>c.path.endsWith('/entries/entry-0'))).toHaveLength(1)
   await dialog.getByRole('button',{name:'Fechar',exact:true}).click()
   await expect(suggestions.getByText('Enviado 2 vezes')).toBeVisible()
   expect(changes.some(c=>c.path.endsWith('/products/send'))).toBe(false)

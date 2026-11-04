@@ -1,10 +1,11 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
-import { afterEach, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { api } from '@/lib/api'
 import { DayPlanner, type DayPlan } from './day-planner'
 
 vi.mock('@/lib/api',()=>({api:vi.fn()}))
 vi.mock('@/components/ui/liquid-lens',()=>({LiquidLens:()=>null}))
+beforeEach(()=>{vi.useFakeTimers({toFake:['Date']});vi.setSystemTime(new Date('2026-10-31T12:00:00Z'))})
 afterEach(()=>{cleanup();vi.useRealTimers();vi.clearAllMocks()})
 const product={id:'MLB123',title:'Cascata de Luzes de Natal',productUrl:'https://www.mercadolivre.com.br/p/MLB123',imageUrl:null,priceCents:6198,oldPriceCents:15117,checkedAt:'2026-10-31T12:00:00Z'}
 const message='*Cascata de Luzes de Natal*\n\nDe: ~R$ 151,17~\n🔥 *R$ 61,98*\n💸 *59% OFF* · Economize *R$ 89,19*\n\nCompre aqui 👇\nhttps://meli.la/fixture'
@@ -164,6 +165,29 @@ it('seleção manual aparece na barra; envia ids escolhidos e permite remover na
   fireEvent.click(screen.getByRole('button',{name:'Remover do lote: '+product.title}))
   await waitFor(()=>expect(screen.queryByText(product.title)).toBeNull())
   expect(screen.getByRole('button',{name:'Aceitar e agendar 0 ofertas'}).hasAttribute('disabled')).toBe(true)
+})
+it('oferece remoção para disparo pendente e esconde se um grupo já recebeu',async()=>{
+ mock()
+ const original=vi.mocked(api).getMockImplementation()!
+ vi.mocked(api).mockImplementation(async(path,init)=>{
+  if(path.includes('/day-plans?'))return {status:200,body:{batches:[{id:'batch',status:'APPROVED',config:{day:'2026-11-01',start:'09:00',end:'21:00'},_count:{entries:2}}]}}
+  const result=await original(path,init)
+  if(!path.endsWith('/batch')||init?.method!=='GET')return result
+  const plan=result.body as DayPlan
+  const entry=plan.entries[0]
+  return {...result,body:{...plan,status:'APPROVED',entries:entry?[
+   {...entry,state:'PENDING'},
+   {...entry,id:'sent',title:'Oferta já entregue',state:'QUEUED',counts:[{state:'SENT',count:1},{state:'PENDING',count:1}]},
+  ]:[]}}
+ })
+ render(<DayPlanner {...props}/>)
+ fireEvent.click(screen.getByRole('button',{name:'Agenda'}))
+ fireEvent.click(await screen.findByRole('button',{name:'Abrir agenda'}))
+ const remove=await screen.findByRole('button',{name:'Remover do lote: '+product.title})
+ expect(remove.textContent).toBe('Remover disparo')
+ expect(screen.queryByRole('button',{name:'Remover do lote: Oferta já entregue'})).toBeNull()
+ fireEvent.click(remove)
+ await waitFor(()=>expect(vi.mocked(api).mock.calls.some(([path,init])=>path.endsWith('/batch/entries/entry')&&init?.method==='DELETE')).toBe(true))
 })
 it('falha no aceite preserva revisão e oferece recuperação sem repetir envio',async()=>{
   mock();const original=vi.mocked(api).getMockImplementation()!

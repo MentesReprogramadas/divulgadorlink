@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto'
 import type { Prisma, PrismaClient } from '@prisma/client'
 import { z } from 'zod'
-import { AffiliateError, offerMessage } from '@/domain/affiliates/contracts'
+import { AffiliateError, offerMessageMatches } from '@/domain/affiliates/contracts'
 import { dayPlanInput, dayPlanSlots, dayPlanCapacity, rankDayProducts, selectDayProducts, dayPlanCandidatePool, type DayPlanInput } from '@/domain/affiliates/day-plan'
 import { affiliateProductUrl } from '@/domain/affiliates/shopee'
 import { suggestDayProductOrder } from '@/adapters/affiliates/openai-day-plan'
@@ -109,7 +109,8 @@ export async function buildAffiliateDayPlan(db:PrismaClient,scope?:{tenantId:str
     const renew=async()=>{if(!(await db.affiliateScheduleBatch.updateMany({where:{...guard,expiresAt:{gt:new Date()}},data:{leaseExpiresAt:new Date(Date.now()+240000),expiresAt:new Date(Date.now()+15*60000)}})).count)throw new AffiliateError(409,'A preparação foi interrompida. Confira a agenda.')}
     if(!persisted){
     const available=await dayCandidates(db,batch.tenantId,batch.segmentId,input.day,ports)
-    const eligible=(input.itemIds?available.filter(p=>input.itemIds!.includes(p.id)&&p.decision!=='DISCARDED'):rankDayProducts(available)).filter(p=>affiliateProductFitsSegment(segment,p.title))
+    const fitting=available.filter(p=>affiliateProductFitsSegment(segment,p.title))
+    const eligible=input.itemIds?fitting.filter(p=>input.itemIds!.includes(p.id)&&p.decision!=='DISCARDED'):rankDayProducts(fitting)
     const quantity=Math.min(input.count,eligible.length,dayPlanCapacity(input))
     const order=input.itemIds?[]:await ports.order(dayPlanCandidatePool(eligible,eligible.length),undefined,segment,quantity,renew)
     const selected=input.itemIds?input.itemIds.map(id=>{const product=eligible.find(p=>p.id===id);if(!product)throw new AffiliateError(409,'Um produto selecionado foi descartado ou não está disponível. Refaça o lote.');return product}):selectDayProducts(eligible,segment,quantity,order)
@@ -263,7 +264,7 @@ export async function approveAffiliateDayPlan(db:PrismaClient,tenantId:string,ac
     for(const entry of entries){
       const snapshot=snapshotSchema.parse(entry.snapshot),payload=readAffiliateProductPreview(snapshot.previewToken,tenantId,actorId,segmentId)
       if(entry.scheduledAt<=new Date(Date.now()+60000))throw new AffiliateError(409,'Um horário já passou ou está muito próximo. Escolha outro período para as ofertas prontas neste mesmo lote e revise antes de aceitar.')
-      if(segment.updatedAt.toISOString()!==payload.segmentRevision||await affiliateRevision(tx,tenantId,entry.itemId)!==payload.affiliateRevision||offerMessage({...payload,note:''})!==payload.message)throw new AffiliateError(409,'A configuração ou a mensagem mudou. Gere outro lote.')
+      if(segment.updatedAt.toISOString()!==payload.segmentRevision||await affiliateRevision(tx,tenantId,entry.itemId)!==payload.affiliateRevision||!offerMessageMatches({...payload,note:''},payload.message))throw new AffiliateError(409,'A configuração ou a mensagem mudou. Gere outro lote.')
       if((await tx.affiliateProductDecision.findUnique({where:{tenantId_segmentId_itemId:{tenantId,segmentId,itemId:entry.itemId}}}))?.decision==='DISCARDED')throw new AffiliateError(409,'Uma oferta foi descartada. Refaça o lote.')
     }
     await tx.affiliateScheduledOffer.updateMany({where:{batchId:id,tenantId,id:{in:outside.map(e=>e.id)},state:{in:['READY','BUILDING','FAILED']}},data:{state:'CANCELLED',error:'Produto fora do tema da segmentação.'}})
@@ -332,11 +333,28 @@ export async function cancelAffiliateDayPlan(db:PrismaClient,tenantId:string,act
     await tx.$queryRaw`SELECT id FROM affiliate_schedule_batches WHERE id = ${id} AND "tenantId" = ${tenantId} FOR UPDATE`
     const batch=await tx.affiliateScheduleBatch.findFirst({where:{id,tenantId,segmentId},include:{entries:{where:entryId?{id:entryId}:{}}}})
     if(!batch)throw new AffiliateError(404,'Lote não encontrado.')
-    if(entryId&&!['DRAFT','APPROVED'].includes(batch.status))throw new AffiliateError(409,'Remova itens somente antes de aceitar. Para interromper, cancele as pendências do lote.')
-    if(entryId&&batch.status==='APPROVED'&&batch.entries.some(e=>e.state!=='READY'))throw new AffiliateError(409,'Remova somente ofertas recuperadas ainda não aceitas.')
-    if(entryId&&!batch.entries.length)throw new AffiliateError(404,'Oferta não encontrada neste lote.')
-    await tx.affiliateDelivery.updateMany({where:{tenantId,broadcastId:{in:batch.entries.flatMap(e=>e.broadcastId?[e.broadcastId]:[])},state:'PENDING'},data:{state:'CANCELLED',errorCode:'schedule_cancelled'}})
-    await tx.affiliateScheduledOffer.updateMany({where:{tenantId,batchId:id,...(entryId?{id:entryId}:{}),state:{in:['BUILDING','READY','PENDING','PROCESSING']}},data:{state:'CANCELLED',leaseToken:null,leaseExpiresAt:null}})
+    const removable = ['BUILDING','READY','FAILED','PENDING','PROCESSING'] as const
+    if(entryId){
+      const entry=batch.entries[0]
+      if(!entry)throw new AffiliateError(404,'Oferta não encontrada neste lote.')
+      if(entry.state==='CANCELLED')return {saved:true}
+      if(!['BUILDING','DRAFT','FAILED','APPROVED'].includes(batch.status))throw new AffiliateError(409,'Este lote não permite remover ofertas.')
+      const removalError='O disparo já começou ou foi enviado. Atualize o lote para conferir.'
+      if(entry.state==='QUEUED'&&entry.broadcastId){
+        const deliveryScope={tenantId,broadcastId:entry.broadcastId}
+        // The same conditional update used by the delivery worker decides who claims the pending rows first.
+        const cancelled=await tx.affiliateDelivery.updateMany({where:{...deliveryScope,state:'PENDING'},data:{state:'CANCELLED',errorCode:'schedule_cancelled'}})
+        if(!cancelled.count||await tx.affiliateDelivery.count({where:{...deliveryScope,state:{not:'CANCELLED'}}}))throw new AffiliateError(409,removalError)
+      }
+      const changed=await tx.affiliateScheduledOffer.updateMany({
+        where:{tenantId,batchId:id,id:entryId,state:{in:entry.state==='QUEUED'&&entry.broadcastId?['QUEUED']:[...removable]}},
+        data:{state:'CANCELLED',leaseToken:null,leaseExpiresAt:null},
+      })
+      if(!changed.count)throw new AffiliateError(409,removalError)
+    }else{
+      await tx.affiliateDelivery.updateMany({where:{tenantId,broadcastId:{in:batch.entries.flatMap(e=>e.broadcastId?[e.broadcastId]:[])},state:'PENDING'},data:{state:'CANCELLED',errorCode:'schedule_cancelled'}})
+      await tx.affiliateScheduledOffer.updateMany({where:{tenantId,batchId:id,state:{in:['BUILDING','READY','PENDING','PROCESSING']}},data:{state:'CANCELLED',leaseToken:null,leaseExpiresAt:null}})
+    }
     if(!entryId)await tx.affiliateScheduleBatch.update({where:{id},data:{status:'CANCELLED',leaseToken:null,leaseExpiresAt:null}})
     await tx.auditLog.create({data:{tenantId,actorId,action:'affiliate.schedule.cancelled',entityType:'AffiliateScheduleBatch',entityId:id,after:{entryId:entryId??null}}})
     return {saved:true}
@@ -367,7 +385,7 @@ export async function runAffiliateDayPlans(db:PrismaClient,ports=planPorts,scope
         if(!segment||segment.updatedAt.toISOString()!==payload.segmentRevision||await affiliateRevision(tx,entry.tenantId,entry.itemId)!==payload.affiliateRevision)throw new AffiliateError(409,'A segmentação ou a conta de afiliados mudou. Revise o lote.')
         if(!await tx.user.count({where:{id:entry.batch.actorId,tenantId:entry.tenantId,role:'ADMIN',status:'ACTIVE'}}))throw new AffiliateError(403,'O administrador responsável não está ativo. Revise o lote.')
         if((await tx.affiliateProductDecision.findUnique({where:{tenantId_segmentId_itemId:{tenantId:entry.tenantId,segmentId:entry.batch.segmentId,itemId:entry.itemId}}}))?.decision==='DISCARDED')throw new AffiliateError(409,'Oferta descartada depois do agendamento.')
-        if(offerMessage({...payload,note:''})!==payload.message)throw new AffiliateError(409,'O formato da mensagem mudou. Revise o lote.')
+        if(!offerMessageMatches({...payload,note:''},payload.message))throw new AffiliateError(409,'O formato da mensagem mudou. Revise o lote.')
         const existing=await tx.affiliateBroadcast.findUnique({where:{tenantId_idempotencyKey:{tenantId:entry.tenantId,idempotencyKey:`schedule:${entry.id}`}}})
         if(existing){await tx.affiliateScheduledOffer.updateMany({where:guard,data:{state:'QUEUED',broadcastId:existing.id,leaseToken:null,leaseExpiresAt:null}});return}
         const offer=await tx.affiliateOffer.create({data:{tenantId:entry.tenantId,segmentId:entry.batch.segmentId,itemId:entry.itemId,title:payload.title,productUrl:payload.productUrl,affiliateUrl:payload.affiliateUrl,priceCents:payload.priceCents,oldPriceCents:payload.oldPriceCents,reportedDiscountPercent:payload.reportedDiscountPercent??null,oldPriceEstimated:payload.oldPriceEstimated??false,imageUrl:payload.imageUrl,checkedAt:new Date(product.checkedAt),expiresAt:new Date(entry.scheduledAt.getTime()+30*60000)}})

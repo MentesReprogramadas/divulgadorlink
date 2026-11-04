@@ -13,6 +13,7 @@ import { isShopeeProduct } from '@/domain/affiliates/shopee'
 import { affiliateCatalogProvider, type AffiliateCatalogProvider } from '@/domain/affiliates/shopee'
 import { affiliateProductHistory } from './product-history'
 import { affiliateProductFitsSegment, isPetSegment, petSearchTerm } from '@/domain/affiliates/segment-relevance'
+import { interleavePetCategories } from '@/domain/affiliates/pet-products'
 
 const INTERVAL = 15 * 60_000
 const TTL = 24 * 60 * 60_000
@@ -29,6 +30,10 @@ export function mergeDiscoveryProducts(previous: unknown, fresh: CatalogProduct[
   return [...new Map(rows.filter(row => new Date(row.checkedAt).getTime() > now.getTime() - TTL && new Date(row.checkedAt) <= now).map(row => [row.id, row])).values()].sort((a,b) => b.checkedAt.localeCompare(a.checkedAt)).slice(0,100)
 }
 const termsFor = (terms: string[], name: string) => terms.length ? terms : [name.trim().slice(0,120)]
+const storedTerms=(row:Pick<AffiliateDiscovery,'terms'|'expandedTerms'>|null,name:string)=>{
+  const seeds=termsFor(row?.terms??[],name)
+  return isPetSegment({name,discovery:{terms:seeds}})?planAffiliateDiscoveryTerms(seeds,row?.expandedTerms??[],name):row?.expandedTerms.length?row.expandedTerms:seeds
+}
 async function segmentFor(db: PrismaClient, tenantId: string, segmentId: string) {
   const segment = await db.affiliateSegment.findFirst({ where: { id: segmentId, tenantId },include:{discovery:{select:{terms:true}}} })
   if (!segment) throw new AffiliateCatalogError(404, 'Segmentação não encontrada.')
@@ -41,7 +46,7 @@ function state(row: AffiliateDiscovery | null, segment: { name: string; enabled:
 export const discoveryQuerySchema=z.object({mode:z.enum(['MIXED','SOURCE']).optional(),term:z.string().trim().min(2).max(120).optional(),page:z.coerce.number().int().min(1).max(50001).optional(),view:z.enum(['ALL','SELECTED','REVIEW','DISCARDED']).default('ALL')}).strict()
 export async function affiliateDiscoveryState(db: PrismaClient, tenantId: string, segmentId: string, query: z.infer<typeof discoveryQuerySchema>={view:'ALL'}) {
   const segment=await segmentFor(db,tenantId,segmentId),row=await db.affiliateDiscovery.findFirst({where:{segmentId,tenantId}})
-  const terms=row?.expandedTerms.length?row.expandedTerms:termsFor(row?.terms??[],segment.name)
+  const terms=storedTerms(row,segment.name)
   const term=query.term??terms[0]
   if(!terms.includes(term))throw new AffiliateCatalogError(400,'Selecione um dos termos desta segmentação.')
   const page=query.page??1
@@ -68,7 +73,7 @@ export async function affiliateDiscoveryState(db: PrismaClient, tenantId: string
     if(parsed.success)for(const item of parsed.data.rejected??[])if(!validCatalogs.has(item.id)&&!unavailableById.has(item.id))unavailableById.set(item.id,{...item,...(!item.kind?{reason:'A fonte não retornou um anúncio utilizável nesta consulta. Será conferido novamente nas próximas coletas.'}:{})})
   }
   const rejected=mixed?[...unavailableById.values()]:evidence.success?evidence.data.rejected??[]:[]
-  const filtered=visible.filter(p=>query.view==='ALL'? !mixed||p.evaluation.status!=='DISCARDED':p.evaluation.status===query.view),rejections=!mixed&&query.view==='ALL'?rejected:[]
+  const matching=visible.filter(p=>query.view==='ALL'? !mixed||p.evaluation.status!=='DISCARDED':p.evaluation.status===query.view),filtered=mixed&&isPetSegment(segment)?interleavePetCategories(matching):matching,rejections=!mixed&&query.view==='ALL'?rejected:[]
   const total=filtered.length+rejections.length,displayPage=mixed?Math.min(page,Math.max(1,Math.ceil(total/20))):page,offset=(displayPage-1)*20
   return {...state(row,segment),products:mixed?filtered.slice(offset,offset+20):filtered,rejected:rejections,unavailable:mixed?rejected.slice(0,20):[],collectionSummary:{available:statusCounts.SELECTED+statusCounts.REVIEW,unavailable:rejected.length,failed:rejected.filter(item=>item.kind==='LOOKUP_FAILED').length},expandedTerms:terms,statusCounts,policy:AFFILIATE_RULES,pagination:{mode:mixed?'MIXED':'SOURCE',term,page:displayPage,pageSize:20,total:mixed?total:cached?.total??0,hasPrevious:displayPage>1,hasNext:mixed?displayPage*20<total:cached? (evidence.success&&evidence.data.hasNext!==undefined?evidence.data.hasNext:page*20<cached.total) && !(evidence.success&&evidence.data.providerBoundaryReached):false,providerBoundaryReached:!mixed&&evidence.success&&evidence.data.providerBoundaryReached===true},pageStatus:pages.length?'READY':'NOT_COLLECTED',cycleIntervalMs:row?.checkedAt?Math.max(1,row.nextRunAt.getTime()-row.checkedAt.getTime()):INTERVAL,runStartedAt:row?.runStartedAt?.toISOString()??null,durationMs:row?.durationMs??null}
 }
@@ -120,8 +125,8 @@ export async function runAffiliateDiscovery(db: PrismaClient, search: Search = s
     const owner = {...guard,enabled:true,leaseToken,leaseExpiresAt:{gt:new Date()}}
     try {
       const seeds=termsFor(row.terms,row.segment.name)
-      const terms = row.expandedTerms.length?row.expandedTerms:planAffiliateDiscoveryTerms(seeds,(await Promise.all(seeds.map(term=>expandAffiliateTerms(term).catch(()=>[])))).flat(),row.segment.name)
-      if(!row.expandedTerms.length) {
+      const terms = row.expandedTerms.length?storedTerms(row,row.segment.name):planAffiliateDiscoveryTerms(seeds,(await Promise.all(seeds.map(term=>expandAffiliateTerms(term).catch(()=>[])))).flat(),row.segment.name)
+      if(JSON.stringify(row.expandedTerms)!==JSON.stringify(terms)) {
         const saved=await db.affiliateDiscovery.updateMany({where:{...owner,leaseExpiresAt:{gt:new Date()}},data:{expandedTerms:terms}})
         if(!saved.count)return 1
       }
@@ -156,7 +161,7 @@ export async function runAffiliateDiscovery(db: PrismaClient, search: Search = s
       const boundary=error instanceof AffiliateCatalogError && error.status===400
       await db.$transaction(async tx=>{
         const current=await tx.affiliateDiscovery.findUniqueOrThrow({where:{segmentId:row.segmentId}})
-        const terms=current.expandedTerms.length?current.expandedTerms:termsFor(row.terms,row.segment.name)
+        const terms=storedTerms(current,row.segment.name)
         const pages=pageCursorsFor(row.pageCursors),term=row.requestedTerm??terms[row.cursor%terms.length]
         const page=row.requestedPage??pages[term]??1
         const saved=await tx.affiliateDiscovery.updateMany({where:{...owner,leaseExpiresAt:{gt:new Date()}},data:{status:'ERROR',error:message,...(boundary?{cursor:row.requestedTerm?row.cursor:(row.cursor+1)%terms.length,pageCursors:row.requestedTerm?pages:{...pages,[term]:1},requestedTerm:null,requestedPage:null}:{}),nextRunAt:new Date(Date.now()+INTERVAL),leaseToken:null,leaseExpiresAt:null}})
@@ -197,7 +202,7 @@ async function previouslySentProducts(db:PrismaClient,tenantId:string,segmentId:
 
 export async function affiliateDayCandidates(db:PrismaClient,tenantId:string,segmentId:string){
   const segment=await segmentFor(db,tenantId,segmentId),config=await db.affiliateDiscovery.findFirst({where:{tenantId,segmentId}})
-  const terms=config?.expandedTerms.length?config.expandedTerms:termsFor(config?.terms??[],segment.name)
+  const terms=storedTerms(config,segment.name)
   const rows=await db.affiliateDiscoveryPage.findMany({where:{tenantId,segmentId,term:{in:terms},checkedAt:{gte:new Date(Date.now()-TTL)}},orderBy:{checkedAt:'desc'},take:500})
   const products=new Map<string,DiscoveryProduct>()
   for(const row of rows)for(const p of mergeDiscoveryProducts(row.productsJson,[],new Date()) as DiscoveryProduct[])if(!products.has(p.id))products.set(p.id,refreshCachedAffiliateEvaluation(p))

@@ -3,8 +3,10 @@ import { PrismaClient, type Prisma } from '@prisma/client'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { afterAll, beforeAll, beforeEach, expect, it, vi } from 'vitest'
-import { offerMessage } from '@/domain/affiliates/contracts'
+import { legacyOfferMessage } from '@/domain/affiliates/contracts'
 import type { DayPlanInput } from '@/domain/affiliates/day-plan'
+import { petProductCategory } from '@/domain/affiliates/pet-products'
+import { isShopeeProduct } from '@/domain/affiliates/shopee'
 import { evaluateAffiliateProduct } from '@/domain/affiliates/evaluation'
 import { createAffiliateDayPlan, buildAffiliateDayPlan, approveAffiliateDayPlan, readAffiliateDayPlan, cancelAffiliateDayPlan, runAffiliateDayPlans, retryAffiliateDayPlan, rescheduleAffiliateDayPlan, type DayPlanPorts } from './day-plans'
 import { previewAffiliateProduct, readAffiliateProductPreview, sendAffiliateProduct } from './product-review'
@@ -149,6 +151,44 @@ it('envia produto pet pelo título integral mesmo quando o título curto não co
   expect(sent).toHaveBeenCalledTimes(2)
   expect((await affiliateDiscoveryState(db,tenantId,segmentId,{mode:'MIXED',view:'ALL'})).products.some(item=>item.id===p.id)).toBe(true)
 })
+it.each(['food-only','fallback'])('persiste categorias Pets variadas nos horários mesmo com IA %s',async(mode)=>{
+ await db.affiliateSegment.update({where:{id:segmentId},data:{name:'Pets'}})
+ const titles=[...Array.from({length:80},(_,i)=>'Ração para cachorro marca '+i),...['Areia sanitária para gato','Comedouro para cachorro','Shampoo para cachorro','Arranhador para gato','Brinquedo para cachorro'].flatMap(title=>Array.from({length:5},(_,i)=>title+' modelo '+i))]
+ const catalog=titles.map((title,i)=>({...product(),id:'MLB'+(800000+i),catalogId:'MLB'+(800000+i),title,reportedDiscountPercent:i<80?70:10,sentCount:0,pendingCount:0,lastSentAt:null})),ports=dependencies()
+ vi.mocked(ports.candidates).mockResolvedValue(catalog)
+ ports.order=vi.fn(async()=>mode==='fallback'?[]:catalog.slice(0,24).map(p=>({id:p.id,context:{role:'CORE' as const,framing:'THEME' as const,reason:'Produto adequado ao grupo Pets.'}})))
+ ports.prepare=async(client,tenant,actor,segment,itemId,context)=>{
+  const p=catalog.find(p=>p.id===itemId)!
+  return previewAffiliateProduct(client,tenant,actor,segment,itemId,{candidate:async()=>p,refresh:async()=>p,link:async()=>({url:'https://meli.la/fixture',fullUrl:'https://meli.la/fixture',tag:'fixture',profile:'fixture'}),title:async()=>({title:p.title,source:'ORIGINAL'})},context)
+ }
+ const {id,plan}=await draft(ports,{...input(),count:24})
+ expect(plan.summary.offers,plan.error??'').toBe(24)
+ const entries=await db.affiliateScheduledOffer.findMany({where:{batchId:id},orderBy:{position:'asc'}})
+ const categories=entries.map(entry=>petProductCategory(catalog.find(p=>p.id===entry.itemId)!.title))
+ expect(new Set(categories).size).toBe(6)
+ for(const category of new Set(categories))expect(categories.filter(value=>value===category)).toHaveLength(4)
+ expect(new Set(entries.map(entry=>entry.scheduledAt.toISOString())).size).toBe(24)
+ expect(await db.affiliateBroadcast.count({where:{tenantId}})).toBe(0)
+})
+it.each(['Natal','Yoga','Pets'])('persiste alternância de lojas em %s com IA só Shopee',async(name)=>{
+ await db.affiliateSegment.update({where:{id:segmentId},data:{name}})
+ const catalog=['SHP','MLB'].flatMap(provider=>Array.from({length:16},(_,i)=>{
+  const id=provider==='SHP'?`SHP10_${i+100}`:'MLB'+(900000+i),title=(name==='Pets'?'Brinquedo para cachorro':name==='Yoga'?'Tapete para Yoga':'Enfeite Natal')+' modelo '+provider+i
+  return {...product(),id,catalogId:id,title,productUrl:provider==='SHP'?`https://shopee.com.br/product/10/${i+100}`:`https://www.mercadolivre.com.br/p/${id}?wid=${id}`,reportedDiscountPercent:provider==='SHP'?70:20,sentCount:0,pendingCount:0,lastSentAt:null}
+ })),ports=dependencies()
+ vi.mocked(ports.candidates).mockResolvedValue(catalog)
+ ports.order=vi.fn(async()=>catalog.slice(0,12).map(p=>({id:p.id,context:{role:'CORE' as const,framing:'THEME' as const,reason:'Produto nativo do tema do grupo.'}})))
+ ports.prepare=async(client,tenant,actor,segment,itemId,context)=>{
+  const p=catalog.find(p=>p.id===itemId)!
+  return previewAffiliateProduct(client,tenant,actor,segment,itemId,{candidate:async()=>p,refresh:async()=>p,link:async()=>({url:isShopeeProduct(itemId)?'https://shope.ee/fixture':'https://meli.la/fixture',fullUrl:p.productUrl,tag:'fixture',profile:'fixture'}),title:async()=>({title:p.title,source:'ORIGINAL'})},context)
+ }
+ const {id,plan}=await draft(ports,{...input(),count:12})
+ expect(plan.summary.offers,plan.error??'').toBe(12)
+ const entries=await db.affiliateScheduledOffer.findMany({where:{batchId:id},orderBy:{position:'asc'}})
+ expect(entries.filter(entry=>isShopeeProduct(entry.itemId))).toHaveLength(6)
+ expect(entries.every((entry,i)=>!i||isShopeeProduct(entry.itemId)!==isShopeeProduct(entries[i-1].itemId))).toBe(true)
+ expect(await db.affiliateBroadcast.count({where:{tenantId}})).toBe(0)
+})
 it('recupera falhas dentro da agenda aprovada, mantém pendências ativas e exige novo aceite',async()=>{
  const ports=dependencies(),prepare=ports.prepare
  ports.prepare=async(...args)=>{if(args[4]==='MLB234567')throw new AffiliateCatalogError(409,'A loja não confirmou o preço.');return prepare(...args)}
@@ -280,10 +320,21 @@ it('revalida produtos equivalentes entre dois rascunhos dentro do bloqueio da ap
  expect((await readAffiliateDayPlan(db,tenantId,segmentId,second.id)).entries[0].state).toBe('FAILED')
  expect(await db.affiliateScheduledOffer.count({where:{batchId:first.id,state:'PENDING'}})).toBe(2)
 })
+it('aceita envio avulso legado exato e rejeita preço divergente mesmo com assinatura válida',async()=>{
+ const {id}=await draft(),entry=await db.affiliateScheduledOffer.findFirstOrThrow({where:{batchId:id,itemId:product().id}})
+ const payload=readAffiliateProductPreview(String((entry.snapshot as Prisma.JsonObject).previewToken),tenantId,actorId,segmentId)
+ payload.message=legacyOfferMessage({...payload,note:''})
+ const signed=(message:string)=>{const body=Buffer.from(JSON.stringify({...payload,message})).toString('base64url');return body+'.'+createHmac('sha256',process.env.JWT_SECRET!).update('affiliate-preview:v1:'+body).digest('base64url')}
+ await expect(sendAffiliateProduct(db,tenantId,actorId,segmentId,signed(payload.message.replace('25,90','1,90')))).rejects.toMatchObject({status:409,message:'A mensagem mudou. Atualize a prévia antes de enviar.'})
+ expect(await db.affiliateBroadcast.count({where:{tenantId}})).toBe(0)
+ const result=await sendAffiliateProduct(db,tenantId,actorId,segmentId,signed(payload.message))
+ expect((await db.affiliateBroadcast.findUniqueOrThrow({where:{id:result.broadcastId}})).message).toBe(payload.message)
+})
 it('continua enviando a mensagem antiga assinada sem acrescentar chamada após a atualização',async()=>{
  const {id,ports}=await draft(),entry=await db.affiliateScheduledOffer.findFirstOrThrow({where:{batchId:id,itemId:product().id}})
  const saved=entry.snapshot as Prisma.JsonObject,payload=readAffiliateProductPreview(String(saved.previewToken),tenantId,actorId,segmentId)
- delete payload.showHeadline;payload.message=offerMessage({...payload,note:''})
+ delete payload.showHeadline;payload.message=legacyOfferMessage({...payload,note:''})
+ expect(payload.message).toBe('*Árvore de Natal verde*\n\nDe: ~R$\u00a039,90~\n🔥 *R$\u00a025,90*\n💸 *35% OFF* · Economize *R$\u00a014,00*\n\nCompre aqui 👇\nhttps://meli.la/fixture')
  const body=Buffer.from(JSON.stringify(payload)).toString('base64url'),mac=createHmac('sha256',process.env.JWT_SECRET!).update('affiliate-preview:v1:'+body).digest('base64url')
  await db.affiliateScheduledOffer.update({where:{id:entry.id},data:{snapshot:{...saved,previewToken:body+'.'+mac,message:payload.message}}})
  await approveReviewedDayPlan(db,tenantId,actorId,segmentId,id)
@@ -348,7 +399,7 @@ it('prepara desconto primeiro e revisão exata sem gerar entregas; isola tenant 
   const {plan,id,value}=await draft()
   expect(plan.status).toBe('DRAFT');expect(plan.entries.map(e=>e.itemId)).toEqual(['MLB123456','MLB234567'])
   expect(plan.summary).toMatchObject({offers:2,groups:2,totalMessages:4,intervalMinutes:720})
-  expect(plan.entries[0].message?.split('\n')[1]).toMatch(/^\*Árvore/);expect(plan.entries[0].message).toContain('🔥');expect(plan.entries[0].message).not.toContain('Preço e estoque')
+  expect(plan.entries[0].message?.split('\n')[1]).toBe('');expect(plan.entries[0].message).toContain('*R$\u00a025,90*');expect(plan.entries[0].message).not.toContain('Preço e estoque')
   expect(await db.affiliateDelivery.count({where:{tenantId}})).toBe(0)
   await expect(readAffiliateDayPlan(db,otherTenant,segmentId,id)).rejects.toMatchObject({status:404})
   await expect(approveReviewedDayPlan(db,tenantId,'other-actor',segmentId,id)).rejects.toMatchObject({status:403})
@@ -370,7 +421,7 @@ it('agenda seleção manual conjunta Shopee e ML preservando catálogo, percentu
   const value={...input(),itemIds:[shoe.id,product().id]}
   const {plan,id}=await draft(ports,value)
   expect(plan.entries.map(e=>e.itemId)).toEqual(value.itemIds)
-  expect(plan.entries[0].message).toContain('*39% OFF*');expect(plan.entries[0].affiliateUrl).toBe('https://s.shopee.com.br/fixture')
+  expect(plan.entries[0].message).toContain('*R$\u00a021,30*');expect(plan.entries[0].affiliateUrl).toBe('https://s.shopee.com.br/fixture')
   await approveReviewedDayPlan(db,tenantId,actorId,segmentId,id)
   await db.affiliateScheduledOffer.updateMany({where:{batchId:id},data:{scheduledAt:new Date()}})
   await runAffiliateDayPlans(db,ports,{tenantId,batchId:id})
@@ -388,6 +439,32 @@ it('retoma construção após lease perdido e permite remover antes de aceitar; 
   await cancelAffiliateDayPlan(db,tenantId,actorId,segmentId,batch.id)
   expect(await runAffiliateDayPlans(db,ports,{tenantId,batchId:batch.id},new Date(Date.now()+86400000))).toBe(0)
   expect(await db.affiliateBroadcast.count({where:{tenantId}})).toBe(0)
+})
+it('remove uma oferta agendada sem cancelar o restante do lote',async()=>{
+ const {id,plan,ports}=await draft()
+ await approveReviewedDayPlan(db,tenantId,actorId,segmentId,id)
+ await cancelAffiliateDayPlan(db,tenantId,actorId,segmentId,id,plan.entries[0].id)
+ await db.affiliateScheduledOffer.updateMany({where:{batchId:id},data:{scheduledAt:new Date()}})
+ await runAffiliateDayPlans(db,ports,{tenantId,batchId:id})
+ const current=await readAffiliateDayPlan(db,tenantId,segmentId,id)
+ expect(current.status).toBe('APPROVED')
+ expect(current.entries.map(entry=>entry.state).sort()).toEqual(['CANCELLED','QUEUED'])
+ expect(await db.affiliateBroadcast.count({where:{tenantId}})).toBe(1)
+})
+it('remove da fila antes da entrega e preserva os pendentes quando outro grupo já recebeu',async()=>{
+ const {id,ports}=await draft()
+ await approveReviewedDayPlan(db,tenantId,actorId,segmentId,id)
+ await db.affiliateScheduledOffer.updateMany({where:{batchId:id},data:{scheduledAt:new Date()}})
+ await runAffiliateDayPlans(db,ports,{tenantId,batchId:id})
+ const plan=await readAffiliateDayPlan(db,tenantId,segmentId,id)
+ const [removable,partial]=plan.entries
+ expect(removable.state).toBe('QUEUED')
+ await cancelAffiliateDayPlan(db,tenantId,actorId,segmentId,id,removable.id)
+ expect(await db.affiliateDelivery.count({where:{broadcastId:removable.broadcastId!,state:'PENDING'}})).toBe(0)
+ const sent=await db.affiliateDelivery.findFirstOrThrow({where:{broadcastId:partial.broadcastId!}})
+ await db.affiliateDelivery.update({where:{id:sent.id},data:{state:'SENT'}})
+ await expect(cancelAffiliateDayPlan(db,tenantId,actorId,segmentId,id,partial.id)).rejects.toMatchObject({status:409})
+ expect(await db.affiliateDelivery.count({where:{broadcastId:partial.broadcastId!,state:'PENDING'}})).toBe(1)
 })
 it('bloqueia mudança de preço e de destinatários, expiração e aprovação concorrente do mesmo produto',async()=>{
   const {id,ports}=await draft()

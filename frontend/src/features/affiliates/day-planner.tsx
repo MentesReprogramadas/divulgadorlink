@@ -118,7 +118,10 @@ function DayPlanDialog({base,segmentName,initialId,selected,onClose,onChanged,cl
         {entry.product&&entry.state==='FAILED'?<p className={common.muted}>Foto e preço da coleta. Esta oferta não está incluída no agendamento.</p>:null}
         <div className={styles.entryActions}>{entry.message?<details><summary className={styles.detailsSummary}>Ver mensagem e link</summary><pre className={styles.message}>{entry.message}</pre></details>:null}
         {['DRAFT','FAILED','APPROVED'].includes(plan.status)&&entry.state==='FAILED'?<Button variant="secondary" disabled={busy} onClick={()=>retryFailed(entry.id)} aria-label={'Verificar novamente: '+entry.title}>Verificar novamente</Button>:null}
-        {['DRAFT','APPROVED'].includes(plan.status)&&entry.state==='READY'?<Button variant="ghost" disabled={busy} onClick={()=>void mutate('/entries/'+encodeURIComponent(entry.id),undefined,'DELETE')} aria-label={'Remover do lote: '+entry.title}>Remover</Button>:null}</div>
+        {['BUILDING','DRAFT','FAILED','APPROVED'].includes(plan.status)&&(
+          ['BUILDING','READY','FAILED','PENDING','PROCESSING'].includes(entry.state)
+          || (entry.state==='QUEUED'&&entry.counts?.some(c=>c.state==='PENDING')&&entry.counts.every(c=>['PENDING','CANCELLED'].includes(c.state)))
+        )?<Button variant="ghost" disabled={busy} onClick={()=>void mutate('/entries/'+encodeURIComponent(entry.id),undefined,'DELETE')} aria-label={'Remover do lote: '+entry.title}>{plan.status==='APPROVED'&&entry.state!=='READY'?'Remover disparo':'Remover'}</Button>:null}</div>
       </li>)}</ol>
       {plan.status!=='BUILDING'?<details><summary className={styles.detailsSummary}>Como funciona o envio</summary><p className={common.muted}>Cada oferta entra na fila no horário mostrado e segue para os grupos. O tempo de entrega depende das conexões, com tolerância de 30 minutos. Mudança de preço bloqueia a oferta para revisão.</p></details>:null}
       {['DRAFT','APPROVED'].includes(plan.status)&&readyOffers>0&&expired?<p role="alert" className={common.warning}>Esta revisão expirou. Confira novamente as ofertas neste mesmo lote para atualizar preços, fotos e links antes de aceitar.</p>:null}
