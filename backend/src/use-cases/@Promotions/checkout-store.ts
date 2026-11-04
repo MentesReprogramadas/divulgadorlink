@@ -32,6 +32,7 @@ export type CommercialOrder = {
 }
 
 export type CreatePendingInput = {
+  launchOfferId?: string
   tenantId: string
   userId: string
   linkId: string

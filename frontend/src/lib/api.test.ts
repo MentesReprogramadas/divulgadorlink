@@ -81,6 +81,64 @@ describe('sessão por cookie no cliente', () => {
     expect(readSession()).toBeNull()
   })
 
+  it.each([200, 401, 503])('compartilha refresh %s entre APIs concorrentes e um 401 atrasado', async refreshStatus => {
+    writeSession({ role: 'USER', status: 'ACTIVE', canSubmit: true })
+    const validSession = { role: 'USER', status: 'ACTIVE', canSubmit: true }
+    let releaseRefresh!: (response: Response) => void
+    let releaseLate!: (response: Response) => void
+    let renewed = false
+    let lateStarted = false
+    let refreshRequests = 0
+    const fetchMock = vi.fn<(url: string, init: RequestInit) => Promise<Response>>(async url => {
+      if (url === '/bff/v1/auth/refresh') {
+        refreshRequests += 1
+        if (refreshRequests === 1) return new Promise(resolve => { releaseRefresh = resolve })
+        renewed = true
+        return reply(200)
+      }
+      if (url === '/bff/v1/team/context' && !lateStarted) {
+        lateStarted = true
+        return new Promise(resolve => { releaseLate = resolve })
+      }
+      return renewed ? reply(200, url === '/bff/v1/auth/session' ? validSession : {}) : reply(401)
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    const session = currentSession()
+    const links = api('/v1/links/mine')
+    await vi.waitFor(() => expect(fetchMock.mock.calls.filter(([url]) => url === '/bff/v1/auth/refresh')).toHaveLength(1))
+    const late = api('/v1/team/context')
+    renewed = refreshStatus === 200
+    releaseRefresh(reply(refreshStatus))
+    const [current, mine] = await Promise.all([session, links])
+    releaseLate(reply(401))
+    const team = await late
+    expect(fetchMock.mock.calls.filter(([url]) => url === '/bff/v1/auth/refresh')).toHaveLength(1)
+    expect(current).toEqual(renewed ? validSession : null)
+    expect(readSession()).toEqual(renewed ? validSession : null)
+    expect([mine.status, team.status]).toEqual(renewed ? [200, 200] : [401, 401])
+    if (!renewed) {
+      const next = api('/v1/links/mine')
+      await vi.waitFor(() => expect(fetchMock.mock.calls.filter(([url]) => url === '/bff/v1/auth/refresh')).toHaveLength(2))
+      renewed = true
+      releaseRefresh(reply(200))
+      expect((await next).status).toBe(200)
+    }
+  })
+
+  it('compartilha falha de rede do refresh sem disparar novas renovações concorrentes', async () => {
+    let rejectRefresh!: (reason: Error) => void
+    const offline = new Error('offline')
+    const fetchMock = vi.fn<(url: string, init: RequestInit) => Promise<Response>>(async url => url === '/bff/v1/auth/refresh'
+      ? new Promise((_resolve, reject) => { rejectRefresh = reject })
+      : reply(401))
+    vi.stubGlobal('fetch', fetchMock)
+    const requests = Promise.allSettled([currentSession(), api('/v1/links/mine'), api('/v1/team/context')])
+    await vi.waitFor(() => expect(fetchMock.mock.calls.filter(([url]) => url === '/bff/v1/auth/refresh')).toHaveLength(1))
+    rejectRefresh(offline)
+    expect(await requests).toEqual(Array.from({ length: 3 }, () => ({ status: 'rejected', reason: offline })))
+    expect(fetchMock.mock.calls.filter(([url]) => url === '/bff/v1/auth/refresh')).toHaveLength(1)
+  })
+
   it('login não dispara refresh em credencial errada', async () => {
     const urls: string[] = []
     vi.stubGlobal('fetch', vi.fn(async (url: string) => {

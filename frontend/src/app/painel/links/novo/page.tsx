@@ -1,6 +1,7 @@
 'use client'
 
 import { LinkMediaFields, type LinkMediaDraft } from '@/features/link-media/link-media-fields'
+import { PromotionPurchase } from '@/features/promotions/promotion-purchase'
 import { SubmissionPreview } from '@/features/link-submission/components/submission-preview'
 
 import { useRouter } from 'next/navigation'
@@ -79,6 +80,7 @@ export default function Page() {
   const router = useRouter()
   const session = useAreaSession()
   const dialogRef = useRef<HTMLDialogElement>(null)
+  const purchaseRef = useRef<HTMLElement>(null)
 
   const summaryRef = useRef<HTMLElement>(null)
 
@@ -101,6 +103,7 @@ export default function Page() {
   const [slotsUsed, setSlotsUsed] = useState<number | null>(null)
   const [error, setError] = useState('')
   const [result, setResult] = useState<SubmissionResult | null>(null)
+  const [createdLinkId, setCreatedLinkId] = useState('')
   const [pending, setPending] = useState(false)
   const [ready, setReady] = useState(false)
   const [step, setStep] = useState(0)
@@ -153,22 +156,26 @@ export default function Page() {
 
   useEffect(() => {
     const dialog = dialogRef.current
-    if (!result || !dialog) return
+    if (!result || createdLinkId || !dialog) return
     if (!dialog.open) {
       try { dialog.showModal() } catch { dialog.open = true }
     }
-    const timer = window.setTimeout(() => router.push(LINKS_HREF), 2500)
     function leave(event: Event) {
       event.preventDefault()
-      window.clearTimeout(timer)
       router.push(LINKS_HREF)
     }
     dialog.addEventListener('cancel', leave)
     return () => {
-      window.clearTimeout(timer)
       dialog.removeEventListener('cancel', leave)
     }
-  }, [result, router])
+  }, [result, router, createdLinkId])
+
+  useEffect(() => {
+    if (!createdLinkId) return
+    purchaseRef.current?.focus({ preventScroll: true })
+    document.documentElement.scrollTop = 0
+    document.body.scrollTop = 0
+  }, [createdLinkId])
 
   const confirmed = session?.canSubmit === true
   const canonical = preview(draft.url)
@@ -230,6 +237,7 @@ export default function Page() {
         } catch {
           setStorageWarning('Seu link foi enviado, mas não foi possível apagar o rascunho salvo neste navegador.')
         }
+        if (sent.body.id && (sent.body.status === 'PUBLISHED' || sent.body.status === 'PENDING_MODERATION')) setCreatedLinkId(sent.body.id)
         setResult(describeSubmission(sent.body.status))
         return
       }
@@ -240,6 +248,11 @@ export default function Page() {
       setPending(false)
     }
   }
+
+  if (createdLinkId) return <section ref={purchaseRef} data-promotion-result tabIndex={-1} aria-label="Oferta para destacar o link cadastrado">
+    {storageWarning ? <p role="status">{storageWarning}</p> : null}
+    <PromotionPurchase linkId={createdLinkId} mode="post-create" onLeave={() => router.push(LINKS_HREF)} />
+  </section>
 
   return (
     <>

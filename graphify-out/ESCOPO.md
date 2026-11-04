@@ -248,3 +248,8 @@ Consulta dirigida aos dois resolvedores e consumidores HTTP, confirmada na fonte
 
 ## Títulos enxutos de afiliados — 30/10/2026
 Consulta dirigida ao gerador de copy, compositor de mensagem e prévia/aprovação, confirmada na fonte. Extração incremental code-only final:12 arquivos reprocessados/1738 reutilizados,8810 nós/31711 relações. Sem LLM/API/clustering. product-title.spec.ts sem símbolos no extrator;42 testes unitários e57 PostgreSQL do lote isolado foram executados separadamente. A árvore compartilhada tem outras alterações, sem atribuir toda diferença a este lote. Evidência e limites em docs/relatorios/2026-10-30-titulos-enxutos-afiliados.md.
+
+## Compra de destaque na própria página — 04/11/2026
+Consulta dirigida confirmada na fonte. Extração incremental code-only local: 9182 nós/33103 relações, 12 arquivos reprocessados e 1812 reutilizados. Sem LLM/API/clustering. Relatórios playwright-report-* excluídos do índice. CSS, Prisma, imagens e comportamento de runtime exigem evidências próprias; testes e limites em docs/frontend-profissional/evidencias/destaque-compra-na-pagina-2026-11-04.md.
+
+Ajuste de confirmação/saídas/contador em 04/11: extração code-only incremental, 13 arquivos reprocessados/1811 reutilizados, 9183 nós/33103 relações. Sem API/LLM. CSS e runtime validados separadamente em output/destaque-ajustes-2026-11-04/validacao.md.

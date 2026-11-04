@@ -17,3 +17,5 @@ it('private route registry separates finance, import, campaign sources and repor
  for(const [path,section] of [['/me/profile','page'],['/me/profile/backup/import','transfer'],['/me/profile/export','transfer'],['/me/profile/campaign-sources/123','campaigns'],['/me/profile/campaigns/123/interaction','reports'],['/me/profile/media-kit/publish','presentation'],['/me/redirects/123','invitations'],['/links/mine','links'],['/links/123/discovery','links'],['/me/subscription/cancel','billing'],['/orders/123','billing'],['/me/favorites','favorites'],['/me/followed-niches','interests'],['/promotions/mine/reminders','reminders']])expect(workspaceRoute(path)).toBe(section)
  for(const path of ['/admin/users','/links/account/email','/me/profile/team','/me/profile/members/123','/me/new-private-feature','/auth/password'])expect(workspaceRoute(path)).toBeNull()
 })
+
+it('classifica campanha e retomada de pagamento como financeiro',()=>{expect(workspaceRoute('/promotions/launch-offer')).toBe('billing');expect(workspaceRoute('/promotions/launch-offer/campaign-id')).toBe('billing');expect(workspaceRoute('/orders/order-id/resume')).toBe('billing')})

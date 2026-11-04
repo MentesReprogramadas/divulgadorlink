@@ -1,8 +1,11 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import type { PromotionProductCode } from '@prisma/client'
 import { z } from 'zod'
-import { defaultOffers, isOfferCode, mergeCatalog, type OfferCode } from '@/domain/promotions/offer-catalog'
+import { defaultOffers, isOfferCode, mergeCatalog, OFFER_CODES, type OfferCode } from '@/domain/promotions/offer-catalog'
 import { PRICE_ROWS, type PriceRow } from '@/domain/promotions/price-for'
+import { activeLaunchOffer, dismissLaunchOffer, issueLaunchOffer, launchDto, launchPrices, prepareAutomaticPublication } from '@/use-cases/@Promotions/launch-offer'
+import { getLinksRepository } from '@/repositories/links-repository'
+import { confirmationFlags } from '@/use-cases/@Auth/confirm-identifier'
 import { env } from '@/env'
 import { buildError, not_found, validation } from '@/http/errors'
 import { verifyJWT } from '@/http/middlewares/verify-jwt'
@@ -55,8 +58,26 @@ async function getOffers(request: FastifyRequest, reply: FastifyReply) {
     return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
   }
   const enabled = cardEnabled()
+  const query = z.object({ linkId: z.string().min(1).optional(), renewal: z.literal('1').optional() }).safeParse(request.query)
+  if (!query.success) return reply.status(400).send({ message: 'Consulta inválida.' })
+  let offers = await catalogFor(tenant.id)
+  let launchOffer: Awaited<ReturnType<typeof activeLaunchOffer>> = null
+  if (query.data.linkId) {
+    const repo = getLinksRepository(), link = await repo.findLinkById(query.data.linkId)
+    const user = await repo.findSubmitter(tenant.id, request.user.sub)
+    if (!link || link.tenantId !== tenant.id || link.ownerId !== request.user.sub || !user || user.status !== 'ACTIVE' || !confirmationFlags(user.identifiers).emailConfirmed) return reply.status(404).send({ message: 'Recurso não encontrado.' })
+    const niche = await repo.findNiche(tenant.id, link.nicheId)
+    if (niche?.requiresAge) offers = offers.filter(offer => !offer.surfaces.includes('HOME'))
+    launchOffer = query.data.renewal ? null : await activeLaunchOffer(tenant.id, request.user.sub, link.id)
+    if (launchOffer) {
+      const snapshot = launchPrices(launchOffer)
+      offers = offers.map(offer => ({ ...offer, prices: snapshot.filter(row => row.code === offer.code).map(row => ({ durationDays: row.durationDays, amountCents: row.amountCents, referenceAmountCents: row.referenceAmountCents })) }))
+    }
+  }
+  reply.header('cache-control','private, no-store')
   return reply.status(200).send({
-    offers: await catalogFor(tenant.id),
+    offers,
+    ...(launchOffer ? { launchOffer: launchDto(launchOffer) } : {}),
     cardEnabled: enabled,
     ...(enabled && env.STRIPE_PUBLISHABLE_KEY ? { publishableKey: env.STRIPE_PUBLISHABLE_KEY } : {}),
   })
@@ -127,7 +148,45 @@ async function patchOffer(request: FastifyRequest, reply: FastifyReply) {
   return reply.status(200).send({ offers: await catalogFor(tenant.id) })
 }
 
+
+async function launchAccount(request: FastifyRequest) {
+ const tenant = await resolveTenant((request.headers.host ?? '').split(':')[0] || '')
+ if (request.user.tenantId !== tenant.id) return null
+ const user = await getLinksRepository().findSubmitter(tenant.id, request.user.sub)
+ if (!user || user.status !== 'ACTIVE' || !confirmationFlags(user.identifiers).emailConfirmed) return null
+ return { tenantId: tenant.id, userId: user.id }
+}
+async function postLaunchOffer(request: FastifyRequest, reply: FastifyReply) {
+ const parsed = z.object({ linkId: z.string().min(1), source: z.enum(['post_create','exit']).optional(), productCode: z.enum(OFFER_CODES).optional(), durationDays: z.union([z.literal(7),z.literal(14),z.literal(28)]).optional() }).strict().safeParse(request.body)
+ if (!parsed.success) return reply.status(400).send({ message: 'Dados inválidos.' })
+ const account = await launchAccount(request)
+ if (!account) return reply.status(403).send({ message: 'Conta não pode comprar destaque.' })
+ const link = await getLinksRepository().findLinkById(parsed.data.linkId)
+ if (!link || link.tenantId !== account.tenantId || link.ownerId !== account.userId) return reply.status(404).send({ message: 'Recurso não encontrado.' })
+ await prepareAutomaticPublication(account.tenantId, account.userId, link.id)
+ const offer = await issueLaunchOffer(account.tenantId, account.userId, link.id, await rowsFor(account.tenantId), prisma, parsed.data)
+ reply.header('cache-control','private, no-store')
+ return reply.send({ offer: offer ? launchDto(offer) : null })
+}
+async function getLaunchOffer(request: FastifyRequest, reply: FastifyReply) {
+ const account = await launchAccount(request)
+ if (!account) return reply.status(403).send({ message: 'Conta não pode comprar destaque.' })
+ const offer = await activeLaunchOffer(account.tenantId, account.userId)
+ reply.header('cache-control','private, no-store')
+ return reply.send({ offer: offer ? launchDto(offer) : null })
+}
+async function deleteLaunchOffer(request: FastifyRequest, reply: FastifyReply) {
+ const account = await launchAccount(request)
+ if (!account) return reply.status(403).send({ message: 'Conta não pode comprar destaque.' })
+ const { id } = request.params as { id: string }
+ await dismissLaunchOffer(account.tenantId, account.userId, id)
+ return reply.status(204).send()
+}
+
 export async function registerOfferRoutes(app: FastifyInstance) {
+  app.post('/promotions/launch-offer', { onRequest: [verifyJWT] }, postLaunchOffer)
+  app.get('/promotions/launch-offer', { onRequest: [verifyJWT] }, getLaunchOffer)
+  app.delete('/promotions/launch-offer/:id', { onRequest: [verifyJWT] }, deleteLaunchOffer)
   app.get('/promotions/offers', { onRequest: [verifyJWT] }, getOffers)
   app.patch('/admin/offers/:productCode', { onRequest: [verifyJWT] }, patchOffer)
 }

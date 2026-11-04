@@ -130,7 +130,7 @@ export function workspaceRoute(path:string,method='GET'):WorkspaceSection|null{
 
  if(path==='/me/notification-preferences'||path==='/promotions/mine/reminders')return 'reminders'
 
- if(/^\/(me\/(subscription|billing-operations)|orders|promotions\/(mine|checkout|renew)|subscriptions\/checkout)(\/|$)/.test(path))return 'billing'
+ if(/^\/(me\/(subscription|billing-operations)|orders|promotions\/(mine|checkout|renew|launch-offer)|subscriptions\/checkout)(\/|$)/.test(path))return 'billing'
 
  if(/^\/analytics\/links\/[^/]+(?:\/performance)?$/.test(path)||/^\/links\/[^/]+\/performance/.test(path))return 'reports'
 

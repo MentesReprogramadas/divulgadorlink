@@ -119,7 +119,8 @@ main.panel-page {
   padding-top: var(--space-3);
 }
 
-.link-card-actions .button {
+.link-card-actions > .button,
+.link-card-actions details .button {
   min-height: 44px;
   padding: 0 10px;
   border-radius: 6px;

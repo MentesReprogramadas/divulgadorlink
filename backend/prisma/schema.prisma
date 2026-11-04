@@ -537,6 +537,7 @@ model AffiliateConnection {
 }
 
 model User {
+  promotionLaunchOffers PromotionLaunchOffer[]
  agencyWorkspace AgencyWorkspace?
  agencyAssignments AgencyAccessRequest[]
  sentProfileTransfers AgencyProfileTransfer[]
@@ -729,6 +730,7 @@ enum LinkStatus {
 }
 
 model Link {
+  promotionLaunchOffers PromotionLaunchOffer[]
   id           String     @id @default(cuid())
   tenantId     String
   tenant       Tenant     @relation(fields: [tenantId], references: [id])
@@ -901,6 +903,7 @@ model Order {
   savingsCents         Int
   pixExpiresAt         DateTime?
   gatewayChargeId      String?
+  clientSecret String?
   brCode               String?
   refundCorrelationId  String?
   refundAttempts       Int                  @default(0)
@@ -2330,4 +2333,25 @@ model AffiliateGroupAdmission {
   @@unique([groupId, participantHash])
   @@index([tenantId, groupId, state, eligibleAt])
   @@map("affiliate_group_admissions")
+}
+
+// Oferta emitida pelo servidor; vincula conta, tenant e link com preço congelado.
+model PromotionLaunchOffer {
+ id String @id
+ tenantId String
+ userId String
+ user User @relation(fields: [userId, tenantId], references: [id, tenantId], onDelete: Cascade, onUpdate: NoAction, map: "launch_offer_owner_fk")
+ linkId String
+ link Link @relation(fields: [linkId, tenantId], references: [id, tenantId], onDelete: Cascade, onUpdate: NoAction, map: "launch_offer_link_fk")
+ linkName String
+ prices Json
+ createdAt DateTime @default(now())
+ expiresAt DateTime
+ dismissedAt DateTime?
+ reservedOrderId String?
+ productCode String?
+ durationDays Int?
+ @@index([tenantId, userId, createdAt])
+ @@index([linkId])
+ @@map("promotion_launch_offers")
 }

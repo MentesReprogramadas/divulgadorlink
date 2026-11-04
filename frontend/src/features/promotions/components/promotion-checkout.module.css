@@ -1,0 +1,101 @@
+.layout {
+  display: grid;
+  gap: var(--space-6);
+  align-items: start;
+  min-width: 0;
+}
+
+.options { display: grid; gap: var(--space-6); min-width: 0; }
+.intro { display: grid; gap: var(--space-2); }
+.intro p { margin: 0; color: var(--text-secondary); }
+.intro :is(h1,h2) { margin: 0; font-family: var(--font-product); font-size: clamp(1.5rem, 3vw, 2rem); line-height: 1.15; }
+.offerTitle { color: var(--status-success-text); }
+.discount { display: inline-flex; width: fit-content; padding: 8px 12px; border-radius: 6px; background: var(--status-success-bg); color: var(--status-success-text); font: 600 1.5rem/1.1 var(--font-product); }
+.summary { position: relative; display: grid; gap: var(--space-4); min-width: 0; padding: var(--space-6); border: 1px solid var(--border-default); border-radius: 16px; background: var(--surface-glass); }
+.summary h3 { margin: 0; font-family: var(--font-product); font-size: 1.25rem; }
+.summary p { margin: 0; }
+.summary > button { width: 100%; min-height: 52px; }
+.summaryInfo { color: var(--text-secondary); }
+.price { display: block; color: var(--text-primary); font: 600 2.5rem/1.1 var(--font-product); }
+.reference { color: var(--text-secondary); }
+.saving { color: var(--status-success-text); font-weight: 600; }
+.total { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-2); border-top: 1px solid var(--border-default); padding-top: var(--space-4); font-size: 1.125rem; }
+.finePrint { color: var(--text-secondary); font-size: .875rem; }
+.upgrade { display: grid; gap: var(--space-2); width: 100%; min-width: 0; padding: var(--space-4); border: 1px solid var(--status-success-border); border-radius: 12px; background: var(--status-success-bg); color: var(--text-primary); cursor: pointer; }
+.upgrade[data-selected='true'] { background: var(--select-selected-background); box-shadow: inset 0 0 0 1px var(--color-brand-turquoise); }
+.upgrade:hover { border-color: var(--action-primary-hover); }
+.upgrade:focus-within { outline: 3px solid var(--focus-ring); outline-offset: 3px; }
+.upgradeTitle { color: var(--status-success-text); display: flex; align-items: center; gap: var(--space-3); font: 600 1.25rem/1.2 var(--font-product); }
+.upgradeTitle input { width: 22px; height: 22px; margin: 0; flex: 0 0 22px; }
+.upgradePrice { color: var(--status-success-text); font: 600 1.5rem/1.15 var(--font-product); }
+.upgradeTotal { font-weight: 600; }
+.upgradeHint { color: var(--text-secondary); font-size: .875rem; }
+.methodChoices { display: grid; gap: var(--space-6); min-width: 0; }
+.methodChoices :global(.method-grid) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.methodChoices :global(.method-card) { min-width: 0; }
+.planOptions :global(.plan-grid) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.planOptions :global(.plan-card) { min-width: 0; min-height: 140px; }
+.planOptions :global(.plan-card.is-selected) { min-height: 140px; }
+.planOptions :global(.plan-card) input { width: 20px; height: 20px; }
+.referenceSmall { color: var(--text-secondary); font-size: .875rem; }
+.statusPanel { display: grid; gap: var(--space-4); }
+.statusPanel p { margin: 0; }
+
+@media (min-width: 64rem) {
+  .layout { grid-template-columns: minmax(0, 1.4fr) minmax(22rem, 1fr); }
+  .summary { position: sticky; top: var(--space-6); }
+}
+
+@media (max-width: 24rem) {
+  .summary { padding: var(--space-4); }
+  .planOptions :global(.plan-grid), .methodChoices :global(.method-grid) { grid-template-columns: minmax(0, 1fr); }
+}
+
+.campaignPlan { display: grid; gap: var(--space-3); padding: var(--space-6); border: 1px solid var(--border-default); border-radius: 12px; background: var(--surface-raised); }
+.campaignPlan h3 { margin: 0; font: 600 1.5rem/1.2 var(--font-product); }
+.campaignPlan p { margin: 0; color: var(--text-secondary); }
+.otherPlans > summary { min-height: 44px; cursor: pointer; color: var(--color-link); padding-block: var(--space-3); }
+.otherPlans[open] > summary { margin-bottom: var(--space-3); }
+
+.upgrade[data-compact="true"] { padding: 12px; gap: 6px; }
+.upgrade[data-compact="true"] .upgradeTitle { font-size: 1.125rem; }
+.upgrade[data-compact="true"] .upgradePrice { font-size: 1.25rem; }
+.srOnly { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+
+.purchase { display: grid; gap: var(--space-6); min-width: 0; }
+.purchase[data-mode='post-create'] { gap: 16px; }
+.purchase[data-mode='post-create'] .summary { padding: 16px; gap: 8px; }
+.purchase[data-mode='post-create'] .summary > button { min-height: 44px; }
+.purchase[data-mode='post-create'] .summary > button:first-of-type { min-height: 52px; }
+.removeUpgrade { margin-left: auto; font: 600 .8125rem/1.2 var(--font-sans); }
+.purchase > button { justify-self: start; min-height: 44px; }
+.textExit,
+.purchase[data-mode='post-create'] .summary > .textExit { display: block; width: 100%; min-height: 44px; padding: 8px; margin: 0; border: 0; border-radius: 4px; background: transparent; box-shadow: none; color: var(--text-secondary); font: 400 .875rem/1.4 var(--font-sans); text-align: center; cursor: pointer; }
+.textExit:hover { color: var(--text-primary); text-decoration: underline; }
+.textExit:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.textExit:disabled { opacity: .6; cursor: wait; }
+.exitOffer { display: grid; gap: 12px; min-width: 0; }
+.exitOffer p { margin: 0; }
+.exitDeadline { display: grid; gap: 6px; padding: 12px 16px; border-radius: 12px; color: var(--status-warning-text); background: var(--status-warning-bg); }
+.exitDeadline p { font-size: .875rem; font-weight: 600; }
+.exitPlan { font-weight: 600; }
+.exitOffer > button { width: 100%; min-height: 52px; }
+.exitOffer :global(.card-form) { display: grid; gap: 12px; }
+.exitOffer :global(.card-form) > button { width: 100%; min-height: 52px; }
+.summary :global(.card-form) { display: grid; gap: var(--space-4); min-width: 0; }
+.summary :global(.card-form) > button { width: 100%; min-height: 52px; }
+.methodChoices :global(.method-card) { display: flex; align-items: center; gap: var(--space-2); min-height: 48px; padding: var(--space-3); }
+.methodChoices :global(.method-card) input { width: 20px; height: 20px; margin: 0; }
+
+@media (max-width: 63.99rem) {
+  .purchase[data-mode='post-create'] .summary { gap: var(--space-3); }
+  .purchase[data-mode='post-create'] .summary h3 { font-size: 1rem; }
+  .purchase[data-mode='post-create'] .summary .price { font-size: 2rem; }
+  .purchase[data-mode='post-create'] .campaignPlan { padding: var(--space-4); }
+}
+
+@media (min-width: 64rem) {
+  .purchase[data-mode='post-create'] .layout > .summary { grid-column: 2; grid-row: 1; }
+  .purchase[data-mode='post-create'] .layout > .options { grid-column: 1; grid-row: 1; }
+}

@@ -14,9 +14,10 @@ type OverlayDialogProps = {
   closeDisabled?: boolean
   size?: 'default' | 'wide'
   closeLabel?: string
+  hideCloseButton?: boolean
 }
 
-export function OverlayDialog({ open, title, onClose, children, variant = 'modal', returnFocusTo, closeDisabled = false, size = 'default',closeLabel='Fechar janela' }: OverlayDialogProps) {
+export function OverlayDialog({ open, title, onClose, children, variant = 'modal', returnFocusTo, closeDisabled = false, size = 'default',closeLabel='Fechar janela', hideCloseButton = false }: OverlayDialogProps) {
   const ref = useRef<HTMLDialogElement>(null)
   const wasOpen = useRef(false)
   const titleId = useId()
@@ -54,9 +55,9 @@ export function OverlayDialog({ open, title, onClose, children, variant = 'modal
     onClick={event => { if (!closeDisabled && event.target === event.currentTarget) onClose() }}>
     <div className={styles.panel}>
       <LiquidLens radius={20} />
-      <header className={styles.header}>{variant === 'sidebar' ? <><LiquidLens radius={0} edge="none" /><img src="/brand/ondas-logo.svg" width={172} height={32} alt="Tem Link Aqui" /><h2 id={titleId} className={styles.hiddenTitle}>{title}</h2></> : <h2 id={titleId}>{title}</h2>}<button type="button" aria-label={variant === 'sidebar' ? 'Fechar menu' : closeLabel} title={closeLabel} disabled={closeDisabled} onClick={onClose}><LiquidLens radius={12} />
+      <header className={styles.header}>{variant === 'sidebar' ? <><LiquidLens radius={0} edge="none" /><img src="/brand/ondas-logo.svg" width={172} height={32} alt="Tem Link Aqui" /><h2 id={titleId} className={styles.hiddenTitle}>{title}</h2></> : <h2 id={titleId}>{title}</h2>}{!hideCloseButton ? <button type="button" aria-label={variant === 'sidebar' ? 'Fechar menu' : closeLabel} title={closeLabel} disabled={closeDisabled} onClick={onClose}><LiquidLens radius={12} />
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6" /></svg>
-      </button></header>
+      </button> : null}</header>
       <div className={styles.body}>{open ? children : null}</div>
     </div>
   </dialog>

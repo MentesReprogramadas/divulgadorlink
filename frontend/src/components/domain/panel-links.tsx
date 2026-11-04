@@ -16,6 +16,7 @@ import { WorkspaceActions, WorkspaceFilters } from '@/components/layout/workspac
 import { EmptyState } from '@/components/feedback/empty-state'
 import { LinkDiscoveryContent, useLinkDiscovery } from '@/features/catalog/discovery/link-discovery-editor'
 import { Skeleton } from '@/components/feedback/skeleton'
+import actionStyles from './panel-links.module.css'
 import { LiquidLens } from '@/components/ui/liquid-lens'
 
 export type PanelLink = {
@@ -150,14 +151,16 @@ export function LinkList({
               {link.pendingText ? <p className="panel-meta">Proposta pendente: {link.pendingText.name}</p> : null}
               {link.occupiesSlot ? <p className="panel-meta">Ocupa uma vaga</p> : null}
               <LinkMetrics numbers={numbers} />
-              <div className="link-card-actions">
+                {(link.status === 'PUBLISHED' || link.status === 'PENDING_MODERATION') && !banned ? <div className={actionStyles.featureAction}><strong>Apareça nos espaços patrocinados</strong><ButtonLink href={`/painel/links/${link.id}/destaque`}><ActionIcon name="promotion" />Destacar este link</ButtonLink><p>Destaque pago · consulte opções e valores</p></div> : null}
+              <div className={actionStyles.actions}>
                 {!banned ? <ButtonLink variant="ghost" href={`/painel/links/${link.id}/resultado`}><ActionIcon name="chart" />Ver resultado</ButtonLink> : null}
                 {editable ? (
                   <ButtonLink className="action-edit" variant="secondary" href={`/painel/links/${link.id}/editar`}><Glyph name="pencil" />Editar</ButtonLink>
                 ) : null}
                 {link.status === 'PRE_REJECTED' ? <ButtonLink className="action-contest" variant="secondary" href={`/painel/links/${link.id}/contestar`}><ActionIcon name="appeal" width={14} height={14} />Contestar</ButtonLink> : null}
-                {link.status === 'PUBLISHED' && !banned ? <ButtonLink className="action-feature" variant="secondary" href={`/painel/links/${link.id}/destaque`}><ActionIcon name="promotion" width={14} height={14} />Destacar</ButtonLink> : null}
-                <details className={styles.moreActions}><summary><LiquidLens radius={12} />Mais opções</summary><div className={styles.morePanel}><LiquidLens radius={12} /><div className={styles.moreOptions}>{!banned ? <ButtonLink variant="ghost" href={`/painel/links/${link.id}/disponibilidade`}><ActionIcon name="availability" />Disponibilidade</ButtonLink> : null}<ButtonLink variant="secondary" href={`/link/${link.id}`}><Glyph name="external" />Acessar</ButtonLink></div></div></details>
+
+                {!banned ? <ButtonLink variant="ghost" href={`/painel/links/${link.id}/disponibilidade`}><ActionIcon name="availability" />Disponibilidade</ButtonLink> : null}
+                <ButtonLink variant="secondary" href={`/link/${link.id}`}><Glyph name="external" />Acessar</ButtonLink>
               </div>
             </article>
           )

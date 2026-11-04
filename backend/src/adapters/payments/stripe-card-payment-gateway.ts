@@ -12,7 +12,7 @@ export interface StripeGatewayClient {
       params: { amount: number; currency: string; metadata: { orderId: string } },
       options: { idempotencyKey: string },
     ): Promise<{ id: string; client_secret: string | null; status: string }>
-    retrieve(id: string): Promise<{ status: string }>
+    retrieve(id: string): Promise<{ status: string; id?: string; client_secret?: string | null; amount?: number; currency?: string; metadata?: { orderId?: string } }>
   }
   refunds: {
     create(
@@ -47,6 +47,12 @@ export class StripeCardPaymentGateway implements CardPaymentGateway {
     }
 
     return { gatewayChargeId: intent.id, clientSecret: intent.client_secret }
+  }
+
+  async resumeCharge(input: { gatewayChargeId: string; orderId: string; amountCents: number }): Promise<string> {
+    const intent = await this.stripe.paymentIntents.retrieve(input.gatewayChargeId)
+    if (intent.id !== input.gatewayChargeId || intent.metadata?.orderId !== input.orderId || intent.amount !== input.amountCents || intent.currency !== 'brl' || !intent.client_secret || intent.status === 'canceled' || intent.status === 'succeeded') throw new Error('Cobrança não pode ser retomada.')
+    return intent.client_secret
   }
 
   async getCharge(gatewayChargeId: string): Promise<GatewayChargeSnapshot> {

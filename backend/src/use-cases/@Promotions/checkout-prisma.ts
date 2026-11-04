@@ -1,3 +1,4 @@
+import { reserveLaunchOffer } from './launch-offer'
 import { randomUUID } from 'node:crypto'
 import type { PrismaClient } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
@@ -35,6 +36,7 @@ type OrderRow = {
   idempotencyKey: string | null
   renewal: boolean
   brCode: string | null
+  clientSecret: string | null
   createdAt: Date
 }
 
@@ -63,6 +65,7 @@ function toCommercial(row: OrderRow, surfaces: Surface[], events: string[]): Com
     idempotencyKey: row.idempotencyKey,
     renewal: row.renewal,
     brCode: row.brCode ?? undefined,
+    clientSecret: row.clientSecret ?? undefined,
     createdAt: row.createdAt,
     refundErrors: row.refundErrors ?? [],
     refundIds: row.refundIds ?? [],
@@ -152,6 +155,7 @@ export class PrismaCheckoutStore implements CheckoutStore {
           input.idempotencyKey,
           input.renewal,
         )
+        if (input.launchOfferId) await reserveLaunchOffer(tx, { id: input.launchOfferId, tenantId: input.tenantId, userId: input.userId, linkId: input.linkId, orderId: id, code: input.productCode, durationDays: input.durationDays, amountCents: input.amountCents })
         for (const surface of input.surfaces) {
           await tx.$executeRawUnsafe(
             `INSERT INTO order_surfaces (id, "orderId", "linkId", surface, hold)
@@ -179,12 +183,13 @@ export class PrismaCheckoutStore implements CheckoutStore {
     expiresAt?: Date
   }): Promise<void> {
     const updated = await this.client.$executeRawUnsafe(
-      `UPDATE orders SET "gatewayChargeId" = $2, "pixExpiresAt" = COALESCE($3, "pixExpiresAt"), "brCode" = $4, "updatedAt" = NOW()
+      `UPDATE orders SET "gatewayChargeId" = $2, "pixExpiresAt" = COALESCE($3, "pixExpiresAt"), "brCode" = $4, "clientSecret" = $5, "updatedAt" = NOW()
        WHERE id = $1 AND "gatewayChargeId" IS NULL`,
       orderId,
       charge.gatewayChargeId,
       charge.expiresAt ?? null,
       charge.brCode ?? null,
+      charge.clientSecret ?? null,
     )
     if (updated === 0) return
     await this.client.$executeRawUnsafe(

@@ -58,3 +58,12 @@ it('allows editing text when optional metadata cannot load, without submitting e
  const writes=vi.mocked(api).mock.calls.filter(([,init])=>init?.method==='PATCH')
  expect(writes.map(([path])=>path)).toEqual(['/v1/links/own'])
 })
+
+it('apresenta destaque após métricas e expõe todas as ações sem menu',()=>{
+ render(<LinkList links={[{id:'ready',name:'Leitura',status:'PUBLISHED'}]} banned={false} stats={{ready:{impressions:10,clicks:2,ctr:20}}}/>)
+ const card=screen.getByRole('heading',{name:'Leitura'}).closest('article')!
+ const names=within(card).getAllByRole('link').map(link=>link.textContent)
+ expect(names).toEqual(['Destacar este link','Ver resultado','Editar','Disponibilidade','Acessar'])
+ expect(within(card).queryByText('Mais opções')).toBeNull()
+ expect(card.querySelector('.panel-stats')!.compareDocumentPosition(within(card).getByRole('link',{name:'Destacar este link'})) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+})

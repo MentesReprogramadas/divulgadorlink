@@ -40,6 +40,24 @@ describe('checkout', () => {
 
   it('aceita SEARCH em nicho com idade', () => {
     expect(assertCheckout({ ...base, requiresAge: true, surfaces: ['SEARCH'] })).toBe(true)
+    expect(assertCheckout({ ...base, requiresAge: true, surfaces: ['NICHE'] })).toBe(true)
+    expect(assertCheckout({ ...base, requiresAge: true, surfaces: ['SEARCH', 'NICHE'] })).toBe(true)
+  })
+
+  it('recusa Home para +18 também na renovação, antes de reservar ou cobrar', async () => {
+    resetCheckoutStoreForTest()
+    const store = getCheckoutStore(), pix = gateway()
+    await expect(startCheckout({ tenantId: 't1', userId: 'u1', linkId: 'adult-link', account: 'ACTIVE', link: 'PUBLISHED', requiresAge: true, surfaces: ['HOME'], durationDays: 7, method: 'PIX', rows: PRICE_ROWS, idempotencyKey: null, requestId: 'adult-renew', renewal: true, store, gateway: pix })).rejects.toThrow(/HOME/)
+    expect(pix.calls).toBe(0)
+  })
+
+  it('não reapresenta cobrança Home antiga se o nicho passou a ser +18', async () => {
+    resetCheckoutStoreForTest()
+    const store = getCheckoutStore(), pix = gateway()
+    const input = { tenantId: 't1', userId: 'u1', linkId: 'changed-link', account: 'ACTIVE' as const, link: 'PUBLISHED' as const, requiresAge: false, surfaces: ['HOME' as const], durationDays: 7, method: 'PIX' as const, rows: PRICE_ROWS, idempotencyKey: 'age-change', requestId: 'adult-replay', store, gateway: pix }
+    await startCheckout(input)
+    await expect(startCheckout({ ...input, requiresAge: true, surfaces: ['SEARCH'] })).rejects.toThrow(/HOME/)
+    expect(pix.calls).toBe(1)
   })
 
   it('não troca SEARCH_HOME por outro produto', () => {
@@ -226,4 +244,19 @@ describe('checkout', () => {
     })).rejects.toThrow(/timeout/)
     expect(await store.listPromotions('link-1')).toHaveLength(0)
   })
+})
+
+
+it('replay revalida conta, link e payload antes de devolver dados privados do cartão',async()=>{
+ resetCheckoutStoreForTest()
+ const store=getCheckoutStore()
+ const input={tenantId:'t1',userId:'u1',linkId:'original',account:'ACTIVE' as const,link:'PUBLISHED' as const,requiresAge:false,surfaces:['SEARCH' as const],durationDays:7,method:'CARD' as const,rows:PRICE_ROWS,idempotencyKey:'private-replay',requestId:'replay',store,gateway:{method:'CARD' as const,createCharge:async()=>({gatewayChargeId:'pi_private',clientSecret:'private_secret'})}}
+ const original=await startCheckout(input)
+ await expect(startCheckout({...input,account:'BANNED'})).rejects.toThrow('conta')
+ await expect(startCheckout({...input,link:'UNAVAILABLE'})).rejects.toThrow('link')
+ for(const changed of [{linkId:'another-link'},{surfaces:['NICHE' as const]},{durationDays:14},{method:'PIX' as const},{renewal:true}]) await expect(startCheckout({...input,...changed})).rejects.toThrow()
+ expect((await startCheckout(input)).orderId).toBe(original.orderId)
+ store.orders[0].order.status='PAID'
+ expect((await startCheckout(input)).orderId).toBe(original.orderId)
+ expect(store.orders).toHaveLength(1)
 })

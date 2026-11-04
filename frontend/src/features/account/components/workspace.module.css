@@ -74,3 +74,4 @@
 .suspension { composes: surface from '../../feature-glass.module.css'; padding: var(--space-6); border-radius: var(--radius-lg); }
 .suspension h2 { margin-top: 0; }
 .suspension p { margin-bottom: 0; overflow-wrap: anywhere; }
+.content:has([data-promotion-result]) > .top { display: none; }

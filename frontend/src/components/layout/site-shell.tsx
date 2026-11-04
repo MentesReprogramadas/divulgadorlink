@@ -6,6 +6,7 @@ import { CookieSettings } from '@/components/domain/consent'
 import styles from './site-shell.module.css'
 import { SupportBanner } from '@/features/support/support-banner'
 import { OndasAtmosphere } from './ondas-atmosphere'
+import { GlobalOfferReminder } from '@/features/promotions/components/global-offer-reminder'
 import { LiquidLens } from '@/components/ui/liquid-lens'
 
 export function SiteShell({ role, support = false, personalHost=false, children }: { role?: string; support?: boolean; personalHost?:boolean; children: ReactNode }) {
@@ -27,6 +28,8 @@ export function SiteShell({ role, support = false, personalHost=false, children 
           <div className={styles.headerActions}><SiteNavigation role={role} support={support} /></div>
         </div>
       </header>
+      <div id="promotion-offer-banner" />
+      {!support ? <GlobalOfferReminder /> : null}
       {support ? <SupportBanner /> : null}
       <div id="main-content" className={styles.content} tabIndex={-1}>{children}</div>
       <footer className={styles.footer} data-workspace={workspace || undefined}>

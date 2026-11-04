@@ -1,4 +1,4 @@
-import { assertCheckout } from '@/domain/promotions/eligibility'
+import { assertCheckout, assertSurfaceEligibility } from '@/domain/promotions/eligibility'
 export { assertCheckout } from '@/domain/promotions/eligibility'
 import type { Surface } from '@/domain/promotions/price-for'
 import { priceFor, type PriceRow, type ProductCode } from '@/domain/promotions/price-for'
@@ -57,6 +57,7 @@ export function gatewayFor(
 }
 
 export async function startCheckout(input: {
+  launchOfferId?: string
   tenantId: string
   userId: string
   linkId: string
@@ -81,9 +82,16 @@ export async function startCheckout(input: {
   brCode?: string
   clientSecret?: string
 }> {
+  if (input.account !== 'ACTIVE') throw new Error('conta')
+  if (input.link !== 'PUBLISHED') throw new Error('link')
+  assertSurfaceEligibility(input.requiresAge, input.surfaces)
   if (input.idempotencyKey) {
     const existing = await input.store.findByIdempotency(input.tenantId, input.userId, input.idempotencyKey)
     if (existing) {
+      assertSurfaceEligibility(input.requiresAge, existing.surfaces)
+      if (existing.tenantId !== input.tenantId || existing.userId !== input.userId || existing.linkId !== input.linkId ||
+        existing.durationDays !== input.durationDays || existing.order.method !== input.method || existing.renewal !== Boolean(input.renewal) ||
+        [...existing.surfaces].sort().join('+') !== [...input.surfaces].sort().join('+')) throw new Error('Chave de idempotência já utilizada para outra seleção.')
       return {
         orderId: existing.order.id,
         code: existing.productCode,
@@ -126,6 +134,7 @@ export async function startCheckout(input: {
   }
 
   const created = await input.store.createPending({
+    launchOfferId: input.launchOfferId,
     tenantId: input.tenantId,
     userId: input.userId,
     linkId: input.linkId,

@@ -18,6 +18,9 @@ vi.mock('@/domain/google-ads', () => ({
 }))
 vi.mock('@/features/link-media/prepare-link-media',()=>({prepareLinkMediaFile:vi.fn(async()=> 'cGl4ZWxz')}))
 vi.mock('@/components/ui/liquid-lens', () => ({ LiquidLens: () => <span aria-hidden="true" /> }))
+vi.mock('@/features/promotions/promotion-purchase', () => ({
+  PromotionPurchase: ({ linkId, mode, onLeave }: { linkId: string; mode: string; onLeave: () => void }) => <div data-link-id={linkId} data-purchase-mode={mode}><h2>Link cadastrado</h2><button onClick={onLeave}>Ver meus links</button></div>,
+}))
 
 beforeEach(() => {
   HTMLDialogElement.prototype.showModal = function showModal() { this.open = true }
@@ -54,6 +57,21 @@ async function fillAndSend() {
 }
 
 describe('envio de link', () => {
+  it.each(['PUBLISHED', 'PENDING_MODERATION'])('substitui formulário e stepper pela compra na página após %s', async status => {
+    const defaultApi = api.getMockImplementation()!
+    api.mockImplementation((path: string, init?: RequestInit) => path === '/v1/links' && init?.method === 'POST'
+      ? Promise.resolve({ status: 201, body: { id: 'link-inline', status } }) : defaultApi(path, init))
+    render(<Page />)
+    await fillAndSend()
+    await screen.findByRole('heading', { name: 'Link cadastrado' })
+    expect(screen.queryByRole('dialog', { hidden: true })).toBeNull()
+    const offer = screen.getByRole('region', { name: 'Oferta para destacar o link cadastrado' })
+    expect(offer.querySelector('[data-link-id="link-inline"][data-purchase-mode="post-create"]')).toBeTruthy()
+    expect(screen.queryByRole('list', { name: 'Etapas do formulário' })).toBeNull()
+    expect(screen.queryByLabelText('Título do link')).toBeNull()
+    expect(push).not.toHaveBeenCalled()
+  })
+
   it('resume campos inválidos da etapa e leva o foco aos controles sem perder valores', async () => {
     render(<Page />)
     fireEvent.change(await screen.findByLabelText('Link de acesso'), { target: { value: 'http://example.com/grupo' } })
@@ -117,9 +135,9 @@ describe('envio de link', () => {
     vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new DOMException('full', 'QuotaExceededError') })
     render(<Page />)
     await fillAndSend()
-    expect(await screen.findByRole('heading', { name: 'Enviado para análise.' })).toBeTruthy()
+    expect(await screen.findByRole('heading', { name: 'Link cadastrado' })).toBeTruthy()
     expect(trackGoogleAdsLinkSubmission).toHaveBeenCalledExactlyOnceWith('link-storage')
-    fireEvent.click(screen.getByRole('button', { name: 'Ver meus links' }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Ver meus links' }))
   })
 
   it('avisa quando não salva e mantém valores e etapa após falha de rede', async () => {
@@ -165,11 +183,11 @@ describe('envio de link', () => {
     vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => { throw new DOMException('blocked', 'SecurityError') })
     render(<Page />)
     await fillAndSend()
-    expect(await screen.findByRole('heading', { name: 'Enviado para análise.' })).toBeTruthy()
+    expect(await screen.findByRole('heading', { name: 'Link cadastrado' })).toBeTruthy()
     expect(screen.queryByText(/Não foi possível conectar/)).toBeNull()
     expect(screen.getByText(/não foi possível apagar o rascunho/)).toBeTruthy()
     expect(api.mock.calls.filter(([path]) => path === '/v1/links')).toHaveLength(1)
-    fireEvent.click(screen.getByRole('button', { name: 'Ver meus links' }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Ver meus links' }))
   })
 
   it.each(['network', 'http'])('recupera facetas e vagas após falha %s sem perder o que foi digitado', async failure => {
@@ -242,7 +260,7 @@ describe('envio de link', () => {
     expect(localStorage.getItem('tla-link-draft')).not.toContain('cGl4ZWxz')
     expect(localStorage.getItem('tla-link-draft')).not.toContain('Pessoas reunidas')
   })
-  it('mostra o resultado da fila e segue para os links', async () => {
+  it('mantém o cadastro concluído na página até a pessoa escolher o próximo passo', async () => {
     api.mockImplementation((path: string, init?: RequestInit) => {
       if (path === '/v1/links' && init?.method === 'POST') {
         return Promise.resolve({ status: 201, body: { id: 'link-1', status: 'PENDING_MODERATION' } })
@@ -261,10 +279,12 @@ describe('envio de link', () => {
     })
     render(<Page />)
     await fillAndSend()
-    expect(await screen.findByRole('heading', { name: 'Enviado para análise.' })).toBeTruthy()
+    expect(await screen.findByRole('heading', { name: 'Link cadastrado' })).toBeTruthy()
     expect(screen.queryByText('Publicado')).toBeNull()
     expect(trackGoogleAdsLinkSubmission).toHaveBeenCalledExactlyOnceWith('link-1')
-    await waitFor(() => expect(push).toHaveBeenCalledWith('/painel/links'), { timeout: 4000 })
+    expect(push).not.toHaveBeenCalled()
+    fireEvent.click(await screen.findByRole('button', { name: 'Ver meus links' }))
+    expect(push).toHaveBeenCalledWith('/painel/links')
   })
 
   it('mostra a recusa sem chamar de análise', async () => {
@@ -289,7 +309,7 @@ describe('envio de link', () => {
     expect(await screen.findByRole('heading', { name: 'Envio não aceito' })).toBeTruthy()
     expect(screen.queryByText('Enviado para análise.')).toBeNull()
     expect(trackGoogleAdsLinkSubmission).not.toHaveBeenCalled()
-    fireEvent.click(screen.getByRole('button', { name: 'Ver meus links' }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Ver meus links' }))
     expect(push).toHaveBeenCalledWith('/painel/links')
   })
 
@@ -331,7 +351,7 @@ describe('envio de link', () => {
     expect(trackGoogleAdsLinkSubmission).not.toHaveBeenCalled()
     await fillAndSend()
     await waitFor(() => expect(trackGoogleAdsLinkSubmission).toHaveBeenCalledExactlyOnceWith('link-published'))
-    fireEvent.click(screen.getByRole('button', { name: 'Ver meus links' }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Ver meus links' }))
   })
 
   it('não conta falha de conexão e preserva o rascunho', async () => {

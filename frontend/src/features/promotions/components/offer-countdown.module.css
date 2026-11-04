@@ -1,0 +1,15 @@
+.clock { display: inline-flex; color: var(--status-warning-text); font: 600 clamp(1.75rem, 5vw, 2.25rem)/1.15 var(--font-product); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.compact { font-size: 1.25rem; }
+.clock > span { display: inline-flex; align-items: center; }
+.digit, .separator { display: inline-flex; align-items: center; justify-content: center; height: 1.15em; text-align: center; }
+.digit { width: .65em; overflow: hidden; }
+.separator { width: .38em; }
+.value, .changedValue { display: inline-block; }
+.changedValue { animation: change-digit 160ms ease-out; }
+.banner { background: var(--status-warning-bg); color: var(--status-warning-text); border-bottom: 1px solid var(--status-warning-border); }
+.inner { width: min(100% - 32px, 1200px); margin-inline: auto; padding-block: 14px; }
+.inner p { margin: 0 0 8px; font-weight: 600; }
+.readout { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px; }
+.readout > span { font-size: .7rem; }
+@keyframes change-digit { from { opacity: .4; transform: translateY(-18%); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .changedValue { animation: none; } }

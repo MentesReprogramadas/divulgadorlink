@@ -254,16 +254,17 @@ catch (error) {
   throw error
 }
 
+const development = process.env.E2E_DEV_SERVER === '1'
 const webEnv = {
   ...process.env,
   TEMLINK_E2E_BUILD: '1',
-  NODE_ENV: 'production',
+  NODE_ENV: development ? 'development' : 'production',
   API_ORIGIN: (e2eRuntime.apiOrigin),
   PROFILE_HOST_BASES:JSON.stringify({'pages.localhost':'checklist.localhost'}),
   TENANT_HOST: '',
 }
-const build = spawnSync(process.execPath, [next, 'build'], { cwd: frontend, env: webEnv, stdio: 'inherit', shell: false })
-if (build.status !== 0) {
+const build = development ? null : spawnSync(process.execPath, [next, 'build'], { cwd: frontend, env: webEnv, stdio: 'inherit', shell: false })
+if (build && build.status !== 0) {
   for (const child of children) {
     if (child.pid) killTree(child.pid)
   }
@@ -271,7 +272,7 @@ if (build.status !== 0) {
   external.close()
   process.exit(1)
 }
-start([process.execPath, next, 'start', '--hostname', '0.0.0.0', '-p', String(e2eRuntime.webPort)], frontend, webEnv)
+start([process.execPath, next, development ? 'dev' : 'start', '--hostname', '0.0.0.0', '-p', String(e2eRuntime.webPort)], frontend, webEnv)
 
 process.on('SIGTERM', shutdown)
 process.on('SIGINT', shutdown)

@@ -34,16 +34,29 @@ async function send(path: string, init: RequestInit): Promise<Response> {
   return fetch(`/bff${path}`, { ...init, headers, credentials: 'include' })
 }
 
+type RefreshAttempt = { pending: boolean; result: Promise<boolean> }
+let refreshAttempt: RefreshAttempt | null = null
+
+function refreshSession(previous: RefreshAttempt | null): Promise<boolean> {
+  const current = refreshAttempt
+  // A delayed 401 from an older request shares the completed attempt too.
+  if (current && (current.pending || current !== previous)) return current.result
+  const attempt: RefreshAttempt = { pending: true, result: send('/v1/auth/refresh', { method: 'POST' }).then(response => response.ok) }
+  attempt.result = attempt.result.finally(() => { attempt.pending = false })
+  refreshAttempt = attempt
+  return attempt.result
+}
+
 export async function api<T>(path: string, init: RequestInit = {}): Promise<{ status: number; body: T }> {
   if(workspaceScope){const headers=new Headers(init.headers);if(!headers.has('x-workspace-owner'))headers.set('x-workspace-owner',workspaceScope);init={...init,headers}}
   const support = typeof document !== 'undefined' && document.body.dataset.support === 'true'
   if (support && (init.method ?? 'GET').toUpperCase() !== 'GET' && path !== '/v1/support/exit') {
     return { status: 403, body: { code: 'support_read_only', message: 'Modo de suporte: somente leitura.' } as T }
   }
+  const refreshAtStart = refreshAttempt?.pending ? null : refreshAttempt
   let response = await send(path, init)
   if (!support && response.status === 401 && (!path.startsWith('/v1/auth/') || path === '/v1/auth/session')) {
-    const refreshed = await send('/v1/auth/refresh', { method: 'POST' })
-    if (refreshed.ok) response = await send(path, init)
+    if (await refreshSession(refreshAtStart)) response = await send(path, init)
   }
   if(response.status===403&&typeof window!=='undefined'&&path!=='/v1/team/context')window.dispatchEvent(new Event('workspace-access-changed'))
   const text = await response.text()

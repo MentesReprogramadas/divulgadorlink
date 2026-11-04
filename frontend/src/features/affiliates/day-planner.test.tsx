@@ -118,6 +118,8 @@ it('inicia hoje com horário futuro e destaca amanhã quando a data é alterada'
   expect(screen.getByText('Amanhã, 01/11/2026 · 11:35–21:00 · Brasília')).toBeTruthy()
 })
 it('mostra foto e motivo do item com falha sem tratá-lo como oferta pronta',async()=>{
+  // A oferta das 12h UTC ainda pode ser reconferida sem escolher outro período.
+  vi.useFakeTimers({toFake:['Date']});vi.setSystemTime(new Date('2026-11-01T11:00:00Z'))
   mock();const original=vi.mocked(api).getMockImplementation()!
   vi.mocked(api).mockImplementation(async(path,init)=>{
     const result=await original(path,init)
@@ -187,6 +189,8 @@ it('abre agenda com cards e paginação e permite voltar aos produtos',async()=>
 })
 
 it('recupera falha no mesmo lote aprovado e exige aceite somente da oferta recuperada',async()=>{
+ // A oferta das 12h UTC ainda pode ser reconferida sem escolher outro período.
+ vi.useFakeTimers({toFake:['Date']});vi.setSystemTime(new Date('2026-11-01T11:00:00Z'))
  mock();const original=vi.mocked(api).getMockImplementation()!;let state='FAILED'
  vi.mocked(api).mockImplementation(async(path,init)=>{
   const result=await original(path,init)

@@ -1,3 +1,4 @@
+import { activeLaunchOffer, launchPrices, prepareAutomaticPublication } from '@/use-cases/@Promotions/launch-offer'
 import { timingSafeEqual } from 'node:crypto'
 import { isWooviRegistrationPing, verifyWooviSignature, WOOVI_PUBLISHED_PUBLIC_KEY } from '@/adapters/payments/woovi-webhook-signature'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
@@ -29,6 +30,7 @@ import { currentEmail, dispatchMeta, metaContextFrom, type MetaCustomData } from
 
 const checkoutBody = z.object({
   linkId: z.string().min(1),
+  launchOfferId: z.string().min(1).optional(),
   surfaces: z.array(z.enum(['SEARCH', 'NICHE', 'HOME'])).min(1).max(3),
   durationDays: z.union([z.literal(7), z.literal(14), z.literal(28)]),
   method: z.enum(['PIX', 'CARD']),
@@ -182,6 +184,7 @@ async function confirm(orderId: string, eventId: string, requestId: string) {
           logDomainEvent('promotion.activated', { orderId: id, requestId, result: 'skipped' })
           return
         }
+        if (store instanceof PrismaCheckoutStore) await prepareAutomaticPublication(row.tenantId, row.userId, row.linkId)
         await store.activatePaid(id, new Date())
         logDomainEvent(row.renewal ? 'promotion.renewed' : 'promotion.activated', {
           orderId: id,
@@ -280,12 +283,18 @@ export async function postCheckout(request: FastifyRequest, reply: FastifyReply)
     if (!flags.emailConfirmed) {
       return reply.status(403).send(buildError({ code: business_rule, message: 'Conta não pode comprar destaque.', request_id: request.id }))
     }
+    if (checkoutStore() instanceof PrismaCheckoutStore) await prepareAutomaticPublication(tenant.id, user.id, parsed.data.linkId)
     const link = await repo.findLinkById(parsed.data.linkId)
     if (!link || link.tenantId !== tenant.id || link.ownerId !== user.id) {
       return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
     }
     const niche = await repo.findNiche(tenant.id, link.nicheId)
+    const key = typeof request.headers['idempotency-key'] === 'string' ? request.headers['idempotency-key'] : null
+    const previous = key ? await checkoutStore().findByIdempotency(tenant.id, user.id, key) : null
+    const launch = parsed.data.launchOfferId && checkoutStore() instanceof PrismaCheckoutStore ? await activeLaunchOffer(tenant.id, user.id, link.id) : null
+    if (parsed.data.launchOfferId && launch?.id !== parsed.data.launchOfferId && previous?.linkId !== link.id) return reply.status(409).send({ message: 'Oferta encerrada ou indisponível. Confira os valores atuais.' })
     const result = await startCheckout({
+      launchOfferId: launch?.id,
       tenantId: tenant.id,
       userId: user.id,
       linkId: link.id,
@@ -297,7 +306,7 @@ export async function postCheckout(request: FastifyRequest, reply: FastifyReply)
       surfaces: parsed.data.surfaces as Surface[],
       durationDays: parsed.data.durationDays,
       method: parsed.data.method,
-      rows: await priceRowsFor(tenant.id),
+      rows: launch ? launchPrices(launch) : await priceRowsFor(tenant.id),
       idempotencyKey: typeof request.headers['idempotency-key'] === 'string' ? request.headers['idempotency-key'] : null,
       requestId: request.id,
       renewal: false,
@@ -337,7 +346,7 @@ export async function postCheckout(request: FastifyRequest, reply: FastifyReply)
     if (error instanceof Error && error.message === 'Combinação não está disponível') {
       return reply.status(409).send(buildError({ code: business_rule, message: error.message, request_id: request.id }))
     }
-    if (error instanceof Error && /link|HOME|pendente|disponível|SEARCH|NICHE/.test(error.message)) {
+    if (error instanceof Error && /link|HOME|pendente|disponível|SEARCH|NICHE|oferta/.test(error.message)) {
       return reply.status(409).send(buildError({ code: business_rule, message: 'Compra não aceita.', request_id: request.id }))
     }
     return reply.status(503).send(buildError({ code: provider_error, message: 'Pagamento indisponível.', request_id: request.id }))
@@ -533,6 +542,31 @@ async function getMyOrder(request: FastifyRequest, reply: FastifyReply) {
   }
 }
 
+async function resumeMyOrder(request: FastifyRequest, reply: FastifyReply) {
+  reply.header('cache-control', 'private, no-store')
+  try {
+    const tenant = await resolveTenant(hostFromPayment(request))
+    const row = await checkoutStore().findCommercial((request.params as { orderId: string }).orderId)
+    if (request.user.tenantId !== tenant.id || !row || row.tenantId !== tenant.id || row.userId !== request.user.sub) return reply.status(404).send({ message: 'Recurso não encontrado.' })
+    const repo = getLinksRepository(), user = await repo.findSubmitter(tenant.id, request.user.sub)
+    if (!user || user.status !== 'ACTIVE' || !confirmationFlags(user.identifiers).emailConfirmed) return reply.status(403).send({ message: 'Conta não pode comprar destaque.' })
+    if (row.order.status !== 'PENDING_PAYMENT' || row.order.method === 'PIX' && row.order.pixExpiresAt && row.order.pixExpiresAt.getTime() <= Date.now()) return reply.status(409).send({ message: 'A cobrança não está mais pendente. Atualize o pedido.' })
+    const link = await repo.findLinkById(row.linkId)
+    if (!link || link.tenantId !== tenant.id || link.ownerId !== user.id) return reply.status(404).send({ message: 'Recurso não encontrado.' })
+    const niche = await repo.findNiche(tenant.id, link.nicheId)
+    if (link.status !== 'PUBLISHED' || niche?.requiresAge && row.surfaces.includes('HOME')) return reply.status(409).send({ message: 'Destaque indisponível para este link.' })
+    let clientSecret = row.clientSecret
+    if (row.order.method === 'CARD' && !clientSecret) {
+      if (!row.order.gatewayChargeId) return reply.status(409).send({ message: 'A cobrança está sendo preparada. Tente novamente.' })
+      clientSecret = await new StripeCardPaymentGateway(stripeClient()).resumeCharge({ gatewayChargeId: row.order.gatewayChargeId, orderId: row.order.id, amountCents: row.order.amountCents })
+    }
+    if (row.order.method === 'PIX' && !row.brCode) return reply.status(409).send({ message: 'A cobrança está sendo preparada. Tente novamente.' })
+    return reply.send({ orderId: row.order.id, linkId: row.linkId, status: row.order.status, method: row.order.method, productCode: row.productCode, durationDays: row.durationDays, amountCents: row.order.amountCents, surfaces: row.surfaces, pixExpiresAt: row.order.pixExpiresAt, ...(row.brCode ? { brCode: row.brCode } : {}), ...(clientSecret ? { clientSecret } : {}) })
+  } catch {
+    return reply.status(503).send({ message: 'Não foi possível retomar o pagamento. Tente novamente.' })
+  }
+}
+
 async function listMyPromotions(request: FastifyRequest, reply: FastifyReply) {
   try {
     const tenant = await resolveTenant(hostFromPayment(request))
@@ -611,6 +645,7 @@ export async function paymentRoutes(app: FastifyInstance) {
   app.get('/promotions/mine', { onRequest: [verifyJWT] }, listMyPromotions)
   app.get('/orders/mine', { onRequest: [verifyJWT] }, listMyOrders)
   app.get('/orders/:orderId', { onRequest: [verifyJWT] }, getMyOrder)
+  app.post('/orders/:orderId/resume', { onRequest: [verifyJWT] }, resumeMyOrder)
   app.get('/admin/refunds', { onRequest: [verifyJWT] }, listFailedRefunds)
   app.post('/admin/refunds/:orderId/resolved', { onRequest: [verifyJWT] }, postRefundResolved)
   app.get('/admin/refunds/:orderId', { onRequest: [verifyJWT] }, getRefund)
