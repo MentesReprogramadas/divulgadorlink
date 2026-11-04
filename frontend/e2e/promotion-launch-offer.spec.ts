@@ -14,7 +14,9 @@ type Offer = { id: string; linkId: string; expiresAt: string; discountPercent: n
 function state(): Seed { return JSON.parse(readFileSync(path.join(__dirname, 'state.json'), 'utf8')) as Seed }
 let previousThreshold: string | null = null
 
-test.beforeEach(() => {
+test.beforeEach(async ({ page }, info) => {
+  // Keep the acceptance viewports identical in the standalone run and CI feature shards.
+  await page.setViewportSize(info.project.use.isMobile ? { width: 390, height: 844 } : { width: 1440, height: 900 })
   previousThreshold = sql(`SELECT value FROM configs WHERE "tenantId"='${state().tenantA}' AND key='MODERATION_AUTO_APPROVE_THRESHOLD'`)
 })
 

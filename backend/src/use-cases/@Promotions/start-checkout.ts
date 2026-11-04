@@ -8,6 +8,7 @@ import { logDomainEvent } from '@/observability/logger'
 import { claimCharge, releaseCharge } from '@/adapters/payments/charge-lock'
 import { enqueueChargeOrder } from '@/adapters/queues/enqueue-payment-job'
 import type { CheckoutStore } from '@/use-cases/@Promotions/checkout-store'
+import { CheckoutIdempotencyConflictError } from '@/use-cases/errors/checkout-idempotency-conflict-error'
 import { PIX_EXPIRES_IN_SECONDS, pixExpiresInSeconds } from '@/domain/payments/pix-expiration'
 
 export { PIX_EXPIRES_IN_SECONDS }
@@ -91,7 +92,7 @@ export async function startCheckout(input: {
       assertSurfaceEligibility(input.requiresAge, existing.surfaces)
       if (existing.tenantId !== input.tenantId || existing.userId !== input.userId || existing.linkId !== input.linkId ||
         existing.durationDays !== input.durationDays || existing.order.method !== input.method || existing.renewal !== Boolean(input.renewal) ||
-        [...existing.surfaces].sort().join('+') !== [...input.surfaces].sort().join('+')) throw new Error('Chave de idempotência já utilizada para outra seleção.')
+        [...existing.surfaces].sort().join('+') !== [...input.surfaces].sort().join('+')) throw new CheckoutIdempotencyConflictError()
       return {
         orderId: existing.order.id,
         code: existing.productCode,

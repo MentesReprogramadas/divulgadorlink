@@ -70,6 +70,18 @@ Uma execução backend sob concorrência com build/E2E excedeu o timeout de5s de
 
 O envio à main foi autorizado pelo usuário depois da solicitação inicial de não realizar merge. A branch de trabalho recebe primeiro os checks remotos de CI; a main só deve avançar após esse conjunto aprovar. O CI da main publica automaticamente após seus próprios gates, sem deploy manual nesta tarefa. Resultados e SHA efetivos do envio constam no histórico/checks remotos e no fechamento da conversa. A galeria local contém43 capturas finais em `output/qa-main/galeria.html`.
 
+### Correções da primeira rodada remota
+
+Run41888984506/commita4859a2 exercitou a matriz completa. Identificou contratos E2E antigos (modal, redirecionamento, Continuar/PagarPix e Mais opções), dois waits genéricos de SEO e o mesmo wait na auditoria visual. Os contratos foram adaptados preservando todas as verificações financeiras, privacidade, moderação, Axe e goldens. A captura exploratória foi alinhada ao resultado inline. A viewport do teste novo passou a ser explicitamente1440×900/390×844 também nas shards padrão, igual ao aceite e ao runner dedicado; não se alterou a asserção do CTA visível.
+
+Foi corrigido um erro real de classificação: chave idempotente com payload incompatível já era recusada, mas caía em503. Agora usa `CheckoutIdempotencyConflictError` e409. PG16+37afetados=53/53, lint/tipos/build backend aprovados. No Agent Browser após reiniciar o harness: replay exato201mesmo pedido; alteração409sem ID/segredo/novo pedido, comprovado no banco.
+
+Outro feedback loop foi reproduzido deterministicamente:403 da consulta de sessão emitia `workspace-access-changed`, que repetia a mesma consulta. Essa consulta agora não dispara o evento;403 de operações de billing/perfil continuam notificando. API+GlobalReminder27/27; Agent Browser com token de outro tenant registrou uma consulta403, sem oferta nem loop. Não se atribuiu a falha SEO a esse loop: as traces SEO mostravam401finito, sem403. O teste passou a aguardar o gate hidratado/conteúdo e fontes, com todos os checks de HTML/privacidade/hidratação preservados;4/4 desktop/mobile aprovaram.
+
+W01 atualizado aprovou2/2 desktop/mobile, incluindo foco/Axe/320px/zoom. A auditoria pública local deixou de travar, mas encontrou baselines **Windows** antigos de /divulgar; não foram atualizados nem ignorados. A validação oficial de goldens permanece no runner **Linux** do CI. Doze cenários compatíveis adicionais passaram localmente; quatro de catálogo exigem a base limpa do CI, pois o harness reutilizado já continha edição/pedidos dos mesmos links. A restauração do limiar de moderação no teste de pendência usa finally. Nenhum banco do usuário foi apagado para forçar aprovação.
+
+Harness reiniciado somente pela árvore própria, PID57240/logsv3, mesmos dados e portas. Galeria ampliada para45 capturas finais. A rodada remota seguinte deve aprovar antes do avanço da main.
+
 ## Limites antes de produção
 
 - Stripe: falta teste com credenciais sandbox reais para sucesso, recusa,3DS e retomada. Interface/contratos têm cobertura local; provider real não validado.

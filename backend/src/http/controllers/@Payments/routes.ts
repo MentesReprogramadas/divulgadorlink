@@ -24,6 +24,7 @@ import { registerOfferRoutes } from '@/http/controllers/@Promotions/offers'
 import { gatewayFor, PIX_EXPIRES_IN_SECONDS, startCheckout, type CheckoutGateway } from '@/use-cases/@Promotions/start-checkout'
 import { RefundActivationForbiddenError } from '@/use-cases/errors/refund-activation-forbidden-error'
 import { ResourceNotFoundError } from '@/use-cases/errors/resource-not-found-error'
+import { CheckoutIdempotencyConflictError } from '@/use-cases/errors/checkout-idempotency-conflict-error'
 import { logDomainEvent } from '@/observability/logger'
 import { getOrderInsightsRepository } from '@/repositories/order-insights-repository'
 import { currentEmail, dispatchMeta, metaContextFrom, type MetaCustomData } from '@/use-cases/@Acquisition/record-funnel'
@@ -334,6 +335,9 @@ export async function postCheckout(request: FastifyRequest, reply: FastifyReply)
       ...(result.clientSecret ? { clientSecret: result.clientSecret } : {}),
     })
   } catch (error) {
+    if (error instanceof CheckoutIdempotencyConflictError) {
+      return reply.status(409).send(buildError({ code: conflict, message: error.message, request_id: request.id }))
+    }
     if (error instanceof CheckoutConflictError) {
       return reply.status(409).send(buildError({ code: conflict, message: 'Já existe compra pendente desta superfície.', request_id: request.id }))
     }

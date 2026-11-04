@@ -139,6 +139,24 @@ describe('sessão por cookie no cliente', () => {
     expect(fetchMock.mock.calls.filter(([url]) => url === '/bff/v1/auth/refresh')).toHaveLength(1)
   })
 
+  it.each([
+    ['/v1/auth/session', 0],
+    ['/v1/team/context', 0],
+    ['/v1/me/profile', 1],
+    ['/v1/me/billing', 1],
+  ])('403 em %s emite %i aviso de mudança de acesso sem repetir a requisição', async (path, events) => {
+    const changed = vi.fn()
+    const fetchMock = vi.fn(async () => reply(403, { message: 'Acesso negado.' }))
+    vi.stubGlobal('fetch', fetchMock)
+    window.addEventListener('workspace-access-changed', changed)
+    try {
+      const result = await api(path)
+      expect(result.status).toBe(403)
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+      expect(changed).toHaveBeenCalledTimes(events)
+    } finally { window.removeEventListener('workspace-access-changed', changed) }
+  })
+
   it('login não dispara refresh em credencial errada', async () => {
     const urls: string[] = []
     vi.stubGlobal('fetch', vi.fn(async (url: string) => {

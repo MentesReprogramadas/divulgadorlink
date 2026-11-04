@@ -253,11 +253,18 @@ test('W01 painel: resumo sem abas, menu acessível e filtros combinados recuper�
   await page.getByRole('button', { name: 'Limpar filtros', exact: true }).click()
   await expect(page.getByRole('article').first()).toBeVisible()
   const card = page.getByRole('article').first()
-  await card.getByText('Mais opções', { exact: true }).focus()
-  await page.keyboard.press('Enter')
-  await expect(card.getByRole('link', { name: 'Acessar', exact: true })).toBeVisible()
-  await expect(card.getByRole('link', { name: 'Disponibilidade', exact: true })).toBeVisible()
-  await page.keyboard.press('Enter')
+  const actions = ['Destacar este link', 'Ver resultado', 'Editar', 'Disponibilidade', 'Acessar']
+  await expect(card.getByText('Mais opções', { exact: true })).toHaveCount(0)
+  await expect(card.getByRole('link')).toHaveText(actions)
+  for (const name of actions) await expect(card.getByRole('link', { name, exact: true })).toBeVisible()
+  await card.getByRole('link', { name: actions[0], exact: true }).focus()
+  await expect(card.getByRole('link', { name: actions[0], exact: true })).toBeFocused()
+  for (const name of actions.slice(1)) {
+    await page.keyboard.press('Tab')
+    await expect(card.getByRole('link', { name, exact: true })).toBeFocused()
+  }
+  await page.keyboard.press('Shift+Tab')
+  await expect(card.getByRole('link', { name: 'Disponibilidade', exact: true })).toBeFocused()
   await selectOption(page.getByLabel('Situação do link'), 'published')
   await selectOption(page.getByLabel('Ordenar por'), 'clicks')
   await checkLayout(page)

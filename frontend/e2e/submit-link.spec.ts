@@ -61,8 +61,11 @@ test('o envio guarda rascunho, mostra a vaga e não chama de publicado', async (
   await selectOption(page.getByLabel('Assunto do link'), { label: 'Jogos' })
   await page.getByRole('button', { name: 'Continuar', exact: true }).click()
   await page.getByRole('button', { name: 'Enviar', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Enviado para análise.' })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Oferta para destacar o link cadastrado', exact: true })).toBeVisible()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
   await expect(page.getByText('Publicado')).toHaveCount(0)
+  await expect(page).toHaveURL(/\/painel\/links\/novo$/)
+  await page.getByRole('button', { name: 'Agora não', exact: true }).click()
   await expect(page).toHaveURL(/\/painel\/links\/?$/)
 
   await page.goto(`${A}/painel/links/novo`)

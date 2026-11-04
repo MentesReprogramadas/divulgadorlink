@@ -142,7 +142,8 @@ test('F42-E08 envio, contestação e edição percorrem a interface e o worker r
   await selectOption(page.getByLabel('Assunto do link'), { label: 'Jogos' })
   await page.getByRole('button', { name: 'Continuar', exact: true }).click()
   await page.getByRole('button', { name: 'Enviar', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Enviado para análise.' })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Oferta para destacar o link cadastrado', exact: true })).toBeVisible()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
   const id = sql(`SELECT id FROM links WHERE name='${name}'`)
   expect(id).toBeTruthy()
   try {

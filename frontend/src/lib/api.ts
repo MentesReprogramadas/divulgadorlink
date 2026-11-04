@@ -58,7 +58,8 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<{ st
   if (!support && response.status === 401 && (!path.startsWith('/v1/auth/') || path === '/v1/auth/session')) {
     if (await refreshSession(refreshAtStart)) response = await send(path, init)
   }
-  if(response.status===403&&typeof window!=='undefined'&&path!=='/v1/team/context')window.dispatchEvent(new Event('workspace-access-changed'))
+  // A consulta de sessão também revalida acesso; seu 403 não pode disparar a própria consulta.
+  if(response.status===403&&typeof window!=='undefined'&&path!=='/v1/team/context'&&path!=='/v1/auth/session')window.dispatchEvent(new Event('workspace-access-changed'))
   const text = await response.text()
   const body = text ? JSON.parse(text) as T : {} as T
   return { status: response.status, body }

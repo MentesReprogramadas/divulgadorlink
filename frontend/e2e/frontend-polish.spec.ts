@@ -113,7 +113,8 @@ test('formulário recupera cargas, resume erros e preserva dados com storage/red
   await page.unroute('**/bff/v1/links')
   await page.route('**/bff/v1/links', route => route.fulfill({ status: 201, json: { id: 'fixture-resiliente', status: 'PENDING_MODERATION' } }))
   await page.getByRole('button', { name: 'Enviar', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Enviado para análise.', exact: true })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Oferta para destacar o link cadastrado', exact: true })).toBeVisible()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
   await expect(page.getByText('Seu link foi enviado, mas não foi possível apagar o rascunho salvo neste navegador.')).toBeVisible()
 })
 

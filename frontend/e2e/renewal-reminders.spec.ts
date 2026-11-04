@@ -43,8 +43,8 @@ test('F02-E01/T01/T04/T05 opt-in, e-mail e CTA usam a renovação sem compra aut
   await page.getByRole('link', { name: 'Ver renovação', exact: true }).click(); await expect(page.getByRole('heading', { name: 'Renovar destaque', exact: true })).toBeVisible()
   expect(sql(`SELECT COUNT(*) FROM orders WHERE "linkId"='${id}'`)).toBe('0')
   // Explicit confirmation in the shared checkout is the only action that may create a renewal order.
-  await page.getByRole('button', { name: 'Continuar', exact: true }).click()
-  await page.getByRole('button', { name: 'Pagar com Pix', exact: true }).click()
+  await page.getByRole('radio', { name: 'Pix', exact: true }).check()
+  await page.getByRole('button', { name: /^Comprar por / }).click()
   await expect.poll(() => sql(`SELECT COUNT(*) FROM orders WHERE "linkId"='${id}' AND renewal=true`)).toBe('1')
   await page.goto(A + '/painel/lembretes'); await page.getByRole('button', { name: 'Configurar avisos', exact: true }).click(); await checkbox.uncheck(); await page.getByRole('button', { name: 'Salvar preferência' }).click(); await expect(page.getByRole('status').filter({ hasText: 'Preferência salva.' })).toBeVisible()
   sql(`UPDATE promotions SET "expiresAt"="expiresAt"+INTERVAL '1 hour' WHERE id='promo-${id}'`)

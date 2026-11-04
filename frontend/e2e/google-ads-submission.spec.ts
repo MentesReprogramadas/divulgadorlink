@@ -68,8 +68,12 @@ for (const scenario of ['accepted', 'published', 'denied', 'pending-consent', 'r
     await page.getByRole('button', { name: 'Enviar', exact: true }).click()
     if (scenario === 'offline' || scenario === 'duplicate') {
       await expect(page.getByRole('main').getByRole('alert')).toBeVisible()
+    } else if (scenario === 'rejected') {
+      await expect(page.getByRole('heading', { name: 'Envio não aceito', exact: true })).toBeVisible()
     } else {
-      await expect(page.getByRole('heading', { name: scenario === 'rejected' ? 'Envio não aceito' : 'Enviado para análise.' })).toBeVisible()
+      await expect(page.getByRole('region', { name: 'Oferta para destacar o link cadastrado', exact: true })).toBeVisible()
+      await expect(page.getByRole('dialog')).toHaveCount(0)
+      await expect(page).toHaveURL(/\/painel\/links\/novo$/)
     }
     expect(submissions).toBe(1)
     if (scenario === 'accepted' || scenario === 'published') {
@@ -80,6 +84,7 @@ for (const scenario of ['accepted', 'published', 'denied', 'pending-consent', 'r
         transaction_id: 'google-ads-test-link',
       }]])
       await testInfo.attach('envio-concluido', { body: await page.screenshot({ animations: 'disabled' }), contentType: 'image/png' })
+      await page.getByRole('button', { name: 'Agora não', exact: true }).click()
       await expect(page).toHaveURL(/\/painel\/links$/)
       expect(await conversions()).toHaveLength(1)
     } else expect(await conversions()).toEqual([])

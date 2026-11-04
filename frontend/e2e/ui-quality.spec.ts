@@ -2,7 +2,7 @@ import { selectOption } from './select-control'
 import { runtime as e2eRuntime } from './runtime.cjs'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { settleAnimations } from './capture-page'
 
@@ -10,6 +10,13 @@ type Fixture = { receitas: string; bia: string; admin: string; password: string 
 const origin = (e2eRuntime.web('tenant-a.localhost'))
 const publicRoutes = ['/', '/divulgar', '/busca', '/nicho/jogos', '/rede/telegram', '/login', '/cadastro', '/esqueci-senha', '/recuperar-senha', '/termos', '/privacidade', '/nao-encontrado']
 const stableScreens = new Set(['/divulgar', '/cadastro', '/login', '/recuperar-senha', '/painel/links/novo', '/admin/configuracoes'])
+
+async function readyForAudit(page: Page) {
+  await expect(page.locator('[data-skeleton]:visible')).toHaveCount(0)
+  await expect(page.getByLabel('Carregando gráficos', { exact: true })).toHaveCount(0)
+  await settleAnimations(page)
+  await page.evaluate(() => document.fonts.ready)
+}
 
 for (const role of ['public', 'user', 'admin'] as const) {
   test(`${role}: telas sem overflow, campos nomeados e estados navegáveis`, async ({ page }, testInfo) => {
@@ -35,8 +42,8 @@ for (const role of ['public', 'user', 'admin'] as const) {
         const response = await page.goto(`${origin}${route}`)
         expect(response?.status()).toBe(200)
         await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
-        await page.waitForLoadState('networkidle'); await settleAnimations(page)
-        await page.evaluate(() => document.fonts.ready)
+        await expect(page.getByRole('button', { name: 'Menu', exact: true, includeHidden: true })).toBeEnabled()
+        await readyForAudit(page)
         if (route === '/admin/planos') {
           const edit = page.getByRole('button', { name: 'Editar', exact: true }).first()
           await edit.click()
@@ -51,7 +58,7 @@ for (const role of ['public', 'user', 'admin'] as const) {
           for (let index = 0; index < sections.length; index += 1) {
             const sectionLabel = sections[index]!.label
             await selectOption(selector, sections[index]!.value)
-            await page.waitForLoadState('networkidle'); await settleAnimations(page)
+            await readyForAudit(page)
             const insightTabs = page.getByRole('tablist', { name: sectionLabel, exact: true }).getByRole('tab')
             const insightCount = await insightTabs.count()
             if (sectionLabel === 'Tráfego' || sectionLabel === 'Financeiro') {
@@ -62,14 +69,14 @@ for (const role of ['public', 'user', 'admin'] as const) {
                 await insightTabs.nth(tabIndex).click()
                 await expect(insightTabs.nth(tabIndex)).toHaveAttribute('aria-selected', 'true')
               }
-              await page.waitForLoadState('networkidle'); await settleAnimations(page)
+              await readyForAudit(page)
               const reportLists = page.getByRole('tablist', { name: /^Visualização: / })
               for (let reportIndex = 0; reportIndex < await reportLists.count(); reportIndex += 1) {
                 const reportTabs = reportLists.nth(reportIndex).getByRole('tab')
                 for (let viewIndex = 0; viewIndex < await reportTabs.count(); viewIndex += 1) {
                   await reportTabs.nth(viewIndex).click()
                   await expect(reportTabs.nth(viewIndex)).toHaveAttribute('aria-selected', 'true')
-                  await settleAnimations(page)
+                  await readyForAudit(page)
                   const reportAccessibility = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze()
                   expect.soft(reportAccessibility.violations.map(violation => ({ id: violation.id, nodes: violation.nodes.map(node => node.target) })), `${route}: seção ${index}, aba ${tabIndex}, relatório ${reportIndex}, visão ${viewIndex}`).toEqual([])
                 }

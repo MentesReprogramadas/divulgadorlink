@@ -407,6 +407,9 @@ test('vitrine pagina por cursor com limite no servidor', async ({ browser }) => 
 })
 
 test('criação, SSRF, payload e edição publicada', async ({ browser }) => {
+  const previousThreshold = sql(`SELECT value FROM configs WHERE "tenantId"='${state.tenantA}' AND key='MODERATION_AUTO_APPROVE_THRESHOLD'`)
+  sql(`UPDATE configs SET value='1' WHERE "tenantId"='${state.tenantA}' AND key='MODERATION_AUTO_APPROVE_THRESHOLD'`)
+  try {
   const { page } = await asBia(browser)
   await page.goto(`${A}/painel/links/novo`)
   await page.getByLabel('Título do link').fill('Bolo de cenoura')
@@ -417,7 +420,8 @@ test('criação, SSRF, payload e edição publicada', async ({ browser }) => {
   await selectOption(page.getByLabel('Assunto do link'), { label: 'Jogos' })
   await page.getByRole('button', { name: 'Continuar', exact: true }).click()
   await page.getByRole('button', { name: 'Enviar', exact: true }).click()
-  await expect(page.getByText('Enviado para análise.')).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Oferta para destacar o link cadastrado', exact: true })).toBeVisible()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
   const created = sql(`SELECT status || '|' || "tenantId" FROM links WHERE name = 'Bolo de cenoura'`)
   expect(created).toBe(`PENDING_MODERATION|${state.tenantA}`)
   await page.goto(A)
@@ -480,6 +484,9 @@ test('criação, SSRF, payload e edição publicada', async ({ browser }) => {
   await guest.goto(`${A}/link/${state.receitas}`)
   await expect(guest.getByRole('heading', { name: 'Receitas' })).toBeVisible()
   await expect(guest.getByText('Receitas novas')).toHaveCount(0)
+  } finally {
+    sql(`UPDATE configs SET value='${previousThreshold.replaceAll("'", "''")}' WHERE "tenantId"='${state.tenantA}' AND key='MODERATION_AUTO_APPROVE_THRESHOLD'`)
+  }
 })
 
 test('analytics, clique e open redirect', async ({ browser }) => {
@@ -543,11 +550,11 @@ test('checkout, webhook RSA, replay e assinatura inválida', async ({ browser })
   await page.goto(`${A}/painel/links/${state.receitas}/destaque`)
   await page.getByRole('radio', { name: '7 dias', exact: true }).check()
   await page.getByRole('radio', { name: 'Busca', exact: true }).check()
-  await page.getByRole('button', { name: 'Continuar' }).click()
   expect(sql(`SELECT count(*) FROM orders WHERE "linkId" = '${state.receitas}'`)).toBe('0')
   await page.getByRole('radio', { name: 'Pix', exact: true }).check()
-  await page.getByRole('button', { name: 'Pagar com Pix' }).click()
-  await expect(page.getByText('R$ 7,90')).toBeVisible()
+  await page.getByRole('button', { name: /^Comprar por / }).click()
+  await expect(page.getByLabel('Pix copia e cola')).toHaveText('00020126580014BR.GOV.BCB.PIX')
+  await expect(page.getByText('R$ 7,90', { exact: true })).toBeVisible()
   await expect(page.getByText('Pendente')).toBeVisible()
   const orderId = (await page.locator('[aria-label="Pedido"]').textContent())?.trim() ?? ''
   expect(orderId).toMatch(/[0-9a-f-]{36}/)
@@ -742,10 +749,10 @@ test('mobile: home, busca, login, painel e checkout', async ({ browser }) => {
   await expect(page.getByRole('dialog').getByRole('button', { name: 'Sair', exact: true })).toBeVisible()
   await page.keyboard.press('Escape')
   await page.goto(`${A}/painel/links/${state.receitas}/destaque`)
-  await expect(page.getByRole('button', { name: 'Continuar' })).toBeVisible()
+  await expect(page.getByRole('button', { name: /^Comprar por / })).toBeVisible()
   await page.setViewportSize({ width: 390, height: 500 })
-  await page.getByRole('button', { name: 'Continuar' }).scrollIntoViewIfNeeded()
-  await expect(page.getByRole('button', { name: 'Continuar' })).toBeVisible()
+  await page.getByRole('button', { name: /^Comprar por / }).scrollIntoViewIfNeeded()
+  await expect(page.getByRole('button', { name: /^Comprar por / })).toBeVisible()
 })
 
 test('Pix expirado no browser: worker real expira, a tela esconde o código e nova tentativa gera outro pedido', async ({ browser }) => {
@@ -753,9 +760,8 @@ test('Pix expirado no browser: worker real expira, a tela esconde o código e no
   await page.goto(`${A}/painel/links/${state.receitas}/destaque`)
   await page.getByRole('radio', { name: 'Nicho', exact: true }).check()
   await page.getByRole('radio', { name: '7 dias', exact: true }).check()
-  await page.getByRole('button', { name: 'Continuar' }).click()
   await page.getByRole('radio', { name: 'Pix', exact: true }).check()
-  await page.getByRole('button', { name: 'Pagar com Pix' }).click()
+  await page.getByRole('button', { name: /^Comprar por / }).click()
   await expect(page.getByLabel('Pix copia e cola')).toBeVisible()
   const orderId = (await page.getByLabel('Pedido').textContent())?.trim() ?? ''
   expect(orderId).toMatch(/[0-9a-f-]{36}/)
@@ -778,8 +784,7 @@ test('Pix expirado no browser: worker real expira, a tela esconde o código e no
   await expect(page.getByLabel('Pix copia e cola')).toHaveCount(0)
 
   await page.getByRole('radio', { name: 'Nicho', exact: true }).check()
-  await page.getByRole('button', { name: 'Continuar' }).click()
-  await page.getByRole('button', { name: 'Pagar com Pix' }).click()
+  await page.getByRole('button', { name: /^Comprar por / }).click()
   await expect(page.getByText('Dados inválidos.')).toHaveCount(0)
   await expect(page.getByLabel('Situação')).toHaveText('Pendente')
   await expect(page.getByLabel('Pix copia e cola')).toBeVisible()

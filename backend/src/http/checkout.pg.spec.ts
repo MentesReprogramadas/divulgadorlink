@@ -222,14 +222,22 @@ describe('checkout no PostgreSQL', () => {
     setCheckoutRaceDelayForTest(0)
   })
 
-  it('a mesma Idempotency-Key não abre segundo pedido nem segundo charge', async () => {
+  it('repete payload idêntico e rejeita outra seleção com a mesma Idempotency-Key sem duplicar cobrança', async () => {
     const first = await checkout({ linkId: 'link-idem', key: 'chave-1' })
     const retry = await checkout({ linkId: 'link-idem', key: 'chave-1' })
-    const otherPayload = await checkout({ linkId: 'link-idem', surfaces: ['HOME'], key: 'chave-1' })
     expect(first.statusCode).toBe(201)
-    expect(retry.json().orderId).toBe(first.json().orderId)
-    expect(otherPayload.json().orderId).toBe(first.json().orderId)
-    expect(otherPayload.json().amountCents).toBe(790)
+    expect(retry.statusCode).toBe(201)
+    expect(retry.json()).toEqual(first.json())
+    for (const changed of [{ surfaces: ['HOME'] }, { durationDays: 14 }, { method: 'CARD' }, { linkId: 'link-outra' }]) {
+      const rejected = await checkout({ linkId: 'link-idem', key: 'chave-1', ...changed })
+      expect(rejected.statusCode).toBe(409)
+      expect(rejected.json()).toMatchObject({ code: 'conflict' })
+      expect(rejected.json()).not.toHaveProperty('orderId')
+      expect(rejected.json()).not.toHaveProperty('brCode')
+      expect(rejected.json()).not.toHaveProperty('clientSecret')
+    }
+    const unchanged = await db.order.findUniqueOrThrow({ where: { id: first.json().orderId } })
+    expect(unchanged).toMatchObject({ linkId: 'link-idem', productCode: 'SEARCH', durationDays: 7, method: 'PIX', amountCents: 790 })
     expect(await ordersFor('link-idem')).toHaveLength(1)
     expect(charges).toBe(1)
   })
