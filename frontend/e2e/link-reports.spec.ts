@@ -29,6 +29,7 @@ async function login(page: Page, email: string) {
   await refuseCookies(page)
 }
 function received(page: Page) { return page.waitForResponse(r => r.url().includes('/reports') && r.request().method() === 'POST') }
+function decided(page: Page, id: string) { return page.waitForResponse(r => r.url().endsWith('/admin/reports/' + id + '/decision') && r.request().method() === 'PATCH') }
 function reportCard(page: Page, id: string) { return page.getByRole('article', { name: 'Denúncia ' + id, exact: true }) }
 
 test('F06-E01/T02/T03/T05 detalhe público, login com retorno, triagem e histórico persistido', async ({ page }, info) => {
@@ -61,13 +62,19 @@ test('F06-E01/T02/T03/T05 detalhe público, login com retorno, triagem e histór
   expect(await page.evaluate(() => Object.hasOwn(window, 'f06Injected'))).toBe(false)
   await expect(card.locator('script')).toHaveCount(0)
   await card.getByLabel('Justificativa').fill('Conferindo o relato e o conteúdo do link.')
+  const triaged = decided(page, receipt.id)
   await card.getByRole('button', { name: 'Salvar decisão' }).click()
+  expect((await triaged).status()).toBe(200)
   await expect(card.getByText('Em análise', { exact: true })).toBeVisible()
+  await expect(card.getByText('Histórico (1)', { exact: true })).toBeVisible()
   expect(sql('SELECT version FROM link_reports WHERE id=\'' + receipt.id + '\'')).toBe('2')
   await selectOption(card.getByLabel('Próximo estado'), 'RESOLVED')
   await card.getByLabel('Justificativa').fill('Análise registrada para acompanhamento.')
   await card.getByRole('button', { name: 'Salvar decisão' }).focus()
+  const resolved = decided(page, receipt.id)
   await page.keyboard.press('Enter')
+  expect((await resolved).status()).toBe(200)
+  await expect(card.getByRole('form', { name: 'Decidir denúncia' })).toHaveCount(0)
   await expect(card.getByText('Resolvida', { exact: true })).toBeVisible()
   await page.reload()
   await expect(card).toContainText('Análise registrada para acompanhamento.')
@@ -134,7 +141,10 @@ test('F06-E03 envio e decisão recuperam rede real, preservam texto e funcionam 
   expect(sql('SELECT version FROM link_reports WHERE id=\'' + id + '\'')).toBe('1')
   await page.context().setOffline(false)
   await card.getByRole('button', { name: 'Salvar decisão' }).focus()
+  const resolved = decided(page, id)
   await page.keyboard.press('Enter')
+  expect((await resolved).status()).toBe(200)
+  await expect(card.getByRole('form', { name: 'Decidir denúncia' })).toHaveCount(0)
   await expect(card.getByText('Resolvida', { exact: true })).toBeVisible()
   expect(sql('SELECT COUNT(*) FROM audit_logs WHERE "entityId"=\'' + id + '\' AND action=\'report.decide\'')).toBe('1')
   expect(sql('SELECT status FROM links WHERE id=\'' + link.id + '\'')).toBe('PUBLISHED')

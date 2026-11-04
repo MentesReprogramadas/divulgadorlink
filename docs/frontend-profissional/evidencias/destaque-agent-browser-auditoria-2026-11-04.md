@@ -84,6 +84,12 @@ Harness reiniciado somente pela árvore própria, PID57240/logsv3, mesmos dados 
 
 ## Limites antes de produção
 
+### Acompanhamento da publicação na main
+
+O CI da branch41893881906 aprovou26jobs no SHA56cfe89f (675E2E,1076frontend,1111backend,657PostgreSQL). A main recebeu esse mesmo SHA. O run41896391064 repetiu a matriz:25jobs aprovados e uma falha emF06-E03 mobile; deploy bloqueado. A trace mostrou que o seletor de próximo estado já exibia "Resolvida", liberando a asserção antes do PATCH e da auditoria. O PATCH completou200 e o histórico apareceu depois. A transação backend grava decisão e auditoria juntas; não foi alterada.
+
+Correção restrita ao E2E: aguardar200 da decisão e atualização persistida da interface (histórico da triagem/formulário removido na resolução), mantendo contagem exata da auditoria, estado do link, teclado e recuperação offline. F06-E03 repetido3vezes desktop+3mobile:6/6; F06-E01 completo desktop/mobile:2/2. ESLint e tipos E2E aprovados. Nenhum timeout/retry/asserção de segurança foi relaxado. Nova rodada integral na main deve aprovar antes do deploy; SHA/run efetivos e resultado ficam no Actions e no relatório local de fechamento.
+
 - Stripe: falta teste com credenciais sandbox reais para sucesso, recusa,3DS e retomada. Interface/contratos têm cobertura local; provider real não validado.
 - Pix: falta homologação com credenciais/webhook reais do provedor. QR/webhooks usados aqui são de fixture; não enviar dinheiro real.
 - Migrações: upgrade e preservação de dados aprovados em bases descartáveis, inclusive pedidos legados/campanha v1; locks e duração em volume de produção não medidos. Há drift global histórico alheio às três migrações; não aplicar automaticamente o SQL desse diff.
