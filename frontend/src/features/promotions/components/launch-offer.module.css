@@ -32,6 +32,9 @@
 .expand { flex: 0 0 44px; min-height: 44px; border: 0; border-radius: 8px; background: transparent; color: var(--status-warning-text); font-size: 1.5rem; cursor: pointer; }
 .expand:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 .recoveryDetail { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; padding: 12px 0 16px; border-top: 1px solid var(--border-default); }
+.recoveryAction { display: flex; padding-bottom: 12px; }
+.recoveryAction > a { min-height: 44px; justify-content: center; }
+@media (max-width: 640px) { .recoveryAction > a { width: 100%; } }
 .recoveryDetail > div { flex: 1; min-width: 160px; }
 .recoveryPrice { color: var(--status-success-text); font: 600 1.65rem/1.3 var(--font-product); }
 .recoveryNote { flex-basis: 100%; font-size: .875rem; color: var(--text-secondary); }

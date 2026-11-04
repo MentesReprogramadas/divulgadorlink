@@ -10,13 +10,16 @@ beforeEach(() => { api.mockReset(); route.pathname = '/painel/links'; api.mockRe
 afterEach(() => { cleanup(); vi.useRealTimers() })
 it('expande e recolhe, preserva seleção e não permite dispensar no painel', async () => {
  render(<LaunchOfferReminder enabled />)
+ const collapsedRecovery = await screen.findByRole('link', { name: 'Resgatar oferta' })
+ expect(collapsedRecovery.getAttribute('href')).toBe('/painel/links/link/destaque?launch=1&plan=SEARCH_NICHE_HOME&duration=14')
  fireEvent.click(await screen.findByRole('button', { name: 'Expandir oferta de destaque' }))
- const recovery = await screen.findByRole('link', { name: 'Recuperar oferta' })
+ const recovery = await screen.findByRole('link', { name: 'Resgatar oferta' })
  expect(recovery.getAttribute('href')).toBe('/painel/links/link/destaque?launch=1&plan=SEARCH_NICHE_HOME&duration=14')
  expect(await screen.findByText('R$ 26,32')).toBeTruthy()
  expect(screen.queryByRole('button', { name: 'Ocultar aqui' })).toBeNull()
  fireEvent.click(screen.getByRole('button', { name: 'Recolher oferta de destaque' }))
- expect(screen.queryByRole('link', { name: 'Recuperar oferta' })).toBeNull()
+ expect(screen.getByRole('link', { name: 'Resgatar oferta' }).getAttribute('href')).toBe(collapsedRecovery.getAttribute('href'))
+ expect(screen.getAllByRole('link', { name: 'Resgatar oferta' })).toHaveLength(1)
 })
 it('mantém no painel mesmo após dispensa fora do painel', async () => {
  api.mockResolvedValue({ status: 200, body: { offer: { ...campaign(), dismissed: true } } })
