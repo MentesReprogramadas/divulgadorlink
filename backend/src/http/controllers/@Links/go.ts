@@ -20,7 +20,7 @@ function hostFromRequest(request: FastifyRequest): string {
 }
 
 async function goToLink(request: FastifyRequest<{ Params: GoParams }>, reply: FastifyReply) {
-  reply.header('x-robots-tag', 'noindex, nofollow')
+  reply.header('cache-control', 'private, no-store').header('x-robots-tag', 'noindex, nofollow')
   const notFound = () =>
     reply.status(404).send(
       buildError({

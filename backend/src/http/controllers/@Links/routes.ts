@@ -13,7 +13,7 @@ import { hostMatchesNetwork } from '@/domain/links/network-host'
 import { urlAvailability } from '@/domain/links/url-availability'
 import { prisma } from '@/lib/prisma'
 import { currentEmail, getAcquisitionStore, metaContextFrom, startEventId } from '@/use-cases/@Acquisition/record-funnel'
-import { DuplicateLinkError, getLinksRepository, PrismaLinksRepository } from '@/repositories/links-repository'
+import { DuplicateLinkError, OwnerVisibilityError, getLinksRepository, PrismaLinksRepository } from '@/repositories/links-repository'
 import { env } from '@/env'
 import { buildError, business_rule, forbidden, not_found, validation } from '@/http/errors'
 import { verifyJWT } from '@/http/middlewares/verify-jwt'
@@ -491,6 +491,7 @@ async function listMine(request: FastifyRequest, reply: FastifyReply) {
         name: link.name,
         description: link.description,
         status: link.status,
+        ownerHidden: Boolean(link.ownerHidden),
         occupiesSlot: link.occupiesSlot,
         canonicalUrl: link.canonicalUrl,
         network: { name: network?.name ?? '', slug: network?.slug ?? '' },
@@ -650,6 +651,23 @@ async function submissionStarted(request: FastifyRequest, reply: FastifyReply) {
   return reply.status(200).send({ eventId, recorded: result === 'inserted' })
 }
 
+
+async function patchVisibility(request: FastifyRequest, reply: FastifyReply) {
+  reply.header('cache-control', 'private, no-store')
+  const { hidden } = z.object({ hidden: z.boolean() }).strict().parse(request.body)
+  try {
+    const tenant = await resolveTenant(hostFromRequest(request))
+    if (request.user.tenantId !== tenant.id || request.workspaceActor && request.workspaceActor.id !== request.user.sub) {
+      return reply.status(403).send(buildError({ code: forbidden, message: 'Ação exclusiva do dono do link.', request_id: request.id }))
+    }
+    return await getLinksRepository().setOwnerVisibility({ tenantId: tenant.id, ownerId: request.user.sub, linkId: (request.params as { id: string }).id, hidden, requestId: request.id })
+  } catch (error) {
+    if (error instanceof OwnerVisibilityError) return reply.status(error.status).send(buildError({ code: error.status === 404 ? not_found : forbidden, message: error.message, request_id: request.id }))
+    if (error instanceof ResourceNotFoundError) return reply.status(404).send(buildError({ code: not_found, message: 'Recurso não encontrado.', request_id: request.id }))
+    throw error
+  }
+}
+
 export async function linksRoutes(app: FastifyInstance) {
   app.post('/', { bodyLimit: 2097152, preHandler: [verifyJWT] }, createLink)
   app.get('/submission-started', { onRequest: [verifyJWT] }, submissionStarted)
@@ -657,6 +675,7 @@ export async function linksRoutes(app: FastifyInstance) {
   app.get('/:id', getPublicLink)
   app.post('/account/email', { onRequest: [verifyJWT] }, (request, reply) => changeIdentifier(request, reply, 'EMAIL'))
   app.post('/account/phone', { onRequest: [verifyJWT] }, (request, reply) => changeIdentifier(request, reply, 'PHONE'))
+  app.patch('/:id/visibility', { onRequest: [verifyJWT] }, patchVisibility)
   app.patch('/:id', { onRequest: [verifyJWT] }, patchLink)
   await registerAppealRoute(app)
   await registerLinkMediaRoutes(app)

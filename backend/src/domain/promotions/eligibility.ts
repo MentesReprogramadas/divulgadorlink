@@ -6,6 +6,7 @@ export function assertSurfaceEligibility(requiresAge: boolean, surfaces: readonl
 }
 
 export function assertCheckout(input: {
+  ownerHidden?: boolean
   account: 'ACTIVE' | 'BANNED'
   link: 'PUBLISHED' | 'PENDING_MODERATION' | 'UNAVAILABLE'
   requiresAge: boolean
@@ -14,7 +15,7 @@ export function assertCheckout(input: {
   pendingSurfaces: string[]
 }): true {
   if (input.account !== 'ACTIVE') throw new Error('conta')
-  if (input.link !== 'PUBLISHED') throw new Error('link')
+  if (input.ownerHidden || input.link !== 'PUBLISHED') throw new Error('link')
   assertSurfaceEligibility(input.requiresAge, input.surfaces)
   const blocked = input.surfaces.find((surface) =>
     input.activeSurfaces.includes(surface) || input.pendingSurfaces.includes(surface))

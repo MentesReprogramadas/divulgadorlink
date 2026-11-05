@@ -28,7 +28,7 @@ export async function favoritesOperation(db: PrismaClient, scope: Scope, operati
     const owner = { tenantId, userId }
     const view = (favorite: { id: string; linkId: string; link: Prisma.LinkGetPayload<{ include: typeof linkInclude }> }, media: Awaited<ReturnType<typeof readApprovedLinkMedia>>) => {
       const l = favorite.link
-      const visible = l.status === 'PUBLISHED' && l.tenantId === tenantId && l.niche.tenantId === tenantId && l.network.tenantId === tenantId && (!l.ownerId || (l.owner?.status !== 'BANNED' && l.owner?.tenantId === tenantId)) && (scope.age || !(l.niche.requiresAge || l.network.requiresAge))
+      const visible = !l.ownerHidden && l.status === 'PUBLISHED' && l.tenantId === tenantId && l.niche.tenantId === tenantId && l.network.tenantId === tenantId && (!l.ownerId || (l.owner?.status !== 'BANNED' && l.owner?.tenantId === tenantId)) && (scope.age || !(l.niche.requiresAge || l.network.requiresAge))
       return { ...favoriteView({ ...favorite, visible, name: l.name, description: l.description, niche: { name: l.niche.name, slug: l.niche.slug }, network: { name: l.network.name, slug: l.network.slug } }), ...(visible ? media.get(l.id) : {}) }
     }
     if (operation.kind === 'favorite') {

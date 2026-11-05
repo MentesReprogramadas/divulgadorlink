@@ -62,6 +62,7 @@ export async function startCheckout(input: {
   tenantId: string
   userId: string
   linkId: string
+  ownerHidden?: boolean
   account: 'ACTIVE' | 'BANNED'
   link: 'PUBLISHED' | 'PENDING_MODERATION' | 'UNAVAILABLE'
   requiresAge: boolean
@@ -84,7 +85,7 @@ export async function startCheckout(input: {
   clientSecret?: string
 }> {
   if (input.account !== 'ACTIVE') throw new Error('conta')
-  if (input.link !== 'PUBLISHED') throw new Error('link')
+  if (input.ownerHidden || input.link !== 'PUBLISHED') throw new Error('link')
   assertSurfaceEligibility(input.requiresAge, input.surfaces)
   if (input.idempotencyKey) {
     const existing = await input.store.findByIdempotency(input.tenantId, input.userId, input.idempotencyKey)

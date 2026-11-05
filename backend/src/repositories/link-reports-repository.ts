@@ -24,7 +24,7 @@ export class PrismaLinkReportsRepository implements LinkReportsRepository {
       const reporterKey = createHmac('sha256', this.secret).update('link-report:v1:' + input.tenantId + ':' + input.actorId).digest('hex')
       await tx.$executeRawUnsafe('SELECT pg_advisory_xact_lock(hashtextextended($1,0))', 'link-reports:' + input.tenantId + ':' + reporterKey)
       const link = await tx.link.findFirst({ where: { id: input.linkId, tenantId: input.tenantId }, include: { owner: { select: { status: true } } } })
-      if (!link || !openPublicLink({ status: link.status, ownerStatus: link.owner?.status ?? null }).visible) throw new ReportError('NOT_FOUND')
+      if (!link || !openPublicLink({ status: link.status, ownerHidden: link.ownerHidden, ownerStatus: link.owner?.status ?? null }).visible) throw new ReportError('NOT_FOUND')
       const since = new Date(input.now.getTime() - REPORT_WINDOW_MS)
       const [existing, count] = await Promise.all([
         tx.linkReport.findFirst({ where: { tenantId: input.tenantId, linkId: link.id, reporterKey, reason: input.reason, createdAt: { gt: since } }, orderBy: { createdAt: 'desc' } }),

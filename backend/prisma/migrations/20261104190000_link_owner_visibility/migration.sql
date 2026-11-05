@@ -1,0 +1,1 @@
+ALTER TABLE "links" ADD COLUMN "ownerHidden" BOOLEAN NOT NULL DEFAULT false;

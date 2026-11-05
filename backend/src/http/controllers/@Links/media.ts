@@ -58,7 +58,7 @@ export async function registerLinkMediaRoutes(app: FastifyInstance) {
   app.get('/:id/media/:assetId', (request,reply)=>safe(reply,async()=>{
     const { width } = z.object({ width: linkMediaWidth.optional() }).parse(request.query)
     const tenant=await resolveTenant(normalizeTenantHost(request.headers.host??'')), p=request.params as {id:string;assetId:string}
-    const asset=await database().linkMediaAsset.findFirst({where:{id:p.assetId,linkId:p.id,tenantId:tenant.id,status:'APPROVED',link:{status:'PUBLISHED',niche:{tenantId:tenant.id,...(request.cookies.age==='yes'?{}:{requiresAge:false})},network:{tenantId:tenant.id,...(request.cookies.age==='yes'?{}:{requiresAge:false})},OR:[{ownerId:null},{owner:{tenantId:tenant.id,status:'ACTIVE'}}]}}})
+    const asset=await database().linkMediaAsset.findFirst({where:{id:p.assetId,linkId:p.id,tenantId:tenant.id,status:'APPROVED',link:{ownerHidden:false,status:'PUBLISHED',niche:{tenantId:tenant.id,...(request.cookies.age==='yes'?{}:{requiresAge:false})},network:{tenantId:tenant.id,...(request.cookies.age==='yes'?{}:{requiresAge:false})},OR:[{ownerId:null},{owner:{tenantId:tenant.id,status:'ACTIVE'}}]}}})
     if (!asset) throw new LinkMediaError(404,'Anexo não encontrado.')
     return binary(reply,width === undefined ? asset.bytes : await resizeLinkMedia(asset.bytes,width))
   }))

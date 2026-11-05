@@ -57,7 +57,7 @@ export function publishCampaign(db:PrismaClient,a:Actor,id:string,expected:numbe
  // The source is server-owned immutable approved content; the client can only select existing visible IDs.
  const content=campaignContent(source,selected.items.map(item=>item.id));assertProfilePublicationPresence(content)
  const refs=content.items.filter(item=>item.type==='CATALOG').map(item=>item.destination)
- if(await tx.link.count({where:{id:{in:refs},tenantId:a.tenantId,ownerId:a.ownerId,status:'PUBLISHED',niche:{tenantId:a.tenantId},network:{tenantId:a.tenantId}}})!==new Set(refs).size)throw new ProfileError(422,'Uma referência do catálogo está indisponível. Revise os links selecionados.')
+ if(await tx.link.count({where:{id:{in:refs},tenantId:a.tenantId,ownerId:a.ownerId,ownerHidden:false,status:'PUBLISHED',niche:{tenantId:a.tenantId},network:{tenantId:a.tenantId}}})!==new Set(refs).size)throw new ProfileError(422,'Uma referência do catálogo está indisponível. Revise os links selecionados.')
  let approved:ProfileContent
  try{approved=await validateProfile(tx,a.tenantId,content,ports,false,source,a.ownerId)}catch(error){if(error instanceof ContentReviewRequired)throw new ProfileError(409,'Revise e publique a página de origem antes de criar esta campanha.');throw error}
  if(row.state==='PUBLISHED'&&JSON.stringify(profileInput.parse(row.publication))===JSON.stringify(approved))return detail(tx,row)

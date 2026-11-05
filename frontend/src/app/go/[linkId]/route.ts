@@ -1,6 +1,6 @@
 import { tenantHost, forward } from '@/lib/upstream'
 
-const noindex = { 'x-robots-tag': 'noindex, nofollow' }
+const noindex = { 'x-robots-tag': 'noindex, nofollow', 'cache-control': 'private, no-store' }
 
 export async function GET(request: Request, context: { params: Promise<{ linkId: string }> }) {
   const params = await context.params

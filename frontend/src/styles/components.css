@@ -98,7 +98,7 @@ main.panel-page {
 .summary-card strong { font-size: var(--text-xl); font-weight: 600; }
 .summary-card span, .order-card p { overflow-wrap: anywhere; }
 .order-card-top, .link-card-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); }
-.link-card h3 { margin: 0; font-size: var(--text-lg); overflow-wrap: anywhere; }
+.link-card :is(h2, h3) { margin: 0; font-size: var(--text-lg); overflow-wrap: anywhere; }
 .link-card-actions { margin-top: var(--space-4); }
 
 .panel-link-grid {

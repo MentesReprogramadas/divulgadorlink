@@ -3,7 +3,7 @@ import { afterEach, expect, it, vi } from 'vitest'
 import { OrdersArea, UserDesk } from './panel'
 import { api } from '@/lib/api'
 
-vi.mock('./panel-links', () => ({ useMyLinks: () => ({ ready: true, error: '', links: [{ id: 'a', name: 'Estudos', status: 'PUBLISHED' }], stats: { a: null } }), LinkList: () => null }))
+vi.mock('./panel-links', () => ({ useMyLinks: () => ({ ready: true, error: '', links: [{ id: 'a', name: 'Estudos', status: 'PUBLISHED' }, { id: 'hidden', name: 'Oculto', status: 'PUBLISHED', ownerHidden: true }], stats: { a: null, hidden: null } }), LinkList: () => null }))
 vi.mock('@/lib/api', () => ({ api: vi.fn(async () => ({ status: 503, body: {} })) }))
 vi.mock('next/navigation', () => ({ usePathname: () => '/painel' }))
 afterEach(cleanup)
@@ -59,4 +59,12 @@ it('trata falha de rede nos pedidos como erro recuperável sem confirmar vazio',
   await waitFor(() => expect(screen.getByRole('alert').textContent).toContain('Não foi possível carregar os pedidos.'))
   expect(screen.queryByText('Nada por aqui ainda.')).toBeNull()
   expect(screen.getByRole('button', { name: 'Tentar de novo' })).toBeTruthy()
+})
+
+it('exclui ocultos da contagem publicada sem removê-los do total', async () => {
+  render(<UserDesk />)
+  await screen.findByText('Pedidos indisponíveis')
+  const metric = screen.getByText('Links publicados').parentElement!
+  expect(within(metric).getByText('1')).toBeTruthy()
+  expect(within(metric).getByText('2 links no total')).toBeTruthy()
 })

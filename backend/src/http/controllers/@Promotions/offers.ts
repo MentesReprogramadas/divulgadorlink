@@ -65,7 +65,7 @@ async function getOffers(request: FastifyRequest, reply: FastifyReply) {
   if (query.data.linkId) {
     const repo = getLinksRepository(), link = await repo.findLinkById(query.data.linkId)
     const user = await repo.findSubmitter(tenant.id, request.user.sub)
-    if (!link || link.tenantId !== tenant.id || link.ownerId !== request.user.sub || !user || user.status !== 'ACTIVE' || !confirmationFlags(user.identifiers).emailConfirmed) return reply.status(404).send({ message: 'Recurso não encontrado.' })
+    if (!link || link.ownerHidden || link.tenantId !== tenant.id || link.ownerId !== request.user.sub || !user || user.status !== 'ACTIVE' || !confirmationFlags(user.identifiers).emailConfirmed) return reply.status(404).send({ message: 'Recurso não encontrado.' })
     const niche = await repo.findNiche(tenant.id, link.nicheId)
     if (niche?.requiresAge) offers = offers.filter(offer => !offer.surfaces.includes('HOME'))
     launchOffer = query.data.renewal ? null : await activeLaunchOffer(tenant.id, request.user.sub, link.id)
@@ -162,7 +162,7 @@ async function postLaunchOffer(request: FastifyRequest, reply: FastifyReply) {
  const account = await launchAccount(request)
  if (!account) return reply.status(403).send({ message: 'Conta não pode comprar destaque.' })
  const link = await getLinksRepository().findLinkById(parsed.data.linkId)
- if (!link || link.tenantId !== account.tenantId || link.ownerId !== account.userId) return reply.status(404).send({ message: 'Recurso não encontrado.' })
+ if (!link || link.ownerHidden || link.tenantId !== account.tenantId || link.ownerId !== account.userId) return reply.status(404).send({ message: 'Recurso não encontrado.' })
  await prepareAutomaticPublication(account.tenantId, account.userId, link.id)
  const offer = await issueLaunchOffer(account.tenantId, account.userId, link.id, await rowsFor(account.tenantId), prisma, parsed.data)
  reply.header('cache-control','private, no-store')

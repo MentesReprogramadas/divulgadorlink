@@ -1,7 +1,7 @@
 'use client'
 
 import { LinkMediaEditor } from '@/features/link-media/link-media-editor'
-import { useEffect, useLayoutEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Button, ButtonLink } from '@/components/ui/button'
 import { ActionIcon } from '@/components/ui/action-icon'
 import { Badge } from '@/components/ui/badge'
@@ -11,6 +11,7 @@ import { LinkMeta, type LinkDiscovery } from '@/components/domain/link-meta'
 import { formatRate } from '@/domain/format'
 import { linkStatusLabel, linkStatusTone } from '@/domain/labels'
 import { api } from '@/lib/api'
+import { useReadOnly } from '@/components/ui/interaction-policy'
 import styles from '@/components/layout/workspace-dashboard.module.css'
 import { WorkspaceActions, WorkspaceFilters } from '@/components/layout/workspace-controls'
 import { EmptyState } from '@/components/feedback/empty-state'
@@ -24,6 +25,7 @@ export type PanelLink = {
   name: string
   description?: string
   status: string
+  ownerHidden?: boolean
   occupiesSlot?: boolean
   network?: { name?: string; slug?: string }
   niche?: { name?: string; slug?: string }
@@ -32,13 +34,14 @@ export type PanelLink = {
 }
 
 type Stats = { impressions: number; clicks: number; ctr: number }
-type FilterId = 'all' | 'published' | 'draft' | 'review' | 'rejected' | 'unavailable' | 'attention'
+type FilterId = 'all' | 'hidden' | 'published' | 'draft' | 'review' | 'rejected' | 'unavailable' | 'attention'
 
 const PAGE_SIZE = 12
 
 const FILTERS: Array<{ id: FilterId; label: string; match: (link: PanelLink) => boolean }> = [
   { id: 'all', label: 'Todos', match: () => true },
-  { id: 'published', label: 'Publicados', match: (link) => link.status === 'PUBLISHED' },
+  { id: 'published', label: 'Publicados', match: (link) => link.status === 'PUBLISHED' && !link.ownerHidden },
+  { id: 'hidden', label: 'Ocultos', match: (link) => Boolean(link.ownerHidden) },
   { id: 'draft', label: 'Rascunhos', match: (link) => link.status === 'DRAFT' },
   { id: 'review', label: 'Em revisão', match: (link) => link.status === 'PENDING_MODERATION' },
   { id: 'rejected', label: 'Rejeitados', match: (link) => link.status === 'PRE_REJECTED' },
@@ -96,14 +99,38 @@ function descriptionOf(link: PanelLink): string | null {
   return text
 }
 
+function VisibilityAction({ link, onChange }: { link: PanelLink; onChange: (id: string, hidden: boolean) => Promise<void> }) {
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+  const pending = useRef(false)
+  const readOnly = useReadOnly()
+
+  async function change() {
+    if (pending.current || readOnly) return
+    pending.current = true
+    setSaving(true)
+    setError('')
+    try { await onChange(link.id, !link.ownerHidden) }
+    catch (cause) { setError(cause instanceof Error ? cause.message : 'Não foi possível alterar a visibilidade. Tente novamente.') }
+    finally { pending.current = false; setSaving(false) }
+  }
+
+  return <>
+    <Button type="button" variant={link.ownerHidden ? 'secondary' : 'danger'} loading={saving} onClick={() => void change()}>{link.ownerHidden ? 'Desocultar' : 'Ocultar'}</Button>
+    {error ? <p role="alert">{error} Tente novamente pelo botão {link.ownerHidden ? 'Desocultar' : 'Ocultar'}.</p> : null}
+  </>
+}
+
 export function LinkList({
   links,
   banned,
   stats,
+  onVisibilityChange,
 }: {
   links: PanelLink[]
   banned: boolean
   stats: Record<string, Stats | null | undefined>
+  onVisibilityChange?: (id: string, hidden: boolean) => Promise<void>
 }) {
   const [filter, setFilter] = useState<FilterId>('all')
   const [page, setPage] = useState(1)
@@ -131,6 +158,7 @@ export function LinkList({
         <Field label="Rede"><Select value={network} onChange={event => { setNetwork(event.target.value); setPage(1) }}><option value="ALL">Todas as redes</option>{Array.from(new Set(links.flatMap(link => link.network?.name ? [link.network.name] : []))).sort().map(name => <option key={name} value={name}>{name}</option>)}</Select></Field>
         <Field label="Ordenar por"><Select value={sort} onChange={event => { setSort(event.target.value); setPage(1) }}><option value="name">Nome</option><option value="clicks">Mais cliques</option></Select></Field>
       </WorkspaceFilters>
+      <p role="status" className="panel-meta">Ocultar tira do catálogo sem liberar vaga. Os prazos dos destaques pagos continuam contando.</p>
       {visible.length === 0 ? <EmptyState>Nenhum link neste filtro</EmptyState> : null}
       <div className="panel-link-grid">
         {visible.map((link) => {
@@ -140,7 +168,7 @@ export function LinkList({
           return (
             <article key={link.id} id={`link-${link.id}`} className={`link-card ${styles.card}`}>
               <LiquidLens radius={16} />
-              <h3>{link.name}</h3>
+              <h2>{link.name}</h2>
               {description ? <p className="panel-description">{description}</p> : null}
               <LinkMeta
                 discovery={link.discovery}
@@ -148,10 +176,11 @@ export function LinkList({
                 network={link.network}
                 status={<Badge kind="status" tone={linkStatusTone(link.status)}>{linkStatusLabel(link.status)}</Badge>}
               />
+              {link.ownerHidden ? <Badge>Oculto por você</Badge> : null}
               {link.pendingText ? <p className="panel-meta">Proposta pendente: {link.pendingText.name}</p> : null}
               {link.occupiesSlot ? <p className="panel-meta">Ocupa uma vaga</p> : null}
               <LinkMetrics numbers={numbers} />
-                {(link.status === 'PUBLISHED' || link.status === 'PENDING_MODERATION') && !banned ? <div className={actionStyles.featureAction}><strong>Apareça nos espaços patrocinados</strong><ButtonLink href={`/painel/links/${link.id}/destaque`}><ActionIcon name="promotion" />Destacar este link</ButtonLink><p>Destaque pago · consulte opções e valores</p></div> : null}
+                {(link.status === 'PUBLISHED' || link.status === 'PENDING_MODERATION') && !link.ownerHidden && !banned ? <div className={actionStyles.featureAction}><strong>Apareça nos espaços patrocinados</strong><ButtonLink href={`/painel/links/${link.id}/destaque`}><ActionIcon name="promotion" />Destacar este link</ButtonLink><p>Destaque pago · consulte opções e valores</p></div> : null}
               <div className={actionStyles.actions}>
                 {!banned ? <ButtonLink variant="ghost" href={`/painel/links/${link.id}/resultado`}><ActionIcon name="chart" />Ver resultado</ButtonLink> : null}
                 {editable ? (
@@ -159,6 +188,7 @@ export function LinkList({
                 ) : null}
                 {link.status === 'PRE_REJECTED' ? <ButtonLink className="action-contest" variant="secondary" href={`/painel/links/${link.id}/contestar`}><ActionIcon name="appeal" width={14} height={14} />Contestar</ButtonLink> : null}
 
+                {!banned && onVisibilityChange ? <VisibilityAction link={link} onChange={onVisibilityChange} /> : null}
                 {!banned ? <ButtonLink variant="ghost" href={`/painel/links/${link.id}/disponibilidade`}><ActionIcon name="availability" />Disponibilidade</ButtonLink> : null}
                 <ButtonLink variant="secondary" href={`/link/${link.id}`}><Glyph name="external" />Acessar</ButtonLink>
               </div>
@@ -266,6 +296,7 @@ export function useMyLinks() {
   const [error, setError] = useState('')
   const [ready, setReady] = useState(false)
   const [attempt, setAttempt] = useState(0)
+  const visibilityChanges = useRef(new Map<string, { ownerHidden: boolean }>())
 
   useLayoutEffect(() => {
     if (!mineCache) return
@@ -276,6 +307,7 @@ export function useMyLinks() {
 
   useEffect(() => {
     let current = true
+    const visibilityAtStart = new Map(visibilityChanges.current)
     void (async () => {
       const loaded = await loadAll()
       if (!current) return
@@ -284,8 +316,13 @@ export function useMyLinks() {
         setReady(true)
         return
       }
-      setLinks(loaded.links)
-      mineCache = { links: loaded.links, stats: mineCache?.stats ?? {} }
+      // A cached card may be changed while this older list request is still pending.
+      const freshLinks = loaded.links.map(link => {
+        const change = visibilityChanges.current.get(link.id)
+        return change && change !== visibilityAtStart.get(link.id) ? { ...link, ownerHidden: change.ownerHidden } : link
+      })
+      setLinks(freshLinks)
+      mineCache = { links: freshLinks, stats: mineCache?.stats ?? {} }
       setReady(true)
       await Promise.all(loaded.links.map(async (link) => {
         const row = await api<Stats>(`/v1/analytics/links/${link.id}`)
@@ -293,7 +330,7 @@ export function useMyLinks() {
         const value = row.status === 200 ? row.body : null
         setStats((previous) => {
           const next = { ...previous, [link.id]: value }
-          mineCache = { links: loaded.links, stats: next }
+          mineCache = { links: mineCache?.links ?? loaded.links, stats: next }
           return next
         })
       }))
@@ -306,5 +343,18 @@ export function useMyLinks() {
     setReady(false)
     setAttempt(value => value + 1)
   }
-  return { links, stats, error, ready, reload }
+  async function setVisibility(id: string, hidden: boolean) {
+    const result = await api<{ id?: string; ownerHidden?: boolean; message?: string }>(`/v1/links/${id}/visibility`, {
+      method: 'PATCH', body: JSON.stringify({ hidden }),
+    })
+    if (result.status !== 200 || typeof result.body.ownerHidden !== 'boolean' || (result.body.id !== undefined && result.body.id !== id)) throw new Error(result.body.message ?? 'Não foi possível alterar a visibilidade.')
+    const ownerHidden = result.body.ownerHidden
+    visibilityChanges.current.set(id, { ownerHidden })
+    setLinks(previous => {
+      const next = previous.map(link => link.id === id ? { ...link, ownerHidden } : link)
+      mineCache = { links: next, stats: mineCache?.stats ?? stats }
+      return next
+    })
+  }
+  return { links, stats, error, ready, reload, setVisibility }
 }

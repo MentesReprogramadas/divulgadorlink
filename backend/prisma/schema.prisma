@@ -751,6 +751,7 @@ model Link {
   mediaVersion Int @default(0)
   media LinkMediaAsset[]
   status              LinkStatus
+  ownerHidden         Boolean    @default(false)
   occupiesSlot        Boolean    @default(true)
   everPublished       Boolean    @default(false)
   approvedName        String?

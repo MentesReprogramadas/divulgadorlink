@@ -17,7 +17,7 @@ export function mediaPath(linkId: string, id: string) { return `/api/v1/links/${
 export async function readApprovedLinkMedia(db: Prisma.TransactionClient, tenantId: string, linkIds: string[]) {
   const result = new Map<string, { iconUrl?: string; imageUrl?: string; imageAlt?: string | null }>()
   if (!linkIds.length) return result
-  const rows = await db.linkMediaAsset.findMany({ where: { tenantId, linkId: { in: linkIds }, status: 'APPROVED' }, select: { id: true, linkId: true, kind: true, alt: true } })
+  const rows = await db.linkMediaAsset.findMany({ where: { tenantId, linkId: { in: linkIds }, link: { ownerHidden: false }, status: 'APPROVED' }, select: { id: true, linkId: true, kind: true, alt: true } })
   for (const row of rows) {
     const previous = result.get(row.linkId) ?? {}
     result.set(row.linkId, { ...previous, ...(row.kind === 'ICON' ? { iconUrl: mediaPath(row.linkId, row.id) } : { imageUrl: mediaPath(row.linkId, row.id), imageAlt: row.alt }) })

@@ -1,3 +1,5 @@
+import { canSubmitLinkFromIdentifiers } from '@/use-cases/@Auth/confirm-identifier'
+import { getAuditLogsRepository } from './audit-logs-repository'
 import { insertLinkMedia } from './link-media'
 import type { PreparedLinkMedia } from '@/domain/links/link-media'
 import { randomUUID } from 'node:crypto'
@@ -114,6 +116,7 @@ export type LinkRecord = {
   networkId: string
   nicheId: string
   otherNote: string | null
+  ownerHidden?: boolean
   status: LinkStatus
   occupiesSlot: boolean
   everPublished: boolean
@@ -141,6 +144,7 @@ export type NewLinkData = Omit<
   | 'status'
   | 'createdAt'
   | 'updatedAt'
+  | 'ownerHidden'
   | 'occupiesSlot'
   | 'everPublished'
   | 'approvedName'
@@ -150,7 +154,14 @@ export type NewLinkData = Omit<
   media?: PreparedLinkMedia[]
 }
 
+
+export type OwnerVisibilityInput = { tenantId: string; ownerId: string; linkId: string; hidden: boolean; requestId: string }
+export class OwnerVisibilityError extends Error {
+  constructor(public readonly status: number, message: string) { super(message) }
+}
+
 export interface LinksRepository {
+  setOwnerVisibility(input: OwnerVisibilityInput): Promise<{ id: string; ownerHidden: boolean }>
   findLinkById(id: string): Promise<LinkRecord | null>
   findSubmitter(tenantId: string, userId: string): Promise<SubmitterRecord | null>
   findNetwork(tenantId: string, id: string): Promise<NetworkRecord | null>
@@ -253,6 +264,7 @@ export class InMemoryLinksRepository implements LinksRepository {
       networkId: 'net-telegram',
       nicheId: 'niche-jogos',
       otherNote: null,
+      ownerHidden: false,
       occupiesSlot: true,
       everPublished: input.status === 'PUBLISHED',
       approvedName: input.status === 'PUBLISHED' ? (input.name ?? 'link') : null,
@@ -382,7 +394,7 @@ export class InMemoryLinksRepository implements LinksRepository {
 
   async listPublicSitemapLinks(tenantId: string): Promise<SitemapLinkRef[]> {
     return this.links.filter((link) => {
-      if (link.tenantId !== tenantId || link.status !== 'PUBLISHED') return false
+      if (link.tenantId !== tenantId || link.ownerHidden || link.status !== 'PUBLISHED') return false
       if (link.ownerId !== null) {
         const owner = this.users.find((user) => user.id === link.ownerId && user.tenantId === tenantId)
         if (!owner || owner.status === 'BANNED') return false
@@ -397,7 +409,7 @@ export class InMemoryLinksRepository implements LinksRepository {
 
   private substantiveLinks(tenantId: string): LinkRecord[] {
     return this.links.filter((link) => {
-      if (link.tenantId !== tenantId || link.status !== 'PUBLISHED') return false
+      if (link.tenantId !== tenantId || link.ownerHidden || link.status !== 'PUBLISHED') return false
       if (!substantiveText(link.name, link.description)) return false
       if (link.ownerId !== null) {
         const owner = this.users.find((user) => user.id === link.ownerId)
@@ -410,7 +422,7 @@ export class InMemoryLinksRepository implements LinksRepository {
 
   async listSeoLinks(tenantId: string): Promise<LinkRecord[]> {
     return this.links.filter((link) => {
-      if (link.tenantId !== tenantId || link.status !== 'PUBLISHED') return false
+      if (link.tenantId !== tenantId || link.ownerHidden || link.status !== 'PUBLISHED') return false
       const niche = this.niches.find((row) => row.id === link.nicheId && row.tenantId === tenantId)
       const network = this.networks.find((row) => row.id === link.networkId && row.tenantId === tenantId)
       const owner = link.ownerId === null || this.users.some((row) => row.id === link.ownerId && row.tenantId === tenantId && row.status === 'ACTIVE')
@@ -430,6 +442,18 @@ export class InMemoryLinksRepository implements LinksRepository {
     row.summary = input.summary
     row.updatedAt = new Date()
     return { ...row }
+  }
+
+  async setOwnerVisibility(input: OwnerVisibilityInput) {
+    const user = await this.findSubmitter(input.tenantId, input.ownerId)
+    if (!user || !canSubmitLinkFromIdentifiers(user.status, user.identifiers)) throw new OwnerVisibilityError(403, 'Confirme seu e-mail e verifique o estado da conta.')
+    const link = this.links.find(row => row.id === input.linkId && row.tenantId === input.tenantId && row.ownerId === input.ownerId)
+    if (!link) throw new OwnerVisibilityError(404, 'Link não encontrado.')
+    if (Boolean(link.ownerHidden) !== input.hidden) {
+      await getAuditLogsRepository().create({ tenantId: input.tenantId, actorId: input.ownerId, action: 'link.visibility.updated', entityType: 'link', entityId: link.id, before: { ownerHidden: Boolean(link.ownerHidden) }, after: { ownerHidden: input.hidden }, requestId: input.requestId })
+      link.ownerHidden = input.hidden
+    }
+    return { id: link.id, ownerHidden: Boolean(link.ownerHidden) }
   }
 
   async findLinkById(id: string): Promise<LinkRecord | null> {
@@ -521,6 +545,23 @@ export class InMemoryLinksRepository implements LinksRepository {
 
 export class PrismaLinksRepository implements LinksRepository {
   constructor(readonly client: PrismaClient) {}
+
+  async setOwnerVisibility(input: OwnerVisibilityInput) {
+    return this.client.$transaction(async tx => {
+      // Serialize with suspension and checkout, always locking the account before its link.
+      await tx.$queryRaw`SELECT id FROM users WHERE id=${input.ownerId} AND "tenantId"=${input.tenantId} FOR UPDATE`
+      const user = await tx.user.findFirst({ where: { id: input.ownerId, tenantId: input.tenantId }, include: { identifiers: true } })
+      if (!user || !canSubmitLinkFromIdentifiers(user.status, user.identifiers)) throw new OwnerVisibilityError(403, 'Confirme seu e-mail e verifique o estado da conta.')
+      await tx.$queryRaw`SELECT id FROM links WHERE id=${input.linkId} AND "tenantId"=${input.tenantId} AND "ownerId"=${input.ownerId} FOR UPDATE`
+      const link = await tx.link.findFirst({ where: { id: input.linkId, tenantId: input.tenantId, ownerId: input.ownerId } })
+      if (!link) throw new OwnerVisibilityError(404, 'Link não encontrado.')
+      if (link.ownerHidden !== input.hidden) {
+        await tx.link.update({ where: { id: link.id }, data: { ownerHidden: input.hidden } })
+        await tx.auditLog.create({ data: { tenantId: input.tenantId, actorId: input.ownerId, action: 'link.visibility.updated', entityType: 'link', entityId: link.id, before: { ownerHidden: link.ownerHidden }, after: { ownerHidden: input.hidden }, requestId: input.requestId } })
+      }
+      return { id: link.id, ownerHidden: input.hidden }
+    })
+  }
 
   async findLinkById(id: string): Promise<LinkRecord | null> {
     const row = await this.client.link.findUnique({ where: { id } })
@@ -662,6 +703,7 @@ export class PrismaLinksRepository implements LinksRepository {
       LEFT JOIN users u ON u.id = l."ownerId"
       WHERE l."tenantId" = ${tenantId}
         AND l.status = 'PUBLISHED'
+        AND l."ownerHidden" = false
         AND n."tenantId" = ${tenantId}
         AND n."isPublicFacet" = true
         AND n."requiresAge" = false
@@ -679,7 +721,7 @@ export class PrismaLinksRepository implements LinksRepository {
   async listSeoLinks(tenantId: string): Promise<LinkRecord[]> {
     const rows = await this.client.link.findMany({
       where: {
-        tenantId, status: 'PUBLISHED',
+        tenantId, ownerHidden: false, status: 'PUBLISHED',
         niche: { tenantId, isPublicFacet: true },
         network: { tenantId, isPublicFacet: true },
         OR: [{ ownerId: null }, { owner: { tenantId, status: 'ACTIVE' } }],
@@ -913,6 +955,7 @@ function substantiveLinkFilter(tenantId: string): Prisma.Sql {
   return Prisma.sql`
     l."tenantId" = ${tenantId}
     AND l.status = 'PUBLISHED'
+    AND l."ownerHidden" = false
     AND n."requiresAge" = false
     AND (l."ownerId" IS NULL OR u.status <> 'BANNED')
     AND char_length(btrim(l.description)) >= 80
@@ -951,6 +994,7 @@ function toLinkRecord(row: PrismaLink): LinkRecord {
     networkId: row.networkId,
     nicheId: row.nicheId,
     otherNote: row.otherNote,
+    ownerHidden: row.ownerHidden,
     status: row.status,
     occupiesSlot: row.occupiesSlot,
     everPublished: row.everPublished,

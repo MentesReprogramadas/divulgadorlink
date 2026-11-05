@@ -98,7 +98,7 @@ async function writeProfileItems(tx: Prisma.TransactionClient, actor: Actor, pro
 /** One projection for owner preview and public reads. Live catalog eligibility is never frozen into a snapshot. */
 async function projection(db: Prisma.TransactionClient, actor: Actor, content: ProfileContent, publishedRevisionId: number,profile:ChannelProfile,source:'DRAFT'|'PUBLISHED', at?: Date, channelOverride?:ChannelSettings) {
   const refs = content.items.filter(i => i.type === 'CATALOG').map(i => i.destination)
-  const links = await db.link.findMany({ where: { tenantId: actor.tenantId, id: { in: refs }, status: 'PUBLISHED', OR: [{ ownerId: null }, { owner: { status: 'ACTIVE', tenantId: actor.tenantId } }] }, include: { niche: true, network: true } })
+  const links = await db.link.findMany({ where: { tenantId: actor.tenantId, id: { in: refs }, ownerHidden: false, status: 'PUBLISHED', OR: [{ ownerId: null }, { owner: { status: 'ACTIVE', tenantId: actor.tenantId } }] }, include: { niche: true, network: true } })
   const eligible = links.filter(l => l.niche.tenantId === actor.tenantId && l.network.tenantId === actor.tenantId)
   const now = profileNow(), coverage = await profileSchedulingCoverage(db, actor, profileBillingRuntime().delivered, now)
   if (at && !coverage.enabled) throw new ProfileError(403, 'Agendamento indisponível no seu plano atual.')
@@ -122,7 +122,7 @@ export async function readProfile(db: PrismaClient, actor: Actor) {
 }
 async function assertPublishedProfileReferences(tx:Prisma.TransactionClient,actor:Actor,content:ProfileContent){
  const ids=[...new Set(content.items.filter(item=>item.type==='CATALOG').map(item=>item.destination))]
- const count=await tx.link.count({where:{tenantId:actor.tenantId,ownerId:actor.ownerId,status:'PUBLISHED',id:{in:ids},niche:{tenantId:actor.tenantId},network:{tenantId:actor.tenantId}}})
+ const count=await tx.link.count({where:{tenantId:actor.tenantId,ownerId:actor.ownerId,ownerHidden:false,status:'PUBLISHED',id:{in:ids},niche:{tenantId:actor.tenantId},network:{tenantId:actor.tenantId}}})
  if(count!==ids.length)throw new ProfileError(422,'Escolha links publicados do seu catálogo ou use uma URL própria.')
 }
 const checklistActions={PREVIEW_REQUESTED:'profile.checklist.preview_requested',LINK_COPIED:'profile.checklist.link_copied'} as const
@@ -444,7 +444,7 @@ export async function restoreProfileRevision(db: PrismaClient, actor: Actor, id:
     const photoMissing = Boolean(content.avatarAssetId && !await tx.profileAsset.findUnique({ where: { tenantId_ownerId_id: { tenantId: actor.tenantId, ownerId: actor.ownerId, id: content.avatarAssetId! } }, select: { id: true } }))
     if (photoMissing) content.avatarAssetId = null
     const refs = [...new Set(content.items.filter(item => item.type === 'CATALOG').map(item => item.destination))]
-    const eligible = await tx.link.count({ where: { id: { in: refs }, tenantId: actor.tenantId, ownerId: actor.ownerId, status: 'PUBLISHED', niche: { tenantId: actor.tenantId }, network: { tenantId: actor.tenantId } } })
+    const eligible = await tx.link.count({ where: { id: { in: refs }, tenantId: actor.tenantId, ownerId: actor.ownerId, ownerHidden: false, status: 'PUBLISHED', niche: { tenantId: actor.tenantId }, network: { tenantId: actor.tenantId } } })
     if (eligible !== refs.length) throw new ProfileError(422, 'Um link desta versão não está mais disponível no seu catálogo. A restauração não foi aplicada.')
     await tx.profile.update({ where: { id: row.id }, data: { slug: row.slug, name: content.name, bio: content.bio, avatarAssetId: content.avatarAssetId, requiresAge: content.requiresAge, primaryItemId: content.primaryItemId, appearance: content.appearance ?? Prisma.DbNull, version: { increment: 1 } } })
     await restoreChannelDraft(tx,row,source.version,content)

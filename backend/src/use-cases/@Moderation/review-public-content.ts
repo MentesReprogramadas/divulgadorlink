@@ -86,7 +86,7 @@ export async function decideContentReview(db: PrismaClient, actor: ReviewActor, 
     if (profile && resource.profile) {
       try{await assertChannelPublication(tx,resource.profile,profile)}catch(error){if(error instanceof ProfileError)throw new ContentReviewError(error.status,error.message);throw error}
       const refs = [...new Set(profile.items.filter(item => item.type === 'CATALOG').map(item => item.destination))]
-      const links = await tx.link.findMany({ where: { id: { in: refs }, tenantId: row.tenantId, ownerId: row.ownerId, status: 'PUBLISHED', niche: { tenantId: row.tenantId }, network: { tenantId: row.tenantId } }, select: { id: true } })
+      const links = await tx.link.findMany({ where: { id: { in: refs }, tenantId: row.tenantId, ownerId: row.ownerId, ownerHidden: false, status: 'PUBLISHED', niche: { tenantId: row.tenantId }, network: { tenantId: row.tenantId } }, select: { id: true } })
       if (links.length !== refs.length) throw new ContentReviewError(422, 'Um link do catálogo mudou. Peça a correção antes de aprovar.')
       for(const block of profile.contentBlocks??[])if(block.type==='IMAGE'&&!await tx.profileAsset.findUnique({where:{tenantId_ownerId_id:{tenantId:row.tenantId,ownerId:row.ownerId,id:block.assetId}}}))throw new ContentReviewError(422,'Uma imagem não está mais disponível. Peça um novo envio.')
       if (profile.avatarAssetId && !await tx.profileAsset.findUnique({ where: { tenantId_ownerId_id: { tenantId: row.tenantId, ownerId: row.ownerId, id: profile.avatarAssetId } } })) throw new ContentReviewError(422, 'A foto não está mais disponível. Peça um novo envio.')

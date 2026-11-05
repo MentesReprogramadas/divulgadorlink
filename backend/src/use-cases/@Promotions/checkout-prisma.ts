@@ -126,7 +126,10 @@ export class PrismaCheckoutStore implements CheckoutStore {
     const id = randomUUID()
     try {
       await this.client.$transaction(async (tx) => {
-        await tx.$executeRawUnsafe('SELECT id FROM links WHERE id = $1 FOR UPDATE', input.linkId)
+        await tx.$queryRaw`SELECT id FROM users WHERE id=${input.userId} AND "tenantId"=${input.tenantId} FOR UPDATE`
+        await tx.$queryRaw`SELECT id FROM links WHERE id=${input.linkId} AND "tenantId"=${input.tenantId} FOR UPDATE`
+        const eligible = await tx.link.findFirst({ where: { id: input.linkId, tenantId: input.tenantId, ownerId: input.userId, ownerHidden: false, status: 'PUBLISHED', owner: { tenantId: input.tenantId, status: 'ACTIVE' } }, select: { id: true } })
+        if (!eligible) throw new Error('link')
         const administrative = await tx.promotion.count({ where: { linkId: input.linkId, status: 'ACTIVE', administrative: true, surface: { in: input.surfaces } } })
         if (administrative > 0) throw new CheckoutConflictError()
         if (!input.renewal) {

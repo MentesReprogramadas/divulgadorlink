@@ -299,6 +299,7 @@ export async function postCheckout(request: FastifyRequest, reply: FastifyReply)
       tenantId: tenant.id,
       userId: user.id,
       linkId: link.id,
+      ownerHidden: link.ownerHidden,
       account: user.status,
       link: link.status === 'PUBLISHED' || link.status === 'PENDING_MODERATION' || link.status === 'UNAVAILABLE'
         ? link.status
@@ -448,6 +449,7 @@ export async function postRenew(request: FastifyRequest, reply: FastifyReply) {
       tenantId: tenant.id,
       userId: user.id,
       linkId: link.id,
+      ownerHidden: link.ownerHidden,
       account: user.status,
       link: link.status === 'PUBLISHED' ? 'PUBLISHED' : 'UNAVAILABLE',
       requiresAge: niche?.requiresAge ?? false,
@@ -558,7 +560,7 @@ async function resumeMyOrder(request: FastifyRequest, reply: FastifyReply) {
     const link = await repo.findLinkById(row.linkId)
     if (!link || link.tenantId !== tenant.id || link.ownerId !== user.id) return reply.status(404).send({ message: 'Recurso não encontrado.' })
     const niche = await repo.findNiche(tenant.id, link.nicheId)
-    if (link.status !== 'PUBLISHED' || niche?.requiresAge && row.surfaces.includes('HOME')) return reply.status(409).send({ message: 'Destaque indisponível para este link.' })
+    if (link.ownerHidden || link.status !== 'PUBLISHED' || niche?.requiresAge && row.surfaces.includes('HOME')) return reply.status(409).send({ message: 'Destaque indisponível para este link.' })
     let clientSecret = row.clientSecret
     if (row.order.method === 'CARD' && !clientSecret) {
       if (!row.order.gatewayChargeId) return reply.status(409).send({ message: 'A cobrança está sendo preparada. Tente novamente.' })

@@ -38,14 +38,14 @@ async function handle(request: FastifyRequest, reply: FastifyReply) {
       const promotions = process.env.NODE_ENV === 'test'
         ? (await getCheckoutStore().listPromotions(linkId)).filter(row => row.status === 'ACTIVE' && (!row.administrative || !row.expiresAt || row.expiresAt > new Date()))
         : await prisma.promotion.findMany({ where: { tenantId: tenant.id, linkId, status: 'ACTIVE', OR: [{ administrative: false }, { expiresAt: null }, { expiresAt: { gt: new Date() } }] } })
-      return reply.send({ promotions, allowedSurfaces, eligible: link.status === 'PUBLISHED' && (!link.ownerId || owner?.status === 'ACTIVE') })
+      return reply.send({ promotions, allowedSurfaces, eligible: !link.ownerHidden && link.status === 'PUBLISHED' && (!link.ownerId || owner?.status === 'ACTIVE') })
     }
     const parsed = request.method === 'DELETE' ? null : bodySchema.safeParse(request.body)
     if (parsed && !parsed.success) return reply.status(400).send({ message: 'Selecione os locais e um término válido.' })
     const data = parsed?.success ? parsed.data : null
     const expiresAt = data?.expiresAt ? new Date(data.expiresAt) : null
     if (expiresAt && expiresAt <= new Date()) return reply.status(400).send({ message: 'O término precisa estar no futuro.' })
-    if (data && (link.status !== 'PUBLISHED' || (link.ownerId && owner?.status !== 'ACTIVE'))) {
+    if (data && (link.ownerHidden || link.status !== 'PUBLISHED' || (link.ownerId && owner?.status !== 'ACTIVE'))) {
       return reply.status(409).send({ message: 'Somente links publicados de contas ativas podem receber destaque.' })
     }
     if (data?.surfaces.some(surface => !allowedSurfaces.includes(surface))) return reply.status(409).send({ message: 'Conteúdo com restrição de idade não pode receber destaque na página inicial.' })

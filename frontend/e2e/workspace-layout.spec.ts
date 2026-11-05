@@ -257,11 +257,13 @@ test('W01 painel: resumo sem abas, menu acessível e filtros combinados recuper�
   await expect(card.getByText('Mais opções', { exact: true })).toHaveCount(0)
   await expect(card.getByRole('link')).toHaveText(actions)
   for (const name of actions) await expect(card.getByRole('link', { name, exact: true })).toBeVisible()
+  await expect(card.getByRole('button', { name: 'Ocultar', exact: true })).toBeVisible()
+  const focusOrder = ['Destacar este link', 'Ver resultado', 'Editar', 'Ocultar', 'Disponibilidade', 'Acessar']
   await card.getByRole('link', { name: actions[0], exact: true }).focus()
   await expect(card.getByRole('link', { name: actions[0], exact: true })).toBeFocused()
-  for (const name of actions.slice(1)) {
+  for (const name of focusOrder.slice(1)) {
     await page.keyboard.press('Tab')
-    await expect(card.getByRole('link', { name, exact: true })).toBeFocused()
+    await expect(card.getByRole(name === 'Ocultar' ? 'button' : 'link', { name, exact: true })).toBeFocused()
   }
   await page.keyboard.press('Shift+Tab')
   await expect(card.getByRole('link', { name: 'Disponibilidade', exact: true })).toBeFocused()

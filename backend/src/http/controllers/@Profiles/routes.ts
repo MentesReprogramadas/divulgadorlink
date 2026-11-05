@@ -117,7 +117,7 @@ export async function profilesRoutes(app: FastifyInstance) {
   app.post('/invitations/accept',(q,r)=>run(q,r,true,(db,a)=>team.acceptInvitation(db,a,team.acceptInput.parse(q.body).token)))
   app.delete('/me/profile/invitations/:id',(q,r)=>run(q,r,true,(db,a)=>team.revokeAccess(db,a,z.object({id:z.string().uuid()}).parse(q.params).id,'invitation')))
   app.delete('/me/profile/members/:id',(q,r)=>run(q,r,true,(db,a)=>team.revokeAccess(db,a,z.object({id:z.string().uuid()}).parse(q.params).id,'member',expected.parse(q.body).expectedVersion)))
-  app.get('/me/profile/catalog',(q,r)=>run(q,r,true,async(db,a)=>db.$transaction(async tx=>{await profiles.assertProfileOwner(tx,a);return {links:await tx.link.findMany({where:{tenantId:a.tenantId,ownerId:a.ownerId,status:'PUBLISHED'},select:{id:true,name:true,status:true},orderBy:{id:'asc'}})}})))
+  app.get('/me/profile/catalog',(q,r)=>run(q,r,true,async(db,a)=>db.$transaction(async tx=>{await profiles.assertProfileOwner(tx,a);return {links:await tx.link.findMany({where:{tenantId:a.tenantId,ownerId:a.ownerId,ownerHidden:false,status:'PUBLISHED'},select:{id:true,name:true,status:true},orderBy:{id:'asc'}})}})))
   app.get('/profiles/:slug/items',(q,r)=>run(q,r,false,async(db,actor)=>{
     const slug=slugParams.parse(q.params).slug,result=await searchPublicProfileItems(db,actor.tenantId,slug,actor.age,itemSearchQuery.parse(q.query))
     return result.restricted?result:{...result,measurement:await profileMeasurementDescriptor(db,actor.tenantId,slug,result.publishedRevisionId)}

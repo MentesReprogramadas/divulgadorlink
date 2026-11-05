@@ -138,7 +138,7 @@ test('dispensa inicial sem segundo modal; faixa global pode ocultar e persiste n
   const reminder = page.getByRole('complementary', { name: 'Oferta de destaque disponível' })
   await expect(reminder).toBeVisible()
   await expect(reminder.getByRole('button', { name: /Ocultar/ })).toHaveCount(0)
-  const recovery = reminder.getByRole('link', { name: 'Resgatar oferta', exact: true })
+  const recovery = reminder.getByRole('link', { name: /Resgatar oferta/ })
   await expect(recovery).toBeVisible()
   await expect(recovery).toBeInViewport()
   expect((await recovery.boundingBox())?.height).toBeGreaterThanOrEqual(44)

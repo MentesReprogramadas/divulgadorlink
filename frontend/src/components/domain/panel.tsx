@@ -29,7 +29,7 @@ import { MetricChart } from '@/components/ui/metric-chart'
 import { ReportView } from '@/components/ui/report-view'
 
 function count(links: PanelLink[], status: string): number {
-  return links.filter((link) => link.status === status).length;
+  return links.filter((link) => link.status === status && (status !== "PUBLISHED" || !link.ownerHidden)).length;
 }
 
 export { AreaFrame, PanelNav, useAreaSession, usePanelSession, SuspendedAccount, PanelGate, PanelTop, AdminHeading } from "@/features/account/components/area-frame";
@@ -115,7 +115,7 @@ export function UserDesk() {
 }
 
 export function LinksArea({ banned }: { banned: boolean }) {
-  const { links, stats, error, ready, reload } = useMyLinks();
+  const { links, stats, error, ready, reload, setVisibility } = useMyLinks();
   if (!ready)
     return (
       <ListSkeleton filters={4} />
@@ -125,7 +125,7 @@ export function LinksArea({ banned }: { banned: boolean }) {
 
       {error ? <ErrorState message={error} onRetry={reload} /> : null}
       {!error ? (
-        <LinkList links={links} banned={banned} stats={stats} />
+        <LinkList links={links} banned={banned} stats={stats} onVisibilityChange={setVisibility} />
       ) : null}
     </>
   );

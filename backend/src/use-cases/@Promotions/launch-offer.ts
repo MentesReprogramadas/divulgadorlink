@@ -18,7 +18,7 @@ export function launchPrices(row: LaunchOfferRow): LaunchPriceRow[] { return pri
 export function launchDto(row: LaunchOfferRow): LaunchOffer { return { id: row.id, linkId: row.linkId, linkName: row.linkName, discountPercent: 20, expiresAt: row.expiresAt.toISOString(), dismissed: row.dismissedAt !== null, ...(row.productCode ? { productCode: row.productCode } : {}), ...(row.durationDays ? { durationDays: row.durationDays } : {}) } }
 
 async function selectionIsAvailable(db: Prisma.TransactionClient, tenantId: string, linkId: string, code: OfferCode, reservedOrderId: string | null = null): Promise<boolean> {
- const niche = await db.link.findFirst({ where: { id: linkId, tenantId }, select: { niche: { select: { requiresAge: true } } } })
+ const niche = await db.link.findFirst({ where: { id: linkId, tenantId, ownerHidden: false }, select: { niche: { select: { requiresAge: true } } } })
  if (!niche) return false
  const [active, pending] = await Promise.all([
   db.promotion.findMany({ where: { tenantId, linkId, status: 'ACTIVE', NOT: { administrative: true, expiresAt: { lte: new Date() } } }, select: { surface: true } }),
@@ -32,7 +32,7 @@ async function selectionIsAvailable(db: Prisma.TransactionClient, tenantId: stri
 }
 
 export async function activeLaunchOffer(tenantId: string, userId: string, linkId?: string, db: PrismaClient = prisma): Promise<LaunchOfferRow | null> {
- const rows = await db.$queryRaw<LaunchOfferRow[]>`SELECT o.* FROM promotion_launch_offers o JOIN links l ON l.id=o."linkId" AND l."tenantId"=o."tenantId" JOIN users u ON u.id=o."userId" AND u."tenantId"=o."tenantId" LEFT JOIN orders paid ON paid.id=o."reservedOrderId" WHERE o."tenantId"=${tenantId} AND o."userId"=${userId} AND l."ownerId"=${userId} AND l.status IN ('PUBLISHED','PENDING_MODERATION') AND u.status='ACTIVE' AND o."expiresAt">NOW() AND (paid.id IS NULL OR paid.status NOT IN ('PAID','PAID_LATE','REFUND_PENDING','REFUNDED','REFUND_FAILED')) ORDER BY o."createdAt" DESC LIMIT 1`
+ const rows = await db.$queryRaw<LaunchOfferRow[]>`SELECT o.* FROM promotion_launch_offers o JOIN links l ON l.id=o."linkId" AND l."tenantId"=o."tenantId" JOIN users u ON u.id=o."userId" AND u."tenantId"=o."tenantId" LEFT JOIN orders paid ON paid.id=o."reservedOrderId" WHERE o."tenantId"=${tenantId} AND o."userId"=${userId} AND l."ownerId"=${userId} AND l."ownerHidden" = false AND l.status IN ('PUBLISHED','PENDING_MODERATION') AND u.status='ACTIVE' AND o."expiresAt">NOW() AND (paid.id IS NULL OR paid.status NOT IN ('PAID','PAID_LATE','REFUND_PENDING','REFUNDED','REFUND_FAILED')) ORDER BY o."createdAt" DESC LIMIT 1`
  const row = rows[0]
  return row && (!linkId || row.linkId === linkId) && await selectionIsAvailable(db, tenantId, row.linkId, row.productCode ?? 'SEARCH_NICHE', row.reservedOrderId) ? row : null
 }
@@ -44,7 +44,7 @@ export async function issueLaunchOffer(tenantId: string, userId: string, linkId:
   if (!users.length) return null
   // Match checkout's link lock so issuing a campaign cannot race a competing reservation.
   await tx.$executeRaw`SELECT id FROM links WHERE id=${linkId} AND "tenantId"=${tenantId} FOR UPDATE`
-  const link = await tx.link.findFirst({ where: { id: linkId, tenantId, ownerId: userId, status: { in: ['PUBLISHED','PENDING_MODERATION'] } } })
+  const link = await tx.link.findFirst({ where: { id: linkId, tenantId, ownerId: userId, ownerHidden: false, status: { in: ['PUBLISHED','PENDING_MODERATION'] } } })
   if (!link) return null
   const niche = await tx.niche.findFirst({ where: { id: link.nicheId, tenantId } })
   if (!niche) return null
@@ -94,7 +94,7 @@ export async function reserveLaunchOffer(tx: Prisma.TransactionClient, input: { 
 // Threshold zero is already an automatic-publication policy; checkout must not wait for a queue cycle.
 export async function prepareAutomaticPublication(tenantId: string, userId: string, linkId: string, db: PrismaClient = prisma): Promise<void> {
  const repo = getLinksRepository(), link = await repo.findLinkById(linkId)
- if (!link || link.tenantId !== tenantId || link.ownerId !== userId || link.status !== 'PENDING_MODERATION') return
+ if (!link || link.tenantId !== tenantId || link.ownerId !== userId || link.ownerHidden || link.status !== 'PENDING_MODERATION') return
  const config = await getConfigsRepository().findByTenantAndKey(tenantId, 'MODERATION_AUTO_APPROVE_THRESHOLD')
  if (!config?.value.trim() || Number(config.value) !== 0) return
  const [user, niche, network, terms, niches] = await Promise.all([repo.findSubmitter(tenantId,userId),repo.findNiche(tenantId,link.nicheId),repo.findNetwork(tenantId,link.networkId),repo.listBlocklistTerms(tenantId),repo.listNiches(tenantId)])

@@ -17,7 +17,7 @@ export async function changeAdminPromotions(tx: Prisma.TransactionClient, input:
   if (!link) throw new AdminPromotionError('Link não encontrado.')
   if (input.surfaces.length) {
     const owner = link.ownerId ? await tx.user.findUnique({ where: { id: link.ownerId } }) : null
-    if (link.status !== 'PUBLISHED' || (link.ownerId && (owner?.status !== 'ACTIVE' || owner.tenantId !== input.tenantId))) throw new AdminPromotionError('Somente links publicados de contas ativas podem receber destaque.')
+    if (link.ownerHidden || link.status !== 'PUBLISHED' || (link.ownerId && (owner?.status !== 'ACTIVE' || owner.tenantId !== input.tenantId))) throw new AdminPromotionError('Somente links publicados de contas ativas podem receber destaque.')
     if (input.surfaces.includes('HOME') && (link.niche.requiresAge || link.network.requiresAge)) throw new AdminPromotionError('Conteúdo com restrição de idade não pode receber destaque na página inicial.')
     if (input.expiresAt && input.expiresAt <= new Date()) throw new AdminPromotionError('O término precisa estar no futuro.')
   }
