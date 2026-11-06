@@ -123,17 +123,23 @@ describe('PostgreSQL discovery isolation and leases',()=>{
     expect(await db.affiliateDiscovery.findUniqueOrThrow({where:{segmentId}})).toMatchObject({cursor:0,pageCursors:{Natal:3,Presentes:3}})
   })
   it('recomeça a coleta automática quando o Mercado Livre recusa a página e a Shopee ainda tem ofertas',async()=>{
-    await db.affiliateDiscovery.create({data:{tenantId,segmentId,expandedTerms:['Natal'],pageCursors:{Natal:30}}})
+    await db.affiliateDiscovery.create({data:{tenantId,segmentId,expandedTerms:['Natal','Presentes'],pageCursors:{Natal:30}}})
+    await db.affiliateDiscoveryPage.createMany({data:['Natal','Presentes'].map(term=>({
+      tenantId,segmentId,term,page:1,total:0,productsJson:[],countsJson:{},checkedAt:new Date(0),
+    }))})
     const shopee={...result.products[0],id:'SHP10_100',catalogId:'SHP10_100',productUrl:'https://shopee.com.br/product/10/100'}
     const search=vi.fn<NonNullable<Parameters<typeof runAffiliateDiscovery>[1]>>()
       .mockResolvedValueOnce({...result,products:[shopee],pagination:{offset:580,limit:40,total:601,hasNext:true},exhaustedProviders:['MERCADO_LIVRE']})
       .mockResolvedValueOnce(result)
     await run(search)
-    expect(await db.affiliateDiscovery.findUniqueOrThrow({where:{segmentId}})).toMatchObject({pageCursors:{Natal:1}})
+    const recovery=await db.affiliateDiscovery.findUniqueOrThrow({where:{segmentId}})
+    expect(recovery).toMatchObject({cursor:0,pageCursors:{Natal:1}})
+    expect(recovery.nextRunAt.getTime()-recovery.checkedAt!.getTime()).toBe(30000)
     await db.affiliateDiscovery.update({where:{segmentId},data:{nextRunAt:new Date(0)}})
     await run(search)
     expect(search.mock.calls.at(-1)?.slice(2)).toEqual(['Natal',{offset:0}])
     expect((await affiliateDayCandidates(db,tenantId,segmentId)).map(p=>p.id)).toEqual(expect.arrayContaining(['MLB100',shopee.id]))
+    expect(await db.affiliateDiscovery.findUniqueOrThrow({where:{segmentId}})).toMatchObject({cursor:1})
   })
   it('keeps fresh matching pages when terms change and prunes expired cache',async()=>{
     await run(vi.fn(async()=>result))

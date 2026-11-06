@@ -138,7 +138,8 @@ export async function runAffiliateDiscovery(db: PrismaClient, search: Search = s
       const finished=new Date()
       const observations=await db.affiliatePriceObservation.findMany({where:{tenantId:row.tenantId,itemId:{in:result.products.map(p=>p.id)},day:{gte:new Date(finished.getTime()-30*86400000),lt:new Date(finished.toISOString().slice(0,10))}}})
       let products:DiscoveryProduct[]=result.products.map(product=>({...product,evaluation:evaluateAffiliateProduct(product,observations.filter(o=>o.itemId===product.id),finished),sourceTerm:term,sourcePage:page}))
-      const nextCursor=row.requestedTerm?row.cursor:(cursor+1)%terms.length
+      const restartTerm=!row.requestedTerm&&page>1&&!!result.exhaustedProviders?.length
+      const nextCursor=row.requestedTerm||restartTerm?row.cursor:(cursor+1)%terms.length
       // A deeper result from one store must not strand the shared cursor beyond the other store's limit.
       const nextPage = result.exhaustedProviders?.length ? 1
         : result.failedProviders?.length ? page
@@ -155,7 +156,8 @@ export async function runAffiliateDiscovery(db: PrismaClient, search: Search = s
         const initialPages=await tx.affiliateDiscoveryPage.findMany({where:{tenantId:row.tenantId,segmentId:row.segmentId,page:1,term:{in:terms}},select:{term:true}})
         const initialized=new Set([...initialPages.map(p=>p.term),...(page===1?[term]:[])])
         const warmup=terms.some(value=>!initialized.has(value))
-        const saved=await tx.affiliateDiscovery.updateMany({where:{...owner,leaseExpiresAt:{gt:finished}},data:{expandedTerms:terms,productsJson:products as unknown as Prisma.InputJsonValue,countsJson:result.counts,status:queued||warmup?'QUEUED':'READY',error:result.failedProviders?.length?result.warnings.slice(-result.failedProviders.length).join(' '):null,checkedAt:finished,cursor:nextCursor,pageCursors:nextPages,durationMs:finished.getTime()-now.getTime(),nextRunAt:new Date(finished.getTime()+(queued||warmup?30_000:INTERVAL)),leaseToken:null,leaseExpiresAt:null,...(queued?{}:{requestedTerm:null,requestedPage:null})}})
+        const needsFollowUp=queued||warmup||restartTerm
+        const saved=await tx.affiliateDiscovery.updateMany({where:{...owner,leaseExpiresAt:{gt:finished}},data:{expandedTerms:terms,productsJson:products as unknown as Prisma.InputJsonValue,countsJson:result.counts,status:needsFollowUp?'QUEUED':'READY',error:result.failedProviders?.length?result.warnings.slice(-result.failedProviders.length).join(' '):null,checkedAt:finished,cursor:nextCursor,pageCursors:nextPages,durationMs:finished.getTime()-now.getTime(),nextRunAt:new Date(finished.getTime()+(needsFollowUp?30_000:INTERVAL)),leaseToken:null,leaseExpiresAt:null,...(queued?{}:{requestedTerm:null,requestedPage:null})}})
         if(!saved.count)return
         await tx.affiliateDiscoveryPage.upsert({where:{tenantId_segmentId_term_page:{tenantId:row.tenantId,segmentId:row.segmentId,term,page}},create:{tenantId:row.tenantId,segmentId:row.segmentId,term,page,productsJson:products as unknown as Prisma.InputJsonValue,countsJson:{...result.counts,rejected:result.rejected??[],...(result.pagination?{hasNext:result.pagination.hasNext}:{})},total:result.counts.catalogsFound,checkedAt:finished},update:{productsJson:products as unknown as Prisma.InputJsonValue,countsJson:{...result.counts,rejected:result.rejected??[],...(result.pagination?{hasNext:result.pagination.hasNext}:{})},total:result.counts.catalogsFound,checkedAt:finished}})
         for(const product of result.products)await tx.affiliatePriceObservation.upsert({where:{tenantId_itemId_day:{tenantId:row.tenantId,itemId:product.id,day:new Date(finished.toISOString().slice(0,10))}},create:{tenantId:row.tenantId,itemId:product.id,day:new Date(finished.toISOString().slice(0,10)),priceCents:product.priceCents,observedAt:finished},update:{}})
@@ -168,7 +170,8 @@ export async function runAffiliateDiscovery(db: PrismaClient, search: Search = s
         const terms=storedTerms(current,row.segment.name)
         const pages=pageCursorsFor(row.pageCursors),term=row.requestedTerm??terms[row.cursor%terms.length]
         const page=row.requestedPage??pages[term]??1
-        const saved=await tx.affiliateDiscovery.updateMany({where:{...owner,leaseExpiresAt:{gt:new Date()}},data:{status:'ERROR',error:message,...(boundary?{cursor:row.requestedTerm?row.cursor:(row.cursor+1)%terms.length,pageCursors:row.requestedTerm?pages:{...pages,[term]:1},requestedTerm:null,requestedPage:null}:{}),nextRunAt:new Date(Date.now()+INTERVAL),leaseToken:null,leaseExpiresAt:null}})
+        const restartTerm=boundary&&!row.requestedTerm&&page>1
+        const saved=await tx.affiliateDiscovery.updateMany({where:{...owner,leaseExpiresAt:{gt:new Date()}},data:{status:'ERROR',error:message,...(boundary?{cursor:row.requestedTerm||restartTerm?row.cursor:(row.cursor+1)%terms.length,pageCursors:row.requestedTerm?pages:{...pages,[term]:1},requestedTerm:null,requestedPage:null}:{}),nextRunAt:new Date(Date.now()+(restartTerm?30_000:INTERVAL)),leaseToken:null,leaseExpiresAt:null}})
         if(!saved.count||!boundary)return
         if(page<=1)return
         const key={tenantId:row.tenantId,segmentId:row.segmentId,term,page:page-1}
