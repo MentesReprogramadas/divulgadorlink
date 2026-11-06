@@ -14,6 +14,7 @@ import { prisma } from '@/lib/prisma'
 import { recordEmbeddingIntent, tryDispatchEmbedding } from '@/use-cases/@Search/embedding-outbox'
 import { banAccount } from '@/use-cases/@Admin/ban-account'
 import { getCheckoutStore } from '@/use-cases/@Promotions/checkout-store'
+import { publishPendingSubmission } from '@/use-cases/@Moderation/settle-submission'
 import { queueCaseReview } from '@/use-cases/@Notifications/evolution-operations'
 import { facetMatchesProbe, escapeLikePrefix, FACET_ACCENTS, FACET_PLAIN, type SearchFacetProbe } from '@/use-cases/@Search/rank-links'
 
@@ -179,7 +180,7 @@ export interface LinksRepository {
    */
   createWithinQuota(
     data: NewLinkData,
-    decide: (openSlots: number) => LinkStatus,
+    decide: (openSlots: number) => { status: LinkStatus; runAi: boolean },
   ): Promise<LinkRecord>
   updateLinkModeration(linkId: string, patch: LinkModerationPatch): Promise<LinkRecord | null>
   createNiche(input: {
@@ -526,7 +527,7 @@ export class InMemoryLinksRepository implements LinksRepository {
 
   async createWithinQuota(
     data: NewLinkData,
-    decide: (openSlots: number) => LinkStatus,
+    decide: (openSlots: number) => { status: LinkStatus; runAi: boolean },
   ): Promise<LinkRecord> {
     const used = this.links.filter(
       (link) =>
@@ -538,7 +539,7 @@ export class InMemoryLinksRepository implements LinksRepository {
     if (this.links.some((link) => link.tenantId === data.tenantId && link.canonicalUrl === data.canonicalUrl && link.occupiesSlot)) {
       throw new DuplicateLinkError()
     }
-    const status = decide(LINK_QUOTA - used)
+    const { status } = decide(LINK_QUOTA - used)
     return this.addLink({ ...data, status })
   }
 }
@@ -783,7 +784,7 @@ export class PrismaLinksRepository implements LinksRepository {
 
   async createWithinQuota(
     data: NewLinkData,
-    decide: (openSlots: number) => LinkStatus,
+    decide: (openSlots: number) => { status: LinkStatus; runAi: boolean },
   ): Promise<LinkRecord> {
     return this.client.$transaction(
       async (tx) => {
@@ -800,11 +801,18 @@ export class PrismaLinksRepository implements LinksRepository {
           select: { id: true },
         })
         if (duplicate) throw new DuplicateLinkError()
-        const status = decide(LINK_QUOTA - used)
+        const { status, runAi } = decide(LINK_QUOTA - used)
         const { media, ...linkData } = data
         const created = await tx.link.create({ data: { ...linkData, status, occupiesSlot: true } })
         if (media?.length) await insertLinkMedia(tx, created.tenantId, created.id, media)
         if (status === 'PENDING_MODERATION') {
+          if (runAi) {
+            const config = await tx.config.findUnique({ where: { tenantId_key: { tenantId: created.tenantId, key: 'MODERATION_AUTO_APPROVE_THRESHOLD' } } })
+            if (config?.value.trim() && Number(config.value) === 0) {
+              const published = await publishPendingSubmission(tx, created.id, { verdict: null, threshold: 0 })
+              if (published) return toLinkRecord(published)
+            }
+          }
           const review = await tx.moderationCase.create({ data: { tenantId: created.tenantId, linkId: created.id } })
           await queueCaseReview(tx, review.id)
         }

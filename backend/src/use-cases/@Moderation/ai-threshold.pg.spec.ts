@@ -4,6 +4,7 @@ import { afterAll, beforeEach, expect, it, vi } from 'vitest'
 import { publishSubmission, recordSubmissionReview, settleSubmission } from './settle-submission'
 import { settleProposedText } from '@/use-cases/@Links/settle-proposed-text'
 import { changeCollectionPublication } from '@/repositories/public-collections'
+import { PrismaLinksRepository } from '@/repositories/links-repository'
 import { explainAiVerdict } from '@/domain/moderation/ai-verdict'
 const url = process.env.AI_THRESHOLD_DATABASE_URL
 if (!url || !['127.0.0.1', 'localhost'].includes(new URL(url).hostname)) throw new Error('Local disposable database required')
@@ -29,6 +30,27 @@ it('zero publica de verdade e registra um único aviso de aprovação por config
   const notices = await db.operationalMessage.findMany({ where: { tenantId, kind: 'AI_APPROVED' } })
   expect(notices).toHaveLength(1)
   expect(notices[0]!.payload).toMatchObject({ threshold: 0, confidence: null, decisionReason: expect.stringContaining('desativada') })
+})
+it.each([
+  { runAi: true, threshold: '0', published: true },
+  { runAi: false, threshold: '0', published: false },
+  { runAi: true, threshold: '0.85', published: false },
+  { runAi: true, threshold: ' ', published: false },
+])('envio com limiar $threshold e elegibilidade $runAi publica antes de agendar revisão quando permitido', async ({ runAi, threshold, published }) => {
+  await db.config.updateMany({ where: { tenantId }, data: { value: threshold } })
+  const repo = new PrismaLinksRepository(db)
+  const created = await repo.createWithinQuota({
+    tenantId, ownerId: userId, networkId: 'r-' + tenantId, nicheId: 'n-' + tenantId,
+    canonicalUrl: 'https://example.com/new', name: 'Estudos novos', description: 'Conteúdo de estudo', otherNote: null,
+  }, () => ({ status: 'PENDING_MODERATION', runAi }))
+  expect(created.status).toBe(published ? 'PUBLISHED' : 'PENDING_MODERATION')
+  expect(await db.moderationCase.count({ where: { linkId: created.id, closedAt: null } })).toBe(published ? 0 : 1)
+  expect(await db.operationalMessage.count({ where: { tenantId, kind: 'REVIEW_CASE' } })).toBe(published ? 0 : 1)
+  if (published) {
+    expect(created).toMatchObject({ everPublished: true, approvedName: created.name, approvedDescription: created.description })
+    expect(await db.operationalMessage.findFirstOrThrow({ where: { resourceId: created.id, kind: 'AI_APPROVED' } })).toMatchObject({ payload: { threshold: 0, confidence: null } })
+    expect(await db.embeddingJob.count({ where: { linkId: created.id } })).toBe(1)
+  }
 })
 it('parecer negativo mantém o link pendente e avisa o motivo sem duplicar entrega', async () => {
   const verdict = { pass: false, confidence: 0.99, reasons: ['Conteúdo fora das regras'] }

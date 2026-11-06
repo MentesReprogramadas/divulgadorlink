@@ -20,9 +20,9 @@ it('keeps pending bytes private, preserves approved replacement, rejects stale d
   const actor={tenantId,ownerId}, media=await prepareLinkMedia('IMAGE',{base64:readFileSync('src/domain/profiles/avatar.fixture.png').toString('base64'),alt:'Foto'})
   try {
     const repository=new PrismaLinksRepository(db), createData={tenantId,ownerId,networkId,nicheId,name:'Novo',description:'Sobre novo',canonicalUrl:'https://example.com/'+randomUUID(),otherNote:null}
-    await expect(repository.createWithinQuota({...createData,media:[{kind:'IMAGE',bytes:Buffer.alloc(0),alt:'Foto'}]},()=> 'PUBLISHED')).rejects.toThrow()
+    await expect(repository.createWithinQuota({...createData,media:[{kind:'IMAGE',bytes:Buffer.alloc(0),alt:'Foto'}]},() => ({ status: 'PUBLISHED', runAi: false }))).rejects.toThrow()
     expect(await db.link.count({where:{canonicalUrl:createData.canonicalUrl}})).toBe(0)
-    const initial=await repository.createWithinQuota({...createData,media:[media,{...media,kind:'ICON',alt:null}]},()=> 'PUBLISHED')
+    const initial=await repository.createWithinQuota({...createData,media:[media,{...media,kind:'ICON',alt:null}]},() => ({ status: 'PUBLISHED', runAi: false }))
     expect(await db.linkMediaAsset.count({where:{linkId:initial.id,status:'PENDING'}})).toBe(2)
     expect((await readApprovedLinkMedia(db,tenantId,[initial.id])).size).toBe(0)
     await db.link.delete({where:{id:initial.id}})

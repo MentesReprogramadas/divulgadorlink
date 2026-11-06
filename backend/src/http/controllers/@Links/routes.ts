@@ -290,11 +290,12 @@ async function createLink(request: FastifyRequest, reply: FastifyReply) {
         } catch {
           throw new QuotaExhaustedError()
         }
-        return decision.status
+        return decision
       },
     )
 
-    const { runAi, occupiesSlot } = decision!
+    const { occupiesSlot } = decision!
+    const runAi = decision!.runAi && link.status === 'PENDING_MODERATION'
     const store = getAcquisitionStore()
     const touch = await store.findTouch(user.id)
     await store.stampLink(link.id, touch)
@@ -317,7 +318,7 @@ async function createLink(request: FastifyRequest, reply: FastifyReply) {
         internalSignals: [],
       })
     }
-    if (runAi && link.status === 'PENDING_MODERATION') {
+    if (runAi) {
       try {
         await enqueueModeration(link.id)
       } catch {
