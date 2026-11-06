@@ -38,6 +38,7 @@ it('treats an exhausted source as empty on later pages while continuing the othe
   const combined = await searchCombinedAffiliateCatalog(db, 'tenant', 'Pets', { offset: 40 }, search)
   expect(combined.pagination.hasNext).toBe(true)
   expect(combined.failedProviders).toEqual([])
+  expect(combined.exhaustedProviders).toEqual(['MERCADO_LIVRE'])
 })
 
 it('fails safely when both sources are unavailable', async () => {

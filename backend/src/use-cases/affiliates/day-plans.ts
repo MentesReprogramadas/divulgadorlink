@@ -30,20 +30,27 @@ const preparationSchema=z.object({failedProducts:z.array(z.object({id:z.string()
 const preparation=(snapshot:Prisma.JsonValue)=>preparationSchema.parse((snapshot as Prisma.JsonObject)?.preparation??{})
 const reviewRevision=(entries:Array<{id:string;itemId:string;scheduledAt:Date;snapshot:Prisma.JsonValue}>)=>createHash('sha256').update(JSON.stringify([...entries].sort((a,b)=>a.id.localeCompare(b.id)).map(e=>({id:e.id,itemId:e.itemId,scheduledAt:e.scheduledAt.toISOString(),previewToken:(e.snapshot as Prisma.JsonObject).previewToken})))).digest('hex')
 const entryProduct=(snapshot:Prisma.JsonValue)=>{const ready=snapshotSchema.safeParse(snapshot);return ready.success?ready.data.product:candidateSchema.parse(snapshot)}
-async function pendingDayProducts(db:Pick<PrismaClient|Prisma.TransactionClient,'affiliateBroadcast'|'affiliateScheduledOffer'>,tenantId:string,segmentId:string,day:string){
+async function reservedDayProducts(db:Pick<PrismaClient|Prisma.TransactionClient,'affiliateBroadcast'|'affiliateScheduledOffer'>,tenantId:string,segmentId:string,day:string,includeDrafts=false){
   const start=new Date(`${day}T00:00:00-03:00`),end=new Date(start.getTime()+86400000)
-  const broadcasts=await db.affiliateBroadcast.findMany({where:{tenantId,segmentId,deliveries:{some:{state:{in:['PENDING','SENDING','UNCERTAIN']}}}},select:{id:true,productSnapshot:true,offer:{select:{itemId:true,title:true,productUrl:true}}}})
-  const scheduled=await db.affiliateScheduledOffer.findMany({where:{tenantId,batch:{segmentId,status:'APPROVED'},OR:[{state:{in:['PENDING','PROCESSING']}},{broadcastId:{in:broadcasts.map(b=>b.id)}}]},select:{snapshot:true,scheduledAt:true,broadcastId:true}})
+  const broadcasts=await db.affiliateBroadcast.findMany({where:{tenantId,segmentId,deliveries:{some:{OR:[
+    {state:{in:['PENDING','SENDING','UNCERTAIN']}},
+    {state:'SENT',updatedAt:{gte:start,lt:end}},
+  ]}}},select:{id:true,productSnapshot:true,offer:{select:{itemId:true,title:true,productUrl:true}}}})
+  const scheduled=await db.affiliateScheduledOffer.findMany({where:{tenantId,batch:{segmentId},OR:[
+    {batch:{status:'APPROVED'},state:{in:['PENDING','PROCESSING']},scheduledAt:{gte:start,lt:end}},
+    {broadcastId:{in:broadcasts.map(b=>b.id)}},
+    ...(includeDrafts?[{batch:{status:'DRAFT',expiresAt:{gt:new Date()}},state:'READY',scheduledAt:{gte:start,lt:end}}]:[]),
+  ]},select:{snapshot:true,scheduledAt:true,broadcastId:true}})
   const products:ProductIdentity[]=scheduled.filter(e=>e.scheduledAt>=start&&e.scheduledAt<end).map(e=>entryProduct(e.snapshot))
-  // Direct sends still block while uncertain; scheduled sends reserve only their Brasília date.
+  // Direct sends block while unresolved and on the Brasília date they were sent.
   for(const broadcast of broadcasts.filter(b=>!scheduled.some(e=>e.broadcastId===b.id))){
     const value=(broadcast.productSnapshot??{}) as Prisma.JsonObject,url=String(value.productUrl??broadcast.offer.productUrl)
     products.push({id:String(value.itemId??broadcast.offer.itemId??broadcast.id),title:String(value.sourceTitle??value.title??broadcast.offer.title),catalogId:typeof value.catalogId==='string'?value.catalogId:url.match(/\/p\/(MLB\d+)/)?.[1]})
   }
   return products
 }
-async function dayCandidates(db:PrismaClient,tenantId:string,segmentId:string,{day,provider}:DayPlanInput,ports:DayPlanPorts){
-  const [available,pending]=await Promise.all([ports.candidates(db,tenantId,segmentId),pendingDayProducts(db,tenantId,segmentId,day)])
+async function dayCandidates(db:PrismaClient,tenantId:string,segmentId:string,{day,provider}:DayPlanInput,ports:DayPlanPorts,manualSelection=false){
+  const [available,pending]=await Promise.all([ports.candidates(db,tenantId,segmentId,manualSelection),reservedDayProducts(db,tenantId,segmentId,day,!manualSelection)])
   return available
     .filter(p=>!provider||provider===(isShopeeProduct(p.id)?'SHOPEE':'MERCADO_LIVRE'))
     .map(p=>({...p,pendingCount:pending.some(other=>sameAffiliateProduct(p,other))?1:0}))
@@ -66,8 +73,8 @@ async function moveReadySlots(tx:Prisma.TransactionClient,tenantId:string,segmen
   for(let i=0;i<entries.length;i++)await tx.affiliateScheduledOffer.updateMany({where:{tenantId,id:entries[i].id,state:'READY',broadcastId:null},data:{scheduledAt:free[entries.length===1?0:Math.floor(i*(free.length-1)/(entries.length-1))],snapshot:json({...entries[i].snapshot as Prisma.JsonObject,scheduleWindow:{start:input.start,end:input.end}})}})
   return entries.length
 }
-const planPorts={candidates:async(db:PrismaClient,tenantId:string,segmentId:string)=>{
-  const [products,providers]=await Promise.all([affiliateDayCandidates(db,tenantId,segmentId),affiliateGenerationProviders(db,tenantId)])
+const planPorts={candidates:async(db:PrismaClient,tenantId:string,segmentId:string,includeHistory?:boolean)=>{
+  const [products,providers]=await Promise.all([affiliateDayCandidates(db,tenantId,segmentId,includeHistory),affiliateGenerationProviders(db,tenantId)])
   return products.filter(p=>providers[isShopeeProduct(p.id)?'SHOPEE':'MERCADO_LIVRE'])
 },order:suggestDayProductOrder,prepare:previewScheduledAffiliateProduct,refresh:refreshAffiliateCandidate}
 export type DayPlanPorts=typeof planPorts
@@ -110,7 +117,7 @@ export async function buildAffiliateDayPlan(db:PrismaClient,scope?:{tenantId:str
     const segment=await db.affiliateSegment.findFirstOrThrow({where:{id:batch.segmentId,tenantId:batch.tenantId},include:{discovery:{select:{terms:true}}}})
     const renew=async()=>{if(!(await db.affiliateScheduleBatch.updateMany({where:{...guard,expiresAt:{gt:new Date()}},data:{leaseExpiresAt:new Date(Date.now()+240000),expiresAt:new Date(Date.now()+15*60000)}})).count)throw new AffiliateError(409,'A preparação foi interrompida. Confira a agenda.')}
     if(!persisted){
-    const available=await dayCandidates(db,batch.tenantId,batch.segmentId,input,ports)
+    const available=await dayCandidates(db,batch.tenantId,batch.segmentId,input,ports,!!input.itemIds)
     const fitting=available.filter(p=>affiliateProductFitsSegment(segment,p.title))
     const eligible=input.itemIds?fitting.filter(p=>input.itemIds!.includes(p.id)&&p.decision!=='DISCARDED'):rankDayProducts(fitting)
     const quantity=Math.min(input.count,eligible.length,dayPlanCapacity(input))
@@ -251,7 +258,7 @@ export async function approveAffiliateDayPlan(db:PrismaClient,tenantId:string,ac
       if(related&&related>=composition.length-related)throw new AffiliateError(409,'O núcleo do segmento precisa predominar. Remova complementos ou refaça o lote para a IA analisar a composição novamente.')
     }
     if(uniqueAffiliateProducts(entries.map(e=>snapshotSchema.parse(e.snapshot).product)).length!==entries.length)throw new AffiliateError(409,'Este lote contém ofertas do mesmo produto. Refaça o planejamento para variar os produtos.')
-    const pending=await pendingDayProducts(tx,tenantId,segmentId,dayPlanInput.parse(batch.config).day)
+    const pending=await reservedDayProducts(tx,tenantId,segmentId,dayPlanInput.parse(batch.config).day)
     const conflicts=entries.filter(entry=>pending.some(other=>sameAffiliateProduct(other,entryProduct(entry.snapshot))))
     if(conflicts.length){
       for(const entry of conflicts){

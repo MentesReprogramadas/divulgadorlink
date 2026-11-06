@@ -10,7 +10,7 @@ import { isShopeeProduct } from '@/domain/affiliates/shopee'
 import { evaluateAffiliateProduct } from '@/domain/affiliates/evaluation'
 import { createAffiliateDayPlan, buildAffiliateDayPlan, approveAffiliateDayPlan, readAffiliateDayPlan, cancelAffiliateDayPlan, runAffiliateDayPlans, retryAffiliateDayPlan, rescheduleAffiliateDayPlan, type DayPlanPorts } from './day-plans'
 import { previewAffiliateProduct, readAffiliateProductPreview, sendAffiliateProduct } from './product-review'
-import { affiliateDiscoveryState } from './discovery'
+import { affiliateDayCandidates, affiliateDiscoveryState } from './discovery'
 import { affiliateProductHistory } from './product-history'
 import { runAffiliateDeliveries } from './deliveries'
 import type { AffiliateWhatsApp } from '@/adapters/affiliates/evolution'
@@ -150,6 +150,8 @@ it('envia produto pet pelo título integral mesmo quando o título curto não co
   for(let i=0;i<2;i++){await db.affiliateInstance.update({where:{id:instanceId},data:{nextSendAt:new Date(Date.now()-1)}});await runAffiliateDeliveries(db,()=>remote,new Date())}
   expect(sent).toHaveBeenCalledTimes(2)
   expect((await affiliateDiscoveryState(db,tenantId,segmentId,{mode:'MIXED',view:'ALL'})).products.some(item=>item.id===p.id)).toBe(true)
+  expect(await affiliateDayCandidates(db,tenantId,segmentId)).toEqual([])
+  expect(await affiliateDayCandidates(db,tenantId,segmentId,true)).toMatchObject([{id:p.id}])
 })
 it.each(['food-only','fallback'])('persiste categorias Pets variadas nos horários mesmo com IA %s',async(mode)=>{
  await db.affiliateSegment.update({where:{id:segmentId},data:{name:'Pets'}})
@@ -318,7 +320,7 @@ it('revalida produtos equivalentes entre dois rascunhos dentro do bloqueio da ap
  const first=await draft()
  const ports=dependencies(),original=product(),variant={...original,id:'MLB345678',catalogId:'MLB777777',sentCount:0,pendingCount:0,lastSentAt:null}
  vi.mocked(ports.candidates).mockResolvedValue([variant])
- const second=await draft(ports,{...input(),count:1})
+ const second=await draft(ports,{...input(),count:1,itemIds:[variant.id]})
  expect(second.plan.status).toBe('DRAFT')
  await approveReviewedDayPlan(db,tenantId,actorId,segmentId,first.id)
  await expect(approveReviewedDayPlan(db,tenantId,actorId,segmentId,second.id)).resolves.toMatchObject({status:'BUILDING',replacements:1})
@@ -563,7 +565,7 @@ it('substitui nova falha dentro do mesmo lote, posição e horário, sem mudar o
  expect((await db.affiliateScheduledOffer.findUniqueOrThrow({where:{id:failed.id}})).state).toBe('PENDING')
 })
 it('recupera conflito de aprovação concorrente substituindo só a oferta ainda não aceita',async()=>{
- const {ports}=replacementPorts(),first=await draft(ports,{...input(),count:1}),second=await draft(ports,{...input(),count:1})
+ const {ports}=replacementPorts(),first=await draft(ports,{...input(),count:1}),second=await draft(ports,{...input(),count:1,itemIds:[first.plan.entries[0].itemId]})
  await approveReviewedDayPlan(db,tenantId,actorId,segmentId,first.id)
  await expect(approveReviewedDayPlan(db,tenantId,actorId,segmentId,second.id)).resolves.toMatchObject({id:second.id,status:'BUILDING'})
  await buildAffiliateDayPlan(db,{tenantId,id:second.id},ports)
@@ -571,6 +573,30 @@ it('recupera conflito de aprovação concorrente substituindo só a oferta ainda
  expect(recovered.entries[0]).toMatchObject({id:second.plan.entries[0].id,state:'READY',scheduledAt:second.plan.entries[0].scheduledAt})
  expect(recovered.entries[0].itemId).not.toBe(first.plan.entries[0].itemId)
  await approveReviewedDayPlan(db,tenantId,actorId,segmentId,second.id)
+})
+
+it('evita a mesma família em rascunhos automáticos ativos do mesmo dia',async()=>{
+ const {ports,catalog}=replacementPorts(),value={...input(),count:1,provider:'MERCADO_LIVRE' as const}
+ const first=await draft(ports,value)
+ catalog.unshift({...catalog[0],id:'MLB811111',title:'Árvore Natal oferta alternativa'})
+ const second=await draft(ports,{...value,idempotencyKey:randomUUID()})
+ expect(second.plan.entries[0].product?.catalogId).not.toBe(first.plan.entries[0].product?.catalogId)
+ await db.affiliateScheduleBatch.update({where:{id:first.id},data:{expiresAt:new Date(0)}})
+ const afterExpiry=await draft(ports,{...value,idempotencyKey:randomUUID()})
+ expect(afterExpiry.plan.entries[0].product?.catalogId).toBe(first.plan.entries[0].product?.catalogId)
+})
+
+it('reserva a identidade no mesmo dia depois da confirmação de envio',async()=>{
+ const {ports}=replacementPorts(),value={...input(),count:1,start:'09:00',end:'09:00'}
+ ports.refresh=async(_db,_tenant,p)=>({...p,checkedAt:new Date().toISOString()})
+ const first=await draft(ports,value)
+ const second=await draft(ports,{...value,idempotencyKey:randomUUID(),start:'12:00',end:'12:00',itemIds:[first.plan.entries[0].itemId]})
+ await approveReviewedDayPlan(db,tenantId,actorId,segmentId,first.id)
+ const scheduled=first.plan.entries[0].scheduledAt
+ await runAffiliateDayPlans(db,ports,{tenantId,batchId:first.id},scheduled)
+ const broadcast=await db.affiliateBroadcast.findFirstOrThrow({where:{tenantId}})
+ await db.affiliateDelivery.updateMany({where:{tenantId,broadcastId:broadcast.id},data:{state:'SENT',updatedAt:scheduled}})
+ await expect(approveReviewedDayPlan(db,tenantId,actorId,segmentId,second.id)).resolves.toMatchObject({status:'BUILDING',replacements:1})
 })
 
 it('reserva a família física no limite 23:59 de Brasília e libera às 00:00 do dia seguinte',async()=>{
@@ -617,7 +643,7 @@ it('substitui falhas sucessivas sem voltar a identidades rejeitadas e preserva P
 })
 
 it('exige revisão atual das substituições e recusa aba antiga antes do novo aceite',async()=>{
- const {ports}=replacementPorts(),first=await draft(ports,{...input(),count:1}),second=await draft(ports,{...input(),count:1})
+ const {ports}=replacementPorts(),first=await draft(ports,{...input(),count:1}),second=await draft(ports,{...input(),count:1,itemIds:[first.plan.entries[0].itemId]})
  await approveReviewedDayPlan(db,tenantId,actorId,segmentId,first.id)
  await approveAffiliateDayPlan(db,tenantId,actorId,segmentId,second.id,second.plan.reviewRevision)
  await buildAffiliateDayPlan(db,{tenantId,id:second.id},ports)

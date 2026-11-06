@@ -107,7 +107,7 @@ export async function queueAffiliateDiscovery(db: PrismaClient, tenantId: string
 }
 
 type CatalogSearchResult=Awaited<ReturnType<typeof searchAffiliateCatalog>>
-type Search = (db:PrismaClient,tenantId:string,term:string,options?:{offset?:number;provider?:AffiliateCatalogProvider})=>Promise<Omit<CatalogSearchResult,'rejected'|'pagination'|'comparison'> & {comparison:string} & Partial<Pick<CatalogSearchResult,'rejected'|'pagination'>> & {failedProviders?:AffiliateCatalogProvider[]}>
+type Search = (db:PrismaClient,tenantId:string,term:string,options?:{offset?:number;provider?:AffiliateCatalogProvider})=>Promise<Omit<CatalogSearchResult,'rejected'|'pagination'|'comparison'> & {comparison:string} & Partial<Pick<CatalogSearchResult,'rejected'|'pagination'>> & {failedProviders?:AffiliateCatalogProvider[];exhaustedProviders?:AffiliateCatalogProvider[]}>
 const running = new WeakSet<PrismaClient>()
 export async function runAffiliateDiscovery(db: PrismaClient, search: Search = searchCombinedAffiliateCatalog, now = new Date(), scope?: {tenantId:string;segmentId:string}) {
   if (running.has(db)) return 0
@@ -139,7 +139,11 @@ export async function runAffiliateDiscovery(db: PrismaClient, search: Search = s
       const observations=await db.affiliatePriceObservation.findMany({where:{tenantId:row.tenantId,itemId:{in:result.products.map(p=>p.id)},day:{gte:new Date(finished.getTime()-30*86400000),lt:new Date(finished.toISOString().slice(0,10))}}})
       let products:DiscoveryProduct[]=result.products.map(product=>({...product,evaluation:evaluateAffiliateProduct(product,observations.filter(o=>o.itemId===product.id),finished),sourceTerm:term,sourcePage:page}))
       const nextCursor=row.requestedTerm?row.cursor:(cursor+1)%terms.length
-      const nextPages=row.requestedTerm?pageCursors:{...pageCursors,[term]:result.failedProviders?.length?page:(result.pagination?.hasNext??(page*20<result.counts.catalogsFound && result.counts.catalogsChecked>0))?page+1:1}
+      // A deeper result from one store must not strand the shared cursor beyond the other store's limit.
+      const nextPage = result.exhaustedProviders?.length ? 1
+        : result.failedProviders?.length ? page
+        : (result.pagination?.hasNext ?? (page * 20 < result.counts.catalogsFound && result.counts.catalogsChecked > 0)) ? page + 1 : 1
+      const nextPages = row.requestedTerm ? pageCursors : {...pageCursors,[term]:nextPage}
       await db.$transaction(async tx=>{
         const current=await tx.affiliateDiscovery.findUniqueOrThrow({where:{segmentId:row.segmentId}})
         if(result.failedProviders?.length){
@@ -200,13 +204,13 @@ async function previouslySentProducts(db:PrismaClient,tenantId:string,segmentId:
   return [...products.values()]
 }
 
-export async function affiliateDayCandidates(db:PrismaClient,tenantId:string,segmentId:string){
+export async function affiliateDayCandidates(db:PrismaClient,tenantId:string,segmentId:string,includeHistory=false){
   const segment=await segmentFor(db,tenantId,segmentId),config=await db.affiliateDiscovery.findFirst({where:{tenantId,segmentId}})
   const terms=storedTerms(config,segment.name)
   const rows=await db.affiliateDiscoveryPage.findMany({where:{tenantId,segmentId,term:{in:terms},checkedAt:{gte:new Date(Date.now()-TTL)}},orderBy:{checkedAt:'desc'},take:500})
   const products=new Map<string,DiscoveryProduct>()
   for(const row of rows)for(const p of mergeDiscoveryProducts(row.productsJson,[],new Date()) as DiscoveryProduct[])if(!products.has(p.id))products.set(p.id,refreshCachedAffiliateEvaluation(p))
-  for(const product of await previouslySentProducts(db,tenantId,segmentId))if(!products.has(product.id))products.set(product.id,product)
+  if(includeHistory)for(const product of await previouslySentProducts(db,tenantId,segmentId))if(!products.has(product.id))products.set(product.id,product)
   const decisions=await db.affiliateProductDecision.findMany({where:{tenantId,segmentId,decision:'DISCARDED'}})
   return affiliateProductHistory(db,tenantId,segmentId,[...products.values()].filter(p=>affiliateProductFitsSegment(segment,p.title)&&!decisions.some(d=>d.itemId===p.id)))
 }

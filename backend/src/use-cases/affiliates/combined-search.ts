@@ -10,6 +10,7 @@ export async function searchCombinedAffiliateCatalog(db: PrismaClient, tenantId:
   const settled = await Promise.allSettled(discoveryProviders.map(provider => search(db, tenantId, term, { offset, provider })))
   const results = settled.flatMap(result => result.status === 'fulfilled' ? [result.value] : [])
   const exhausted = (result: PromiseSettledResult<unknown>) => result.status === 'rejected' && offset > 0 && result.reason instanceof AffiliateCatalogError && result.reason.status === 400
+  const exhaustedProviders = discoveryProviders.filter((_, index) => exhausted(settled[index]))
   const failedProviders = discoveryProviders.filter((_, index) => settled[index].status === 'rejected' && !exhausted(settled[index]))
   if (!results.length) throw new AffiliateCatalogError(settled.every(exhausted) ? 400 : 503, 'Não foi possível consultar Shopee e Mercado Livre. Confira as integrações e tente novamente.')
   const products = Array.from({ length: Math.max(...results.map(result => result.products.length)) }, (_, index) => results.flatMap(result => result.products[index] ? [result.products[index]] : [])).flat()
@@ -17,7 +18,7 @@ export async function searchCombinedAffiliateCatalog(db: PrismaClient, tenantId:
   return {
     products, rejected: results.flatMap(result => result.rejected), counts, checkedAt: new Date().toISOString(), comparison: 'combined_sources' as const,
     pagination: { offset, limit: 40, total: counts.catalogsFound, hasNext: !failedProviders.length && results.some(result => result.pagination.hasNext) },
-    failedProviders,
+    failedProviders, exhaustedProviders,
     warnings: [...results.flatMap(result => result.warnings), ...failedProviders.map(provider => `${provider === 'SHOPEE' ? 'Shopee' : 'Mercado Livre'} indisponível nesta coleta. Os produtos da outra fonte continuam disponíveis; confira a integração em Configurações.`)],
   }
 }
