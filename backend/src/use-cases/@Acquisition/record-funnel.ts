@@ -5,7 +5,7 @@ import type { Touch } from '@/domain/acquisition/touch'
 import { prisma } from '@/lib/prisma'
 import { logDomainEvent } from '@/observability/logger'
 
-export type FunnelName = 'CompleteRegistration' | 'StartLinkSubmission' | 'SubmitLink' | 'LinkPublished'
+export type FunnelName = 'CompleteRegistration' | 'StartLinkSubmission' | 'SubmitLink' | 'LinkPublished' | 'PromotionOfferViewed' | 'PromotionOfferBuyClicked'
 
 export type MetaContext = {
   consent: string | undefined

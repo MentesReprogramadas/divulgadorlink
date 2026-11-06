@@ -11,6 +11,7 @@ import { buildError, not_found, validation } from '@/http/errors'
 import { verifyJWT } from '@/http/middlewares/verify-jwt'
 import { resolveTenant } from '@/http/tenant'
 import { prisma } from '@/lib/prisma'
+import { getAcquisitionStore } from '@/use-cases/@Acquisition/record-funnel'
 
 const DURATIONS = [7, 14, 28] as const
 
@@ -183,10 +184,34 @@ async function deleteLaunchOffer(request: FastifyRequest, reply: FastifyReply) {
  return reply.status(204).send()
 }
 
+async function recordLaunchOfferEvent(request: FastifyRequest, reply: FastifyReply) {
+  const parsed = z.object({ event: z.enum(['viewed', 'buy_clicked']) }).strict().safeParse(request.body)
+  if (!parsed.success) return reply.status(400).send({ message: 'Dados inválidos.' })
+  const account = await launchAccount(request)
+  if (!account) return reply.status(403).send({ message: 'Conta não pode comprar destaque.' })
+  const { id } = request.params as { id: string }
+  const offer = await prisma.promotionLaunchOffer.findFirst({
+    where: {
+      id, tenantId: account.tenantId, userId: account.userId, expiresAt: { gt: new Date() },
+      link: { ownerId: account.userId, ownerHidden: false },
+    },
+    select: { linkId: true },
+  })
+  if (!offer) return reply.status(404).send({ message: 'Oferta não encontrada.' })
+  await getAcquisitionStore().recordFunnel({
+    ...account,
+    linkId: offer.linkId,
+    eventId: `${id}:promotion:${parsed.data.event}`,
+    name: parsed.data.event === 'viewed' ? 'PromotionOfferViewed' : 'PromotionOfferBuyClicked',
+  })
+  return reply.status(204).send()
+}
+
 export async function registerOfferRoutes(app: FastifyInstance) {
   app.post('/promotions/launch-offer', { onRequest: [verifyJWT] }, postLaunchOffer)
   app.get('/promotions/launch-offer', { onRequest: [verifyJWT] }, getLaunchOffer)
   app.delete('/promotions/launch-offer/:id', { onRequest: [verifyJWT] }, deleteLaunchOffer)
+  app.post('/promotions/launch-offer/:id/events', { onRequest: [verifyJWT] }, recordLaunchOfferEvent)
   app.get('/promotions/offers', { onRequest: [verifyJWT] }, getOffers)
   app.patch('/admin/offers/:productCode', { onRequest: [verifyJWT] }, patchOffer)
 }

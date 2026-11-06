@@ -43,6 +43,14 @@ it('exit respeita outra campanha e cooldown, sem renovar a campanha expirada',as
  expect(await issueLaunchOffer(tenantId,userId,linkId,PRICE_ROWS,db,options)).toBeNull()
  expect(await issueLaunchOffer(tenantId,userId,linkId+'-other',PRICE_ROWS,db,options)).toBeNull()
 })
+it('permite uma nova oferta para o mesmo link depois do intervalo da conta', async () => {
+ const selection = { source: 'exit' as const, productCode: 'SEARCH' as const, durationDays: 7 as const }
+ const first = (await issueLaunchOffer(tenantId, userId, linkId, PRICE_ROWS, db, selection))!
+ await db.promotionLaunchOffer.update({ where: { id: first.id }, data: { createdAt: new Date(Date.now() - 31 * 86400000), expiresAt: new Date(0) } })
+ const next = await issueLaunchOffer(tenantId, userId, linkId, PRICE_ROWS, db, selection)
+ expect(next).not.toBeNull()
+ expect(next?.id).not.toBe(first.id)
+})
 it('valida duração e idade no servidor antes de emitir ou reutilizar',async()=>{
  const options={source:'exit' as const,productCode:'HOME' as const,durationDays:7 as const}
  await db.niche.update({where:{id:'niche-'+tenantId},data:{requiresAge:true}})

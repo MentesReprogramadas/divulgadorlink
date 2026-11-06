@@ -43,7 +43,7 @@ async function loginFixture(page: Page, info: TestInfo) {
   return { id, email }
 }
 
-async function submit(page: Page, niche = 'Jogos') {
+async function submit(page: Page, niche = 'Jogos', expectDiscount = true) {
   await page.goto(A + '/painel/links/novo')
   await page.getByLabel('Título do link').fill('Achados de tecnologia')
   await page.getByLabel('Link de acesso').fill(`https://example.com/launch-${randomUUID()}`)
@@ -57,10 +57,10 @@ async function submit(page: Page, niche = 'Jogos') {
   const response = await created
   expect(response.status()).toBe(201)
   const link = await response.json() as { id: string }
-  await expect(page.getByRole('heading', { name: /Destaque seu link com 20% OFF/ })).toBeVisible()
+  await expect(page.getByRole('heading', { name: expectDiscount ? /Destaque seu link com 20% OFF/ : 'Escolha onde aparecer' })).toBeVisible()
   await expect(page.getByRole('dialog')).toHaveCount(0)
   await expect(page.getByRole('list', { name: 'Etapas do formulário' })).toHaveCount(0)
-  await expect(page.getByRole('button', { name: 'Comprar por R$ 14,32', exact: true })).toBeVisible()
+  if (expectDiscount) await expect(page.getByRole('button', { name: 'Comprar por R$ 14,32', exact: true })).toBeVisible()
   return link.id
 }
 
@@ -89,6 +89,8 @@ async function capture(page: Page, info: TestInfo, name: string) {
 test('pós-cadastro sem modal: Home reversível e Comprar gera Pix na mesma página', async ({ page }, info) => {
   const fixture = await loginFixture(page, info)
   const linkId = await submit(page)
+  const offer = await currentOffer(page)
+  await expect.poll(() => sql(`SELECT COUNT(*) FROM funnel_events WHERE "eventId"='${offer.id}:promotion:viewed'`)).toBe('1')
   expect(sql(`SELECT status FROM links WHERE id='${linkId}'`)).toBe('PUBLISHED')
   const originalUrl = page.url()
   const home = page.getByRole('checkbox', { name: 'Adicionar a Home ao destaque' })
@@ -110,6 +112,7 @@ test('pós-cadastro sem modal: Home reversível e Comprar gera Pix na mesma pág
   expect(sql(`SELECT COUNT(*) FROM orders WHERE "linkId"='${linkId}'`)).toBe('0')
   await page.getByRole('button', { name: 'Comprar por R$ 26,32' }).click()
   await expect(page.getByLabel('Pix copia e cola')).toHaveText('00020126580014BR.GOV.BCB.PIX')
+  await expect.poll(() => sql(`SELECT COUNT(*) FROM funnel_events WHERE "eventId"='${offer.id}:promotion:buy_clicked'`)).toBe('1')
   expect(page.url()).toBe(originalUrl)
   const orderId = (await page.getByLabel('Pedido', { exact: true }).textContent())!.trim()
   expect(sql(`SELECT status || '|' || "amountCents" FROM orders WHERE id='${orderId}'`)).toBe('PENDING_PAYMENT|2632')
@@ -167,6 +170,12 @@ test('dispensa inicial sem segundo modal; faixa global pode ocultar e persiste n
   expect(after.id).toBe(before.id)
   expect(after.expiresAt).toBe(before.expiresAt)
   await capture(page, info, '07-painel-oferta-persistente')
+  await page.getByRole('link', { name: 'Novo link', exact: true }).click()
+  const secondLinkId = await submit(page, 'Jogos', false)
+  expect(secondLinkId).not.toBe(before.linkId)
+  expect((await currentOffer(page)).id).toBe(before.id)
+  expect(sql(`SELECT COUNT(*) FROM promotion_launch_offers WHERE "linkId"='${secondLinkId}'`)).toBe('0')
+  await expect(page.getByRole('button', { name: /^Comprar por R\$/ })).toBeEnabled()
 })
 
 test('saída manual oferece 20% no pacote escolhido de link antigo e compra dentro do modal', async ({ page }, info) => {

@@ -85,6 +85,13 @@ function priceOf(offer: Offer | undefined, days: Duration): number | null {
   return offer?.prices.find((row) => row.durationDays === days)?.amountCents ?? null
 }
 
+function recordOfferEvent(offerId: string, event: 'viewed' | 'buy_clicked') {
+  void api(`/v1/promotions/launch-offer/${encodeURIComponent(offerId)}/events`, {
+    method: 'POST',
+    body: JSON.stringify({ event }),
+  }).catch(() => undefined)
+}
+
 type PromotionPurchaseProps = { linkId: string; mode?: 'post-create' | 'manual'; onLeave?: () => void }
 
 export function PromotionPurchase({ linkId, mode = 'manual', onLeave }: PromotionPurchaseProps) {
@@ -120,6 +127,8 @@ export function PromotionPurchase({ linkId, mode = 'manual', onLeave }: Promotio
   const exitBusy = useRef(false)
   const leaveDestination = useRef<() => void>(() => router.push('/painel/links'))
   const titleRef = useRef<HTMLHeadingElement>(null)
+  const exitOfferRef = useRef<HTMLElement>(null)
+  const viewedOffers = useRef(new Set<string>())
   const [method, setMethod] = useState<'PIX' | 'CARD'>('PIX')
   const [step, setStep] = useState<Step>('plan')
   const [message, setMessage] = useState('')
@@ -151,6 +160,28 @@ export function PromotionPurchase({ linkId, mode = 'manual', onLeave }: Promotio
   const selectionVisible = step === 'plan' || step === 'method'
   const PurchaseHeading = mode === 'post-create' ? 'h1' : 'h2'
   const SummaryHeading = mode === 'post-create' ? 'h2' : 'h3'
+  const visibleOfferId = selectionVisible && offersReady && discounted ? launchOffer?.id : undefined
+
+  useEffect(() => {
+    const target = exitOpen ? exitOfferRef.current : titleRef.current
+    if (!visibleOfferId || !target || viewedOffers.current.has(visibleOfferId) || typeof IntersectionObserver === 'undefined') return
+    let inViewport = false
+    function recordIfVisible() {
+      if (!visibleOfferId || !inViewport || document.visibilityState !== 'visible' || viewedOffers.current.has(visibleOfferId)) return
+      viewedOffers.current.add(visibleOfferId)
+      recordOfferEvent(visibleOfferId, 'viewed')
+    }
+    const observer = new IntersectionObserver(([entry]) => {
+      inViewport = entry.isIntersecting && entry.intersectionRatio > 0
+      recordIfVisible()
+    })
+    observer.observe(target)
+    document.addEventListener('visibilitychange', recordIfVisible)
+    return () => {
+      observer.disconnect()
+      document.removeEventListener('visibilitychange', recordIfVisible)
+    }
+  }, [visibleOfferId, exitOpen])
 
   useEffect(() => { if (mode === 'post-create' && offersReady) titleRef.current?.focus() }, [mode, offersReady])
 
@@ -330,6 +361,7 @@ export function PromotionPurchase({ linkId, mode = 'manual', onLeave }: Promotio
     exitAttempted.current = true
     payLock.current = true
     setPaying(true)
+    if (visibleOfferId) recordOfferEvent(visibleOfferId, 'buy_clicked')
     const expectedAmount = shownAmount
     try {
     void clearHistoryGuard()
@@ -407,7 +439,7 @@ export function PromotionPurchase({ linkId, mode = 'manual', onLeave }: Promotio
       try { shown = sessionStorage.getItem(key) === 'shown' } catch { /* O estado local também limita a apresentação. */ }
       if (shown) { exitAttempted.current = true; completeLeave(); return }
       const catalog = await api<Catalog>(`/v1/promotions/offers?linkId=${encodeURIComponent(linkId)}`)
-      if (catalog.status !== 200 || !catalog.body.offers?.some(row => row.code === current.code && priceOf(row, days) !== null)) { completeLeave(); return }
+      if (catalog.status !== 200 || catalog.body.launchOffer?.id !== offer.id || !catalog.body.offers?.some(row => row.code === current.code && priceOf(row, days) !== null)) { completeLeave(); return }
       if (exitAttempted.current) return
       exitAttempted.current = true
       try { sessionStorage.setItem(key, 'shown') } catch { /* Sem armazenamento, uma apresentação nesta montagem. */ }
@@ -597,7 +629,7 @@ export function PromotionPurchase({ linkId, mode = 'manual', onLeave }: Promotio
       {mode === 'manual' && selectionVisible && !exitOpen ? <Button type="button" variant="secondary" onClick={() => void attemptExit(() => router.push('/painel/links'))}>Voltar para Meus links</Button> : null}
       {message && !exitOpen ? <p role="alert">{message}</p> : null}
       <OverlayDialog open={exitOpen} title={step === 'done' ? status === 'PAID' ? 'Compra concluída' : 'Pagamento recebido' : launchOffer ? `Seu destaque com ${launchOffer.discountPercent}% OFF` : 'Oferta encerrada'} hideCloseButton closeDisabled onClose={() => setExitOpen(false)}>
-        {selectionVisible ? <section className={styles.exitOffer} aria-label="Oferta de saída">
+        {selectionVisible ? <section ref={exitOfferRef} className={styles.exitOffer} aria-label="Oferta de saída">
           {launchOffer ? <div className={styles.exitDeadline}><p>Oferta por tempo limitado</p><OfferCountdown expiresAt={launchOffer.expiresAt} /></div> : null}
           <p className={styles.exitPlan}>{current?.name} · {days} dias</p>
           {discounted && referenceAmount !== undefined ? <p className={styles.reference}>De <s>{formatCents(referenceAmount)}</s> por</p> : null}

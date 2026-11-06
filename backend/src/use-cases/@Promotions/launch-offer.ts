@@ -52,9 +52,9 @@ export async function issueLaunchOffer(tenantId: string, userId: string, linkId:
   const validSelection = (rows: PriceRow[], productCode: OfferCode, durationDays: number) => rows.some(row => row.code === productCode && row.durationDays === durationDays)
   const history = await tx.$queryRaw<LaunchOfferRow[]>`SELECT * FROM promotion_launch_offers WHERE "tenantId"=${tenantId} AND "userId"=${userId} ORDER BY "createdAt" DESC LIMIT 1`
   const latest = history[0], now = new Date()
-  if (latest?.linkId === linkId) {
+  if (latest?.linkId === linkId && launchOfferIsActive(latest, now)) {
    const reserved = latest.reservedOrderId ? await tx.order.findUnique({ where: { id: latest.reservedOrderId } }) : null
-   if (!launchOfferIsActive(latest, now) || (reserved && reserved.status !== 'PENDING_PAYMENT' && reserved.status !== 'EXPIRED')) return null
+   if (reserved && reserved.status !== 'PENDING_PAYMENT' && reserved.status !== 'EXPIRED') return null
    const productCode = selection.productCode ?? latest.productCode ?? 'SEARCH_NICHE', durationDays = selection.durationDays ?? latest.durationDays ?? 7
    if (!validSelection(eligiblePrices, productCode, durationDays) || !validSelection(launchPrices(latest), productCode, durationDays)) return null
    // A pending order owns its selection until payment resolves or expires.

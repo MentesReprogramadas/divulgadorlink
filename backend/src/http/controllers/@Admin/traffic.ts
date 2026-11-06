@@ -19,6 +19,41 @@ type TrafficBody = TrafficReport & {
   from: string
   funnel: Array<{ name: FunnelName; count: number }>
   consentedRegistrations: Array<{ source: string; medium: string; campaign: string; registrations: number }>
+  promotionOffers?: PromotionOfferFunnel
+}
+
+type PromotionOfferFunnel = {
+  issued: number
+  viewed: number
+  buyClicked: number
+  ordered: number
+  charged: number
+  paid: number
+  expiredOrders: number
+  revenueCents: number
+}
+
+async function promotionOfferFunnel(tenantId: string, from: string) {
+  const [report] = await prisma.$queryRaw<PromotionOfferFunnel[]>`
+    SELECT COUNT(*)::int AS issued,
+      COUNT(viewed.id)::int AS viewed,
+      COUNT(clicked.id)::int AS "buyClicked",
+      COUNT(o.id)::int AS ordered,
+      COUNT(o."gatewayChargeId")::int AS charged,
+      COUNT(*) FILTER (WHERE o.status = 'PAID')::int AS paid,
+      COUNT(*) FILTER (WHERE o.status = 'EXPIRED')::int AS "expiredOrders",
+      COALESCE(SUM(o."amountCents") FILTER (WHERE o.status = 'PAID'), 0)::int AS "revenueCents"
+    FROM promotion_launch_offers offer
+    LEFT JOIN funnel_events viewed ON viewed."tenantId" = offer."tenantId"
+      AND viewed."eventId" = offer.id || ':promotion:viewed'
+    LEFT JOIN funnel_events clicked ON clicked."tenantId" = offer."tenantId"
+      AND clicked."eventId" = offer.id || ':promotion:buy_clicked'
+    LEFT JOIN orders o ON o.id = offer."reservedOrderId" AND o."tenantId" = offer."tenantId"
+      AND o."linkId" = offer."linkId"
+    WHERE offer."tenantId" = ${tenantId}
+      AND offer."createdAt" >= ((${from}::date::timestamp AT TIME ZONE 'America/Sao_Paulo') AT TIME ZONE 'UTC')
+  `
+  return report
 }
 
 async function requireAdmin(request: FastifyRequest, reply: FastifyReply) {
@@ -89,7 +124,8 @@ async function getTraffic(request: FastifyRequest, reply: FastifyReply) {
     const report = await getSiteTrafficRepository().report({ tenantId: tenant.id, from, cap: CAP })
     const funnel = process.env.NODE_ENV === 'test'
       ? funnelFromMemory(tenant.id) : await funnelFromDatabase(tenant.id, from, report.campaigns)
-    const body: TrafficBody = { windowDays: parsed.data.days, from, ...report, ...funnel }
+    const promotionOffers = process.env.NODE_ENV === 'test' ? undefined : await promotionOfferFunnel(tenant.id, from)
+    const body: TrafficBody = { windowDays: parsed.data.days, from, ...report, ...funnel, promotionOffers }
     return reply.status(200).send(body)
   } catch (error) {
     if (error instanceof ResourceNotFoundError) return reply.status(404).send({ message: error.message })
