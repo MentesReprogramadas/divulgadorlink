@@ -137,6 +137,20 @@ it('mostra falha de coleta junto do cache e não apaga produtos válidos', async
   expect(screen.getByRole('button', { name: 'Forçar atualização' }).hasAttribute('disabled')).toBe(false)
 })
 
+it('limpa o aviso quando a coleta automática se recupera com a tela aberta', async () => {
+  vi.useFakeTimers()
+  vi.mocked(api)
+    .mockResolvedValueOnce({ status: 200, body: { ...ready, status: 'ERROR', error: 'Origem indisponível.' } })
+    .mockResolvedValue({ status: 200, body: ready })
+  render(<DiscoveryPanel {...props} />)
+  await act(async () => {})
+  expect(screen.getByText('Origem indisponível.')).toBeTruthy()
+  expect(screen.getByText('Produto conferido')).toBeTruthy()
+  await act(async () => { await vi.advanceTimersByTimeAsync(60_000) })
+  expect(screen.queryByText('Origem indisponível.')).toBeNull()
+  expect(screen.getByText('Sugestões atualizadas.')).toBeTruthy()
+})
+
 it('renderiza foto HTTPS e usa fallback quando ausente, insegura ou falha', () => {
   const view = render(<ProductImage src={product.imageUrl} title={product.title} />)
   const image = screen.getByRole('img', { name: product.title })

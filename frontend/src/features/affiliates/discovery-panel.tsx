@@ -46,7 +46,7 @@ function DiscoveryContent({ segmentId, contextName, busy, canGenerate, canGenera
         if (result.checkedAt && result.checkedAt !== lastCheckedAt) { polls = 0; lastCheckedAt = result.checkedAt }
         pageCache.current.set(cacheKey, result); setData(result); setLoading(false); setError(''); setCheckingStopped(false)
         if (result.status === 'QUEUED' || result.status === 'RUNNING' || result.enabled && result.pageStatus === 'NOT_COLLECTED') { if (++polls <= 60) timer = setTimeout(() => void load(), 3000); else setCheckingStopped(true) }
-        else if (result.enabled && result.status === 'READY') { polls = 0; timer = setTimeout(() => void load(), 60_000) }
+        else if (result.enabled && (result.status === 'READY' || result.status === 'ERROR')) { polls = 0; timer = setTimeout(() => void load(), 60_000) }
       } catch (reason) { if (!abort.signal.aborted && version === requestVersion.current) { setLoading(false); setCheckingStopped(true); setError(reason instanceof Error ? reason.message : 'Não foi possível consultar sugestões.') } }
     }
     function visibility() { clearTimeout(timer); if (!document.hidden) { polls = 0; void load() } }

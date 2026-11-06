@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto'
 import { PrismaClient } from '@prisma/client'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { affiliateDayCandidates, affiliateDiscoveryState, configureAffiliateDiscovery, queueAffiliateDiscovery, queueAffiliateDiscoveryPage, findDiscoveryCandidate, runAffiliateDiscovery } from './discovery'
+import { searchCombinedAffiliateCatalog } from './combined-search'
 import {AffiliateCatalogError} from '@/domain/affiliates/mercado-livre'
 import {evaluateAffiliateProduct} from '@/domain/affiliates/evaluation'
 
@@ -140,6 +141,25 @@ describe('PostgreSQL discovery isolation and leases',()=>{
     expect(search.mock.calls.at(-1)?.slice(2)).toEqual(['Natal',{offset:0}])
     expect((await affiliateDayCandidates(db,tenantId,segmentId)).map(p=>p.id)).toEqual(expect.arrayContaining(['MLB100',shopee.id]))
     expect(await db.affiliateDiscovery.findUniqueOrThrow({where:{segmentId}})).toMatchObject({cursor:1})
+  })
+  it('volta à primeira página quando uma loja recusa a página avançada e a outra falha',async()=>{
+    await db.affiliateDiscovery.create({data:{tenantId,segmentId,expandedTerms:['Natal','Presentes'],pageCursors:{Natal:30}}})
+    const providerSearch:NonNullable<Parameters<typeof searchCombinedAffiliateCatalog>[4]>=async(_db,_tenant,_term,options)=>{
+      if(options?.offset)throw new AffiliateCatalogError(options.provider==='MERCADO_LIVRE'?400:502,'Fixture')
+      const checkedAt=new Date().toISOString()
+      const products=options?.provider==='MERCADO_LIVRE'
+        ? result.products.map(p=>({...p,checkedAt}))
+        : [{...result.products[0],id:'SHP10_100',catalogId:'SHP10_100',productUrl:'https://shopee.com.br/product/10/100',checkedAt}]
+      return {...result,products,checkedAt,rejected:[],pagination:{offset:0,limit:20,total:20,hasNext:false}}
+    }
+    const combined:NonNullable<Parameters<typeof runAffiliateDiscovery>[1]>=(client,tenant,term,options)=>searchCombinedAffiliateCatalog(client,tenant,term,options,providerSearch)
+    await run(combined)
+    const recovery=await db.affiliateDiscovery.findUniqueOrThrow({where:{segmentId}})
+    expect(recovery).toMatchObject({cursor:0,pageCursors:{Natal:1}})
+    expect(recovery.nextRunAt.getTime()-Date.now()).toBeLessThanOrEqual(30000)
+    await db.affiliateDiscovery.update({where:{segmentId},data:{nextRunAt:new Date(0)}})
+    await run(combined)
+    expect((await affiliateDayCandidates(db,tenantId,segmentId)).map(p=>p.id)).toEqual(expect.arrayContaining(['MLB100','SHP10_100']))
   })
   it('keeps fresh matching pages when terms change and prunes expired cache',async()=>{
     await run(vi.fn(async()=>result))

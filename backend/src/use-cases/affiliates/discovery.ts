@@ -8,7 +8,7 @@ import { evaluateAffiliateProduct, refreshCachedAffiliateEvaluation, AFFILIATE_R
 import { refreshAffiliateCatalogProduct } from '@/use-cases/@Affiliates/catalog'
 export { generateAffiliateTitle } from '@/adapters/affiliates/openai-intelligence'
 import { searchAffiliateCatalog } from '@/use-cases/@Affiliates/catalog'
-import { discoveryProviders, searchCombinedAffiliateCatalog } from './combined-search'
+import { AffiliateCatalogPageLimitError, discoveryProviders, searchCombinedAffiliateCatalog } from './combined-search'
 import { isShopeeProduct } from '@/domain/affiliates/shopee'
 import { affiliateCatalogProvider, type AffiliateCatalogProvider } from '@/domain/affiliates/shopee'
 import { affiliateProductHistory } from './product-history'
@@ -170,8 +170,8 @@ export async function runAffiliateDiscovery(db: PrismaClient, search: Search = s
         const terms=storedTerms(current,row.segment.name)
         const pages=pageCursorsFor(row.pageCursors),term=row.requestedTerm??terms[row.cursor%terms.length]
         const page=row.requestedPage??pages[term]??1
-        const restartTerm=boundary&&!row.requestedTerm&&page>1
-        const saved=await tx.affiliateDiscovery.updateMany({where:{...owner,leaseExpiresAt:{gt:new Date()}},data:{status:'ERROR',error:message,...(boundary?{cursor:row.requestedTerm||restartTerm?row.cursor:(row.cursor+1)%terms.length,pageCursors:row.requestedTerm?pages:{...pages,[term]:1},requestedTerm:null,requestedPage:null}:{}),nextRunAt:new Date(Date.now()+(restartTerm?30_000:INTERVAL)),leaseToken:null,leaseExpiresAt:null}})
+        const restartTerm=(boundary||error instanceof AffiliateCatalogPageLimitError)&&!row.requestedTerm&&page>1
+        const saved=await tx.affiliateDiscovery.updateMany({where:{...owner,leaseExpiresAt:{gt:new Date()}},data:{status:'ERROR',error:message,...(boundary||restartTerm?{cursor:row.requestedTerm||restartTerm?row.cursor:(row.cursor+1)%terms.length,pageCursors:row.requestedTerm?pages:{...pages,[term]:1},requestedTerm:null,requestedPage:null}:{}),nextRunAt:new Date(Date.now()+(restartTerm?30_000:INTERVAL)),leaseToken:null,leaseExpiresAt:null}})
         if(!saved.count||!boundary)return
         if(page<=1)return
         const key={tenantId:row.tenantId,segmentId:row.segmentId,term,page:page-1}

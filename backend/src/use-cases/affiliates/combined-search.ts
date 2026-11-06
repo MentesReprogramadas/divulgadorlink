@@ -5,6 +5,12 @@ import { searchAffiliateCatalog } from '@/use-cases/@Affiliates/catalog'
 
 export const discoveryProviders: AffiliateCatalogProvider[] = ['MERCADO_LIVRE', 'SHOPEE']
 
+export class AffiliateCatalogPageLimitError extends AffiliateCatalogError {
+  constructor() {
+    super(503, 'Uma loja recusou esta página e a outra falhou nesta coleta.')
+  }
+}
+
 export async function searchCombinedAffiliateCatalog(db: PrismaClient, tenantId: string, term: string, options?: { offset?: number }, search = searchAffiliateCatalog) {
   const offset = options?.offset ?? 0
   const settled = await Promise.allSettled(discoveryProviders.map(provider => search(db, tenantId, term, { offset, provider })))
@@ -12,7 +18,10 @@ export async function searchCombinedAffiliateCatalog(db: PrismaClient, tenantId:
   const exhausted = (result: PromiseSettledResult<unknown>) => result.status === 'rejected' && offset > 0 && result.reason instanceof AffiliateCatalogError && result.reason.status === 400
   const exhaustedProviders = discoveryProviders.filter((_, index) => exhausted(settled[index]))
   const failedProviders = discoveryProviders.filter((_, index) => settled[index].status === 'rejected' && !exhausted(settled[index]))
-  if (!results.length) throw new AffiliateCatalogError(settled.every(exhausted) ? 400 : 503, 'Não foi possível consultar Shopee e Mercado Livre. Confira as integrações e tente novamente.')
+  if (!results.length) {
+    if (exhaustedProviders.length && failedProviders.length) throw new AffiliateCatalogPageLimitError()
+    throw new AffiliateCatalogError(exhaustedProviders.length ? 400 : 503, 'Não foi possível consultar Shopee e Mercado Livre. Confira as integrações e tente novamente.')
+  }
   const products = Array.from({ length: Math.max(...results.map(result => result.products.length)) }, (_, index) => results.flatMap(result => result.products[index] ? [result.products[index]] : [])).flat()
   const counts = results.reduce((sum, result) => ({ catalogsFound: sum.catalogsFound + result.counts.catalogsFound, catalogsChecked: sum.catalogsChecked + result.counts.catalogsChecked, withoutOffers: sum.withoutOffers + result.counts.withoutOffers, failed: sum.failed + result.counts.failed }), { catalogsFound: 0, catalogsChecked: 0, withoutOffers: 0, failed: 0 })
   return {
