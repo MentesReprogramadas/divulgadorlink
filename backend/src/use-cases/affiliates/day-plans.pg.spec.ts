@@ -170,23 +170,29 @@ it.each(['food-only','fallback'])('persiste categorias Pets variadas nos horári
  expect(new Set(entries.map(entry=>entry.scheduledAt.toISOString())).size).toBe(24)
  expect(await db.affiliateBroadcast.count({where:{tenantId}})).toBe(0)
 })
-it.each(['Natal','Yoga','Pets'])('persiste alternância de lojas em %s com IA só Shopee',async(name)=>{
+it.each<{name:string;provider?:DayPlanInput['provider'];shopeeCount:number}>([
+ {name:'Natal',shopeeCount:6},
+ {name:'Yoga',shopeeCount:6},
+ {name:'Pets',shopeeCount:6},
+ {name:'Natal',provider:'SHOPEE',shopeeCount:12},
+ {name:'Natal',provider:'MERCADO_LIVRE',shopeeCount:0},
+])('respeita a escolha de loja em $name ($provider)',async({name,provider,shopeeCount})=>{
  await db.affiliateSegment.update({where:{id:segmentId},data:{name}})
  const catalog=['SHP','MLB'].flatMap(provider=>Array.from({length:16},(_,i)=>{
   const id=provider==='SHP'?`SHP10_${i+100}`:'MLB'+(900000+i),title=(name==='Pets'?'Brinquedo para cachorro':name==='Yoga'?'Tapete para Yoga':'Enfeite Natal')+' modelo '+provider+i
   return {...product(),id,catalogId:id,title,productUrl:provider==='SHP'?`https://shopee.com.br/product/10/${i+100}`:`https://www.mercadolivre.com.br/p/${id}?wid=${id}`,reportedDiscountPercent:provider==='SHP'?70:20,sentCount:0,pendingCount:0,lastSentAt:null}
  })),ports=dependencies()
  vi.mocked(ports.candidates).mockResolvedValue(catalog)
- ports.order=vi.fn(async()=>catalog.slice(0,12).map(p=>({id:p.id,context:{role:'CORE' as const,framing:'THEME' as const,reason:'Produto nativo do tema do grupo.'}})))
+ ports.order=vi.fn<DayPlanPorts['order']>(async products=>products.filter(p=>isShopeeProduct(p.id)).slice(0,12).map(p=>({id:p.id,context:{role:'CORE' as const,framing:'THEME' as const,reason:'Produto nativo do tema do grupo.'}})))
  ports.prepare=async(client,tenant,actor,segment,itemId,context)=>{
   const p=catalog.find(p=>p.id===itemId)!
   return previewAffiliateProduct(client,tenant,actor,segment,itemId,{candidate:async()=>p,refresh:async()=>p,link:async()=>({url:isShopeeProduct(itemId)?'https://shope.ee/fixture':'https://meli.la/fixture',fullUrl:p.productUrl,tag:'fixture',profile:'fixture'}),title:async()=>({title:p.title,source:'ORIGINAL'})},context)
  }
- const {id,plan}=await draft(ports,{...input(),count:12})
+ const {id,plan}=await draft(ports,{...input(),count:12,provider})
  expect(plan.summary.offers,plan.error??'').toBe(12)
  const entries=await db.affiliateScheduledOffer.findMany({where:{batchId:id},orderBy:{position:'asc'}})
- expect(entries.filter(entry=>isShopeeProduct(entry.itemId))).toHaveLength(6)
- expect(entries.every((entry,i)=>!i||isShopeeProduct(entry.itemId)!==isShopeeProduct(entries[i-1].itemId))).toBe(true)
+ expect(entries.filter(entry=>isShopeeProduct(entry.itemId))).toHaveLength(shopeeCount)
+ if(!provider)expect(entries.every((entry,i)=>!i||isShopeeProduct(entry.itemId)!==isShopeeProduct(entries[i-1].itemId))).toBe(true)
  expect(await db.affiliateBroadcast.count({where:{tenantId}})).toBe(0)
 })
 it('recupera falhas dentro da agenda aprovada, mantém pendências ativas e exige novo aceite',async()=>{
@@ -538,14 +544,18 @@ it('seleciona outra identidade pendente somente no mesmo dia de Brasília',async
 it('substitui nova falha dentro do mesmo lote, posição e horário, sem mudar ofertas aceitas',async()=>{
  const {ports,catalog}=replacementPorts(),prepare=ports.prepare,failedId=catalog[1].id
  ports.prepare=vi.fn<DayPlanPorts['prepare']>(async(...args)=>{if(args[4]===failedId)throw new AffiliateCatalogError(409,'Preço não confirmado.');return prepare(...args)})
- const initial=await draft(ports),failed=initial.plan.entries.find(e=>e.state==='FAILED')!,ready=initial.plan.entries.find(e=>e.state==='READY')!
+ const initial=await draft(ports,{...input(),provider:'MERCADO_LIVRE'}),failed=initial.plan.entries.find(e=>e.state==='FAILED')!,ready=initial.plan.entries.find(e=>e.state==='READY')!
  await approveReviewedDayPlan(db,tenantId,actorId,segmentId,initial.id)
  const accepted=await db.affiliateScheduledOffer.findUniqueOrThrow({where:{id:ready.id}})
+ const shopee={...catalog[0],id:'SHP10_100',catalogId:'SHP10_100',title:'Guirlanda de Natal verde',productUrl:'https://shopee.com.br/product/10/100'}
+ vi.mocked(ports.candidates).mockResolvedValue([...catalog,shopee])
+ vi.mocked(ports.order).mockClear()
  await retryAffiliateDayPlan(db,tenantId,actorId,segmentId,initial.id,failed.id)
  await buildAffiliateDayPlan(db,{tenantId,id:initial.id},ports)
  const recovered=await readAffiliateDayPlan(db,tenantId,segmentId,initial.id),replacement=recovered.entries.find(e=>e.id===failed.id)!
  expect(replacement).toMatchObject({state:'READY',position:failed.position,scheduledAt:failed.scheduledAt})
  expect(replacement.itemId).not.toBe(failed.itemId)
+ expect(vi.mocked(ports.order).mock.calls[0][0].map(p=>p.id)).not.toContain(shopee.id)
  expect(recovered.status).toBe('APPROVED')
  expect(await db.affiliateScheduledOffer.findUniqueOrThrow({where:{id:ready.id}})).toEqual(accepted)
  expect(await db.affiliateBroadcast.count({where:{tenantId}})).toBe(0)

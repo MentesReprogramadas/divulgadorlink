@@ -42,9 +42,11 @@ async function pendingDayProducts(db:Pick<PrismaClient|Prisma.TransactionClient,
   }
   return products
 }
-async function dayCandidates(db:PrismaClient,tenantId:string,segmentId:string,day:string,ports:DayPlanPorts){
+async function dayCandidates(db:PrismaClient,tenantId:string,segmentId:string,{day,provider}:DayPlanInput,ports:DayPlanPorts){
   const [available,pending]=await Promise.all([ports.candidates(db,tenantId,segmentId),pendingDayProducts(db,tenantId,segmentId,day)])
-  return available.map(p=>({...p,pendingCount:pending.some(other=>sameAffiliateProduct(p,other))?1:0}))
+  return available
+    .filter(p=>!provider||provider===(isShopeeProduct(p.id)?'SHOPEE':'MERCADO_LIVRE'))
+    .map(p=>({...p,pendingCount:pending.some(other=>sameAffiliateProduct(p,other))?1:0}))
 }
 const lockSegment=async(tx:Prisma.TransactionClient,tenantId:string,segmentId:string)=>{
   await tx.$queryRaw`SELECT id FROM tenants WHERE id = ${tenantId} FOR UPDATE`
@@ -108,14 +110,14 @@ export async function buildAffiliateDayPlan(db:PrismaClient,scope?:{tenantId:str
     const segment=await db.affiliateSegment.findFirstOrThrow({where:{id:batch.segmentId,tenantId:batch.tenantId},include:{discovery:{select:{terms:true}}}})
     const renew=async()=>{if(!(await db.affiliateScheduleBatch.updateMany({where:{...guard,expiresAt:{gt:new Date()}},data:{leaseExpiresAt:new Date(Date.now()+240000),expiresAt:new Date(Date.now()+15*60000)}})).count)throw new AffiliateError(409,'A preparação foi interrompida. Confira a agenda.')}
     if(!persisted){
-    const available=await dayCandidates(db,batch.tenantId,batch.segmentId,input.day,ports)
+    const available=await dayCandidates(db,batch.tenantId,batch.segmentId,input,ports)
     const fitting=available.filter(p=>affiliateProductFitsSegment(segment,p.title))
     const eligible=input.itemIds?fitting.filter(p=>input.itemIds!.includes(p.id)&&p.decision!=='DISCARDED'):rankDayProducts(fitting)
     const quantity=Math.min(input.count,eligible.length,dayPlanCapacity(input))
     const order=input.itemIds?[]:await ports.order(dayPlanCandidatePool(eligible,eligible.length),undefined,segment,quantity,renew)
     const selected=input.itemIds?input.itemIds.map(id=>{const product=eligible.find(p=>p.id===id);if(!product)throw new AffiliateError(409,'Um produto selecionado foi descartado ou não está disponível. Refaça o lote.');return product}):selectDayProducts(eligible,segment,quantity,order)
     if(input.itemIds&&uniqueAffiliateProducts(selected).length!==selected.length)throw new AffiliateError(409,'Há anúncios do mesmo produto na seleção. Escolha somente uma oferta de cada produto.')
-    if(!selected.length)throw new AffiliateError(409,'Nenhuma oferta disponível. Aguarde a coleta ou confira os envios pendentes.')
+    if(!selected.length)throw new AffiliateError(409,input.provider?'Nenhuma oferta disponível na loja escolhida. Aguarde a coleta ou confira os envios pendentes.':'Nenhuma oferta disponível. Aguarde a coleta ou confira os envios pendentes.')
     const slots=dayPlanSlots(input,selected.length,batch.createdAt)
     // Persist identities before provider calls so a restarted builder resumes the same draft.
     await db.$transaction(async tx=>{
@@ -134,7 +136,7 @@ export async function buildAffiliateDayPlan(db:PrismaClient,scope?:{tenantId:str
       const replace=async()=>{
         const siblings=await db.affiliateScheduledOffer.findMany({where:{tenantId:batch.tenantId,batchId:batch.id,id:{not:entry.id}},select:{snapshot:true}})
         const excluded=[...attempt.failedProducts,...siblings.flatMap(e=>[entryProduct(e.snapshot),...preparation(e.snapshot).failedProducts])]
-        const available=(await dayCandidates(db,batch.tenantId,batch.segmentId,input.day,ports)).filter(p=>!excluded.some(other=>sameAffiliateProduct(p,other))&&affiliateProductFitsSegment(segment,p.title))
+        const available=(await dayCandidates(db,batch.tenantId,batch.segmentId,input,ports)).filter(p=>!excluded.some(other=>sameAffiliateProduct(p,other))&&affiliateProductFitsSegment(segment,p.title))
         const eligible=rankDayProducts(available)
         if(!eligible.length)return false
         const order=await ports.order(dayPlanCandidatePool(eligible,eligible.length),undefined,segment,1,renew)

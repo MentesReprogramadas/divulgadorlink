@@ -5,7 +5,7 @@ import { OverlayDialog } from '@/components/ui/overlay-dialog'
 import { Button } from '@/components/ui/button'
 import { formatCents } from '@/domain/money'
 import { dayPlanDefaults, dayPlanDateLabel } from '@/domain/affiliate-day-plan'
-import { affiliateRequest, deliveryLabels, type CatalogProduct, type DiscoveryProduct } from './contracts'
+import { affiliateRequest, deliveryLabels, providerLabel, type CatalogProduct, type CatalogProvider, type DiscoveryProduct } from './contracts'
 import { ProductImage } from './product-image'
 import styles from './day-planner.module.css'
 import common from './affiliates.module.css'
@@ -43,6 +43,7 @@ function DayPlanDialog({base,segmentName,initialId,selected,onClose,onChanged,cl
   const retryStart=useRef<HTMLInputElement|null>(null),retryTrigger=useRef<HTMLElement|null>(null)
   useEffect(()=>{if(retryTarget!==undefined||rescheduleReady)retryStart.current?.focus()},[retryTarget,rescheduleReady])
   const chosen=selected
+  const [provider,setProvider]=useState<CatalogProvider|''>('')
   const [defaults]=useState(()=>dayPlanDefaults())
   const [id,setId]=useState(initialId),[plan,setPlan]=useState<DayPlan|null>(null),[day,setDay]=useState(defaults.day),[start,setStart]=useState(defaults.start),[end,setEnd]=useState(defaults.end),[count,setCount]=useState(12),[busy,setBusy]=useState(false),[error,setError]=useState(''),[reload,setReload]=useState(0),[cancelConfirm,setCancelConfirm]=useState(false),[now,setNow]=useState(Date.now())
   const lock=useRef(false),mounted=useRef(true),requestKey=useRef<{input:string;key:string}|null>(null)
@@ -56,7 +57,7 @@ function DayPlanDialog({base,segmentName,initialId,selected,onClose,onChanged,cl
   async function generate(event:FormEvent){
     event.preventDefault();if(lock.current)return
     lock.current=true;setBusy(true);setError('')
-    const input={day,start,end,count:chosen?.length??count,...(chosen?{itemIds:chosen.map(p=>p.id)}:{})}
+    const input={day,start,end,count:chosen?.length??count,...(chosen?{itemIds:chosen.map(p=>p.id)}:provider?{provider}:{})}
     const serialized=JSON.stringify(input)
     if(requestKey.current?.input!==serialized)requestKey.current={input:serialized,key:crypto.randomUUID()}
     try{const value=await affiliateRequest<{id:string}>(base,'POST',{...input,idempotencyKey:requestKey.current!.key});if(mounted.current){setId(value.id);onChanged()}}
@@ -89,6 +90,13 @@ function DayPlanDialog({base,segmentName,initialId,selected,onClose,onChanged,cl
     {!id?<form className={styles.form} onSubmit={event=>void generate(event)}>
       <p>{chosen?`${chosen.length} ofertas escolhidas por você.`:'A IA escolhe produtos diferentes, priorizando descontos e os menos enviados. Produtos já agendados para este dia ficam de fora.'}</p>
       {!chosen?<p>A IA analisa o contexto de {segmentName||'seu segmento'} e mantém o tema em destaque. Complementos entram quando fazem sentido para o grupo, sem proporção fixa.</p>:null}
+      {!chosen?<label>Loja
+        <select value={provider} onChange={event=>setProvider(event.target.value as CatalogProvider|'')}>
+          <option value="">Ambos</option>
+          <option value="MERCADO_LIVRE">{providerLabel('MERCADO_LIVRE')}</option>
+          <option value="SHOPEE">{providerLabel('SHOPEE')}</option>
+        </select>
+      </label>:null}
       <label>Dia<input required type="date" value={day} min={brDay(new Date())} max={brDay(new Date(Date.now()+30*86400000))} onChange={e=>setDay(e.target.value)}/></label>
       <div className={styles.fields}><label>Começa às<input required type="time" value={start} onChange={e=>setStart(e.target.value)}/></label><label>Termina às<input required type="time" value={end} onChange={e=>setEnd(e.target.value)}/></label></div>
       {!chosen?<label>Ofertas no dia<input required type="number" min={1} step={1} value={count} onChange={e=>setCount(Number(e.target.value))}/></label>:null}

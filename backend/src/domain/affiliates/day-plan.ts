@@ -2,7 +2,7 @@ import { groupAffiliateProducts } from './product-identity'
 import { interleavePetCategories, petProductCategory } from './pet-products'
 import { christmasProductKind, isChristmasSegment, isPetSegment, type AffiliateSegmentTheme, type AffiliatePlanContext, affiliateProductFitsSegment } from './segment-relevance'
 import { z } from 'zod'
-import { affiliateProductId, isShopeeProduct } from './shopee'
+import { affiliateCatalogProvider, affiliateProductId, isShopeeProduct } from './shopee'
 import { AffiliateError } from './contracts'
 import type { DiscoveryProduct } from './evaluation'
 
@@ -11,6 +11,7 @@ export const dayPlanInput=z.object({
   start:z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/).default('09:00'),
   end:z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/).default('21:00'),
   includeGiftIdeas:z.boolean().optional(),
+  provider:affiliateCatalogProvider.optional(),
   count:z.number().int().min(1).max(Number.MAX_SAFE_INTEGER).default(12),
   itemIds:z.array(affiliateProductId).min(1).max(1440).refine(ids=>new Set(ids).size===ids.length).optional(),
 }).strict()
