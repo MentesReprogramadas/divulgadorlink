@@ -6,7 +6,12 @@ import {DiscoveryFields} from './discovery-fields'
 import {discoveryParams,emptyDiscovery,type DiscoveryValues} from './discovery-contract'
 import styles from './discovery.module.css'
 const navigationKey='catalogo.discovery.navigation'
-export function DiscoveryFilters({initial,onPending}:{initial:DiscoveryValues;onPending?:(pending:boolean)=>void}){
+export function DiscoveryFilters({initial,onPending,open=true,onOpenChange}:{
+ initial:DiscoveryValues
+ onPending?:(pending:boolean)=>void
+ open?:boolean
+ onOpenChange?:(open:boolean)=>void
+}){
  const [value,setValue]=useState(initial),[reset,setReset]=useState(0),[pending,setPending]=useState(false)
  const timer=useRef<ReturnType<typeof setTimeout>|null>(null),form=useRef<HTMLFormElement>(null)
  useEffect(()=>{onPending?.(pending)},[pending,onPending])
@@ -18,6 +23,10 @@ export function DiscoveryFilters({initial,onPending}:{initial:DiscoveryValues;on
   let saved:{path?:unknown;control?:unknown;scroll?:unknown}|null
   try{saved=JSON.parse(sessionStorage.getItem(navigationKey)??'null')}catch{try{sessionStorage.removeItem(navigationKey)}catch{/* Browser policy may block storage. */};return}
   if(saved?.path!==location.pathname+location.search||typeof saved.control!=='number'||!Number.isInteger(saved.control)||saved.control<0||saved.control>2){try{sessionStorage.removeItem(navigationKey)}catch{/* Browser policy may block storage. */};return}
+  if(!open){
+   onOpenChange?.(true)
+   return
+  }
   const control=saved.control,scroll=saved.scroll
   const restore=()=>{
    const field=form.current?.querySelectorAll<HTMLElement>('[role="combobox"]')[control]
@@ -32,7 +41,7 @@ export function DiscoveryFilters({initial,onPending}:{initial:DiscoveryValues;on
   if(form.current)observer.observe(form.current,{subtree:true,childList:true,attributes:true,attributeFilter:['disabled','aria-disabled']})
   restore()
   return()=>observer.disconnect()
- },[])
+ },[open,onOpenChange])
  function apply(next:DiscoveryValues,control=0){
   const url=new URL(location.href);for(const key of ['cityId','languageTag','modality','cursor'])url.searchParams.delete(key)
   discoveryParams(next).forEach((item,key)=>url.searchParams.set(key,item))

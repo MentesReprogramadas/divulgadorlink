@@ -3,7 +3,7 @@ import { FavoriteButton } from '@/features/favorites/components/favorite-button'
 
 import { DiscoveryFilters } from '@/features/catalog/discovery/discovery-filters'
 import { discoveryHref, emptyDiscovery, type DiscoveryValues } from '@/features/catalog/discovery/discovery-contract'
-import {useState, type ReactNode} from 'react'
+import {useId, useState, type ReactNode} from 'react'
 import {CatalogCardsSkeleton} from '@/features/catalog/components/catalog-skeleton'
 import { AgePrompt, confirmAge } from '@/components/domain/age-gate'
 import { FacetFilters } from '@/components/domain/facet-filters'
@@ -13,9 +13,11 @@ import { EmptyState } from '@/components/feedback/empty-state'
 import { jsonLdScript } from '@/domain/json-ld'
 import { TitleMark } from '@/components/ui/facet-badge'
 import { BackButton } from '@/components/ui/back-button'
+import { Button } from '@/components/ui/button'
 import { CatalogGrid } from './catalog-grid'
 import { CatalogBreadcrumbs, type CatalogBreadcrumb } from '@/features/catalog/components/catalog-breadcrumbs'
 import seoStyles from '@/features/catalog/components/catalog-seo.module.css'
+import styles from './facet-catalog.module.css'
 
 type Facet = { name?: string; slug?: string } | null
 type Card = {
@@ -78,17 +80,25 @@ function ResultList({
   rows,
   placement,
   showImpressions,
+  filterButton,
+  filterPanel,
+  children,
 }: {
   id: string
   title: string
   rows: Card[]
   placement: 'sponsored' | 'organic'
   showImpressions: boolean
+  filterButton?: ReactNode
+  filterPanel?: ReactNode
+  children?: ReactNode
 }) {
   return (
     <section className={`${id.split('-')[0]}-list`} aria-labelledby={id}>
-      <h2 id={id}>{title}</h2>
-      <CatalogGrid>
+      {filterButton ? <header className={styles.resultHeading}><h2 id={id}>{title}</h2>{filterButton}</header> : <h2 id={id}>{title}</h2>}
+      {filterPanel}
+      {children}
+      {rows.length > 0 ? <CatalogGrid>
         {rows.map((row) => (
           <LinkRow
             cornerAction={<FavoriteButton linkId={row.id} />}
@@ -108,7 +118,7 @@ function ResultList({
             showImpressions={showImpressions}
           />
         ))}
-      </CatalogGrid>
+      </CatalogGrid> : null}
     </section>
   )
 }
@@ -141,9 +151,15 @@ export function FacetCatalog({
   children?: ReactNode
 }) {
   const [filtering,setFiltering]=useState(false)
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  const filtersId = useId()
+  const filters = body.activeFilters ?? emptyDiscovery()
+  const filterCount = Object.values(filters).filter(Boolean).length
   const showImpressions = body.showImpressions !== false
   const sponsored = body.sponsored ?? []
   const organic = body.organic ?? []
+  const firstPlacement = sponsored.length ? 'sponsored' : 'organic'
+  const firstRows = sponsored.length ? sponsored : organic
   const description = usableDescription(body.heading, body.seo)
   const indexable = body.seo.robots.startsWith('index')
   const nextPage = body.nextCursor ? discoveryHref(facetHref(route, slug, active), body.activeFilters ?? emptyDiscovery()) : null
@@ -172,18 +188,26 @@ export function FacetCatalog({
         active={active}
         hrefFor={(next) => discoveryHref(facetHref(route, slug, next), body.activeFilters ?? emptyDiscovery())}
       /> : null}
-      <DiscoveryFilters initial={body.activeFilters ?? emptyDiscovery()} onPending={setFiltering}/>
       {body.ageRequired ? <AgePrompt onYes={() => answer('yes')} onNo={() => answer('no')} /> : null}
       {body.blocked ? <p className="age-blocked">Este conteúdo é só para maiores de 18 anos.</p> : null}
       {body.previews?.length ? <section className={seoStyles.previews} aria-labelledby="public-previews"><h2 id="public-previews">Conheça as comunidades</h2><ul>{body.previews.map(preview => <li key={preview.id}><a href={`/link/${encodeURIComponent(preview.id)}`}>{preview.name}</a><p>{preview.description}</p></li>)}</ul></section> : null}
-      {filtering ? <CatalogCardsSkeleton count={Math.max(sponsored.length+organic.length,3)}/> : null}
-      {!filtering && sponsored.length > 0 ? (
-        <ResultList id={`${listPrefix}-patrocinados`} title="Patrocinados" rows={sponsored} placement="sponsored" showImpressions={showImpressions} />
-      ) : null}
-      {!filtering && organic.length > 0 ? (
+      <ResultList
+        id={`${listPrefix}-${sponsored.length ? 'patrocinados' : organic.length ? 'organicos' : 'resultados'}`}
+        title={sponsored.length ? 'Patrocinados' : organic.length ? 'Orgânicos' : 'Links'}
+        rows={filtering ? [] : firstRows}
+        placement={firstPlacement}
+        showImpressions={showImpressions}
+        filterButton={<Button type="button" variant="secondary" aria-expanded={filtersOpen} aria-controls={filtersId} onClick={() => setFiltersOpen(open => !open)}>
+          Filtros{filterCount ? ` (${filterCount})` : ''}
+        </Button>}
+        filterPanel={<div id={filtersId} className={styles.filterPanel} hidden={!filtersOpen}><DiscoveryFilters initial={filters} onPending={setFiltering} open={filtersOpen} onOpenChange={setFiltersOpen} /></div>}
+      >
+        {filtering ? <CatalogCardsSkeleton count={Math.max(sponsored.length + organic.length, 3)} /> : null}
+        {!filtering && !body.ageRequired && !body.blocked && firstRows.length === 0 ? <EmptyState>{filterCount ? 'Nenhum link encontrado com estes filtros' : 'Nenhum link publicado'}</EmptyState> : null}
+      </ResultList>
+      {!filtering && sponsored.length > 0 && organic.length > 0 ? (
         <ResultList id={`${listPrefix}-organicos`} title="Orgânicos" rows={organic} placement="organic" showImpressions={showImpressions} />
       ) : null}
-      {!filtering && !body.ageRequired && !body.blocked && sponsored.length === 0 && organic.length === 0 ? <EmptyState>{Object.values(body.activeFilters??{}).some(Boolean)?'Nenhum link encontrado com estes filtros':'Nenhum link publicado'}</EmptyState> : null}
       {nextPage && body.nextCursor ? <nav className={seoStyles.pagination} aria-label="Paginação"><a href={`${nextPage}${nextPage.includes('?') ? '&' : '?'}cursor=${encodeURIComponent(body.nextCursor)}`} rel="next">Próxima página</a></nav> : null}
       {children}
     </main>
